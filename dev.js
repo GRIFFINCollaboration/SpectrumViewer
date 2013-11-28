@@ -8,7 +8,9 @@ function spectrumViewer(canvasID){
 	this.context = this.canvas.getContext('2d'); //context pointer
 
 	//axes
-	this.leftMargin = Math.max(50, this.canvas.width*0.05); //px
+	this.fontScale = Math.min(Math.max(this.canvas.width / 50, 10), 16); // 10 < fontScale < 16
+	this.context.font = this.fontScale + 'px Arial';
+	this.leftMargin = Math.max(7*this.fontScale, this.canvas.width*0.05); //px
 	this.rightMargin = 20; //px
 	this.bottomMargin = 50; //px
 	this.topMargin = 20; //px
@@ -48,6 +50,12 @@ function spectrumViewer(canvasID){
 
 	//fitting
 	this.fitted = false; //has the spectrum been fit since the last repaint?
+	this.fitModeEngage = false; //are we currently fitting the spectrum?
+
+    //cursors
+    this.cursorX = 0; //x-bin of cursor
+    this.cursorY = 0; //y-bin of cursor
+    this.mouseMoveCallback = function(){}; //callback on moving the cursor over the plot, arguments are (x-bin, y-bin)
 
 	//plot repaint loop
 	this.RefreshTime = 3; //seconds to wait before a plot refresh when requested
@@ -203,10 +211,9 @@ function spectrumViewer(canvasID){
 		// Now the limits are set loop through and plot the data points
 		j = 0; //j counts plots in the drawing loop
 		for(thisSpec in this.plotBuffer){
-
 			this.context.textBaseline = 'top';
 			this.context.fillStyle = this.dataColor[j];
-			this.context.fillText(thisSpec + ': '+this.entries[thisSpec] + ' entries', this.canvas.width - this.rightMargin - this.context.measureText(thisSpec + ': '+this.entries[thisSpec] + 'entries').width, j*16);
+			this.context.fillText(thisSpec + ': '+this.entries[thisSpec] + ' entries', this.canvas.width - this.rightMargin - this.context.measureText(thisSpec + ': '+this.entries[thisSpec] + 'entries').width, j*this.fontScale);
 
 			//SVparam.data=thisData[thisSpec].slice();
 
@@ -245,21 +252,91 @@ function spectrumViewer(canvasID){
 						this.context.lineTo( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
 					}
 				}
-				
-				j++;
 			}
 			//finish the canvas path:
 			this.context.lineTo(this.canvas.width - this.rightMargin, this.canvas.height - this.bottomMargin );
-			this.context.closePath();
+			//this.context.closePath();
 			this.context.stroke();
-
+			j++;
 		} // End of for loop
 
 		// Pause for some time and then recall this function to refresh the data display
-		if(this.RefreshTime>0 && RefreshNow==1) this.refreshHandler = setTimeout(function(){plotData(1, 'true')},this.RefreshTime*1000); 
-		
+		if(this.RefreshTime>0 && RefreshNow==1) this.refreshHandler = setTimeout(function(){plotData(1, 'true')},this.RefreshTime*1000); 	
 	};
 
+	
 	//initial setup///////////////////////////////////////
 	this.drawFrame();
+	//plot mouseover behavior - report mouse coordinates in bin-space, and manage the cursor style
+	this.canvas.addEventListener('mousemove', function(event){
+		var coords, x, y, xBin, yBin;
+
+		coords = this.canvas.relMouseCoords(event);
+		x = coords.x;
+		y = coords.y;
+
+        if(x > this.leftMargin && x < this.canvas.width - this.rightMargin && y > this.topMargin){
+	        xBin = Math.floor((x-this.leftMargin)/this.binWidth) + this.XaxisLimitMin;
+    	    
+    	    if(this.AxisType == 1){
+    	    	yBin = (this.canvas.height-this.bottomMargin - y) / this.countHeight;
+    	    	yBin = Math.floor(Math.pow(10,yBin)/10);
+    	    } else {
+    	    	yBin = Math.floor((this.canvas.height-this.bottomMargin - y) / this.countHeight);
+    	    }
+
+    	    this.cursorX = xBin.toFixed(0);
+    	    this.cursorY = yBin.toFixed(0);
+        }
+        this.mouseMoveCallback(xBin, yBin);
+
+        //change cursor to indicate draggable region:
+        if(this.fitModeEngage){
+        	if( y < (this.canvas.height - this.bottomMargin) )
+	        	document.body.style.cursor = 's-resize';
+	        else 
+	        	document.body.style.cursor = 'n-resize';
+	    }
+        else if(y>this.canvas.height-this.bottomMargin) 
+        	document.body.style.cursor = 'pointer';
+        else
+        	document.body.style.cursor = 'default';
+	}.bind(this), false);
+	this.canvas.onmouseout = function(event){
+		document.body.style.cursor = 'default';
+	};
 }
+
+//stick a coordinate tracker on the canvas prototype:
+function relMouseCoords(event){
+    var totalOffsetX = 0,
+    totalOffsetY = 0,
+    canvasX = 0,
+    canvasY = 0,
+    currentElement = this,
+    test = [],
+    elts = [];
+
+	if (event.offsetX !== undefined && event.offsetY !== undefined) { return {x:event.offsetX, y:event.offsetY}; }
+	//if (event.layerX !== undefined && event.layerY !== undefined) { return {x:event.layerX, y:event.layerY}; }
+
+    do{
+        totalOffsetX += currentElement.offsetLeft - currentElement.scrollLeft;
+        totalOffsetY += currentElement.offsetTop - currentElement.scrollTop;
+        //test[test.length] = currentElement.offsetLeft - currentElement.scrollLeft
+        //elts[elts.length] = currentElement
+    }
+    while(currentElement = currentElement.offsetParent)
+
+    canvasX = event.pageX - totalOffsetX;
+    canvasY = event.pageY - totalOffsetY;
+
+    //hack to deal with FF scroll, better solution TBD:
+    if(event.offsetX == undefined){
+    	canvasX -= document.body.scrollLeft;
+    	canvasY -= document.body.scrollTop;
+    }
+
+    return {x:canvasX, y:canvasY}
+}
+HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
