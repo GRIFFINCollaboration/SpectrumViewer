@@ -1,10 +1,11 @@
 function spectrumViewer(canvasID){
-
-	//member variables//////////////////////////////////////////////
-
+	////////////////////////////////////////////////////////////////////////
+	//member variables//////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////
 	//canvas & context
 	this.canvasID = canvasID; //canvas ID
 	this.canvas = document.getElementById(canvasID); //dom element pointer to canvas
+	this.canvas.style.backgroundColor = '#333333';
 	this.context = this.canvas.getContext('2d'); //context pointer
 
 	//axes
@@ -18,7 +19,7 @@ function spectrumViewer(canvasID){
 	this.yAxisPixLength = this.canvas.height - this.topMargin - this.bottomMargin; //px
 	this.binWidth = 0; //px
 	this.XaxisLimitMin = 0; //default min channel to show on x-axis
-	this.XaxisLimitMax = 500; //default max channel to show on x-axis
+	this.XaxisLimitMax = 2048; //default max channel to show on x-axis
 	this.YaxisLimitMin = 0; //default min counts to show on y-axis
 	this.YaxisLimitMax = 500; //default max counts to show on y-axis
 	this.XaxisLimitAbsMax = 512; //highest maximum allowed on the x-axis
@@ -49,19 +50,29 @@ function spectrumViewer(canvasID){
 	this.dataColor = ["#FFFFFF", "#FF0000", "#00FFFF", "#44FF44", "#FF9900", "#0066FF", "#FFFF00", "#FF00CC", "#00CC00", "#994499"]; //colors to draw each plot line with
 
 	//fitting
+	this.fitTarget = null //id of the spectrum to fit to
 	this.fitted = false; //has the spectrum been fit since the last repaint?
 	this.fitModeEngage = false; //are we currently fitting the spectrum?
+	this.FitLimitLower = -1; //fitting limits
+	this.FitLimitUpper = -1;
 
     //cursors
     this.cursorX = 0; //x-bin of cursor
     this.cursorY = 0; //y-bin of cursor
     this.mouseMoveCallback = function(){}; //callback on moving the cursor over the plot, arguments are (x-bin, y-bin)
 
+    //click interactions
+    this.XMouseLimitxMin = 0; //limits selected with the cursor
+    this.XMouseLimitxMax = 0;
+    this.clickBounds = [];
+
 	//plot repaint loop
 	this.RefreshTime = 3; //seconds to wait before a plot refresh when requested
 	this.refreshHandler = null; //pointer to the plot's setTimeout when a repaint is requested
 
+	////////////////////////////////////////////////////////////////
 	//member functions//////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////
 	//draw the plot frame
 	this.drawFrame = function(){
 		var binsPerTick, countsPerTick, i, label;
@@ -264,8 +275,208 @@ function spectrumViewer(canvasID){
 		if(this.RefreshTime>0 && RefreshNow==1) this.refreshHandler = setTimeout(function(){plotData(1, 'true')},this.RefreshTime*1000); 	
 	};
 
+	//handle drag-to-zoom on the plot
+	this.DragWindow = function(){
+		var buffer;
+
+		//don't even try if there's only one bin selected:
+		if(this.XMouseLimitxMin != this.XMouseLimitxMax){
+			//don't confuse the click limits with the click and drag limits:
+			this.clickBounds[0] = 'abort';
+
+			//Make sure the max is actually the max:
+			if(this.XMouseLimitxMax < this.XMouseLimitxMin){
+				buffer = this.XMouseLimitxMax;
+				this.XMouseLimitxMax = this.XMouseLimitxMin;
+				this.XMouseLimitxMin = buffer;
+			}
+
+			//keep things in range
+			if(this.XMouseLimitxMin < 0) this.XMouseLimitxMin = 0;
+			if(this.XMouseLimitxMax > this.XaxisLimitAbsMax) this.XMouseLimitxMax = this.XaxisLimitAbsMax;
+
+			//stick into the appropriate globals
+			this.XaxisLimitMin = parseInt(this.XMouseLimitxMin);
+			this.XaxisLimitMax = parseInt(this.XMouseLimitxMax);
 	
+			//TBD: delete?
+			//programatically trigger the fields' onchange:
+			//document.getElementById('LowerXLimit').onchange();
+			//document.getElementById('UpperXLimit').onchange();
+
+			//drawXaxis();
+			this.YaxisLimitMax=5;
+
+			this.plotData();
+
+		}
+	};
+
+	//handle clicks on the plot
+	this.ClickWindow = function(bin){
+
+		//decide what to do with the clicked limits - zoom or fit?
+		if(this.clickBounds.length == 0){
+			this.clickBounds[0] = bin;
+		} else if(this.clickBounds[0] == 'abort' && !this.fitModeEngage){
+			this.clickBounds = [];
+		} else if(this.clickBounds.length == 2 ){
+			this.clickBounds = [];
+			this.clickBounds[0] = bin;
+		} else if(this.clickBounds.length == 1){
+			this.clickBounds[1] = bin;
+			//fit mode
+			if(this.fitModeEngage){
+				this.FitLimitLower = Math.min(this.clickBounds[0], this.clickBounds[1]);
+				this.FitLimitUpper = Math.max(this.clickBounds[0], this.clickBounds[1]);
+				this.fitData(this.fitTarget);
+			} else {  //zoom mode
+				//use the mouse drag function to achieve the same effect for clicking:
+				this.XMouseLimitxMin = this.clickBounds[0];
+				this.XMouseLimitxMax = this.clickBounds[1];
+				this.DragWindow();
+				this.clickBounds = [];
+			}
+		}
+	};
+
+	//scroll the plot x-window by x to the right
+	this.scrollSpectra = function(step){
+		var windowSize = this.XaxisLimitMax - this.XaxisLimitMin;
+
+		this.XaxisLimitMin += step;
+		this.XaxisLimitMax += step;
+
+		if(this.XaxisLimitMin < 0){
+			this.XaxisLimitMin = 0;
+			this.XaxisLimitMax = windowSize;
+		}
+
+		if(this.XaxisLimitMax > this.XaxisLimitAbsMax){
+			this.XaxisLimitMax = this.XaxisLimitAbsMax;
+			this.XaxisLimitMin = this.XaxisLimitMax - windowSize;
+		}
+
+		this.plotData();
+
+		//TBD: callbacks?
+	};
+
+	//zoom out to the full x-range
+	this.unzoom = function(){
+
+		this.XaxisLimitMin = 0;
+		this.XaxisLimitMax = this.XaxisLimitAbsMax;
+		this.plotData();
+
+/*TBD: callback?
+		//1D
+		if(document.getElementById('LowerXLimit')){
+			SVparam.XaxisLimitMin=0;
+			SVparam.XaxisLimitMax=SVparam.XaxisLimitAbsMax;
+
+			//update input field values and trigger their onchange:
+			document.getElementById("LowerXLimit").value=SVparam.XaxisLimitMin;
+			document.getElementById("UpperXLimit").value=SVparam.XaxisLimitMax;
+			document.getElementById('LowerXLimit').onchange();
+			document.getElementById('UpperXLimit').onchange();
+
+			plotData();
+		}
+		*/
+	};
+
+	//set the axis to 'linear' or 'log', and repaint
+	this.setAxisType = function(type){
+		if(type=='log') this.AxisType = 1;
+		else this.AxisType = 0;
+		plotData();
+	};
+
+	//set up for fit mode, replaces old requestfitlimits
+	this.setupFitMode = function(){
+		this.fitModeEngage = 1;
+		this.FitLimitLower=-1;
+		this.FitLimitUpper=-1;		
+	};
+
+	//stick a gaussian on top of the spectrum fitKey between the fit limits
+	this.fitData = function(fitKey){
+		var cent, fitdata, i, max, width, x, y, height;
+
+		//suspend the refresh
+		window.clearTimeout(this.refreshHandler);
+
+		if(this.FitLimitLower<0) this.FitLimitLower=0;
+		if(this.FitLimitUpper>this.XaxisLimitAbsMax) this.FitLimitUpper = this.XaxisLimitAbsMax;
+
+		max=1;
+
+		fitdata=this.plotBuffer[fitKey];
+		fitdata=fitdata.slice(this.FitLimitLower, this.FitLimitUpper);
+
+		// Find maximum Y value in the fit data
+		if(Math.max.apply(Math, fitdata)>max){
+			max=Math.max.apply(Math, fitdata);
+		}
+
+		// Find the bin with the maximum Y value
+		cent=0;
+		while(fitdata[cent]<max){
+			cent++;
+		}
+
+		// Find the width of the peak
+		x=cent;
+		while(fitdata[x]>(max/2.0)) x--; 
+		width=x;
+		x=cent;
+		while(fitdata[x]>(max/2.0)) x++; 
+		width=x-width;
+		if(width<1) width=1;
+		width/=2.35;
+
+		cent=cent+this.FitLimitLower+0.5;
+
+		//set up canvas for drawing fit line
+		this.context.lineWidth = 3;
+		this.context.strokeStyle = '#FF0000';
+		this.context.beginPath();
+		this.context.moveTo( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - max*Math.exp(-1*(((this.FitLimitLower-cent)*(this.FitLimitLower-cent))/(2*width*width)))*this.countHeight);
+
+		for(i=0;i<fitdata.length;i+=0.2){
+			//draw fit line on canvas:
+			x=i+this.FitLimitLower;
+			y = max*Math.exp(-1*(((x-cent)*(x-cent))/(2*width*width)));
+			if(i!=0){
+				if(this.AxisType == 0){
+					this.context.lineTo( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
+				} else if(this.AxisType == 1){
+					if(y<=0) height = 0;
+					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
+					if(height<0) height = 0;
+
+					this.context.lineTo( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
+				}
+			}
+		}
+
+		this.context.stroke();
+
+		/* TODO: probably replace this with a callback
+		SVparam.word = 'Height = ' + max + ' Width = ' + width.toFixed(3) + ' Centroid = ' + cent;
+		document.getElementById('fitbox').innerHTML = SVparam.word;
+		SVparam.word = 'H=' + max + ',W=' + width.toFixed(3) + ',C=' + cent + "; ";
+		document.getElementById('spec_fits0').innerHTML = SVparam.word+document.getElementById('spec_fits0').innerHTML;
+		*/
+
+		this.fitted=1;
+		this.fitModeEngage = 0;
+	};
+
+	//////////////////////////////////////////////////////
 	//initial setup///////////////////////////////////////
+	//////////////////////////////////////////////////////
 	this.drawFrame();
 	//plot mouseover behavior - report mouse coordinates in bin-space, and manage the cursor style
 	this.canvas.addEventListener('mousemove', function(event){
@@ -302,9 +513,20 @@ function spectrumViewer(canvasID){
         else
         	document.body.style.cursor = 'default';
 	}.bind(this), false);
+
 	this.canvas.onmouseout = function(event){
 		document.body.style.cursor = 'default';
 	};
+
+	this.canvas.onmousedown = function(event){
+		this.XMouseLimitxMin = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin);
+	}.bind(this);
+
+	this.canvas.onmouseup = function(event){
+			this.XMouseLimitxMax = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin); 
+			this.DragWindow();
+			this.ClickWindow( parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin) );
+	}.bind(this);
 }
 
 //stick a coordinate tracker on the canvas prototype:
@@ -340,3 +562,8 @@ function relMouseCoords(event){
     return {x:canvasX, y:canvasY}
 }
 HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
+
+//tell the Math library about log base 10:
+Math.log10 = function(n) {
+	return (Math.log(n)) / (Math.log(10));
+}

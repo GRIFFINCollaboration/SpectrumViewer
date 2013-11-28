@@ -12,20 +12,37 @@
 		</style>
 	</head>
 
-	<body style='background-color:#333333'>
+	<body>
 		<canvas id='spectrumCanvas' width='900px' height='450px'></canvas>
-		<div id='coords' style='color:#999999'></div>
+		<div id='coords'></div>
+		<button id='unzoom'>Unzoom</button>
+		<button id='fitting'>Put A Hat On It!</button>
+		<button id='left'>Step Left</button>
+		<button id='right'>Step Right</button>
 
 		<script>
 			var viewer = new spectrumViewer('spectrumCanvas');
 
+			//fetch a couple spectra
 			viewer.plotBuffer['realtest0'] = getData(56);
 			viewer.plotBuffer['realtest1'] = getData(57);
-			viewer.axisColor = '#999999'
+			viewer.axisColor = '#999999';
+			//draw spectra
 			viewer.plotData();
+			//report mouse bin in a div
 			viewer.mouseMoveCallback = function(x, y){
 				document.getElementById('coords').innerHTML = 'x='+x+', y='+y;
 			}
+			//unzoom the plot:
+			document.getElementById('unzoom').onclick = viewer.unzoom.bind(viewer);
+
+			//enter 'fit' mode:
+			viewer.fitTarget = 'realtest0';
+			document.getElementById('fitting').onclick = viewer.setupFitMode.bind(viewer);
+
+			//set up scrolling
+			document.getElementById('left').onclick = viewer.scrollSpectra.bind(viewer, -100);
+			document.getElementById('right').onclick = viewer.scrollSpectra.bind(viewer, 100);
 
 		</script>
 	</body>
