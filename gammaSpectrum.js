@@ -27,7 +27,7 @@ function spectrumViewer(canvasID){
 	this.YaxisLength = this.YaxisLimitMax-this.YaxisLimitMin; //height of y-axis in counts
 	this.maxYvalue = 500; //max y value - redundant with YaxisLimitMax?
 	this.countHeight = 0; //height of one count
-	this.axisColor = '#000000'; //color for axes
+	this.axisColor = '#999999'; //color for axes
 	this.axisLineWidth = 1; //weight of axis lines in px
 	this.nXticks = 6; //default number of ticks on the x axis
 	this.nYticks = 5; //default number of ticks on the y axis
@@ -55,6 +55,7 @@ function spectrumViewer(canvasID){
 	this.fitModeEngage = false; //are we currently fitting the spectrum?
 	this.FitLimitLower = -1; //fitting limits
 	this.FitLimitUpper = -1;
+	this.fitCallback = function(){}; //callback to run after fitting, arguments are (center, width)
 
     //cursors
     this.cursorX = 0; //x-bin of cursor
@@ -472,6 +473,8 @@ function spectrumViewer(canvasID){
 
 		this.fitted=1;
 		this.fitModeEngage = 0;
+
+		this.fitCallback(cent, width);
 	};
 
 	//////////////////////////////////////////////////////

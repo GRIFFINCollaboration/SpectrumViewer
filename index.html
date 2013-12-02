@@ -1,8 +1,7 @@
 <html>
 
 	<head>
-		<script src="dev.js" type="text/javascript"></script>
-		<script src="zepto.min.js" type="text/javascript"></script>
+		<script src="gammaSpectrum.js" type="text/javascript"></script>
 		<script src="mhttpd.js" type="text/javascript"></script>
 
 		<style>
@@ -16,9 +15,10 @@
 		<canvas id='spectrumCanvas' width='900px' height='450px'></canvas>
 		<div id='coords'></div>
 		<button id='unzoom'>Unzoom</button>
-		<button id='fitting'>Put A Hat On It!</button>
+		<button id='fitting'>Put A Gaussian On It!</button>
 		<button id='left'>Step Left</button>
 		<button id='right'>Step Right</button>
+		<div id='fitResults'></div>
 
 		<script>
 			var viewer = new spectrumViewer('spectrumCanvas');
@@ -39,6 +39,11 @@
 			//enter 'fit' mode:
 			viewer.fitTarget = 'realtest0';
 			document.getElementById('fitting').onclick = viewer.setupFitMode.bind(viewer);
+
+			//set up fit callback
+			viewer.fitCallback = function(mean, width){
+				document.getElementById('fitResults').innerHTML = 'mean = '+mean+', width = '+width;
+			}
 
 			//set up scrolling
 			document.getElementById('left').onclick = viewer.scrollSpectra.bind(viewer, -100);
