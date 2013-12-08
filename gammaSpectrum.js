@@ -75,6 +75,7 @@ function spectrumViewer(canvasID){
 	this.fakeData.energydata0 = [200,48,42,48,58,57,59,72,85,68,61,60,72,147,263,367,512,499,431,314,147,78,35,22,13,9,16,7,10,13,5,5,3,1,2,4,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,200,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,120,70,20,20,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,300,650,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 	this.entries = {}; //number of entries in each displayed spectrum
 	this.dataColor = ["#FFFFFF", "#FF0000", "#00FFFF", "#44FF44", "#FF9900", "#0066FF", "#FFFF00", "#FF00CC", "#00CC00", "#994499"]; //colors to draw each plot line with
+	this.colorAssignment = [null, null, null, null, null, null, null, null, null, null]; //holds the data series key in the array position corresponding to the color to draw it with from this.dataColor
 
 	//fitting
 	this.fitTarget = null //id of the spectrum to fit to
@@ -220,7 +221,7 @@ function spectrumViewer(canvasID){
 
 	//update the plot
 	this.plotData = function(RefreshNow){
-		var i, j, data, thisSpec, totalEntries,
+		var i, j, data, thisSpec, totalEntries, color,
 		thisData = [];
 		this.entries = {};
 		var text, histLine;
@@ -276,7 +277,8 @@ function spectrumViewer(canvasID){
 		// Now the limits are set loop through and plot the data points
 		j = 0; //j counts plots in the drawing loop
 		for(thisSpec in this.plotBuffer){
-			text = new createjs.Text(thisSpec + ': '+this.entries[thisSpec] + ' entries', this.context.font, this.dataColor[j]);
+			color = this.dataColor[this.colorAssignment.indexOf(thisSpec)];
+			text = new createjs.Text(thisSpec + ': '+this.entries[thisSpec] + ' entries', this.context.font, color);
 			text.textBaseline = 'top';
 			text.x = this.canvas.width - this.rightMargin - this.context.measureText(thisSpec + ': '+this.entries[thisSpec] + 'entries').width;
 			text.y = (j+1)*this.fontScale;
@@ -284,7 +286,7 @@ function spectrumViewer(canvasID){
 
 			// Loop through the data spectrum that we have
 			histLine = new createjs.Shape();
-			histLine.graphics.ss(this.axisLineWidth).s(this.dataColor[j]);
+			histLine.graphics.ss(this.axisLineWidth).s(color);
 			histLine.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin);
 			for(i=Math.floor(this.XaxisLimitMin); i<Math.floor(this.XaxisLimitMax); i++){
 
@@ -629,6 +631,35 @@ function spectrumViewer(canvasID){
 	this.canvas.ondblclick = function(event){
 		this.unzoom();
 	}.bind(this);
+
+	//add a data series to the list to be plotted with key name and content [data]
+	this.addData = function(name, data){
+		var nSeries, i;
+
+		//refuse to display more than 10 data series, it's ugly.
+		nSeries = Object.keys(this.dataBuffer).length;
+		if(nSeries > this.dataColor.length){
+			alert('gammaSpectrum only allows at most' + this.dataColor.length + 'series to be plotted simultaneously.');
+			return;
+		}
+
+		//choose the first available color and assign it to this data series
+		i=0;
+		while(this.colorAssignment[i]) i++;
+		this.colorAssignment[i] = name;
+
+		//append the data to the data buffer
+		this.plotBuffer[name] = data;
+	}
+
+	//remove a data series from the buffer
+	this.removeData = function(name){
+		//free the color
+		this.colorAssignment[this.colorAssignment.indexOf(name)] = null;
+
+		//delete the data
+		delete this.plotBuffer[name];
+	}
 
 }
 

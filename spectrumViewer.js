@@ -30,7 +30,7 @@ function addSpectrum(name){
 		data[i] = Math.round(100*Math.random());
 
 	//append to spectrum viewer's data store:
-	viewer.plotBuffer[name] = data;
+	viewer.addData(name, data);
 
 	//redraw the spectra
 	viewer.plotData();
@@ -48,7 +48,7 @@ function addRow(name){
 	injectDOM('div', 'recent'+name, 'recentSpectra', {'class':'recentWrap'});
 
 	//color swatch
-	injectDOM('div', 'color'+name, 'recent'+name, {'class':'colorSwatch', 'style':'background-color:#FF0000'});
+	injectDOM('div', 'color'+name, 'recent'+name, {'class':'colorSwatch', 'style':'background-color:'+viewer.dataColor[viewer.colorAssignment.indexOf(name)]});
 
 	//name
 	injectDOM('div', 'name'+name, 'recent'+name, {'class':'recentName', 'innerHTML':name});
@@ -61,7 +61,7 @@ function addRow(name){
 	document.getElementById('kill'+name).addEventListener('click', function(){
 		var name = this.id.slice(4,this.id.length);
 
-		delete viewer.plotBuffer[name];
+		viewer.removeData(name);
 		deleteDOM('recent'+name);
 
 		viewer.plotData();
