@@ -1,0 +1,278 @@
+/*CSS Reset*/
+/* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+	height:100%;
+	width:100%;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/*Enforce more intuitive box-sizing, suppress selection, demand default cursor*/
+* { 
+	-moz-box-sizing: border-box; 
+	-webkit-box-sizing: border-box; 
+	box-sizing: border-box; 
+	-webkit-user-select:none;
+	-moz-user-select:none;
+	cursor:default;
+}
+
+input, select, button{
+	outline:none;
+}
+
+sup {font-size:small; vertical-align:super;}
+
+sub {font-size:small; vertical-align:sub;}
+
+body{
+	font-family: 'Raleway', sans-serif; 
+	font-size:14px; 
+	background-color:#333333; 
+	color:#FFFFFF;
+	margin-left:0px;
+}
+/*branding///////////////////////////////////////////////////*/
+div#branding{
+	height:10%;
+	color:#999999;
+	border-left: 5px solid #999999;
+	border-bottom: 5px solid #999999;
+	border-bottom-left-radius: 25px;
+	margin-bottom: 1em;
+	padding-left: 1em;
+}
+
+#logo{
+	height:100%;
+	float:left;
+	opacity:0.6;
+}
+
+h1#headerBanner{
+    float:left;
+	font-size: 400%;
+	
+	margin-left: 5px;
+	height: 100%;
+}
+
+/*navigation//////////////////////////////////////////////////////*/
+div#navigation{
+}
+
+/*buttons/////////////////////////////////////////////////////////*/
+button.navButton{
+	background: #4C4C4C; 
+	color: #FFFFFF;
+	border-color: #333333; 
+	border-radius: 5px;
+    display: inline;
+    font-family: 'Raleway', sans-serif;
+    font-size:14px;
+    padding-top:1em;
+    padding-bottom:1em;
+}
+
+button.navButton:hover{
+	background: #777777;
+}
+
+/*main///////////////////////////////////////////////////////*/
+div#canvasWrap, div#sidebarWrap{
+	display:inline-block;
+	border: 5px solid #EEEEEE;
+	border-radius: 25px;
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+div#canvasWrap{
+	width: 74%;
+	height:90%;
+	float:left;
+	padding:1em;
+}
+
+div#sidebarWrap{
+	width:24%;
+	height:90%;
+	float:right;
+	padding:1em;
+}
+
+ul#availableSpectra li{
+	padding:0.5em;
+}
+
+ul#availableSpectra li:hover{
+	border:1px solid #EEEEEE;
+}
+
+ul#availableSpectra li:nth-child(odd){
+	background: #222222;
+}
+
+ul#availableSpectra li:nth-child(even){
+	background: #444444;
+}
+
+/*Recently Viewed Table///////////////////////////////////////////////////////////////*/
+div#recentSpectra{
+	width:100%;
+	min-height:100px;
+	border: 5px solid #EEEEEE;
+	border-radius: 25px;
+	clear: both;
+	padding: 1em;
+}
+
+div.recentWrap{
+	height:3em;
+}
+
+div.colorSwatch{
+	height:3em;
+	width:3em;
+	border-radius: 1em;
+	border: 2px solid #111111;
+	float:left;
+
+}
+
+div.recentName{
+	float:left;
+	padding: 1em;
+}
+
+div.killSwitch{
+	background-color: #FF0000;
+	width:2em;
+	height:2em;
+	border-radius: 1em;
+	float:right;
+	margin:0.5em;
+}
+
+/*Toggle Switch///////////////////////////////////////////////////////////////////////*/
+div.toggleWrap{
+	height:2em;
+	float:left;
+	margin-top:0.5em;
+	margin-bottom: 0.5em;
+}
+
+div.toggleLabel{
+	margin-top:0.5em;
+	margin-bottom: 0.5em;
+	padding:0em;
+	border:0em;
+	display:inline-block;
+	float:left;
+	-webkit-user-select:none;
+	-moz-user-select:none;
+}
+
+div.toggleGroove{
+	-webkit-box-sizing:content-box;
+	-moz-box-sizing:content-box;
+	height:1.5em;
+	width:3em;
+	margin-top:0.25em;
+	margin-bottom:0.25em;
+	margin-left: 1em;
+	margin-right: 1em;
+	border:0.2em solid #000000;
+	border-radius: 0.95em;
+	background-color: #333333;
+	display:inline-block;
+	position:relative;
+	transition:background-color 0.3s;
+	-moz-transition:background-color 0.3s;
+	-webkit-transition:background-color 0.3s;
+}
+
+div.toggleSwitch{
+	height:1.5em;
+	width:2em;
+	border-radius: 0.75em;
+	background-color: #999999;
+	padding:0px;
+	border:0.2em solid black;
+	position:absolute;
+	/*top:-0.2em;*/
+	transition:left 0.3s;
+	-moz-transition:left 0.3s;
+	-webkit-transition:left 0.3s;
+}
+
+/*Footer and footer-related styles////////////////////////////////////////////////////*/
+html, body {height: 100%;}
+
+div#wrapper{
+	height:100%;
+	margin-left: 1em;
+	margin-right: 1em;
+}
+
+div#bumperDiv {
+	overflow:auto;
+	padding-bottom: 5em;
+	float:left; /*strange but true*/
+	margin-bottom: 1em;
+}  /* must be same height as the footer */
+
+div#footer {
+	position: relative;
+	margin-top: -5em; /* negative value of footer height */
+	height: 5em;
+	clear:both;
+	border-top: 2px solid #000000;
+	text-align: center;
+	background-color: #4C4C4C;
+	padding:2em;
+	color: #EEEEEE;
+} 

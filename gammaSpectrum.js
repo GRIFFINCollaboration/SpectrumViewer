@@ -1,4 +1,26 @@
+/*
+Copyright (c) 2013 Bill Mills
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
 function spectrumViewer(canvasID){
+
 	////////////////////////////////////////////////////////////////////////
 	//member variables//////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////
@@ -7,6 +29,11 @@ function spectrumViewer(canvasID){
 	this.canvas = document.getElementById(canvasID); //dom element pointer to canvas
 	this.canvas.style.backgroundColor = '#333333';
 	this.context = this.canvas.getContext('2d'); //context pointer
+	this.stage = new createjs.Stage(canvasID);  //transform the canvas into an easelJS sandbox
+	this.containerMain = new createjs.Container(); //layer for main plot
+	this.containerOverlay = new createjs.Container(); //layer for overlay: cursors, range highlights
+	this.stage.addChild(this.containerMain);
+	this.stage.addChild(this.containerOverlay);
 
 	//axes
 	this.fontScale = Math.min(Math.max(this.canvas.width / 50, 10), 16); // 10 < fontScale < 16
@@ -56,11 +83,13 @@ function spectrumViewer(canvasID){
 	this.FitLimitLower = -1; //fitting limits
 	this.FitLimitUpper = -1;
 	this.fitCallback = function(){}; //callback to run after fitting, arguments are (center, width)
+	this.MLfit = true; //do a maximum likelihood fit for putting gaussians on peaks; otherwise fit just estimates gaussian form mode and half-max
 
     //cursors
     this.cursorX = 0; //x-bin of cursor
     this.cursorY = 0; //y-bin of cursor
     this.mouseMoveCallback = function(){}; //callback on moving the cursor over the plot, arguments are (x-bin, y-bin)
+    this.highlightColor = '#8e44ad';
 
     //click interactions
     this.XMouseLimitxMin = 0; //limits selected with the cursor
@@ -77,6 +106,7 @@ function spectrumViewer(canvasID){
 	//draw the plot frame
 	this.drawFrame = function(){
 		var binsPerTick, countsPerTick, i, label;
+		var axis, tick, text;
 
 		//determine bin render width
 		this.binWidth = this.xAxisPixLength / (this.XaxisLimitMax - this.XaxisLimitMin);
@@ -84,17 +114,17 @@ function spectrumViewer(canvasID){
 		this.countHeight = this.yAxisPixLength / this.YaxisLength;
 
 		//clear canvas
-		this.context.clearRect(0,0,this.canvas.width, this.canvas.height);
+		this.containerMain.removeAllChildren();
+		this.containerOverlay.removeAllChildren();
 
 		//draw principle axes:
-		this.context.strokeStyle = this.axisColor;
-		this.context.fillStyle = this.axisColor;
-		this.context.lineWidth = this.axisLineWidth;
-		this.context.beginPath();
-		this.context.moveTo(this.leftMargin, this.topMargin);
-		this.context.lineTo(this.leftMargin, this.canvas.height-this.bottomMargin);
-		this.context.lineTo(this.canvas.width - this.rightMargin, this.canvas.height - this.bottomMargin);
-		this.context.stroke();
+		axis = new createjs.Shape();
+		axis.graphics.ss(this.axisLineWidth).s(this.axisColor);
+		axis.graphics.mt(this.leftMargin, this.topMargin);
+		axis.graphics.lt(this.leftMargin, this.canvas.height-this.bottomMargin);
+		axis.graphics.lt(this.canvas.width - this.rightMargin, this.canvas.height - this.bottomMargin);
+		this.containerMain.addChild(axis);
+
 
 		//Decorate x axis////////////////////////////////////////////////////////
 		//decide how many ticks to draw on the x axis; come as close to a factor of the number of bins as possible:
@@ -110,16 +140,23 @@ function spectrumViewer(canvasID){
 		//draw x axis ticks & labels:
 		for(i=0; i<this.nXticks; i++){
 			//ticks
-			this.context.beginPath();
-			this.context.moveTo(this.leftMargin + i*binsPerTick*this.binWidth, this.canvas.height - this.bottomMargin);
-			this.context.lineTo(this.leftMargin + i*binsPerTick*this.binWidth, this.canvas.height - this.bottomMargin + this.tickLength);
-			this.context.stroke();
+			tick = new createjs.Shape();
+			tick.graphics.ss(this.axisLineWidth).s(this.axisColor);
+			tick.graphics.mt(this.leftMargin + i*binsPerTick*this.binWidth, this.canvas.height - this.bottomMargin);
+			tick.graphics.lt(this.leftMargin + i*binsPerTick*this.binWidth, this.canvas.height - this.bottomMargin + this.tickLength);
+			this.containerMain.addChild(tick);
 
 			//labels
 			label = (this.XaxisLimitMin + i*binsPerTick).toFixed(0);
-			this.context.textBaseline = 'top';
-			this.context.fillText(label, this.leftMargin + i*binsPerTick*this.binWidth - this.context.measureText(label).width/2, this.canvas.height - this.bottomMargin + this.tickLength + this.xLabelOffset);
+			text = new createjs.Text(label, this.context.font, this.axisColor);
+			text.textBaseline = 'top';
+			text.x = this.leftMargin + i*binsPerTick*this.binWidth - this.context.measureText(label).width/2;
+			text.y = this.canvas.height - this.bottomMargin + this.tickLength + this.xLabelOffset;
+			this.containerMain.addChild(text);
+
 		}
+
+
 
 		//Decorate Y axis/////////////////////////////////////////////////////////
 		//decide how many ticks to draw on the y axis; come as close to a factor of the number of bins as possible:
@@ -132,38 +169,53 @@ function spectrumViewer(canvasID){
 		//draw y axis ticks and labels:
 		for(i=0; i<this.nYticks; i++){
 			//ticks
-			this.context.beginPath();
-			this.context.moveTo(this.leftMargin, this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight);
-			this.context.lineTo(this.leftMargin - this.tickLength, this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight);
-			this.context.stroke();
+			tick = new createjs.Shape();
+			tick.graphics.ss(this.axisLineWidth).s(this.axisColor);
+			tick.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight);
+			tick.graphics.lt(this.leftMargin - this.tickLength, this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight);
+			this.containerMain.addChild(tick);
 
 			//labels
-			this.context.textBaseline = 'middle';
+			//this.context.textBaseline = 'middle';
 			if(this.AxisType == 0){ //linear scale
 				label = (this.YaxisLimitMax<10000) ? (i*countsPerTick).toFixed(0) : (i*countsPerTick).toExponential(1);
-				this.context.fillText(label, this.leftMargin - this.tickLength - this.yLabelOffset - this.context.measureText(label).width, this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight);
+				text = new createjs.Text(label, this.context.font, this.axisColor);
+				text.textBaseline = 'middle';
+				text.x = this.leftMargin - this.tickLength - this.yLabelOffset - this.context.measureText(label).width;
+				text.y = this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight;
+				this.containerMain.addChild(text);
 			} else {  //log scale
 				label = i*countsPerTick-1;
 				//exponent
-				this.context.font = this.expFont;
-				this.context.fillText(label, this.leftMargin - this.tickLength - this.yLabelOffset - this.context.measureText(label).width, this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight - 10);
+				text = new createjs.Text(label, this.context.expFont, this.axisColor);
+				text.textBaseline = 'middle';
+				text.x = this.leftMargin - this.tickLength - this.yLabelOffset - this.context.measureText(label).width;
+				text.y = this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight - 10;
+				this.containerMain.addChild(text);
 				//base
-				this.context.font = this.baseFont;
-				this.context.fillText('10', this.leftMargin - this.tickLength - this.yLabelOffset - this.context.measureText('10'+label).width, this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight);
+				text = new createjs.Text(label, this.context.baseFont, this.axisColor);
+				text.textBaseline = 'middle';
+				text.x = this.leftMargin - this.tickLength - this.yLabelOffset - this.context.measureText('10'+label).width;
+				text.y = this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight;
+				this.containerMain.addChild(text);				
 			}
 		}
 
 		//x axis title:
-		this.context.textBaseline = 'bottom';
-		this.context.fillText(this.xAxisTitle, this.canvas.width - this.rightMargin - this.context.measureText(this.xAxisTitle).width, this.canvas.height);
+		text = new createjs.Text(this.xAxisTitle, this.context.font, this.axisColor);
+		text.textBaseline = 'bottom';
+		text.x = this.canvas.width - this.rightMargin - this.context.measureText(this.xAxisTitle).width;
+		text.y = this.canvas.height - this.fontScale/2;
+		this.containerMain.addChild(text);
 
 		//y axis title:
-		this.context.textBaseline = 'alphabetic';
-		this.context.save();
-		this.context.translate(this.leftMargin*0.25, this.context.measureText(this.yAxisTitle).width + this.topMargin );
-		this.context.rotate(-Math.PI/2);
-		this.context.fillText(this.yAxisTitle, 0,0);
-		this.context.restore();
+		text = new createjs.Text(this.yAxisTitle, this.context.font, this.axisColor);
+		text.textBaseline = 'alphabetic';
+		text.rotation = -90;
+		text.x = this.leftMargin*0.25;
+		text.y = this.context.measureText(this.yAxisTitle).width + this.topMargin;
+		this.containerMain.addChild(text);		
+
 	};
 
 	//update the plot
@@ -171,10 +223,11 @@ function spectrumViewer(canvasID){
 		var i, j, data, thisSpec, totalEntries,
 		thisData = [];
 		this.entries = {};
-		
+		var text, histLine;
+
 		this.YaxisLimitMax=5;
 		this.XaxisLength = this.XaxisLimitMax - this.XaxisLimitMin;
-
+		
 		//abandon the fit when re-drawing the plot
 		this.fitted = false;
 
@@ -223,17 +276,16 @@ function spectrumViewer(canvasID){
 		// Now the limits are set loop through and plot the data points
 		j = 0; //j counts plots in the drawing loop
 		for(thisSpec in this.plotBuffer){
-			this.context.textBaseline = 'top';
-			this.context.fillStyle = this.dataColor[j];
-			this.context.fillText(thisSpec + ': '+this.entries[thisSpec] + ' entries', this.canvas.width - this.rightMargin - this.context.measureText(thisSpec + ': '+this.entries[thisSpec] + 'entries').width, j*this.fontScale);
-
-			//SVparam.data=thisData[thisSpec].slice();
+			text = new createjs.Text(thisSpec + ': '+this.entries[thisSpec] + ' entries', this.context.font, this.dataColor[j]);
+			text.textBaseline = 'top';
+			text.x = this.canvas.width - this.rightMargin - this.context.measureText(thisSpec + ': '+this.entries[thisSpec] + 'entries').width;
+			text.y = (j+1)*this.fontScale;
+			this.containerMain.addChild(text);
 
 			// Loop through the data spectrum that we have
-			//start the canvas path:
-			this.context.strokeStyle = this.dataColor[j];
-			this.context.beginPath();
-			this.context.moveTo(this.leftMargin, this.canvas.height - this.bottomMargin);
+			histLine = new createjs.Shape();
+			histLine.graphics.ss(this.axisLineWidth).s(this.dataColor[j]);
+			histLine.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin);
 			for(i=Math.floor(this.XaxisLimitMin); i<Math.floor(this.XaxisLimitMax); i++){
 
 				// Protection at the end of the spectrum (minimum and maximum X)
@@ -245,32 +297,32 @@ function spectrumViewer(canvasID){
 				if(this.AxisType==0){
 					//draw canvas line:
 					//left side of bar
-					this.context.lineTo( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - this.plotBuffer[thisSpec][i]*this.countHeight );
+					histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - this.plotBuffer[thisSpec][i]*this.countHeight );
 					//top of bar
-					this.context.lineTo( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - this.plotBuffer[thisSpec][i]*this.countHeight );
+					histLine.graphics.lt( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - this.plotBuffer[thisSpec][i]*this.countHeight );
 				}
 
 				if(this.AxisType==1){
 					//draw canvas line:
 					if(this.plotBuffer[thisSpec][i] > 0){
 						//left side of bar
-						this.context.lineTo( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - (Math.log10(this.plotBuffer[thisSpec][i]) - Math.log10(this.YaxisLimitMin))*this.countHeight );
+						histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - (Math.log10(this.plotBuffer[thisSpec][i]) - Math.log10(this.YaxisLimitMin))*this.countHeight );
 						//top of bar
-						this.context.lineTo( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - (Math.log10(this.plotBuffer[thisSpec][i]) - Math.log10(this.YaxisLimitMin))*this.countHeight );
+						histLine.graphics.lt( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - (Math.log10(this.plotBuffer[thisSpec][i]) - Math.log10(this.YaxisLimitMin))*this.countHeight )
 					} else {
 						//drop to the x axis
-						this.context.lineTo( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
+						histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
 						//crawl along x axis until log-able data is found:
-						this.context.lineTo( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
+						histLine.graphics.lt( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
 					}
 				}
 			}
 			//finish the canvas path:
-			this.context.lineTo(this.canvas.width - this.rightMargin, this.canvas.height - this.bottomMargin );
-			//this.context.closePath();
-			this.context.stroke();
+			histLine.graphics.lt(this.canvas.width - this.rightMargin, this.canvas.height - this.bottomMargin );
+			this.containerMain.addChild(histLine);
 			j++;
 		} // End of for loop
+		this.stage.update();
 
 		// Pause for some time and then recall this function to refresh the data display
 		if(this.RefreshTime>0 && RefreshNow==1) this.refreshHandler = setTimeout(function(){plotData(1, 'true')},this.RefreshTime*1000); 	
@@ -404,6 +456,7 @@ function spectrumViewer(canvasID){
 	//stick a gaussian on top of the spectrum fitKey between the fit limits
 	this.fitData = function(fitKey){
 		var cent, fitdata, i, max, width, x, y, height;
+		var fitLine, fitter;
 
 		//suspend the refresh
 		window.clearTimeout(this.refreshHandler);
@@ -411,10 +464,11 @@ function spectrumViewer(canvasID){
 		if(this.FitLimitLower<0) this.FitLimitLower=0;
 		if(this.FitLimitUpper>this.XaxisLimitAbsMax) this.FitLimitUpper = this.XaxisLimitAbsMax;
 
+ 		//old method just sticks a hat on the peak; use this as initial guess
 		max=1;
 
 		fitdata=this.plotBuffer[fitKey];
-		fitdata=fitdata.slice(this.FitLimitLower, this.FitLimitUpper);
+		fitdata=fitdata.slice(this.FitLimitLower, this.FitLimitUpper+1);
 
 		// Find maximum Y value in the fit data
 		if(Math.max.apply(Math, fitdata)>max){
@@ -439,30 +493,43 @@ function spectrumViewer(canvasID){
 
 		cent=cent+this.FitLimitLower+0.5;
 
-		//set up canvas for drawing fit line
-		this.context.lineWidth = 3;
-		this.context.strokeStyle = '#FF0000';
-		this.context.beginPath();
-		this.context.moveTo( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - max*Math.exp(-1*(((this.FitLimitLower-cent)*(this.FitLimitLower-cent))/(2*width*width)))*this.countHeight);
+		//use the new prototype fitting package to do a maximum likelihood gaussian fit:
+		if(this.MLfit){
+			fitter = new histofit();
+			for(i=this.FitLimitLower; i<=this.FitLimitUpper; i++)
+				fitter.x[i-this.FitLimitLower] = i+0.5;
+			fitter.y=fitdata;
+			fitter.fxn = function(x, par){return par[0]*Math.exp(-1*(((x-par[1])*(x-par[1]))/(2*par[2]*par[2])))};
+			fitter.guess = [max, cent, width];
+			fitter.fitit();
+			max = fitter.param[0];
+			cent = fitter.param[1];
+			width = fitter.param[2];		
+		}
 
+		//set up canvas for drawing fit line
+		fitLine = new createjs.Shape();
+		fitLine.graphics.ss(3).s('#FF0000');
+		fitLine.graphics.mt( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - max*Math.exp(-1*(((this.FitLimitLower-cent)*(this.FitLimitLower-cent))/(2*width*width)))*this.countHeight);
+		
 		for(i=0;i<fitdata.length;i+=0.2){
 			//draw fit line on canvas:
 			x=i+this.FitLimitLower;
 			y = max*Math.exp(-1*(((x-cent)*(x-cent))/(2*width*width)));
 			if(i!=0){
 				if(this.AxisType == 0){
-					this.context.lineTo( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
+					fitLine.graphics.lt( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
 				} else if(this.AxisType == 1){
 					if(y<=0) height = 0;
 					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
 					if(height<0) height = 0;
-
-					this.context.lineTo( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
+					fitLine.graphics.lt( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
 				}
 			}
 		}
 
-		this.context.stroke();
+		this.containerMain.addChild(fitLine);
+		this.stage.update();
 
 		/* TODO: probably replace this with a callback
 		SVparam.word = 'Height = ' + max + ' Width = ' + width.toFixed(3) + ' Centroid = ' + cent;
@@ -484,6 +551,7 @@ function spectrumViewer(canvasID){
 	//plot mouseover behavior - report mouse coordinates in bin-space, and manage the cursor style
 	this.canvas.addEventListener('mousemove', function(event){
 		var coords, x, y, xBin, yBin;
+		var crosshairs, highlight;
 
 		coords = this.canvas.relMouseCoords(event);
 		x = coords.x;
@@ -515,6 +583,31 @@ function spectrumViewer(canvasID){
         	document.body.style.cursor = 'pointer';
         else
         	document.body.style.cursor = 'default';
+
+        //draw crosshairs
+        this.containerOverlay.removeAllChildren();
+        if(x > this.leftMargin && x < this.canvas.width - this.rightMargin && y > this.topMargin && y<this.canvas.height-this.bottomMargin){
+			crosshairs = new createjs.Shape();
+			crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
+			crosshairs.graphics.mt(this.leftMargin, y);
+			crosshairs.graphics.lt(this.canvas.width-this.rightMargin, y);
+			this.containerOverlay.addChild(crosshairs);
+
+			crosshairs = new createjs.Shape();
+			crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
+			crosshairs.graphics.mt(x, this.canvas.height-this.bottomMargin);
+			crosshairs.graphics.lt(x, this.topMargin);
+			this.containerOverlay.addChild(crosshairs);
+		}
+		//highlight region on drag
+		if(this.highlightStart != -1){
+			highlight = new createjs.Shape();
+			highlight.alpha = 0.3;
+			highlight.graphics.beginFill(this.highlightColor).r(this.highlightStart, this.topMargin, Math.max(x, this.leftMargin) - this.highlightStart, this.canvas.height-this.topMargin-this.bottomMargin)
+			this.containerOverlay.addChild(highlight);
+		}
+		this.stage.update();
+
 	}.bind(this), false);
 
 	this.canvas.onmouseout = function(event){
@@ -522,14 +615,21 @@ function spectrumViewer(canvasID){
 	};
 
 	this.canvas.onmousedown = function(event){
+		this.highlightStart = this.canvas.relMouseCoords(event).x;
 		this.XMouseLimitxMin = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin);
 	}.bind(this);
 
 	this.canvas.onmouseup = function(event){
+			this.highlightStart = -1;
 			this.XMouseLimitxMax = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin); 
 			this.DragWindow();
 			this.ClickWindow( parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin) );
 	}.bind(this);
+
+	this.canvas.ondblclick = function(event){
+		this.unzoom();
+	}.bind(this);
+
 }
 
 //stick a coordinate tracker on the canvas prototype:
@@ -569,4 +669,4 @@ HTMLCanvasElement.prototype.relMouseCoords = relMouseCoords;
 //tell the Math library about log base 10:
 Math.log10 = function(n) {
 	return (Math.log(n)) / (Math.log(10));
-}
+};
