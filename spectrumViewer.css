@@ -160,6 +160,72 @@ ul#availableSpectra li:nth-child(even){
 	background: #444444;
 }
 
+/*Plot Control////////////////////////////////////////////////////////////////////////*/
+div.UIchunk{
+	white-space: nowrap;
+	display:inline-block;
+	margin-right:2em;
+	margin-bottom: 1em;
+}
+
+input.inputBox{
+	background-color: #444444;
+	border-radius: 5px;
+	color: #CCCCCC;
+	border:none;
+	font-size:200%;
+	padding: 0.5em;
+	width: 4em;
+	text-align: right;
+	font-family: 'Raleway', sans-serif;
+	cursor: pointer;
+}
+
+button.inputButton, div#fitModeToggle{
+	background-color: #444444;
+	border-radius: 5px;
+	color: #CCCCCC;
+	border:none;
+	font-size:200%;
+	padding: 0.5em;
+	text-align: right;
+	font-family: 'Raleway', sans-serif;
+	cursor: pointer;
+}
+
+button.inputButton:hover{
+	background-color: #777777;
+}
+
+div#fitModeToggle{
+	display:inline-block;
+	margin-right: 1em;
+}
+
+/* http://stackoverflow.com/questions/3790935/can-i-hide-the-html5-number-inputs-spin-box */
+input.inputBox::-webkit-outer-spin-button,
+input.inputBox::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+label.inputLabel{
+	font-size: 200%;
+	color: #999999;
+}
+
+label#linLabel{
+	float:left;
+}
+
+div#toggleWraptoggleYscale{
+	margin-top: 0;
+}
+
+button#unzoom{
+	margin-right:0.5em;
+}
+
 /*Recently Viewed Table///////////////////////////////////////////////////////////////*/
 div#recentSpectra{
 	width:100%;
@@ -195,6 +261,9 @@ div.killSwitch{
 	border-radius: 1em;
 	float:right;
 	margin:0.5em;
+	border:1px solid #FFFFFF;
+	text-align: center;
+	padding-top:0.5em;
 }
 
 /*Toggle Switch///////////////////////////////////////////////////////////////////////*/
@@ -227,7 +296,7 @@ div.toggleGroove{
 	margin-right: 1em;
 	border:0.2em solid #000000;
 	border-radius: 0.95em;
-	background-color: #333333;
+	background-color: #222222;
 	display:inline-block;
 	position:relative;
 	transition:background-color 0.3s;

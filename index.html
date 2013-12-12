@@ -26,6 +26,32 @@
 		    
 	    	<div id='canvasWrap'>
 	    		<canvas id='spectrumCanvas'></canvas>
+	    		<form id='plotControl'>
+		    		<div id='xRangeWrap', class='UIchunk'>
+			    		<input class='inputBox' id='minX' type='number' value='0' onchange='updatePlotRange()'></input>
+			    		<label class='inputLabel' id='xRangeLabel'>< x <</label>
+		    			<input class='inputBox' id='maxX' type='number' value='2048' onchange='updatePlotRange()'></input>
+		    		</div>
+
+		    		<div id='scrollWrap', class='UIchunk'>
+		    			<button class='inputButton' id='bigLeft' type='button'>&#x21C7</button>
+		    			<button class='inputButton' id='littleLeft' type='button'>&#x2190</button>
+		    			<button class='inputButton' id='littleRight' type='button'>&#x2192</button>
+		    			<button class='inputButton' id='bigRight' type='button'>&#x21C9</button>
+		    		</div>
+
+			    	<div id='fitModeToggle' engaged='0'>
+			    		Fit Mode
+			    	</div>
+
+			    	<button class='inputButton' id='unzoom' type='button'>Unzoom</button>
+
+			    	<div id='logToggleWrap' class='UIchunk'>
+			    		<label class='inputLabel' id='linLabel'>Linear</label>
+			    		<label class='inputLabel' id='logLabel'>Log</label>
+			    	</div>
+		    	</form>
+
 	    	</div>
 
 	    	<div id='sidebarWrap'>
@@ -59,7 +85,59 @@
 
 				//load a spectrum list
 				populateSpectra();
-			}
+
+				//inject the linear / log toggle
+				toggleSwitch('logToggleWrap', 'toggleYscale', '', '', '', viewer.setAxisType.bind(viewer, 'log'), viewer.setAxisType.bind(viewer, 'linear'), 0);
+				document.getElementById('logToggleWrap').insertBefore(document.getElementById('logLabel'), null);
+
+				//callback after drawing spectrum
+				viewer.drawCallback = function(){
+					var xMin = document.getElementById('minX'),
+						xMax = document.getElementById('maxX');
+
+					//keep the x-range input up to date
+					xMin.value = this.XaxisLimitMin;
+					xMax.value = this.XaxisLimitMax;
+				}
+
+				//onclick for scroll buttons:
+				document.getElementById('bigLeft').onclick = viewer.scrollSpectra.bind(viewer, -100);
+				document.getElementById('littleLeft').onclick = viewer.scrollSpectra.bind(viewer, -1);
+				document.getElementById('littleRight').onclick = viewer.scrollSpectra.bind(viewer, 1);
+				document.getElementById('bigRight').onclick = viewer.scrollSpectra.bind(viewer, 100);
+
+				//unzoom
+				document.getElementById('unzoom').onclick = viewer.unzoom.bind(viewer);
+
+				//fit mode
+				document.getElementById('fitModeToggle').onclick = function(){
+					if(this.engaged){
+						this.style.backgroundColor = '#444444';
+						viewer.leaveFitMode();
+						this.engaged = 0;
+					} else {
+						this.style.backgroundColor = '#777777';
+						viewer.fitTarget = 'dummy1'
+						viewer.setupFitMode();
+						this.engaged = 1; 
+					}
+				}
+				viewer.fitCallback = function(mean, width){
+					document.getElementById('fitModeToggle').onclick();
+				}
+			};
+
+			//update the plot ranges onchange of the x-range input fields:
+			function updatePlotRange(){
+				var xMin = document.getElementById('minX'),
+					xMax = document.getElementById('maxX');
+
+				viewer.XaxisLimitMin = parseInt(xMin.value,10);
+				viewer.XaxisLimitMax = parseInt(xMax.value,10);
+
+				viewer.plotData();				
+			};
+
 		</script>
 	</body>
 

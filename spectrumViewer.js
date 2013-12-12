@@ -54,10 +54,10 @@ function addRow(name){
 	injectDOM('div', 'name'+name, 'recent'+name, {'class':'recentName', 'innerHTML':name});
 
 	//toggle
-	toggleSwitch('recent'+name, 'toggle'+name, 'Hide', '', '', function(){}, function(){}, 1);
+	toggleSwitch('recent'+name, 'toggle'+name, 'x', 'Show', 'Hide', viewer.toggleSpectrum.bind(viewer, name, false), viewer.toggleSpectrum.bind(viewer, name, true), 1);
 
 	//kill button
-	injectDOM('div', 'kill'+name, 'recent'+name, {'class':'killSwitch'});
+	injectDOM('div', 'kill'+name, 'recent'+name, {'class':'killSwitch', 'innerHTML':String.fromCharCode(0x2573)});
 	document.getElementById('kill'+name).addEventListener('click', function(){
 		var name = this.id.slice(4,this.id.length);
 
@@ -128,11 +128,13 @@ function toggleSwitch(parentID, id, title, enabled, disabled, onActivate, onDeac
 	//wrapper div:
 	injectDOM('div', 'toggleWrap'+id, parentID, {'class':'toggleWrap', 'style':( (title=='') ? 'text-align:center;' : '' )});
 	//label: (hacked in here, usually only the first one and only on title argument)
-	injectDOM('div', 'LtoggleLabel'+id, 'toggleWrap'+id, {'class':'toggleLabel', 'innerHTML':'Hide'});
+	if(disabled != '')
+		injectDOM('div', 'LtoggleLabel'+id, 'toggleWrap'+id, {'class':'toggleLabel', 'innerHTML':disabled});
 	//toggle groove:
 	injectDOM('div', 'toggleGroove'+id, 'toggleWrap'+id, {'class':'toggleGroove', 'style':( (title=='') ? '' : 'float:left;' )});
 	//extra hack-in label:
-	injectDOM('div', 'RtoggleLabel'+id, 'toggleWrap'+id, {'class':'toggleLabel', 'innerHTML':'Show'});
+	if(disabled != '')
+		injectDOM('div', 'RtoggleLabel'+id, 'toggleWrap'+id, {'class':'toggleLabel', 'innerHTML':enabled});
 	//toggle switch:
 	injectDOM('div', 'toggleSwitch'+id, 'toggleGroove'+id, {'class':'toggleSwitch', 'style':((initialState) ? 'left:1em;' : 'left:0em;')});
 	document.getElementById('toggleSwitch'+id).onmousedown = function(event){
@@ -145,6 +147,7 @@ function toggleSwitch(parentID, id, title, enabled, disabled, onActivate, onDeac
 		flipToggle(event, id, enabled, disabled, onActivate, onDeactivate)
 	};
 	//state description
+	/*
 	if(title=='')
 		injectDOM('br', 'break', 'toggleWrap'+id, {});
 	injectDOM('div', 'toggleDescription'+id, 'toggleWrap'+id, {
@@ -152,7 +155,7 @@ function toggleSwitch(parentID, id, title, enabled, disabled, onActivate, onDeac
 		'style' : ( (title=='') ? 'width:100%' : '' ),
 		'innerHTML' : ((initialState) ? enabled : disabled)
 	})
-
+	*/
 
 };
 
@@ -164,11 +167,11 @@ function flipToggle(event, id, enabled, disabled, onActivate, onDeactivate){
 
 	if(document.getElementById(switchID).style.left == '0em'){
 		document.getElementById(switchID).style.left = '1em';
-		document.getElementById(descriptionID).innerHTML = enabled;
+		//document.getElementById(descriptionID).innerHTML = enabled;
 		onActivate();
 	} else{
 		document.getElementById(switchID).style.left = '0em';
-		document.getElementById(descriptionID).innerHTML = disabled;
+		//document.getElementById(descriptionID).innerHTML = disabled;
 		onDeactivate();
 	}
 
