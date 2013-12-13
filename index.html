@@ -5,13 +5,12 @@
 		<script src="fitit.js" type="text/javascript"></script>
 		<script src="spectrumViewer.js" type="text/javascript"></script>
 		<script src="http://code.createjs.com/easeljs-0.7.0.min.js"></script>
-		<!--script src="mhttpd.js" type="text/javascript"></script-->
 
 		<link rel="stylesheet" type="text/css" href="spectrumViewer.css"/>
 		<link href='http://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
 	</head>
 
-	<body onLoad='main()'>
+	<body onLoad='populateSpectra()'>
 		<div id='wrapper'>
 
 		    <div id='branding'>
@@ -26,6 +25,32 @@
 		    
 	    	<div id='canvasWrap'>
 	    		<canvas id='spectrumCanvas'></canvas>
+	    		<form id='plotControl'>
+		    		<div id='xRangeWrap', class='UIchunk'>
+			    		<input class='inputBox' id='minX' type='number' value='0' onchange='updatePlotRange()'></input>
+			    		<label class='inputLabel' id='xRangeLabel'>< x <</label>
+		    			<input class='inputBox' id='maxX' type='number' value='2048' onchange='updatePlotRange()'></input>
+		    		</div>
+
+		    		<div id='scrollWrap', class='UIchunk'>
+		    			<button class='inputButton' id='bigLeft' type='button'>&#x21C7</button>
+		    			<button class='inputButton' id='littleLeft' type='button'>&#x2190</button>
+		    			<button class='inputButton' id='littleRight' type='button'>&#x2192</button>
+		    			<button class='inputButton' id='bigRight' type='button'>&#x21C9</button>
+		    		</div>
+
+			    	<div id='fitModeToggle' engaged='0' style='display:none'>
+			    		Fit Mode
+			    	</div>
+
+			    	<button class='inputButton' id='unzoom' type='button'>Unzoom</button>
+
+			    	<div id='logToggleWrap' class='UIchunk' style='display:none;'>
+			    		<label class='inputLabel' id='linLabel'>Linear</label>
+			    		<label class='inputLabel' id='logLabel'>Log</label>
+			    	</div>
+		    	</form>
+
 	    	</div>
 
 	    	<div id='sidebarWrap'>
@@ -46,20 +71,69 @@
 		</div>
 
 		<script>
+			//initialize a global buffer for all the histograms we pull in:
+			spectrumBuffer = {};
+
 			function main(){
-				//get the header font right
-				document.getElementById('headerBanner').style.fontSize = parseInt(document.getElementById('branding').offsetHeight, 10)*0.9+'px';
 
-				//scale the canvas
-				document.getElementById('spectrumCanvas').setAttribute('width', parseInt(document.getElementById('canvasWrap').offsetWidth, 10)*0.95+'px');
-				document.getElementById('spectrumCanvas').setAttribute('height', parseInt(document.getElementById('canvasWrap').offsetHeight, 10)*0.8+'px');
+				//inject the linear / log toggle
+				toggleSwitch('logToggleWrap', 'toggleYscale', '', '', '', viewer.setAxisType.bind(viewer, 'log'), viewer.setAxisType.bind(viewer, 'linear'), 0);
+				document.getElementById('logToggleWrap').insertBefore(document.getElementById('logLabel'), null);
 
-				//set up a spectrum viewer
-				viewer = new spectrumViewer('spectrumCanvas');
+				//callback after drawing spectrum
+				viewer.drawCallback = function(){
+					var xMin = document.getElementById('minX'),
+						xMax = document.getElementById('maxX');
 
-				//load a spectrum list
-				populateSpectra();
-			}
+					//keep the x-range input up to date
+					xMin.value = this.XaxisLimitMin;
+					xMax.value = this.XaxisLimitMax;
+				}
+
+				//onclick for scroll buttons:
+				document.getElementById('bigLeft').onclick = viewer.scrollSpectra.bind(viewer, -100);
+				document.getElementById('littleLeft').onclick = viewer.scrollSpectra.bind(viewer, -1);
+				document.getElementById('littleRight').onclick = viewer.scrollSpectra.bind(viewer, 1);
+				document.getElementById('bigRight').onclick = viewer.scrollSpectra.bind(viewer, 100);
+
+				//unzoom
+				document.getElementById('unzoom').onclick = viewer.unzoom.bind(viewer);
+
+				//fit mode
+				document.getElementById('fitModeToggle').onclick = function(){
+					if(this.engaged){
+						this.style.backgroundColor = '#444444';
+						viewer.leaveFitMode();
+						this.engaged = 0;
+					} else {
+						this.style.backgroundColor = '#777777';
+						viewer.fitTarget = 'dummy1'
+						viewer.setupFitMode();
+						this.engaged = 1; 
+					}
+				}
+				viewer.fitCallback = function(mean, width){
+					document.getElementById('fitModeToggle').onclick();
+				}
+
+				//re-fetch every period:
+				setInterval(fetchAllSpectra, 5000);
+
+				//draw empty axis
+				viewer.plotData();
+			};
+
+			//update the plot ranges onchange of the x-range input fields:
+			function updatePlotRange(){
+				var xMin = document.getElementById('minX'),
+					xMax = document.getElementById('maxX');
+
+				viewer.XaxisLimitMin = parseInt(xMin.value,10);
+				viewer.XaxisLimitMax = parseInt(xMax.value,10);
+
+				viewer.plotData();				
+			};
+
 		</script>
 	</body>
 

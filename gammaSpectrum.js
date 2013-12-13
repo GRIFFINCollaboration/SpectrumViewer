@@ -35,7 +35,7 @@ function spectrumViewer(canvasID){
 	this.stage.addChild(this.containerMain);
 	this.stage.addChild(this.containerOverlay);
 
-	//axes
+	//axes & drawing
 	this.fontScale = Math.min(Math.max(this.canvas.width / 50, 10), 16); // 10 < fontScale < 16
 	this.context.font = this.fontScale + 'px Arial';
 	this.leftMargin = Math.max(7*this.fontScale, this.canvas.width*0.05); //px
@@ -66,16 +66,16 @@ function spectrumViewer(canvasID){
 	this.expFont = '12px Arial'; //default font for exponents
 	this.xAxisTitle = 'Channels'; //default x-axis title
 	this.yAxisTitle = 'Counts'; //default y-axis title
+	this.drawCallback = function(){}; //callback after plotData, no arguments passed.
 
 	//data
-	this.dataBuffer = {}; //buffer holding all the specta we've downloaded, as 'name':data[], 
-						  //where data[i] = counts in channel i
-	this.plotBuffer = {}; //same as dataBuffer, but only the plots we're displaying presently.
+	this.plotBuffer = {}; //buffer holding all the spectra we have on hand, packed as 'name':data[], where data[i] = counts in channel i
 	this.fakeData = {};
 	this.fakeData.energydata0 = [200,48,42,48,58,57,59,72,85,68,61,60,72,147,263,367,512,499,431,314,147,78,35,22,13,9,16,7,10,13,5,5,3,1,2,4,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,200,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,120,70,20,20,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,300,650,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 	this.entries = {}; //number of entries in each displayed spectrum
 	this.dataColor = ["#FFFFFF", "#FF0000", "#00FFFF", "#44FF44", "#FF9900", "#0066FF", "#FFFF00", "#FF00CC", "#00CC00", "#994499"]; //colors to draw each plot line with
 	this.colorAssignment = [null, null, null, null, null, null, null, null, null, null]; //holds the data series key in the array position corresponding to the color to draw it with from this.dataColor
+	this.hideSpectrum = {}; //any spectrum name used as a key holding a truthy value here will be skipped during plotting
 
 	//fitting
 	this.fitTarget = null //id of the spectrum to fit to
@@ -90,7 +90,7 @@ function spectrumViewer(canvasID){
     this.cursorX = 0; //x-bin of cursor
     this.cursorY = 0; //y-bin of cursor
     this.mouseMoveCallback = function(){}; //callback on moving the cursor over the plot, arguments are (x-bin, y-bin)
-    this.highlightColor = '#8e44ad';
+    this.highlightColor = '#8e44ad'; //color of drag highlight
 
     //click interactions
     this.XMouseLimitxMin = 0; //limits selected with the cursor
@@ -129,6 +129,7 @@ function spectrumViewer(canvasID){
 
 		//Decorate x axis////////////////////////////////////////////////////////
 		//decide how many ticks to draw on the x axis; come as close to a factor of the number of bins as possible:
+		this.nXticks = 6;
 		while( Math.floor(this.XaxisLength / this.nXticks) == Math.floor(this.XaxisLength / (this.nXticks-1)) )
 			this.nXticks--;
 		//draw at most one tick per bin:
@@ -161,6 +162,7 @@ function spectrumViewer(canvasID){
 
 		//Decorate Y axis/////////////////////////////////////////////////////////
 		//decide how many ticks to draw on the y axis; come as close to a factor of the number of bins as possible:
+		this.nYticks = 5;
 		while( Math.floor(this.YaxisLength / this.nYticks) == Math.floor(this.YaxisLength / (this.nYticks-1)) )
 			this.nYticks--;
 
@@ -194,7 +196,7 @@ function spectrumViewer(canvasID){
 				text.y = this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight - 10;
 				this.containerMain.addChild(text);
 				//base
-				text = new createjs.Text(label, this.context.baseFont, this.axisColor);
+				text = new createjs.Text(10, this.context.baseFont, this.axisColor);
 				text.textBaseline = 'middle';
 				text.x = this.leftMargin - this.tickLength - this.yLabelOffset - this.context.measureText('10'+label).width;
 				text.y = this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight;
@@ -235,6 +237,9 @@ function spectrumViewer(canvasID){
 		this.maxYvalue=this.YaxisLimitMax;
 		// Loop through to get the data and set the Y axis limits
 		for(thisSpec in this.plotBuffer){
+			//skip hidden spectra
+			if(this.hideSpectrum[thisSpec]) continue;
+
 			//Find the maximum X value from the size of the data
 			if(this.plotBuffer[thisSpec].length>this.XaxisLimitAbsMax){
 				this.XaxisLimitAbsMax=this.plotBuffer[thisSpec].length;
@@ -260,7 +265,7 @@ function spectrumViewer(canvasID){
 		// Adjust the Y axis limit and compression and redraw the axis
 		if(this.maxYvalue>5){
 			if(this.AxisType==0) this.YaxisLimitMax=Math.floor(this.maxYvalue*1);
-			if(this.AxisType==1) this.YaxisLimitMax=this.maxYvalue*10;
+			if(this.AxisType==1) this.YaxisLimitMax=this.maxYvalue*100;
 		} else {
 			if(this.AxisType==0) this.YaxisLimitMax=5;
 			if(this.AxisType==1) this.YaxisLimitMax=50;
@@ -277,6 +282,9 @@ function spectrumViewer(canvasID){
 		// Now the limits are set loop through and plot the data points
 		j = 0; //j counts plots in the drawing loop
 		for(thisSpec in this.plotBuffer){
+			//skip hidden spectra
+			if(this.hideSpectrum[thisSpec]) continue;			
+
 			color = this.dataColor[this.colorAssignment.indexOf(thisSpec)];
 			text = new createjs.Text(thisSpec + ': '+this.entries[thisSpec] + ' entries', this.context.font, color);
 			text.textBaseline = 'top';
@@ -325,6 +333,9 @@ function spectrumViewer(canvasID){
 			j++;
 		} // End of for loop
 		this.stage.update();
+
+		//callback
+		this.drawCallback();
 
 		// Pause for some time and then recall this function to refresh the data display
 		if(this.RefreshTime>0 && RefreshNow==1) this.refreshHandler = setTimeout(function(){plotData(1, 'true')},this.RefreshTime*1000); 	
@@ -443,9 +454,15 @@ function spectrumViewer(canvasID){
 
 	//set the axis to 'linear' or 'log', and repaint
 	this.setAxisType = function(type){
-		if(type=='log') this.AxisType = 1;
-		else this.AxisType = 0;
-		plotData();
+		if(type=='log'){
+			this.YaxisLimitMin = 0.1;
+			this.AxisType = 1;
+		}
+		else{
+			this.YaxisLimitMin = 0;
+			this.AxisType = 0;
+		}
+		this.plotData();
 	};
 
 	//set up for fit mode, replaces old requestfitlimits
@@ -454,6 +471,13 @@ function spectrumViewer(canvasID){
 		this.FitLimitLower=-1;
 		this.FitLimitUpper=-1;		
 	};
+
+	//abandon fit mode without fitting
+	this.leaveFitMode = function(){
+		this.fitModeEngage = 0;
+		this.FitLimitLower=-1;
+		this.FitLimitUpper=-1;	
+	}
 
 	//stick a gaussian on top of the spectrum fitKey between the fit limits
 	this.fitData = function(fitKey){
@@ -533,17 +557,47 @@ function spectrumViewer(canvasID){
 		this.containerMain.addChild(fitLine);
 		this.stage.update();
 
-		/* TODO: probably replace this with a callback
-		SVparam.word = 'Height = ' + max + ' Width = ' + width.toFixed(3) + ' Centroid = ' + cent;
-		document.getElementById('fitbox').innerHTML = SVparam.word;
-		SVparam.word = 'H=' + max + ',W=' + width.toFixed(3) + ',C=' + cent + "; ";
-		document.getElementById('spec_fits0').innerHTML = SVparam.word+document.getElementById('spec_fits0').innerHTML;
-		*/
-
 		this.fitted=1;
 		this.fitModeEngage = 0;
 
 		this.fitCallback(cent, width);
+	};
+
+	//suppress or unsuppress a spectrum from being shown
+	this.toggleSpectrum = function(spectrumName, hide){
+		this.hideSpectrum[spectrumName] = hide;
+		this.plotData();
+	};
+
+	//add a data series to the list to be plotted with key name and content [data]
+	this.addData = function(name, data){
+		var nSeries, i;
+
+		//refuse to display more than 10 data series, it's ugly.
+		nSeries = Object.keys(this.plotBuffer).length;
+		if(nSeries > this.dataColor.length){
+			alert('gammaSpectrum only allows at most' + this.dataColor.length + 'series to be plotted simultaneously.');
+			return;
+		}
+
+		//choose the first available color and assign it to this data series
+		if(this.colorAssignment.indexOf(name) == -1){
+			i=0;
+			while(this.colorAssignment[i]) i++;
+			this.colorAssignment[i] = name;
+		}
+
+		//append the data to the data buffer
+		this.plotBuffer[name] = data;
+	};
+
+	//remove a data series from the buffer
+	this.removeData = function(name){
+		//free the color
+		this.colorAssignment[this.colorAssignment.indexOf(name)] = null;
+
+		//delete the data
+		delete this.plotBuffer[name];
 	};
 
 	//////////////////////////////////////////////////////
@@ -614,7 +668,9 @@ function spectrumViewer(canvasID){
 
 	this.canvas.onmouseout = function(event){
 		document.body.style.cursor = 'default';
-	};
+		this.containerOverlay.removeAllChildren();
+		this.stage.update();
+	}.bind(this);
 
 	this.canvas.onmousedown = function(event){
 		this.highlightStart = this.canvas.relMouseCoords(event).x;
@@ -631,35 +687,6 @@ function spectrumViewer(canvasID){
 	this.canvas.ondblclick = function(event){
 		this.unzoom();
 	}.bind(this);
-
-	//add a data series to the list to be plotted with key name and content [data]
-	this.addData = function(name, data){
-		var nSeries, i;
-
-		//refuse to display more than 10 data series, it's ugly.
-		nSeries = Object.keys(this.dataBuffer).length;
-		if(nSeries > this.dataColor.length){
-			alert('gammaSpectrum only allows at most' + this.dataColor.length + 'series to be plotted simultaneously.');
-			return;
-		}
-
-		//choose the first available color and assign it to this data series
-		i=0;
-		while(this.colorAssignment[i]) i++;
-		this.colorAssignment[i] = name;
-
-		//append the data to the data buffer
-		this.plotBuffer[name] = data;
-	}
-
-	//remove a data series from the buffer
-	this.removeData = function(name){
-		//free the color
-		this.colorAssignment[this.colorAssignment.indexOf(name)] = null;
-
-		//delete the data
-		delete this.plotBuffer[name];
-	}
 
 }
 
