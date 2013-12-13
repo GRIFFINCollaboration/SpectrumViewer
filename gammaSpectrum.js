@@ -69,9 +69,7 @@ function spectrumViewer(canvasID){
 	this.drawCallback = function(){}; //callback after plotData, no arguments passed.
 
 	//data
-	this.dataBuffer = {}; //buffer holding all the specta we've downloaded, as 'name':data[], 
-						  //where data[i] = counts in channel i
-	this.plotBuffer = {}; //same as dataBuffer, but only the plots we're displaying presently.
+	this.plotBuffer = {}; //buffer holding all the spectra we have on hand, packed as 'name':data[], where data[i] = counts in channel i
 	this.fakeData = {};
 	this.fakeData.energydata0 = [200,48,42,48,58,57,59,72,85,68,61,60,72,147,263,367,512,499,431,314,147,78,35,22,13,9,16,7,10,13,5,5,3,1,2,4,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,200,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,120,70,20,20,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,300,650,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 	this.entries = {}; //number of entries in each displayed spectrum
@@ -91,7 +89,7 @@ function spectrumViewer(canvasID){
     //cursors
     this.cursorX = 0; //x-bin of cursor
     this.cursorY = 0; //y-bin of cursor
-    this.mouseMoveCallback = function(x, y){console.log(x,y)}; //callback on moving the cursor over the plot, arguments are (x-bin, y-bin)
+    this.mouseMoveCallback = function(){}; //callback on moving the cursor over the plot, arguments are (x-bin, y-bin)
     this.highlightColor = '#8e44ad'; //color of drag highlight
 
     //click interactions
@@ -576,16 +574,18 @@ function spectrumViewer(canvasID){
 		var nSeries, i;
 
 		//refuse to display more than 10 data series, it's ugly.
-		nSeries = Object.keys(this.dataBuffer).length;
+		nSeries = Object.keys(this.plotBuffer).length;
 		if(nSeries > this.dataColor.length){
 			alert('gammaSpectrum only allows at most' + this.dataColor.length + 'series to be plotted simultaneously.');
 			return;
 		}
 
 		//choose the first available color and assign it to this data series
-		i=0;
-		while(this.colorAssignment[i]) i++;
-		this.colorAssignment[i] = name;
+		if(this.colorAssignment.indexOf(name) == -1){
+			i=0;
+			while(this.colorAssignment[i]) i++;
+			this.colorAssignment[i] = name;
+		}
 
 		//append the data to the data buffer
 		this.plotBuffer[name] = data;

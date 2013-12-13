@@ -1,36 +1,91 @@
 //get a list of available spectra, and populate the appropriate menu
 function populateSpectra(){
 
-	var spectraNames, i, 
-		spectrumList = document.getElementById('availableSpectra'),
-		listElement;
+	var script = document.createElement('script');
 
-	//get spectra names
-	spectraNames = ['dummy1', 'dummy2', 'dummy3'];
+	//little bit of setup first
+	//get the header font right
+	document.getElementById('headerBanner').style.fontSize = parseInt(document.getElementById('branding').offsetHeight, 10)*0.9+'px';
 
-	//create a list in the sidebar
-	spectrumList.innerHTML = '';  //dump old entries first
-	for(i=0; i<spectraNames.length; i++){
-		listElement = document.createElement('li');
-		listElement.id = spectraNames[i];
-		spectrumList.appendChild(listElement);
-		document.getElementById(spectraNames[i]).innerHTML = spectraNames[i];
-		document.getElementById(spectraNames[i]).addEventListener('click', addSpectrum.bind(null, spectraNames[i]) );
+	//scale the canvas
+	document.getElementById('spectrumCanvas').setAttribute('width', parseInt(document.getElementById('canvasWrap').offsetWidth, 10)*0.95+'px');
+	document.getElementById('spectrumCanvas').setAttribute('height', parseInt(document.getElementById('canvasWrap').offsetHeight, 10)*0.8+'px');
+
+	//set up a spectrum viewer
+	viewer = new spectrumViewer('spectrumCanvas');
+
+	script.setAttribute('src', 'http://annikal.triumf.ca:9093/?cmd=getSpectrumList');
+	script.onload = function(){
+		deleteDOM('spectraList');
+		fetchAllSpectra(main);
 	}
+	script.id = 'spectraList';
+	document.head.appendChild(script);
+
 };
 
-//deploy a new histo to the viewer: load it, draw it, and populate the recently viewed list
-function addSpectrum(name){
-
-	var data, i;
+//refresh a spectrum from the server
+function fetchSpectrum(name){
+	var script;
 
 	//get data from server:
+	script = document.createElement('script');
+	script.setAttribute('src', 'http://annikal.triumf.ca:9093/?cmd=callspechandler&spectrum1='+name);
+	script.onload = addSpectrum.bind(null, name);
+	script.id = 'fetchdata'
+
+	document.head.appendChild(script);
+}
+
+//refresh all spectra from server
+function fetchAllSpectra(callback){
+	var i, URL = 'http://annikal.triumf.ca:9093/?cmd=callspechandler&';
+
+	for(i=0; i<spectraNames.length; i++){
+		URL += 'spectrum'+i+'='+spectraNames[i];
+		if(i != spectraNames.length-1)
+			URL += '&';
+	}
+
+	//get data from server:
+	script = document.createElement('script');
+	script.setAttribute('src', URL);
+	script.onload = function(callback){
+		var key;
+		//manage the viewer object, doesn't exist until main runs the first time through
+		if(callback != main){
+			//push relevant data to the viewer's buffer, except the first time when we're calling back to main:
+			for(key in viewer.plotBuffer)
+				viewer.addData(key, spectrumBuffer[key]);
+
+			//replot
+			viewer.plotData();
+		}
+		//dump the script so they don't stack up:
+		deleteDOM('fetchdata');
+
+		//callback
+		if(callback)
+			callback();
+	}.bind(null, callback);
+	script.id = 'fetchdata'
+
+	document.head.appendChild(script);
+}
+
+//deploy a new histo to the viewer: draw it, and populate the recently viewed list
+function addSpectrum(name){
+
+	//var data, i;
+	//get data from server:
+	/*
 	data = [];
 	for(i=0; i<500; i++)
 		data[i] = Math.round(100*Math.random());
+	*/
 
 	//append to spectrum viewer's data store:
-	viewer.addData(name, data);
+	viewer.addData(name, spectrumBuffer[name]);
 
 	//redraw the spectra
 	viewer.plotData();
@@ -38,6 +93,7 @@ function addSpectrum(name){
 
 	//add to recently viewed list
 	addRow(name);
+	
 };
 
 //add a row to the recently viewed table
@@ -67,11 +123,43 @@ function addRow(name){
 		viewer.plotData();
 	});
 
+};
 
+//handle the server callback, currently hardcoded as callSpectrumHandler
+function callSpectrumHandler(data){
 
+	var key, response;
+	
+	for(key in data){
+		spectrumBuffer[key] = [];
+		for(i=0; i<data[key].length; i++)
+			spectrumBuffer[key][i] = data[key][i];
+	}
+	
+
+};
+
+//handle the spectrum list fetch, currently hardcoded as getSpectrumList
+function getSpectrumList(data){
+
+	var i,
+		spectrumList = document.getElementById('availableSpectra'),
+		listElement;
+
+	spectraNames = [];
+	for(i=0; i<data.spectrumlist.length; i++)
+		spectraNames[i] = data.spectrumlist[i];
+
+	//create a list in the sidebar
+	spectrumList.innerHTML = '';  //dump old entries first
+	for(i=0; i<spectraNames.length; i++){
+		listElement = document.createElement('li');
+		listElement.id = spectraNames[i];
+		spectrumList.appendChild(listElement);
+		document.getElementById(spectraNames[i]).innerHTML = spectraNames[i];
+		document.getElementById(spectraNames[i]).addEventListener('click', addSpectrum.bind(null, spectraNames[i]) );
+	}
 }
-
-
 
 
 
