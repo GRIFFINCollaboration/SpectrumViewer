@@ -7,6 +7,9 @@ function populateSpectra(){
 	//get the header font right
 	document.getElementById('headerBanner').style.fontSize = parseInt(document.getElementById('branding').offsetHeight, 10)*0.9+'px';
 
+	//get the body font right
+    document.body.style.fontSize = window.innerHeight*0.05/4+'px';	
+
 	//scale the canvas
 	document.getElementById('spectrumCanvas').setAttribute('width', parseInt(document.getElementById('canvasWrap').offsetWidth, 10)*0.95+'px');
 	document.getElementById('spectrumCanvas').setAttribute('height', parseInt(document.getElementById('canvasWrap').offsetHeight, 10)*0.8+'px');
@@ -17,22 +20,21 @@ function populateSpectra(){
 	script.setAttribute('src', 'http://annikal.triumf.ca:9093/?cmd=getSpectrumList');
 	script.onload = function(){
 		deleteDOM('spectraList');
-		fetchAllSpectra(main);
+		main();
 	}
 	script.id = 'spectraList';
 	document.head.appendChild(script);
-
 };
 
-//refresh a spectrum from the server
-function fetchSpectrum(name){
+//fetch one spectrum from the server
+function fetchSpectrum(name, callback){
 	var script;
 
 	//get data from server:
 	script = document.createElement('script');
 	script.setAttribute('src', 'http://annikal.triumf.ca:9093/?cmd=callspechandler&spectrum1='+name);
-	script.onload = addSpectrum.bind(null, name);
-	script.id = 'fetchdata'
+	if(callback) script.onload = callback
+	script.id = 'fetchdata';
 
 	document.head.appendChild(script);
 }
@@ -73,26 +75,53 @@ function fetchAllSpectra(callback){
 	document.head.appendChild(script);
 }
 
-//deploy a new histo to the viewer: draw it, and populate the recently viewed list
+//refresh spectra that are currently available for plotting
+function refreshSpectra(){
+	var i, key, URL = 'http://annikal.triumf.ca:9093/?cmd=callspechandler';
+
+	i=0;
+	for(key in spectrumBuffer){
+		URL += '&spectrum'+i+'='+key;
+		i++;
+	}
+
+	//get data from server:
+	if(i!=0){
+		script = document.createElement('script');
+		script.setAttribute('src', URL);
+		script.onload = function(callback){
+			var key;
+			//push relevant data to the viewer's buffer
+			for(key in viewer.plotBuffer){
+				viewer.addData(key, spectrumBuffer[key]);
+			}
+			//dump the script so they don't stack up:
+			deleteDOM('fetchdata');
+
+			viewer.plotData();
+		};
+		script.id = 'fetchdata'
+		document.head.appendChild(script);
+	} else
+		viewer.plotData();
+}
+
+//deploy a new histo to the viewer: fetch it, draw it, and populate the recently viewed list
 function addSpectrum(name){
 
-	//var data, i;
-	//get data from server:
-	/*
-	data = [];
-	for(i=0; i<500; i++)
-		data[i] = Math.round(100*Math.random());
-	*/
+	//get the spectrum
+	fetchSpectrum(name, function(name){
 
-	//append to spectrum viewer's data store:
-	viewer.addData(name, spectrumBuffer[name]);
+		//append to spectrum viewer's data store:
+		viewer.addData(name, spectrumBuffer[name]);
 
-	//redraw the spectra
-	viewer.plotData();
-	viewer.unzoom();
+		//redraw the spectra
+		viewer.plotData();
+		viewer.unzoom();
 
-	//add to recently viewed list
-	addRow(name);
+		//add to recently viewed list
+		addRow(name);
+	}.bind(null, name));
 	
 };
 
@@ -117,10 +146,14 @@ function addRow(name){
 	document.getElementById('kill'+name).addEventListener('click', function(){
 		var name = this.id.slice(4,this.id.length);
 
+		//remove the data from the viewer buffer
 		viewer.removeData(name);
+		//kill the row in the recents table
 		deleteDOM('recent'+name);
-
-		viewer.plotData();
+		//also remove the data from the plot buffer to prevent periodic re-fetch:
+		delete spectrumBuffer[name];
+		//unzoom the spectrum
+		viewer.unzoom();
 	});
 
 };

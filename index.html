@@ -45,10 +45,12 @@
 
 			    	<button class='inputButton' id='unzoom' type='button'>Unzoom</button>
 
-			    	<div id='logToggleWrap' class='UIchunk' style='display:none;'>
+			    	<div id='logToggleWrap' class='UIchunk'>
 			    		<label class='inputLabel' id='linLabel'>Linear</label>
 			    		<label class='inputLabel' id='logLabel'>Log</label>
 			    	</div>
+
+			    	<button class='inputButton' id='waveformSnap' type='button' engaged='0'>Snap to Waveform</button>
 		    	</form>
 
 	    	</div>
@@ -116,11 +118,31 @@
 					document.getElementById('fitModeToggle').onclick();
 				}
 
-				//re-fetch every period:
-				setInterval(fetchAllSpectra, 5000);
+				//waveform snap
+				document.getElementById('waveformSnap').onclick = function(){
+					if(this.engaged){
+						this.style.backgroundColor = '#444444';
+						viewer.demandXmin = null;
+						viewer.demandXmax = null;
+						viewer.demandYmin = null;
+						viewer.demandYmax = null;
+						viewer.unzoom();
+						this.engaged = 0;
+					} else {
+						this.style.backgroundColor = '#777777';
+						viewer.demandXmin = 0;
+						viewer.demandXmax = 256;
+						viewer.demandYmin = 1500;
+						viewer.demandYmax = 2500;
+						viewer.plotData();
+						this.engaged = 1; 
+					}					
+				}
 
-				//draw empty axis
-				viewer.plotData();
+				//re-fetch every period:
+				refreshSpectra();
+				setInterval(refreshSpectra, 5000);
+
 			};
 
 			//update the plot ranges onchange of the x-range input fields:
