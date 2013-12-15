@@ -39,7 +39,7 @@
 		    			<button class='inputButton' id='bigRight' type='button'>&#x21C9</button>
 		    		</div>
 
-			    	<div id='fitModeToggle' engaged='0' style='display:none'>
+			    	<div id='fitModeToggle' engaged='0'>
 			    		Fit Mode
 			    	</div>
 
@@ -74,6 +74,7 @@
 		    <div id='recentSpectra'>
 		 		<div id='titleRow' class='recentWrap'>
 		 			<div id='spectraList'>Spectra</div>
+		 			<div id='fitTarget'>Fit Target</div>
 		 			<div id='fitResults' class='fitResults'>Fit Results</div>
 		 			<div id='killAllLabel'>Delete All</div>
 		 			<div id='killAll' class='killSwitch'>&#x2573</div>
@@ -126,12 +127,12 @@
 						this.engaged = 0;
 					} else {
 						this.style.backgroundColor = '#777777';
-						viewer.fitTarget = 'dummy1'
 						viewer.setupFitMode();
 						this.engaged = 1; 
 					}
 				}
 				viewer.fitCallback = function(mean, width){
+					fitCallback(mean, width);
 					document.getElementById('fitModeToggle').onclick();
 				}
 
@@ -176,8 +177,8 @@
 				}
 
 				//recently viewed header row
-				toggleSwitch('titleRow', 'toggleAll', 'x', 'Show All', 'Hide All', function(){}, function(){}, 1);
-				document.getElementById('titleRow').insertBefore(document.getElementById('toggleWraptoggleAll'), document.getElementById('fitResults'));
+				toggleSwitch('titleRow', 'toggleAll', 'x', 'Show All', 'Hide All', toggleAll.bind(null, true), toggleAll.bind(null, false), 1);
+				document.getElementById('titleRow').insertBefore(document.getElementById('toggleWraptoggleAll'), document.getElementById('fitTarget'));
 
 				//killAll button
 				document.getElementById('killAll').onclick = function(){
@@ -203,6 +204,15 @@
 				viewer.XaxisLimitMax = parseInt(xMax.value,10);
 
 				viewer.plotData();				
+			};
+
+			//show / hide all toggle
+			function toggleAll(show){
+				var key;
+
+				for(key in viewer.plotBuffer){
+					setToggle('toggleSwitchtoggle'+key, show);
+				}
 			};
 
 		</script>

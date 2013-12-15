@@ -128,6 +128,8 @@ function addSpectrum(name){
 //add a row to the recently viewed table
 function addRow(name){
 
+	if(document.getElementById('recent'+name))
+		return;
 
 	//wrapper
 	injectDOM('div', 'recent'+name, 'recentSpectra', {'class':'recentWrap'});
@@ -140,6 +142,16 @@ function addRow(name){
 
 	//toggle
 	toggleSwitch('recent'+name, 'toggle'+name, 'x', 'Show', 'Hide', viewer.toggleSpectrum.bind(viewer, name, false), viewer.toggleSpectrum.bind(viewer, name, true), 1);
+
+	//fit target
+	injectDOM('div', 'fitTargetWrap'+name, 'recent'+name, {'class':'fitTargetWrap'})
+	injectDOM('input', 'fitTargetRadio'+name, 'fitTargetWrap'+name, {'type':'radio', 'name':'fitTarget', 'checked':true, 'class':'fitTargetRadio', 'value':name});
+	injectDOM('label', 'fitTarget'+name, 'fitTargetWrap'+name, {'for':'fitTargetRadio'+name});
+	document.getElementById('fitTargetRadio'+name).onchange = function(){
+		viewer.fitTarget = document.querySelector('input[name="fitTarget"]:checked').value;
+	}
+	viewer.fitTarget = document.querySelector('input[name="fitTarget"]:checked').value;
+
 
 	//fit results
 	injectDOM('div', 'fit'+name, 'recent'+name, {'class':'fitResults', 'innerHTML':'-'})
@@ -158,6 +170,7 @@ function addRow(name){
 		//unzoom the spectrum
 		viewer.unzoom();
 	};
+
 
 };
 
@@ -197,7 +210,16 @@ function getSpectrumList(data){
 	}
 }
 
+//callback for peak fit
+function fitCallback(center, width){
+	var name = viewer.fitTarget,
+		reportDiv = document.getElementById('fit'+name);
 
+	if(reportDiv.innerHTML == '-')
+		reportDiv.innerHTML = '';
+
+	reportDiv.innerHTML += 'Center: ' + center.toFixed(2) + ', Width: ' + width.toFixed(2) + '<br>';
+}
 
 
 
@@ -301,3 +323,17 @@ function flipToggle(event, id, enabled, disabled, onActivate, onDeactivate){
 
 	document.getElementById('toggleWrap'+id).ready =0;	
 }
+
+//set a toggle to the state given by the boolean activate
+function setToggle(toggleID, activate){
+	var toggle = document.getElementById(toggleID);
+	if( (activate && toggle.style.left == '0em') || (!activate && toggle.style.left == '1em') ){
+		toggle.onmousedown();
+		toggle.onmouseup();
+	}
+}
+
+
+
+
+

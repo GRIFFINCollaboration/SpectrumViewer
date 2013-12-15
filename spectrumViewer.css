@@ -266,7 +266,9 @@ div#titleRow{
 }
 
 div.recentWrap{
-	height:3em;
+	min-height:3em;
+	white-space: nowrap;
+	clear:both;
 }
 
 div.colorSwatch{
@@ -298,9 +300,38 @@ div.killSwitch{
 	
 }
 
-div#spectraList{
+div#spectraList, div#fitTarget{
 	float:left;
 	padding:1em;
+}
+
+div#fitTarget{
+	width:8em;
+	text-align: center;
+}
+
+div.fitTargetWrap{
+	text-align: center;
+	width:8em;
+	float:left;
+	padding-top:0.5em;
+}
+
+input.fitTargetRadio{
+	display: none;
+}
+
+input[type='radio'] + label{
+	display:inline-block;
+	width:1.5em;
+	height:1.5em;
+	border-radius: 0.75em;
+	border:2px solid #777777;
+	background-color: #222222;
+}
+
+input[type='radio']:checked + label{
+	background-color: #33FF33;
 }
 
 div.fitResults{
