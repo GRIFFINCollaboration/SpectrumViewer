@@ -141,9 +141,12 @@ function addRow(name){
 	//toggle
 	toggleSwitch('recent'+name, 'toggle'+name, 'x', 'Show', 'Hide', viewer.toggleSpectrum.bind(viewer, name, false), viewer.toggleSpectrum.bind(viewer, name, true), 1);
 
+	//fit results
+	injectDOM('div', 'fit'+name, 'recent'+name, {'class':'fitResults', 'innerHTML':'-'})
+
 	//kill button
 	injectDOM('div', 'kill'+name, 'recent'+name, {'class':'killSwitch', 'innerHTML':String.fromCharCode(0x2573)});
-	document.getElementById('kill'+name).addEventListener('click', function(){
+	document.getElementById('kill'+name).onclick = function(){
 		var name = this.id.slice(4,this.id.length);
 
 		//remove the data from the viewer buffer
@@ -154,7 +157,7 @@ function addRow(name){
 		delete spectrumBuffer[name];
 		//unzoom the spectrum
 		viewer.unzoom();
-	});
+	};
 
 };
 

@@ -477,7 +477,7 @@ function spectrumViewer(canvasID){
 			//this.YaxisLength=Math.log10(this.YaxisLimitMax-this.YaxisLimitMin);
 			this.YaxisLength = Math.log10(this.YaxisLimitMax) - Math.log10(this.YaxisLimitMin);
 
-	}
+	};
 
 	//zoom out to the full x-range
 	this.unzoom = function(){
@@ -530,6 +530,7 @@ function spectrumViewer(canvasID){
 		max=1;
 
 		fitdata=this.plotBuffer[fitKey];
+console.log([fitKey, fitdata])
 		fitdata=fitdata.slice(this.FitLimitLower, this.FitLimitUpper+1);
 
 		// Find maximum Y value in the fit data
