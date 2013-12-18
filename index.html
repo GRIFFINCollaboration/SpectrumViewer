@@ -96,6 +96,9 @@
 
 			function main(){
 
+				//scrape the URL for a query string
+				queryString();
+
 				//inject the linear / log toggle
 				toggleSwitch('logToggleWrap', 'toggleYscale', '', '', '', viewer.setAxisType.bind(viewer, 'log'), viewer.setAxisType.bind(viewer, 'linear'), 0);
 				document.getElementById('logToggleWrap').insertBefore(document.getElementById('logLabel'), null);
@@ -188,6 +191,10 @@
 						document.getElementById('kill'+key).onclick();
 					}
 				}
+
+				//initially populate with whatever's requested from the query string, if anything
+				if(queryVars.spectrum && document.getElementById(queryVars.spectrum))
+					document.getElementById(queryVars.spectrum).onclick();
 
 				//re-fetch every period:
 				refreshSpectra();

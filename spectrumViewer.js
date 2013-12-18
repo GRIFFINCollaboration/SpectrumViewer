@@ -185,7 +185,6 @@ function callSpectrumHandler(data){
 			spectrumBuffer[key][i] = data[key][i];
 	}
 	
-
 };
 
 //handle the spectrum list fetch, currently hardcoded as getSpectrumList
@@ -206,7 +205,7 @@ function getSpectrumList(data){
 		listElement.id = spectraNames[i];
 		spectrumList.appendChild(listElement);
 		document.getElementById(spectraNames[i]).innerHTML = spectraNames[i];
-		document.getElementById(spectraNames[i]).addEventListener('click', addSpectrum.bind(null, spectraNames[i]) );
+		document.getElementById(spectraNames[i]).onclick = addSpectrum.bind(null, spectraNames[i]) ;
 	}
 }
 
@@ -333,7 +332,18 @@ function setToggle(toggleID, activate){
 	}
 }
 
+function queryString(){
+	var query = window.location.search.substring(1),
+		i, buffer;
 
+	queryVars = {};
+
+	query = query.split('&')
+
+	for(i=0; i<query.length; i++){
+		queryVars[query[i].split('=')[0]] = query[i].split('=')[1] ;
+	}
+}
 
 
 
