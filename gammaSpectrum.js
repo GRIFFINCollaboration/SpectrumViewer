@@ -739,22 +739,28 @@ function spectrumViewer(canvasID){
 	}.bind(this);
 
 	this.canvas.onmousedown = function(event){
-		if(event.button == 2) return;
-		this.highlightStart = this.canvas.relMouseCoords(event).x;
-		this.XMouseLimitxMin = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin);
+		if(event.button == 0){
+			this.highlightStart = this.canvas.relMouseCoords(event).x;
+			this.XMouseLimitxMin = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin);
+		}
 	}.bind(this);
 
 	this.canvas.onmouseup = function(event){
-			if(event.button == 2) return;
-			this.highlightStart = -1;
-			this.XMouseLimitxMax = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin); 
-			this.DragWindow();
-			this.ClickWindow( parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin) );
+			if(event.button == 0){
+				this.highlightStart = -1;
+				this.XMouseLimitxMax = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin); 
+				this.DragWindow();
+				this.ClickWindow( parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin) );
+			}
 	}.bind(this);
 
 	this.canvas.ondblclick = function(event){
 		this.unzoom();
 	}.bind(this);
+
+	this.canvas.oncontextmenu = function(){
+		return false;
+	};
 
 }
 
