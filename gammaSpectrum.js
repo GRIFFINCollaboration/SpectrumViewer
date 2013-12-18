@@ -72,6 +72,9 @@ function spectrumViewer(canvasID){
 	this.demandXmax = null;
 	this.demandYmin = null;
 	this.demandYmax = null;
+	this.minY = 0; //minimum Y value currently being plotted
+	this.maxY = 1000000; //max Y value currently being plotted
+	this.chooseLimitsCallback = function(){};
 
 	//data
 	this.plotBuffer = {}; //buffer holding all the spectra we have on hand, packed as 'name':data[], where data[i] = counts in channel i
@@ -419,11 +422,12 @@ function spectrumViewer(canvasID){
 
 	//choose appropriate axis limits: default will fill the plot area, but can be overridden with this.demandXmin etc.
 	this.chooseLimits = function(){
-		var thisSpec, maxYvalue;
+		var thisSpec, minYvalue, maxYvalue;
 
 		this.YaxisLimitMax=5;
 		this.XaxisLength = this.XaxisLimitMax - this.XaxisLimitMin;
 		
+		minYvalue = 1000000;
 		this.XaxisLimitAbsMax = 0;
 		maxYvalue=this.YaxisLimitMax;
 		// Loop through to get the data and set the Y axis limits
@@ -434,7 +438,10 @@ function spectrumViewer(canvasID){
 			//Find the maximum X value from the size of the data
 			this.XaxisLimitAbsMax = Math.max(this.XaxisLimitAbsMax, this.plotBuffer[thisSpec].length);
 
-			// Find maximum Y value in the part of the spectrum to be displayed
+			// Find minimum and maximum Y value in the part of the spectrum to be displayed
+			if(Math.min.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)))<minYvalue){
+				minYvalue=Math.min.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)));
+			}
 			if(Math.max.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)))>maxYvalue){
 				maxYvalue=Math.max.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)));
 			}
@@ -449,6 +456,10 @@ function spectrumViewer(canvasID){
 			this.entries[thisSpec] = totalEntries;
 
 		}// End of for loop
+
+		//keep track of min and max y in a convenient place
+		this.minY = minYvalue;
+		this.maxY = maxYvalue;
 
 		//use demand overrides if present:
 		if(typeof this.demandXmin === 'number') this.XaxisLimitMin = this.demandXmin;
@@ -479,6 +490,9 @@ function spectrumViewer(canvasID){
 			//this.YaxisLength=Math.log10(this.YaxisLimitMax-this.YaxisLimitMin);
 			this.YaxisLength = Math.log10(this.YaxisLimitMax) - Math.log10(this.YaxisLimitMin);
 
+		//callback when limits are chosen - user fudges
+		this.chooseLimitsCallback();
+
 	};
 
 	//zoom out to the full x-range
@@ -486,6 +500,7 @@ function spectrumViewer(canvasID){
 		var thisSpec;
 
 		this.adjustXaxis();
+		this.clearFits();
 
 		this.plotData();
 	};
@@ -606,7 +621,7 @@ function spectrumViewer(canvasID){
 	this.clearFits = function(callback){
 		this.containerFit.removeAllChildren();
 		this.stage.update();
-		
+
 		if(callback)
 			callback();
 	}

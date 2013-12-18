@@ -149,18 +149,27 @@
 						viewer.demandXmax = null;
 						viewer.demandYmin = null;
 						viewer.demandYmax = null;
+						viewer.chooseLimitsCallback = function(){};
 						viewer.unzoom();
 						this.engaged = 0;
 					} else {
 						this.style.backgroundColor = '#777777';
 						viewer.demandXmin = 0;
 						viewer.demandXmax = 256;
-						viewer.demandYmin = 1500;
-						viewer.demandYmax = 2500;
+						viewer.chooseLimitsCallback = function(){
+							//set some demand values for the y axis and rerun the limit calculation
+							var rerun = !viewer.demandYmin;
+							viewer.demandYmin = viewer.minY*0.98;
+							viewer.demandYmax = viewer.maxY*1.02; 
+							if(rerun) viewer.chooseLimits();
+							viewer.demandYmin = null;
+							viewer.demandYmax = null;
+						}
 						viewer.plotData();
 						this.engaged = 1; 
 					}					
 				}
+				
 
 				//update now
 				document.getElementById('upNow').onclick = function(){
