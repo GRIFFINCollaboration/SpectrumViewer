@@ -158,9 +158,9 @@
 						viewer.demandXmax = 256;
 						viewer.chooseLimitsCallback = function(){
 							//set some demand values for the y axis and rerun the limit calculation
-							var rerun = !viewer.demandYmin;
-							viewer.demandYmin = viewer.minY*0.98;
-							viewer.demandYmax = viewer.maxY*1.02; 
+							var rerun = viewer.demandYmin == null;
+							viewer.demandYmin = Math.max(0, viewer.minY - (viewer.maxY - viewer.minY)*0.1);
+							viewer.demandYmax = viewer.maxY + (viewer.maxY - viewer.minY)*0.1; 
 							if(rerun) viewer.chooseLimits();
 							viewer.demandYmin = null;
 							viewer.demandYmax = null;

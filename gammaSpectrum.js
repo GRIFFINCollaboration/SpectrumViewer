@@ -739,11 +739,13 @@ function spectrumViewer(canvasID){
 	}.bind(this);
 
 	this.canvas.onmousedown = function(event){
+		if(event.button == 2) return;
 		this.highlightStart = this.canvas.relMouseCoords(event).x;
 		this.XMouseLimitxMin = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin);
 	}.bind(this);
 
 	this.canvas.onmouseup = function(event){
+			if(event.button == 2) return;
 			this.highlightStart = -1;
 			this.XMouseLimitxMax = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin); 
 			this.DragWindow();
