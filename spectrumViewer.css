@@ -336,7 +336,8 @@ input[type='radio']:checked + label{
 
 div.fitResults{
 	float:left;
-	padding:1em;
+	padding-left:1em;
+	padding-right: 1em;
 	width:20em;
 	text-align: center;
 }
@@ -361,6 +362,10 @@ div#toggleWraptoggleAll{
 div.recentWrap div.toggleWrap{
 	width: 15em;
 	padding-left: 1.5em;
+}
+
+button#clearFits{
+	font-size:100%;
 }
 
 /*Toggle Switch///////////////////////////////////////////////////////////////////////*/

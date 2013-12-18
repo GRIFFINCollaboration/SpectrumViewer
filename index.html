@@ -75,7 +75,9 @@
 		 		<div id='titleRow' class='recentWrap'>
 		 			<div id='spectraList'>Spectra</div>
 		 			<div id='fitTarget'>Fit Target</div>
-		 			<div id='fitResults' class='fitResults'>Fit Results</div>
+		 			<div id='fitResults' class='fitResults'>Fit Results
+		 				<button class='inputButton' type='button' id='clearFits'>Clear</button>
+		 			</div>
 		 			<div id='killAllLabel'>Delete All</div>
 		 			<div id='killAll' class='killSwitch'>&#x2573</div>
 		 		</div>
@@ -190,6 +192,17 @@
 					for(key in viewer.plotBuffer){
 						document.getElementById('kill'+key).onclick();
 					}
+				}
+
+				//clear fit results button
+				document.getElementById('clearFits').onclick = function(){
+					viewer.clearFits(function(){
+						var key;
+
+						for(key in viewer.plotBuffer){
+							document.getElementById('fit'+key).innerHTML = '-';
+						}
+					});
 				}
 
 				//initially populate with whatever's requested from the query string, if anything

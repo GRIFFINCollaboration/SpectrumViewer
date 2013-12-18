@@ -32,8 +32,10 @@ function spectrumViewer(canvasID){
 	this.stage = new createjs.Stage(canvasID);  //transform the canvas into an easelJS sandbox
 	this.containerMain = new createjs.Container(); //layer for main plot
 	this.containerOverlay = new createjs.Container(); //layer for overlay: cursors, range highlights
+	this.containerFit = new createjs.Container(); //layer for fit curves
 	this.stage.addChild(this.containerMain);
 	this.stage.addChild(this.containerOverlay);
+	this.stage.addChild(this.containerFit);
 
 	//axes & drawing
 	this.fontScale = Math.min(Math.max(this.canvas.width / 50, 10), 16); // 10 < fontScale < 16
@@ -530,6 +532,7 @@ function spectrumViewer(canvasID){
 		max=1;
 
 		fitdata=this.plotBuffer[fitKey];
+
 		fitdata=fitdata.slice(this.FitLimitLower, this.FitLimitUpper+1);
 
 		// Find maximum Y value in the fit data
@@ -590,7 +593,7 @@ function spectrumViewer(canvasID){
 			}
 		}
 
-		this.containerMain.addChild(fitLine);
+		this.containerFit.addChild(fitLine);
 		this.stage.update();
 
 		this.fitted=1;
@@ -598,6 +601,15 @@ function spectrumViewer(canvasID){
 
 		this.fitCallback(cent, width);
 	};
+
+	//dump the fit results
+	this.clearFits = function(callback){
+		this.containerFit.removeAllChildren();
+		this.stage.update();
+		
+		if(callback)
+			callback();
+	}
 
 	//suppress or unsuppress a spectrum from being shown
 	this.toggleSpectrum = function(spectrumName, hide){
