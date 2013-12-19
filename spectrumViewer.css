@@ -258,6 +258,7 @@ div#recentSpectra{
 	min-width: 100px;
 	margin-bottom: 1em;
 	font-size: 150%;
+	padding-top:0px;
 }
 
 div#titleRow{
@@ -340,6 +341,7 @@ div.fitResults{
 	padding-right: 1em;
 	width:20em;
 	text-align: center;
+	padding-top:0.5em;
 }
 
 div#killAllLabel{
@@ -366,6 +368,7 @@ div.recentWrap div.toggleWrap{
 
 button#clearFits{
 	font-size:100%;
+	margin: 0px;
 }
 
 /*Toggle Switch///////////////////////////////////////////////////////////////////////*/
