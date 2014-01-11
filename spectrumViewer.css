@@ -122,14 +122,14 @@ button.navButton:hover{
 }
 
 /*main///////////////////////////////////////////////////////*/
-div#canvasWrap, div#sidebarWrap{
+div.canvasWrap, div.sidebarWrap{
 	display:inline-block;
 	border: 5px solid #EEEEEE;
 	border-radius: 25px;
 	margin-bottom: 1em;
 }
 
-div#canvasWrap{
+div.canvasWrap{
 	width: 74%;
 	height:90%;
 	float:left;
@@ -137,7 +137,7 @@ div#canvasWrap{
 	margin-top: 1em;
 }
 
-div#sidebarWrap{
+div.sidebarWrap{
 	width:24%;
 	height:90%;
 	float:right;
@@ -184,7 +184,7 @@ input.inputBox{
 	cursor: pointer;
 }
 
-button.inputButton, div#fitModeToggle{
+button.inputButton, div#fitModeToggle, button.deckNavPassive, button.deckNav1D, button.deckNav2D{
 	background-color: #444444;
 	border-radius: 5px;
 	color: #CCCCCC;
@@ -196,7 +196,7 @@ button.inputButton, div#fitModeToggle{
 	cursor: pointer;
 }
 
-button.inputButton:hover{
+button.inputButton:hover, button.deckNavPassive:hover{
 	background-color: #777777;
 }
 
@@ -223,6 +223,28 @@ select{
     appearance:none;
 }
 
+/*Deck Nav/////////////////////////////////////////////////////////////////////////////*/
+x-deck#mainDeck{
+	
+}
+
+button.deckNavPassive, button.deckNav1D, button.deckNav2D{
+	font-size: 100%;
+	color: #EEEEEE;
+}
+
+button.deckNav1D{
+	background-color: #d35400;
+}
+
+button.deckNav2D{
+	background-color: #8e44ad; 
+}
+
+div.deckNavWrap{
+	text-align: center;
+}
+
 /* http://stackoverflow.com/questions/3790935/can-i-hide-the-html5-number-inputs-spin-box */
 input.inputBox::-webkit-outer-spin-button,
 input.inputBox::-webkit-inner-spin-button {
@@ -235,15 +257,15 @@ label.inputLabel{
 	color: #999999;
 }
 
-label#linLabel{
+label#linLabel, #linLabel2D{
 	float:left;
 }
 
-div#toggleWraptoggleYscale{
+div#toggleWraptoggleYscale, #toggleWraptoggleZscale{
 	margin-top: 0;
 }
 
-button#unzoom, button#waveformSnap{
+button#unzoom, #unzoom2D, #waveformSnap{
 	margin-right:1em;
 }
 
@@ -329,6 +351,9 @@ input[type='radio'] + label{
 	border-radius: 0.75em;
 	border:2px solid #777777;
 	background-color: #222222;
+	transition:background-color 0.5s; 
+	-moz-transition:background-color 0.5s; 
+	-webkit-transition:background-color 0.5s;
 }
 
 input[type='radio']:checked + label{
@@ -435,11 +460,10 @@ div#wrapper{
 
 div#bumperDiv {
 	overflow:auto;
-	padding-bottom: 5em;
 	float:left; /*strange but true*/
 	margin-bottom: 1em;
 	font-size: 200%;
-}  /* must be same height as the footer */
+}
 
 div#footer {
 	position: relative;

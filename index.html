@@ -3,14 +3,17 @@
 	<head>
 		<script src="gammaSpectrum.js" type="text/javascript"></script>
 		<script src="fitit.js" type="text/javascript"></script>
+		<script src="fieldViewer.js" type="text/javascript"></script>
 		<script src="spectrumViewer.js" type="text/javascript"></script>
 		<script src="http://code.createjs.com/easeljs-0.7.0.min.js"></script>
+		<script type='text/javascript' src='brick-0.9.1.js'></script>
 
 		<link rel="stylesheet" type="text/css" href="spectrumViewer.css"/>
 		<link href='http://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+		<link rel='stylesheet' type='text/css' href='brick-0.9.1.css'>
 	</head>
 
-	<body onLoad='populateSpectra()'>
+	<body onLoad='setup()'>
 		<div id='wrapper'>
 
 		    <div id='branding'>
@@ -22,67 +25,112 @@
 		    	<button id='statusButton' class='navButton'>MIDAS Status</button>
 		    </div>
 
-		    
-	    	<div id='canvasWrap'>
-	    		<canvas id='spectrumCanvas'></canvas>
-	    		<form id='plotControl'>
-		    		<div id='xRangeWrap', class='UIchunk'>
-			    		<input class='inputBox' id='minX' type='number' value='0' onchange='updatePlotRange()'></input>
-			    		<label class='inputLabel' id='xRangeLabel'>< x <</label>
-		    			<input class='inputBox' id='maxX' type='number' value='2048' onchange='updatePlotRange()'></input>
-		    		</div>
+			<x-deck id='mainDeck' selected-index='0'>
+				<x-card id='spectra1D'>
+			    	<div class= 'canvasWrap' id='canvasWrap'>
+			    		<canvas id='spectrumCanvas'></canvas>
+			    		<form id='plotControl'>
+				    		<div id='xRangeWrap', class='UIchunk'>
+					    		<input class='inputBox' id='minX' type='number' value='0' onchange='updatePlotRange()'></input>
+					    		<label class='inputLabel' id='xRangeLabel'>< x <</label>
+				    			<input class='inputBox' id='maxX' type='number' value='2048' onchange='updatePlotRange()'></input>
+				    		</div>
 
-		    		<div id='scrollWrap', class='UIchunk'>
-		    			<button class='inputButton' id='bigLeft' type='button'>&#x21C7</button>
-		    			<button class='inputButton' id='littleLeft' type='button'>&#x2190</button>
-		    			<button class='inputButton' id='littleRight' type='button'>&#x2192</button>
-		    			<button class='inputButton' id='bigRight' type='button'>&#x21C9</button>
-		    		</div>
+				    		<div id='scrollWrap', class='UIchunk'>
+				    			<button class='inputButton' id='bigLeft' type='button'>&#x21C7</button>
+				    			<button class='inputButton' id='littleLeft' type='button'>&#x2190</button>
+				    			<button class='inputButton' id='littleRight' type='button'>&#x2192</button>
+				    			<button class='inputButton' id='bigRight' type='button'>&#x21C9</button>
+				    		</div>
 
-			    	<div id='fitModeToggle' engaged='0'>
-			    		Fit Mode
+					    	<div id='fitModeToggle' engaged='0'>
+					    		Fit Mode
+					    	</div>
+
+					    	<button class='inputButton' id='unzoom' type='button'>Unzoom</button>
+
+					    	<div id='logToggleWrap' class='UIchunk'>
+					    		<label class='inputLabel' id='linLabel'>Linear</label>
+					    		<label class='inputLabel' id='logLabel'>Log</label>
+					    	</div>
+
+					    	<button class='inputButton' id='waveformSnap' type='button' engaged='0'>Snap to Waveform</button>
+
+					    	<div id='updateWrap' class='UIchunk'>
+						    	<label id='updateLabel' class='inputLabel'>Update Every: </label>
+						    	<select id='upOptions'>
+						    		<option value='3000'>3 s</option>
+						    		<option value='5000'>5 s</option>
+						    		<option value='10000'>10 s</option>
+						    		<option value='-1'>never</option>
+						    	</select>
+						    	<button id='upNow' class='inputButton' type='button'>Update Now</button>
+						    </div>
+				    	</form>
+
 			    	</div>
 
-			    	<button class='inputButton' id='unzoom' type='button'>Unzoom</button>
+			    	<div class='sidebarWrap' id='sidebarWrap'>
+			    		<div class='deckNavWrap'>
+			    			<button id='deckNav1Dat1D' class='deckNav1D'>1D Spectra</button>
+			    			<button id='deckNav2Dat1D' class='deckNavPassive'>2D Spectra</button>
+			    		</div>
+			    		<ul id='availableSpectra'></ul>
 
-			    	<div id='logToggleWrap' class='UIchunk'>
-			    		<label class='inputLabel' id='linLabel'>Linear</label>
-			    		<label class='inputLabel' id='logLabel'>Log</label>
 			    	</div>
 
-			    	<button class='inputButton' id='waveformSnap' type='button' engaged='0'>Snap to Waveform</button>
+				    <div id='recentSpectra'>
+				 		<div id='titleRow' class='recentWrap'>
+				 			<div id='spectraList'>Spectra</div>
+				 			<div id='fitTarget'>Fit Target</div>
+				 			<div id='fitResults' class='fitResults'>Fit Results
+				 				<button class='inputButton' type='button' id='clearFits'>Clear</button>
+				 			</div>
+				 			<div id='killAllLabel'>Delete All</div>
+				 			<div id='killAll' class='killSwitch'>&#x2573</div>
+				 		</div>
 
-			    	<div id='updateWrap' class='UIchunk'>
-				    	<label id='updateLabel' class='inputLabel'>Update Every: </label>
-				    	<select id='upOptions'>
-				    		<option value='3000'>3 s</option>
-				    		<option value='5000'>5 s</option>
-				    		<option value='10000'>10 s</option>
-				    		<option value='-1'>never</option>
-				    	</select>
-				    	<button id='upNow' class='inputButton' type='button'>Update Now</button>
 				    </div>
-		    	</form>
 
-	    	</div>
+				</x-card>
 
-	    	<div id='sidebarWrap'>
-	    		<ul id='availableSpectra'></ul>
+				<x-card id='spectra2D'>
+			    	<div class='canvasWrap' id='canvasWrap2D'>
+			    		<canvas id='fieldCanvas'></canvas>
+			    		<form id='plotControl2D'>
+				    		<div id='scrollWrap2Dhoriz', class='UIchunk'>
+				    			<button class='inputButton' id='bigLeft2D' type='button'>&#x21C7</button>
+				    			<button class='inputButton' id='littleLeft2D' type='button'>&#x2190</button>
+				    			<button class='inputButton' id='littleRight2D' type='button'>&#x2192</button>
+				    			<button class='inputButton' id='bigRight2D' type='button'>&#x21C9</button>
+				    		</div>
 
-	    	</div>
+				    		<div id='scrollWrap2Dvert', class='UIchunk'>
+				    			<button class='inputButton' id='bigUp2D' type='button'>&#x21C8</button>
+				    			<button class='inputButton' id='littleUp2D' type='button'>&#x2191</button>
+				    			<button class='inputButton' id='littleDown2D' type='button'>&#x2193</button>
+				    			<button class='inputButton' id='bigDown2D' type='button'>&#x21CA</button>
+				    		</div>
 
-		    <div id='recentSpectra'>
-		 		<div id='titleRow' class='recentWrap'>
-		 			<div id='spectraList'>Spectra</div>
-		 			<div id='fitTarget'>Fit Target</div>
-		 			<div id='fitResults' class='fitResults'>Fit Results
-		 				<button class='inputButton' type='button' id='clearFits'>Clear</button>
-		 			</div>
-		 			<div id='killAllLabel'>Delete All</div>
-		 			<div id='killAll' class='killSwitch'>&#x2573</div>
-		 		</div>
+				    		<button class='inputButton' id='unzoom2D' type='button'>Unzoom</button>
 
-		    </div>
+					    	<div id='logToggleWrap2D' class='UIchunk'>
+					    		<label class='inputLabel' id='linLabel2D'>Linear</label>
+					    		<label class='inputLabel' id='logLabel2D'>Log</label>
+					    	</div>
+
+				    	</form>
+			    	</div>
+
+			    	<div class='sidebarWrap' id='sidebarWrap2D'>
+			    		<div class='deckNavWrap'>
+			    			<button id='deckNav1Dat2D' class='deckNavPassive'>1D Spectra</button>
+			    			<button id='deckNav2Dat2D' class='deckNav2D'>2D Spectra</button>
+			    		</div>
+			    		<ul id='availableSpectra2D'></ul>
+			    	</div>
+				</x-card>
+			</x-deck>
 		    
 		    <div id='bumperDiv'></div>
 
@@ -93,17 +141,18 @@
 		</div>
 
 		<script>
-			//initialize a global buffer for all the histograms we pull in:
-			spectrumBuffer = {};
-
 			function main(){
 
 				//scrape the URL for a query string
 				queryString();
 
-				//inject the linear / log toggle
+				//inject the linear / log toggle - 1D
 				toggleSwitch('logToggleWrap', 'toggleYscale', '', '', '', viewer.setAxisType.bind(viewer, 'log'), viewer.setAxisType.bind(viewer, 'linear'), 0);
 				document.getElementById('logToggleWrap').insertBefore(document.getElementById('logLabel'), null);
+
+				//inject the linear / log toggle - 2D
+				toggleSwitch('logToggleWrap2D', 'toggleZscale', '', '', '', fieldViewer.setAxisType.bind(fieldViewer, 'log'), fieldViewer.setAxisType.bind(fieldViewer, 'linear'), 0);
+				document.getElementById('logToggleWrap2D').insertBefore(document.getElementById('logLabel2D'), null);
 
 				//callback after drawing spectrum
 				viewer.drawCallback = function(){
@@ -115,14 +164,31 @@
 					xMax.value = this.XaxisLimitMax;
 				}
 
-				//onclick for scroll buttons:
+				//setup x-deck navigation
+				document.getElementById('deckNav2Dat1D').onclick = function(){document.getElementById('mainDeck').shuffleTo(1);}
+				document.getElementById('deckNav1Dat2D').onclick = function(){document.getElementById('mainDeck').shuffleTo(0);}
+
+				//onclick for scroll buttons - 1D:
 				document.getElementById('bigLeft').onclick = viewer.scrollSpectra.bind(viewer, -100);
 				document.getElementById('littleLeft').onclick = viewer.scrollSpectra.bind(viewer, -1);
 				document.getElementById('littleRight').onclick = viewer.scrollSpectra.bind(viewer, 1);
 				document.getElementById('bigRight').onclick = viewer.scrollSpectra.bind(viewer, 100);
 
+				//onclick for scroll buttons - 2D horizontal:
+				document.getElementById('bigLeft2D').onclick = fieldViewer.scrollX.bind(fieldViewer, -10);
+				document.getElementById('littleLeft2D').onclick = fieldViewer.scrollX.bind(fieldViewer, -1);
+				document.getElementById('littleRight2D').onclick = fieldViewer.scrollX.bind(fieldViewer, 1);
+				document.getElementById('bigRight2D').onclick = fieldViewer.scrollX.bind(fieldViewer, 10);
+
+				//onclick for scroll buttons - 2D vertical:
+				document.getElementById('bigUp2D').onclick = fieldViewer.scrollY.bind(fieldViewer, 10);
+				document.getElementById('littleUp2D').onclick = fieldViewer.scrollY.bind(fieldViewer, 1);
+				document.getElementById('littleDown2D').onclick = fieldViewer.scrollY.bind(fieldViewer, -1);
+				document.getElementById('bigDown2D').onclick = fieldViewer.scrollY.bind(fieldViewer, -10);
+
 				//unzoom
 				document.getElementById('unzoom').onclick = viewer.unzoom.bind(viewer);
+				document.getElementById('unzoom2D').onclick = fieldViewer.unzoom.bind(fieldViewer);
 
 				//fit mode
 				document.getElementById('fitModeToggle').onclick = function(){
@@ -243,6 +309,13 @@
 					setToggle('toggleSwitchtoggle'+key, show);
 				}
 			};
+
+			function setup(){
+				//initialize a global buffer for all the histograms we pull in:
+				spectrumBuffer = {};
+				//start by getting a list of spectra
+				populateSpectra();
+			}
 
 		</script>
 	</body>

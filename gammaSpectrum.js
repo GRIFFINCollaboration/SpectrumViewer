@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Bill Mills
+Copyright (c) 2014 Bill Mills
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,9 +32,11 @@ function spectrumViewer(canvasID){
 	this.stage = new createjs.Stage(canvasID);  //transform the canvas into an easelJS sandbox
 	this.containerMain = new createjs.Container(); //layer for main plot
 	this.containerOverlay = new createjs.Container(); //layer for overlay: cursors, range highlights
+	this.containerPersistentOverlay = new createjs.Container(); //layer for persistent overlay features
 	this.containerFit = new createjs.Container(); //layer for fit curves
 	this.stage.addChild(this.containerMain);
 	this.stage.addChild(this.containerOverlay);
+	this.stage.addChild(this.containerPersistentOverlay);
 	this.stage.addChild(this.containerFit);
 
 	//axes & drawing
@@ -132,6 +134,7 @@ function spectrumViewer(canvasID){
 		axis.graphics.mt(this.leftMargin, this.topMargin);
 		axis.graphics.lt(this.leftMargin, this.canvas.height-this.bottomMargin);
 		axis.graphics.lt(this.canvas.width - this.rightMargin, this.canvas.height - this.bottomMargin);
+		axis.graphics.lt(this.canvas.width - this.rightMargin, this.topMargin);
 		this.containerMain.addChild(axis);
 
 
@@ -165,8 +168,6 @@ function spectrumViewer(canvasID){
 			this.containerMain.addChild(text);
 
 		}
-
-
 
 		//Decorate Y axis/////////////////////////////////////////////////////////
 		//decide how many ticks to draw on the y axis; come as close to a factor of the number of bins as possible:
@@ -253,14 +254,14 @@ function spectrumViewer(canvasID){
 			color = this.dataColor[this.colorAssignment.indexOf(thisSpec)];
 			text = new createjs.Text(thisSpec + ': '+this.entries[thisSpec] + ' entries', this.context.font, color);
 			text.textBaseline = 'top';
-			text.x = this.canvas.width - this.rightMargin - this.context.measureText(thisSpec + ': '+this.entries[thisSpec] + 'entries').width;
+			text.x = this.canvas.width - this.rightMargin - this.context.measureText(thisSpec + ': '+this.entries[thisSpec] + 'entries').width - this.fontScale;
 			text.y = (j+1)*this.fontScale;
 			this.containerMain.addChild(text);
 
 			// Loop through the data spectrum that we have
 			histLine = new createjs.Shape();
 			histLine.graphics.ss(this.axisLineWidth).s(color);
-			histLine.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin);
+			//histLine.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin);
 			for(i=Math.floor(this.XaxisLimitMin); i<Math.floor(this.XaxisLimitMax); i++){
 
 				// Protection at the end of the spectrum (minimum and maximum X)
@@ -275,7 +276,10 @@ function spectrumViewer(canvasID){
 					if(this.AxisType==0){
 						//draw canvas line:
 						//left side of bar
-						histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0,(this.plotBuffer[thisSpec][i] - this.YaxisLimitMin))*this.countHeight );
+						if(i != Math.floor(this.XaxisLimitMin))
+							histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0,(this.plotBuffer[thisSpec][i] - this.YaxisLimitMin))*this.countHeight );
+						else
+							histLine.graphics.mt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0,(this.plotBuffer[thisSpec][i] - this.YaxisLimitMin))*this.countHeight );
 						//top of bar
 						histLine.graphics.lt( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0,(this.plotBuffer[thisSpec][i] - this.YaxisLimitMin))*this.countHeight );
 					}
@@ -284,12 +288,18 @@ function spectrumViewer(canvasID){
 						//draw canvas line:
 						if(this.plotBuffer[thisSpec][i] > 0){
 							//left side of bar
-							histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0, (Math.log10(this.plotBuffer[thisSpec][i]) - Math.log10(this.YaxisLimitMin)))*this.countHeight );
+							if( i != Math.floor(this.XaxisLimitMin))
+								histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0, (Math.log10(this.plotBuffer[thisSpec][i]) - Math.log10(this.YaxisLimitMin)))*this.countHeight );
+							else
+								histLine.graphics.mt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0, (Math.log10(this.plotBuffer[thisSpec][i]) - Math.log10(this.YaxisLimitMin)))*this.countHeight );
 							//top of bar
 							histLine.graphics.lt( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0, (Math.log10(this.plotBuffer[thisSpec][i]) - Math.log10(this.YaxisLimitMin)))*this.countHeight );
 						} else {
 							//drop to the x axis
-							histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
+							if( i != Math.floor(this.XaxisLimitMin) )
+								histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
+							else
+								histLine.graphics.mt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
 							//crawl along x axis until log-able data is found:
 							histLine.graphics.lt( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
 						}
@@ -298,8 +308,8 @@ function spectrumViewer(canvasID){
 				} else continue;
 			}
 			//finish the canvas path:
-			if(this.plotBuffer[thisSpec].length == this.XaxisLimitMax) 
-				histLine.graphics.lt(this.canvas.width - this.rightMargin, this.canvas.height - this.bottomMargin );
+			//if(this.plotBuffer[thisSpec].length == this.XaxisLimitMax) 
+			//	histLine.graphics.lt(this.canvas.width - this.rightMargin, this.canvas.height - this.bottomMargin );
 			this.containerMain.addChild(histLine);
 			j++;
 		} // End of for loop
@@ -336,25 +346,27 @@ function spectrumViewer(canvasID){
 			this.XaxisLimitMin = parseInt(this.XMouseLimitxMin);
 			this.XaxisLimitMax = parseInt(this.XMouseLimitxMax);
 	
-			//TBD: delete?
-			//programatically trigger the fields' onchange:
-			//document.getElementById('LowerXLimit').onchange();
-			//document.getElementById('UpperXLimit').onchange();
-
 			//drawXaxis();
 			this.YaxisLimitMax=5;
 
 			this.plotData();
-
-		}
+			this.clickBounds = [];
+		} else
+			this.ClickWindow(this.XMouseLimitxMax)
 	};
 
 	//handle clicks on the plot
 	this.ClickWindow = function(bin){
+		var redline;
 
 		//decide what to do with the clicked limits - zoom or fit?
 		if(this.clickBounds.length == 0){
 			this.clickBounds[0] = bin;
+			redline = new createjs.Shape();
+			redline.graphics.ss(this.axisLineWidth).s('#FF0000');
+			redline.graphics.mt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.canvas.height - this.bottomMargin);
+			redline.graphics.lt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.topMargin);
+			this.containerPersistentOverlay.addChild(redline);
 		} else if(this.clickBounds[0] == 'abort' && !this.fitModeEngage){
 			this.clickBounds = [];
 		} else if(this.clickBounds.length == 2 ){
@@ -373,6 +385,8 @@ function spectrumViewer(canvasID){
 				this.XMouseLimitxMax = this.clickBounds[1];
 				this.DragWindow();
 				this.clickBounds = [];
+				this.containerPersistentOverlay.removeAllChildren();
+				this.stage.update();
 			}
 		}
 	};
@@ -709,17 +723,25 @@ function spectrumViewer(canvasID){
         //draw crosshairs
         this.containerOverlay.removeAllChildren();
         if(x > this.leftMargin && x < this.canvas.width - this.rightMargin && y > this.topMargin && y<this.canvas.height-this.bottomMargin){
-			crosshairs = new createjs.Shape();
-			crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
-			crosshairs.graphics.mt(this.leftMargin, y);
-			crosshairs.graphics.lt(this.canvas.width-this.rightMargin, y);
-			this.containerOverlay.addChild(crosshairs);
+        	if(this.clickBounds.length!=1){  //normal crosshairs
+				crosshairs = new createjs.Shape();
+				crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
+				crosshairs.graphics.mt(this.leftMargin, y);
+				crosshairs.graphics.lt(this.canvas.width-this.rightMargin, y);
+				this.containerOverlay.addChild(crosshairs);
 
-			crosshairs = new createjs.Shape();
-			crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
-			crosshairs.graphics.mt(x, this.canvas.height-this.bottomMargin);
-			crosshairs.graphics.lt(x, this.topMargin);
-			this.containerOverlay.addChild(crosshairs);
+				crosshairs = new createjs.Shape();
+				crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
+				crosshairs.graphics.mt(x, this.canvas.height-this.bottomMargin);
+				crosshairs.graphics.lt(x, this.topMargin);
+				this.containerOverlay.addChild(crosshairs);
+			} else { //red vertical line to mark second bound of click-and-zoom
+				crosshairs = new createjs.Shape();
+				crosshairs.graphics.ss(this.axisLineWidth).s('#FF0000');
+				crosshairs.graphics.mt(x, this.canvas.height-this.bottomMargin);
+				crosshairs.graphics.lt(x, this.topMargin);
+				this.containerOverlay.addChild(crosshairs);				
+			}
 		}
 		//highlight region on drag
 		if(this.highlightStart != -1){
@@ -750,7 +772,6 @@ function spectrumViewer(canvasID){
 				this.highlightStart = -1;
 				this.XMouseLimitxMax = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin); 
 				this.DragWindow();
-				this.ClickWindow( parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin) );
 			}
 	}.bind(this);
 
@@ -758,6 +779,7 @@ function spectrumViewer(canvasID){
 		this.unzoom();
 	}.bind(this);
 
+	//right clicking does obnoxious focus things, messes with canvas onclicks.
 	this.canvas.oncontextmenu = function(){
 		return false;
 	};

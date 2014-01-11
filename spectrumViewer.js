@@ -10,12 +10,32 @@ function populateSpectra(){
 	//get the body font right
     document.body.style.fontSize = window.innerHeight*0.05/4+'px';	
 
-	//scale the canvas
+	//scale the canvas - 1D
 	document.getElementById('spectrumCanvas').setAttribute('width', parseInt(document.getElementById('canvasWrap').offsetWidth, 10)*0.95+'px');
 	document.getElementById('spectrumCanvas').setAttribute('height', parseInt(document.getElementById('canvasWrap').offsetHeight, 10)*0.8+'px');
 
-	//set up a spectrum viewer
+	//scale the canvas - 2D
+	document.getElementById('fieldCanvas').setAttribute('width', parseInt(document.getElementById('canvasWrap2D').offsetWidth, 10)*0.95+'px');
+	document.getElementById('fieldCanvas').setAttribute('height', parseInt(document.getElementById('canvasWrap2D').offsetHeight, 10)*0.8+'px');
+
+	//fix the height of the canvas wrap and spectra list now that they're populated - allow height adjustments only on the recently viewed panel
+	document.getElementById('canvasWrap').style.height = document.getElementById('canvasWrap').offsetHeight;
+	document.getElementById('sidebarWrap').style.height = document.getElementById('sidebarWrap').offsetHeight;
+	document.getElementById('canvasWrap2D').style.height = document.getElementById('canvasWrap').offsetHeight;
+	document.getElementById('sidebarWrap2D').style.height = document.getElementById('sidebarWrap').offsetHeight;
+
+	//scale the x-deck
+	updateDeckHeight();
+
+	//set up a spectrum viewer - 1D
 	viewer = new spectrumViewer('spectrumCanvas');
+
+	//set up a field viewer - 2D
+	fieldViewer = new fieldViewer('fieldCanvas');
+	//dummy data in the 2D canvas for now
+	fieldViewer.plotBuffer = fieldViewer.fakeData.gaussian;
+	fieldViewer.plotData();
+
 
 	script.setAttribute('src', 'http://annikal.triumf.ca:9093/?cmd=getSpectrumList');
 	script.onload = function(){
@@ -121,6 +141,9 @@ function addSpectrum(name){
 
 		//add to recently viewed list
 		addRow(name);
+
+		//resize the xdeck
+		updateDeckHeight();
 	}.bind(null, name));
 	
 };
@@ -169,6 +192,8 @@ function addRow(name){
 		delete spectrumBuffer[name];
 		//unzoom the spectrum
 		viewer.unzoom();
+		//shrink the deck height
+		updateDeckHeight();
 	};
 
 
@@ -345,5 +370,9 @@ function queryString(){
 	}
 }
 
+//x-deck needs its height babysat - todo: CSS solution?
+function updateDeckHeight(){
+	document.getElementById('mainDeck').style.height = document.getElementById('canvasWrap').offsetHeight + document.getElementById('recentSpectra').offsetHeight + parseFloat(document.body.style.fontSize)*3; //ie 3 ems worth of margins
+}
 
 
