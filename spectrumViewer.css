@@ -122,26 +122,29 @@ button.navButton:hover{
 }
 
 /*main///////////////////////////////////////////////////////*/
-div#canvasWrap, div#sidebarWrap{
+div.canvasWrap, div.sidebarWrap{
 	display:inline-block;
 	border: 5px solid #EEEEEE;
 	border-radius: 25px;
-	margin-top: 1em;
 	margin-bottom: 1em;
 }
 
-div#canvasWrap{
+div.canvasWrap{
 	width: 74%;
 	height:90%;
 	float:left;
 	padding:1em;
+	margin-top: 1em;
 }
 
-div#sidebarWrap{
+div.sidebarWrap{
 	width:24%;
 	height:90%;
 	float:right;
 	padding:1em;
+	font-size: 200%;
+	overflow:scroll;
+	margin-top: 0.5em;
 }
 
 ul#availableSpectra li{
@@ -181,7 +184,7 @@ input.inputBox{
 	cursor: pointer;
 }
 
-button.inputButton, div#fitModeToggle{
+button.inputButton, div#fitModeToggle, button.deckNavPassive, button.deckNav1D, button.deckNav2D{
 	background-color: #444444;
 	border-radius: 5px;
 	color: #CCCCCC;
@@ -193,13 +196,53 @@ button.inputButton, div#fitModeToggle{
 	cursor: pointer;
 }
 
-button.inputButton:hover{
+button.inputButton:hover, button.deckNavPassive:hover{
 	background-color: #777777;
 }
 
 div#fitModeToggle{
 	display:inline-block;
 	margin-right: 1em;
+}
+
+select{
+	background-color: #444444;
+	border-radius: 5px;
+	color: #CCCCCC;
+	border:none;
+	font-size:200%;
+	padding: 0.5em;
+	text-align: center;
+	font-family: 'Raleway', sans-serif;
+	cursor: pointer;
+	margin:0px;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+ 	text-indent: 0.01px;
+    text-overflow: '';
+    appearance:none;
+}
+
+/*Deck Nav/////////////////////////////////////////////////////////////////////////////*/
+x-deck#mainDeck{
+	
+}
+
+button.deckNavPassive, button.deckNav1D, button.deckNav2D{
+	font-size: 100%;
+	color: #EEEEEE;
+}
+
+button.deckNav1D{
+	background-color: #d35400;
+}
+
+button.deckNav2D{
+	background-color: #8e44ad; 
+}
+
+div.deckNavWrap{
+	text-align: center;
 }
 
 /* http://stackoverflow.com/questions/3790935/can-i-hide-the-html5-number-inputs-spin-box */
@@ -214,30 +257,41 @@ label.inputLabel{
 	color: #999999;
 }
 
-label#linLabel{
+label#linLabel, #linLabel2D{
 	float:left;
 }
 
-div#toggleWraptoggleYscale{
+div#toggleWraptoggleYscale, #toggleWraptoggleZscale{
 	margin-top: 0;
 }
 
-button#unzoom{
-	margin-right:0.5em;
+button#unzoom, #unzoom2D, #waveformSnap{
+	margin-right:1em;
 }
 
 /*Recently Viewed Table///////////////////////////////////////////////////////////////*/
 div#recentSpectra{
-	width:100%;
 	min-height:100px;
 	border: 5px solid #EEEEEE;
 	border-radius: 25px;
 	clear: both;
 	padding: 1em;
+	float:left;
+	min-width: 100px;
+	margin-bottom: 1em;
+	font-size: 150%;
+	padding-top:0px;
+}
+
+div#titleRow{
+	border-bottom: 1px solid #777777;
+	margin-bottom: 1em;
 }
 
 div.recentWrap{
-	height:3em;
+	min-height:3em;
+	white-space: nowrap;
+	clear:both;
 }
 
 div.colorSwatch{
@@ -252,6 +306,7 @@ div.colorSwatch{
 div.recentName{
 	float:left;
 	padding: 1em;
+	width:12em;
 }
 
 div.killSwitch{
@@ -264,6 +319,81 @@ div.killSwitch{
 	border:1px solid #FFFFFF;
 	text-align: center;
 	padding-top:0.5em;
+	cursor: pointer;
+	
+}
+
+div#spectraList, div#fitTarget{
+	float:left;
+	padding:1em;
+}
+
+div#fitTarget{
+	width:8em;
+	text-align: center;
+}
+
+div.fitTargetWrap{
+	text-align: center;
+	width:8em;
+	float:left;
+	padding-top:0.5em;
+}
+
+input.fitTargetRadio{
+	display: none;
+}
+
+input[type='radio'] + label{
+	display:inline-block;
+	width:1.5em;
+	height:1.5em;
+	border-radius: 0.75em;
+	border:2px solid #777777;
+	background-color: #222222;
+	transition:background-color 0.5s; 
+	-moz-transition:background-color 0.5s; 
+	-webkit-transition:background-color 0.5s;
+}
+
+input[type='radio']:checked + label{
+	background-color: #33FF33;
+}
+
+div.fitResults{
+	float:left;
+	padding-left:1em;
+	padding-right: 1em;
+	width:20em;
+	text-align: center;
+	padding-top:0.5em;
+}
+
+div#killAllLabel{
+	padding:1em;
+	padding-right:0.5em;
+	text-align:right;
+	float:left;
+}
+
+div#spectraList{
+	width:15em;
+	text-align: center;
+}
+
+div#toggleWraptoggleAll{
+	width:15em;
+	padding-left: 0px;
+}
+
+div.recentWrap div.toggleWrap{
+	width: 15em;
+	padding-left: 1.5em;
+}
+
+button#clearFits{
+	font-size:100%;
+	margin: 0px;
 }
 
 /*Toggle Switch///////////////////////////////////////////////////////////////////////*/
@@ -316,6 +446,7 @@ div.toggleSwitch{
 	transition:left 0.3s;
 	-moz-transition:left 0.3s;
 	-webkit-transition:left 0.3s;
+	cursor: pointer;
 }
 
 /*Footer and footer-related styles////////////////////////////////////////////////////*/
@@ -329,10 +460,10 @@ div#wrapper{
 
 div#bumperDiv {
 	overflow:auto;
-	padding-bottom: 5em;
 	float:left; /*strange but true*/
 	margin-bottom: 1em;
-}  /* must be same height as the footer */
+	font-size: 200%;
+}
 
 div#footer {
 	position: relative;
@@ -344,4 +475,5 @@ div#footer {
 	background-color: #4C4C4C;
 	padding:2em;
 	color: #EEEEEE;
+	font-size: 200%;
 } 

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2013 Bill Mills
+Copyright (c) 2014 Bill Mills
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -32,8 +32,12 @@ function spectrumViewer(canvasID){
 	this.stage = new createjs.Stage(canvasID);  //transform the canvas into an easelJS sandbox
 	this.containerMain = new createjs.Container(); //layer for main plot
 	this.containerOverlay = new createjs.Container(); //layer for overlay: cursors, range highlights
+	this.containerPersistentOverlay = new createjs.Container(); //layer for persistent overlay features
+	this.containerFit = new createjs.Container(); //layer for fit curves
 	this.stage.addChild(this.containerMain);
 	this.stage.addChild(this.containerOverlay);
+	this.stage.addChild(this.containerPersistentOverlay);
+	this.stage.addChild(this.containerFit);
 
 	//axes & drawing
 	this.fontScale = Math.min(Math.max(this.canvas.width / 50, 10), 16); // 10 < fontScale < 16
@@ -52,7 +56,6 @@ function spectrumViewer(canvasID){
 	this.XaxisLimitAbsMax = 512; //highest maximum allowed on the x-axis
 	this.XaxisLength = this.XaxisLimitMax-this.XaxisLimitMin; //length of x-axis in bins
 	this.YaxisLength = this.YaxisLimitMax-this.YaxisLimitMin; //height of y-axis in counts
-	this.maxYvalue = 500; //max y value - redundant with YaxisLimitMax?
 	this.countHeight = 0; //height of one count
 	this.axisColor = '#999999'; //color for axes
 	this.axisLineWidth = 1; //weight of axis lines in px
@@ -67,6 +70,13 @@ function spectrumViewer(canvasID){
 	this.xAxisTitle = 'Channels'; //default x-axis title
 	this.yAxisTitle = 'Counts'; //default y-axis title
 	this.drawCallback = function(){}; //callback after plotData, no arguments passed.
+	this.demandXmin = null; //override values for x and y limits, to be used in favour of automatically detected limits.
+	this.demandXmax = null;
+	this.demandYmin = null;
+	this.demandYmax = null;
+	this.minY = 0; //minimum Y value currently being plotted
+	this.maxY = 1000000; //max Y value currently being plotted
+	this.chooseLimitsCallback = function(){};
 
 	//data
 	this.plotBuffer = {}; //buffer holding all the spectra we have on hand, packed as 'name':data[], where data[i] = counts in channel i
@@ -124,6 +134,7 @@ function spectrumViewer(canvasID){
 		axis.graphics.mt(this.leftMargin, this.topMargin);
 		axis.graphics.lt(this.leftMargin, this.canvas.height-this.bottomMargin);
 		axis.graphics.lt(this.canvas.width - this.rightMargin, this.canvas.height - this.bottomMargin);
+		axis.graphics.lt(this.canvas.width - this.rightMargin, this.topMargin);
 		this.containerMain.addChild(axis);
 
 
@@ -158,8 +169,6 @@ function spectrumViewer(canvasID){
 
 		}
 
-
-
 		//Decorate Y axis/////////////////////////////////////////////////////////
 		//decide how many ticks to draw on the y axis; come as close to a factor of the number of bins as possible:
 		this.nYticks = 5;
@@ -181,14 +190,14 @@ function spectrumViewer(canvasID){
 			//labels
 			//this.context.textBaseline = 'middle';
 			if(this.AxisType == 0){ //linear scale
-				label = (this.YaxisLimitMax<10000) ? (i*countsPerTick).toFixed(0) : (i*countsPerTick).toExponential(1);
+				label = (this.YaxisLimitMax<10000) ? (i*countsPerTick + this.YaxisLimitMin).toFixed(0) : (i*countsPerTick + this.YaxisLimitMin).toExponential(1);
 				text = new createjs.Text(label, this.context.font, this.axisColor);
 				text.textBaseline = 'middle';
 				text.x = this.leftMargin - this.tickLength - this.yLabelOffset - this.context.measureText(label).width;
 				text.y = this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight;
 				this.containerMain.addChild(text);
 			} else {  //log scale
-				label = i*countsPerTick-1;
+				label = i*countsPerTick + Math.floor(Math.log10(this.YaxisLimitMin));
 				//exponent
 				text = new createjs.Text(label, this.context.expFont, this.axisColor);
 				text.textBaseline = 'middle';
@@ -227,55 +236,12 @@ function spectrumViewer(canvasID){
 		thisData = [];
 		this.entries = {};
 		var text, histLine;
-
-		this.YaxisLimitMax=5;
-		this.XaxisLength = this.XaxisLimitMax - this.XaxisLimitMin;
 		
 		//abandon the fit when re-drawing the plot
 		this.fitted = false;
 
-		this.maxYvalue=this.YaxisLimitMax;
-		// Loop through to get the data and set the Y axis limits
-		for(thisSpec in this.plotBuffer){
-			//skip hidden spectra
-			if(this.hideSpectrum[thisSpec]) continue;
-
-			//Find the maximum X value from the size of the data
-			if(this.plotBuffer[thisSpec].length>this.XaxisLimitAbsMax){
-				this.XaxisLimitAbsMax=this.plotBuffer[thisSpec].length;
-			}
-
-			// Find maximum Y value in the part of the spectrum to be displayed
-			if(Math.max.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)))>this.maxYvalue){
-				this.maxYvalue=Math.max.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)));
-			}
-
-			// Find the sum of everything in the current x range
-			data = this.plotBuffer[thisSpec].slice(  Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)   );
-			totalEntries = 0;
-			for(j=0; j<data.length; j++ ){
-				totalEntries += data[j];
-			}
-
-			//report number of entries on canvas:
-			this.entries[thisSpec] = totalEntries;
-
-		}// End of for loop
-
-		// Adjust the Y axis limit and compression and redraw the axis
-		if(this.maxYvalue>5){
-			if(this.AxisType==0) this.YaxisLimitMax=Math.floor(this.maxYvalue*1);
-			if(this.AxisType==1) this.YaxisLimitMax=this.maxYvalue*100;
-		} else {
-			if(this.AxisType==0) this.YaxisLimitMax=5;
-			if(this.AxisType==1) this.YaxisLimitMax=50;
-		}
-
-		if(this.AxisType==0)
-			this.YaxisLength = this.YaxisLimitMax-this.YaxisLimitMin;
-
-		if(this.AxisType==1)
-			this.YaxisLength=Math.log10(this.YaxisLimitMax-this.YaxisLimitMin);
+		//get the axes right
+		this.chooseLimits();	
 
 		this.drawFrame();
 
@@ -288,47 +254,62 @@ function spectrumViewer(canvasID){
 			color = this.dataColor[this.colorAssignment.indexOf(thisSpec)];
 			text = new createjs.Text(thisSpec + ': '+this.entries[thisSpec] + ' entries', this.context.font, color);
 			text.textBaseline = 'top';
-			text.x = this.canvas.width - this.rightMargin - this.context.measureText(thisSpec + ': '+this.entries[thisSpec] + 'entries').width;
+			text.x = this.canvas.width - this.rightMargin - this.context.measureText(thisSpec + ': '+this.entries[thisSpec] + 'entries').width - this.fontScale;
 			text.y = (j+1)*this.fontScale;
 			this.containerMain.addChild(text);
 
 			// Loop through the data spectrum that we have
 			histLine = new createjs.Shape();
 			histLine.graphics.ss(this.axisLineWidth).s(color);
-			histLine.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin);
+			//histLine.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin);
 			for(i=Math.floor(this.XaxisLimitMin); i<Math.floor(this.XaxisLimitMax); i++){
 
 				// Protection at the end of the spectrum (minimum and maximum X)
 				if(i<this.XaxisLimitMin || i>this.XaxisLimitMax) continue;
 
 				// Protection in Overlay mode for spectra which are shorter (in x) than the longest spectrum overlayed.
-				if(i>=this.plotBuffer[thisSpec].length) continue;
-
-				if(this.AxisType==0){
-					//draw canvas line:
+				if(i==this.plotBuffer[thisSpec].length){
 					//left side of bar
-					histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - this.plotBuffer[thisSpec][i]*this.countHeight );
-					//top of bar
-					histLine.graphics.lt( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - this.plotBuffer[thisSpec][i]*this.countHeight );
-				}
+					histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );				
+				} else if(i<this.plotBuffer[thisSpec].length){
 
-				if(this.AxisType==1){
-					//draw canvas line:
-					if(this.plotBuffer[thisSpec][i] > 0){
+					if(this.AxisType==0){
+						//draw canvas line:
 						//left side of bar
-						histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - (Math.log10(this.plotBuffer[thisSpec][i]) - Math.log10(this.YaxisLimitMin))*this.countHeight );
+						if(i != Math.floor(this.XaxisLimitMin))
+							histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0,(this.plotBuffer[thisSpec][i] - this.YaxisLimitMin))*this.countHeight );
+						else
+							histLine.graphics.mt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0,(this.plotBuffer[thisSpec][i] - this.YaxisLimitMin))*this.countHeight );
 						//top of bar
-						histLine.graphics.lt( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - (Math.log10(this.plotBuffer[thisSpec][i]) - Math.log10(this.YaxisLimitMin))*this.countHeight )
-					} else {
-						//drop to the x axis
-						histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
-						//crawl along x axis until log-able data is found:
-						histLine.graphics.lt( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
+						histLine.graphics.lt( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0,(this.plotBuffer[thisSpec][i] - this.YaxisLimitMin))*this.countHeight );
 					}
-				}
+
+					if(this.AxisType==1){
+						//draw canvas line:
+						if(this.plotBuffer[thisSpec][i] > 0){
+							//left side of bar
+							if( i != Math.floor(this.XaxisLimitMin))
+								histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0, (Math.log10(this.plotBuffer[thisSpec][i]) - Math.log10(this.YaxisLimitMin)))*this.countHeight );
+							else
+								histLine.graphics.mt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0, (Math.log10(this.plotBuffer[thisSpec][i]) - Math.log10(this.YaxisLimitMin)))*this.countHeight );
+							//top of bar
+							histLine.graphics.lt( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - Math.max(0, (Math.log10(this.plotBuffer[thisSpec][i]) - Math.log10(this.YaxisLimitMin)))*this.countHeight );
+						} else {
+							//drop to the x axis
+							if( i != Math.floor(this.XaxisLimitMin) )
+								histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
+							else
+								histLine.graphics.mt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
+							//crawl along x axis until log-able data is found:
+							histLine.graphics.lt( this.leftMargin + (i+1-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
+						}
+					}
+
+				} else continue;
 			}
 			//finish the canvas path:
-			histLine.graphics.lt(this.canvas.width - this.rightMargin, this.canvas.height - this.bottomMargin );
+			//if(this.plotBuffer[thisSpec].length == this.XaxisLimitMax) 
+			//	histLine.graphics.lt(this.canvas.width - this.rightMargin, this.canvas.height - this.bottomMargin );
 			this.containerMain.addChild(histLine);
 			j++;
 		} // End of for loop
@@ -365,25 +346,27 @@ function spectrumViewer(canvasID){
 			this.XaxisLimitMin = parseInt(this.XMouseLimitxMin);
 			this.XaxisLimitMax = parseInt(this.XMouseLimitxMax);
 	
-			//TBD: delete?
-			//programatically trigger the fields' onchange:
-			//document.getElementById('LowerXLimit').onchange();
-			//document.getElementById('UpperXLimit').onchange();
-
 			//drawXaxis();
 			this.YaxisLimitMax=5;
 
 			this.plotData();
-
-		}
+			this.clickBounds = [];
+		} else
+			this.ClickWindow(this.XMouseLimitxMax)
 	};
 
 	//handle clicks on the plot
 	this.ClickWindow = function(bin){
+		var redline;
 
 		//decide what to do with the clicked limits - zoom or fit?
 		if(this.clickBounds.length == 0){
 			this.clickBounds[0] = bin;
+			redline = new createjs.Shape();
+			redline.graphics.ss(this.axisLineWidth).s('#FF0000');
+			redline.graphics.mt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.canvas.height - this.bottomMargin);
+			redline.graphics.lt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.topMargin);
+			this.containerPersistentOverlay.addChild(redline);
 		} else if(this.clickBounds[0] == 'abort' && !this.fitModeEngage){
 			this.clickBounds = [];
 		} else if(this.clickBounds.length == 2 ){
@@ -402,6 +385,8 @@ function spectrumViewer(canvasID){
 				this.XMouseLimitxMax = this.clickBounds[1];
 				this.DragWindow();
 				this.clickBounds = [];
+				this.containerPersistentOverlay.removeAllChildren();
+				this.stage.update();
 			}
 		}
 	};
@@ -428,28 +413,110 @@ function spectrumViewer(canvasID){
 		//TBD: callbacks?
 	};
 
+	//recalculate x axis limits, for use when plots are deleted or hidden
+	this.adjustXaxis = function(){
+		this.XaxisLimitMin = (typeof this.demandXmin === 'number') ? this.demandXmin : 0;
+		//use override max is present
+		if(typeof this.demandXmax === 'number'){
+			this.XaxisLimitAbsMax = this.demandXmax;
+			this.XaxisLimitMax = this.demandXmax;
+			return;
+		}
+		//autodetect max otherwise
+		this.XaxisLimitAbsMax = 0;
+		for(thisSpec in this.plotBuffer){
+			//skip hidden spectra
+			if(this.hideSpectrum[thisSpec]) continue;
+
+			//Find the maximum X value from the size of the data
+			this.XaxisLimitAbsMax = Math.max(this.XaxisLimitAbsMax, this.plotBuffer[thisSpec].length);
+		}
+		this.XaxisLimitMax = this.XaxisLimitAbsMax;		
+	}
+
+	//choose appropriate axis limits: default will fill the plot area, but can be overridden with this.demandXmin etc.
+	this.chooseLimits = function(){
+		var thisSpec, minYvalue, maxYvalue;
+
+		this.YaxisLimitMax=5;
+		this.XaxisLength = this.XaxisLimitMax - this.XaxisLimitMin;
+		
+		minYvalue = 1000000;
+		this.XaxisLimitAbsMax = 0;
+		maxYvalue=this.YaxisLimitMax;
+		// Loop through to get the data and set the Y axis limits
+		for(thisSpec in this.plotBuffer){
+			//skip hidden spectra
+			if(this.hideSpectrum[thisSpec]) continue;
+
+			//Find the maximum X value from the size of the data
+			this.XaxisLimitAbsMax = Math.max(this.XaxisLimitAbsMax, this.plotBuffer[thisSpec].length);
+
+			// Find minimum and maximum Y value in the part of the spectrum to be displayed
+			if(Math.min.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)))<minYvalue){
+				minYvalue=Math.min.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)));
+			}
+			if(Math.max.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)))>maxYvalue){
+				maxYvalue=Math.max.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)));
+			}
+
+			// Find the sum of everything in the current x range
+			data = this.plotBuffer[thisSpec].slice(  Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)   );
+			totalEntries = 0;
+			for(j=0; j<data.length; j++ ){
+				totalEntries += data[j];
+			}
+			//report number of entries:
+			this.entries[thisSpec] = totalEntries;
+
+		}// End of for loop
+
+		//keep track of min and max y in a convenient place
+		this.minY = minYvalue;
+		this.maxY = maxYvalue;
+
+		//use demand overrides if present:
+		if(typeof this.demandXmin === 'number') this.XaxisLimitMin = this.demandXmin;
+
+		if(typeof this.demandXmax === 'number'){
+			this.XaxisLimitMax = this.demandXmax;
+			if(this.demandXmax > this.XaxisLimitAbsMax)
+				this.XaxisLimitAbsMax = this.demandXmax;
+		}
+
+		if(typeof this.demandYmin === 'number') this.YaxisLimitMin = this.demandYmin;
+		else this.YaxisLimitMin = (this.AxisType == 0) ? 0 : 0.1;
+		if(typeof this.demandYmax === 'number') maxYvalue = this.demandYmax;
+
+		// Adjust the Y axis limit and compression and redraw the axis
+		if(maxYvalue>5){
+			if(this.AxisType==0) this.YaxisLimitMax=Math.floor(maxYvalue*1);
+			if(this.AxisType==1) this.YaxisLimitMax=maxYvalue*10;
+		} else {
+			if(this.AxisType==0) this.YaxisLimitMax=5;
+			if(this.AxisType==1) this.YaxisLimitMax=50;
+		}
+
+		if(this.AxisType==0)
+			this.YaxisLength = this.YaxisLimitMax-this.YaxisLimitMin;
+
+		if(this.AxisType==1)
+			//this.YaxisLength=Math.log10(this.YaxisLimitMax-this.YaxisLimitMin);
+			this.YaxisLength = Math.log10(this.YaxisLimitMax) - Math.log10(this.YaxisLimitMin);
+
+		//callback when limits are chosen - user fudges
+		this.chooseLimitsCallback();
+
+	};
+
 	//zoom out to the full x-range
 	this.unzoom = function(){
+		var thisSpec;
 
-		this.XaxisLimitMin = 0;
-		this.XaxisLimitMax = this.XaxisLimitAbsMax;
+		this.adjustXaxis();
+		this.clearFits();
+
 		this.plotData();
-
-/*TBD: callback?
-		//1D
-		if(document.getElementById('LowerXLimit')){
-			SVparam.XaxisLimitMin=0;
-			SVparam.XaxisLimitMax=SVparam.XaxisLimitAbsMax;
-
-			//update input field values and trigger their onchange:
-			document.getElementById("LowerXLimit").value=SVparam.XaxisLimitMin;
-			document.getElementById("UpperXLimit").value=SVparam.XaxisLimitMax;
-			document.getElementById('LowerXLimit').onchange();
-			document.getElementById('UpperXLimit').onchange();
-
-			plotData();
-		}
-		*/
 	};
 
 	//set the axis to 'linear' or 'log', and repaint
@@ -494,6 +561,7 @@ function spectrumViewer(canvasID){
 		max=1;
 
 		fitdata=this.plotBuffer[fitKey];
+
 		fitdata=fitdata.slice(this.FitLimitLower, this.FitLimitUpper+1);
 
 		// Find maximum Y value in the fit data
@@ -554,7 +622,7 @@ function spectrumViewer(canvasID){
 			}
 		}
 
-		this.containerMain.addChild(fitLine);
+		this.containerFit.addChild(fitLine);
 		this.stage.update();
 
 		this.fitted=1;
@@ -563,9 +631,21 @@ function spectrumViewer(canvasID){
 		this.fitCallback(cent, width);
 	};
 
+	//dump the fit results
+	this.clearFits = function(callback){
+		this.containerFit.removeAllChildren();
+		this.stage.update();
+
+		if(callback)
+			callback();
+	}
+
 	//suppress or unsuppress a spectrum from being shown
 	this.toggleSpectrum = function(spectrumName, hide){
 		this.hideSpectrum[spectrumName] = hide;
+
+		this.adjustXaxis();
+
 		this.plotData();
 	};
 
@@ -643,17 +723,25 @@ function spectrumViewer(canvasID){
         //draw crosshairs
         this.containerOverlay.removeAllChildren();
         if(x > this.leftMargin && x < this.canvas.width - this.rightMargin && y > this.topMargin && y<this.canvas.height-this.bottomMargin){
-			crosshairs = new createjs.Shape();
-			crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
-			crosshairs.graphics.mt(this.leftMargin, y);
-			crosshairs.graphics.lt(this.canvas.width-this.rightMargin, y);
-			this.containerOverlay.addChild(crosshairs);
+        	if(this.clickBounds.length!=1){  //normal crosshairs
+				crosshairs = new createjs.Shape();
+				crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
+				crosshairs.graphics.mt(this.leftMargin, y);
+				crosshairs.graphics.lt(this.canvas.width-this.rightMargin, y);
+				this.containerOverlay.addChild(crosshairs);
 
-			crosshairs = new createjs.Shape();
-			crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
-			crosshairs.graphics.mt(x, this.canvas.height-this.bottomMargin);
-			crosshairs.graphics.lt(x, this.topMargin);
-			this.containerOverlay.addChild(crosshairs);
+				crosshairs = new createjs.Shape();
+				crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
+				crosshairs.graphics.mt(x, this.canvas.height-this.bottomMargin);
+				crosshairs.graphics.lt(x, this.topMargin);
+				this.containerOverlay.addChild(crosshairs);
+			} else { //red vertical line to mark second bound of click-and-zoom
+				crosshairs = new createjs.Shape();
+				crosshairs.graphics.ss(this.axisLineWidth).s('#FF0000');
+				crosshairs.graphics.mt(x, this.canvas.height-this.bottomMargin);
+				crosshairs.graphics.lt(x, this.topMargin);
+				this.containerOverlay.addChild(crosshairs);				
+			}
 		}
 		//highlight region on drag
 		if(this.highlightStart != -1){
@@ -673,20 +761,28 @@ function spectrumViewer(canvasID){
 	}.bind(this);
 
 	this.canvas.onmousedown = function(event){
-		this.highlightStart = this.canvas.relMouseCoords(event).x;
-		this.XMouseLimitxMin = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin);
+		if(event.button == 0){
+			this.highlightStart = this.canvas.relMouseCoords(event).x;
+			this.XMouseLimitxMin = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin);
+		}
 	}.bind(this);
 
 	this.canvas.onmouseup = function(event){
-			this.highlightStart = -1;
-			this.XMouseLimitxMax = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin); 
-			this.DragWindow();
-			this.ClickWindow( parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin) );
+			if(event.button == 0){
+				this.highlightStart = -1;
+				this.XMouseLimitxMax = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin); 
+				this.DragWindow();
+			}
 	}.bind(this);
 
 	this.canvas.ondblclick = function(event){
 		this.unzoom();
 	}.bind(this);
+
+	//right clicking does obnoxious focus things, messes with canvas onclicks.
+	this.canvas.oncontextmenu = function(){
+		return false;
+	};
 
 }
 
