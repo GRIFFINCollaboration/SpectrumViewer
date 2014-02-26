@@ -8,7 +8,7 @@ function populateSpectra(){
 	document.getElementById('headerBanner').style.fontSize = parseInt(document.getElementById('branding').offsetHeight, 10)*0.9+'px';
 
 	//get the body font right
-    document.body.style.fontSize = window.innerHeight*0.05/4+'px';	
+	document.body.style.fontSize = window.innerHeight*0.05/4+'px';	
 
 	//scale the canvas - 1D
 	document.getElementById('spectrumCanvas').setAttribute('width', parseInt(document.getElementById('canvasWrap').offsetWidth, 10)*0.95+'px');
