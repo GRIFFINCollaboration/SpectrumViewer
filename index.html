@@ -313,6 +313,8 @@
 			function setup(){
 				//initialize a global buffer for all the histograms we pull in:
 				spectrumBuffer = {};
+				//where's the base URL for the JSON?
+				window.baseURL = 'http://annikal.triumf.ca:9093/?cmd='
 				//start by getting a list of spectra
 				populateSpectra();
 			}

@@ -37,7 +37,7 @@ function populateSpectra(){
 	fieldViewer.plotData();
 
 
-	script.setAttribute('src', 'http://annikal.triumf.ca:9093/?cmd=getSpectrumList');
+	script.setAttribute('src', window.baseURL+'getSpectrumList');
 	script.onload = function(){
 		deleteDOM('spectraList');
 		main();
@@ -52,7 +52,7 @@ function fetchSpectrum(name, callback){
 
 	//get data from server:
 	script = document.createElement('script');
-	script.setAttribute('src', 'http://annikal.triumf.ca:9093/?cmd=callspechandler&spectrum1='+name);
+	script.setAttribute('src', window.baseURL+'callspechandler&spectrum1='+name);
 	if(callback) script.onload = callback
 	script.id = 'fetchdata';
 
@@ -61,7 +61,7 @@ function fetchSpectrum(name, callback){
 
 //refresh all spectra from server
 function fetchAllSpectra(callback){
-	var i, URL = 'http://annikal.triumf.ca:9093/?cmd=callspechandler&';
+	var i, URL = window.baseURL+'callspechandler&';
 
 	for(i=0; i<spectraNames.length; i++){
 		URL += 'spectrum'+i+'='+spectraNames[i];
@@ -97,7 +97,7 @@ function fetchAllSpectra(callback){
 
 //refresh spectra that are currently available for plotting
 function refreshSpectra(){
-	var i, key, URL = 'http://annikal.triumf.ca:9093/?cmd=callspechandler';
+	var i, key, URL = window.baseURL+'callspechandler';
 
 	i=0;
 	for(key in spectrumBuffer){
