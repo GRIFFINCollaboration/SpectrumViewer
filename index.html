@@ -1,23 +1,37 @@
 <html>
 
 	<head>
+
+                <script src="SVgammaSpectrum3_js" type="text/javascript"></script>
+		<script src="SVfitit_js" type="text/javascript"></script>
+		<script src="SVfieldViewer_js" type="text/javascript"></script>
+		<script src="SVspectrumViewer3_js" type="text/javascript"></script>
+		<script src="http://code.createjs.com/easeljs-0.7.0.min.js"></script>
+		<script src="SVbrick-0_9_1_js" type="text/javascript"></script>
+		<link href="SVspectrumViewer3_css" rel="stylesheet" type="text/css" />
+		<link href="http://fonts.googleapis.com/css?family=Raleway" rel='stylesheet' type='text/css' />
+		<link href="SVbrick-0_9_1_css' rel='stylesheet"	type='text/css' />
+                <script src='mhttpd.js'></script>
+
+<!--
 		<script src="gammaSpectrum.js" type="text/javascript"></script>
 		<script src="fitit.js" type="text/javascript"></script>
 		<script src="fieldViewer.js" type="text/javascript"></script>
 		<script src="spectrumViewer.js" type="text/javascript"></script>
 		<script src="http://code.createjs.com/easeljs-0.7.0.min.js"></script>
-		<script type='text/javascript' src='brick-0.9.1.js'></script>
+		<script src="brick-0.9.1.js" type="text/javascript"></script>
 
-		<link rel="stylesheet" type="text/css" href="spectrumViewer.css"/>
-		<link href='http://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
-		<link rel='stylesheet' type='text/css' href='brick-0.9.1.css'>
-	</head>
+		<link href="spectrumViewer.css" rel="stylesheet" type="text/css" />
+		<link href="http://fonts.googleapis.com/css?family=Raleway" rel='stylesheet' type='text/css' />
+		<link href="brick-0.9.1.css' rel='stylesheet" type='text/css' />
+-->
+</head>
 
 	<body onLoad='setup()'>
 		<div id='wrapper'>
 
 		    <div id='branding'>
-		    	<img id='logo' src='logo.gif'></img>
+		    	<img id='logo' src='SVlogo.gif'></img>
 		    	<h1 id='headerBanner'>GRIFFIN</h1>
 		    </div>
 
@@ -25,11 +39,106 @@
 		    	<button id='statusButton' class='navButton'>MIDAS Status</button>
 		    </div>
 
+			    	<div class='topbarWrap' id='topbarWrap'>
+
+				                        <table>
+							  <tr>
+							    <td>
+				               <div id='Int1RangeWrap', class='UIchunk'>
+				                        <div id='Int1ToggleWrap', class='UIchunk'>
+					    		<label class='inputLabel' id='HistshowLabel1'>Show/</label>
+					    		<label class='inputLabel' id='HisthideLabel1'>Hide</label>
+				    	  	        </div>
+					    		<input class='inputBox' id='INT1min' type='number' value='100' onchange='updatePlotRange()'></input>
+					    		<label class='inputLabel' id='INT1Label'>< Gamma1 <</label>
+				    			<input class='inputBox' id='INT1max' type='number' value='200' onchange='updatePlotRange()'></input>
+				    		</div>
+						<div id='INTReport1', class='UIchunk'>
+					    		<label class='inputLabel' id='INT1Report'>Rate of Gamma1</label>
+				    		</div>
+</td>
+				 <td>
+<div id='Int2RangeWrap', class='UIchunk'>
+				                        <div id='Int2ToggleWrap', class='UIchunk'>
+					    		<label class='inputLabel' id='HistshowLabel2'>Show/</label>
+					    		<label class='inputLabel' id='HisthideLabel2'>Hide</label>
+				    	  	        </div>
+					    		<input class='inputBox' id='INT2min' type='number' value='400' onchange='updatePlotRange()'></input>
+					    		<label class='inputLabel' id='INT2Label'>< Gamma2 <</label>
+				    			<input class='inputBox' id='INT2max' type='number' value='600' onchange='updatePlotRange()'></input>
+				    		</div>
+				    		<div id='INTReport2', class='UIchunk'>
+					    		<label class='inputLabel' id='INT2Report'>Rate of Gamma2</label>
+				    		</div>
+						</td>
+						<td>
+						<div id='Int3RangeWrap', class='UIchunk'>
+				                        <div id='Int3ToggleWrap', class='UIchunk'>
+					    		<label class='inputLabel' id='HistshowLabel3'>Show/</label>
+					    		<label class='inputLabel' id='HisthideLabel3'>Hide</label>
+				    	  	        </div>
+					    		<input class='inputBox' id='INT3min' type='number' value='800' onchange='updatePlotRange()'></input>
+					    		<label class='inputLabel' id='INT3Label'>< Gamma3 <</label>
+				    			<input class='inputBox' id='INT3max' type='number' value='1000' onchange='updatePlotRange()'></input>
+				    		</div>
+				    		<div id='INTReport3', class='UIchunk'>
+					    		<label class='inputLabel' id='INT3Report'>Rate of Gamma3</label>
+				    		</div>
+						</td>
+				</tr>
+				<tr>
+				  <td>
+										  <div id='Epics1RangeWrap', class='UIchunk'>
+				                        <div id='Epics1ToggleWrap', class='UIchunk'>
+					    		<label class='inputLabel' id='HistshowLabel4'>Show/</label>
+					    		<label class='inputLabel' id='HisthideLabel4'>Hide</label>
+				    	  	        </div>
+					    		<label class='inputLabel' id='epics1Label'> Proton Current </label>
+				    		</div>
+				    		<div id='EPICSReport1', class='UIchunk'>
+					    		<label class='inputLabel' id='EPICS1Report'>Rate of Proton Current</label>
+				    		</div>
+			    	</td>
+						<td>
+
+				  <div id='Epics2RangeWrap', class='UIchunk'>
+				                        <div id='Epics2ToggleWrap', class='UIchunk'>
+					    		<label class='inputLabel' id='HistshowLabel5'>Show/</label>
+					    		<label class='inputLabel' id='HisthideLabel5'>Hide</label>
+				    	  	        </div>
+					    		<label class='inputLabel' id='epics2Label'> Laser Frequency 1</label>
+				    		</div>
+				    		<div id='EPICSReport2', class='UIchunk'>
+					    		<label class='inputLabel' id='EPICS2Report'>Freq.1</label>
+				    		</div>
+			 	  </td>
+						<td>
+
+				  <div id='Epics3RangeWrap', class='UIchunk'>
+				                        <div id='Epics3ToggleWrap', class='UIchunk'>
+					    		<label class='inputLabel' id='HistshowLabel6'>Show/</label>
+					    		<label class='inputLabel' id='HisthideLabel6'>Hide</label>
+				    	  	        </div>
+					    		<label class='inputLabel' id='epics3Label'> Laser Frequency 2</label>
+				    		</div>
+				    		<div id='EPICSReport3', class='UIchunk'>
+					    		<label class='inputLabel' id='EPICS3Report'>Freq.2</label>
+				    		</div>
+			 	  </td>
+				  </tr>
+				  </table>
+				</div>
+				
 			<x-deck id='mainDeck' selected-index='0'>
 				<x-card id='spectra1D'>
 			    	<div class= 'canvasWrap' id='canvasWrap'>
-			    		<canvas id='spectrumCanvas'></canvas>
-			    		<form id='plotControl'>
+				  <div id='mouseboxWrap' class='UIchunk'>
+				    <label class='inputLabel' id='mousebox'>x,y</label>
+                                  </div>
+<BR>
+				  <canvas id='spectrumCanvas'></canvas>
+                                  <div class='controlDiv' id='plotControlDiv'>
+				  <form id='plotControl'>
 				    		<div id='xRangeWrap', class='UIchunk'>
 					    		<input class='inputBox' id='minX' type='number' value='0' onchange='updatePlotRange()'></input>
 					    		<label class='inputLabel' id='xRangeLabel'>< x <</label>
@@ -54,28 +163,66 @@
 					    		<label class='inputLabel' id='logLabel'>Log</label>
 					    	</div>
 
-					    	<button class='inputButton' id='waveformSnap' type='button' engaged='0'>Snap to Waveform</button>
-
+<!--					    	<button class='inputButton' id='waveformSnap' type='button' engaged='0'>Snap to Waveform</button>
+-->
 					    	<div id='updateWrap' class='UIchunk'>
 						    	<label id='updateLabel' class='inputLabel'>Update Every: </label>
 						    	<select id='upOptions'>
 						    		<option value='3000'>3 s</option>
 						    		<option value='5000'>5 s</option>
 						    		<option value='10000'>10 s</option>
+						    		<option value='15000'>15 s</option>
 						    		<option value='-1'>never</option>
 						    	</select>
 						    	<button id='upNow' class='inputButton' type='button'>Update Now</button>
 						    </div>
+						    	<button
+						    	id='ZeroCounts'
+						    	class='inputButton' type='button'>Zero Spectrum Counts</button>
 				    	</form>
-
+                                        </div>
 			    	</div>
 
 			    	<div class='sidebarWrap' id='sidebarWrap'>
+			<div id='dygraphLegendDiv' class='inputLabel'></div>
+<BR>
+			<div id='dygraphDiv'></div>
+				  <form id='DygraphControl'>
+					    	<div id='DyupdateWrap' class='UIchunk'>
+						    	<label id='DyRangeLabel' class='inputLabel'>History Range: </label>
+						    	<select id='DyRangeOptions'>
+						    		<option value='60000'>1 min</option>
+						    		<option	value='600000'>10 mins</option>
+						    		<option	value='3600000'>1 hour</option>
+						    		<option	value='0'>Since Last Page Refresh</option>
+						    	</select>
+						      </div>
+				    	</form>
+
+				</div>
+				
 			    		<div class='deckNavWrap'>
 			    			<button id='deckNav1Dat1D' class='deckNav1D'>1D Spectra</button>
 			    			<button id='deckNav2Dat1D' class='deckNavPassive'>2D Spectra</button>
 			    		</div>
-			    		<ul id='availableSpectra'></ul>
+					
+			    		<ul class='availableSpecHIT' id='availableSpectraHIT'></ul>
+			    		<ul class='availableSpecSUM' id='availableSpectraSUM'></ul>
+			    		<ul class='availableSpecGRGe' id='availableSpectraGRGe'></ul>
+			    		<ul class='availableSpecGRGt' id='availableSpectraGRGt'></ul>
+			    		<ul class='availableSpecGRGp' id='availableSpectraGRGp'></ul>
+			    		<ul class='availableSpecGRGw' id='availableSpectraGRGw'></ul>
+			    		<ul class='availableSpecSEPe' id='availableSpectraSEPe'></ul>
+			    		<ul class='availableSpecSEPt' id='availableSpectraSEPt'></ul>
+			    		<ul class='availableSpecSEPp' id='availableSpectraSEPp'></ul>
+			    		<ul class='availableSpecSEPw' id='availableSpectraSEPw'></ul>
+			    		<ul class='availableSpecDSCe' id='availableSpectraDSCe'></ul>
+			    		<ul class='availableSpecDSCt' id='availableSpectraDSCt'></ul>
+			    		<ul class='availableSpecDSCp' id='availableSpectraDSCp'></ul>
+			    		<ul class='availableSpecDSCw' id='availableSpectraDSCw'></ul>
+			    		<ul class='availableSpecDSCz' id='availableSpectraDSCz'></ul>
+			    		<ul class='availableSpecDSCl' id='availableSpectraDSCl'></ul>
+			    		<ul class='availableSpecDSCs' id='availableSpectraDSCs'></ul>
 
 			    	</div>
 
@@ -146,6 +293,22 @@
 				//scrape the URL for a query string
 				queryString();
 
+	 	                // History series data selection
+				toggleSwitch('Int1ToggleWrap', 'toggleHistSeries1', '', '', '', viewer.setHistSeriesDisplay.bind(viewer, 0,0), viewer.setHistSeriesDisplay.bind(viewer, 0,1), 0);
+				document.getElementById('Int1ToggleWrap').insertBefore(document.getElementById('HisthideLabel1'), null);
+				toggleSwitch('Int2ToggleWrap', 'toggleHistSeries2', '', '', '', viewer.setHistSeriesDisplay.bind(viewer, 1,0), viewer.setHistSeriesDisplay.bind(viewer, 1,1), 0);
+				document.getElementById('Int2ToggleWrap').insertBefore(document.getElementById('HisthideLabel2'),
+				null);
+			toggleSwitch('Int3ToggleWrap', 'toggleHistSeries3', '', '', '', viewer.setHistSeriesDisplay.bind(viewer, 2,0), viewer.setHistSeriesDisplay.bind(viewer, 2,1), 0);
+				document.getElementById('Int3ToggleWrap').insertBefore(document.getElementById('HisthideLabel3'), null);
+				toggleSwitch('Epics1ToggleWrap', 'toggleHistSeries4', '', '', '', viewer.setHistSeriesDisplay.bind(viewer, 3,0), viewer.setHistSeriesDisplay.bind(viewer, 3,1), 1);
+				document.getElementById('Epics1ToggleWrap').insertBefore(document.getElementById('HisthideLabel3'), null);
+				toggleSwitch('Epics2ToggleWrap', 'toggleHistSeries5', '', '', '', viewer.setHistSeriesDisplay.bind(viewer, 4,0), viewer.setHistSeriesDisplay.bind(viewer, 4,1), 1);
+				document.getElementById('Epics2ToggleWrap').insertBefore(document.getElementById('HisthideLabel4'),
+				null);
+		toggleSwitch('Epics3ToggleWrap', 'toggleHistSeries6', '', '', '', viewer.setHistSeriesDisplay.bind(viewer, 5,0), viewer.setHistSeriesDisplay.bind(viewer, 5,1), 1);
+				document.getElementById('Epics3ToggleWrap').insertBefore(document.getElementById('HisthideLabel5'), null);
+		
 				//inject the linear / log toggle - 1D
 				toggleSwitch('logToggleWrap', 'toggleYscale', '', '', '', viewer.setAxisType.bind(viewer, 'log'), viewer.setAxisType.bind(viewer, 'linear'), 0);
 				document.getElementById('logToggleWrap').insertBefore(document.getElementById('logLabel'), null);
@@ -207,6 +370,7 @@
 					document.getElementById('fitModeToggle').onclick();
 				}
 
+                                /*
 				//waveform snap
 				document.getElementById('waveformSnap').onclick = function(){
 					if(this.engaged){
@@ -220,8 +384,8 @@
 						this.engaged = 0;
 					} else {
 						this.style.backgroundColor = '#777777';
-						viewer.demandXmin = 0;
-						viewer.demandXmax = 256;
+						viewer.demandXmin = null;
+						viewer.demandXmax = null;
 						viewer.chooseLimitsCallback = function(){
 							//set some demand values for the y axis and rerun the limit calculation
 							var rerun = viewer.demandYmin == null;
@@ -235,7 +399,7 @@
 						this.engaged = 1; 
 					}					
 				}
-				
+				*/
 
 				//update now
 				document.getElementById('upNow').onclick = function(){
@@ -255,6 +419,11 @@
 					if(refreshTime != -1)
 						refreshCycle = setInterval(refreshSpectra, refreshTime);	
 				}
+				//onchange History Range
+				document.getElementById('DyRangeOptions').onchange = function(){
+					viewer.DyHistoryRange = parseInt(this.options[this.selectedIndex].value, 10);
+					reDrawDyGraph();	
+				}
 
 				//recently viewed header row
 				toggleSwitch('titleRow', 'toggleAll', 'x', 'Show All', 'Hide All', toggleAll.bind(null, true), toggleAll.bind(null, false), 1);
@@ -268,6 +437,21 @@
 						document.getElementById('kill'+key).onclick();
 					}
 				}
+
+				//Zero Spectrum Counts button
+				document.getElementById('ZeroCounts').onclick = function(){
+					var key;
+					for(key in viewer.plotBuffer){
+                                         viewer.zeroCounts(key);
+					}
+                                           var refreshOptions = document.getElementById('upOptions'),
+					   refreshTime = parseInt(refreshOptions.options[refreshOptions.selectedIndex].value, 10);
+
+					clearInterval(refreshCycle);
+					refreshSpectra();
+					if(refreshTime != -1)
+				refreshCycle =	setInterval(refreshSpectra,refreshTime);
+}
 
 				//clear fit results button
 				document.getElementById('clearFits').onclick = function(){
@@ -286,8 +470,7 @@
 
 				//re-fetch every period:
 				refreshSpectra();
-				refreshCycle = setInterval(refreshSpectra, 3000);
-
+			        refreshCycle = setInterval(refreshSpectra, 3000);
 			};
 
 			//update the plot ranges onchange of the x-range input fields:
@@ -301,6 +484,27 @@
 				viewer.plotData();				
 			};
 
+			//update the plot ranges onchange of the x-range input fields:
+			function updatePlotRange(){
+				var xMin = document.getElementById('minX'),
+					xMax = document.getElementById('maxX');
+
+				viewer.XaxisLimitMin = parseInt(xMin.value,10);
+				viewer.XaxisLimitMax = parseInt(xMax.value,10);
+
+				var minINT1 = document.getElementById('INT1min'),
+                                    maxINT1 = document.getElementById('INT1max'),
+                                    minINT2 = document.getElementById('INT2min'),
+                                    maxINT2 = document.getElementById('INT2max');
+
+                                    viewer.marker1Lbin = parseInt(minINT1.value,10);
+                                    viewer.marker1Rbin = parseInt(maxINT1.value,10);
+                                    viewer.marker2Lbin = parseInt(minINT2.value,10);
+                                    viewer.marker2Rbin = parseInt(maxINT2.value,10);
+
+				viewer.plotData();				
+			};
+
 			//show / hide all toggle
 			function toggleAll(show){
 				var key;
@@ -310,14 +514,82 @@
 				}
 			};
 
+// Function to redraw the history dygraph
+function reDrawDyGraph(){
+viewer.g1.destroy();
+viewer.g1 = new Dygraph(document.getElementById('dygraphDiv'),
+function(){
+                var d = viewer.HistoryData;
+                return d;
+                }
+		,{
+		title: '',
+		xlabel: 'Time',
+                axisLabelColor: 'white',
+                colors: viewer.HistoryColors,
+		ylabel: 'Rate',
+		sigFigs: 3,
+		strokeWidth: 2,
+		highlightCircleSize: 6,
+		legend: 'always',
+                labelsDiv: 'dygraphLegendDiv',
+		titleHeight: 30,
+		xLabelHeight: 24,
+		yLabelWidth: 24,
+		yAxisLabelWidth: 55
+
+    }); // end of options
+
+
+var w = viewer.g1.xAxisRange();
+var res = viewer.DyHistoryRange;
+if(res>0){ desired_range = [w[1]-res , w[1] ]; }
+else{ desired_range=viewer.g1.xAxisExtremes(); }
+
+viewer.g1.updateOptions({dateWindow: desired_range});
+	for(i=0; i<viewer.HistPlotSeries.length; i++){
+        viewer.g1.setVisibility(i, viewer.HistPlotSeries[i]);
+	}
+//viewer.g1.updateOptions({dateWindow: desired_range, visibility: array});
+//viewer.g1.updateOptions({visibility: ['true','false']});
+
+} // end of function reDrawDyGraph
+
 			function setup(){
 				//initialize a global buffer for all the histograms we pull in:
 				spectrumBuffer = {};
 				//where's the base URL for the JSON?
-				window.baseURL = 'http://annikal.triumf.ca:9093/?cmd='
+				window.baseURL = 'http://grsmid00.triumf.ca:9093/?cmd='
 				//start by getting a list of spectra
 				populateSpectra();
-			}
+
+                                // Start here for the monitor with adding required spectra to the callback. 
+			//	addSpectrum("HITPATTERN_Energy");
+                          //      viewer.hideSpectrum["HITPATTERN_Energy"] = 1;
+				addSpectrum("SUM_Singles_Energy");
+
+                                viewer.g1 = new Dygraph(document.getElementById('dygraphDiv'),
+                                   function(){
+                                       var d = viewer.HistoryData;
+                                       return d;
+                                       }
+	                       	,{
+	                       	title: '',
+	                       	xlabel: 'Time',
+                                       axisLabelColor: 'white',
+	                       	ylabel: 'Rate',
+	                       	sigFigs: 3,
+	                       	strokeWidth: 2,
+	                       	highlightCircleSize: 6,
+	                       	legend: 'always',
+                                       labelsDiv: 'dygraphLegendDiv',
+	                       	titleHeight: 30,
+	                       	xLabelHeight: 24,
+	                       	yLabelWidth: 24,
+	                       	yAxisLabelWidth: 55
+
+                           }); // end of options
+                       }
 
 		</script>
 	</body>

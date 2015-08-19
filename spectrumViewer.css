@@ -122,7 +122,7 @@ button.navButton:hover{
 }
 
 /*main///////////////////////////////////////////////////////*/
-div.canvasWrap, div.sidebarWrap{
+div.canvasWrap, div.topbarWrap, div.sidebarWrap{
 	display:inline-block;
 	border: 5px solid #EEEEEE;
 	border-radius: 25px;
@@ -130,15 +130,27 @@ div.canvasWrap, div.sidebarWrap{
 }
 
 div.canvasWrap{
-	width: 74%;
+	width:  48%; /* 74% */
 	height:90%;
 	float:left;
+	padding:1em;
+	margin-top: 1em;
+	overflow:scroll;
+}
+
+#canvasWrap2D, #sidebarWrap2D{
+display:none;
+}
+
+div.topbarWrap{
+	width: 98%;
+	float:center;
 	padding:1em;
 	margin-top: 1em;
 }
 
 div.sidebarWrap{
-	width:24%;
+	width:48%; /* 22% */
 	height:90%;
 	float:right;
 	padding:1em;
@@ -147,20 +159,59 @@ div.sidebarWrap{
 	margin-top: 0.5em;
 }
 
-ul#availableSpectra li{
+div.dygraphDiv{
+	width: 80%;
+	height:85%;
+	float:center;
+	padding:1em;
+	margin-top: 1em;
+}
+
+div.controlDiv{
+	width: 90%;
+	float:center;
+	padding:1em;
+	margin-top: 1em;
+}
+
+ul.availableSpecHIT li, ul.availableSpecSUM li, ul.availableSpecGRGe li, ul.availableSpecGRGt li, ul.availableSpecGRGp li, ul.availableSpecGRGw li, ul.availableSpecSEPe li, ul.availableSpecSEPt li, ul.availableSpecSEPp li, ul.availableSpecSEPw li, ul.availableSpecDSCe li, ul.availableSpecDSCt li, ul.availableSpecDSCp li, ul.availableSpecDSCw li, ul.availableSpecDSCz li, ul.availableSpecDSCl li, ul.availableSpecDSCs li{
+        display: none;
 	padding:0.5em;
 }
 
-ul#availableSpectra li:hover{
+.hidden{
+        display: none !important;
+}
+
+.unhidden{
+        display: none;
+        /*display: list-item !important;*/
+}
+
+ul.availableSpecHIT li:hover, ul.availableSpecSUM  li:hover, ul.availableSpecGRGe  li:hover, ul.availableSpecGRGt  li:hover, ul.availableSpecGRGp  li:hover, ul.availableSpecGRGw  li:hover, ul.availableSpecSEPe  li:hover, ul.availableSpecSEPt  li:hover, ul.availableSpecSEPp  li:hover, ul.availableSpecSEPw  li:hover, ul.availableSpecDSCe  li:hover, ul.availableSpecDSCt  li:hover, ul.availableSpecDSCp  li:hover, ul.availableSpecDSCw  li:hover, ul.availableSpecDSCz  li:hover, ul.availableSpecDSCl  li:hover, ul.availableSpecDSCs  li:hover{
+
+        display: none;
 	border:1px solid #EEEEEE;
 }
 
-ul#availableSpectra li:nth-child(odd){
+ul.availableSpecHIT li:nth-child(odd), ul.availableSpecSUM li:nth-child(odd), ul.availableSpecGRGe li:nth-child(odd), ul.availableSpecGRGt li:nth-child(odd), ul.availableSpecGRGp li:nth-child(odd), ul.availableSpecGRGw li:nth-child(odd), ul.availableSpecSEPe li:nth-child(odd), ul.availableSpecSEPt li:nth-child(odd), ul.availableSpecSEPp li:nth-child(odd), ul.availableSpecSEPw li:nth-child(odd), ul.availableSpecDSCe li:nth-child(odd), ul.availableSpecDSCt li:nth-child(odd), ul.availableSpecDSCp li:nth-child(odd), ul.availableSpecDSCw li:nth-child(odd), ul.availableSpecDSCz li:nth-child(odd), ul.availableSpecDSCl li:nth-child(odd), ul.availableSpecDSCs li:nth-child(odd){
+        display: none;
 	background: #222222;
 }
 
-ul#availableSpectra li:nth-child(even){
+ul.availableSpecHIT li:nth-child(even), ul.availableSpecSUM li:nth-child(even), ul.availableSpecGRGe li:nth-child(even), ul.availableSpecGRGt li:nth-child(even), ul.availableSpecGRGp li:nth-child(even), ul.availableSpecGRGw li:nth-child(even), ul.availableSpecSEPe, ul.availableSpecSEPt, ul.availableSpecSEPp, ul.availableSpecSEPw li:nth-child(even), ul.availableSpecDSCe li:nth-child(even), ul.availableSpecDSCt li:nth-child(even), ul.availableSpecDSCp li:nth-child(even), ul.availableSpecDSCw li:nth-child(even), ul.availableSpecDSCz li:nth-child(even), ul.availableSpecDSCl li:nth-child(even), ul.availableSpecDSCs li:nth-child(even){
+        display: none;
 	background: #444444;
+}
+
+#HITTITLE, #SUMTITLE, #GRGeTITLE, #GRGtTITLE, #GRGpTITLE, #GRGwTITLE, #SEPeTITLE, #SEPtTITLE, #SEPpTITLE, #SEPwTITLE, #DSCeTITLE, #DSCtTITLE, #DSCpTITLE, #DSCwTITLE, #DSCzTITLE, #DSClTITLE, #DSCsTITLE{
+        display: none;
+/* display: list-item; */
+	padding:0.5em;
+background: #222222;
+	font-size: 125%;
+	border: 2px solid #EEEEEE;
+	border-radius: 5px;
 }
 
 /*Plot Control////////////////////////////////////////////////////////////////////////*/
@@ -176,7 +227,7 @@ input.inputBox{
 	border-radius: 5px;
 	color: #CCCCCC;
 	border:none;
-	font-size:200%;
+	font-size:150%;
 	padding: 0.5em;
 	width: 4em;
 	text-align: right;
@@ -189,7 +240,7 @@ button.inputButton, div#fitModeToggle, button.deckNavPassive, button.deckNav1D, 
 	border-radius: 5px;
 	color: #CCCCCC;
 	border:none;
-	font-size:200%;
+	font-size:150%;
 	padding: 0.5em;
 	text-align: right;
 	font-family: 'Raleway', sans-serif;
@@ -210,7 +261,7 @@ select{
 	border-radius: 5px;
 	color: #CCCCCC;
 	border:none;
-	font-size:200%;
+	font-size:150%;
 	padding: 0.5em;
 	text-align: center;
 	font-family: 'Raleway', sans-serif;
@@ -242,6 +293,7 @@ button.deckNav2D{
 }
 
 div.deckNavWrap{
+display:none !important;
 	text-align: center;
 }
 
@@ -255,6 +307,52 @@ input.inputBox::-webkit-inner-spin-button {
 label.inputLabel{
 	font-size: 200%;
 	color: #999999;
+}
+
+#INT1Label{
+	color: #449944;
+	font-size: 300%;
+        min-width: 100px;
+
+}
+
+#INT2Label{
+	color: #e67e22;
+	font-size: 300%;
+        min-width: 100px;
+}
+
+#INT3Label{
+	color: #2980b9;
+	font-size: 300%;
+        min-width: 100px;
+}
+
+#EPICS1Label{
+	color: #c0392b;
+	font-size: 300%;
+        min-width: 100px;
+
+}
+#EPICS2Label{
+	color: #8e44ad;
+	font-size: 300%;
+        min-width: 100px;
+
+}
+#EPICS3Label{
+	color: #f1c40f;
+	font-size: 300%;
+        min-width: 100px;
+
+}
+
+#Report{
+	font-size: 300%;
+}
+
+#dygraphLegendDiv, #mouseboxWrap{
+	font-size: 150%;
 }
 
 label#linLabel, #linLabel2D{
@@ -271,6 +369,8 @@ button#unzoom, #unzoom2D, #waveformSnap{
 
 /*Recently Viewed Table///////////////////////////////////////////////////////////////*/
 div#recentSpectra{
+display:none;
+        width: 98%;
 	min-height:100px;
 	border: 5px solid #EEEEEE;
 	border-radius: 25px;
@@ -324,6 +424,7 @@ div.killSwitch{
 }
 
 div#spectraList, div#fitTarget{
+display: none;
 	float:left;
 	padding:1em;
 }
@@ -377,6 +478,7 @@ div#killAllLabel{
 }
 
 div#spectraList{
+display:none;
 	width:15em;
 	text-align: center;
 }

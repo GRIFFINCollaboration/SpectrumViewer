@@ -24,6 +24,36 @@ function spectrumViewer(canvasID){
 	////////////////////////////////////////////////////////////////////////
 	//member variables//////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////
+    // Default values for Gamma-Ray gates    // Markers
+    // 129Cd starts here
+    this.marker1Lbin = 1418;
+    this.marker1Rbin = 1428;
+    this.marker2Lbin = 355;
+    this.marker2Rbin = 365;
+    this.marker3Lbin = 990;
+    this.marker3Rbin = 1000;
+    // End of 129Cd
+/*
+    // 130Cd starts here
+    this.marker1Lbin = 1664;
+    this.marker1Rbin = 1673;
+    this.marker2Lbin = 446;
+    this.marker2Rbin = 455;
+    this.marker3Lbin = 945;
+    this.marker3Rbin = 955;
+    // End of 130Cd
+*/
+/*
+    // 131Cd starts here
+    this.marker1Lbin = 983;
+    this.marker1Rbin = 992;
+    this.marker2Lbin = 354;
+    this.marker2Rbin = 353;
+    this.marker3Lbin = 990;
+    this.marker3Rbin = 1000;
+    // End of 131Cd
+*/
+
 	//canvas & context
 	this.canvasID = canvasID; //canvas ID
 	this.canvas = document.getElementById(canvasID); //dom element pointer to canvas
@@ -67,7 +97,7 @@ function spectrumViewer(canvasID){
 	this.AxisType = 0; //0 == linear, 1 == log
 	this.baseFont = '16px Arial'; //default base font
 	this.expFont = '12px Arial'; //default font for exponents
-	this.xAxisTitle = 'Channels'; //default x-axis title
+	this.xAxisTitle = 'Energy (keV)'; //default x-axis title
 	this.yAxisTitle = 'Counts'; //default y-axis title
 	this.drawCallback = function(){}; //callback after plotData, no arguments passed.
 	this.demandXmin = null; //override values for x and y limits, to be used in favour of automatically detected limits.
@@ -77,9 +107,11 @@ function spectrumViewer(canvasID){
 	this.minY = 0; //minimum Y value currently being plotted
 	this.maxY = 1000000; //max Y value currently being plotted
 	this.chooseLimitsCallback = function(){};
+        this.DyHistoryRange = 60000;
 
 	//data
 	this.plotBuffer = {}; //buffer holding all the spectra we have on hand, packed as 'name':data[], where data[i] = counts in channel i
+	this.plotZeroBuffer = {}; //buffer holding all the info to zero the spectra we have on hand
 	this.fakeData = {};
 	this.fakeData.energydata0 = [200,48,42,48,58,57,59,72,85,68,61,60,72,147,263,367,512,499,431,314,147,78,35,22,13,9,16,7,10,13,5,5,3,1,2,4,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,200,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,120,70,20,20,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,300,650,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 	this.entries = {}; //number of entries in each displayed spectrum
@@ -101,6 +133,27 @@ function spectrumViewer(canvasID){
     this.cursorY = 0; //y-bin of cursor
     this.mouseMoveCallback = function(){}; //callback on moving the cursor over the plot, arguments are (x-bin, y-bin)
     this.highlightColor = '#8e44ad'; //color of drag highlight
+
+
+    this.HistoryColors=['#449944','#e67e22','#2980b9','#c0392b','#8e44ad','#f1c40f'];
+
+    // History variables
+//    this.HistoryData = "";
+
+    this.HistoryData = "Time, Rate of Gamma1, Rate of Gamma2, Rate of Gamma3, Proton Current, Laser Freq. 1, Laser Freq. 2\n";
+    this.HistoryDataSeries = [];
+    this.HistoryLength = 0;
+    this.g1;
+    this.integral1=0.0;
+    this.integral2=0.0;
+    this.integral3=0.0;
+    this.LastIntegral1=0.0;
+    this.LastIntegral2=0.0;
+    this.LastIntegral3=0.0;
+    this.rate1=0.0;
+    this.rate2=0.0;
+    this.rate3=0.0;
+    this.HistPlotSeries = [1,1,1,0,0,0];
 
     //click interactions
     this.XMouseLimitxMin = 0; //limits selected with the cursor
@@ -313,13 +366,125 @@ function spectrumViewer(canvasID){
 			this.containerMain.addChild(histLine);
 			j++;
 		} // End of for loop
+
+    // Here find the integrals and the ratio from the latest server data
+	    // Find the sum of everything in the current x range
+	    document.getElementById('INT1min').value = this.marker1Lbin;
+	    document.getElementById('INT1max').value = this.marker1Rbin;
+	    document.getElementById('INT2min').value = this.marker2Lbin;
+	    document.getElementById('INT2max').value = this.marker2Rbin;
+	    document.getElementById('INT3min').value = this.marker3Lbin;
+	    document.getElementById('INT3max').value = this.marker3Rbin;
+
+	    if(this.plotBuffer[thisSpec] && (thisSpec=="SUM_Singles_Energy")){
+	    data = this.plotBuffer[thisSpec].slice(  Math.floor(this.marker1Lbin),Math.floor(this.marker1Rbin)   );
+	    this.integral1 = 0; for(j=0; j<data.length; j++ ){ this.integral1 += data[j]; }
+	    data = this.plotBuffer[thisSpec].slice(  Math.floor(this.marker2Lbin),Math.floor(this.marker2Rbin)   );
+	    this.integral2 = 0; for(j=0; j<data.length; j++ ){ this.integral2 += data[j]; }
+	    data = this.plotBuffer[thisSpec].slice(  Math.floor(this.marker3Lbin),Math.floor(this.marker3Rbin)   );
+	    this.integral3 = 0; for(j=0; j<data.length; j++ ){ this.integral3 += data[j]; }
+		if(this.LastIntegral1>0){
+		this.rate1 = this.integral1 - this.LastIntegral1;
+		this.rate2 = this.integral2 - this.LastIntegral2;
+		this.rate3 = this.integral3 - this.LastIntegral3;
+		}
+		this.LastIntegral1 = this.integral1;
+		this.LastIntegral2 = this.integral2;
+		this.LastIntegral3 = this.integral3;
+		document.getElementById('INT1Report').innerHTML = (this.rate1);
+		document.getElementById('INT2Report').innerHTML = (this.rate2);
+		document.getElementById('INT3Report').innerHTML = (this.rate3);
+	    }
+
+    // Draw markers for first region of integration
+    marker1L = new createjs.Shape();
+    marker1L.graphics.ss(this.axisLineWidth).s(this.HistoryColors[0]);
+    marker1L.graphics.mt(parseInt(this.leftMargin + (this.marker1Lbin-this.XaxisLimitMin)*this.binWidth), this.canvas.height-this.bottomMargin);
+    marker1L.graphics.lt(parseInt(this.leftMargin + (this.marker1Lbin-this.XaxisLimitMin)*this.binWidth), this.topMargin);
+    this.containerMain.addChild(marker1L);
+    marker1R = new createjs.Shape();
+    marker1R.graphics.ss(this.axisLineWidth).s(this.HistoryColors[0]);
+    marker1R.graphics.mt(parseInt(this.leftMargin + (this.marker1Rbin-this.XaxisLimitMin)*this.binWidth), this.canvas.height-this.bottomMargin);
+			 marker1R.graphics.lt(parseInt(this.leftMargin + (this.marker1Rbin-this.XaxisLimitMin)*this.binWidth), this.topMargin);
+    this.containerMain.addChild(marker1R);
+
+    // Draw markers for second region of integration
+    marker2L = new createjs.Shape();
+    marker2L.graphics.ss(this.axisLineWidth).s(this.HistoryColors[1]);
+			 marker2L.graphics.mt(parseInt(this.leftMargin + (this.marker2Lbin-this.XaxisLimitMin)*this.binWidth), this.canvas.height-this.bottomMargin);
+			 marker2L.graphics.lt(parseInt(this.leftMargin + (this.marker2Lbin-this.XaxisLimitMin)*this.binWidth), this.topMargin);
+    this.containerMain.addChild(marker2L);
+    marker2R = new createjs.Shape();
+    marker2R.graphics.ss(this.axisLineWidth).s(this.HistoryColors[1]);
+			 marker2R.graphics.mt(parseInt(this.leftMargin + (this.marker2Rbin-this.XaxisLimitMin)*this.binWidth), this.canvas.height-this.bottomMargin);
+			 marker2R.graphics.lt(parseInt(this.leftMargin + (this.marker2Rbin-this.XaxisLimitMin)*this.binWidth), this.topMargin);
+    this.containerMain.addChild(marker2R);
+    // Draw markers for third region of integration
+    marker3L = new createjs.Shape();
+    marker3L.graphics.ss(this.axisLineWidth).s(this.HistoryColors[2]);
+			 marker3L.graphics.mt(parseInt(this.leftMargin + (this.marker3Lbin-this.XaxisLimitMin)*this.binWidth), this.canvas.height-this.bottomMargin);
+			 marker3L.graphics.lt(parseInt(this.leftMargin + (this.marker3Lbin-this.XaxisLimitMin)*this.binWidth), this.topMargin);
+    this.containerMain.addChild(marker3L);
+    marker3R = new createjs.Shape();
+    marker3R.graphics.ss(this.axisLineWidth).s(this.HistoryColors[2]);
+			 marker3R.graphics.mt(parseInt(this.leftMargin + (this.marker3Rbin-this.XaxisLimitMin)*this.binWidth), this.canvas.height-this.bottomMargin);
+			 marker3R.graphics.lt(parseInt(this.leftMargin + (this.marker3Rbin-this.XaxisLimitMin)*this.binWidth), this.topMargin);
+    this.containerMain.addChild(marker3R);
+// End of adding markers for integration region
+
 		this.stage.update();
 
 		//callback
 		this.drawCallback();
 
+	    // Update the historyData
+            var d = new Date();
+	    thisTime = d.getFullYear() + "/" + d.getMonth() + "/" + d.getDate() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+/*
+	    HistoryDataSeries[0][this.HistoryLength]=thisTime;
+	    HistoryDataSeries[1][this.HistoryLength]=parseFloat(this.rate1).toFixed(3);
+	    HistoryDataSeries[2][this.HistoryLength]=parseFloat(this.rate2).toFixed(3);
+	    this.HistoryLength++;
+*/
+
+	    // Grab lastest value of EPICS variables here using odbmget()
+	    //var paths = ["/Equipment/Epics/Variables/MSRD[39]","/Equipment/Epics/Variables/MSRD[29]"];
+	    //var formats=[];
+            
+	   // console.log(formats)
+	 //   var epicsrate1 = ODBGet("/Equipment/Epics/Variables/MSRD[39]");
+	   // var epicsrate2 = ODBGet("/Equipment/Epics/Variables/MSRD[29]");
+	   // var epicsrate3 = ODBGet("/Equipment/Epics/Variables/MSRD[30]");
+	    var epicsrate1 = 10;
+	    var epicsrate2 = 1001;
+	    var epicsrate3 = 1200;
+
+	    // copy latest epics values to display
+	    document.getElementById('EPICS1Report').innerHTML = (epicsrate1);
+	    document.getElementById('EPICS2Report').innerHTML = (epicsrate2);
+	    document.getElementById('EPICS3Report').innerHTML = (epicsrate3);
+
+
+	    //redraw the history plot
+	   // this.HistoryData = "Time" + ",Rate of Region 1" + ",Rate of Region 2\n";
+	    this.HistoryData += "\n" + thisTime + ","+ parseFloat(this.rate1).toFixed(3) +","+ parseFloat(this.rate2).toFixed(3) +","+ parseFloat(this.rate3).toFixed(3) +","+ parseFloat(epicsrate1).toFixed(3)+","+ parseFloat(epicsrate2).toFixed(3)+","+ parseFloat(epicsrate3).toFixed(3) + "\n";
+          /*
+	    this.HistoryData = "Time";
+	    if(this.HistPlotSeries[1]){	this.HistoryData += ",Rate of Region 1"; }
+	    if(this.HistPlotSeries[2]){	this.HistoryData += ",Rate of Region 2\n"; }
+	    for(i=0; i<HistoryDataSeries[0].length; i++){
+		this.HistoryData += "\n"+HistoryDataSeries[0][i];
+		if(this.HistPlotSeries[1]){	this.HistoryData += ","+ HistoryDataSeries[1][i]; }
+		if(this.HistPlotSeries[2]){	this.HistoryData += ","+ HistoryDataSeries[2][i]; }
+	    }
+	    this.HistoryData += "\n";
+          */
+           reDrawDyGraph();
+	  //console.log("Time "+thisTime +"= Int1,Int2= "+this.integral1+","+this.integral2+", "+this.LastIntegral1+","+this.LastIntegral2+", "+this.rate1+","+this.rate2);
+	  //console.log(this.HistoryData);
+
 		// Pause for some time and then recall this function to refresh the data display
-		if(this.RefreshTime>0 && RefreshNow==1) this.refreshHandler = setTimeout(function(){plotData(1, 'true')},this.RefreshTime*1000); 	
+	    if(this.RefreshTime>0 && RefreshNow==1) { this.refreshHandler = setTimeout(function(){plotData(1, 'true')},this.RefreshTime*1000); }	
 	};
 
 	//handle drag-to-zoom on the plot
@@ -532,6 +697,23 @@ function spectrumViewer(canvasID){
 		this.plotData();
 	};
 
+	//set the which History series is displayed
+    this.setHistSeriesDisplay = function(type,status){
+	var state=parseInt(status);
+	var series=parseInt(type);
+this.HistPlotSeries[series]=state;
+        viewer.g1.setVisibility(series, state);
+/*
+	var array = [];
+	for(i=0; i<this.HistPlotSeries.length; i++){
+	    if(this.HistPlotSeries[i]==1) array[i] = 'true';
+	    else{ array[i] = 'false'; }
+	}
+	viewer.g1.updateOptions({visibility: array});
+	console.log(array);
+*/
+	};
+
 	//set up for fit mode, replaces old requestfitlimits
 	this.setupFitMode = function(){
 		this.fitModeEngage = 1;
@@ -649,6 +831,11 @@ function spectrumViewer(canvasID){
 		this.plotData();
 	};
 
+    this.zeroCounts = function(name){
+ //	for(j=0;j<viewer.plotBuffer[name].length;i++){viewer.plotZeroBuffer[name][i] = spectrumBuffer[name][i];}
+ 	viewer.plotZeroBuffer[name] = spectrumBuffer[name];
+    };
+
 	//add a data series to the list to be plotted with key name and content [data]
 	this.addData = function(name, data){
 		var nSeries, i;
@@ -667,8 +854,21 @@ function spectrumViewer(canvasID){
 			this.colorAssignment[i] = name;
 		}
 
-		//append the data to the data buffer
-		this.plotBuffer[name] = data;
+	    // Initalize the arrays if they do not yet exist
+	    if(this.plotZeroBuffer[name]==null){ this.plotZeroBuffer[name]=[]; for(i=0;i<data.length;i++)this.plotZeroBuffer[name][i]=0;}
+	    if(this.plotBuffer[name]==null){ this.plotBuffer[name]=data; return;}
+
+                // Apply the zero spectrum, and check if the server data has been reset (ie results in negative values)
+	    for(i=0; i<this.plotBuffer[name].length; i++){
+		this.plotBuffer[name][i] = parseInt(data[i]-this.plotZeroBuffer[name][i]);
+		if(this.plotBuffer[name][i]<0)
+		{
+		    this.plotBuffer[name] = data;
+		    for(j=0;j<this.plotBuffer[name].length;j++){this.plotZeroBuffer[name][j]=0;}
+		    return;
+		}
+	    }
+
 	};
 
 	//remove a data series from the buffer
@@ -678,6 +878,7 @@ function spectrumViewer(canvasID){
 
 		//delete the data
 		delete this.plotBuffer[name];
+		delete this.plotZeroBuffer[name];
 	};
 
 	//////////////////////////////////////////////////////
@@ -735,6 +936,10 @@ function spectrumViewer(canvasID){
 				crosshairs.graphics.mt(x, this.canvas.height-this.bottomMargin);
 				crosshairs.graphics.lt(x, this.topMargin);
 				this.containerOverlay.addChild(crosshairs);
+
+                                // Display the cursor location coordinates
+                    document.getElementById('mousebox').innerHTML = 'x=' + parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin) + ' y=' + Math.floor((this.canvas.height-this.bottomMargin)/this.countHeight-(this.canvas.relMouseCoords(event).y)/this.countHeight);
+
 			} else { //red vertical line to mark second bound of click-and-zoom
 				crosshairs = new createjs.Shape();
 				crosshairs.graphics.ss(this.axisLineWidth).s('#FF0000');
