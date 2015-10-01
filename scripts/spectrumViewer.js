@@ -26,6 +26,8 @@ function pageLoad(){
     //runs after ultralight is finished setting up the page.
 
     createFigure();
+
+    document.getElementById(document.location.hash).scrollIntoView();
 }
 
 function createFigure(){
