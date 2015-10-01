@@ -5,9 +5,9 @@ function dataSetup(data){
 
     //generate list of all available plots and routes
     var plots = [
-        {'url': '?plotid=0', 'title': 'plot number one'},
-        {'url': '?plotid=1', 'title': 'plot number two'},
-        {'url': '?plotid=2', 'title': 'plot number three'}
+        {'url': '?plotid=0#plotRegion', 'title': 'plot number one'},
+        {'url': '?plotid=1#plotRegion', 'title': 'plot number two'},
+        {'url': '?plotid=2#plotRegion', 'title': 'plot number three'}
     ]
 
     var groups = [
