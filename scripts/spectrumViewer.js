@@ -49,6 +49,14 @@ function toggleData(){
     dataStore.viewer.plotData();
 }
 
+function togglePlotList(id){
+    //change whether a plot list is open or closed, for binding to the onclick of the subheaders
+    toggleHidden('plots'+id);
+    toggleHidden('closed'+id);
+    toggleHidden('open'+id);
+
+}
+
 function createFigure(){
     //set up the canvas and viewer object
 
