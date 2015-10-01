@@ -1,10 +1,13 @@
-<div class='col-md-3 item plotSelector'>
+<div id='plotMenu' class='col-md-3 item plotSelector'>
     {{# groups}}
-        <h4 class='plotGroupTitle' onclick='toggleList("plots{{groupTitle}}")'>{{groupTitle}}</h4>
-        <div id='plots{{groupTitle}}' class='list-group'>
+        <h4 class='plotGroupTitle' onclick='toggleHidden("plots{{groupID}}")'>{{groupTitle}}</h4>
+        <ul id='plots{{groupID}}' class='list-group'>
             {{# plots}}
-                <a class='list-group-item' href={{url}}>{{title}}</a>
+                <li class='list-group-item' id='{{groupID}}{{plotID}}'>
+                    {{title}}
+                    <span id='badge{{groupID}}{{plotID}}' class="badge plotPresent hidden">&#x2713;</span>
+                </li>
             {{/ plots}}
-        </div>
+        </ul>
     {{/groups}}
 </div>

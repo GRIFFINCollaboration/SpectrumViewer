@@ -53,15 +53,29 @@ label.inputLabel{
     color: #FFFFFF;
 }
 
-div.plotSelector a{
-    display: inherit;
-    padding: 2px;
-}
-
 /*plot selection*/
-.plotGroupTitle{
-    cursor: pointer;
+
+div.plotSelector{
     -moz-user-select: none;
     -webkit-user-select: none;
     user-select: none;
+}
+
+div.plotSelector li{
+    padding: 2px;
+    color: #000000;
+    cursor: default;
+}
+
+div.plotSelector li:hover{
+    background-color: #EEEEEE;
+}
+
+h4.plotGroupTitle{
+    cursor: pointer;
+}
+
+span.plotPresent{
+    background-color: #87D37C;
+    opacity: 0.7;
 }

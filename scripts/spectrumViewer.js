@@ -1,19 +1,16 @@
 function dataSetup(data){
 
-    //decide which dataset(s) will be plotted, and put the data in the appropriate place.
-    dataStore.activeSpectrum = fetchSpectrum(data.plotid)
-
     //generate list of all available plots and routes
     var plots = [
-        {'url': '?plotid=0', 'title': 'plot number one'},
-        {'url': '?plotid=1', 'title': 'plot number two'},
-        {'url': '?plotid=2', 'title': 'plot number three'}
+        {'plotID': 'gammas', 'title': 'plot number one'},
+        {'plotID': 'betas', 'title': 'plot number two'},
+        {'plotID': 'alphas', 'title': 'plot number three'}
     ]
 
     var groups = [
-        {'groupTitle': 'Group A', 'plots': plots},
-        {'groupTitle': 'Group B', 'plots': plots},
-        {'groupTitle': 'Group C', 'plots': plots}
+        {'groupTitle': 'Group A', 'groupID': 'A', 'plots': plots},
+        {'groupTitle': 'Group B', 'groupID': 'B', 'plots': plots},
+        {'groupTitle': 'Group C', 'groupID': 'C', 'plots': plots}
     ]
 
     return {
@@ -27,41 +24,56 @@ function pageLoad(){
 
     createFigure();
 
-    //jiggery-pokery to prevent page jump when clicking through spectra
+    //set up clickable list items in plot selection
     (function() {
-        var sneaky = new ScrollSneak(location.hostname), tabs = document.getElementsByTagName('a'), i = 0, len = tabs.length;
-        for (; i < len; i++) {
-            tabs[i].onclick = sneaky.sneak;
+        var plots = document.getElementById('plotMenu').getElementsByTagName('li'), 
+        i;
+
+        for (i=0; i < plots.length; i++) {
+            plots[i].onclick = toggleData;
         }
     })();
 }
 
+function toggleData(){
+    //toggle spectrum data:
+    if(dataStore.viewer.plotBuffer[this.id]){
+        dataStore.viewer.removeData(this.id)
+    } else {
+        dataStore.viewer.addData(this.id, fetchSpectrum(this.id))
+    }
+
+    //toggle indicator
+    toggleHidden('badge'+this.id)
+
+    dataStore.viewer.plotData();
+}
+
 function createFigure(){
+    //set up the canvas and viewer object
 
     var width = 0.9*document.getElementById('plotWrap').offsetWidth;
     var height = 32/48*width;
     var canvas = document.getElementById('plotID')
-    var viewer
 
     canvas.width = width;
     canvas.height = height;
-    viewer = new spectrumViewer('plotID');
-    viewer.addData('testPlot', dataStore.activeSpectrum);
-    viewer.plotData();
+    dataStore.viewer = new spectrumViewer('plotID');
 }
 
 function fetchSpectrum(id){
     //return the y-values of the requested spectrum in an array.
 
-    if(id=='0')
+    if(id.slice(1)=='gammas')
         return dataStore.testData;
-    if(id=='1')
+    if(id.slice(1)=='betas')
         return createBins(500);
-    if(id=='2')
+    if(id.slice(1)=='alphas')
         return createBins(500, 10);
 }
 
 
 
 dataStore = {}
+dataStore.activeSpectra = [];
 dataStore.testData = [200,48,42,48,58,57,59,72,85,68,61,60,72,147,263,367,512,499,431,314,147,78,35,22,13,9,16,7,10,13,5,5,3,1,2,4,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,200,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,120,70,20,20,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,300,650,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];

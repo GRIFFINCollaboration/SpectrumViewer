@@ -48,9 +48,9 @@ function createBins(n, constant){
 
 }
 
-function toggleList(listID){
+function toggleHidden(id){
 
-    var classes = document.getElementById(listID).className.split(' ');
+    var classes = document.getElementById(id).className.split(' ');
     var hidden = classes.indexOf('hidden')
 
     if(hidden == -1){
@@ -59,6 +59,6 @@ function toggleList(listID){
         classes.splice(hidden, 1)
     }
 
-    document.getElementById(listID).className = classes.join(' ')
+    document.getElementById(id).className = classes.join(' ')
 
 }
