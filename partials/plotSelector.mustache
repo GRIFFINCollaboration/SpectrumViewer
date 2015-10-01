@@ -1,0 +1,10 @@
+<div class='col-md-3 item plotSelector'>
+    {{# groups}}
+        <h4 class='plotGroupTitle' onclick='toggleList("plots{{groupTitle}}")'>{{groupTitle}}</h4>
+        <div id='plots{{groupTitle}}' class='list-group'>
+            {{# plots}}
+                <a class='list-group-item' href={{url}}>{{title}}</a>
+            {{/ plots}}
+        </div>
+    {{/groups}}
+</div>

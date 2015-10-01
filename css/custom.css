@@ -1,0 +1,67 @@
+/*general*/
+
+body{
+    background-color: #333333;
+    color: #FFFFFF;
+}
+
+div.sectionWrapper{
+    clear: both;
+}
+
+div.item{
+    border: 5px solid #999999;
+    border-radius: 1em;
+    margin: 1em;
+    padding: 1em;
+}
+
+/*branding*/
+div.branding{
+    color: #FFFFFF;
+    clear: both;
+}
+
+div.header{
+    background-color: #4C4C4C;
+    padding: 2em;
+    border-bottom: 2px solid #000000;
+    margin-bottom: 1em;
+    padding-left: 2em;
+    overflow: auto;
+}
+
+div.header img{
+    width: 5em;
+}
+
+div.footer{
+    text-align: center;
+    font-size: 16px;
+    background-color: #4C4C4C;
+    padding: 2em;
+    border-top: 2px solid #000000;
+}
+
+/*navigation*/
+div.navRow{
+    padding: 0em 1em 1em 2em;
+}
+
+/*plot area & control*/
+label.inputLabel{
+    color: #FFFFFF;
+}
+
+div.plotSelector a{
+    display: inherit;
+    padding: 2px;
+}
+
+/*plot selection*/
+.plotGroupTitle{
+    cursor: pointer;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}

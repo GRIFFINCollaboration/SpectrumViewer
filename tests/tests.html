@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>GRIFFIN Spectrum Viewer Testing</title>
+        <link rel="stylesheet" href="../css/qunit.css">
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture"></div>
+        <script src="../scripts/qunit.js"></script>
+        <script src="../scripts/helpers.js"></script>
+
+        <script>
+            //////////////////////////////////////////////////////
+            // Helper testing
+            //////////////////////////////////////////////////////
+
+            QUnit.test( "arrangePoints", function( assert ) {
+                assert.deepEqual(   arrangePoints( [0,1,2,3], [10,11,12,13], [1,2,1,2]), 
+                                    [
+                                         [0,10,null],
+                                         [1,null,11],
+                                         [2,12,null],
+                                         [3,null,13] 
+                                    ],
+                                    'create array of arrays of pairwise elements' 
+                                );
+            }); 
+
+            QUnit.test( "createBins", function( assert ){
+                assert.deepEqual( createBins(3), [0,1,2], 'create list of bin numbers')
+                assert.deepEqual( createBins(3, 1), [1,1,1], 'create list of constants')
+            })
+
+        </script>
+      </body>
+</html>
