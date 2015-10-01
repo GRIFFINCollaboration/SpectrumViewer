@@ -5,9 +5,9 @@ function dataSetup(data){
 
     //generate list of all available plots and routes
     var plots = [
-        {'url': '?plotid=0#plotRegion', 'title': 'plot number one'},
-        {'url': '?plotid=1#plotRegion', 'title': 'plot number two'},
-        {'url': '?plotid=2#plotRegion', 'title': 'plot number three'}
+        {'url': '?plotid=0', 'title': 'plot number one'},
+        {'url': '?plotid=1', 'title': 'plot number two'},
+        {'url': '?plotid=2', 'title': 'plot number three'}
     ]
 
     var groups = [
@@ -27,7 +27,13 @@ function pageLoad(){
 
     createFigure();
 
-    document.getElementById(document.location.hash).scrollIntoView();
+    //jiggery-pokery to prevent page jump when clicking through spectra
+    (function() {
+        var sneaky = new ScrollSneak(location.hostname), tabs = document.getElementsByTagName('a'), i = 0, len = tabs.length;
+        for (; i < len; i++) {
+            tabs[i].onclick = sneaky.sneak;
+        }
+    })();
 }
 
 function createFigure(){
