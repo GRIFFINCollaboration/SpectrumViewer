@@ -1,11 +1,11 @@
 <div id='plotMenu' class='col-md-3 item plotSelector'>
     {{# groups}}
         <h4 id='{{groupID}}' class='plotGroupTitle' onclick='togglePlotList("{{groupID}}")'>
-            <span id='closed{{groupID}}' class="glyphicon glyphicon-circle-arrow-right hidden" aria-hidden="true"></span>
-            <span id='open{{groupID}}' class="glyphicon glyphicon-circle-arrow-down" aria-hidden="true"></span>
+            <span id='closed{{groupID}}' class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span>
+            <span id='open{{groupID}}' class="glyphicon glyphicon-circle-arrow-down hidden" aria-hidden="true"></span>
             {{groupTitle}}
         </h4>
-        <ul id='plots{{groupID}}' class='list-group'>
+        <ul id='plots{{groupID}}' class='list-group hidden'>
             {{# plots}}
                 <li class='list-group-item' id='{{groupID}}{{plotID}}'>
                     {{title}}

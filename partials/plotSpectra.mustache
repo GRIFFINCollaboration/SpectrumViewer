@@ -1,0 +1,69 @@
+<div id='plotWrap' class='col-md-8 item plotRegion'>
+    <canvas id='plotID'></canvas>
+
+    <form id="plotControl">
+
+        <div class='sectionWrapper'>
+            <!-- x-axis limits -->
+            <div id="xRangeWrap" class="col-md-8 UIchunk"> 
+                <h4>X-axis Control</h4> 
+                <input class="inputBox" id="minX" value="0" type="number"></input>
+                <label class="inputLabel" id="xRangeLabel">&lt; x &lt;</label>
+                <input class="inputBox" id="maxX" value="2048" type="number"></input>
+
+                <button class="inputButton" id="bigLeft" type="button">⇇</button>
+                <button class="inputButton" id="littleLeft" type="button">←</button>
+                <button class="inputButton" id="littleRight" type="button">→</button>
+                <button class="inputButton" id="bigRight" type="button">⇉</button>
+
+                <button class="inputButton" id="unzoom" type="button">Unzoom</button>
+            </div>
+
+            <div class='col-md-4'>
+                <h4>Y-axis Control</h4>
+                <div id="logToggleWrap" class="UIchunk">
+                    <input id='linearY' type='radio' checked name='linlog' value='linear'></input>
+                    <label class="inputLabel" id="linLabel" for='linearY'>Linear</label>
+                    <input id='logY' type='radio' name='linlog' value='log'></input>
+                    <label class="inputLabel" id="logLabel" for='logY'>Log</label>
+                </div>            
+            </div>
+        </div>
+
+        <div class='sectionWrapper'>
+            <div id="updateWrap" class=" col-md-4">
+                <h4>Data Fetching</h4>
+                <label id="updateLabel" class="inputLabel">Update Every: </label>
+                <select id="upOptions">
+                    <option value="3000">3 s</option>
+                    <option value="5000">5 s</option>
+                    <option value="10000">10 s</option>
+                    <option value="-1" selected="selected">never</option>
+                </select>
+                <button id="upNow" class="inputButton" type="button">Update Now</button>
+            </div>
+
+            <div class=" col-md-4">
+                <h4>Utilities</h4>
+                <ul id='utilitiesList' class='list-group'>
+                        <li class='list-group-item' id='fitMode' engaged='0'>
+                            Fit Mode
+                            <span id='fitModeBadge' class="badge plotPresent hidden">&#x2713;</span>
+                        </li>
+                        <li class='list-group-item' id='snapToWaveform' engaged=0>
+                            Snap to Waveform
+                            <span id='waveformBadge' class="badge plotPresent hidden">&#x2713;</span>
+                        </li>
+                </ul> 
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+    </form>
+</div>

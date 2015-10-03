@@ -211,6 +211,7 @@ function spectrumViewer(canvasID){
 
 	//update the plot
 	this.plotData = function(RefreshNow){
+
 		var i, j, data, thisSpec, totalEntries, color,
 		thisData = [];
 		this.entries = {};
@@ -513,6 +514,7 @@ function spectrumViewer(canvasID){
 
 	//set up for fit mode, replaces old requestfitlimits
 	this.setupFitMode = function(){
+
 		this.fitModeEngage = 1;
 		this.FitLimitLower=-1;
 		this.FitLimitUpper=-1;		
@@ -601,6 +603,8 @@ function spectrumViewer(canvasID){
 			}
 		}
 
+
+		this.containerPersistentOverlay.removeAllChildren();
 		this.containerFit.addChild(fitLine);
 		this.stage.update();
 
@@ -634,8 +638,8 @@ function spectrumViewer(canvasID){
 
 		//refuse to display more than 10 data series, it's ugly.
 		nSeries = Object.keys(this.plotBuffer).length;
-		if(nSeries > this.dataColor.length){
-			alert('gammaSpectrum only allows at most' + this.dataColor.length + 'series to be plotted simultaneously.');
+		if(nSeries >= this.dataColor.length){
+			alert('gammaSpectrum only allows at most ' + this.dataColor.length + ' series to be plotted simultaneously.');
 			return;
 		}
 
@@ -762,7 +766,6 @@ function spectrumViewer(canvasID){
 	this.canvas.oncontextmenu = function(){
 		return false;
 	};
-
 }
 
 //stick a coordinate tracker on the canvas prototype:

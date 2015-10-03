@@ -5,6 +5,7 @@
     	<script src='scripts/ultralight.js' type="text/javascript"></script>
         <script src='scripts/easeljs-0.7.0.min.js' type="text/javascript"></script>
         <script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
+        <script src='scripts/fitit.js' type="text/javascript"></script>
         <script src='scripts/scrollsneak.js' type="text/javascript"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -17,15 +18,25 @@
             {{> header}}
 
             <div id='plotRegion' class='sectionWrapper'>
-                {{> plot2D}}
+                {{> plotSpectra}}
                 {{> plotSelector}}
+            </div>
+
+            <div id='fitResults' class='sectionWrapper item'>
+                <table id='fitTable'>
+                    <tr>
+                        <td>Spectra</td>
+                        <td>Fit Target</td>
+                        <td>Fit Results</td>
+                    </tr>
+                </table>
             </div>
 
             {{> footer}}
         </script>
 
     	<script type='text/javascript'>
-	    	spectrumViewerUL = new ultralight(['header', 'footer', 'plot2D', 'plotSelector'], dataSetup, pageLoad)
+	    	spectrumViewerUL = new ultralight(['header', 'footer', 'plotSpectra', 'plotSelector', 'fitRow'], dataSetup, pageLoad)
             spectrumViewerUL.fetchTemplates();
 	    </script>
 

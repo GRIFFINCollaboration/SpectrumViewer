@@ -53,6 +53,18 @@ label.inputLabel{
     color: #FFFFFF;
 }
 
+form#plotControl{
+    color: #000000;
+}
+
+form#plotControl h4{
+    color: #FFFFFF;
+}
+
+ul#utilitiesList{
+    cursor: pointer;
+}
+
 /*plot selection*/
 
 div.plotSelector{
