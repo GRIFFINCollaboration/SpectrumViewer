@@ -6,17 +6,18 @@ function dataSetup(data){
 
     //generate list of all available plots and routes
     var plots = [
-        {'plotID': 'gammas', 'title': 'plot number one'},
-        {'plotID': 'betas', 'title': 'plot number two'},
-        {'plotID': 'alphas', 'title': 'plot number three'}
+        {'plotID': 'g', 'title': 'plot number one'},
+        {'plotID': 'b', 'title': 'plot number two'},
+        {'plotID': 'a', 'title': 'plot number three'}
     ]
 
-    var groups = [
-        {'groupTitle': 'Group A', 'groupID': 'A', 'plots': plots},
-        {'groupTitle': 'Group B', 'groupID': 'B', 'plots': plots},
-        {'groupTitle': 'Group C', 'groupID': 'C', 'plots': plots},
-        {'groupTitle': 'Group D', 'groupID': 'D', 'plots': plots}
-    ]
+    var groups = []
+
+    for(var i=0; i<100; i++){
+        groups.push({
+            'groupTitle': 'Group '+i, 'groupID': 'group'+i, 'plots': plots
+        })
+    }
 
     return {
         'groups': groups
@@ -27,11 +28,11 @@ function dataSetup(data){
 function fetchSpectrum(id){
     //return the y-values of the requested spectrum in an array.
 
-    if(id.slice(1)=='gammas')
+    if(id.slice(id.length-1)=='g')
         return dataStore.testData;
-    if(id.slice(1)=='betas')
+    if(id.slice(id.length-1)=='b')
         return createBins(500);
-    if(id.slice(1)=='alphas')
+    if(id.slice(id.length-1)=='a')
         return createBins(500, 10);
 }
 
@@ -109,7 +110,10 @@ function pageLoad(){
     dataStore.viewer.fitCallback = fitCallback
 
     //snap to waveform toggle
-    document.getElementById('snapToWaveform').onclick = toggleSnapWaveform;    
+    document.getElementById('snapToWaveform').onclick = waveformSnap;   
+
+    //keep the plot list the same height as the plot region
+    document.getElementById('plotMenu').style.height = document.getElementById('plotWrap').offsetHeight + 'px'; 
 
 }
 
@@ -123,6 +127,10 @@ function startRefreshLoop(){
         dataStore.dataRefreshLoop = setInterval(refreshPlots, parseInt(this.value,10) );
 
 }
+
+//////////////////////////////////
+// data series management
+//////////////////////////////////
 
 function toggleData(){
     var html, node, rows;
@@ -186,6 +194,7 @@ function toggleFitMode(){
 
     //toggle state indicator
     toggleHidden('fitModeBadge')
+    toggleHidden('fitInstructions')
 }
 
 function chooseFitTarget(id){
@@ -205,12 +214,6 @@ function fitCallback(center, width){
 
     toggleFitMode()
     dataStore.viewer.leaveFitMode();
-}
-
-function toggleSnapWaveform(){
-
-    //toggle state indicator
-    toggleHidden('waveformBadge')
 }
 
 function createFigure(){
@@ -239,7 +242,7 @@ function updatePlotRange(){
     dataStore.viewer.XaxisLimitMax = parseInt(xMax.value,10);
 
     dataStore.viewer.plotData();              
-};
+}
 
 //update the UI when the plot is zoomed with the mouse
 function updateRangeSelector(){
@@ -248,7 +251,35 @@ function updateRangeSelector(){
 
     document.getElementById('minX').value = xMin;
     document.getElementById('maxX').value = xMax;
+}
 
+//callback for clicking on Snap to Waveform
+function waveformSnap(){
+    toggleHidden('waveformBadge')
+
+    if(this.engaged){
+        dataStore.viewer.demandXmin = null;
+        dataStore.viewer.demandXmax = null;
+        dataStore.viewer.demandYmin = null;
+        dataStore.viewer.demandYmax = null;
+        dataStore.viewer.chooseLimitsCallback = function(){};
+        dataStore.viewer.unzoom();
+        this.engaged = 0;
+    } else {
+        dataStore.viewer.demandXmin = 0;
+        dataStore.viewer.demandXmax = 256;
+        dataStore.viewer.chooseLimitsCallback = function(){
+            //set some demand values for the y axis and rerun the limit calculation
+            var rerun = dataStore.viewer.demandYmin == null;
+            dataStore.viewer.demandYmin = Math.max(0, dataStore.viewer.minY - (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1);
+            dataStore.viewer.demandYmax = dataStore.viewer.maxY + (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1; 
+            if(rerun) dataStore.viewer.chooseLimits();
+            dataStore.viewer.demandYmin = null;
+            dataStore.viewer.demandYmax = null;
+        }
+        dataStore.viewer.plotData();
+        this.engaged = 1; 
+    }                   
 }
 
 dataStore = {}

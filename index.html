@@ -22,14 +22,31 @@
                 {{> plotSelector}}
             </div>
 
-            <div id='fitResults' class='sectionWrapper item'>
-                <table id='fitTable'>
-                    <tr>
-                        <td>Spectra</td>
-                        <td>Fit Target</td>
-                        <td>Fit Results</td>
-                    </tr>
-                </table>
+            <div class='sectionWrapper'>
+                <div id='fitResults' class='col-md-8 item'>
+
+                    <div class='sectionWrapper'>
+                        <h4>Peak Fitting</h4>
+                        <ul class='col-md-3 list-group'>
+                            <li class='list-group-item toggle' id='fitMode' engaged='0'>
+                                Fit a new peak
+                                <span id='fitModeBadge' class="badge plotPresent hidden">&#x2713;</span>
+                            </li>
+                        </ul>
+                        <span id='fitInstructions' class='hidden'>Click on either side of the peak to perform a fit.</span>
+                    </div>
+
+                    <div class='sectionWrapper'>
+                        <table id='fitTable'>
+                            <tr>
+                                <td>Spectra</td>
+                                <td>Fit Target</td>
+                                <td>Fit Results</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
             </div>
 
             {{> footer}}
