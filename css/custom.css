@@ -16,6 +16,23 @@ div.item{
     padding: 1em;
 }
 
+div.expand{
+    display: block;
+    overflow: auto;
+}
+
+input{
+    color: #000000;
+}
+
+button{
+    color: #000000;
+}
+
+input[type="number"] {
+   width: 6em;
+}
+
 /*branding*/
 div.branding{
     color: #FFFFFF;
@@ -99,5 +116,9 @@ span.plotPresent{
 /* fitting */
 table#fitTable{
     width: 100%;
+}
 
+/* rate monitor */
+div#rateMonitorControl table td{
+    padding-right: 2em;
 }

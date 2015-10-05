@@ -12,10 +12,12 @@ function spectrumViewer(canvasID){
 	this.containerMain = new createjs.Container(); //layer for main plot
 	this.containerOverlay = new createjs.Container(); //layer for overlay: cursors, range highlights
 	this.containerPersistentOverlay = new createjs.Container(); //layer for persistent overlay features
+	this.containerAnnotations = new createjs.Container(); //layer for annotations
 	this.containerFit = new createjs.Container(); //layer for fit curves
 	this.stage.addChild(this.containerMain);
 	this.stage.addChild(this.containerOverlay);
 	this.stage.addChild(this.containerPersistentOverlay);
+	this.stage.addChild(this.containerAnnotations);
 	this.stage.addChild(this.containerFit);
 
 	//axes & drawing
@@ -80,6 +82,9 @@ function spectrumViewer(canvasID){
     this.cursorY = 0; //y-bin of cursor
     this.mouseMoveCallback = function(){}; //callback on moving the cursor over the plot, arguments are (x-bin, y-bin)
     this.highlightColor = '#8e44ad'; //color of drag highlight
+
+    //annotations
+    this.verticals = {};
 
     //click interactions
     this.XMouseLimitxMin = 0; //limits selected with the cursor
@@ -293,6 +298,10 @@ function spectrumViewer(canvasID){
 			this.containerMain.addChild(histLine);
 			j++;
 		} // End of for loop
+
+		//redraw annotation items
+		this.redrawAnnotation();
+
 		this.stage.update();
 
 		//callback
@@ -662,6 +671,45 @@ function spectrumViewer(canvasID){
 		//delete the data
 		delete this.plotBuffer[name];
 	};
+
+	//////////////////////////////////////////
+	// annotation objects
+	//////////////////////////////////////////
+
+	//redraw all the annotation opbjects in their appropriate places
+	this.redrawAnnotation = function(){
+		var key;
+
+		this.containerAnnotations.removeAllChildren();
+
+		//vertical lines
+		for(key in this.verticals){
+			this.vertical(this.verticals[key].bin, this.verticals[key].color);
+		}
+	}
+
+	//draw a vertical line of a given color '#123456' at left edge of bin
+	this.vertical = function(bin, color){
+		var line
+
+		line = new createjs.Shape();
+		line.graphics.ss(this.axisLineWidth).s(color);
+		line.graphics.mt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.canvas.height - this.bottomMargin);
+		line.graphics.lt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.topMargin);
+		this.containerAnnotations.addChild(line);
+
+	}
+
+	//add a persistent vertical
+	this.addVertical = function(name, bin, color){
+		this.verticals[name] = {'bin': bin, 'color': color}
+	}
+
+	//remove a persistent vertical
+	this.removeVertical = function(name){
+		if(this.verticals.hasOwnProperty(name))
+			delete this.verticals[name];
+	}
 
 	//////////////////////////////////////////////////////
 	//initial setup///////////////////////////////////////

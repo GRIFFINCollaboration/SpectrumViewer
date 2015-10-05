@@ -1,0 +1,46 @@
+<div class='col-md-6'>
+    <h4>Gamma Gates</h4>
+    <table id='gammaWindows'>
+        <tr>
+            <td>Gate ID</td>
+            <td>Show</td>
+            <td>Min. Bin</td>
+            <td>Max. Bin</td>
+        </tr>
+        {{#gammas}}
+            <tr>
+                <td>{{title}}</td>
+                <td>
+                    <input type=checkbox checked id='display{{id}}' class='gammaToggle'></input>
+                </td>
+                <td>
+                    <input type=number value={{min}} id='min{{id}}' class='gammaEdge'></input>
+                </td>
+                <td>
+                    <input type=number value={{max}} id='max{{id}}' class='gammaEdge'></input>
+                </td>
+                <td>
+                    <button class='snapGateToWindow' id='{{id}}'>Set to Current Window</button>
+                </td>
+            </tr>
+        {{/gammas}}
+    </table>
+</div>
+
+<div class='col-md-6'>
+    <h4>Currents & Frequencies</h4>
+    <table>
+        <tr>
+            <td>Item</td>
+            <td>Show</td>
+        </tr>
+        {{#parameters}}
+            <tr>
+                <td>{{title}}</td>
+                <td>
+                    <input type=checkbox id='display{{id}}'></input>
+                </td>
+            </tr>
+        {{/parameters}}
+    </table>
+</div>

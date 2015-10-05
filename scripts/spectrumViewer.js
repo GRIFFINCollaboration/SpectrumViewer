@@ -37,33 +37,15 @@ function fetchSpectrum(id){
 }
 
 ////////////////////////////////////////////
-// data refresh
-////////////////////////////////////////////
-
-function refreshPlots(){
-    // re-fetch all the plots currently displayed.
-
-    //var sequence = Promise.resolve();
-    var plotKeys = Object.keys(dataStore.viewer.plotBuffer);
-
-    // sequence.then(function(){
-    //     return Promise.all(plotKeys.map(fetchSpectrum))
-    // }).then(dataStore.viewer.plotData)
-    
-    Promise.all(plotKeys.map(fetchSpectrum)).then(dataStore.viewer.plotData.bind(dataStore.viewer) )
-
-}
-
-////////////////////////////////////////////
 // setup helpers
 ////////////////////////////////////////////
 
 function pageLoad(){
     //runs after ultralight is finished setting up the page.
-
-    var i, radios;
-
     createFigure();
+    //plug in plot control callbacks:
+    setupFigureControl();
+    setupFitting();
 
     //set up clickable list items in plot selection
     (function() {
@@ -74,58 +56,18 @@ function pageLoad(){
             plots[i].onclick = toggleData;
         }
     })();
-
-    //plug in plot control callbacks:
-
-    //x-range control:
-    document.getElementById('minX').onchange = updatePlotRange;
-    document.getElementById('maxX').onchange = updatePlotRange;
-    dataStore.viewer.chooseLimitsCallback = updateRangeSelector
-
-    //onclick for scroll buttons - 1D:
-    document.getElementById('bigLeft').onclick = dataStore.viewer.scrollSpectra.bind(dataStore.viewer, -100);
-    document.getElementById('littleLeft').onclick = dataStore.viewer.scrollSpectra.bind(dataStore.viewer, -1);
-    document.getElementById('littleRight').onclick = dataStore.viewer.scrollSpectra.bind(dataStore.viewer, 1);
-    document.getElementById('bigRight').onclick = dataStore.viewer.scrollSpectra.bind(dataStore.viewer, 100);
-
-    //unzoom button
-    document.getElementById('unzoom').onclick = dataStore.viewer.unzoom.bind(dataStore.viewer);
-
-    //lin-log toggle
-    radios = document.getElementById('logToggleWrap').getElementsByTagName('input');
-    for(i = 0; i < radios.length; i++) {
-        radios[i].onclick = function() {
-            dataStore.viewer.setAxisType(this.value)
-        };
-    }
-
-    //update interval select
-    document.getElementById('upOptions').onchange = startRefreshLoop;
-    //update now button
-    document.getElementById('upNow').onclick = refreshPlots;
-
-    //fit mode trigger
-    document.getElementById('fitMode').onclick = toggleFitMode;
-    //fitting callback:
-    dataStore.viewer.fitCallback = fitCallback
-
-    //snap to waveform toggle
-    document.getElementById('snapToWaveform').onclick = waveformSnap;   
-
+ 
     //keep the plot list the same height as the plot region
     document.getElementById('plotMenu').style.height = document.getElementById('plotWrap').offsetHeight + 'px'; 
 
 }
 
-function startRefreshLoop(){
-    //sets the refresh loop as a callback to changing the selector menu.
-
-    var period = parseInt(this.value,10); //in seconds
-
-    clearInterval(dataStore.dataRefreshLoop);
-    if(period != -1)
-        dataStore.dataRefreshLoop = setInterval(refreshPlots, parseInt(this.value,10) );
-
+function setupFitting(){
+    //setup fitting infrastructure
+    //fit mode trigger
+    document.getElementById('fitMode').onclick = toggleFitMode;
+    //fitting callback:
+    dataStore.viewer.fitCallback = fitCallback    
 }
 
 //////////////////////////////////
@@ -214,72 +156,6 @@ function fitCallback(center, width){
 
     toggleFitMode()
     dataStore.viewer.leaveFitMode();
-}
-
-function createFigure(){
-    //set up the canvas and viewer object
-
-    var width = 0.9*document.getElementById('plotWrap').offsetWidth;
-    var height = 32/48*width;
-    var canvas = document.getElementById('plotID')
-
-    canvas.width = width;
-    canvas.height = height;
-    dataStore.viewer = new spectrumViewer('plotID');
-    dataStore.viewer.plotData();
-}
-
-////////////////////////////////////
-// UI callbacks
-////////////////////////////////////
-
-//update the plot ranges onchange of the x-range input fields:
-function updatePlotRange(){
-    var xMin = document.getElementById('minX'),
-        xMax = document.getElementById('maxX');
-
-    dataStore.viewer.XaxisLimitMin = parseInt(xMin.value,10);
-    dataStore.viewer.XaxisLimitMax = parseInt(xMax.value,10);
-
-    dataStore.viewer.plotData();              
-}
-
-//update the UI when the plot is zoomed with the mouse
-function updateRangeSelector(){
-    var xMin = dataStore.viewer.XaxisLimitMin,
-        xMax = dataStore.viewer.XaxisLimitMax
-
-    document.getElementById('minX').value = xMin;
-    document.getElementById('maxX').value = xMax;
-}
-
-//callback for clicking on Snap to Waveform
-function waveformSnap(){
-    toggleHidden('waveformBadge')
-
-    if(this.engaged){
-        dataStore.viewer.demandXmin = null;
-        dataStore.viewer.demandXmax = null;
-        dataStore.viewer.demandYmin = null;
-        dataStore.viewer.demandYmax = null;
-        dataStore.viewer.chooseLimitsCallback = function(){};
-        dataStore.viewer.unzoom();
-        this.engaged = 0;
-    } else {
-        dataStore.viewer.demandXmin = 0;
-        dataStore.viewer.demandXmax = 256;
-        dataStore.viewer.chooseLimitsCallback = function(){
-            //set some demand values for the y axis and rerun the limit calculation
-            var rerun = dataStore.viewer.demandYmin == null;
-            dataStore.viewer.demandYmin = Math.max(0, dataStore.viewer.minY - (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1);
-            dataStore.viewer.demandYmax = dataStore.viewer.maxY + (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1; 
-            if(rerun) dataStore.viewer.chooseLimits();
-            dataStore.viewer.demandYmin = null;
-            dataStore.viewer.demandYmax = null;
-        }
-        dataStore.viewer.plotData();
-        this.engaged = 1; 
-    }                   
 }
 
 dataStore = {}
