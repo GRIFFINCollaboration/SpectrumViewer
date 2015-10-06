@@ -3,8 +3,10 @@
 // usage:
 // 1. expects a global object dataStore to exist; create in the head.
 // 2. after dom is loaded, call createFigure() and setupFigureControl()
-// 3. expects a global function fetchSpecrtum(id), which returns an
-//    array of y values indexed by bin for the given spectrum id.
+// 3. expects a global function fetchSpecrtum(id), which requests the
+//    appropriate data and puts it in the right place, and a callback
+//    fetchCallback() that runs after all data is loaded (probably a
+//    good time to ask for a plot redraw, for example).
 /////////////////////////////////////////////////////////////////////////
 
 function createFigure(){
@@ -56,7 +58,8 @@ function setupFigureControl(){
 }
 
 function refreshPlots(){
-    // re-fetch all the plots currently displayed.
+    // re-fetch all the plots currently displayed. 
+    // will run a function fetchCallback after data has arrived, if that function exists.
 
     //var sequence = Promise.resolve();
     var plotKeys = Object.keys(dataStore.viewer.plotBuffer);
@@ -65,7 +68,11 @@ function refreshPlots(){
     //     return Promise.all(plotKeys.map(fetchSpectrum))
     // }).then(dataStore.viewer.plotData)
     
-    Promise.all(plotKeys.map(fetchSpectrum)).then(dataStore.viewer.plotData.bind(dataStore.viewer) )
+    Promise.all(plotKeys.map(fetchSpectrum)).then(function(){
+        if(typeof fetchCallback === "function"){
+            fetchCallback();
+        }
+    })
 
 }
 

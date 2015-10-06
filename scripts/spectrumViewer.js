@@ -26,14 +26,21 @@ function dataSetup(data){
 }
 
 function fetchSpectrum(id){
-    //return the y-values of the requested spectrum in an array.
+    //fetch spectrum as an array of counts indexed by bin
+    //load data directly into spectrum viewer
 
     if(id.slice(id.length-1)=='g')
-        return dataStore.testData;
+        dataStore.viewer.addData(id, dataStore.testData);
     if(id.slice(id.length-1)=='b')
-        return createBins(500);
+        dataStore.viewer.addData(id, createBins(500));
     if(id.slice(id.length-1)=='a')
-        return createBins(500, 10);
+        dataStore.viewer.addData(id, createBins(500,10));
+}
+
+function fetchCallback(){
+    //fires after all data has been updated
+
+    dataStore.viewer.plotData();
 }
 
 ////////////////////////////////////////////
@@ -91,10 +98,17 @@ function toggleData(){
             if(rows.length > 1)
                 document.getElementById(rows[1].id.slice(6)+'Radio').click()
         }
+        dataStore.viewer.plotData();
     // data absent, add it.
-    } else {  
+    } else {
+        //don't allow more than 10 plots
+        if(Object.keys(dataStore.viewer.plotBuffer).length == 10){
+            alert("Won't plot more than 10 spectra at a time. Click on a spectrum name to remove it and make room for others.");
+            return;
+        }
         //add data
-        dataStore.viewer.addData(this.id, fetchSpectrum(this.id))
+        dataStore.viewer.addData(this.id, []);
+        refreshPlots();
         //generate html for fit table and add it
         html = Mustache.to_html(spectrumViewerUL.partials['fitRow'], {'spectrum': this.id});
         document.getElementById('fitTable').getElementsByTagName('tbody')[0].innerHTML += html;
@@ -104,8 +118,6 @@ function toggleData(){
 
     //toggle indicator
     toggleHidden('badge'+this.id)
-
-    dataStore.viewer.plotData();
 }
 
 function togglePlotList(id){
@@ -160,4 +172,5 @@ function fitCallback(center, width){
 
 dataStore = {}
 dataStore.activeSpectra = [];
+dataStore.spectra = {};
 dataStore.testData = [200,48,42,48,58,57,59,72,85,68,61,60,72,147,263,367,512,499,431,314,147,78,35,22,13,9,16,7,10,13,5,5,3,1,2,4,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,200,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,120,70,20,20,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,300,650,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];

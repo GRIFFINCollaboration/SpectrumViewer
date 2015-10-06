@@ -642,8 +642,15 @@ function spectrumViewer(canvasID){
 	};
 
 	//add a data series to the list to be plotted with key name and content [data]
+	//if such a series already exists, just update its data.
 	this.addData = function(name, data){
 		var nSeries, i;
+
+		//if a series with this name already exists, just update the data
+		if(this.plotBuffer[name]){
+			this.plotBuffer[name] = data;
+			return;
+		}
 
 		//refuse to display more than 10 data series, it's ugly.
 		nSeries = Object.keys(this.plotBuffer).length;

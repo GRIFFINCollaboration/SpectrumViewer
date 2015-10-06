@@ -6,9 +6,13 @@ function dataSetup(data){
 }
 
 function fetchSpectrum(id){
-    //returns an array of y values indexed by bin number for spectrum id.
+    //refreshes the data for spectrum id.
+    dataStore.viewer.addData(id, dataStore.testData);
+}
 
-    return dataStore.testData
+function fetchCallback(){
+    //runsas callback after all data has been refreshed.
+    dataStore.viewer.plotData();
 }
 
 function pageLoad(){
@@ -26,9 +30,8 @@ function pageLoad(){
     }
 
     //plot the spectrum of interest
-    dataStore.viewer.addData(dataStore.targetSpectrum, fetchSpectrum(dataStore.targetSpectrum));
-    dataStore.viewer.plotData();
-    dataStore.viewer.unzoom();
+    dataStore.viewer.addData(dataStore.targetSpectrum, []);
+    refreshPlots();
 
     //UI bindings
     gammaWindowToggles = document.getElementsByClassName('gammaToggle')
@@ -94,8 +97,28 @@ function snapGateToWindow(){
     document.getElementById('max'+this.id).onchange()
 }
 
+///////////////////////////////
+// dygraph wrangling
+///////////////////////////////
 
+function createRateMonitor(){
+    //plot intensity versus AQ in a div#divID, and show magnet transmission region
 
+    var data = [0,0,0,0]
+
+    dataStore.dygraph = new Dygraph(
+        // containing div
+        document.getElementById('dygraph'),
+
+        // data
+        data,
+
+        //style
+        {   
+
+        }
+    );
+}
 
 dataStore = {}
 dataStore.targetSpectrum = 'fakeSpectrum'
