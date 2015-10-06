@@ -11,13 +11,54 @@ function fetchSpectrum(id){
 }
 
 function fetchCallback(){
-    //runsas callback after all data has been refreshed.
+    //runs as callback after all data has been refreshed.
     dataStore.viewer.plotData();
+
+    //update the rate monitor
+    appendNewPoint();
+}
+
+function appendNewPoint(){
+    //integrate gamma windows and append result as new point on rate monitor.
+    var i, j, min, max, gates = [];
+    //integrate gamma windows
+    for(i=0; i<3; i++){
+        min = dataStore.viewer.verticals['min' + dataStore.defaults.gammas[i].id].bin
+        max = dataStore.viewer.verticals['max' + dataStore.defaults.gammas[i].id].bin
+        gates[i] = 0;
+        for(j=min; j<max; j++){
+            gates[i] += dataStore.viewer.plotBuffer[dataStore.targetSpectrum][j];
+        } 
+    }
+
+    //update data history
+    dataStore.rateData.push( [new Date()].concat(gates) );
+
+    //update plot
+    updateDygraph();
+
+}
+
+function updateDygraph(){
+    //decide how many points to keep from the history, and plot.
+    var period, data, 
+
+    //extract the appropriate tail of the data history
+    period = getSelected('rateHistory')
+    if(period == -1)
+        data = dataStore.rateData
+    else{
+        period = Math.ceil(period/3); //this many points to keep at the end
+        data = dataStore.rateData.slice(Math.max(0,dataStore.rateData.length - period));
+    }
+
+    //update the dygraph
+    dataStore.dygraph.updateOptions( { 'file': data } );
 }
 
 function pageLoad(){
     //runs after ultralight is finished setting up the page.
-    var i, gammaWindowToggles, gammaWindowEdges, snapGammaButtons;
+    var i, node, gammaWindowToggles, gammaWindowEdges, snapGammaButtons;
 
     //set up gamma spectrum
     createFigure();
@@ -33,6 +74,9 @@ function pageLoad(){
     dataStore.viewer.addData(dataStore.targetSpectrum, []);
     refreshPlots();
 
+    //set up Dygraph
+    createRateMonitor();
+
     //UI bindings
     gammaWindowToggles = document.getElementsByClassName('gammaToggle')
     for(i=0; i<gammaWindowToggles.length; i++){
@@ -45,6 +89,17 @@ function pageLoad(){
     snapGammaButtons = document.getElementsByClassName('snapGateToWindow')
     for(i=0; i<snapGammaButtons.length; i++){
         snapGammaButtons[i].onclick = snapGateToWindow;
+    }
+
+    document.getElementById('rateHistory').onchange = updateDygraph
+
+    //start periodic refresh
+    document.getElementById('upOptions').value = 3000;
+    document.getElementById('upOptions').onchange();
+    //don't allow refresh period to change
+    node = document.getElementById("updateWrap");
+    if (node.parentNode) {
+        node.parentNode.removeChild(node);
     }
 
 }
@@ -104,24 +159,49 @@ function snapGateToWindow(){
 function createRateMonitor(){
     //plot intensity versus AQ in a div#divID, and show magnet transmission region
 
-    var data = [0,0,0,0]
-
     dataStore.dygraph = new Dygraph(
         // containing div
         document.getElementById('dygraph'),
 
         // data
-        data,
+        dataStore.rateData,
 
         //style
         {   
-
+            labels: ['time', 'gate 1', 'gate 2', 'gate 3'],
+            title: 'Gate Integrals for ' + dataStore.targetSpectrum,
+            height: document.getElementById('plotID').offsetHeight - dataStore.viewer.bottomMargin + 20,
+            width: document.getElementById('plotID').offsetWidth,
+            colors: dataStore.colors,
+            axisLabelColor: '#FFFFFF',
+            axes: {
+                x: {
+                    axisLabelFormatter: function(Date, granularity, opts, dygraph){
+                        return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
+                    }
+                }
+            },
+            labelsDiv: 'rateLegend',
+            legend: 'always'
         }
     );
 }
 
+
+
+
+
+
 dataStore = {}
+dataStore.rateData = [[new Date(),0,0,0]]
 dataStore.targetSpectrum = 'fakeSpectrum'
+dataStore.colors = [
+    "#AAE66A",
+    "#EFB2F0",
+    "#40DDF1",
+    "#F1CB3C",
+    "#4FEF3E"
+]
 dataStore.defaults = {
         'gammas':[
             {
@@ -129,21 +209,21 @@ dataStore.defaults = {
                 'id': 'g1',
                 'min': 10,
                 'max': 20,
-                'color': '#D35400'
+                'color': "#AAE66A"
             },
             {
                 'title': 'Gate 2',
                 'id': 'g2',
                 'min': 100,
                 'max': 120,
-                'color': '#1BA39C'
+                'color': "#EFB2F0"
             },
             {
                 'title': 'Gate 3',
                 'id': 'g3',
                 'min': 200,
                 'max': 240,
-                'color': '#9A12B3'
+                'color': "#40DDF1"
             },  
         ],
 

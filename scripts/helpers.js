@@ -62,3 +62,21 @@ function toggleHidden(id){
     document.getElementById(id).className = classes.join(' ')
 
 }
+
+function alwaysThisLong(number, minLength){
+    //returns number as a string padded with most-significant 0's to make it minLength.
+
+    var num = ''+number;
+    while(num.length<minLength)
+        num = '0' + num
+
+    return num
+}
+
+function getSelected(id){
+    //return the current value selected by the select element with id.
+    //thx http://stackoverflow.com/questions/1085801/get-selected-value-in-dropdown-list-using-javascript
+
+    var e = document.getElementById(id);
+    return e.options[e.selectedIndex].value;
+}

@@ -14,6 +14,8 @@ div.item{
     border-radius: 1em;
     margin: 1em;
     padding: 1em;
+    display: block;
+    overflow: auto;
 }
 
 div.expand{
@@ -21,11 +23,7 @@ div.expand{
     overflow: auto;
 }
 
-input{
-    color: #000000;
-}
-
-button{
+input, button, select{
     color: #000000;
 }
 
@@ -121,4 +119,12 @@ table#fitTable{
 /* rate monitor */
 div#rateMonitorControl table td{
     padding-right: 2em;
+}
+
+div#rateLegend{
+    margin-bottom: 1em;
+}
+
+div#rateWrap{
+    height:100%;
 }
