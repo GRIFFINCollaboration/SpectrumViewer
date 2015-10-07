@@ -85,6 +85,7 @@ function spectrumViewer(canvasID){
 
     //annotations
     this.verticals = {};
+    this.suppressedAnnotations = []; //list of annotation id's to not draw
 
     //click interactions
     this.XMouseLimitxMin = 0; //limits selected with the cursor
@@ -691,7 +692,8 @@ function spectrumViewer(canvasID){
 
 		//vertical lines
 		for(key in this.verticals){
-			this.vertical(this.verticals[key].bin, this.verticals[key].color);
+			if(this.suppressedAnnotations.indexOf(key) == -1)
+				this.vertical(this.verticals[key].bin, this.verticals[key].color);
 		}
 	}
 
@@ -716,6 +718,19 @@ function spectrumViewer(canvasID){
 	this.removeVertical = function(name){
 		if(this.verticals.hasOwnProperty(name))
 			delete this.verticals[name];
+	}
+
+	//suppress a persistent annotation without deleting it
+	this.suppressAnnotation = function(id){
+		if(this.suppressedAnnotations.indexOf(id) == -1)
+			this.suppressedAnnotations.push(id);
+	}
+
+	//unsuppress a persistent annotation
+	this.unsuppressAnnotation = function(id){
+		var index = this.suppressedAnnotations.indexOf(id);
+		if(index != -1)
+			this.suppressedAnnotations.splice(index, 1);
 	}
 
 	//////////////////////////////////////////////////////

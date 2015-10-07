@@ -22,7 +22,7 @@ function appendNewPoint(){
     //integrate gamma windows and append result as new point on rate monitor.
     var i, j, min, max, gates = [];
     //integrate gamma windows
-    for(i=0; i<3; i++){
+    for(i=0; i<dataStore.defaults.gammas.length; i++){
         min = dataStore.viewer.verticals['min' + dataStore.defaults.gammas[i].id].bin
         max = dataStore.viewer.verticals['max' + dataStore.defaults.gammas[i].id].bin
         gates[i] = 0;
@@ -113,12 +113,15 @@ function toggleGammaWindow(index){
     var id = dataStore.defaults.gammas[index].id
 
     //present, remove
-    if(dataStore.viewer.verticals['min'+id]){
-        dataStore.viewer.removeVertical('min'+id);
-        dataStore.viewer.removeVertical('max'+id);
+    if(dataStore.viewer.verticals['min'+id] && dataStore.viewer.suppressedAnnotations.indexOf('min'+id) == -1  ){
+        dataStore.viewer.suppressAnnotation('min'+id);
+        dataStore.viewer.suppressAnnotation('max'+id);
+
+        dataStore.dygraph.setVisibility(index, false);
     //not present, add
     } else{
         drawWindow(index, document.getElementById('min'+id).value, document.getElementById('max'+id).value );
+        dataStore.dygraph.setVisibility(index, true);
     }
 
     this.dataStore.viewer.plotData();
@@ -136,11 +139,16 @@ function moveGammaWindow(){
 
 function drawWindow(index, min, max){
     //draw the appropriate window on the plot; index corresponds to dataStore.defaults.gammas[index]
-    dataStore.viewer.removeVertical('min' + dataStore.defaults.gammas[index].id);
-    dataStore.viewer.removeVertical('max' + dataStore.defaults.gammas[index].id);
-
-    dataStore.viewer.addVertical('min' + dataStore.defaults.gammas[index].id, min, dataStore.defaults.gammas[index].color)
-    dataStore.viewer.addVertical('max' + dataStore.defaults.gammas[index].id, max, dataStore.defaults.gammas[index].color)
+    var id = dataStore.defaults.gammas[index].id;
+    //delete the old lines
+    dataStore.viewer.removeVertical('min' + id);
+    dataStore.viewer.removeVertical('max' + id);
+    //make new lines
+    dataStore.viewer.addVertical('min' + id, min, dataStore.defaults.gammas[index].color)
+    dataStore.viewer.addVertical('max' + id, max, dataStore.defaults.gammas[index].color)
+    //make sure these lines aren't getting suppressed
+    dataStore.viewer.unsuppressAnnotation('min' + id);
+    dataStore.viewer.unsuppressAnnotation('max' + id);
 }
 
 function snapGateToWindow(){
@@ -206,21 +214,21 @@ dataStore.defaults = {
         'gammas':[
             {
                 'title': 'Gate 1',
-                'id': 'g1',
+                'id': 'g0',
                 'min': 10,
                 'max': 20,
                 'color': "#AAE66A"
             },
             {
                 'title': 'Gate 2',
-                'id': 'g2',
+                'id': 'g1',
                 'min': 100,
                 'max': 120,
                 'color': "#EFB2F0"
             },
             {
                 'title': 'Gate 3',
-                'id': 'g3',
+                'id': 'g2',
                 'min': 200,
                 'max': 240,
                 'color': "#40DDF1"
@@ -229,16 +237,19 @@ dataStore.defaults = {
 
         'parameters':[
             {
-                'title': 'Proton Current',
-                'id': 'PC'
+                'title': 'Proton Current',  //label
+                'id': 'PC',                 //element id
+                'target': 'pc'              //retrieval key
             },
             {
                 'title': 'Laser Freq. 1',
-                'id': 'LF1'
+                'id': 'LF1',
+                'target': 'lf1'
             },
             {
                 'title': 'Laser Freq. 2',
-                'id': 'LF2'
+                'id': 'LF2',
+                'target': 'lf2'
             }
         ]
     }

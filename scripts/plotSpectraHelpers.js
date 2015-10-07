@@ -61,12 +61,7 @@ function refreshPlots(){
     // re-fetch all the plots currently displayed. 
     // will run a function fetchCallback after data has arrived, if that function exists.
 
-    //var sequence = Promise.resolve();
     var plotKeys = Object.keys(dataStore.viewer.plotBuffer);
-
-    // sequence.then(function(){
-    //     return Promise.all(plotKeys.map(fetchSpectrum))
-    // }).then(dataStore.viewer.plotData)
     
     Promise.all(plotKeys.map(fetchSpectrum)).then(function(){
         if(typeof fetchCallback === "function"){
