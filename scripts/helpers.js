@@ -80,3 +80,15 @@ function getSelected(id){
     var e = document.getElementById(id);
     return e.options[e.selectedIndex].value;
 }
+
+function fadeHexColor(color, opacity){
+    //given a hex color '#123456', return 'rgba(0x12, 0x34, 0x56, opactiy)'
+
+    var R, G, B;
+
+    R = parseInt(color.slice(1,3), 16);
+    G = parseInt(color.slice(3,5), 16);
+    B = parseInt(color.slice(5,7), 16);
+
+    return 'rgba(' + R + ',' + G + ',' + B + ',' + opacity + ')';
+}

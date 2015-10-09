@@ -24,8 +24,9 @@ function fetchCallback(){
 
 function appendNewPoint(){
     //integrate gamma windows and append result as new point on rate monitor.
-    var i, j, id, min, max, gates = [], levels = [], bkgTechnique, bkgSample, bkgPattern, bkg, y0, y1;
+    var i, j, id, min, max, gates = [], levels = [], bkgTechnique, bkgSample, bkgPattern, bkg, y0, y1, bkgColor;
 
+    dataStore.viewer.binHighlights = [];
     for(i=0; i<dataStore.defaults.gammas.length; i++){
         id = dataStore.defaults.gammas[i].id;
         min = dataStore.viewer.verticals['min' + id].bin
@@ -48,6 +49,16 @@ function appendNewPoint(){
                 bkgSample = constructManualBackgrounRange(bkgPattern.value, dataStore.viewer.plotBuffer[dataStore.targetSpectrum]);
             }
 
+            //highlight selected background bins
+            bkgColor = fadeHexColor(dataStore.colors[i], 0.2);
+            for(j=0; j<bkgSample[0].length; j++){
+                dataStore.viewer.binHighlights[bkgSample[0][j]] = {
+                    'color': bkgColor,
+                    'height': bkgSample[1][j]
+                }
+            }
+
+            //fit background
             bkg = dataStore.viewer.linearBKG.apply(null, bkgSample);
 
             //update annotation with fit line

@@ -87,6 +87,7 @@ function spectrumViewer(canvasID){
     this.verticals = {};
     this.lines = {}
     this.suppressedAnnotations = []; //list of annotation id's to not draw
+    this.binHighlights = [] //array of objects {color, height in counts}
 
     //click interactions
     this.XMouseLimitxMin = 0; //limits selected with the cursor
@@ -303,6 +304,9 @@ function spectrumViewer(canvasID){
 
 		//redraw annotation items
 		this.redrawAnnotation();
+
+		//shade bins
+		this.shadeBins();
 
 		this.stage.update();
 
@@ -897,6 +901,22 @@ function spectrumViewer(canvasID){
 		var index = this.suppressedAnnotations.indexOf(id);
 		if(index != -1)
 			this.suppressedAnnotations.splice(index, 1);
+	}
+
+	//highlight some bins
+	this.shadeBins = function(){
+		var i, bin, x0, y0;
+
+		for(i=0; i<this.binHighlights.length; i++){
+			if(this.binHighlights[i]){
+				x0 = this.leftMargin + this.binWidth*(i-this.XaxisLimitMin)
+				y0 = this.canvas.height - this.bottomMargin - this.binHighlights[i].height*this.countHeight;
+				bin = new createjs.Shape();
+ 				bin.graphics.beginFill(this.binHighlights[i].color).drawRect(x0, y0, this.binWidth, this.binHighlights[i].height*this.countHeight);
+ 				bin.graphics.beginStroke(this.binHighlights[i].color).drawRect(x0, y0, this.binWidth, this.binHighlights[i].height*this.countHeight);
+				this.containerAnnotations.addChild(bin);
+			}
+		}
 	}
 
 	//////////////////////////////////////////////////////
