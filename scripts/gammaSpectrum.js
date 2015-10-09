@@ -85,6 +85,7 @@ function spectrumViewer(canvasID){
 
     //annotations
     this.verticals = {};
+    this.lines = {}
     this.suppressedAnnotations = []; //list of annotation id's to not draw
 
     //click interactions
@@ -681,13 +682,12 @@ function spectrumViewer(canvasID){
 	}
 
 	//given two arrays of bin numbers (bins) and counts in the corresponding bin (bkg), 
-	//detects peaks, masks them out, and fits what's left with a straight line
-	this.fastBKG = function(bins, bkg){
+	//detects peaks, masks them out, and return the resulting bins.
+	this.scrubPeaks = function(bins, bkg){
 		var concavity, spikePosition,
 			bkgBins = bins,
-			bkgCandidate = bkg,
-			i, slope, intercept,
-			fitter = new histofit();
+			bkgCandidate = bkg
+			
 
 		//detect spikes and throw away until not too spiky
 		concavity = this.asymmetricConcavity(bkgBins, bkgCandidate)
@@ -698,19 +698,24 @@ function spectrumViewer(canvasID){
 			concavity = this.asymmetricConcavity(bkgBins, bkgCandidate);
 		}
 		
+		return [bkgBins, bkgCandidate];
+	}
+
+	//do a straight line fit to the points x, y, and return the results as [intercept, slope]
+	this.linearBKG = function(x, y){
+		var slope, intercept,
+			fitter = new histofit();
+
 		//make some guesses
-		slope = (bkgCandidate[bkgCandidate.length - 1] - bkgCandidate[0]) / (bkgBins[bkgBins.length - 1] - bkgBins[0]);
-		intercept = bkgCandidate[0] - bkgBins[0]*slope
+		slope = (y[y.length - 1] - y[0]) / (x[x.length - 1] - x[0]);
+		intercept = y[0] - x[0]*slope
 		//set up the fitter and do the fit
-		fitter.x = bkgBins
-		fitter.y = bkgCandidate;
+		fitter.x = x;
+		fitter.y = y;
 		fitter.fxn = function(x, par){return par[0] + x*par[1]};
 		fitter.guess = [intercept, slope];
 		fitter.fitit();
-		return fitter.param
-
-
-
+		return fitter.param		
 	}
 
 	//given the position of a peak in a spectrum, estimate its width 
@@ -828,6 +833,12 @@ function spectrumViewer(canvasID){
 			if(this.suppressedAnnotations.indexOf(key) == -1)
 				this.vertical(this.verticals[key].bin, this.verticals[key].color);
 		}
+
+		//lines
+		for(key in this.lines){
+			if(this.suppressedAnnotations.indexOf(key) == -1)
+				this.line(this.lines[key].x0, this.lines[key].y0, this.lines[key].x1, this.lines[key].y1, this.lines[key].color)
+		}
 	}
 
 	//draw a vertical line of a given color '#123456' at left edge of bin
@@ -835,11 +846,22 @@ function spectrumViewer(canvasID){
 		var line
 
 		line = new createjs.Shape();
-		line.graphics.ss(this.axisLineWidth).s(color);
+		line.graphics.ss(this.axisLineWidth*2).s(color);
 		line.graphics.mt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.canvas.height - this.bottomMargin);
 		line.graphics.lt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.topMargin);
 		this.containerAnnotations.addChild(line);
 
+	}
+
+	//draw a straight line from the centers of the noted bins.
+	this.line = function(x0, y0, x1, y1, color){
+		var line;
+
+		line = new createjs.Shape();
+		line.graphics.ss(this.axisLineWidth*2).s(color);
+		line.graphics.mt(this.leftMargin + this.binWidth*(x0-this.XaxisLimitMin + 0.5), this.canvas.height - this.bottomMargin - Math.max(0,(y0 - this.YaxisLimitMin))*this.countHeight);
+		line.graphics.lt(this.leftMargin + this.binWidth*(x1-this.XaxisLimitMin + 0.5), this.canvas.height - this.bottomMargin - Math.max(0,(y1 - this.YaxisLimitMin))*this.countHeight);
+		this.containerAnnotations.addChild(line);
 	}
 
 	//add a persistent vertical
@@ -852,6 +874,17 @@ function spectrumViewer(canvasID){
 		if(this.verticals.hasOwnProperty(name))
 			delete this.verticals[name];
 	}
+
+	//add an arbitrary line
+	this.addLine = function(name, x0,y0,x1,y1,color){
+		this.lines[name] = {'x0':x0, 'y0':y0, 'x1':x1, 'y1':y1, 'color':color};
+	}
+
+	//remove an annotation line
+	this.removeLine = function(name){
+		if(this.lines.hasOwnProperty(name))
+			delete this.lines[name];
+	}	
 
 	//suppress a persistent annotation without deleting it
 	this.suppressAnnotation = function(id){

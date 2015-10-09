@@ -24,27 +24,41 @@ function fetchCallback(){
 
 function appendNewPoint(){
     //integrate gamma windows and append result as new point on rate monitor.
-    var i, j, k, min, max, gates = [], levels = [], upperBKG, lowerBKG, bkg, bins, halfwidth;
-    //integrate gamma windows
+    var i, j, id, min, max, gates = [], levels = [], bkgTechnique, bkgSample, bkgPattern, bkg, y0, y1;
+
     for(i=0; i<dataStore.defaults.gammas.length; i++){
-        min = dataStore.viewer.verticals['min' + dataStore.defaults.gammas[i].id].bin
-        max = dataStore.viewer.verticals['max' + dataStore.defaults.gammas[i].id].bin
+        id = dataStore.defaults.gammas[i].id;
+        min = dataStore.viewer.verticals['min' + id].bin
+        max = dataStore.viewer.verticals['max' + id].bin
+
+        //integrate gamma window
         gates[i] = 0;
         for(j=min; j<max; j++){
             gates[i] += dataStore.viewer.plotBuffer[dataStore.targetSpectrum][j];
         }
-        //attempt to fit background
-        if(min!=max && i==0){
-            halfwidth = 3*(max-min);
-            lowerBKG = dataStore.viewer.plotBuffer[dataStore.targetSpectrum].slice(min - halfwidth, min);
-            upperBKG = dataStore.viewer.plotBuffer[dataStore.targetSpectrum].slice(max, max + halfwidth );
-            bkg = lowerBKG.concat(upperBKG);
-            bins = []
-            for(k=0; k<halfwidth; k++){
-                bins[k] = k + min - halfwidth;
-                bins[k+halfwidth] = k + max;
+
+        //attempt to fit & subtract background
+        bkgTechnique = document.querySelector('input[name="bkg'+id+'"]:checked').value;
+        dataStore.viewer.removeLine('bkg'+id);
+        if(min!=max && bkgTechnique != 'off'){
+            bkgPattern = document.getElementById('bins'+id)
+            if(bkgTechnique=='auto'){
+                bkgSample = constructAutoBackgroundRange(min, max);
+            } else if(bkgTechnique=='manual' && bkgPattern.checkValidity()){
+                bkgSample = constructManualBackgrounRange(bkgPattern.value, dataStore.viewer.plotBuffer[dataStore.targetSpectrum]);
             }
-            console.log(dataStore.viewer.fastBKG(bins, bkg));
+
+            bkg = dataStore.viewer.linearBKG.apply(null, bkgSample);
+
+            //update annotation with fit line
+            y0 = bkg[0] + (min-1)*bkg[1];
+            y1 = bkg[0] + max*bkg[1];
+            dataStore.viewer.addLine('bkg'+id, min-1, y0, max, y1, dataStore.colors[i]);
+
+            //subtract the fit background
+            for(j=min; j<max; j++){
+                gates[i] -= bkg[0] + j*bkg[1];
+            }
         }
 
     }
@@ -59,6 +73,52 @@ function appendNewPoint(){
     //update plot
     updateDygraph();
 
+}
+
+function constructAutoBackgroundRange(min, max){
+    //returns [[bin numbers], [corresponding bin values]] based on the gate described by min, max,
+    //for use as a background sample to fit to.
+
+    var halfwidth, lowerBKG, upperBKG, bkg, bins, i;
+
+    halfwidth = 3*(max-min);
+    lowerBKG = dataStore.viewer.plotBuffer[dataStore.targetSpectrum].slice(min - halfwidth, min);
+    upperBKG = dataStore.viewer.plotBuffer[dataStore.targetSpectrum].slice(max, max + halfwidth );
+    bkg = lowerBKG.concat(upperBKG);
+    bins = []
+    for(i=0; i<halfwidth; i++){
+        bins[i] = i + min - halfwidth;
+        bins[i+halfwidth] = i + max;
+    }
+    return dataStore.viewer.scrubPeaks(bins, bkg);
+
+}
+
+function constructManualBackgrounRange(encoding, spectrum){
+    //given an encoded string of bins, parse and return an array consising of an array of those bin numbers, and
+    //another array of the corresponding bin heights.
+    //encoding is as 20-25;27;32-50 etc.
+    var rangeStrings = encoding.split(';'),
+        i, j, ranges = [],
+        x = [], y = [];
+
+    for(i=0; i<rangeStrings.length; i++){
+        ranges.push( rangeStrings[i].split('-').map(function(val){return parseInt(val, 10)}) );
+    }
+
+    for(i=0; i<ranges.length; i++){
+        if(ranges[i].length == 1){
+            x.push(ranges[i][0]);
+            y.push(spectrum[ranges[i][0]]);
+        } else{
+            for(j=ranges[i][0]; j<=ranges[i][1]; j++){
+                x.push(j);
+                y.push(spectrum[j]);
+            }
+        }
+    }
+
+    return [x,y]
 }
 
 function updateDygraph(){
@@ -278,10 +338,10 @@ dataStore.defaults = {
             {
                 'title': 'Gate 2',
                 'id': 'g1',
-                'min': 100,
-                'max': 120,
+                'min': 197,
+                'max': 204,
                 'color': "#EFB2F0",
-                'onByDefault': false
+                'onByDefault': true
             },
             {
                 'title': 'Gate 3',
