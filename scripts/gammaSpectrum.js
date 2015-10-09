@@ -567,14 +567,15 @@ function spectrumViewer(canvasID){
 		}
 
 		// Find the width of the peak
-		x=cent;
-		while(fitdata[x]>(max/2.0)) x--; 
-		width=x;
-		x=cent;
-		while(fitdata[x]>(max/2.0)) x++; 
-		width=x-width;
-		if(width<1) width=1;
-		width/=2.35;
+		// x=cent;
+		// while(fitdata[x]>(max/2.0)) x--; 
+		// width=x;
+		// x=cent;
+		// while(fitdata[x]>(max/2.0)) x++; 
+		// width=x-width;
+		// if(width<1) width=1;
+		// width/=2.35;
+		width = estimateWidth(fitdata, cent, max);
 
 		cent=cent+this.FitLimitLower+0.5;
 
@@ -631,6 +632,138 @@ function spectrumViewer(canvasID){
 
 		if(callback)
 			callback();
+	}
+
+	//detect all peaks in spectrum between min and max
+	//fit them with gaussians on top of a linear background
+	//return background parameters as [intercept, slope]
+	//note: gets really slow, too many spurious peaks identified blows up the parameter space 
+	this.bkgFit = function(spectrum, min, max){
+		var i, concavity, width, 
+			parameterGuesses = [1000,-1],  //<-- background guess is poor
+			fitter = new histofit(),
+			nPeaks = 0,
+			region = spectrum.slice(min, max)
+
+		//detect peaks & estimate widths in the region of interest
+		concavity = this.concavity( region );
+		for(i=0; i<concavity.length; i++){
+			if(concavity[i] < -100){   //<--- TODO: does this criteria make any sense?
+				width = this.estimateWidth(region, i, region[i]);
+				parameterGuesses = parameterGuesses.concat([region[i], min + i+0.5, width])  //<--- amplitude guess is poor
+				nPeaks++;
+			}
+		}
+
+		//set up the fitter and do the fit
+		for(i=min; i<max; i++)
+			fitter.x[i-min] = i+0.5;
+		fitter.y = region;
+		fitter.fxn = this.multiPeak.bind(null, nPeaks);
+		fitter.guess = parameterGuesses;
+		fitter.fitit();
+
+		return fitter.param
+	}
+
+	//a function consisting of a linear background and several gaussian peaks
+	//par[0] = intercept, par[1] = slope of background
+	//par[2+3*n] = amplitude of nth peak, par[2+3*n+1] = center, par[2+3*n+2] = width
+	this.multiPeak = function(nPeaks, x, par){
+		var i, result;
+
+		result = par[0] + x*par[1];
+		for(i=0; i<nPeaks; i++){
+		 	result += par[2+3*i]*Math.exp(-1*(((x-par[2+3*i+1])*(x-par[2+3*i+1]))/(2*par[2+3*i+2]*par[2+3*i+2])));
+		}
+
+		return result
+	}
+
+	//given two arrays of bin numbers (bins) and counts in the corresponding bin (bkg), 
+	//detects peaks, masks them out, and fits what's left with a straight line
+	this.fastBKG = function(bins, bkg){
+		var concavity, spikePosition,
+			bkgBins = bins,
+			bkgCandidate = bkg,
+			i, slope, intercept,
+			fitter = new histofit();
+
+		//detect spikes and throw away until not too spiky
+		concavity = this.asymmetricConcavity(bkgBins, bkgCandidate)
+		while(Math.min.apply(null, concavity.slice(1, concavity.length-2)) < -100){
+			spikePosition = concavity.indexOf(Math.min.apply(null, concavity.slice(1, concavity.length-2)));
+			bkgCandidate.splice(spikePosition, 1);
+			bkgBins.splice(spikePosition, 1);
+			concavity = this.asymmetricConcavity(bkgBins, bkgCandidate);
+		}
+		
+		//make some guesses
+		slope = (bkgCandidate[bkgCandidate.length - 1] - bkgCandidate[0]) / (bkgBins[bkgBins.length - 1] - bkgBins[0]);
+		intercept = bkgCandidate[0] - bkgBins[0]*slope
+		//set up the fitter and do the fit
+		fitter.x = bkgBins
+		fitter.y = bkgCandidate;
+		fitter.fxn = function(x, par){return par[0] + x*par[1]};
+		fitter.guess = [intercept, slope];
+		fitter.fitit();
+		return fitter.param
+
+
+
+	}
+
+	//given the position of a peak in a spectrum, estimate its width 
+	this.estimateWidth = function(spectrum, peakCenter, peakHeight){
+		var x, width;
+
+		x=peakCenter;
+		while(spectrum[x]>(peakHeight/2.0)) x--; 
+		width=x;
+		x=peakCenter;
+		while(spectrum[x]>(peakHeight/2.0)) x++; 
+		width=x-width;
+		if(width<1) width=1;
+		width/=2.35;
+
+		return width
+	}
+
+	//calucalte second derrivatives of spectrum; return as array
+	//note first and last entry will be null, can't caluclate derivatives on edges.
+	this.concavity = function(spectrum){
+		var i, concavity = [null], slope = []
+
+		for(i=0; i<spectrum.length-1; i++){
+			slope.push(spectrum[i+1] - spectrum[i])
+		}
+
+		for(i=0; i<slope.length-1; i++){
+			concavity.push(slope[i+1] - slope[i])
+		}
+
+		concavity.push(null)
+
+		return concavity
+	}
+
+
+
+	//as concavity, but points may not be equidistant
+	this.asymmetricConcavity = function(x, y){
+		var i, concavity = [null], slope = [];
+
+		for(i=0; i<y.length-1; i++){
+			slope.push( (y[i+1] - y[i]) / (x[i+1] - x[i]) );
+			//console.log((y[i+1] - y[i]) , (x[i+1] - x[i]))
+		}
+
+		for(i=1; i<slope.length;i++){
+			concavity.push( (slope[i] - slope[i-1]) / (x[i+1]/2 - x[i-1]/2) );
+		}
+		concavity.push(null)
+
+		return concavity
 	}
 
 	//suppress or unsuppress a spectrum from being shown

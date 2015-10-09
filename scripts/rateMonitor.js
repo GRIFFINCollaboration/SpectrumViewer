@@ -7,7 +7,11 @@ function dataSetup(data){
 
 function fetchSpectrum(id){
     //refreshes the data for spectrum id.
-    dataStore.viewer.addData(id, dataStore.testData);
+
+    if(id==dataStore.targetSpectrum)
+        dataStore.viewer.addData(id, dataStore.testData);
+    else
+        dataStore.viewer.addData(id, [Math.random()*100]);
 }
 
 function fetchCallback(){
@@ -20,7 +24,7 @@ function fetchCallback(){
 
 function appendNewPoint(){
     //integrate gamma windows and append result as new point on rate monitor.
-    var i, j, min, max, gates = [];
+    var i, j, k, min, max, gates = [], levels = [], upperBKG, lowerBKG, bkg, bins, halfwidth;
     //integrate gamma windows
     for(i=0; i<dataStore.defaults.gammas.length; i++){
         min = dataStore.viewer.verticals['min' + dataStore.defaults.gammas[i].id].bin
@@ -28,11 +32,29 @@ function appendNewPoint(){
         gates[i] = 0;
         for(j=min; j<max; j++){
             gates[i] += dataStore.viewer.plotBuffer[dataStore.targetSpectrum][j];
-        } 
+        }
+        //attempt to fit background
+        if(min!=max && i==0){
+            halfwidth = 3*(max-min);
+            lowerBKG = dataStore.viewer.plotBuffer[dataStore.targetSpectrum].slice(min - halfwidth, min);
+            upperBKG = dataStore.viewer.plotBuffer[dataStore.targetSpectrum].slice(max, max + halfwidth );
+            bkg = lowerBKG.concat(upperBKG);
+            bins = []
+            for(k=0; k<halfwidth; k++){
+                bins[k] = k + min - halfwidth;
+                bins[k+halfwidth] = k + max;
+            }
+            console.log(dataStore.viewer.fastBKG(bins, bkg));
+        }
+
+    }
+    //add on levels data
+    for(i=0; i<dataStore.defaults.levels.length; i++){
+        levels.push(dataStore.viewer.plotBuffer[dataStore.defaults.levels[i].id][0])
     }
 
     //update data history
-    dataStore.rateData.push( [new Date()].concat(gates) );
+    dataStore.rateData.push( [new Date()].concat(gates).concat(levels) );
 
     //update plot
     updateDygraph();
@@ -58,7 +80,7 @@ function updateDygraph(){
 
 function pageLoad(){
     //runs after ultralight is finished setting up the page.
-    var i, node, gammaWindowToggles, gammaWindowEdges, snapGammaButtons;
+    var i, node, gammaWindowToggles, gammaWindowEdges, snapGammaButtons, levelToggles;
 
     //set up gamma spectrum
     createFigure();
@@ -72,6 +94,11 @@ function pageLoad(){
 
     //plot the spectrum of interest
     dataStore.viewer.addData(dataStore.targetSpectrum, []);
+    //add levels items as hidden plots so they get scooped up in the refresh cycle:
+    for(i=0; i<dataStore.defaults.levels.length; i++){
+        dataStore.viewer.addData(dataStore.defaults.levels[i].id, [])
+        dataStore.viewer.hideSpectrum[dataStore.defaults.levels[i].id] = true;
+    }
     refreshPlots();
 
     //set up Dygraph
@@ -90,8 +117,17 @@ function pageLoad(){
     for(i=0; i<snapGammaButtons.length; i++){
         snapGammaButtons[i].onclick = snapGateToWindow;
     }
-
+    levelToggles = document.getElementsByClassName('levelToggles')
+    for(i=0; i<levelToggles.length; i++){
+        levelToggles[i].onchange = toggleDygraph.bind(levelToggles[i], i + dataStore.defaults.gammas.length);
+    }
     document.getElementById('rateHistory').onchange = updateDygraph
+
+    //manage which gamma window are on by defualt
+    for(i=0; i<dataStore.defaults.gammas.length; i++){
+        if(!dataStore.defaults.gammas[i].onByDefault)
+            document.getElementById('display' + dataStore.defaults.gammas[i].id).click()
+    }
 
     //start periodic refresh
     document.getElementById('upOptions').value = 3000;
@@ -132,7 +168,7 @@ function moveGammaWindow(){
 
     var color = dataStore.viewer.verticals[this.id].color
     dataStore.viewer.removeVertical(this.id)
-    dataStore.viewer.addVertical(this.id, this.value, color)
+    dataStore.viewer.addVertical(this.id, parseInt(this.value, 10), color)
 
     dataStore.viewer.plotData();
 }
@@ -167,6 +203,17 @@ function snapGateToWindow(){
 function createRateMonitor(){
     //plot intensity versus AQ in a div#divID, and show magnet transmission region
 
+    var i, labels = ['time']
+
+    //construct plot labels
+    for(i=0; i<dataStore.defaults.gammas.length; i++){
+        labels.push('gate ' + (i+1));
+    }
+    for(i=0; i<dataStore.defaults.levels.length; i++){
+        labels.push(dataStore.defaults.levels[i].title)
+    }
+
+
     dataStore.dygraph = new Dygraph(
         // containing div
         document.getElementById('dygraph'),
@@ -176,7 +223,7 @@ function createRateMonitor(){
 
         //style
         {   
-            labels: ['time', 'gate 1', 'gate 2', 'gate 3'],
+            labels: labels,
             title: 'Gate Integrals for ' + dataStore.targetSpectrum,
             height: document.getElementById('plotID').offsetHeight - dataStore.viewer.bottomMargin + 20,
             width: document.getElementById('plotID').offsetWidth,
@@ -195,62 +242,87 @@ function createRateMonitor(){
     );
 }
 
-
+function toggleDygraph(index){
+    //set the dygraph series at index to the state of a checkbox, used as onchange callback
+    dataStore.dygraph.setVisibility(index, this.checked);
+}
 
 
 
 
 dataStore = {}
-dataStore.rateData = [[new Date(),0,0,0]]
+dataStore.rateData = [[new Date(),0,0,0,0,0,0,0,0]]
 dataStore.targetSpectrum = 'fakeSpectrum'
 dataStore.colors = [
     "#AAE66A",
     "#EFB2F0",
     "#40DDF1",
     "#F1CB3C",
-    "#4FEF3E"
+    "#FFFFFF",
+    "#F22613",
+    "#786FBC",
+    "#619D48",
+    "#AA5FC7",
+    "#D35400"
 ]
 dataStore.defaults = {
         'gammas':[
             {
                 'title': 'Gate 1',
                 'id': 'g0',
-                'min': 10,
-                'max': 20,
-                'color': "#AAE66A"
+                'min': 497,
+                'max': 504,
+                'color': "#AAE66A",
+                'onByDefault': true
             },
             {
                 'title': 'Gate 2',
                 'id': 'g1',
                 'min': 100,
                 'max': 120,
-                'color': "#EFB2F0"
+                'color': "#EFB2F0",
+                'onByDefault': false
             },
             {
                 'title': 'Gate 3',
                 'id': 'g2',
                 'min': 200,
                 'max': 240,
-                'color': "#40DDF1"
-            },  
+                'color': "#40DDF1",
+                'onByDefault': false
+            },
+            {
+                'title': 'Gate 4',
+                'id': 'g3',
+                'min': 0,
+                'max': 0,
+                'color': "#F1CB3C",
+                'onByDefault': false
+            },
+            {
+                'title': 'Gate 5',
+                'id': 'g4',
+                'min': 0,
+                'max': 0,
+                'color': "#FFFFFF",
+                'onByDefault': false
+            }  
         ],
 
-        'parameters':[
+        'levels':[
             {
                 'title': 'Proton Current',  //label
-                'id': 'PC',                 //element id
-                'target': 'pc'              //retrieval key
+                'id': 'PC'                  //target plot identifier
             },
             {
                 'title': 'Laser Freq. 1',
-                'id': 'LF1',
-                'target': 'lf1'
+                'id': 'LF1'
             },
             {
                 'title': 'Laser Freq. 2',
-                'id': 'LF2',
-                'target': 'lf2'
+                'id': 'LF2'
             }
         ]
     }
-dataStore.testData = [200,48,42,48,58,57,59,72,85,68,61,60,72,147,263,367,512,499,431,314,147,78,35,22,13,9,16,7,10,13,5,5,3,1,2,4,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,200,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,120,70,20,20,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,300,650,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+dataStore.testData = [998, 994, 996, 1000, 992, 993, 995, 990, 989, 995, 989, 986, 992, 987, 990, 983, 987, 978, 977, 980, 980, 978, 981, 979, 977, 971, 969, 968, 970, 966, 966, 973, 972, 968, 967, 966, 968, 960, 963, 964, 958, 957, 960, 952, 960, 958, 950, 955, 952, 950, 952, 944, 947, 951, 948, 940, 946, 942, 943, 936, 938, 942, 937, 941, 931, 937, 932, 933, 934, 927, 925, 928, 926, 929, 922, 922, 926, 919, 919, 917, 924, 918, 915, 921, 919, 917, 910, 909, 909, 915, 905, 912, 905, 906, 909, 906, 900, 901, 899, 904, 903, 897, 898, 899, 898, 893, 896, 897, 892, 889, 887, 893, 888, 890, 884, 887, 883, 885, 884, 882, 884, 875, 878, 876, 872, 877, 873, 872, 874, 873, 869, 872, 868, 865, 863, 862, 866, 859, 862, 857, 862, 859, 862, 856, 860, 858, 849, 857, 850, 847, 849, 849, 850, 849, 842, 849, 842, 845, 845, 839, 844, 843, 835, 832, 837, 833, 833, 833, 830, 828, 826, 828, 827, 830, 823, 820, 826, 822, 818, 821, 824, 817, 821, 818, 820, 812, 809, 814, 815, 814, 808, 808, 811, 802, 809, 804, 804, 807, 801, 1067, 2797, 1070, 800, 795, 791, 793, 794, 793, 790, 795, 792, 792, 783, 791, 790, 780, 780, 785, 779, 780, 778, 782, 776, 780, 779, 778, 770, 773, 767, 771, 774, 764, 763, 764, 764, 769, 762, 764, 765, 756, 760, 757, 757, 758, 755, 755, 755, 753, 754, 746, 746, 748, 748, 748, 746, 746, 748, 744, 744, 737, 742, 735, 742, 740, 732, 732, 736, 733, 727, 732, 734, 726, 727, 724, 728, 724, 721, 718, 723, 720, 717, 721, 716, 721, 715, 710, 717, 714, 711, 713, 711, 711, 712, 704, 704, 708, 708, 704, 699, 700, 695, 702, 701, 699, 700, 699, 698, 692, 692, 692, 687, 684, 685, 691, 689, 684, 686, 680, 677, 685, 679, 674, 674, 680, 673, 671, 673, 671, 673, 669, 668, 671, 664, 666, 664, 665, 665, 663, 660, 657, 656, 658, 662, 660, 656, 659, 657, 649, 648, 652, 654, 644, 644, 643, 643, 648, 645, 646, 643, 645, 643, 636, 639, 638, 636, 634, 634, 630, 629, 633, 629, 625, 629, 630, 622, 622, 619, 627, 626, 621, 615, 619, 616, 612, 612, 615, 609, 610, 613, 613, 610, 609, 603, 609, 610, 604, 605, 604, 605, 600, 596, 601, 598, 592, 597, 598, 593, 595, 596, 591, 589, 587, 584, 583, 589, 587, 588, 584, 577, 580, 584, 578, 581, 573, 573, 576, 569, 573, 573, 569, 574, 566, 567, 564, 563, 567, 568, 563, 564, 557, 558, 559, 557, 556, 557, 554, 557, 553, 553, 551, 554, 550, 547, 546, 543, 546, 546, 547, 544, 536, 537, 542, 539, 537, 532, 537, 535, 529, 533, 526, 533, 528, 531, 523, 524, 521, 521, 519, 526, 520, 517, 516, 520, 520, 514, 513, 514, 513, 516, 508, 514, 510, 504, 511, 505, 503, 508, 502, 507, 1857, 10497, 1854, 500, 503, 1312, 6490, 1309, 495, 496, 490, 488, 489, 490, 490, 490, 488, 486, 485, 480, 480, 482, 477, 481, 478, 472, 475, 477, 477, 472, 471, 470, 464, 463, 465, 465, 467, 467, 463, 466, 457, 456, 463, 456, 453, 454, 453, 453, 450, 451, 452, 452, 451, 451, 447, 444, 443, 441, 445, 445, 442, 438, 438, 436, 437, 439, 437, 436, 433, 436, 435, 425, 427, 430, 423, 427, 424, 424, 418, 424, 419, 419, 423, 415, 415, 414, 418, 409, 409, 411, 407, 413, 413, 405, 403, 401, 408, 406, 403, 406, 402, 403, 403, 399, 396, 398, 399, 395, 388, 388, 389, 393, 393, 386, 382, 387, 386, 387, 382, 384, 382, 377, 380, 382, 378, 379, 377, 371, 376, 367, 366, 368, 370, 364, 369, 368, 363, 361, 360, 364, 357, 362, 358, 355, 352, 358, 356, 357, 348, 352, 352, 351, 349, 348, 348, 349, 344, 345, 342, 344, 340, 344, 334, 338, 333, 340, 338, 338, 335, 328, 332, 329, 325, 326, 325, 329, 321, 322, 318, 322, 322, 320, 314, 321, 316, 313, 313, 312, 310, 315, 310, 314, 308, 307, 306, 306, 308, 299, 299, 306, 297, 304, 297, 295, 299, 293, 294, 298, 288, 288, 292, 286, 286, 291, 288, 282, 288, 288, 283, 286, 285, 277, 282, 277, 272, 273, 279, 273, 274, 276, 267, 267, 273, 264, 264, 267, 266, 261, 260, 266, 263, 260, 255, 258, 255, 259, 258, 255, 255, 253, 255, 252, 245, 247, 249, 242, 240, 241, 239, 239, 241, 244, 242, 240, 241, 234, 230, 238, 236, 234, 227, 227, 226, 231, 223, 225, 222, 224, 220, 224, 223, 222, 217, 217, 215, 215, 217, 213, 217, 213, 210, 211, 208, 212, 211, 206, 202, 206, 205, 200, 197, 197, 201, 199, 194, 199, 190, 198, 189, 187, 186, 187, 187, 187, 184, 187, 181, 183, 183, 180, 180, 177, 177, 174, 179, 171, 177, 172, 172, 168, 167, 172, 168, 170, 165, 168, 160, 160, 165, 160, 162, 161, 158, 159, 154, 152, 150, 152, 154, 149, 155, 154, 152, 148, 142, 145, 142, 144, 146, 141, 141, 139, 137, 138, 136, 136, 138, 137, 133, 133, 132, 133, 126, 128, 124, 126, 127, 127, 126, 126, 120, 115, 117, 117, 119, 117, 118, 116, 115, 110, 114, 110, 113, 112, 110, 108, 105, 100, 103, 104, 100, 100, 96, 99, 101, 98, 90, 89, 97, 93, 88, 85, 85, 90, 89, 83, 83, 84, 79, 81, 84, 81, 75, 82, 81, 71, 78, 77, 72, 67, 67, 71, 69, 70, 69, 69, 67, 67, 59, 61, 64, 61, 56, 53, 58, 60, 59, 53, 51, 52, 54, 51, 44, 45, 51, 45, 42, 40, 46, 41, 44, 35, 38, 35, 33, 40, 35, 33, 37, 33, 32, 29, 27, 26, 27, 30, 21, 24, 19, 19, 19, 18, 14, 20, 19, 17, 13, 16, 17, 14, 7, 12, 12, 10, 8, 7, 5, 3, 7, 0, 0]
+//dataStore.testData = [200,48,42,48,58,57,59,72,85,68,61,60,72,147,263,367,512,499,431,314,147,78,35,22,13,9,16,7,10,13,5,5,3,1,2,4,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,200,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,120,70,20,20,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,300,650,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];

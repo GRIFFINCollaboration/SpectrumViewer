@@ -35,7 +35,7 @@ function histofit(){
 
 		for(i=0; i<this.x.length; i++){
 			lambda = this.fxn.bind(this, this.x[i], param)();
-//console.log(lambda)
+//console.log(param)
 			nll -= this.logPoisson(this.y[i], lambda);
 		}
 //console.log(nll)
@@ -62,9 +62,7 @@ function histofit(){
 	    dtol2 = (this.NegLL.bind(this, Xhi2)() - this.NegLL.bind(this, Xlo2)()) / tol;
 
 	    D = (4*dtol2-dtol)/3;
-//console.log(Xhi)
-//console.log(Xlo)
-//console.log(D)
+	    //console.log(this.NegLL.bind(this, Xhi)())
 	    return D;
 	}
 
@@ -72,18 +70,17 @@ function histofit(){
 	this.nllGrad = function(param){
 		var grad = [],
 			i, length=0;
-
 		for(i=0; i<param.length; i++){
 			grad[i] = this.nllDer(param, i);
 			length += Math.pow(grad[i],2);
 		}
+
 		length = Math.sqrt(length);
 		//normalize
 		for(i=0; i<param.length; i++){
 			grad[i] /= length;
 		}
 
-//console.log(grad)
 		return grad;
 	}
 
@@ -104,15 +101,15 @@ function histofit(){
 			this.param[i] = this.guess[i];
 
 		while(Math.abs(dNLL) > tolerance && limit>0){
-
+//console.log(this.param)
 			NLL = this.NegLL(this.param);
 			grad = this.nllGrad(this.param);
-//console.log(grad)
+
 			//step towards mimium
 			for(i=0; i<this.param.length; i++){
 				this.param[i] -= grad[i]*this.stepSize;
 			}
-
+//console.log(this.param)
 			newNLL = this.NegLL(this.param);
 
 			//take smaller steps as we approach minimum
@@ -125,5 +122,23 @@ function histofit(){
 		}
 		this.stepSize = 1;
 
+	}
+
+	//simple straight line:
+	this.simpleLine = function(x,y){
+		var i, X=0, Y=0, XY=0, X2=0,
+			slope, intercept;
+
+		for(i=0; i<x.length; i++){
+			X += x[i];
+			Y += y[i];
+			XY += x[i]*y[i];
+			X2 += x[i]*x[i];
+		}
+
+		slope = (x.length*XY - X*Y) / (x.length*X2 - X*X);
+		intercept = (X2*Y - X*XY) / (x.length*X2 - X*X)
+
+		return  [intercept, slope]
 	}
 };

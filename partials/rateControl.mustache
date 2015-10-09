@@ -34,13 +34,13 @@
             <td>Item</td>
             <td>Show</td>
         </tr>
-        {{#parameters}}
+        {{#levels}}
             <tr>
                 <td>{{title}}</td>
                 <td>
-                    <input type=checkbox id='display{{id}}' target='{{target}}'></input>
+                    <input type=checkbox checked id='display{{id}}' target='{{id}}' class='levelToggles'></input>
                 </td>
             </tr>
-        {{/parameters}}
+        {{/levels}}
     </table>
 </div>
