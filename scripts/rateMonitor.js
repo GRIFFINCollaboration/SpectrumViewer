@@ -16,10 +16,11 @@ function fetchSpectrum(id){
 
 function fetchCallback(){
     //runs as callback after all data has been refreshed.
-    dataStore.viewer.plotData();
 
     //update the rate monitor
     appendNewPoint();
+    //redraw spectrum, fit results included
+    dataStore.viewer.plotData();
 }
 
 function appendNewPoint(){
@@ -191,6 +192,10 @@ function pageLoad(){
     levelToggles = document.getElementsByClassName('levelToggles')
     for(i=0; i<levelToggles.length; i++){
         levelToggles[i].onchange = toggleDygraph.bind(levelToggles[i], i + dataStore.defaults.gammas.length);
+    }
+    fitOptions = document.getElementsByClassName('fitOptions')
+    for(i=0; i<fitOptions.length; i++){
+        fitOptions[i].onchange = fetchCallback;
     }
     document.getElementById('rateHistory').onchange = updateDygraph
 

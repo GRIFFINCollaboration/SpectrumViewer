@@ -74,8 +74,8 @@ function refreshPlots(){
 function startRefreshLoop(){
     //sets the refresh loop as a callback to changing the selector menu.
 
-    var period = parseInt(this.value,10); //in seconds
-
+    var period = parseInt(this.value,10); //in miliseconds
+    
     clearInterval(dataStore.dataRefreshLoop);
     if(period != -1)
         dataStore.dataRefreshLoop = setInterval(refreshPlots, parseInt(this.value,10) );
