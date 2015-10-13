@@ -88,6 +88,10 @@ function spectrumViewer(canvasID){
     this.lines = {}
     this.suppressedAnnotations = []; //list of annotation id's to not draw
     this.binHighlights = [] //array of objects {color, height in counts}
+	// mask so annotations only appear in plot area (ie don't overflow the axes)
+	this.annotationMask = new createjs.Shape();
+	this.annotationMask.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin).lt(this.leftMargin, this.topMargin).lt(this.canvas.width - this.rightMargin, this.topMargin).lt(this.canvas.width-this.rightMargin, this.canvas.height - this.bottomMargin).closePath();
+	this.containerAnnotations.mask = this.annotationMask;
 
     //click interactions
     this.XMouseLimitxMin = 0; //limits selected with the cursor
@@ -304,7 +308,6 @@ function spectrumViewer(canvasID){
 
 		//redraw annotation items
 		this.redrawAnnotation();
-
 		//shade bins
 		this.shadeBins();
 
