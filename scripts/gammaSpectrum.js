@@ -873,7 +873,7 @@ function spectrumViewer(canvasID){
 
 	//add a persistent vertical
 	this.addVertical = function(name, bin, color){
-		this.verticals[name] = {'bin': bin, 'color': color}
+		this.verticals[name] = {'bin': parseInt(bin, 10), 'color': color}
 	}
 
 	//remove a persistent vertical

@@ -29,7 +29,7 @@ function appendNewPoint(){
 
     dataStore.viewer.binHighlights = [];
     for(i=0; i<dataStore.defaults.gammas.length; i++){
-        id = dataStore.defaults.gammas[i].id;
+        id = dataStore.defaults.gammas[i].index;
         min = dataStore.viewer.verticals['min' + id].bin
         max = dataStore.viewer.verticals['max' + id].bin
 
@@ -43,11 +43,12 @@ function appendNewPoint(){
         bkgTechnique = document.querySelector('input[name="bkg'+id+'"]:checked').value;
         dataStore.viewer.removeLine('bkg'+id);
         if(min!=max && bkgTechnique != 'off'){
-            bkgPattern = document.getElementById('bins'+id)
+            bkgPattern = dataStore.manualBKG['bins'+id];
+            bkgSample = [[],[]];
             if(bkgTechnique=='auto'){
                 bkgSample = constructAutoBackgroundRange(min, max);
-            } else if(bkgTechnique=='manual' && bkgPattern.checkValidity()){
-                bkgSample = constructManualBackgrounRange(bkgPattern.value, dataStore.viewer.plotBuffer[dataStore.targetSpectrum]);
+            } else if(bkgTechnique=='manual' && bkgPattern ){ //ie only even try to do this if a valid bkgPattern has made it into the dataStore.
+                bkgSample = constructManualBackgroundRange(bkgPattern, dataStore.viewer.plotBuffer[dataStore.targetSpectrum]);
             }
 
             //highlight selected background bins
@@ -108,7 +109,7 @@ function constructAutoBackgroundRange(min, max){
 
 }
 
-function constructManualBackgrounRange(encoding, spectrum){
+function constructManualBackgroundRange(encoding, spectrum){
     //given an encoded string of bins, parse and return an array consising of an array of those bin numbers, and
     //another array of the corresponding bin heights.
     //encoding is as 20-25;27;32-50 etc.
@@ -138,9 +139,28 @@ function constructManualBackgrounRange(encoding, spectrum){
     return [x,y]
 }
 
+function updateManualFitRange(){
+    //callback to register a manual fit range
+    var index = parseInt(this.id.slice(4),10);
+    var bkgTechnique = document.querySelector('input[name="bkg'+index+'"]:checked').value;
+
+    if(this.checkValidity()){
+        dataStore.manualBKG[this.id] = this.value
+        if(bkgTechnique == 'manual')
+            queueAnnotation(dataStore.defaults.gammas[index].title, 'Manual BKG bins updated to ' + this.value)
+    }
+}
+
+function changeFitMethod(){
+    //callback after changing the fit method radio
+    var index = parseInt(this.name.slice(3),10);
+    queueAnnotation(dataStore.defaults.gammas[index].title, 'BKG Method Changed to ' + this.value)
+    fetchCallback()
+}
+
 function updateDygraph(){
     //decide how many points to keep from the history, and plot.
-    var period, data, 
+    var i, period, data, annotations, keys
 
     //extract the appropriate tail of the data history
     period = getSelected('rateHistory')
@@ -153,6 +173,18 @@ function updateDygraph(){
 
     //update the dygraph
     dataStore.dygraph.updateOptions( { 'file': data } );
+
+    //update annotations
+    keys = Object.keys(dataStore.annotations)
+    if(keys.length > 0 ){
+        annotations = dataStore.dygraph.annotations()
+        for(i=0; i<keys.length; i++){
+            dataStore.annotations[keys[i]].x = data[data.length-1][0].getTime();
+            annotations.push(dataStore.annotations[keys[i]]);
+        }
+        dataStore.dygraph.setAnnotations(annotations)
+        dataStore.annotations = {};
+    }
 }
 
 function pageLoad(){
@@ -200,14 +232,18 @@ function pageLoad(){
     }
     fitOptions = document.getElementsByClassName('fitOptions')
     for(i=0; i<fitOptions.length; i++){
-        fitOptions[i].onchange = fetchCallback;
+        fitOptions[i].onchange = changeFitMethod;
+    }
+    fitRanges = document.getElementsByClassName('manualBKG')
+    for(i=0; i<fitRanges.length; i++){
+        fitRanges[i].onchange = updateManualFitRange;
     }
     document.getElementById('rateHistory').onchange = updateDygraph
 
     //manage which gamma window are on by defualt
     for(i=0; i<dataStore.defaults.gammas.length; i++){
         if(!dataStore.defaults.gammas[i].onByDefault)
-            document.getElementById('display' + dataStore.defaults.gammas[i].id).click()
+            document.getElementById('display' + dataStore.defaults.gammas[i].index).click()
     }
 
     //start periodic refresh
@@ -227,17 +263,16 @@ function pageLoad(){
 
 function toggleGammaWindow(index){
     //toggle the indexed gamma window on or off in the spectrum
-    var id = dataStore.defaults.gammas[index].id
 
     //present, remove
-    if(dataStore.viewer.verticals['min'+id] && dataStore.viewer.suppressedAnnotations.indexOf('min'+id) == -1  ){
-        dataStore.viewer.suppressAnnotation('min'+id);
-        dataStore.viewer.suppressAnnotation('max'+id);
+    if(dataStore.viewer.verticals['min'+index] && dataStore.viewer.suppressedAnnotations.indexOf('min'+index) == -1  ){
+        dataStore.viewer.suppressAnnotation('min'+index);
+        dataStore.viewer.suppressAnnotation('max'+index);
 
         dataStore.dygraph.setVisibility(index, false);
     //not present, add
     } else{
-        drawWindow(index, document.getElementById('min'+id).value, document.getElementById('max'+id).value );
+        drawWindow(index, document.getElementById('min'+index).value, document.getElementById('max'+index).value );
         dataStore.dygraph.setVisibility(index, true);
     }
 
@@ -250,32 +285,55 @@ function moveGammaWindow(){
     var color = dataStore.viewer.verticals[this.id].color
     dataStore.viewer.removeVertical(this.id)
     dataStore.viewer.addVertical(this.id, parseInt(this.value, 10), color)
+    queueAnnotation(dataStore.defaults.gammas[parseInt(this.id.slice(3),10)].title, 'Gate ' + this.id.substring(0,3) + ' updated to ' + this.value)
 
     dataStore.viewer.plotData();
 }
 
 function drawWindow(index, min, max){
     //draw the appropriate window on the plot; index corresponds to dataStore.defaults.gammas[index]
-    var id = dataStore.defaults.gammas[index].id;
+
     //delete the old lines
-    dataStore.viewer.removeVertical('min' + id);
-    dataStore.viewer.removeVertical('max' + id);
+    dataStore.viewer.removeVertical('min' + index);
+    dataStore.viewer.removeVertical('max' + index);
     //make new lines
-    dataStore.viewer.addVertical('min' + id, min, dataStore.defaults.gammas[index].color)
-    dataStore.viewer.addVertical('max' + id, max, dataStore.defaults.gammas[index].color)
+    dataStore.viewer.addVertical('min' + index, min, dataStore.defaults.gammas[index].color)
+    dataStore.viewer.addVertical('max' + index, max, dataStore.defaults.gammas[index].color)
     //make sure these lines aren't getting suppressed
-    dataStore.viewer.unsuppressAnnotation('min' + id);
-    dataStore.viewer.unsuppressAnnotation('max' + id);
+    dataStore.viewer.unsuppressAnnotation('min' + index);
+    dataStore.viewer.unsuppressAnnotation('max' + index);
 }
 
 function snapGateToWindow(){
     //callback for button to snap corresponding gamma gate to present window
-    document.getElementById('min'+this.id).value = dataStore.viewer.XaxisLimitMin;
-    document.getElementById('max'+this.id).value = dataStore.viewer.XaxisLimitMax;
+    var index = this.id.slice(4)
 
-    document.getElementById('min'+this.id).onchange()
-    document.getElementById('max'+this.id).onchange()
+    document.getElementById('min'+index).value = dataStore.viewer.XaxisLimitMin;
+    document.getElementById('max'+index).value = dataStore.viewer.XaxisLimitMax;
+
+    document.getElementById('min'+index).onchange()
+    document.getElementById('max'+index).onchange()
 }
+
+///////////////////////////////
+// annotation wrangling
+///////////////////////////////
+
+function queueAnnotation(series, flag){
+    //sets up the <flag> text to appear in the annotation for the next point on <series>
+
+    if(dataStore.annotations[series] && dataStore.annotations[series].text.indexOf(flag) == -1){
+        dataStore.annotations[series].text += '\n' + flag;
+    } else{
+        dataStore.annotations[series] = {
+            'series': series,
+            'shortText': '?',
+            'text': flag,
+            'cssClass': 'annotation'
+        }
+    }
+}
+
 
 ///////////////////////////////
 // dygraph wrangling
@@ -288,7 +346,7 @@ function createRateMonitor(){
 
     //construct plot labels
     for(i=0; i<dataStore.defaults.gammas.length; i++){
-        labels.push('gate ' + (i+1));
+        labels.push(dataStore.defaults.gammas[i].title);
     }
     for(i=0; i<dataStore.defaults.levels.length; i++){
         labels.push(dataStore.defaults.levels[i].title)
@@ -332,7 +390,9 @@ function toggleDygraph(index){
 
 
 dataStore = {}
+dataStore.manualBKG = {}
 dataStore.rateData = [[new Date(),0,0,0,0,0,0,0,0]]
+dataStore.annotations = {}
 // for(var k=0; k<50000; k++){
 //     dataStore.rateData.push([new Date(1443558707289 - 500000*3000 + 3000*k),0,0,0,0,0,0,0,0])
 // }
@@ -353,7 +413,7 @@ dataStore.defaults = {
         'gammas':[
             {
                 'title': 'Gate 1',
-                'id': 'g0',
+                'index': 0,
                 'min': 497,
                 'max': 504,
                 'color': "#AAE66A",
@@ -361,7 +421,7 @@ dataStore.defaults = {
             },
             {
                 'title': 'Gate 2',
-                'id': 'g1',
+                'index': 1,
                 'min': 197,
                 'max': 204,
                 'color': "#EFB2F0",
@@ -369,7 +429,7 @@ dataStore.defaults = {
             },
             {
                 'title': 'Gate 3',
-                'id': 'g2',
+                'index': 2,
                 'min': 200,
                 'max': 240,
                 'color': "#40DDF1",
@@ -377,7 +437,7 @@ dataStore.defaults = {
             },
             {
                 'title': 'Gate 4',
-                'id': 'g3',
+                'index': 3,
                 'min': 0,
                 'max': 0,
                 'color': "#F1CB3C",
@@ -385,7 +445,7 @@ dataStore.defaults = {
             },
             {
                 'title': 'Gate 5',
-                'id': 'g4',
+                'index': 4,
                 'min': 0,
                 'max': 0,
                 'color': "#FFFFFF",

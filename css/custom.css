@@ -141,3 +141,11 @@ div#rateLegend{
 div#rateWrap{
     height:100%;
 }
+
+/* plot annotations */
+.annotation{
+    background-color: rgba(0,0,0,0);
+    border-radius: 10px;
+    color: #000000 !important;
+    line-height: 1em;
+}

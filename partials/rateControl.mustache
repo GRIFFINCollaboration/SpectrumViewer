@@ -19,27 +19,27 @@
             <tr>
                 <td>{{title}}</td>
                 <td class='center'>
-                    <input type=checkbox checked id='display{{id}}' class='gammaToggle'></input>
+                    <input type=checkbox checked id='display{{index}}' class='gammaToggle'></input>
                 </td>
                 <td>
-                    <input type=number value={{min}} id='min{{id}}' class='gammaEdge'></input>
+                    <input type=number value={{min}} id='min{{index}}' class='gammaEdge'></input>
                 </td>
                 <td>
-                    <input type=number value={{max}} id='max{{id}}' class='gammaEdge'></input>
+                    <input type=number value={{max}} id='max{{index}}' class='gammaEdge'></input>
                 </td>
                 <td>
-                    <button class='snapGateToWindow' id='{{id}}'>Set to Current Window</button>
+                    <button class='snapGateToWindow' id='snap{{index}}'>Set to Current Window</button>
                 </td>
 
                 <td class='center'>
-                    <input type='radio' checked name='bkg{{id}}' value='off' class='fitOptions'></input>
+                    <input type='radio' checked name='bkg{{index}}' value='off' class='fitOptions'></input>
                 </td>
                 <td class='center'>
-                    <input type='radio' name='bkg{{id}}' value='auto' class='fitOptions'></input>
+                    <input type='radio' name='bkg{{index}}' value='auto' class='fitOptions'></input>
                 </td>
                 <td>
-                    <input type='radio' name='bkg{{id}}' value='manual' class='fitOptions'></input>
-                    <input id='bins{{id}}' type='text' class='manualBKG' placeholder='bkg bins to fit: 20-25;31;40-50' pattern='(\d+-\d+;|\d+;|\d+-\d+|\d+)+'></input>
+                    <input type='radio' name='bkg{{index}}' value='manual' class='fitOptions'></input>
+                    <input id='bins{{index}}' type='text' class='manualBKG' placeholder='bkg bins to fit: 20-25;31;40-50' pattern='(\d+-\d+;|\d+;|\d+-\d+|\d+)+'></input>
                 </td>
             </tr>
         {{/gammas}}
