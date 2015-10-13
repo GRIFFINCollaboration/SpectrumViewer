@@ -68,8 +68,10 @@ function appendNewPoint(){
             dataStore.viewer.addLine('bkg'+id, min-1, y0, max, y1, dataStore.colors[i]);
 
             //subtract the fit background
-            for(j=min; j<max; j++){
-                gates[i] -= bkg[0] + j*bkg[1];
+            if(!isNaN(bkg[0]) && !isNaN(bkg[1]) ){
+                for(j=min; j<max; j++){
+                    gates[i] -= bkg[0] + j*bkg[1];
+                }
             }
         }
 
@@ -113,6 +115,9 @@ function constructManualBackgrounRange(encoding, spectrum){
     var rangeStrings = encoding.split(';'),
         i, j, ranges = [],
         x = [], y = [];
+
+    if(encoding == "")
+        return [x, y]
 
     for(i=0; i<rangeStrings.length; i++){
         ranges.push( rangeStrings[i].split('-').map(function(val){return parseInt(val, 10)}) );
@@ -328,6 +333,9 @@ function toggleDygraph(index){
 
 dataStore = {}
 dataStore.rateData = [[new Date(),0,0,0,0,0,0,0,0]]
+// for(var k=0; k<50000; k++){
+//     dataStore.rateData.push([new Date(1443558707289 - 500000*3000 + 3000*k),0,0,0,0,0,0,0,0])
+// }
 dataStore.targetSpectrum = 'fakeSpectrum'
 dataStore.colors = [
     "#AAE66A",
