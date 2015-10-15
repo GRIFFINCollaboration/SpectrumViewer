@@ -66,9 +66,14 @@ function refreshPlots(){
     // will run a function fetchCallback after data has arrived, if that function exists.
 
     var plotKeys = Object.keys(dataStore.viewer.plotBuffer);
-    var queries = constructQueries(plotKeys);
+    var queries = constructQueries(plotKeys); //queries is now an array of URLs to ask for JSON from
+    var i;
 
-    Promise.all(queries.map(fetchSpectrum)).then(function(){
+    Promise.all(queries.map(promiseURL)).then(function(spectra){
+        for(i=0; i<spectra.length; i++){
+            console.log(spectra[i]);
+        }
+    }).then(function(){
         if(typeof fetchCallback === "function"){
             fetchCallback();
         }

@@ -74,38 +74,40 @@ function constructQueries(keys){
 
     var i, query = dataStore.spectrumServer + '?cmd=callspechandler'
     for(i=0; i<keys.length; i++){
-        query += '&' + keys[i];
+        query += '&spectrum' + i + '=' + keys[i];
     }
 
     return [query]
 }
 
-function fetchSpectrum(query){
+function fetchSpectrum(query){ //depricated?
     //run the appropriate query, and update the spectrum viewer with the result.
     var script;
 
     //get data from server:
-    script = document.createElement('script');
-    script.setAttribute('src', query);
-    script.id = 'fetchdata'
-    
-    document.head.appendChild(script);
+    // script = document.createElement('script');
+    // script.setAttribute('src', query);
+    // script.id = 'fetchdata'
+    // document.head.appendChild(script);
+
+    promiseURL(query)
 }
 
-function callSpectrumHandler(spectra){
+function callSpectrumHandler(spectra){ //depricated?
     //wrapper for the spectrum response from the server
     var key;
-
-    console.log(spectra)
 
     for(key in spectra){
         dataStore.viewer.addData(key, spectra[key]);
     }
+
+    console.log(dataStore.viewer.plotBuffer)
 }
 
 function fetchCallback(){
     //fires after all data has been updated
-    deleteNode('fetchdata')
+    //deleteNode('fetchdata')
+    //console.log(dataStore.viewer.plotBuffer)
     dataStore.viewer.plotData();
 }
 
