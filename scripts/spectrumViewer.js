@@ -3,21 +3,45 @@
 /////////////////////////////////
 
 function dataSetup(data){
+    //take the list of spectra, and sort it into sensible groups for the menu.
+    //runs pre-Ultralight setup.
 
-    //generate list of all available plots and routes
-    var plots = [
-        {'plotID': 'g', 'title': 'plot number one'},
-        {'plotID': 'b', 'title': 'plot number two'},
-        {'plotID': 'a', 'title': 'plot number three'}
-    ]
+    var i, key, firstSeparator, category, subcategory, groups = [], group,
+    detectedGroups={ //hitpattern and sum are hard-coded, rest are autodetected
+        'HITPATTERN': [],
+        'SUM': []
+    }
 
-    var groups = []
+    //split plots up into groups
+    for(i=0; i<dataStore.spectrumList.length; i++){
+        firstSeparator = dataStore.spectrumList[i].indexOf('_');
+        category = dataStore.spectrumList[i].slice(0, firstSeparator);
+        subcategory = dataStore.spectrumList[i].slice(firstSeparator+1);
 
-    for(var i=0; i<100; i++){
+        if(category == 'HITPATTERN' || category == 'SUM')
+            detectedGroups[category].push({'plotID': dataStore.spectrumList[i], 'title': dataStore.spectrumList[i]});
+        else{
+            group = category.slice(0,3) + subcategory; //ie detector prefix + plot type
+            if(!detectedGroups[group])
+                detectedGroups[group] = []
+
+            detectedGroups[group].push({'plotID': dataStore.spectrumList[i], 'title': dataStore.spectrumList[i]})
+        }
+    }
+
+    //process detected groups
+    for(key in detectedGroups){
         groups.push({
-            'groupTitle': 'Group '+i, 'groupID': 'group'+i, 'plots': plots
+            'groupTitle': groupTitle(key), 'groupID': key, 'plots': detectedGroups[key]
         })
     }
+
+    //sort groups into our preferred order
+    groups.sort(function(a,b){
+        var order = dataStore.listOrder;
+
+        return order[a.groupID.slice(0,3)] > order[b.groupID.slice(0,3)];
+    })
 
     return {
         'groups': groups
@@ -25,21 +49,63 @@ function dataSetup(data){
 
 }
 
-function fetchSpectrum(id){
-    //fetch spectrum as an array of counts indexed by bin
-    //load data directly into spectrum viewer
+function groupTitle(groupID){
+    //generate a human-friendly title for each group of plots based on their groupID key.
 
-    if(id.slice(id.length-1)=='g')
-        dataStore.viewer.addData(id, dataStore.testData);
-    if(id.slice(id.length-1)=='b')
-        dataStore.viewer.addData(id, createBins(500));
-    if(id.slice(id.length-1)=='a')
-        dataStore.viewer.addData(id, createBins(500,10));
+    var detectorCodes = dataStore.detectorCodes;
+
+    if(groupID == 'HITPATTERN')
+        return 'Hit Patterns';
+    else if(groupID == 'SUM')
+        return 'Sum Spectra';
+    else{
+        return detectorCodes[groupID.slice(0,3)] + ' ' + groupID.slice(3);
+    }
+}
+
+function getSpectrumList(spectra){
+    setupDataStore()
+    dataStore.spectrumList = spectra.spectrumlist;
+    console.log(dataStore.spectrumList)
+}
+
+function constructQueries(keys){
+    //takes a list of plot names and produces the query string needed to fetch them.
+
+    var i, query = dataStore.spectrumServer + '?cmd=callspechandler'
+    for(i=0; i<keys.length; i++){
+        query += '&' + keys[i];
+    }
+
+    return [query]
+}
+
+function fetchSpectrum(query){
+    //run the appropriate query, and update the spectrum viewer with the result.
+    var script;
+
+    //get data from server:
+    script = document.createElement('script');
+    script.setAttribute('src', query);
+    script.id = 'fetchdata'
+    
+    document.head.appendChild(script);
+}
+
+function callSpectrumHandler(spectra){
+    //wrapper for the spectrum response from the server
+    var key;
+
+    console.log(spectra)
+
+    for(key in spectra){
+        dataStore.viewer.addData(key, spectra[key]);
+    }
 }
 
 function fetchCallback(){
     //fires after all data has been updated
-
+    deleteNode('fetchdata')
     dataStore.viewer.plotData();
 }
 
@@ -170,7 +236,23 @@ function fitCallback(center, width){
     dataStore.viewer.leaveFitMode();
 }
 
-dataStore = {}
-dataStore.activeSpectra = [];
-dataStore.spectra = {};
-dataStore.testData = [200,48,42,48,58,57,59,72,85,68,61,60,72,147,263,367,512,499,431,314,147,78,35,22,13,9,16,7,10,13,5,5,3,1,2,4,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,200,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,120,70,20,20,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,300,650,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+function setupDataStore(){
+    dataStore = {}
+    dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/'
+    //what order to display groups of plots in on the plot menu:
+    dataStore.listOrder = {
+        'HIT': 0,
+        'SUM': 1,
+        'GRG': 2,
+        'SEP': 3,
+        'DSC': 4
+    };
+    dataStore.detectorCodes = {
+        'GRG': 'GRIFFIN',
+        'DSC': 'DESCANT',
+        'SEP': 'SCEPTAR'  
+    }
+    dataStore.activeSpectra = [];
+    dataStore.spectra = {};
+    dataStore.testData = [200,48,42,48,58,57,59,72,85,68,61,60,72,147,263,367,512,499,431,314,147,78,35,22,13,9,16,7,10,13,5,5,3,1,2,4,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,200,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,120,70,20,20,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,300,650,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+}

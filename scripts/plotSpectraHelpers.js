@@ -3,7 +3,10 @@
 // usage:
 // 1. expects a global object dataStore to exist; create in the head.
 // 2. after dom is loaded, call createFigure() and setupFigureControl()
-// 3. expects a global function fetchSpecrtum(id), which requests the
+// 3. expects a global function constructQueries([keys]), which takes
+//    an array of plot names, and returns an array of queries to
+//    pass to fetchSpectrum (see below)
+// 4. expects a global function fetchSpectrum(query), which requests the
 //    appropriate data and puts it in the right place, and a callback
 //    fetchCallback() that runs after all data is loaded (probably a
 //    good time to ask for a plot redraw, for example).
@@ -58,12 +61,14 @@ function setupFigureControl(){
 }
 
 function refreshPlots(){
-    // re-fetch all the plots currently displayed. 
+    // re-fetch all the plots currently displayed.
+    // calls fetchSpectrum on every element of the array returned from constructQueries
     // will run a function fetchCallback after data has arrived, if that function exists.
 
     var plotKeys = Object.keys(dataStore.viewer.plotBuffer);
-    
-    Promise.all(plotKeys.map(fetchSpectrum)).then(function(){
+    var queries = constructQueries(plotKeys);
+
+    Promise.all(queries.map(fetchSpectrum)).then(function(){
         if(typeof fetchCallback === "function"){
             fetchCallback();
         }
@@ -75,7 +80,7 @@ function startRefreshLoop(){
     //sets the refresh loop as a callback to changing the selector menu.
 
     var period = parseInt(this.value,10); //in miliseconds
-    
+
     clearInterval(dataStore.dataRefreshLoop);
     if(period != -1)
         dataStore.dataRefreshLoop = setInterval(refreshPlots, parseInt(this.value,10) );

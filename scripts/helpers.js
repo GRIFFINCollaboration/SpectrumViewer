@@ -49,7 +49,8 @@ function createBins(n, constant){
 }
 
 function toggleHidden(id){
-
+    //adds the class 'hidden' to object id if it doesn't have it already,
+    //or removes it if it does.
     var classes = document.getElementById(id).className.split(' ');
     var hidden = classes.indexOf('hidden')
 
@@ -91,4 +92,13 @@ function fadeHexColor(color, opacity){
     B = parseInt(color.slice(5,7), 16);
 
     return 'rgba(' + R + ',' + G + ',' + B + ',' + opacity + ')';
+}
+
+function deleteNode(id){
+    //delete a dom node with id
+    //thanks https://developer.mozilla.org/en-US/docs/Web/API/Node/removeChild
+    var node = document.getElementById(id);
+    if (node.parentNode) {
+        node.parentNode.removeChild(node);
+    }
 }

@@ -158,18 +158,47 @@ function changeFitMethod(){
     fetchCallback()
 }
 
+function windowSliderCallback(){
+    //oninput behavior of the window width slider
+
+    var hours = Math.floor(parseInt(this.value, 10) / 60);
+    var minutes = parseInt(this.value, 10) % 60;
+
+    document.getElementById(this.id+'Value').innerHTML = hours + 'h:' + minutes +'m'
+}
+
+function leadingEdgeSliderCallback(){
+    //oninput behavior of the window leading edge slider
+
+    var seconds = windowLeadingEdgeTime();
+    var hours = Math.floor(seconds / (3600));
+    var minutes = Math.floor((seconds % 3600) / 60);
+
+    document.getElementById(this.id+'Value').innerHTML = hours + 'h:' + minutes +'m ago'
+    if(this.value == 0)
+        document.getElementById(this.id+'Value').innerHTML = 'now'
+}
+
+function windowLeadingEdgeTime(){
+    //returns number of seconds in the past the currently requested window leading edge is
+
+    var leadingEdgeSlider = document.getElementById('leadingEdgeSlider');
+    var first = dataStore.rateData[0][0];
+    var last = dataStore.rateData[dataStore.rateData.length - 1][0];
+    var history = -1 * parseInt(leadingEdgeSlider.value,10) / ( parseInt(leadingEdgeSlider.max,10) - parseInt(leadingEdgeSlider.min,10) );
+
+    return Math.floor((last-first)*history / 1000);
+}
+
 function updateDygraph(){
     //decide how many points to keep from the history, and plot.
-    var i, period, data, annotations, keys
+    var i, period, leadingEdge, data, annotations, keys
 
     //extract the appropriate tail of the data history
-    period = getSelected('rateHistory')
-    if(period == -1)
-        data = dataStore.rateData
-    else{
-        period = Math.ceil(period/3); //this many points to keep at the end
-        data = dataStore.rateData.slice(Math.max(0,dataStore.rateData.length - period));
-    }
+    leadingEdge = windowLeadingEdgeTime() / 3;
+    period = parseInt(document.getElementById('windowSlider').value,10) * 60 // in seconds
+    period = Math.ceil(period/3); //this many points to keep at the end, 3 seconds per point
+    data = dataStore.rateData.slice(Math.max(0,dataStore.rateData.length - period - leadingEdge), Math.max(0,dataStore.rateData.length - leadingEdge));
 
     //update the dygraph
     dataStore.dygraph.updateOptions( { 'file': data } );
@@ -238,7 +267,9 @@ function pageLoad(){
     for(i=0; i<fitRanges.length; i++){
         fitRanges[i].onchange = updateManualFitRange;
     }
-    document.getElementById('rateHistory').onchange = updateDygraph
+    document.getElementById('windowSlider').onchange = updateDygraph;
+    document.getElementById('windowSlider').oninput = windowSliderCallback;
+    document.getElementById('leadingEdgeSlider').oninput = leadingEdgeSliderCallback;
 
     //manage which gamma window are on by defualt
     for(i=0; i<dataStore.defaults.gammas.length; i++){

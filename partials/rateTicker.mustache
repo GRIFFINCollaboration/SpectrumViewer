@@ -1,10 +1,12 @@
 <div id='dygraph'></div>
 <div id='rateLegend'></div>
 
-<label for='rateHistory'>x-range: </label>
-<select id='rateHistory'>
-    <option value='60' selected>Last minute</option>
-    <option value='600'>Last 10 minutes</option>
-    <option value='3600'>Last hour</option>
-    <option value='-1'>Since Refresh</option>
-</select>
+<label for='windowSlider'>Window Width:</label>
+<input id='windowSlider' class='slider' type='range' min=1 max=720 step=1 value=1></input>
+<span id='windowSliderValue' class="range-value">0h:1m</span>
+
+<br>
+
+<label for='leadingEdgeSlider'>Window Leading Edge:</label>
+<input id='leadingEdgeSlider' class='slider' type='range' min=-1000 max=0 step=1 value=0></input>
+<span id='leadingEdgeSliderValue' class="range-value">now</span>
