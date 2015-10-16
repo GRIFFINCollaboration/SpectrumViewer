@@ -90,17 +90,6 @@ function getSpectrumList(spectra){
     console.log(dataStore.spectrumList)
 }
 
-function constructQueries(keys){
-    //takes a list of plot names and produces the query string needed to fetch them.
-
-    var i, query = dataStore.spectrumServer + '?cmd=callspechandler'
-    for(i=0; i<keys.length; i++){
-        query += '&spectrum' + i + '=' + keys[i];
-    }
-
-    return [query]
-}
-
 function fetchCallback(){
     //fires after all data has been updated
     dataStore.viewer.plotData();

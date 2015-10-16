@@ -103,6 +103,17 @@ function deleteNode(id){
     }
 }
 
+function constructQueries(keys){
+    //takes a list of plot names and produces the query string needed to fetch them.
+
+    var i, query = dataStore.spectrumServer + '?cmd=callspechandler'
+    for(i=0; i<keys.length; i++){
+        query += '&spectrum' + i + '=' + keys[i];
+    }
+
+    return [query]
+}
+
 function promiseJSONURL(url){
     // promise to get response from <url> 
     //thanks http://www.html5rocks.com/en/tutorials/es6/promises/
