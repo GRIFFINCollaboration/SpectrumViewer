@@ -92,6 +92,11 @@ ul#utilitiesList{
     cursor: pointer;
 }
 
+div.cursors{
+    text-align: left;
+    color: #FFFFFF;
+}
+
 /*plot selection*/
 
 div.plotSelector{

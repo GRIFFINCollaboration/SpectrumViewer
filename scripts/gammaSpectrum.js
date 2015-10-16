@@ -949,7 +949,7 @@ function spectrumViewer(canvasID){
     	    this.cursorX = xBin.toFixed(0);
     	    this.cursorY = yBin.toFixed(0);
         }
-        this.mouseMoveCallback(xBin, yBin);
+        this.mouseMoveCallback(xBin, Math.max(yBin,0) );
 
         //change cursor to indicate draggable region:
         if(this.fitModeEngage){

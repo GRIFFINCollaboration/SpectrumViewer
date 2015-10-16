@@ -29,6 +29,18 @@ function setupFigureControl(){
     //plug in all the callbacks etc for the spectrum controls
 
     var i, radios;
+
+    //cursor reporting
+    dataStore.viewer.mouseMoveCallback = function(x,y){
+        var X = '-', Y = '-';
+
+        if(typeof x == 'number' && !isNaN(x) )
+            X = x;
+        if(typeof y == 'number' && !isNaN(y) )
+            Y = y;
+        document.getElementById('cursorReport').innerHTML = 'x: ' + X + ' y: ' + Y
+    }
+
     //x-range control:
     document.getElementById('minX').onchange = updatePlotRange;
     document.getElementById('maxX').onchange = updatePlotRange;
