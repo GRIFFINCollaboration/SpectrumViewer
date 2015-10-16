@@ -144,11 +144,22 @@ span#fitInstructions{
 }
 
 td.spectrumNames{
-    width: 14em;
+    width: 20em;
+}
+
+span.spectrumName{
+    display: inline-block;
 }
 
 td.uiCol{
     width: 6em;
+}
+
+div.swatch{
+    width: 3em;
+    height: 1em;
+    margin-left: 1em;
+    display: inline-block;
 }
 
 /* rate monitor */

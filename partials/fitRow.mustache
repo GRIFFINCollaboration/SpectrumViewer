@@ -1,5 +1,8 @@
 <tr id='fitRow{{spectrum}}'>
-    <td class='spectrumNames'>{{spectrum}}</td>
+    <td class='spectrumNames'>
+        <span class='spectrumName'>{{spectrum}}</span>
+        <div style='background-color:{{color}}' class='swatch'></div>
+    </td>
     <td class='center uiCol'>
         <input id='{{spectrum}}Radio' type='radio' checked name='fitTarget' value='{{spectrum}}' onclick='chooseFitTarget("{{spectrum}}")'></input>
     </td>

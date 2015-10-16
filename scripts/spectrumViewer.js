@@ -165,7 +165,7 @@ function toggleData(){
         dataStore.viewer.addData(this.id, []);
         refreshPlots();
         //generate html for fit table and add it
-        html = Mustache.to_html(spectrumViewerUL.partials['fitRow'], {'spectrum': this.id});
+        html = Mustache.to_html(spectrumViewerUL.partials['fitRow'], {'spectrum': this.id, 'color': dataStore.viewer.dataColor[dataStore.viewer.colorAssignment.indexOf(this.id)]});
         document.getElementById('fitTable').getElementsByTagName('tbody')[0].innerHTML += html;
         //have to re-set up all delete buttons after modifying table html
         deleteButtons = document.getElementsByClassName('deleteRow')
