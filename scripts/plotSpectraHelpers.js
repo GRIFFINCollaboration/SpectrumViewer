@@ -1,15 +1,14 @@
 /////////////////////////////////////////////////////////////////////////
 // helpers for plugging in UI elements found in plotSpectra.mustache
 // usage:
-// 1. expects a global object dataStore to exist; create in the head.
+// 1. expects a global object dataStore to exist.
 // 2. after dom is loaded, call createFigure() and setupFigureControl()
 // 3. expects a global function constructQueries([keys]), which takes
-//    an array of plot names, and returns an array of queries to
-//    pass to fetchSpectrum (see below)
-// 4. expects a global function fetchSpectrum(query), which requests the
-//    appropriate data and puts it in the right place, and a callback
-//    fetchCallback() that runs after all data is loaded (probably a
-//    good time to ask for a plot redraw, for example).
+//    an array of plot names, and returns an array of URLs to fetch
+//    JSON from.
+// 4. expects a global function promiseJSONURL(URL), that takes a URL as
+//    an argument and returns a promise that returns the response of the
+//    URL parsed as json upon resolution.
 /////////////////////////////////////////////////////////////////////////
 
 function createFigure(){

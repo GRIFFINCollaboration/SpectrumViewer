@@ -2,6 +2,27 @@
 // define data
 /////////////////////////////////
 
+function setupDataStore(){
+    dataStore = {}
+    dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/'
+    //what order to display groups of plots in on the plot menu:
+    dataStore.listOrder = {
+        'HIT': 0,
+        'SUM': 1,
+        'GRG': 2,
+        'SEP': 3,
+        'DSC': 4
+    };
+    dataStore.detectorCodes = {
+        'GRG': 'GRIFFIN',
+        'DSC': 'DESCANT',
+        'SEP': 'SCEPTAR'  
+    }
+    dataStore.activeSpectra = [];
+    dataStore.spectra = {};
+    dataStore.testData = [200,48,42,48,58,57,59,72,85,68,61,60,72,147,263,367,512,499,431,314,147,78,35,22,13,9,16,7,10,13,5,5,3,1,2,4,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,200,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,120,70,20,20,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,300,650,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+}
+
 function dataSetup(data){
     //take the list of spectra, and sort it into sensible groups for the menu.
     //runs pre-Ultralight setup.
@@ -80,34 +101,8 @@ function constructQueries(keys){
     return [query]
 }
 
-function fetchSpectrum(query){ //depricated?
-    //run the appropriate query, and update the spectrum viewer with the result.
-    var script;
-
-    //get data from server:
-    // script = document.createElement('script');
-    // script.setAttribute('src', query);
-    // script.id = 'fetchdata'
-    // document.head.appendChild(script);
-
-    promiseURL(query)
-}
-
-function callSpectrumHandler(spectra){ //depricated?
-    //wrapper for the spectrum response from the server
-    var key;
-
-    for(key in spectra){
-        dataStore.viewer.addData(key, spectra[key]);
-    }
-
-    console.log(dataStore.viewer.plotBuffer)
-}
-
 function fetchCallback(){
     //fires after all data has been updated
-    //deleteNode('fetchdata')
-    //console.log(dataStore.viewer.plotBuffer)
     dataStore.viewer.plotData();
 }
 
@@ -266,25 +261,4 @@ function fitCallback(center, width){
 
     toggleFitMode()
     dataStore.viewer.leaveFitMode();
-}
-
-function setupDataStore(){
-    dataStore = {}
-    dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/'
-    //what order to display groups of plots in on the plot menu:
-    dataStore.listOrder = {
-        'HIT': 0,
-        'SUM': 1,
-        'GRG': 2,
-        'SEP': 3,
-        'DSC': 4
-    };
-    dataStore.detectorCodes = {
-        'GRG': 'GRIFFIN',
-        'DSC': 'DESCANT',
-        'SEP': 'SCEPTAR'  
-    }
-    dataStore.activeSpectra = [];
-    dataStore.spectra = {};
-    dataStore.testData = [200,48,42,48,58,57,59,72,85,68,61,60,72,147,263,367,512,499,431,314,147,78,35,22,13,9,16,7,10,13,5,5,3,1,2,4,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,200,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,120,70,20,20,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,300,650,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 }
