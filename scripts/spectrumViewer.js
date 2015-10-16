@@ -188,8 +188,22 @@ function toggleData(){
     toggleHidden('badge'+this.id)
 }
 
-function togglePlotList(id){
+function togglePlotList(id, suppressRecursion){
     //change whether a plot list is open or closed, for binding to the onclick of the subheaders
+    //only allow one list open at a time.
+
+    //close old list
+    if(dataStore.openList && !suppressRecursion && id!=dataStore.openList){
+        console.log('closing old')
+        togglePlotList(dataStore.openList, true);
+    }
+
+    //allow manual close of old list
+    if(id == dataStore.openList)
+        dataStore.openList = null;
+    else
+        dataStore.openList = id;
+
     toggleHidden('plots'+id);
     toggleHidden('closed'+id);
     toggleHidden('open'+id);
