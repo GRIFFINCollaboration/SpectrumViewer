@@ -147,8 +147,10 @@ function updateRangeSelector(){
     var xMin = dataStore.viewer.XaxisLimitMin,
         xMax = dataStore.viewer.XaxisLimitMax
 
-    document.getElementById('minX').value = xMin;
-    document.getElementById('maxX').value = xMax;
+    if(document.activeElement.id != 'minX')
+        document.getElementById('minX').value = xMin;
+    if(document.activeElement.id != 'maxX')
+        document.getElementById('maxX').value = xMax;
 
     manageXvalidity();
 }
