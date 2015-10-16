@@ -110,8 +110,19 @@ function updatePlotRange(){
     var xMin = document.getElementById('minX'),
         xMax = document.getElementById('maxX');
 
-    dataStore.viewer.XaxisLimitMin = parseInt(xMin.value,10);
-    dataStore.viewer.XaxisLimitMax = parseInt(xMax.value,10);
+    var x0 = parseInt(xMin.value,10);
+    var x1 = parseInt(xMax.value,10);
+
+    if(x1 <= x0){
+        xMin.setCustomValidity("minimum value of x must be less than maximum value of x.");
+        xMax.setCustomValidity("minimum value of x must be less than maximum value of x.");
+        return
+    }
+
+    xMin.setCustomValidity("");
+    xMax.setCustomValidity("");
+    dataStore.viewer.XaxisLimitMin = x0;
+    dataStore.viewer.XaxisLimitMax = x1;
 
     dataStore.viewer.plotData();              
 }
