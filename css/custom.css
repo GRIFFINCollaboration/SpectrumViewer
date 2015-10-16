@@ -39,6 +39,10 @@ input:invalid{
     background-color: #FF303F;
 }
 
+button.deleteRow{
+    color: #FF7777;
+}
+
 /*branding*/
 div.branding{
     color: #FFFFFF;
@@ -122,11 +126,24 @@ span.plotPresent{
 /* fitting */
 table#fitTable{
     width: 100%;
+    margin-top: 5em;
 }
 
 input.manualBKG{
     margin-left: 1em;
     width: 300px;
+}
+
+span#fitInstructions{
+    margin-left: 1em;
+}
+
+td.spectrumNames{
+    width: 14em;
+}
+
+td.uiCol{
+    width: 4em;
 }
 
 /* rate monitor */

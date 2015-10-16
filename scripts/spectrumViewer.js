@@ -135,6 +135,9 @@ function pageLoad(){
     //keep the plot list the same height as the plot region
     document.getElementById('plotMenu').style.height = document.getElementById('plotWrap').offsetHeight + 'px'; 
 
+    //plug in the delete all button
+    document.getElementById('deleteAll').onclick = deleteAllPlots;
+
 }
 
 function setupFitting(){
@@ -150,7 +153,7 @@ function setupFitting(){
 //////////////////////////////////
 
 function toggleData(){
-    var html, node, rows;
+    var html, node, rows, deleteButtons, i;
 
     //data present, remove it
     if(dataStore.viewer.plotBuffer[this.id]){ 
@@ -180,6 +183,12 @@ function toggleData(){
         //generate html for fit table and add it
         html = Mustache.to_html(spectrumViewerUL.partials['fitRow'], {'spectrum': this.id});
         document.getElementById('fitTable').getElementsByTagName('tbody')[0].innerHTML += html;
+        //have to re-set up all delete buttons after modifying table html
+        deleteButtons = document.getElementsByClassName('deleteRow')
+        for(i=0; i<deleteButtons.length; i++){
+            deleteButtons[i].onclick = toggleData.bind(document.getElementById(deleteButtons[i].value));
+        }
+
         //default: target fitting at new spectrum.
         chooseFitTarget(this.id)
     }
@@ -194,7 +203,6 @@ function togglePlotList(id, suppressRecursion){
 
     //close old list
     if(dataStore.openList && !suppressRecursion && id!=dataStore.openList){
-        console.log('closing old')
         togglePlotList(dataStore.openList, true);
     }
 
@@ -208,6 +216,15 @@ function togglePlotList(id, suppressRecursion){
     toggleHidden('closed'+id);
     toggleHidden('open'+id);
 
+}
+
+function deleteAllPlots(){
+    //callback to delete all button
+    var deleteButtons = document.getElementsByClassName('deleteRow')
+
+    while(deleteButtons.length > 0){
+        deleteButtons[0].onclick(); //actually modifies deleteButtons in place - keep deleting zeroth element.
+    }
 }
 
 ////////////////////////
@@ -229,7 +246,6 @@ function toggleFitMode(){
     }
 
     //toggle state indicator
-    toggleHidden('fitModeBadge')
     toggleHidden('fitInstructions')
 }
 

@@ -28,27 +28,34 @@
                 </div>
             </div>
 
-            <!--Fitting-->
+            <!--Plot Manupulation-->
             <div class='sectionWrapper'>
                 <div id='fitResults' class='col-md-8 item'>
 
                     <div class='sectionWrapper'>
-                        <h4>Peak Fitting</h4>
-                        <ul class='col-md-3 list-group'>
-                            <li class='list-group-item toggle' id='fitMode' engaged='0'>
-                                Fit a new peak
-                                <span id='fitModeBadge' class="badge plotPresent hidden">&#x2713;</span>
-                            </li>
-                        </ul>
-                        <span id='fitInstructions' class='hidden'>Click on either side of the peak to perform a fit.</span>
+                        <h4>Plot Control</h4>
+
+                        <div class='col-md-9'>
+                            <button type="button" class="btn btn-default btn-lg" id='fitMode' engaged='0'>
+                                <span class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> Fit a new Peak
+                            </button>
+                            <span id='fitInstructions' class='hidden'>Click on either side of the peak to perform a fit.</span>
+                        </div>
+                        
+                        <div class='col-md-2'>
+                            <button type="button" class="btn btn-default btn-lg" id='deleteAll'>
+                                <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span> Remove all plots
+                            </button>
+                        </div>
                     </div>
 
                     <div class='sectionWrapper'>
-                        <table id='fitTable'>
+                        <table id='fitTable' class="table">
                             <tr>
-                                <td>Spectra</td>
-                                <td>Fit Target</td>
+                                <td class='spectrumNames'>Spectra</td>
+                                <td class='center uiCol'>Fit Target</td>
                                 <td>Fit Results</td>
+                                <td class='deleteCol'></td>
                             </tr>
                         </table>
                     </div>
