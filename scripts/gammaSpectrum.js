@@ -583,7 +583,7 @@ function spectrumViewer(canvasID){
 		// width=x-width;
 		// if(width<1) width=1;
 		// width/=2.35;
-		width = estimateWidth(fitdata, cent, max);
+		width = this.estimateWidth(fitdata, cent, max);
 
 		cent=cent+this.FitLimitLower+0.5;
 
