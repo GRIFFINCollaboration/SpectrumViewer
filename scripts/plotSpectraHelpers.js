@@ -69,10 +69,11 @@ function refreshPlots(){
     var queries = constructQueries(plotKeys); //queries is now an array of URLs to ask for JSON from
     var i;
 
-    Promise.all(queries.map(promiseURL)).then(function(spectra){
-        for(i=0; i<spectra.length; i++){
-            console.log(spectra[i]);
-        }
+    Promise.all(queries.map(promiseJSONURL)).then(function(spectra){
+            var key
+            for(key in spectra[0]){
+                dataStore.viewer.addData(key, spectra[0][key]);
+            }
     }).then(function(){
         if(typeof fetchCallback === "function"){
             fetchCallback();

@@ -103,8 +103,9 @@ function deleteNode(id){
     }
 }
 
-function promiseURL(url){
-    // promise to get response from <url>; thanks http://www.html5rocks.com/en/tutorials/es6/promises/
+function promiseJSONURL(url){
+    // promise to get response from <url> 
+    //thanks http://www.html5rocks.com/en/tutorials/es6/promises/
 
     // Return a new promise.
     return new Promise(function(resolve, reject) {
@@ -116,8 +117,8 @@ function promiseURL(url){
             // This is called even on 404 etc
             // so check the status
             if (req.status == 200) {
-                // Resolve the promise with the response text
-                resolve(req.response);
+                // Resolve the promise with the response text parsed as JSON
+                resolve(JSON.parse(req.response.replace(/\'/g, '\"')));  //good grief fix this in the server
             }
             else {
                 // Otherwise reject with the status text
