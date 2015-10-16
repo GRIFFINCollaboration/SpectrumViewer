@@ -231,6 +231,7 @@ function spectrumViewer(canvasID){
 		
 		//abandon the fit when re-drawing the plot
 		this.fitted = false;
+		this.containerFit.removeAllChildren();
 
 		//get the axes right
 		this.chooseLimits();	
