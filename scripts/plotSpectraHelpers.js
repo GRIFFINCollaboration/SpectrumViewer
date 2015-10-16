@@ -112,18 +112,34 @@ function updatePlotRange(){
     var x0 = parseInt(xMin.value,10);
     var x1 = parseInt(xMax.value,10);
 
+    if(manageXvalidity()){
+
+        dataStore.viewer.XaxisLimitMin = x0;
+        dataStore.viewer.XaxisLimitMax = x1;
+
+        dataStore.viewer.plotData();
+    }
+}
+
+function manageXvalidity(){
+    //check that x min < x max, and complain otherwise.
+
+    var xMin = document.getElementById('minX'),
+        xMax = document.getElementById('maxX');
+
+    var x0 = parseInt(xMin.value,10);
+    var x1 = parseInt(xMax.value,10);
+
     if(x1 <= x0){
         xMin.setCustomValidity("minimum value of x must be less than maximum value of x.");
         xMax.setCustomValidity("minimum value of x must be less than maximum value of x.");
-        return
+        return false
     }
 
     xMin.setCustomValidity("");
     xMax.setCustomValidity("");
-    dataStore.viewer.XaxisLimitMin = x0;
-    dataStore.viewer.XaxisLimitMax = x1;
 
-    dataStore.viewer.plotData();              
+    return true
 }
 
 //update the UI when the plot is zoomed with the mouse
@@ -133,6 +149,8 @@ function updateRangeSelector(){
 
     document.getElementById('minX').value = xMin;
     document.getElementById('maxX').value = xMax;
+
+    manageXvalidity();
 }
 
 //callback for clicking on Snap to Waveform
