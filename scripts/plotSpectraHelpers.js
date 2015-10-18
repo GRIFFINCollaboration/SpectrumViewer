@@ -83,7 +83,8 @@ function refreshPlots(){
     Promise.all(queries.map(promiseJSONURL)).then(function(spectra){
             var key
             for(key in spectra[0]){
-                dataStore.viewer.addData(key, spectra[0][key]);
+                if(key != 'metadata')
+                    dataStore.viewer.addData(key, spectra[0][key]);
             }
     }).then(function(){
         if(typeof fetchCallback === "function"){
