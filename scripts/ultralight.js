@@ -121,8 +121,6 @@ function ultralight(partials, dataLoader, callback){
 		}
 
 		url = rootURL + 'partials/' + name + '.mustache';
-		//hack for MIDAS' annoying inability to serve static files:
-		//url = name +'_mustache'
 
 		// Return a new promise.
 	 	return new Promise(function(resolve, reject) {
