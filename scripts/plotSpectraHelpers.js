@@ -85,6 +85,8 @@ function refreshPlots(){
             for(key in spectra[0]){
                 if(key != 'metadata')
                     dataStore.viewer.addData(key, spectra[0][key]);
+                else
+                    dataStore.metadata = JSON.parse(JSON.stringify(spectra[0].metadata));
             }
     }).then(function(){
         if(typeof fetchCallback === "function"){

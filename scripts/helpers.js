@@ -147,3 +147,21 @@ function promiseJSONURL(url){
         req.send();
     });
 }
+
+function subtractHistograms(h0, h1){
+    // perform element-wise subtraction h1-h0
+
+    var i, diff = []
+
+    if(h0.length != h1.length){
+        console.log('tried to subtract histograms of different length, abort')
+        return diff
+    }
+
+    for(i=0; i<h0.length; i++){
+        diff[i] = h1[i] - h0[i];
+    }
+
+    return diff
+
+}

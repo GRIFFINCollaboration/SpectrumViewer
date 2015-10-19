@@ -16,8 +16,13 @@ function fetchSpectrum(id){
 
 function fetchCallback(){
     //runs as callback after all data has been refreshed.
-
-    //update the rate monitor
+    //keep track of this histogram and the last one for calculating rates:
+    if(dataStore.currentSpectrum)
+        dataStore.oldSpectrum = JSON.parse(JSON.stringify(dataStore.currentSpectrum));
+    dataStore.currentSpectrum = JSON.parse(JSON.stringify(dataStore.viewer.plotBuffer[dataStore.targetSpectrum]));
+    //dataStore.oldTime = dataStore.currentTime
+    //dataStore.currentTime = dataStore.metadata.timestamp
+    //update the rate monitor and backgrounds fits
     appendNewPoint();
     //redraw spectrum, fit results included
     dataStore.viewer.plotData();
@@ -28,16 +33,11 @@ function appendNewPoint(){
     var i, j, id, min, max, gates = [], levels = [], bkgTechnique, bkgSample, bkgPattern, bkg, y0, y1, bkgColor;
 
     dataStore.viewer.binHighlights = [];
+    //subtract backgrounds from gates in new histogram if asked.
     for(i=0; i<dataStore.defaults.gammas.length; i++){
         id = dataStore.defaults.gammas[i].index;
         min = dataStore.viewer.verticals['min' + id].bin
         max = dataStore.viewer.verticals['max' + id].bin
-
-        //integrate gamma window
-        gates[i] = 0;
-        for(j=min; j<max; j++){
-            gates[i] += dataStore.viewer.plotBuffer[dataStore.targetSpectrum][j];
-        }
 
         //attempt to fit & subtract background
         bkgTechnique = document.querySelector('input[name="bkg'+id+'"]:checked').value;
@@ -48,7 +48,7 @@ function appendNewPoint(){
             if(bkgTechnique=='auto'){
                 bkgSample = constructAutoBackgroundRange(min, max);
             } else if(bkgTechnique=='manual' && bkgPattern ){ //ie only even try to do this if a valid bkgPattern has made it into the dataStore.
-                bkgSample = constructManualBackgroundRange(bkgPattern, dataStore.viewer.plotBuffer[dataStore.targetSpectrum]);
+                bkgSample = constructManualBackgroundRange(bkgPattern, dataStore.viewer.plotBuffer[dataStore.currentSpectrum]);
             }
 
             //highlight selected background bins
@@ -71,12 +71,32 @@ function appendNewPoint(){
             //subtract the fit background
             if(!isNaN(bkg[0]) && !isNaN(bkg[1]) ){
                 for(j=min; j<max; j++){
-                    gates[i] -= bkg[0] + j*bkg[1];
+                    this.dataStore.currentSpectrum[j] -= bkg[0] + j*bkg[1];
                 }
             }
         }
-
     }
+
+    //can't continue until two histograms have been collected
+    if(!dataStore.oldSpectrum)
+        return;
+
+    //calculate change from last collection to this one
+    dataStore.histoDiff = subtractHistograms(dataStore.oldSpectrum, dataStore.currentSpectrum);
+
+    //integrate gamma window on difference histogram
+    for(i=0; i<dataStore.defaults.gammas.length; i++){
+        id = dataStore.defaults.gammas[i].index;
+        min = dataStore.viewer.verticals['min' + id].bin
+        max = dataStore.viewer.verticals['max' + id].bin
+
+        gates[i] = 0;
+        for(j=min; j<max; j++){
+            gates[i] += dataStore.histoDiff[j];
+        }
+        gates[i] /= (dataStore.currentTime - dataStore.oldTime);        
+    }
+    
     //add on levels data
     for(i=0; i<dataStore.defaults.levels.length; i++){
         levels.push(dataStore.viewer.plotBuffer[dataStore.defaults.levels[i].id][0])
@@ -429,6 +449,8 @@ dataStore.annotations = {}
 // }
 dataStore.targetSpectrum = 'SUM_Singles_Energy'
 dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/'
+dataStore.currentTime = 2
+dataStore.oldTime = 1;
 dataStore.colors = [
     "#AAE66A",
     "#EFB2F0",
