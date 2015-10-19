@@ -15,13 +15,25 @@ function fetchSpectrum(id){
 }
 
 function fetchCallback(){
+    var sumOld, sumNew;
+
     //runs as callback after all data has been refreshed.
     //keep track of this histogram and the last one for calculating rates:
-    if(dataStore.currentSpectrum)
+    if(dataStore.currentSpectrum){
+        sumOld = dataStore.oldSpectrum.integrate(0,100);
         dataStore.oldSpectrum = JSON.parse(JSON.stringify(dataStore.currentSpectrum));
+    }
     dataStore.currentSpectrum = JSON.parse(JSON.stringify(dataStore.viewer.plotBuffer[dataStore.targetSpectrum]));
-    //dataStore.oldTime = dataStore.currentTime
-    //dataStore.currentTime = dataStore.metadata.timestamp
+    sumNew = dataStore.currentSpectrum.integrate(0,100);
+
+    //note that at run start, the oldSpectrum will still have the stale state of the spectrum in it from last run,
+    //since the analyzer keeps broadcasting it; need to detect when the spectrum has been zeroed and also skip here.
+    if(sumNew < sumOld)
+        dataStore.oldSpectrum = [];
+
+    dataStore.oldTime = dataStore.currentTime;
+    dataStore.currentTime = Date.now()/1000;
+
     //update the rate monitor and backgrounds fits
     appendNewPoint();
     //redraw spectrum, fit results included
@@ -77,8 +89,8 @@ function appendNewPoint(){
         }
     }
 
-    //can't continue until two histograms have been collected
-    if(!dataStore.oldSpectrum)
+    //can't continue until two histograms have been collected;
+    if(dataStore.oldSpectrum.length == 0)
         return;
 
     //calculate change from last collection to this one
@@ -440,17 +452,17 @@ function toggleDygraph(index){
 
 
 
-dataStore = {}
-dataStore.manualBKG = {}
-dataStore.rateData = [[new Date(),0,0,0,0,0]]
-dataStore.annotations = {}
-// for(var k=0; k<50000; k++){
-//     dataStore.rateData.push([new Date(1443558707289 - 500000*3000 + 3000*k),0,0,0,0,0,0,0,0])
-// }
-dataStore.targetSpectrum = 'SUM_Singles_Energy'
-dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/'
-dataStore.currentTime = 2
-dataStore.oldTime = 1;
+dataStore = {};
+dataStore.manualBKG = {};
+dataStore.rateData = [[new Date(),0,0,0,0,0]];
+dataStore.annotations = {};
+dataStore.targetSpectrum = 'SUM_Singles_Energy';
+dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';
+dataStore.ODBrequests = ['http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/Equipment/Epics/Variables/MSRD&encoding=json'];
+dataStore.currentSpectrum = [];
+dataStore.oldSpectrum = [];
+dataStore.currentTime = null;
+dataStore.oldTime = null;
 dataStore.colors = [
     "#AAE66A",
     "#EFB2F0",
@@ -484,8 +496,8 @@ dataStore.defaults = {
             {
                 'title': 'Gate 3',
                 'index': 2,
-                'min': 200,
-                'max': 240,
+                'min': 0,
+                'max': 0,
                 'color': "#40DDF1",
                 'onByDefault': false
             },

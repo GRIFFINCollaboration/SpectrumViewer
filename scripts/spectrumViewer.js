@@ -5,6 +5,7 @@
 function setupDataStore(){
     dataStore = {}
     dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/'
+    dataStore.ODBrequests = []
     //what order to display groups of plots in on the plot menu:
     dataStore.listOrder = {
         'HIT': 0,

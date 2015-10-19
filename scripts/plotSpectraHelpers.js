@@ -77,11 +77,12 @@ function refreshPlots(){
     // will run a function fetchCallback after data has arrived, if that function exists.
 
     var plotKeys = Object.keys(dataStore.viewer.plotBuffer);
-    var queries = constructQueries(plotKeys); //queries is now an array of URLs to ask for JSON from
+    var queries = constructQueries(plotKeys, dataStore.ODBrequests); //queries is now an array of URLs to ask for JSON from
     var i;
 
     Promise.all(queries.map(promiseJSONURL)).then(function(spectra){
             var key
+            //console.log(spectra[1])
             for(key in spectra[0]){
                 if(key != 'metadata')
                     dataStore.viewer.addData(key, spectra[0][key]);
