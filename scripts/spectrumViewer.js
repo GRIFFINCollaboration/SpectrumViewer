@@ -123,6 +123,9 @@ function pageLoad(){
     //plug in the delete all button
     document.getElementById('deleteAll').onclick = deleteAllPlots;
 
+    //set the refresh loop going
+    startRefreshLoop.bind(document.getElementById('upOptions'))();
+
 }
 
 function setupFitting(){

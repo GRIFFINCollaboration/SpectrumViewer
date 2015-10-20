@@ -104,7 +104,7 @@ function startRefreshLoop(){
 
     clearInterval(dataStore.dataRefreshLoop);
     if(period != -1)
-        dataStore.dataRefreshLoop = setInterval(refreshPlots, parseInt(this.value,10) );
+        dataStore.dataRefreshLoop = setInterval(refreshPlots, period );
 
 }
 
