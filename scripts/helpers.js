@@ -103,7 +103,7 @@ function deleteNode(id){
     }
 }
 
-function constructQueries(keys, otherRequests){
+function constructQueries(keys){
     //takes a list of plot names and produces the query string needed to fetch them.
     //adds on list of other requests to come along for the ride (ie ODB requests)
 
@@ -112,7 +112,7 @@ function constructQueries(keys, otherRequests){
         query += '&spectrum' + i + '=' + keys[i];
     }
 
-    return [query].concat(otherRequests)
+    return [query]
 }
 
 function promiseJSONURL(url){
@@ -146,6 +146,24 @@ function promiseJSONURL(url){
 
         // Make the request
         req.send();
+    });
+}
+
+function promiseScript(url){
+    //like promiseURL, but does the script tag dance to avoid non-CORS-compliant servers
+
+    // Return a new promise.
+    return new Promise(function(resolve, reject) {
+
+        var script = document.createElement('script');
+
+        script.setAttribute('src', url);
+        script.onload = function(){
+            deleteNode('promiseScript');
+            resolve(null); 
+        }
+        script.id = 'promiseScript';
+        document.head.appendChild(script);
     });
 }
 

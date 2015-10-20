@@ -77,7 +77,7 @@ function refreshPlots(){
     // will run a function fetchCallback after data has arrived, if that function exists.
 
     var plotKeys = Object.keys(dataStore.viewer.plotBuffer);
-    var queries = constructQueries(plotKeys, dataStore.ODBrequests); //queries is now an array of URLs to ask for JSON from
+    var queries = constructQueries(plotKeys); //queries is now an array of URLs to ask for JSON from
     var i;
 
     Promise.all(queries.map(promiseJSONURL)).then(function(spectra){
@@ -89,7 +89,7 @@ function refreshPlots(){
                 else
                     dataStore.metadata = JSON.parse(JSON.stringify(spectra[0].metadata));
             }
-    }).then(function(){
+    }).then(dataStore.ODBrequests.map(promiseScript)).then(function(){
         if(typeof fetchCallback === "function"){
             fetchCallback();
         }
