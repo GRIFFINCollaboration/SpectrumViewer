@@ -264,7 +264,6 @@ function pageLoad(){
 
     //plot the spectrum of interest
     dataStore.viewer.addData(dataStore.targetSpectrum, []);
-
     refreshPlots();
 
     //set up Dygraph

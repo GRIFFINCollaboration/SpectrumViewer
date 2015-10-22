@@ -104,15 +104,31 @@ function deleteNode(id){
 }
 
 function constructQueries(keys){
-    //takes a list of plot names and produces the query string needed to fetch them.
-    //adds on list of other requests to come along for the ride (ie ODB requests)
+    //takes a list of plot names and produces the query string needed to fetch them, in an array
+    //more than 32 requests will be split into separate queries.
 
-    var i, query = dataStore.spectrumServer + '?cmd=callspechandler'
-    for(i=0; i<keys.length; i++){
-        query += '&spectrum' + i + '=' + keys[i];
+    var i, j, queryString, queries = [];
+    for(i=0; i<Math.ceil(keys.length/32); i++){
+        queryString = dataStore.spectrumServer + '?cmd=callspechandler';
+        for(j=i*32; j<Math.min( (i+1)*32, keys.length ); j++){
+            queryString += '&spectrum' + j + '=' + keys[j];
+        }
+        queries.push(queryString);
     }
 
-    return [query]
+    return queries
+}
+
+function spectraCallback(spectra){
+    //callback to run after fetching spectra from the analyzer
+    //used for spectrum viewer and rate monitor; gain matcher uses modified version
+    var key
+    for(key in spectra[0]){
+        if(key != 'metadata')
+            dataStore.viewer.addData(key, spectra[0][key]);
+        else
+            dataStore.metadata = JSON.parse(JSON.stringify(spectra[0].metadata));
+    }
 }
 
 function promiseJSONURL(url){

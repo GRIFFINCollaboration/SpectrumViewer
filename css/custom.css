@@ -43,6 +43,10 @@ button.deleteRow{
     color: #FF7777;
 }
 
+.rowElement{
+    margin-right: 1em;
+}
+
 /*branding*/
 div.branding{
     color: #FFFFFF;
@@ -183,6 +187,7 @@ input[type="range"]{
 }
 
 span.range-value {
+    /*thanks http://codepen.io/thelifemgmt/pen/CeLqA for slider styles*/
     display: inline-block;
     position: relative;
     color: #000000;
@@ -213,4 +218,20 @@ span.range-value::after {
     border-radius: 10px;
     color: #000000 !important;
     line-height: 1em;
+}
+
+/* gain matching table */
+table.gainTable{
+    margin-top: 1em;
+}
+
+table.gainTable tr:nth-child(0n+1){
+    font-weight: bold;
+}
+
+table.gainTable tr:nth-child(8n+5),
+table.gainTable tr:nth-child(8n+4),
+table.gainTable tr:nth-child(8n+3),
+table.gainTable tr:nth-child(8n+2){ 
+    background-color: #222222;
 }

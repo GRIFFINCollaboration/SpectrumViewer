@@ -9,6 +9,8 @@
 // 4. expects a global function promiseJSONURL(URL), that takes a URL as
 //    an argument and returns a promise that returns the response of the
 //    URL parsed as json upon resolution.
+// 5. expects a global function spectraCallback(spectra), that 
+//    processes the json returned by the promiseJSONURL.
 /////////////////////////////////////////////////////////////////////////
 
 function createFigure(){
@@ -73,28 +75,24 @@ function setupFigureControl(){
 
 function refreshPlots(){
     // re-fetch all the plots currently displayed.
-    // calls fetchSpectrum on every element of the array returned from constructQueries
+    // calls promiseJSONURL on every element of the array returned from constructQueries
     // will run a function fetchCallback after data has arrived, if that function exists.
 
     var plotKeys = Object.keys(dataStore.viewer.plotBuffer);
-    var queries = constructQueries(plotKeys); //queries is now an array of URLs to ask for JSON from
+    var queries = constructQueries(plotKeys);
     var i;
 
-    Promise.all(queries.map(promiseJSONURL)).then(function(spectra){
-            var key
-            //console.log(spectra[1])
-            for(key in spectra[0]){
-                if(key != 'metadata')
-                    dataStore.viewer.addData(key, spectra[0][key]);
-                else
-                    dataStore.metadata = JSON.parse(JSON.stringify(spectra[0].metadata));
+    Promise.all(queries.map(promiseJSONURL)
+        ).then(
+            spectraCallback
+        ).then(
+            dataStore.ODBrequests.map(promiseScript)
+        ).then(
+            function(){
+            if(typeof fetchCallback === "function"){
+                fetchCallback();
             }
-    }).then(dataStore.ODBrequests.map(promiseScript)).then(function(){
-        if(typeof fetchCallback === "function"){
-            fetchCallback();
-        }
-    })
-
+        })
 }
 
 function startRefreshLoop(){
