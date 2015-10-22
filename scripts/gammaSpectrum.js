@@ -320,7 +320,7 @@ function spectrumViewer(canvasID){
 		this.drawCallback();
 
 		// Pause for some time and then recall this function to refresh the data display
-		if(this.RefreshTime>0 && RefreshNow==1) this.refreshHandler = setTimeout(function(){plotData(1, 'true')},this.RefreshTime*1000); 	
+		//if(this.RefreshTime>0 && RefreshNow==1) this.refreshHandler = setTimeout(function(){plotData(1, 'true')},this.RefreshTime*1000); 	
 	};
 
 	//handle drag-to-zoom on the plot
@@ -550,7 +550,7 @@ function spectrumViewer(canvasID){
 
 	//stick a gaussian on top of the spectrum fitKey between the fit limits
 	this.fitData = function(fitKey){
-		var cent, fitdata, i, max, width, x, y, height;
+		var cent, fitdata, i, max, width, x, y, height, bkg, bins;
 		var fitLine, fitter;
 
 		//suspend the refresh
@@ -590,18 +590,31 @@ function spectrumViewer(canvasID){
 
 		cent=cent+this.FitLimitLower+0.5;
 
+		//guess flat background
+		bkg = 0
+		bins = []
+		for(i=0; i<fitdata.length; i++){
+			bins[i] = i
+		}
+		bins = this.scrubPeaks(bins, this.plotBuffer[fitKey].slice(this.FitLimitLower, this.FitLimitUpper+1))
+		for(i=0; i<bins[1].length; i++){
+			bkg +=  bins[1][i]
+		}
+		bkg /= bins[1].length;
+		
 		//use the new prototype fitting package to do a maximum likelihood gaussian fit:
 		if(this.MLfit){
 			fitter = new histofit();
 			for(i=this.FitLimitLower; i<=this.FitLimitUpper; i++)
 				fitter.x[i-this.FitLimitLower] = i+0.5;
 			fitter.y=fitdata;
-			fitter.fxn = function(x, par){return par[0]*Math.exp(-1*(((x-par[1])*(x-par[1]))/(2*par[2]*par[2])))};
-			fitter.guess = [max, cent, width];
+			fitter.fxn = function(x, par){return par[3] + par[0]*Math.exp(-1*(((x-par[1])*(x-par[1]))/(2*par[2]*par[2])))};
+			fitter.guess = [max, cent, width, bkg];
 			fitter.fitit();
 			max = fitter.param[0];
 			cent = fitter.param[1];
-			width = fitter.param[2];		
+			width = fitter.param[2];
+			bkg = fitter.param[3];	
 		}
 
 		//set up canvas for drawing fit line
@@ -612,7 +625,8 @@ function spectrumViewer(canvasID){
 		for(i=0;i<fitdata.length;i+=0.2){
 			//draw fit line on canvas:
 			x=i+this.FitLimitLower;
-			y = max*Math.exp(-1*(((x-cent)*(x-cent))/(2*width*width)));
+			y = max*Math.exp(-1*(((x-cent)*(x-cent))/(2*width*width))) + bkg; 
+
 			if(i!=0){
 				if(this.AxisType == 0){
 					fitLine.graphics.lt( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
@@ -622,6 +636,15 @@ function spectrumViewer(canvasID){
 					if(height<0) height = 0;
 					fitLine.graphics.lt( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
 				}
+			} else{
+				if(this.AxisType == 0){
+					fitLine.graphics.mt( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
+				} else if(this.AxisType == 1){
+					if(y<=0) height = 0;
+					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
+					if(height<0) height = 0;
+					fitLine.graphics.mt( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
+				}				
 			}
 		}
 
