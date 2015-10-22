@@ -93,7 +93,7 @@ function getSpectrumList(spectra){
 
 function fetchCallback(){
     //fires after all data has been updated
-    dataStore.viewer.plotData();
+    dataStore.viewer.plotData(true);
 }
 
 ////////////////////////////////////////////

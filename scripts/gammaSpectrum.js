@@ -229,9 +229,11 @@ function spectrumViewer(canvasID){
 		this.entries = {};
 		var text, histLine;
 		
-		//abandon the fit when re-drawing the plot
-		this.fitted = false;
-		this.containerFit.removeAllChildren();
+		//abandon the fit when redrawing, except on refresh
+		if(!RefreshNow){
+			this.fitted = false;
+			this.containerFit.removeAllChildren();
+		}
 
 		//get the axes right
 		this.chooseLimits();	
