@@ -201,6 +201,20 @@ function subtractHistograms(h0, h1){
 
 }
 
+function RCS(data, theory, parameters){
+    //return the reduced chi^2 for an array of data compared to an array of corresponding theory predictions
+    //assume variance on data = data (ie, poissonian counting error)
+    //parameters == number of fitted parameters
+
+    var i, rcs = 0;
+
+    for(i=0; i<data.length; i++){
+        rcs += Math.pow(data[i] - theory[i],2) / data[i]
+    }
+
+    return rcs / (data.length - parameters - 1);
+}
+
 // attach the .equals method to Array's prototype to call it on any array
 // thanks http://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
 Array.prototype.equals = function (array) {
