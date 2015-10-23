@@ -268,14 +268,24 @@ function chooseFitTarget(id){
 }
 
 //callback for peak fit
-function fitCallback(center, width){
+function fitCallback(center, width, amplitude, intercept, slope){
     var spectrum = dataStore.viewer.fitTarget,
-        reportDiv = document.getElementById(spectrum+'FitResult');
+        reportDiv = document.getElementById(spectrum+'FitResult'),
+        integral = 0,
+        functionVals = [],
+        i, x, sigmas = 5, stepSize = 0.01;
 
     if(reportDiv.innerHTML == '-')
         reportDiv.innerHTML = '';
 
-    reportDiv.innerHTML += 'Center: ' + center.toFixed(2) + ', Width: ' + width.toFixed(2) + '<br>';
+    //calculate peak area in excess of background, for <sigmas> up and down.
+    for(i=0; i<2*sigmas*width/stepSize; i++){
+        x = center - sigmas*width + i*stepSize
+        functionVals.push( gauss(amplitude, center, width, x)*stepSize )
+        integral = functionVals.integrate()
+    }
+
+    reportDiv.innerHTML += 'Center: ' + center.toFixed(2) + ', SD: ' + width.toFixed(2) + ', Area: ' + integral.toFixed(2) + '<br>';
 
     toggleFitMode()
     dataStore.viewer.leaveFitMode();

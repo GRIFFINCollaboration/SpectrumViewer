@@ -215,6 +215,10 @@ function RCS(data, theory, parameters){
     return rcs / (data.length - parameters - 1);
 }
 
+function gauss(amplitude, center, width, x){
+    return amplitude*Math.exp(-1*(x-center)*(x-center)/2/width/width);
+}
+
 // attach the .equals method to Array's prototype to call it on any array
 // thanks http://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
 Array.prototype.equals = function (array) {
@@ -253,6 +257,11 @@ Array.prototype.zero = function(){
 //sum the elements in an array from [x0, x1)
 Array.prototype.integrate = function(x0, x1){
     var i, sum = 0
+
+    if(!x0)
+        x0 = 0
+    if(!x1)
+        x1 = this.length
 
     for(i=x0; i<x1; i++)
         sum += this[i]

@@ -75,7 +75,7 @@ function spectrumViewer(canvasID){
 	this.fitModeEngage = false; //are we currently fitting the spectrum?
 	this.FitLimitLower = -1; //fitting limits
 	this.FitLimitUpper = -1;
-	this.fitCallback = function(){}; //callback to run after fitting, arguments are (center, width)
+	this.fitCallback = function(){}; //callback to run after fitting, arguments are (center, width, amplitude, linear background intercept, slope)
 	this.MLfit = true; //do a maximum likelihood fit for putting gaussians on peaks; otherwise fit just estimates gaussian form mode and half-max
 
     //cursors
@@ -661,7 +661,7 @@ function spectrumViewer(canvasID){
 		this.fitted=1;
 		this.fitModeEngage = 0;
 
-		this.fitCallback(cent, width);
+		this.fitCallback(cent, width, max, estimate[0], estimate[1]);
 	};
 
 	//dump the fit results
