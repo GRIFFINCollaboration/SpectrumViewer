@@ -550,7 +550,7 @@ function spectrumViewer(canvasID){
 
 	//stick a gaussian on top of the spectrum fitKey between the fit limits
 	this.fitData = function(fitKey){
-		var cent, fitdata, i, max, width, x, y, height, bkg, bins;
+		var cent, fitdata, i, max, width, x, y, height, bkg, bins, x, y, estimate;
 		var fitLine, fitter;
 
 		//suspend the refresh
@@ -590,17 +590,18 @@ function spectrumViewer(canvasID){
 
 		cent=cent+this.FitLimitLower+0.5;
 
-		//guess flat background
-		bkg = 0
-		bins = []
-		for(i=0; i<fitdata.length; i++){
-			bins[i] = i
+		//prefit straight bkg
+		x = []
+		y = []
+		for(i=this.FitLimitLower-5; i<this.FitLimitLower; i++){
+			x.push(i)
+			y.push(this.plotBuffer[fitKey][i]) 
 		}
-		bins = this.scrubPeaks(bins, this.plotBuffer[fitKey].slice(this.FitLimitLower, this.FitLimitUpper+1))
-		for(i=0; i<bins[1].length; i++){
-			bkg +=  bins[1][i]
+		for(i=this.FitLimitUpper; i<this.FitLimitUpper+5; i++){
+			x.push(i)
+			y.push(this.plotBuffer[fitKey][i]) 
 		}
-		bkg /= bins[1].length;
+		estimate = this.linearBKG(x,y)
 		
 		//use the new prototype fitting package to do a maximum likelihood gaussian fit:
 		if(this.MLfit){
@@ -608,13 +609,12 @@ function spectrumViewer(canvasID){
 			for(i=this.FitLimitLower; i<=this.FitLimitUpper; i++)
 				fitter.x[i-this.FitLimitLower] = i+0.5;
 			fitter.y=fitdata;
-			fitter.fxn = function(x, par){return par[3] + par[0]*Math.exp(-1*(((x-par[1])*(x-par[1]))/(2*par[2]*par[2])))};
-			fitter.guess = [max, cent, width, bkg];
+			fitter.fxn = function(intercept, slope, x, par){return intercept + slope*x + par[0]*Math.exp(-1*(((x-par[1])*(x-par[1]))/(2*par[2]*par[2])))}.bind(null, estimate[0], estimate[1]);
+			fitter.guess = [max, cent, width];
 			fitter.fitit();
 			max = fitter.param[0];
 			cent = fitter.param[1];
 			width = fitter.param[2];
-			bkg = fitter.param[3];	
 		}
 
 		//set up canvas for drawing fit line
@@ -625,7 +625,7 @@ function spectrumViewer(canvasID){
 		for(i=0;i<fitdata.length;i+=0.2){
 			//draw fit line on canvas:
 			x=i+this.FitLimitLower;
-			y = max*Math.exp(-1*(((x-cent)*(x-cent))/(2*width*width))) + bkg; 
+			y = max*Math.exp(-1*(((x-cent)*(x-cent))/(2*width*width))) + estimate[0] + estimate[1]*x; 
 
 			if(i!=0){
 				if(this.AxisType == 0){

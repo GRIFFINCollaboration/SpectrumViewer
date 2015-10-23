@@ -25,7 +25,7 @@ function pageLoad(){
 
     //set up plots
     var spectraNames = generateEnergySpectraNames(dataStore.GRIFFINdetectors);
-    //dummy 'viewer' for refresh plots to go look in
+    //dummy 'viewer' for refreshPlots to go look in
     dataStore.viewer = {'plotBuffer': {}};
     for(i=0; i<spectraNames.length; i++){
         dataStore.viewer.plotBuffer[spectraNames[i]] = []
