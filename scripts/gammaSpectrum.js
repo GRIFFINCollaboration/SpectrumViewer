@@ -554,9 +554,12 @@ function spectrumViewer(canvasID){
 	}
 
 	//stick a gaussian on top of the spectrum fitKey between the fit limits
-	this.fitData = function(fitKey){
+	this.fitData = function(fitKey, retries){
 		var cent, fitdata, i, max, width, x, y, height, bkg, bins, x, y, estimate;
 		var fitLine, fitter;
+
+		if(!retries)
+			retries = 0;
 
 		//suspend the refresh
 		window.clearTimeout(this.refreshHandler);
@@ -620,6 +623,14 @@ function spectrumViewer(canvasID){
 			max = fitter.param[0];
 			cent = fitter.param[1];
 			width = fitter.param[2];
+		}
+
+		//check if the fit failed, and redo with slightly nudged fit limits
+		if( (!max || !cent || !width) && retries<10){
+			this.FitLimitLower--;
+			this.FitLimitUpper++;
+			this.fitData(fitKey, retries+1);
+			return
 		}
 
 		//set up canvas for drawing fit line
@@ -753,6 +764,11 @@ function spectrumViewer(canvasID){
 		fitter.fxn = function(x, par){return par[0] + x*par[1]};
 		fitter.guess = [intercept, slope];
 		fitter.fitit();
+
+		//if the fit fails, fall back to simple line:
+		if(!fitter.param[0] || !fitter.param[1])
+			return fitter.simpleLine(x,y)
+
 		return fitter.param		
 	}
 
