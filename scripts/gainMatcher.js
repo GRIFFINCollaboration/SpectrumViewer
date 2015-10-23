@@ -1,7 +1,35 @@
 function dataSetup(data){
 
+    var i, groups = []
+
+    for(i=1; i<17; i++){
+        groups.push({
+            "groupID": 'GRG' + alwaysThisLong(i, 2),
+            "groupTitle": 'GRIFFIN ' + alwaysThisLong(i, 2),
+            "plots": [
+                {
+                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'BN00A', 
+                    "title": 'GRG' + alwaysThisLong(i, 2) + 'BN00A'
+                },
+                {
+                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'GN00A', 
+                    "title": 'GRG' + alwaysThisLong(i, 2) + 'GN00A'
+                },
+                {
+                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'RN00A', 
+                    "title": 'GRG' + alwaysThisLong(i, 2) + 'RN00A'
+                },
+                {
+                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'WN00A', 
+                    "title": 'GRG' + alwaysThisLong(i, 2) + 'WN00A'
+                }
+            ]
+        })
+    }
+
     return {
-        "detectors" :  dataStore.GRIFFINdetectors
+        "detectors" : dataStore.GRIFFINdetectors,
+        "groups": groups
     }
 
 }
@@ -37,15 +65,34 @@ function fetchCallback(){
 
     var i, j, keys = Object.keys(dataStore.rawData);
 
+    //create a real spectrum viewer
+    createFigure()
+    setupFigureControl();
+    dataStore.viewer.fitCallback = fitCallback;
+    //keep the plot list the same height as the plot region
+    document.getElementById('plotMenu').style.height = document.getElementById('plotWrap').offsetHeight + 'px';
+
     for(i=0; i<keys.length; i++){
+
         //identify regions of interest on all plots
         guessPeaks(keys[i], dataStore.rawData[keys[i]])
 
-        //fit in ROIs
-        dataStore.fitResults[keys[i]] = [
-            gaussianFit(dataStore.rawData[keys[i]], dataStore.ROI[keys[i]].ROIlower[0], dataStore.ROI[keys[i]].ROIlower[1]),
-            gaussianFit(dataStore.rawData[keys[i]], dataStore.ROI[keys[i]].ROIupper[0], dataStore.ROI[keys[i]].ROIupper[1])
-        ]
+        dataStore.viewer.addData(keys[i], JSON.parse(JSON.stringify(dataStore.rawData[keys[i]])) )
+        dataStore.viewer.plotData() //kludge to update limits, could be nicer
+
+        //first peak
+        dataStore.viewer.FitLimitLower = dataStore.ROI[keys[i]].ROIlower[0]
+        dataStore.viewer.FitLimitUpper = dataStore.ROI[keys[i]].ROIlower[1]
+
+        dataStore.viewer.fitData(keys[i], 0);
+        dataStore.fitResults[keys[i]] = [dataStore.latestFit]
+
+        //second peak
+        dataStore.viewer.FitLimitLower = dataStore.ROI[keys[i]].ROIupper[0]
+        dataStore.viewer.FitLimitUpper = dataStore.ROI[keys[i]].ROIupper[1]
+        dataStore.viewer.fitData(keys[i], 0);
+        dataStore.fitResults[keys[i]].push(dataStore.latestFit)
+        dataStore.viewer.removeData(keys[i]);        
 
         //estimate goodness of fit
         for(j=0; j<2; j++){
@@ -57,21 +104,23 @@ function fetchCallback(){
                 )
             )
         }
-
-
     }
 
     updateTable()
 }
 
+function fitCallback(center, width, amplitude, intercept, slope){
+    dataStore.latestFit = [amplitude, center, width, intercept, slope]
+}
+
 function evalGauss(min, max, params){
     //return an array of gaussian + linear bkg evaluations at the center of each bin on [min,max).
-    //parameters == [amplitude, center, sigma, slope, intercept]
+    //parameters == [amplitude, center, sigma, intercept, slope]
 
     var i, theory = []
 
     for(i=min; i<max; i++){
-        theory.push(params[0]*Math.exp(-1*Math.pow((i+0.5-params[1]),2) / 2 / params[2]*params[2]) + params[4] + params[3]*(i+0.5));
+        theory.push(params[0]*Math.exp(-1*Math.pow((i+0.5-params[1]),2) / 2 / params[2]*params[2]) + params[3] + params[4]*(i+0.5));
     }
 
     return theory;
@@ -91,6 +140,13 @@ function updateTable(){
     }
 }
 
+function calculateLine(lowBin, highBin){
+    //given the positions of the low bin and high bin, return [intercept, slope] defining
+    //a striaght calibration line using the energies reported in the input.
+
+    
+}
+
 function generateEnergySpectraNames(detectors){
     //generate an array of spectra names for the detectors listed.
 
@@ -99,56 +155,6 @@ function generateEnergySpectraNames(detectors){
             return elt + '_Energy'
         }
     )
-}
-
-function gaussianFit(fitData, lowerLimit, upperLimit){
-    //fits a gaussian + linear background to fitData (array of bin heights) on bin numbers [lowerLimit, upperLimit]
-    //returns an array [amplitude, center, width, slope, intercept]
-
-    var fitter, i, amplitude, center, width, slope, intercept;
-
-    fitter = new histofit();
-    for(i=lowerLimit; i<=upperLimit; i++)
-        fitter.x[i-lowerLimit] = i+0.5;
-    fitter.y=fitData.slice(lowerLimit, upperLimit+1);
-    fitter.fxn = function(x, par){return par[0]*Math.exp(-1*(((x-par[1])*(x-par[1]))/(2*par[2]*par[2]))) + par[4] + x*par[3] };
-    fitter.guess = gaussianGuess(fitData, lowerLimit, upperLimit).concat([0, fitData.integrate(lowerLimit, upperLimit) / (upperLimit - lowerLimit)]);
-    fitter.fitit();
-    amplitude = fitter.param[0];
-    center = fitter.param[1];
-    width = fitter.param[2];
-    slope = fitter.param[3];
-    intercept = fitter.param[4];
-
-    return [amplitude, center, width, slope, intercept]
-}
-
-function gaussianGuess(fitData, lowerLimit, upperLimit){
-    //guess the amplitude, center and width of a gaussian in fitData between lowerLimit and upperLimit
-    //return as array [amplitude, center, width]
-
-    var max=0, center=0, width, x,
-    localData = fitData.slice(lowerLimit, upperLimit);
-
-    max = Math.max( Math.max.apply(Math, localData, max ));    
-
-    while(localData[center]<max){
-        center++;
-    }
-
-    // estimate the width of the peak
-    x=center;
-    while(localData[x]>(max/2.0)) x--; 
-    width=x;
-    x=center;
-    while(localData[x]>(max/2.0)) x++; 
-    width=x-width;
-    if(width<1) width=1;
-    width/=2.35;
-
-    center += lowerLimit + 0.5;
-
-    return [max, center, width]
 }
 
 function guessPeaks(spectrumName, data){
@@ -196,7 +202,7 @@ dataStore.GRIFFINdetectors = [
         'GRG01BN00A',
         'GRG01GN00A',
         'GRG01RN00A',
-        'GRG01WN00A',
+        'GRG01WN00A'/*,
         'GRG02BN00A',
         'GRG02GN00A',
         'GRG02RN00A',
@@ -256,5 +262,5 @@ dataStore.GRIFFINdetectors = [
         'GRG16BN00A',
         'GRG16GN00A',
         'GRG16RN00A',
-        'GRG16WN00A'
+        'GRG16WN00A'*/
     ]

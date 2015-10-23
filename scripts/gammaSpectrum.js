@@ -571,7 +571,6 @@ function spectrumViewer(canvasID){
 		max=1;
 
 		fitdata=this.plotBuffer[fitKey];
-
 		fitdata=fitdata.slice(this.FitLimitLower, this.FitLimitUpper+1);
 
 		// Find maximum Y value in the fit data
@@ -610,7 +609,7 @@ function spectrumViewer(canvasID){
 			y.push(this.plotBuffer[fitKey][i]) 
 		}
 		estimate = this.linearBKG(x,y)
-		
+
 		//use the new prototype fitting package to do a maximum likelihood gaussian fit:
 		if(this.MLfit){
 			fitter = new histofit();

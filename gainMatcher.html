@@ -22,11 +22,21 @@
 
             {{> gainMatchControl}}
 
+            <!--Plotting-->
+            <div id='plotRegion' class='sectionWrapper'>
+                <div id='plotWrap' class='col-md-8 item plotRegion'>
+                    {{> plotSpectra}}
+                </div>
+                <div id='plotMenu' class='col-md-3 item plotSelector'>
+                    {{> plotSelector}}
+                </div>
+            </div>
+
             {{> footer}}
         </script>
 
         <script type='text/javascript'>
-            spectrumViewerUL = new ultralight(['header', 'footer', 'gainMatchControl'], dataSetup, pageLoad)
+            spectrumViewerUL = new ultralight(['header', 'footer', 'gainMatchControl', 'plotSpectra', 'plotSelector'], dataSetup, pageLoad)
             spectrumViewerUL.fetchTemplates();
         </script>
 
