@@ -159,6 +159,10 @@ td.uiCol{
     width: 6em;
 }
 
+td.zeroRow{
+    color: #000000;
+}
+
 div.swatch{
     width: 3em;
     height: 1em;

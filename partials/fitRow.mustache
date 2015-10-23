@@ -7,7 +7,12 @@
         <input id='{{spectrum}}Radio' type='radio' checked name='fitTarget' value='{{spectrum}}' onclick='chooseFitTarget("{{spectrum}}")'></input>
     </td>
     <td id='{{spectrum}}FitResult'>-</td>
-    <td class='uiCol'>
+    <td class='uiCol center'>
+        <button type="button" class="btn btn-default zeroRow" id='zero{{spectrum}}' value='{{spectrum}}'>
+          <span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>
+        </button>
+    </td>    
+    <td class='uiCol center'>
         <button type="button" class="btn btn-default deleteRow" id='delete{{spectrum}}' value='{{spectrum}}'>
           <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
         </button>

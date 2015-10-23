@@ -259,3 +259,11 @@ Array.prototype.integrate = function(x0, x1){
 
     return sum;
 }
+
+//fill an array with n copies of value
+Array.prototype.fill = function(value, n){
+    var i;
+    console.log(value, n)
+    for(i=0; i<n; i++)
+        this[i] = value
+}

@@ -5,7 +5,8 @@
 function setupDataStore(){
     dataStore = {}
     dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/'
-    dataStore.ODBrequests = []
+    dataStore.ODBrequests = ['http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/Runinfo/Run number&encoding=json-p-nokeys&callback=parseODB'];
+    dataStore.zeroedPlots = {}
     //what order to display groups of plots in on the plot menu:
     dataStore.listOrder = {
         'HIT': 0,
@@ -141,7 +142,7 @@ function setupFitting(){
 //////////////////////////////////
 
 function toggleData(){
-    var html, node, rows, deleteButtons, i;
+    var html, node, rows, deleteButtons, zeroButtons, i;
 
     //data present, remove it
     if(dataStore.viewer.plotBuffer[this.id]){ 
@@ -171,10 +172,14 @@ function toggleData(){
         //generate html for fit table and add it
         html = Mustache.to_html(spectrumViewerUL.partials['fitRow'], {'spectrum': this.id, 'color': dataStore.viewer.dataColor[dataStore.viewer.colorAssignment.indexOf(this.id)]});
         document.getElementById('fitTable').getElementsByTagName('tbody')[0].innerHTML += html;
-        //have to re-set up all delete buttons after modifying table html
+        //have to re-set up all delete & zero buttons after modifying table html
         deleteButtons = document.getElementsByClassName('deleteRow')
         for(i=0; i<deleteButtons.length; i++){
             deleteButtons[i].onclick = toggleData.bind(document.getElementById(deleteButtons[i].value));
+        }
+        zeroButtons = document.getElementsByClassName('zeroRow')
+        for(i=0; i<zeroButtons.length; i++){
+            zeroButtons[i].onclick = zeroPlot.bind(zeroButtons[i]);
         }
 
         //default: target fitting at new spectrum.
@@ -212,6 +217,26 @@ function deleteAllPlots(){
 
     while(deleteButtons.length > 0){
         deleteButtons[0].onclick(); //actually modifies deleteButtons in place - keep deleting zeroth element.
+    }
+}
+
+function zeroPlot(){
+    //callback for button to zero plot named at this.value.
+    var spectrumID = this.value;
+
+    dataStore.viewer.baselines[spectrumID] = dataStore.viewer.plotBuffer[spectrumID];
+    dataStore.viewer.plotData();
+}
+
+function parseODB(payload){
+    //keep track of the current run number
+
+    dataStore.currentRun = payload[0]['Run number']
+
+    //dump all spectra zeroing on run change
+    if(dataStore.currentRun != dataStore.lastRun){
+        dataStore.viewer.baselines = {}
+        dataStore.lastRun = dataStore.currentRun
     }
 }
 
