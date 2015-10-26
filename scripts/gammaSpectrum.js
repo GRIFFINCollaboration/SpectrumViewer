@@ -77,6 +77,10 @@ function spectrumViewer(canvasID){
 	this.FitLimitUpper = -1;
 	this.fitCallback = function(){}; //callback to run after fitting, arguments are (center, width, amplitude, linear background intercept, slope)
 	this.MLfit = true; //do a maximum likelihood fit for putting gaussians on peaks; otherwise fit just estimates gaussian form mode and half-max
+	// mask so fits only appear in plot area (ie don't overflow the axes)
+	this.fitMask = new createjs.Shape();
+	this.fitMask.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin).lt(this.leftMargin, this.topMargin).lt(this.canvas.width - this.rightMargin, this.topMargin).lt(this.canvas.width-this.rightMargin, this.canvas.height - this.bottomMargin).closePath();
+	this.containerFit.mask = this.fitMask;
 
     //cursors
     this.cursorX = 0; //x-bin of cursor
@@ -555,7 +559,7 @@ function spectrumViewer(canvasID){
 
 	//stick a gaussian on top of the spectrum fitKey between the fit limits
 	this.fitData = function(fitKey, retries){
-		var cent, fitdata, i, max, width, x, y, height, bkg, bins, x, y, estimate;
+		var cent, fitdata, i, max, width, x, y, height, bkg, bins, estimate;
 		var fitLine, fitter;
 
 		if(!retries)
@@ -632,37 +636,7 @@ function spectrumViewer(canvasID){
 			return
 		}
 
-		//set up canvas for drawing fit line
-		fitLine = new createjs.Shape();
-		fitLine.graphics.ss(3).s('#FF0000');
-		fitLine.graphics.mt( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - max*Math.exp(-1*(((this.FitLimitLower-cent)*(this.FitLimitLower-cent))/(2*width*width)))*this.countHeight);
-		
-		for(i=0;i<fitdata.length;i+=0.2){
-			//draw fit line on canvas:
-			x=i+this.FitLimitLower;
-			y = max*Math.exp(-1*(((x-cent)*(x-cent))/(2*width*width))) + estimate[0] + estimate[1]*x; 
-
-			if(i!=0){
-				if(this.AxisType == 0){
-					fitLine.graphics.lt( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
-				} else if(this.AxisType == 1){
-					if(y<=0) height = 0;
-					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
-					if(height<0) height = 0;
-					fitLine.graphics.lt( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
-				}
-			} else{
-				if(this.AxisType == 0){
-					fitLine.graphics.mt( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
-				} else if(this.AxisType == 1){
-					if(y<=0) height = 0;
-					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
-					if(height<0) height = 0;
-					fitLine.graphics.mt( this.leftMargin + (this.FitLimitLower-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
-				}				
-			}
-		}
-
+		fitLine = this.addFitLine(this.FitLimitLower, fitdata.length, max, cent, width, estimate[0], estimate[1])
 
 		this.containerPersistentOverlay.removeAllChildren();
 		this.containerFit.addChild(fitLine);
@@ -673,6 +647,48 @@ function spectrumViewer(canvasID){
 
 		this.fitCallback(cent, width, max, estimate[0], estimate[1]);
 	};
+
+	this.addFitLine = function(lowerLimit, nPoints, amplitude, center, width, intercept, slope){
+		//returns a createjs.Shape representing a background fit with the given parameters
+
+		var i, x, y, height, fitLine = new createjs.Shape();
+		fitLine.graphics.ss(3).s('#FF0000');
+		fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - this.bkgShape(lowerLimit, amplitude, center, width, intercept, slope)*this.countHeight);
+		
+		for(i=0;i<nPoints;i+=0.2){
+			//draw fit line on canvas:
+			x = i+lowerLimit;
+			y = this.bkgShape(x, amplitude, center, width, intercept, slope) 
+
+			if(i!=0){
+				if(this.AxisType == 0){
+					fitLine.graphics.lt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
+				} else if(this.AxisType == 1){
+					if(y<=0) height = 0;
+					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
+					if(height<0) height = 0;
+					fitLine.graphics.lt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
+				}
+			} else{
+				if(this.AxisType == 0){
+					fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
+				} else if(this.AxisType == 1){
+					if(y<=0) height = 0;
+					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
+					if(height<0) height = 0;
+					fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
+				}				
+			}
+		}
+
+		return fitLine;
+	}
+
+	this.bkgShape = function(x, amplitude, center, width, intercept, slope){
+		//evaluate a gaussian + linear background at x
+
+		return intercept + slope*x + amplitude*Math.exp(-1*(x-center)*(x-center)/2/width/width);
+	}
 
 	//dump the fit results
 	this.clearFits = function(callback){

@@ -58,10 +58,70 @@ function pageLoad(){
     for(i=0; i<spectraNames.length; i++){
         dataStore.viewer.plotBuffer[spectraNames[i]] = []
     }
-    refreshPlots()
+    refreshPlots();
+
+    //set up clickable list items in plot selection
+    (function() {
+        var plots = document.getElementById('plotMenu').getElementsByTagName('li'), 
+        i;
+
+        for (i=0; i < plots.length; i++) {
+            plots[i].onclick = toggleData;
+        }
+    })();
+}
+
+function toggleData(){
+    //callback for selecting a new plot
+
+    var plotKey = this.id + '_Energy';
+
+    //dump old data, add new
+    dataStore.viewer.removeData(dataStore.currentPlot);
+    dataStore.viewer.addData(plotKey, JSON.parse(JSON.stringify(dataStore.rawData[plotKey])) );
+    dataStore.currentPlot = plotKey;
+
+    dataStore.viewer.plotData();
+
+    addFitLines();
+
+}
+
+function addFitLines(){
+    //add current fits to the plot
+
+    var lower, upper;
+
+    dataStore.viewer.containerFit.removeAllChildren();
+
+    //add fit lines
+    lower = dataStore.viewer.addFitLine(
+                dataStore.ROI[dataStore.currentPlot].ROIlower[0], 
+                dataStore.ROI[dataStore.currentPlot].ROIlower[1] - dataStore.ROI[dataStore.currentPlot].ROIlower[0], 
+                dataStore.fitResults[dataStore.currentPlot][0][0], 
+                dataStore.fitResults[dataStore.currentPlot][0][1], 
+                dataStore.fitResults[dataStore.currentPlot][0][2], 
+                dataStore.fitResults[dataStore.currentPlot][0][3], 
+                dataStore.fitResults[dataStore.currentPlot][0][4]
+            );
+
+    upper = dataStore.viewer.addFitLine(
+                dataStore.ROI[dataStore.currentPlot].ROIupper[0], 
+                dataStore.ROI[dataStore.currentPlot].ROIupper[1] - dataStore.ROI[dataStore.currentPlot].ROIupper[0], 
+                dataStore.fitResults[dataStore.currentPlot][1][0], 
+                dataStore.fitResults[dataStore.currentPlot][1][1], 
+                dataStore.fitResults[dataStore.currentPlot][1][2], 
+                dataStore.fitResults[dataStore.currentPlot][1][3], 
+                dataStore.fitResults[dataStore.currentPlot][1][4]
+            );
+    dataStore.viewer.containerFit.addChild(lower)
+    dataStore.viewer.containerFit.addChild(upper)
+
+    dataStore.viewer.stage.update();
 }
 
 function fetchCallback(){
+    //after data has arrived, set up spectrum viewer and perform the inital fits.
 
     var i, j, keys = Object.keys(dataStore.rawData);
 
@@ -69,6 +129,7 @@ function fetchCallback(){
     createFigure()
     setupFigureControl();
     dataStore.viewer.fitCallback = fitCallback;
+
     //keep the plot list the same height as the plot region
     document.getElementById('plotMenu').style.height = document.getElementById('plotWrap').offsetHeight + 'px';
 
@@ -78,6 +139,7 @@ function fetchCallback(){
         guessPeaks(keys[i], dataStore.rawData[keys[i]])
 
         dataStore.viewer.addData(keys[i], JSON.parse(JSON.stringify(dataStore.rawData[keys[i]])) )
+        dataStore.currentPlot = keys[i];
         dataStore.viewer.plotData() //kludge to update limits, could be nicer
 
         //first peak
@@ -91,8 +153,9 @@ function fetchCallback(){
         dataStore.viewer.FitLimitLower = dataStore.ROI[keys[i]].ROIupper[0]
         dataStore.viewer.FitLimitUpper = dataStore.ROI[keys[i]].ROIupper[1]
         dataStore.viewer.fitData(keys[i], 0);
-        dataStore.fitResults[keys[i]].push(dataStore.latestFit)
-        dataStore.viewer.removeData(keys[i]);        
+        dataStore.fitResults[keys[i]].push(dataStore.latestFit);
+        if(i<keys.length-1) 
+            dataStore.viewer.removeData(keys[i]);        
 
         //estimate goodness of fit
         for(j=0; j<2; j++){
@@ -106,7 +169,9 @@ function fetchCallback(){
         }
     }
 
+    //write results to table and set up fit line re-drawing
     updateTable()
+    dataStore.viewer.drawCallback = addFitLines;
 }
 
 function fitCallback(center, width, amplitude, intercept, slope){
@@ -144,7 +209,7 @@ function calculateLine(lowBin, highBin){
     //given the positions of the low bin and high bin, return [intercept, slope] defining
     //a striaght calibration line using the energies reported in the input.
 
-    
+
 }
 
 function generateEnergySpectraNames(detectors){
