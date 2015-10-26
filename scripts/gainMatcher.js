@@ -69,6 +69,13 @@ function pageLoad(){
             plots[i].onclick = toggleData;
         }
     })();
+
+    document.getElementById('fitLow').onclick = toggleFitMode
+    document.getElementById('fitHigh').onclick = toggleFitMode
+    document.getElementById('calibrationSource').onchange = updateEnergies
+    document.getElementById('peak1').onchange = customEnergy
+    document.getElementById('peak2').onchange = customEnergy
+
 }
 
 function toggleData(){
@@ -79,12 +86,34 @@ function toggleData(){
     //dump old data, add new
     dataStore.viewer.removeData(dataStore.currentPlot);
     dataStore.viewer.addData(plotKey, JSON.parse(JSON.stringify(dataStore.rawData[plotKey])) );
+    dataStore.viewer.fitTarget = plotKey;
     dataStore.currentPlot = plotKey;
 
     dataStore.viewer.plotData();
 
     addFitLines();
 
+}
+
+function toggleFitMode(){
+    //manage the state of the Fit Mode button, and the corresponding state of the viewer.
+
+    if(parseInt(this.getAttribute('engaged'),10) == 0){
+        dataStore.viewer.setupFitMode();
+        this.setAttribute('engaged', 1);
+    }
+    else{
+        dataStore.viewer.leaveFitMode();
+        this.setAttribute('engaged', 0);
+    }
+
+    if(this.id == 'fitLow')
+        dataStore.currentPeak = 0
+    else
+        dataStore.currentPeak = 1
+
+    //toggle state indicator
+    //toggleHidden('fitInstructions')
 }
 
 function addFitLines(){
@@ -141,41 +170,50 @@ function fetchCallback(){
         dataStore.viewer.addData(keys[i], JSON.parse(JSON.stringify(dataStore.rawData[keys[i]])) )
         dataStore.currentPlot = keys[i];
         dataStore.viewer.plotData() //kludge to update limits, could be nicer
+        dataStore.viewer.fitTarget = keys[i];
 
         //first peak
+        dataStore.currentPeak = 0
         dataStore.viewer.FitLimitLower = dataStore.ROI[keys[i]].ROIlower[0]
         dataStore.viewer.FitLimitUpper = dataStore.ROI[keys[i]].ROIlower[1]
-
         dataStore.viewer.fitData(keys[i], 0);
-        dataStore.fitResults[keys[i]] = [dataStore.latestFit]
-
+        
         //second peak
+        dataStore.currentPeak = 1
         dataStore.viewer.FitLimitLower = dataStore.ROI[keys[i]].ROIupper[0]
         dataStore.viewer.FitLimitUpper = dataStore.ROI[keys[i]].ROIupper[1]
         dataStore.viewer.fitData(keys[i], 0);
-        dataStore.fitResults[keys[i]].push(dataStore.latestFit);
+        
+        //dump data so it doesn't stack up
         if(i<keys.length-1) 
             dataStore.viewer.removeData(keys[i]);        
 
-        //estimate goodness of fit
-        for(j=0; j<2; j++){
-            dataStore.fitResults[keys[i]][j].push(
-                RCS(
-                    dataStore.rawData[keys[i]].slice(dataStore.ROI[keys[i]].ROIlower[0], dataStore.ROI[keys[i]].ROIlower[1]),
-                    evalGauss(dataStore.ROI[keys[i]].ROIlower[0], dataStore.ROI[keys[i]].ROIlower[1], dataStore.fitResults[keys[i]][j]),
-                    3
-                )
-            )
-        }
+        updateTable(keys[i])
     }
 
-    //write results to table and set up fit line re-drawing
-    updateTable()
+    //set up fit line re-drawing
     dataStore.viewer.drawCallback = addFitLines;
+    //reset to first plot
+    document.getElementById(dataStore.GRIFFINdetectors[0]).onclick()
 }
 
 function fitCallback(center, width, amplitude, intercept, slope){
-    dataStore.latestFit = [amplitude, center, width, intercept, slope]
+
+    if(!dataStore.fitResults[dataStore.currentPlot])
+        dataStore.fitResults[dataStore.currentPlot] = [];
+
+    dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, center, width, intercept, slope]
+
+    if(dataStore.currentPeak == 0){
+        dataStore.ROI[dataStore.currentPlot].ROIlower[0] = dataStore.viewer.FitLimitLower;
+        dataStore.ROI[dataStore.currentPlot].ROIlower[1] = dataStore.viewer.FitLimitUpper;
+    } else {
+        dataStore.ROI[dataStore.currentPlot].ROIupper[0] = dataStore.viewer.FitLimitLower;
+        dataStore.ROI[dataStore.currentPlot].ROIupper[1] = dataStore.viewer.FitLimitUpper;
+    }
+
+    updateTable(dataStore.currentPlot)
+    dataStore.viewer.plotData();
 }
 
 function evalGauss(min, max, params){
@@ -191,17 +229,21 @@ function evalGauss(min, max, params){
     return theory;
 }
 
-function updateTable(){
+function updateTable(spectrum){
     //update the report table with whatever is currently in the dataStore
-    //recall dataStore.fitReults[plotTitle] = [[amplitude, center, width, slope, intercept, fitQuality],[...]], for [low energy, high energy].
+    //recall dataStore.fitReults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
+    var calibration
 
-    var i, keys = Object.keys(dataStore.fitResults);
+    if(Array.isArray(dataStore.fitResults[spectrum][0]))
+        document.getElementById(spectrum.slice(0,10) + 'chan1').innerHTML = dataStore.fitResults[spectrum][0][1].toFixed(3);
+    if(Array.isArray(dataStore.fitResults[spectrum][1]))
+        document.getElementById(spectrum.slice(0,10) + 'chan2').innerHTML = dataStore.fitResults[spectrum][1][1].toFixed(3);
 
-    for(i=0; i<keys.length; i++){
-        document.getElementById(keys[i].slice(0,10) + 'chan1').innerHTML = dataStore.fitResults[keys[i]][0][1].toFixed(3);
-        document.getElementById(keys[i].slice(0,10) + 'chan2').innerHTML = dataStore.fitResults[keys[i]][1][1].toFixed(3);
-        document.getElementById(keys[i].slice(0,10) + 'qual1').innerHTML = dataStore.fitResults[keys[i]][0][5].toFixed(3);
-        document.getElementById(keys[i].slice(0,10) + 'qual2').innerHTML = dataStore.fitResults[keys[i]][1][5].toFixed(3);
+    if(Array.isArray(dataStore.fitResults[spectrum][0]) && Array.isArray(dataStore.fitResults[spectrum][1])){
+        calibration = calculateLine(dataStore.fitResults[spectrum][0][1], dataStore.fitResults[spectrum][1][1]);
+        document.getElementById(spectrum.slice(0,10) + 'intercept').innerHTML = calibration[0].toFixed(3);
+        document.getElementById(spectrum.slice(0,10) + 'slope').innerHTML = calibration[1].toFixed(3);
+        dataStore.fitResults[spectrum][2] = calibration
     }
 }
 
@@ -209,6 +251,14 @@ function calculateLine(lowBin, highBin){
     //given the positions of the low bin and high bin, return [intercept, slope] defining
     //a striaght calibration line using the energies reported in the input.
 
+    var lowEnergy = document.getElementById('peak1').value
+    var highEnergy = document.getElementById('peak2').value
+    var slope, intercept;
+
+    slope = (lowEnergy - highEnergy) / (lowBin - highBin);
+    intercept = lowEnergy - slope*lowBin
+
+    return [intercept, slope]
 
 }
 
@@ -255,6 +305,41 @@ function guessPeaks(spectrumName, data){
         "ROIupper": ROIupper
     }
 
+}
+
+function updateEnergies(){
+    //callback for the calibration source dropdown; updates energy input boxes with standard values
+
+    var calibtationSource = getSelected(this.id);
+    var lowEnergy = document.getElementById('peak1');
+    var highEnergy = document.getElementById('peak2');
+    var i, keys = Object.keys(dataStore.fitResults)
+
+    if(calibtationSource == 'Co-60'){
+        lowEnergy.value = 1163
+        highEnergy.value = 1332
+    } else if(calibtationSource == 'Eu-152'){
+        lowEnergy.value = 121
+        highEnergy.value = 1408
+    }
+
+    //keep the calibrations updated
+    for(i=0; i<keys.length; i++){
+        updateTable(keys[i])
+    }
+}
+
+function customEnergy(){
+    //callback for changing the calibration energies to custom values
+    var i, keys = Object.keys(dataStore.fitResults)
+    var defaultSources = document.getElementById('calibrationSource')
+
+    defaultSources.value = 'custom'
+
+    //keep the calibrations updated
+    for(i=0; i<keys.length; i++){
+        updateTable(keys[i])
+    }
 }
 
 dataStore = {}

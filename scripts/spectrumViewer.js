@@ -67,7 +67,8 @@ function dataSetup(data){
     })
 
     return {
-        'groups': groups
+        'groups': groups,
+        'doUpdates': true
     }
 
 }

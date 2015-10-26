@@ -163,6 +163,10 @@ td.zeroRow{
     color: #000000;
 }
 
+div.refitButtons{
+    margin-top: 1em;
+}
+
 div.swatch{
     width: 3em;
     height: 1em;

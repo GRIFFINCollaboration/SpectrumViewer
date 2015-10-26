@@ -388,6 +388,7 @@ function spectrumViewer(canvasID){
 			if(this.fitModeEngage){
 				this.FitLimitLower = Math.min(this.clickBounds[0], this.clickBounds[1]);
 				this.FitLimitUpper = Math.max(this.clickBounds[0], this.clickBounds[1]);
+
 				this.fitData(this.fitTarget);
 			} else {  //zoom mode
 				//use the mouse drag function to achieve the same effect for clicking:

@@ -64,10 +64,12 @@ function setupFigureControl(){
         };
     }
 
-    //update interval select
-    document.getElementById('upOptions').onchange = startRefreshLoop;
-    //update now button
-    document.getElementById('upNow').onclick = refreshPlots;
+    if(document.getElementById('updateWrap')){
+        //update interval select
+        document.getElementById('upOptions').onchange = startRefreshLoop;
+        //update now button
+        document.getElementById('upNow').onclick = refreshPlots;
+    }
 
     //snap to waveform toggle
     //document.getElementById('snapToWaveform').onclick = waveformSnap;  
