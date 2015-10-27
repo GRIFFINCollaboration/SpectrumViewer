@@ -162,33 +162,9 @@ function fetchCallback(){
     //keep the plot list the same height as the plot region
     document.getElementById('plotMenu').style.height = document.getElementById('plotWrap').offsetHeight + 'px';
 
+    //fit all calibration peaks in all spectra
     for(i=0; i<keys.length; i++){
-
-        //identify regions of interest on all plots
-        guessPeaks(keys[i], dataStore.rawData[keys[i]])
-
-        dataStore.viewer.addData(keys[i], JSON.parse(JSON.stringify(dataStore.rawData[keys[i]])) )
-        dataStore.currentPlot = keys[i];
-        dataStore.viewer.plotData() //kludge to update limits, could be nicer
-        dataStore.viewer.fitTarget = keys[i];
-
-        //first peak
-        dataStore.currentPeak = 0
-        dataStore.viewer.FitLimitLower = dataStore.ROI[keys[i]].ROIlower[0]
-        dataStore.viewer.FitLimitUpper = dataStore.ROI[keys[i]].ROIlower[1]
-        dataStore.viewer.fitData(keys[i], 0);
-        
-        //second peak
-        dataStore.currentPeak = 1
-        dataStore.viewer.FitLimitLower = dataStore.ROI[keys[i]].ROIupper[0]
-        dataStore.viewer.FitLimitUpper = dataStore.ROI[keys[i]].ROIupper[1]
-        dataStore.viewer.fitData(keys[i], 0);
-        
-        //dump data so it doesn't stack up
-        if(i<keys.length-1) 
-            dataStore.viewer.removeData(keys[i]);        
-
-        updateTable(keys[i])
+        fitSpectra(keys[i]);
     }
 
     //set up fit line re-drawing
@@ -197,7 +173,40 @@ function fetchCallback(){
     document.getElementById(dataStore.GRIFFINdetectors[0]).onclick()
 }
 
+function fitSpectra(spectrum){
+    //redo the fits for the named spectrum.
+
+    //identify regions of interest
+    guessPeaks(spectrum, dataStore.rawData[spectrum])
+
+    //set up fitting
+    dataStore.viewer.addData(spectrum, JSON.parse(JSON.stringify(dataStore.rawData[spectrum])) )
+    dataStore.currentPlot = spectrum;
+    dataStore.viewer.plotData() //kludge to update limits, could be nicer
+    dataStore.viewer.fitTarget = spectrum;
+
+    //first peak
+    dataStore.currentPeak = 0
+    dataStore.viewer.FitLimitLower = dataStore.ROI[spectrum].ROIlower[0]
+    dataStore.viewer.FitLimitUpper = dataStore.ROI[spectrum].ROIlower[1]
+    dataStore.viewer.fitData(spectrum, 0);
+    
+    //second peak
+    dataStore.currentPeak = 1
+    dataStore.viewer.FitLimitLower = dataStore.ROI[spectrum].ROIupper[0]
+    dataStore.viewer.FitLimitUpper = dataStore.ROI[spectrum].ROIupper[1]
+    dataStore.viewer.fitData(spectrum, 0);
+    
+    //dump data so it doesn't stack up 
+    dataStore.viewer.removeData(spectrum);        
+
+    updateTable(spectrum)
+
+}
+
 function fitCallback(center, width, amplitude, intercept, slope){
+    //after fitting, log the fit results, as well as any modification made to the ROI by the fitting algortihm
+    //also update table
 
     if(!dataStore.fitResults[dataStore.currentPlot])
         dataStore.fitResults[dataStore.currentPlot] = [];
@@ -212,7 +221,10 @@ function fitCallback(center, width, amplitude, intercept, slope){
         dataStore.ROI[dataStore.currentPlot].ROIupper[1] = dataStore.viewer.FitLimitUpper;
     }
 
-    updateTable(dataStore.currentPlot)
+    updateTable(dataStore.currentPlot);
+    whatsNormal();
+    highlightOutliers();
+
     dataStore.viewer.plotData();
 }
 
@@ -273,15 +285,19 @@ function generateEnergySpectraNames(detectors){
 }
 
 function guessPeaks(spectrumName, data){
-    //given a spectrum <data>, identify the bins corresponding to the maxima of the two largest peaks.
+    //given a spectrum <data>, identify the bins corresponding to the maxima of the two largest peaks
+    //around where we expect the calibration peaks to fall (+- 30 bins of bin==peak energy in kev)
     //register a range around those peaks as our automated guesses for where the gammas of interest lie.
 
     var i, max, center, ROIlower, ROIupper, buffer,
     dataCopy = JSON.parse(JSON.stringify(data)),
     ROIwidth = 5;
+    searchWidth = 30;
+    var lowEnergy = parseInt(document.getElementById('peak1').value,10);
+    var highEnergy = parseInt(document.getElementById('peak2').value,10);
 
-    max = Math.max.apply(Math, dataCopy);
-    center = dataCopy.indexOf(max);
+    max = Math.max.apply(Math, dataCopy.slice(lowEnergy - searchWidth, lowEnergy + searchWidth));
+    center = dataCopy.slice(lowEnergy - searchWidth, lowEnergy + searchWidth).indexOf(max) + lowEnergy - searchWidth;
     ROIlower = [center - ROIwidth, center + ROIwidth];
 
     //mask out this peak so we can find the next biggest
@@ -289,8 +305,8 @@ function guessPeaks(spectrumName, data){
         dataCopy[i] = 0
     }
 
-    max = Math.max.apply(Math, dataCopy);
-    center = dataCopy.indexOf(max);
+    max = Math.max.apply(Math, dataCopy.slice(highEnergy - searchWidth, highEnergy + searchWidth));
+    center = dataCopy.slice(highEnergy - searchWidth, highEnergy + searchWidth).indexOf(max) + highEnergy - searchWidth;
     ROIupper = [center - ROIwidth, center + ROIwidth];
 
     //make sure lower contains the lower energy peak (currently contains the highest intensity peak)
@@ -323,22 +339,84 @@ function updateEnergies(){
         highEnergy.value = 1408
     }
 
-    //keep the calibrations updated
+    //fit all calibration peaks in all spectra
     for(i=0; i<keys.length; i++){
-        updateTable(keys[i])
+        fitSpectra(keys[i]);
     }
+
+    //reset to first plot
+    document.getElementById(dataStore.GRIFFINdetectors[0]).onclick()
 }
 
 function customEnergy(){
     //callback for changing the calibration energies to custom values
     var i, keys = Object.keys(dataStore.fitResults)
     var defaultSources = document.getElementById('calibrationSource')
+    var i, keys = Object.keys(dataStore.fitResults)
 
     defaultSources.value = 'custom'
 
-    //keep the calibrations updated
+    //fit all calibration peaks in all spectra
     for(i=0; i<keys.length; i++){
-        updateTable(keys[i])
+        fitSpectra(keys[i]);
+    }
+
+    //reset to first plot
+    document.getElementById(dataStore.GRIFFINdetectors[0]).onclick()
+}
+
+function whatsNormal(){
+    //identifies the mean and SD of the fit peak position across all detectors for both claibration peaks
+
+    var i, mean = [0,0], mean2 = [0,0], sd;
+    var keys = Object.keys(dataStore.fitResults);
+    var numFirst = 0, numSecond = 0
+
+    for(i=0; i<keys.length; i++){
+        if(dataStore.fitResults[keys[i]][0] && dataStore.fitResults[keys[i]][0][1]){
+            mean[0] += dataStore.fitResults[keys[i]][0][1];
+            mean2[0] += Math.pow(dataStore.fitResults[keys[i]][0][1],2);
+            numFirst++;
+        }
+        if(dataStore.fitResults[keys[i]][1] && dataStore.fitResults[keys[i]][1][1]){
+            mean[1] += dataStore.fitResults[keys[i]][1][1];
+            mean2[1] += Math.pow(dataStore.fitResults[keys[i]][1][1],2);
+            numSecond++
+        }
+    }
+
+    mean[0] /= numFirst;
+    mean[1] /= numSecond;
+    mean2[0] /= numFirst;
+    mean2[1] /= numSecond;
+
+    sd = [ Math.sqrt(mean2[0] - Math.pow(mean[0],2)), Math.sqrt(mean2[1] - Math.pow(mean[1],2))]
+
+    dataStore.meanPeaks = mean;
+    dataStore.sdPeaks = sd;
+
+}
+
+function highlightOutliers(){
+    //step through the fit results, and highlight table rows corresponding to wacky channels
+
+    var i;
+    var keys = Object.keys(dataStore.fitResults);
+
+    for(i=0; i<keys.length; i++){
+        if( dataStore.fitResults[keys[i]][0] && dataStore.fitResults[keys[i]][1] && (
+                dataStore.fitResults[keys[i]][0][1] > dataStore.meanPeaks[0] + dataStore.sdPeaks[0]*2
+                || dataStore.fitResults[keys[i]][0][1] < dataStore.meanPeaks[0] - dataStore.sdPeaks[0]*2
+                || isNaN(dataStore.fitResults[keys[i]][0][1])
+                || dataStore.fitResults[keys[i]][1][1] > dataStore.meanPeaks[1] + dataStore.sdPeaks[1]*2
+                || dataStore.fitResults[keys[i]][1][1] < dataStore.meanPeaks[1] - dataStore.sdPeaks[1]*2
+                || isNaN(dataStore.fitResults[keys[i]][1][1])
+            )
+        ){
+            document.getElementById(keys[i].slice(0,10) + 'row').style = 'background-color: #FF0000;'
+        } else{
+            document.getElementById(keys[i].slice(0,10) + 'row').style = ''
+        }
     }
 }
 
@@ -352,7 +430,7 @@ dataStore.GRIFFINdetectors = [
         'GRG01BN00A',
         'GRG01GN00A',
         'GRG01RN00A',
-        'GRG01WN00A'/*,
+        'GRG01WN00A',
         'GRG02BN00A',
         'GRG02GN00A',
         'GRG02RN00A',
@@ -412,5 +490,5 @@ dataStore.GRIFFINdetectors = [
         'GRG16BN00A',
         'GRG16GN00A',
         'GRG16RN00A',
-        'GRG16WN00A'*/
+        'GRG16WN00A'
     ]
