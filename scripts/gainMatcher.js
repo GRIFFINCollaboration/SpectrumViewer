@@ -101,10 +101,18 @@ function toggleFitMode(){
     if(parseInt(this.getAttribute('engaged'),10) == 0){
         dataStore.viewer.setupFitMode();
         this.setAttribute('engaged', 1);
+        if(this.id == 'fitLow')
+            document.getElementById('refitLoBadge').classList.add('redText')
+        if(this.id == 'fitHigh')
+            document.getElementById('refitHiBadge').classList.add('redText')
     }
     else{
         dataStore.viewer.leaveFitMode();
         this.setAttribute('engaged', 0);
+        if(this.id == 'fitLow')
+            document.getElementById('refitLoBadge').classList.remove('redText')
+        if(this.id == 'fitHigh')
+            document.getElementById('refitHiBadge').classList.remove('redText')
     }
 
     if(this.id == 'fitLow')

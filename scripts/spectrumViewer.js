@@ -236,10 +236,12 @@ function toggleFitMode(){
     if(state == 0){
         dataStore.viewer.setupFitMode();
         fitModeSwitch.setAttribute('engaged', 1);
+        document.getElementById('fitBadge').classList.add('redText')
     }
     else{
         dataStore.viewer.leaveFitMode();
         fitModeSwitch.setAttribute('engaged', 0);
+        document.getElementById('fitBadge').classList.remove('redText')
     }
 
     //toggle state indicator
