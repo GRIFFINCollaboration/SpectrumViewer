@@ -985,6 +985,18 @@ function spectrumViewer(canvasID){
 		}
 	}
 
+	//how long is the longest histogam?
+	this.longestHist = function(){
+		var i, longest = 0;
+		var keys = Object.keys(this.plotBuffer) 
+
+		for(i=0; i<keys.length; i++){
+			longest = Math.max(longest, this.plotBuffer[keys[i]].length)
+		}
+
+		return longest;
+	}
+
 	//////////////////////////////////////////////////////
 	//initial setup///////////////////////////////////////
 	//////////////////////////////////////////////////////

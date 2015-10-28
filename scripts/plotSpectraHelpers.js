@@ -173,14 +173,19 @@ function waveformSnap(){
         toggleHidden('fineXcontrol');
     } else {
         dataStore.viewer.demandXmin = 0;
-        dataStore.viewer.demandXmax = dataStore.viewer.XaxisLimitAbsMax; //ie full x range
-            dataStore.viewer.demandYmin = Math.max(0, dataStore.viewer.minY - (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1);
-            dataStore.viewer.demandYmax = dataStore.viewer.maxY + (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1; 
+        dataStore.viewer.demandXmax = dataStore.viewer.longestHist()
+        dataStore.viewer.demandYmin = Math.max(0, dataStore.viewer.minY - (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1);
+        dataStore.viewer.demandYmax = dataStore.viewer.maxY + (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1; 
         dataStore.viewer.chooseLimitsCallback = function(){
             //set some demand values for the y axis and rerun the limit calculation
             var rerun = dataStore.viewer.demandYmin == null;
+            //keep x updated
+            dataStore.viewer.demandXmin = 0;
+            dataStore.viewer.demandXmax = dataStore.viewer.longestHist()
+            //bracket y around min and max
             dataStore.viewer.demandYmin = Math.max(0, dataStore.viewer.minY - (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1);
-            dataStore.viewer.demandYmax = dataStore.viewer.maxY + (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1; 
+            dataStore.viewer.demandYmax = dataStore.viewer.maxY + (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1;
+            //fix the limits with these demand values 
             if(rerun) dataStore.viewer.chooseLimits();
             dataStore.viewer.demandYmin = null;
             dataStore.viewer.demandYmax = null;
