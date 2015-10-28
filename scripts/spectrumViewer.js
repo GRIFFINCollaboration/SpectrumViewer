@@ -62,10 +62,13 @@ function dataSetup(data){
     //sort groups into our preferred order
     groups.sort(function(a,b){
         var order = dataStore.listOrder;
-
-        return order[a.groupID.slice(0,3)] > order[b.groupID.slice(0,3)];
+        if(order[a.groupID.slice(0,3)] > order[b.groupID.slice(0,3)])
+            return 1
+        else if(order[a.groupID.slice(0,3)] < order[b.groupID.slice(0,3)])
+            return -1
+        else
+            return 0
     })
-    console.log(groups)
 
     return {
         'groups': groups,
