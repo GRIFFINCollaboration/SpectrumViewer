@@ -65,6 +65,7 @@ function dataSetup(data){
 
         return order[a.groupID.slice(0,3)] > order[b.groupID.slice(0,3)];
     })
+    console.log(groups)
 
     return {
         'groups': groups,
