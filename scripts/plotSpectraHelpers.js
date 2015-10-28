@@ -173,7 +173,7 @@ function waveformSnap(){
         toggleHidden('fineXcontrol');
     } else {
         dataStore.viewer.demandXmin = 0;
-        dataStore.viewer.demandXmax = 4010;
+        dataStore.viewer.demandXmax = dataStore.viewer.XaxisLimitAbsMax; //ie full x range
             dataStore.viewer.demandYmin = Math.max(0, dataStore.viewer.minY - (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1);
             dataStore.viewer.demandYmax = dataStore.viewer.maxY + (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1; 
         dataStore.viewer.chooseLimitsCallback = function(){
