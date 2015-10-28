@@ -161,19 +161,21 @@ function updateRangeSelector(){
 
 //callback for clicking on Snap to Waveform
 function waveformSnap(){
-    toggleHidden('waveformBadge')
-
     if(this.engaged){
         dataStore.viewer.demandXmin = null;
         dataStore.viewer.demandXmax = null;
         dataStore.viewer.demandYmin = null;
         dataStore.viewer.demandYmax = null;
-        dataStore.viewer.chooseLimitsCallback = function(){};
+        dataStore.viewer.chooseLimitsCallback = updateRangeSelector;
         dataStore.viewer.unzoom();
         this.engaged = 0;
+        document.getElementById('snapPin').classList.remove('redText');
+        toggleHidden('fineXcontrol');
     } else {
         dataStore.viewer.demandXmin = 0;
-        dataStore.viewer.demandXmax = 256;
+        dataStore.viewer.demandXmax = 4010;
+            dataStore.viewer.demandYmin = Math.max(0, dataStore.viewer.minY - (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1);
+            dataStore.viewer.demandYmax = dataStore.viewer.maxY + (dataStore.viewer.maxY - dataStore.viewer.minY)*0.1; 
         dataStore.viewer.chooseLimitsCallback = function(){
             //set some demand values for the y axis and rerun the limit calculation
             var rerun = dataStore.viewer.demandYmin == null;
@@ -185,5 +187,7 @@ function waveformSnap(){
         }
         dataStore.viewer.plotData();
         this.engaged = 1; 
+        document.getElementById('snapPin').classList.add('redText');
+        toggleHidden('fineXcontrol');
     }                   
 }

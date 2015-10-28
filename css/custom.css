@@ -47,6 +47,18 @@ button.deleteRow{
     margin-right: 1em;
 }
 
+button.bigButton{
+    margin-top: 1em;
+}
+
+.blackText{
+    color: #000000;
+}
+
+.redText{
+    color: #FF6666;
+}
+
 /*branding*/
 div.branding{
     color: #FFFFFF;
@@ -163,7 +175,7 @@ td.zeroRow{
     color: #000000;
 }
 
-div.refitButtons{
+div.refiButtons{
     margin-top: 1em;
 }
 

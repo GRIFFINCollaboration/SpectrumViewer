@@ -68,7 +68,8 @@ function dataSetup(data){
 
     return {
         'groups': groups,
-        'doUpdates': true
+        'doUpdates': true,
+        'waveformSnap': true
     }
 
 }
@@ -124,6 +125,9 @@ function pageLoad(){
 
     //plug in the delete all button
     document.getElementById('deleteAll').onclick = deleteAllPlots;
+
+    //plug in the waveform snap buttion
+    document.getElementById('snapWaveform').onclick = waveformSnap;
 
     //set the refresh loop going
     startRefreshLoop.bind(document.getElementById('upOptions'))();

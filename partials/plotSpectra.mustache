@@ -12,19 +12,27 @@
         <!-- x-axis limits -->
         <div id="xRangeWrap" class="col-md-8 UIchunk"> 
             <h4>X-axis Control</h4> 
-            <input class="inputBox" id="minX" value="0" type="number"></input>
-            <label class="inputLabel" id="xRangeLabel">&lt; x &lt;</label>
-            <input class="inputBox" id="maxX" value="2048" type="number"></input>
+            <div id='fineXcontrol'> 
+                <input class="inputBox" id="minX" value="0" type="number"></input>
+                <label class="inputLabel" id="xRangeLabel">&lt; x &lt;</label>
+                <input class="inputBox" id="maxX" value="2048" type="number"></input>
 
-            <button class="inputButton" id="bigLeft" type="button">⇇</button>
-            <button class="inputButton" id="littleLeft" type="button">←</button>
-            <button class="inputButton" id="littleRight" type="button">→</button>
-            <button class="inputButton" id="bigRight" type="button">⇉</button>
+                <button class="inputButton" id="bigLeft" type="button">⇇</button>
+                <button class="inputButton" id="littleLeft" type="button">←</button>
+                <button class="inputButton" id="littleRight" type="button">→</button>
+                <button class="inputButton" id="bigRight" type="button">⇉</button>
 
-            <button class="inputButton" id="unzoom" type="button">Unzoom</button>
+                <button class="inputButton" id="unzoom" type="button">Unzoom</button>
+            </div>
+
+            {{# waveformSnap}}
+                <button type="button" class="btn btn-default btn-lg bigButton" id='snapWaveform' engaged='0'>
+                    <span id='snapPin' class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> Snap to Waveform
+                </button>
+            {{/ waveformSnap}}
         </div>
 
-        <div class='col-md-4'>
+        <div class='col-md-3'>
             <h4>Y-axis Control</h4>
             <div id="logToggleWrap" class="UIchunk">
                 <input id='linearY' type='radio' checked name='linlog' value='linear'></input>

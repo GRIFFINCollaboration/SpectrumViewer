@@ -483,6 +483,7 @@ dataStore.colors = [
     "#D35400"
 ]
 dataStore.defaults = {
+        'doUpdates': true,
         'gammas':[
             {
                 'title': 'Gate 1',
