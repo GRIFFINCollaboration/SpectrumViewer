@@ -151,7 +151,7 @@ function setupFitting(){
 //////////////////////////////////
 
 function toggleData(){
-    var html, node, rows, deleteButtons, zeroButtons, i;
+    var html, node, rows, deleteButtons, zeroButtons, dropFitButtons, i;
 
     //data present, remove it
     if(dataStore.viewer.plotBuffer[this.id]){ 
@@ -190,6 +190,10 @@ function toggleData(){
         for(i=0; i<zeroButtons.length; i++){
             zeroButtons[i].onclick = zeroPlot.bind(zeroButtons[i]);
         }
+        dropFitButtons = document.getElementsByClassName('dropFitRow')
+        for(i=0; i<dropFitButtons.length; i++){
+            dropFitButtons[i].onclick = dropFit.bind(dropFitButtons[i]);
+        }
 
         //default: target fitting at new spectrum.
         chooseFitTarget(this.id)
@@ -213,6 +217,19 @@ function zeroPlot(){
     var spectrumID = this.value;
 
     dataStore.viewer.baselines[spectrumID] = dataStore.viewer.plotBuffer[spectrumID];
+    dataStore.viewer.plotData();
+}
+
+function dropFit(){
+    //abandon last fit result for this spectrum
+    var spectrumID = this.value
+    var text = document.getElementById(spectrumID+'FitResult').innerHTML
+    text = text.split('<br>')
+    text = text.slice(0, text.length-2).join('<br>')
+    if(text=='')
+        text = '-'
+
+    document.getElementById(spectrumID+'FitResult').innerHTML = text
     dataStore.viewer.plotData();
 }
 
