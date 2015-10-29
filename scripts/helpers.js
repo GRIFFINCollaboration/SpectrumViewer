@@ -1,99 +1,6 @@
-function arrangePoints(x, y, flags){
-    //take two equal length arrays x, y and return an array of points suitable for dygraphs, ie
-    // [ [x[0], y[0]], [x[1], y[1]]...  ]
-    //flags is another array indicating different data series; 
-    //for every distinct flag, there will be another column in the inner arrays; a given column will contain only values sharing a flag, or null.
-    // example: arrangePoints( [0,1,2,3], [10,11,12,13], [1,2,1,2]) returns:
-    // [
-    //      [0,10,null],
-    //      [1,null,11],
-    //      [2,12,null],
-    //      [3,null,13] 
-    // ]
-
-    var copyFlags = []
-    var uniqueFlags;
-    var i, j, series, data = [];
-    var row = [];
-
-    for(i=0; i<flags.length; i++){
-        copyFlags.push(flags[i]);
-    }
-    uniqueFlags = Array.from(new Set(flags.sort()));
-
-    for(i=0; i<x.length; i++){
-        row = [x[i]];
-        series = uniqueFlags.indexOf(copyFlags[i]);
-        for(j=0; j<uniqueFlags.length; j++){
-            if(j == series)
-                row.push(y[i]);
-            else
-                row.push(null);
-        }
-        data.push(row);
-    }
-
-    return data;
-}
-
-function createBins(n, constant){
-    //returns an array [0,1,2,...n-1], useful for creating the x-array for arrangePoints if all you have is a spectrum of y values.
-    //if constant is defined, returns an array of length n repeating constant.
-    //thanks http://stackoverflow.com/questions/3746725/create-a-javascript-array-containing-1-n
-
-    if(arguments.length === 1)
-        return Array.apply(null, {length: n}).map(Number.call, Number)
-    else
-        return Array.apply(null, {length: n}).map(function(){return constant}, null)
-
-}
-
-function toggleHidden(id){
-    //adds the class 'hidden' to object id if it doesn't have it already,
-    //or removes it if it does.
-    var classes = document.getElementById(id).className.split(' ');
-    var hidden = classes.indexOf('hidden')
-
-    if(hidden == -1){
-        classes.push('hidden')
-    } else{
-        classes.splice(hidden, 1)
-    }
-
-    document.getElementById(id).className = classes.join(' ')
-
-}
-
-function togglePlotList(id, suppressRecursion){
-    //change whether a plot list is open or closed, for binding to the onclick of the subheaders
-    //only allow one list open at a time.
-
-    //close old list
-    if(dataStore.openList && !suppressRecursion && id!=dataStore.openList){
-        togglePlotList(dataStore.openList, true);
-    }
-
-    //allow manual close of old list
-    if(id == dataStore.openList)
-        dataStore.openList = null;
-    else
-        dataStore.openList = id;
-
-    toggleHidden('plots'+id);
-    toggleHidden('closed'+id);
-    toggleHidden('open'+id);
-
-}
-
-function alwaysThisLong(number, minLength){
-    //returns number as a string padded with most-significant 0's to make it minLength.
-
-    var num = ''+number;
-    while(num.length<minLength)
-        num = '0' + num
-
-    return num
-}
+////////////////////
+// Generic
+////////////////////
 
 function getSelected(id){
     //return the current value selected by the select element with id.
@@ -124,32 +31,14 @@ function deleteNode(id){
     }
 }
 
-function constructQueries(keys){
-    //takes a list of plot names and produces the query string needed to fetch them, in an array
-    //more than 32 requests will be split into separate queries.
+function alwaysThisLong(number, minLength){
+    //returns number as a string padded with most-significant 0's to make it minLength.
 
-    var i, j, queryString, queries = [];
-    for(i=0; i<Math.ceil(keys.length/32); i++){
-        queryString = dataStore.spectrumServer + '?cmd=callspechandler';
-        for(j=i*32; j<Math.min( (i+1)*32, keys.length ); j++){
-            queryString += '&spectrum' + j + '=' + keys[j];
-        }
-        queries.push(queryString);
-    }
+    var num = ''+number;
+    while(num.length<minLength)
+        num = '0' + num
 
-    return queries
-}
-
-function spectraCallback(spectra){
-    //callback to run after fetching spectra from the analyzer
-    //used for spectrum viewer and rate monitor; gain matcher uses modified version
-    var key
-    for(key in spectra[0]){
-        if(key != 'metadata')
-            dataStore.viewer.addData(key, spectra[0][key]);
-        else
-            dataStore.metadata = JSON.parse(JSON.stringify(spectra[0].metadata));
-    }
+    return num
 }
 
 function promiseJSONURL(url){
@@ -293,7 +182,104 @@ Array.prototype.integrate = function(x0, x1){
 //fill an array with n copies of value
 Array.prototype.fill = function(value, n){
     var i;
-    console.log(value, n)
     for(i=0; i<n; i++)
-        this[i] = value
+        this[i] = JSON.parse(JSON.stringify(value));
+}
+
+////////////////////
+// Dygraphs
+////////////////////
+
+function arrangePoints(x, y, flags){
+    //arrange an array of x values, an array of arrays of y values, and data series flag for consumption by dygraphs
+    //see test suite for examples of behavior.
+
+    var copyFlags = []
+    var uniqueFlags;
+    var i, j, k, series, data = [];
+    var row = [];
+
+    for(i=0; i<flags.length; i++){
+        copyFlags.push(flags[i]);
+    }
+    uniqueFlags = Array.from(new Set(flags.sort()));
+
+    for(i=0; i<x.length; i++){
+        row = [x[i]];
+        series = uniqueFlags.indexOf(copyFlags[i]);
+        for(j=0; j<uniqueFlags.length; j++){
+            if(j == series)
+                for(k=0; k<y.length; k++)
+                    row.push(y[k][i]);
+            else
+                row.push(null);
+        }
+        data.push(row);
+    }
+
+    return data;
+}
+
+function createBins(n, constant){
+    //returns an array [0,1,2,...n-1], useful for creating the x-array for arrangePoints if all you have is a spectrum of y values.
+    //if constant is defined, returns an array of length n repeating constant.
+    //thanks http://stackoverflow.com/questions/3746725/create-a-javascript-array-containing-1-n
+
+    if(arguments.length === 1)
+        return Array.apply(null, {length: n}).map(Number.call, Number)
+    else
+        return Array.apply(null, {length: n}).map(function(){return constant}, null)
+
+}
+
+//////////////////////////////////
+// Spectrum Viewer specific
+//////////////////////////////////
+
+function togglePlotList(id, suppressRecursion){
+    //change whether a plot list is open or closed, for binding to the onclick of the subheaders
+    //only allow one list open at a time.
+
+    //close old list
+    if(dataStore.openList && !suppressRecursion && id!=dataStore.openList){
+        togglePlotList(dataStore.openList, true);
+    }
+
+    //allow manual close of old list
+    if(id == dataStore.openList)
+        dataStore.openList = null;
+    else
+        dataStore.openList = id;
+
+    document.getElementById('plots'+id).classList.toggle('hidden')
+    document.getElementById('closed'+id).classList.toggle('hidden')
+    document.getElementById('open'+id).classList.toggle('hidden')
+}
+
+function constructQueries(keys){
+    //takes a list of plot names and produces the query string needed to fetch them, in an array
+    //more than 32 requests will be split into separate queries.
+
+    var i, j, queryString, queries = [];
+    for(i=0; i<Math.ceil(keys.length/32); i++){
+        queryString = dataStore.spectrumServer + '?cmd=callspechandler';
+        for(j=i*32; j<Math.min( (i+1)*32, keys.length ); j++){
+            queryString += '&spectrum' + j + '=' + keys[j];
+        }
+        queries.push(queryString);
+    }
+
+    return queries
+}
+
+function spectraCallback(spectra){
+    //callback to run after fetching spectra from the analyzer
+    //used for spectrum viewer and rate monitor; gain matcher uses modified version
+    var key
+    for(key in spectra[0]){
+        if(key != 'metadata')
+            dataStore.viewer.addData(key, spectra[0][key]);
+        else
+            dataStore.metadata = JSON.parse(JSON.stringify(spectra[0].metadata));
+    }
 }

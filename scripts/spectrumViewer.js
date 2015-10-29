@@ -1,8 +1,11 @@
-/////////////////////////////////
-// define data
-/////////////////////////////////
+////////////////////////////////////////////
+// main setup
+////////////////////////////////////////////
 
 function setupDataStore(){
+    //sets up global variable datastore
+    //invoked as the spectrum list is initially populated.
+
     dataStore = {}
     dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/'
     dataStore.ODBrequests = ['http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/Runinfo/Run number&encoding=json-p-nokeys&callback=parseODB'];
@@ -78,35 +81,6 @@ function dataSetup(data){
 
 }
 
-function groupTitle(groupID){
-    //generate a human-friendly title for each group of plots based on their groupID key.
-
-    var detectorCodes = dataStore.detectorCodes;
-
-    if(groupID == 'HITPATTERN')
-        return 'Hit Patterns';
-    else if(groupID == 'SUM')
-        return 'Sum Spectra';
-    else{
-        return detectorCodes[groupID.slice(0,3)] + ' ' + groupID.slice(3);
-    }
-}
-
-function getSpectrumList(spectra){
-    setupDataStore()
-    dataStore.spectrumList = spectra.spectrumlist;
-    console.log(dataStore.spectrumList)
-}
-
-function fetchCallback(){
-    //fires after all data has been updated
-    dataStore.viewer.plotData(true);
-}
-
-////////////////////////////////////////////
-// setup helpers
-////////////////////////////////////////////
-
 function pageLoad(){
     //runs after ultralight is finished setting up the page.
     createFigure();
@@ -138,12 +112,46 @@ function pageLoad(){
 
 }
 
-function setupFitting(){
-    //setup fitting infrastructure
-    //fit mode trigger
-    document.getElementById('fitMode').onclick = toggleFitMode;
-    //fitting callback:
-    dataStore.viewer.fitCallback = fitCallback    
+/////////////////////
+// General Helpers
+/////////////////////
+
+function groupTitle(groupID){
+    //generate a human-friendly title for each group of plots based on their groupID key.
+
+    var detectorCodes = dataStore.detectorCodes;
+
+    if(groupID == 'HITPATTERN')
+        return 'Hit Patterns';
+    else if(groupID == 'SUM')
+        return 'Sum Spectra';
+    else{
+        return detectorCodes[groupID.slice(0,3)] + ' ' + groupID.slice(3);
+    }
+}
+
+function getSpectrumList(spectra){
+    //JSONP wrapper to process the spectrum list from the analyzer.
+    setupDataStore()
+    dataStore.spectrumList = spectra.spectrumlist;
+    console.log(dataStore.spectrumList)
+}
+
+function fetchCallback(){
+    //fires after all data has been updated
+    dataStore.viewer.plotData(true);
+}
+
+function parseODB(payload){
+    //keep track of the current run number
+
+    dataStore.currentRun = payload[0]['Run number']
+
+    //dump all spectra zeroing on run change
+    if(dataStore.currentRun != dataStore.lastRun){
+        dataStore.viewer.baselines = {}
+        dataStore.lastRun = dataStore.currentRun
+    }
 }
 
 //////////////////////////////////
@@ -151,6 +159,8 @@ function setupFitting(){
 //////////////////////////////////
 
 function toggleData(){
+    //handles adding and removing data from the histogram
+    //intended as callback to toggling items in the plot list.
     var html, node, rows, deleteButtons, zeroButtons, dropFitButtons, i;
 
     //data present, remove it
@@ -200,7 +210,7 @@ function toggleData(){
     }
 
     //toggle indicator
-    toggleHidden('badge'+this.id)
+    document.getElementById('badge'+id).classList.toggle('hidden')
 }
 
 function deleteAllPlots(){
@@ -233,18 +243,6 @@ function dropFit(){
     dataStore.viewer.plotData();
 }
 
-function parseODB(payload){
-    //keep track of the current run number
-
-    dataStore.currentRun = payload[0]['Run number']
-
-    //dump all spectra zeroing on run change
-    if(dataStore.currentRun != dataStore.lastRun){
-        dataStore.viewer.baselines = {}
-        dataStore.lastRun = dataStore.currentRun
-    }
-}
-
 ////////////////////////
 // fitting
 ////////////////////////
@@ -266,7 +264,7 @@ function toggleFitMode(){
     }
 
     //toggle state indicator
-    toggleHidden('fitInstructions')
+    document.getElementById('fitInstructions').classList.toggle('hidden')
 }
 
 function chooseFitTarget(id){
@@ -296,4 +294,12 @@ function fitCallback(center, width, amplitude, intercept, slope){
 
     toggleFitMode()
     dataStore.viewer.leaveFitMode();
+}
+
+function setupFitting(){
+    //setup fitting infrastructure
+    //fit mode trigger
+    document.getElementById('fitMode').onclick = toggleFitMode;
+    //fitting callback:
+    dataStore.viewer.fitCallback = fitCallback    
 }

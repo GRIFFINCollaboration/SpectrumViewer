@@ -1,3 +1,89 @@
+////////////////////////////////////////////
+// main setup
+////////////////////////////////////////////
+
+function setupDataStore(){
+    //sets up global variable datastore
+    dataStore = {}
+    dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';
+    dataStore.ODBrequests = [];
+    dataStore.rawData = {};
+    dataStore.ROI = {};
+    dataStore.fitResults = {};
+    dataStore.resolutionData = [[0,0,0], [1,0,0], [2,0,0], [3,0,0]]
+    dataStore.lowPeakResolution = []
+    dataStore.lowPeakResolution.fill(0,64)
+    dataStore.highPeakResolution = []
+    dataStore.highPeakResolution.fill(0,64)
+    dataStore.GRIFFINdetectors = [
+            'GRG01BN00A',
+            'GRG01GN00A',
+            'GRG01RN00A',
+            'GRG01WN00A',
+            'GRG02BN00A',
+            'GRG02GN00A',
+            'GRG02RN00A',
+            'GRG02WN00A',
+            'GRG03BN00A',
+            'GRG03GN00A',
+            'GRG03RN00A',
+            'GRG03WN00A',
+            'GRG04BN00A',
+            'GRG04GN00A',
+            'GRG04RN00A',
+            'GRG04WN00A',
+            'GRG05BN00A',
+            'GRG05GN00A',
+            'GRG05RN00A',
+            'GRG05WN00A',
+            'GRG06BN00A',
+            'GRG06GN00A',
+            'GRG06RN00A',
+            'GRG06WN00A',
+            'GRG07BN00A',
+            'GRG07GN00A',
+            'GRG07RN00A',
+            'GRG07WN00A',
+            'GRG08BN00A',
+            'GRG08GN00A',
+            'GRG08RN00A',
+            'GRG08WN00A',
+            'GRG09BN00A',
+            'GRG09GN00A',
+            'GRG09RN00A',
+            'GRG09WN00A',
+            'GRG10BN00A',
+            'GRG10GN00A',
+            'GRG10RN00A',
+            'GRG10WN00A',
+            'GRG11BN00A',
+            'GRG11GN00A',
+            'GRG11RN00A',
+            'GRG11WN00A',
+            'GRG12BN00A',
+            'GRG12GN00A',
+            'GRG12RN00A',
+            'GRG12WN00A',
+            'GRG13BN00A',
+            'GRG13GN00A',
+            'GRG13RN00A',
+            'GRG13WN00A',
+            'GRG14BN00A',
+            'GRG14GN00A',
+            'GRG14RN00A',
+            'GRG14WN00A',
+            'GRG15BN00A',
+            'GRG15GN00A',
+            'GRG15RN00A',
+            'GRG15WN00A',
+            'GRG16BN00A',
+            'GRG16GN00A',
+            'GRG16RN00A',
+            'GRG16WN00A'
+        ]
+}
+setupDataStore();
+
 function dataSetup(data){
 
     var i, groups = []
@@ -34,19 +120,6 @@ function dataSetup(data){
 
 }
 
-function spectraCallback(spectra){
-    //callback to run after fetching spectra from the analyzer
-    //overwrites the default version used in other spectrum viewer projects
-
-    var i, key
-    for(i=0; i<spectra.length; i++){
-        for(key in spectra[i]){
-            if(key != 'metadata')
-                dataStore.rawData[key] = JSON.parse(JSON.stringify(spectra[i][key]));
-        }
-    }
-}
-
 function pageLoad(){
 
     var i;
@@ -76,6 +149,24 @@ function pageLoad(){
     document.getElementById('peak1').onchange = customEnergy
     document.getElementById('peak2').onchange = customEnergy
 
+    initializeResolutionPlot();
+}
+
+////////////////////////
+// Data Wrangling
+////////////////////////
+
+function spectraCallback(spectra){
+    //callback to run after fetching spectra from the analyzer
+    //overwrites the default version used in other spectrum viewer projects
+
+    var i, key
+    for(i=0; i<spectra.length; i++){
+        for(key in spectra[i]){
+            if(key != 'metadata')
+                dataStore.rawData[key] = JSON.parse(JSON.stringify(spectra[i][key]));
+        }
+    }
 }
 
 function toggleData(){
@@ -94,6 +185,34 @@ function toggleData(){
     addFitLines();
 
 }
+
+function fetchCallback(){
+    //after data has arrived, set up spectrum viewer and perform the inital fits.
+
+    var i, j, keys = Object.keys(dataStore.rawData);
+
+    //create a real spectrum viewer
+    createFigure()
+    setupFigureControl();
+    dataStore.viewer.fitCallback = fitCallback;
+
+    //keep the plot list the same height as the plot region
+    document.getElementById('plotMenu').style.height = document.getElementById('plotWrap').offsetHeight + 'px';
+
+    //fit all calibration peaks in all spectra
+    for(i=0; i<keys.length; i++){
+        fitSpectra(keys[i]);
+    }
+
+    //set up fit line re-drawing
+    dataStore.viewer.drawCallback = addFitLines;
+    //reset to first plot
+    document.getElementById(dataStore.GRIFFINdetectors[0]).onclick()
+}
+
+///////////////////
+// Fitting
+///////////////////
 
 function toggleFitMode(){
     //manage the state of the Fit Mode button, and the corresponding state of the viewer.
@@ -120,8 +239,6 @@ function toggleFitMode(){
     else
         dataStore.currentPeak = 1
 
-    //toggle state indicator
-    //toggleHidden('fitInstructions')
 }
 
 function addFitLines(){
@@ -155,30 +272,6 @@ function addFitLines(){
     dataStore.viewer.containerFit.addChild(upper)
 
     dataStore.viewer.stage.update();
-}
-
-function fetchCallback(){
-    //after data has arrived, set up spectrum viewer and perform the inital fits.
-
-    var i, j, keys = Object.keys(dataStore.rawData);
-
-    //create a real spectrum viewer
-    createFigure()
-    setupFigureControl();
-    dataStore.viewer.fitCallback = fitCallback;
-
-    //keep the plot list the same height as the plot region
-    document.getElementById('plotMenu').style.height = document.getElementById('plotWrap').offsetHeight + 'px';
-
-    //fit all calibration peaks in all spectra
-    for(i=0; i<keys.length; i++){
-        fitSpectra(keys[i]);
-    }
-
-    //set up fit line re-drawing
-    dataStore.viewer.drawCallback = addFitLines;
-    //reset to first plot
-    document.getElementById(dataStore.GRIFFINdetectors[0]).onclick()
 }
 
 function fitSpectra(spectrum){
@@ -219,7 +312,14 @@ function fitCallback(center, width, amplitude, intercept, slope){
     if(!dataStore.fitResults[dataStore.currentPlot])
         dataStore.fitResults[dataStore.currentPlot] = [];
 
+    //keep track of fit results
     dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, center, width, intercept, slope]
+
+    //convenient to arrange resolution data here
+    if(dataStore.currentPeak == 0)
+        dataStore.lowPeakResolution[dataStore.GRIFFINdetectors.indexOf(dataStore.currentPlot.slice(0,10))] = width;
+    else if(dataStore.currentPeak == 1)
+        dataStore.highPeakResolution[dataStore.GRIFFINdetectors.indexOf(dataStore.currentPlot.slice(0,10))] = width;
 
     if(dataStore.currentPeak == 0){
         dataStore.ROI[dataStore.currentPlot].ROIlower[0] = dataStore.viewer.FitLimitLower;
@@ -229,25 +329,124 @@ function fitCallback(center, width, amplitude, intercept, slope){
         dataStore.ROI[dataStore.currentPlot].ROIupper[1] = dataStore.viewer.FitLimitUpper;
     }
 
+    //update table
     updateTable(dataStore.currentPlot);
     whatsNormal();
     highlightOutliers();
 
+    //update plot
     dataStore.viewer.plotData();
+
+    //update resolution plot
+    reconstructResolutionData()
 }
 
-function evalGauss(min, max, params){
-    //return an array of gaussian + linear bkg evaluations at the center of each bin on [min,max).
-    //parameters == [amplitude, center, sigma, intercept, slope]
+function guessPeaks(spectrumName, data){
+    //given a spectrum <data>, identify the bins corresponding to the maxima of the two largest peaks
+    //around where we expect the calibration peaks to fall (+- 30 bins of bin==peak energy in kev)
+    //register a range around those peaks as our automated guesses for where the gammas of interest lie.
 
-    var i, theory = []
+    var i, max, center, ROIlower, ROIupper, buffer,
+    dataCopy = JSON.parse(JSON.stringify(data)),
+    ROIwidth = 5;
+    searchWidth = 30;
+    var lowEnergy = parseInt(document.getElementById('peak1').value,10);
+    var highEnergy = parseInt(document.getElementById('peak2').value,10);
 
-    for(i=min; i<max; i++){
-        theory.push(params[0]*Math.exp(-1*Math.pow((i+0.5-params[1]),2) / 2 / params[2]*params[2]) + params[3] + params[4]*(i+0.5));
+    max = Math.max.apply(Math, dataCopy.slice(lowEnergy - searchWidth, lowEnergy + searchWidth));
+    center = dataCopy.slice(lowEnergy - searchWidth, lowEnergy + searchWidth).indexOf(max) + lowEnergy - searchWidth;
+    ROIlower = [center - ROIwidth, center + ROIwidth];
+
+    //mask out this peak so we can find the next biggest
+    for(i=center-ROIwidth; i<=center+ROIwidth; i++){
+        dataCopy[i] = 0
     }
 
-    return theory;
+    max = Math.max.apply(Math, dataCopy.slice(highEnergy - searchWidth, highEnergy + searchWidth));
+    center = dataCopy.slice(highEnergy - searchWidth, highEnergy + searchWidth).indexOf(max) + highEnergy - searchWidth;
+    ROIupper = [center - ROIwidth, center + ROIwidth];
+
+    //make sure lower contains the lower energy peak (currently contains the highest intensity peak)
+    if(ROIlower[0] > ROIupper[0]){
+        buffer = JSON.parse(JSON.stringify(ROIlower));
+        ROIlower = JSON.parse(JSON.stringify(ROIupper));
+        ROIupper = JSON.parse(JSON.stringify(buffer));
+    }
+
+    dataStore.ROI[spectrumName] = {
+        "ROIlower": ROIlower,
+        "ROIupper": ROIupper
+    }
+
 }
+
+/////////////////////////
+// Resolution Plot
+/////////////////////////
+
+function initializeResolutionPlot(){
+    //set up the resolution plot.
+
+    var labels = ['channel', 'Low Energy Peak', 'High Energy Peak'];
+
+    dataStore.dygraph = new Dygraph(
+        // containing div
+        document.getElementById('resolutionPlot'),
+
+        // data
+        dataStore.resolutionData,
+
+        //style
+        {   
+            labels: labels,
+            title: 'Per-Crystal Resolution',
+            //height: 750,//document.getElementById('resolutionWrap').offsetWidth*3/4,
+            //width: 480,//document.getElementById('resolutionWrap').offsetWidth,
+            axisLabelColor: '#FFFFFF',
+            colors: ["#AAE66A", "#EFB2F0"],
+            labelsDiv: 'resolutionLegend',
+            legend: 'always',
+            valueFormatter: function(num, opts, seriesName, dygraph, row, col){
+
+                if(col == 0)
+                    return dataStore.GRIFFINdetectors[num]
+                else
+                    return num.toFixed(3)
+            },
+            axes: {
+                x: {
+                    axisLabelFormatter: function(number, granularity, opts, dygraph){
+                        if(number < dataStore.GRIFFINdetectors.length)
+                            return dataStore.GRIFFINdetectors[number].slice(3,6);
+                        else
+                            return number
+                        
+                    }
+                }
+            }
+        }
+    );
+}
+
+function reconstructResolutionData(){
+    //arrange the latest resolution info for representation in the dygraph.
+
+    var i, detectorIndex = [],
+    flags = [];
+    flags.fill(0,64)
+
+    for(i=0; i<dataStore.GRIFFINdetectors.length; i++){
+        detectorIndex[i] = i;
+    }
+
+    dataStore.resolutionData = arrangePoints(detectorIndex, [dataStore.lowPeakResolution, dataStore.highPeakResolution], flags )
+    //console.log(dataStore.resolutionData)
+    dataStore.dygraph.updateOptions( { 'file': dataStore.resolutionData } );
+}
+
+////////////////
+// Helpers
+////////////////
 
 function updateTable(spectrum){
     //update the report table with whatever is currently in the dataStore
@@ -290,87 +489,6 @@ function generateEnergySpectraNames(detectors){
             return elt + '_Energy'
         }
     )
-}
-
-function guessPeaks(spectrumName, data){
-    //given a spectrum <data>, identify the bins corresponding to the maxima of the two largest peaks
-    //around where we expect the calibration peaks to fall (+- 30 bins of bin==peak energy in kev)
-    //register a range around those peaks as our automated guesses for where the gammas of interest lie.
-
-    var i, max, center, ROIlower, ROIupper, buffer,
-    dataCopy = JSON.parse(JSON.stringify(data)),
-    ROIwidth = 5;
-    searchWidth = 30;
-    var lowEnergy = parseInt(document.getElementById('peak1').value,10);
-    var highEnergy = parseInt(document.getElementById('peak2').value,10);
-
-    max = Math.max.apply(Math, dataCopy.slice(lowEnergy - searchWidth, lowEnergy + searchWidth));
-    center = dataCopy.slice(lowEnergy - searchWidth, lowEnergy + searchWidth).indexOf(max) + lowEnergy - searchWidth;
-    ROIlower = [center - ROIwidth, center + ROIwidth];
-
-    //mask out this peak so we can find the next biggest
-    for(i=center-ROIwidth; i<=center+ROIwidth; i++){
-        dataCopy[i] = 0
-    }
-
-    max = Math.max.apply(Math, dataCopy.slice(highEnergy - searchWidth, highEnergy + searchWidth));
-    center = dataCopy.slice(highEnergy - searchWidth, highEnergy + searchWidth).indexOf(max) + highEnergy - searchWidth;
-    ROIupper = [center - ROIwidth, center + ROIwidth];
-
-    //make sure lower contains the lower energy peak (currently contains the highest intensity peak)
-    if(ROIlower[0] > ROIupper[0]){
-        buffer = JSON.parse(JSON.stringify(ROIlower));
-        ROIlower = JSON.parse(JSON.stringify(ROIupper));
-        ROIupper = JSON.parse(JSON.stringify(buffer));
-    }
-
-    dataStore.ROI[spectrumName] = {
-        "ROIlower": ROIlower,
-        "ROIupper": ROIupper
-    }
-
-}
-
-function updateEnergies(){
-    //callback for the calibration source dropdown; updates energy input boxes with standard values
-
-    var calibtationSource = getSelected(this.id);
-    var lowEnergy = document.getElementById('peak1');
-    var highEnergy = document.getElementById('peak2');
-    var i, keys = Object.keys(dataStore.fitResults)
-
-    if(calibtationSource == 'Co-60'){
-        lowEnergy.value = 1163
-        highEnergy.value = 1332
-    } else if(calibtationSource == 'Eu-152'){
-        lowEnergy.value = 121
-        highEnergy.value = 1408
-    }
-
-    //fit all calibration peaks in all spectra
-    for(i=0; i<keys.length; i++){
-        fitSpectra(keys[i]);
-    }
-
-    //reset to first plot
-    document.getElementById(dataStore.GRIFFINdetectors[0]).onclick()
-}
-
-function customEnergy(){
-    //callback for changing the calibration energies to custom values
-    var i, keys = Object.keys(dataStore.fitResults)
-    var defaultSources = document.getElementById('calibrationSource')
-    var i, keys = Object.keys(dataStore.fitResults)
-
-    defaultSources.value = 'custom'
-
-    //fit all calibration peaks in all spectra
-    for(i=0; i<keys.length; i++){
-        fitSpectra(keys[i]);
-    }
-
-    //reset to first plot
-    document.getElementById(dataStore.GRIFFINdetectors[0]).onclick()
 }
 
 function whatsNormal(){
@@ -428,75 +546,48 @@ function highlightOutliers(){
     }
 }
 
-dataStore = {}
-dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';
-dataStore.ODBrequests = [];
-dataStore.rawData = {};
-dataStore.ROI = {};
-dataStore.fitResults = {};
-dataStore.GRIFFINdetectors = [
-        'GRG01BN00A',
-        'GRG01GN00A',
-        'GRG01RN00A',
-        'GRG01WN00A',
-        'GRG02BN00A',
-        'GRG02GN00A',
-        'GRG02RN00A',
-        'GRG02WN00A',
-        'GRG03BN00A',
-        'GRG03GN00A',
-        'GRG03RN00A',
-        'GRG03WN00A',
-        'GRG04BN00A',
-        'GRG04GN00A',
-        'GRG04RN00A',
-        'GRG04WN00A',
-        'GRG05BN00A',
-        'GRG05GN00A',
-        'GRG05RN00A',
-        'GRG05WN00A',
-        'GRG06BN00A',
-        'GRG06GN00A',
-        'GRG06RN00A',
-        'GRG06WN00A',
-        'GRG07BN00A',
-        'GRG07GN00A',
-        'GRG07RN00A',
-        'GRG07WN00A',
-        'GRG08BN00A',
-        'GRG08GN00A',
-        'GRG08RN00A',
-        'GRG08WN00A',
-        'GRG09BN00A',
-        'GRG09GN00A',
-        'GRG09RN00A',
-        'GRG09WN00A',
-        'GRG10BN00A',
-        'GRG10GN00A',
-        'GRG10RN00A',
-        'GRG10WN00A',
-        'GRG11BN00A',
-        'GRG11GN00A',
-        'GRG11RN00A',
-        'GRG11WN00A',
-        'GRG12BN00A',
-        'GRG12GN00A',
-        'GRG12RN00A',
-        'GRG12WN00A',
-        'GRG13BN00A',
-        'GRG13GN00A',
-        'GRG13RN00A',
-        'GRG13WN00A',
-        'GRG14BN00A',
-        'GRG14GN00A',
-        'GRG14RN00A',
-        'GRG14WN00A',
-        'GRG15BN00A',
-        'GRG15GN00A',
-        'GRG15RN00A',
-        'GRG15WN00A',
-        'GRG16BN00A',
-        'GRG16GN00A',
-        'GRG16RN00A',
-        'GRG16WN00A'
-    ]
+////////////////
+// Callbacks
+////////////////
+
+function updateEnergies(){
+    //callback for the calibration source dropdown; updates energy input boxes with standard values
+
+    var calibtationSource = getSelected(this.id);
+    var lowEnergy = document.getElementById('peak1');
+    var highEnergy = document.getElementById('peak2');
+    var i, keys = Object.keys(dataStore.fitResults)
+
+    if(calibtationSource == 'Co-60'){
+        lowEnergy.value = 1163
+        highEnergy.value = 1332
+    } else if(calibtationSource == 'Eu-152'){
+        lowEnergy.value = 121
+        highEnergy.value = 1408
+    }
+
+    //fit all calibration peaks in all spectra
+    for(i=0; i<keys.length; i++){
+        fitSpectra(keys[i]);
+    }
+
+    //reset to first plot
+    document.getElementById(dataStore.GRIFFINdetectors[0]).onclick()
+}
+
+function customEnergy(){
+    //callback for changing the calibration energies to custom values
+    var i, keys = Object.keys(dataStore.fitResults)
+    var defaultSources = document.getElementById('calibrationSource')
+    var i, keys = Object.keys(dataStore.fitResults)
+
+    defaultSources.value = 'custom'
+
+    //fit all calibration peaks in all spectra
+    for(i=0; i<keys.length; i++){
+        fitSpectra(keys[i]);
+    }
+
+    //reset to first plot
+    document.getElementById(dataStore.GRIFFINdetectors[0]).onclick()
+}

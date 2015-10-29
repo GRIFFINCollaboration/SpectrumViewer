@@ -17,12 +17,22 @@
             //////////////////////////////////////////////////////
 
             QUnit.test( "arrangePoints", function( assert ) {
-                assert.deepEqual(   arrangePoints( [0,1,2,3], [10,11,12,13], [1,2,1,2]), 
+                assert.deepEqual(   arrangePoints( [0,1,2,3], [[10,11,12,13]], [1,2,1,2]), 
                                     [
                                          [0,10,null],
                                          [1,null,11],
                                          [2,12,null],
                                          [3,null,13] 
+                                    ],
+                                    'create array of arrays of pairwise elements' 
+                                );
+
+                assert.deepEqual(   arrangePoints( [0,1,2,3], [[10,11,12,13], [14,15,16,17]], [1,2,1,2]), 
+                                    [
+                                         [0,10,14,null],
+                                         [1,null,11,15],
+                                         [2,12,16,null],
+                                         [3,null,13,17] 
                                     ],
                                     'create array of arrays of pairwise elements' 
                                 );

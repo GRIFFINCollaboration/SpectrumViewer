@@ -170,7 +170,7 @@ function waveformSnap(){
         dataStore.viewer.unzoom();
         this.engaged = 0;
         document.getElementById('snapPin').classList.remove('redText');
-        toggleHidden('fineXcontrol');
+        document.getElementById('fineXcontrol').classList.toggle('hidden')
     } else {
         dataStore.viewer.demandXmin = 0;
         dataStore.viewer.demandXmax = dataStore.viewer.longestHist()
@@ -193,6 +193,6 @@ function waveformSnap(){
         dataStore.viewer.plotData();
         this.engaged = 1; 
         document.getElementById('snapPin').classList.add('redText');
-        toggleHidden('fineXcontrol');
+        document.getElementById('fineXcontrol').classList.toggle('hidden')
     }                   
 }

@@ -255,3 +255,8 @@ table.gainTable tr:nth-child(8n+3),
 table.gainTable tr:nth-child(8n+2){ 
     background-color: #222222;
 }
+
+/* resolution summary */
+div#resolutionWrap{
+    height:100%;
+}
