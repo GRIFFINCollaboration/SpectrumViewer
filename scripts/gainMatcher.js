@@ -576,7 +576,6 @@ function updateEnergies(){
     var calibtationSource = getSelected(this.id);
     var lowEnergy = document.getElementById('peak1');
     var highEnergy = document.getElementById('peak2');
-    var i, keys = Object.keys(dataStore.fitResults)
 
     if(calibtationSource == 'Co-60'){
         lowEnergy.value = 1163
@@ -587,9 +586,7 @@ function updateEnergies(){
     }
 
     //fit all calibration peaks in all spectra
-    for(i=0; i<keys.length; i++){
-        fitSpectra(keys[i]);
-    }
+    fitAll();
 
     //reset to first plot
     document.getElementById(dataStore.GRIFFINdetectors[0]).onclick()
@@ -599,14 +596,11 @@ function customEnergy(){
     //callback for changing the calibration energies to custom values
     var i, keys = Object.keys(dataStore.fitResults)
     var defaultSources = document.getElementById('calibrationSource')
-    var i, keys = Object.keys(dataStore.fitResults)
 
     defaultSources.value = 'custom'
 
     //fit all calibration peaks in all spectra
-    for(i=0; i<keys.length; i++){
-        fitSpectra(keys[i]);
-    }
+    fitAll();
 
     //reset to first plot
     document.getElementById(dataStore.GRIFFINdetectors[0]).onclick()
