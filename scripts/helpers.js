@@ -2,6 +2,19 @@
 // Generic
 ////////////////////
 
+function releaser(operation, terminate, num) {
+    //loop that releases control at each iteration
+    if (num < 0){
+        terminate()
+        return
+    }
+
+    operation(num)
+    setTimeout(function() {
+        releaser(operation, terminate, --num)
+    })
+}
+
 function getSelected(id){
     //return the current value selected by the select element with id.
     //thx http://stackoverflow.com/questions/1085801/get-selected-value-in-dropdown-list-using-javascript

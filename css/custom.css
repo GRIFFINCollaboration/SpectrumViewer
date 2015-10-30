@@ -245,6 +245,18 @@ table.gainTable{
     margin-top: 1em;
 }
 
+div.progress{
+    margin-top: 1em;
+}
+
+.progress-bar {
+    -webkit-transition: none;
+    -moz-transition: none;
+    -ms-transition: none;
+    -o-transition: none;
+    transition: none;
+}​
+
 table.gainTable tr:nth-child(0n+1){
     font-weight: bold;
 }

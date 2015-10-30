@@ -189,7 +189,7 @@ function toggleData(){
 function fetchCallback(){
     //after data has arrived, set up spectrum viewer and perform the inital fits.
 
-    var i, j, keys = Object.keys(dataStore.rawData);
+    var i, keys = Object.keys(dataStore.rawData);
 
     //create a real spectrum viewer
     createFigure()
@@ -199,20 +199,34 @@ function fetchCallback(){
     //keep the plot list the same height as the plot region
     document.getElementById('plotMenu').style.height = document.getElementById('plotWrap').offsetHeight + 'px';
 
-    //fit all calibration peaks in all spectra
-    for(i=0; i<keys.length; i++){
-        fitSpectra(keys[i]);
-    }
-
-    //set up fit line re-drawing
-    dataStore.viewer.drawCallback = addFitLines;
-    //reset to first plot
-    document.getElementById(dataStore.GRIFFINdetectors[0]).onclick()
+    //plug in gain match button
+    document.getElementById('fitAll').onclick = fitAll
 }
 
 ///////////////////
 // Fitting
 ///////////////////
+
+function fitAll(){
+    var i, keys = Object.keys(dataStore.rawData);
+
+    releaser(
+        function(i){
+            var keys = Object.keys(dataStore.rawData);
+            fitSpectra(keys[i])
+            document.getElementById('progress').setAttribute('style', 'width:' + (100*(keys.length - i) / keys.length) + '%' )   
+        },
+
+        function(){
+            //set up fit line re-drawing
+            dataStore.viewer.drawCallback = addFitLines;
+            //reset to first plot
+            document.getElementById(dataStore.GRIFFINdetectors[0]).onclick();
+        },
+
+        keys.length-1
+    )
+}
 
 function toggleFitMode(){
     //manage the state of the Fit Mode button, and the corresponding state of the viewer.
@@ -300,14 +314,14 @@ function fitSpectra(spectrum){
     
     //dump data so it doesn't stack up 
     dataStore.viewer.removeData(spectrum);        
-
-    updateTable(spectrum)
-
 }
 
 function fitCallback(center, width, amplitude, intercept, slope){
     //after fitting, log the fit results, as well as any modification made to the ROI by the fitting algortihm
     //also update table
+    var lowPeak = document.getElementById('fitLow');
+    var highPeak = document.getElementById('fitHigh');
+
 
     if(!dataStore.fitResults[dataStore.currentPlot])
         dataStore.fitResults[dataStore.currentPlot] = [];
@@ -339,6 +353,13 @@ function fitCallback(center, width, amplitude, intercept, slope){
 
     //update resolution plot
     reconstructResolutionData()
+
+    //disengage fit mode buttons
+    if( parseInt(lowPeak.getAttribute('engaged'),10) == 1)
+        lowPeak.onclick();
+    if( parseInt(highPeak.getAttribute('engaged'),10) == 1)
+        highPeak.onclick();
+
 }
 
 function guessPeaks(spectrumName, data){
@@ -440,7 +461,6 @@ function reconstructResolutionData(){
     }
 
     dataStore.resolutionData = arrangePoints(detectorIndex, [dataStore.lowPeakResolution, dataStore.highPeakResolution], flags )
-    //console.log(dataStore.resolutionData)
     dataStore.dygraph.updateOptions( { 'file': dataStore.resolutionData } );
 }
 
