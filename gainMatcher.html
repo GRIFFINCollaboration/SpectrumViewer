@@ -24,7 +24,8 @@
             <!--Plotting-->
             <div id='plotRegion' class='sectionWrapper'>
                 <div id='plotWrap' class='col-md-9 item plotRegion'>
-                    {{> plotSpectra}}
+                    <canvas id='plotID'></canvas>
+                    {{> plotControlHorizontal}}
                     {{> refitOptions}}
                 </div>
                 <div id='plotMenu' class='col-md-2 item plotSelector'>
@@ -44,7 +45,7 @@
         </script>
 
         <script type='text/javascript'>
-            spectrumViewerUL = new ultralight(['header', 'footer', 'gainMatchControl', 'plotSpectra', 'plotSelector', 'refitOptions'], dataSetup, pageLoad)
+            spectrumViewerUL = new ultralight(['header', 'footer', 'gainMatchControl', 'plotControlHorizontal', 'plotSelector', 'refitOptions'], dataSetup, pageLoad)
             spectrumViewerUL.fetchTemplates();
         </script>
 

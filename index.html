@@ -24,7 +24,7 @@
                     <canvas id='plotID'></canvas>
                 </div>
                 <div class='col-md-2'>
-                    {{> plotSpectra}}
+                    {{> plotControlVertical}}
                 </div>
             </div>
 
@@ -69,7 +69,7 @@
         </script>
 
     	<script type='text/javascript'>
-	    	spectrumViewerUL = new ultralight(['footer', 'plotSpectra', 'plotSelector', 'fitRow', 'plotList'], dataSetup, pageLoad)
+	    	spectrumViewerUL = new ultralight(['footer', 'plotControlVertical', 'plotSelector', 'fitRow', 'plotList'], dataSetup, pageLoad)
             spectrumViewerUL.fetchTemplates();
 	    </script>
 

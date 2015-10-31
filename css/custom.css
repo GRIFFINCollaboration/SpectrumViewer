@@ -19,6 +19,12 @@ div.UIgroup{
     margin-bottom: 3px;
 }
 
+.UIchunkHoriz{
+    margin-bottom: 1em;
+    display:inline-block;
+    margin-right: 1em;
+}
+
 div.item{
     border: 5px solid #999999;
     border-radius: 1em;
