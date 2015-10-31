@@ -1,51 +1,55 @@
-<canvas id='plotID'></canvas>
-
 <form id="plotControl">
 
-    <div class='sectionWrapper'>
-        <div class='col-md-12 cursors'>
-            <span id='cursorReport'>x: - y: -</span>
-        </div>
+    <div class='UIgroup cursors'>
+        <h4>Cursor</h4>
+        <span id='cursorReport'>x: - y: -</span>
     </div>
 
-    <div class='sectionWrapper'>
-        <!-- x-axis limits -->
-        <div id="xRangeWrap" class="col-md-8 UIchunk"> 
-            <h4>X-axis Control</h4> 
-            <div id='fineXcontrol'> 
-                <input class="inputBox" id="minX" value="0" type="number"></input>
-                <label class="inputLabel" id="xRangeLabel">&lt; x &lt;</label>
-                <input class="inputBox" id="maxX" value="2048" type="number"></input>
+    <div class='UIgroup'>
+        <h4>X-axis Control</h4> 
 
-                <button class="inputButton" id="bigLeft" type="button">⇇</button>
-                <button class="inputButton" id="littleLeft" type="button">←</button>
-                <button class="inputButton" id="littleRight" type="button">→</button>
-                <button class="inputButton" id="bigRight" type="button">⇉</button>
+        <div class='UIchunk'>
+            <label class="inputLabel" for='minX'>min x:</label>
+            <input class="inputBox" id="minX" value="0" type="number"></input>
+        </div>
 
-                <button class="inputButton" id="unzoom" type="button">Unzoom</button>
+        <div class='UIchunk'>
+            <label class="inputLabel" for='maxX'>max x:</label>
+            <input class="inputBox" id="maxX" value="2048" type="number"></input>
+        </div>
+
+        <div class='UIchunk'>
+            <label class="inputLabel">Scroll</label>
+            <div class='btn-group' roll='group'>
+                <button class="btn btn-default" id="bigLeft" type="button">⇇</button>
+                <button class="btn btn-default" id="littleLeft" type="button">←</button>
+                <button class="btn btn-default" id="littleRight" type="button">→</button>
+                <button class="btn btn-default" id="bigRight" type="button">⇉</button>
             </div>
+        </div>
 
+        <div class='UIchunk btn-group btn-group-sm' roll='group'>
+            <button class="btn btn-default" id="unzoom" type="button">Unzoom</button>
             {{# waveformSnap}}
-                <button type="button" class="btn btn-default btn-lg bigButton" id='snapWaveform' engaged='0'>
-                    <span id='snapPin' class="glyphicon glyphicon-pushpin" aria-hidden="true"></span> Snap to Waveform
-                </button>
+                <button class="btn btn-default" id="snapWaveform" type="button" engaged="0">Snap To Wvfrm.</button>
             {{/ waveformSnap}}
         </div>
-
-        <div class='col-md-3'>
-            <h4>Y-axis Control</h4>
-            <div id="logToggleWrap" class="UIchunk">
-                <input id='linearY' type='radio' checked name='linlog' value='linear'></input>
-                <label class="inputLabel" id="linLabel" for='linearY'>Linear</label>
-                <input id='logY' type='radio' name='linlog' value='log'></input>
-                <label class="inputLabel" id="logLabel" for='logY'>Log</label>
-            </div>            
-        </div>
     </div>
 
-    <div class='sectionWrapper'>
+    <div class='UIgroup'>
+        <h4>Y-axis Control</h4> 
+
+        <div id="logToggleWrap" class="UIchunk">
+            <input id='linearY' type='radio' checked name='linlog' value='linear'></input>
+            <label class="inputLabel" id="linLabel" for='linearY'>Linear</label>
+            <input id='logY' type='radio' name='linlog' value='log'></input>
+            <label class="inputLabel" id="logLabel" for='logY'>Log</label>
+        </div> 
+
+    </div>    
+
+    <div class='UIgroup'>
         {{# doUpdates}}
-        <div id="updateWrap" class=" col-md-12">
             <h4>Data Fetching</h4>
             <label id="updateLabel" class="inputLabel">Update Every: </label>
             <select id="upOptions">
@@ -54,18 +58,8 @@
                 <option value="10000">10 s</option>
                 <option value="-1">never</option>
             </select>
-            <button id="upNow" class="inputButton" type="button">Update Now</button>
-        </div>
+            <button id="upNow" class="btn btn-default" type="button">Update Now</button>
         {{/ doUpdates}}
-
-        <!--div class=" col-md-4">
-            <h4>Utilities</h4>
-            <ul id='utilitiesList' class='list-group'>
-                    <li class='list-group-item' id='snapToWaveform' engaged=0>
-                        Snap to Waveform
-                        <span id='waveformBadge' class="badge plotPresent toggle hidden">&#x2713;</span>
-                    </li>
-            </ul> 
-        </div-->
     </div>
+
 </form>

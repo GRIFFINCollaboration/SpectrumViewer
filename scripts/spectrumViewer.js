@@ -10,6 +10,7 @@ function setupDataStore(){
     dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/'
     dataStore.ODBrequests = ['http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/Runinfo/Run number&encoding=json-p-nokeys&callback=parseODB'];
     dataStore.zeroedPlots = {}
+    dataStore.plotWidthFraction = 0.98
     //what order to display groups of plots in on the plot menu:
     dataStore.listOrder = {
         'HIT': 0,
@@ -32,7 +33,7 @@ function dataSetup(data){
     //take the list of spectra, and sort it into sensible groups for the menu.
     //runs pre-Ultralight setup.
 
-    var i, key, firstSeparator, category, subcategory, groups = [], group,
+    var i, key, firstSeparator, category, subcategory, groups = [], group, topGroups = [],
     detectedGroups={ //hitpattern and sum are hard-coded, rest are autodetected
         'HITPATTERN': [],
         'SUM': []
@@ -73,33 +74,188 @@ function dataSetup(data){
             return 0
     })
 
+    var i,j
+    var griffinQuads = ['B', 'G', 'R', 'W'];
+    var griffinCodes = []
+    var sceptarCodes = []
+    var descantCodes = []
+
+    //generate GRIFFFIN detector nomenclature codes
+    for(i=1; i<17; i++){
+        for(j=0; j<griffinQuads.length; j++){
+            griffinCodes.push('GRG' + alwaysThisLong(i,2) + griffinQuads[j] + 'N00A');
+        }
+    }
+
+    //generate SCEPTAR detector nomenclature codes
+    for(i=1; i<21; i++){
+        sceptarCodes.push('SEP' + alwaysThisLong(i,2) + 'XN00X');
+    }
+
+    //generate DESCANT detector nomenclature codes
+    for(i=1; i<71; i++){
+        descantCodes.push('DSC' + alwaysThisLong(i,2) + 'XN00X');
+    }
+
+    //declare top level groups
+    var topGroups = [
+        {
+            "name": "Hit Patterns & Sums",
+            "id": "hitsAndSums",
+            "color": '#BF55EC',
+            "subGroups": [
+                {
+                    "subname": "Hit Patterns",
+                    "id": "hits",
+                    "items": [
+                        'HITPATTERN_Energy',
+                        'HITPATTERN_Time',
+                        'HITPATTERN_Waveform',
+                        'HITPATTERN_Pulse_Height',
+                        'HITPATTERN_Rate'
+                    ]
+                },
+                {
+                    "subname": "Sum Spectra",
+                    "id": "sums",
+                    "items": [
+                        'SUM_Singles_Energy',
+                        'SUM_Addback_Energy'
+                    ]
+                }
+            ]
+        },
+
+        {
+            "name": "GRIFFIN",
+            "id": "GRIFFIN",
+            "color": '#4183D7',
+            "subGroups": [
+                {
+                    "subname": "Energy",
+                    "id": "GRGenergy",
+                    "items": griffinCodes.map(function(c){return c + '_Energy'})
+                },
+                {
+                    "subname": "Time",
+                    "id": "GRGtime",
+                    "items": griffinCodes.map(function(c){return c + '_Time'})
+                },
+                {
+                    "subname": "Pulse Height",
+                    "id": "GRGpulseHeight",
+                    "items": griffinCodes.map(function(c){return c + '_Pulse_Height'})
+                },
+                {
+                    "subname": "Waveform",
+                    "id": "GRGwaveform",
+                    "items": griffinCodes.map(function(c){return c + '_Waveform'})
+                }
+            ]
+        },
+
+        {
+            "name": "SCEPTAR",
+            "id": "SCEPTAR",
+            "color": '#87D37C',
+            "subGroups": [
+                {
+                    "subname": "Energy",
+                    "id": "SEPenergy",
+                    "items": sceptarCodes.map(function(c){return c + '_Energy'})
+                },
+                {
+                    "subname": "Time",
+                    "id": "SEPtime",
+                    "items": sceptarCodes.map(function(c){return c + '_Time'})
+                },
+                {
+                    "subname": "Pulse Height",
+                    "id": "SEPpulseHeight",
+                    "items": sceptarCodes.map(function(c){return c + '_Pulse_Height'})
+                },
+                {
+                    "subname": "Waveform",
+                    "id": "SEPwaveform",
+                    "items": sceptarCodes.map(function(c){return c + '_Waveform'})
+                }
+            ]
+        },
+
+        {
+            "name": "DESCANT",
+            "id": "DESCANT",
+            "color": '#E87E04',
+            "subGroups": [
+                {
+                    "subname": "Energy",
+                    "id": "DSCenergy",
+                    "items": descantCodes.map(function(c){return c + '_Energy'})
+                },
+                {
+                    "subname": "Time",
+                    "id": "DSCtime",
+                    "items": descantCodes.map(function(c){return c + '_Time'})
+                },
+                {
+                    "subname": "Pulse Height",
+                    "id": "DSCpulseHeight",
+                    "items": descantCodes.map(function(c){return c + '_Pulse_Height'})
+                },
+                {
+                    "subname": "Waveform",
+                    "id": "DSCwaveform",
+                    "items": descantCodes.map(function(c){return c + '_Waveform'})
+                },
+                {
+                    "subname": "Zero Crossing",
+                    "id": "DSCzero",
+                    "items": descantCodes.map(function(c){return c + '_Zero_Crossing'})
+                },
+                {
+                    "subname": "Long Integration",
+                    "id": "DSClongInt",
+                    "items": descantCodes.map(function(c){return c + '_Long_Integration'})
+                },
+                {
+                    "subname": "Short Integration",
+                    "id": "DSCshortInt",
+                    "items": descantCodes.map(function(c){return c + '_Short_Integration'})
+                }
+            ]
+        }
+    ]
+
     return {
         'groups': groups,
         'doUpdates': true,
-        'waveformSnap': true
+        'waveformSnap': true,
+        'topGroups': topGroups
     }
 
 }
 
 function pageLoad(){
     //runs after ultralight is finished setting up the page.
+
+    var i, plotSelectorSections, plotToggles;
+
     createFigure();
     //plug in plot control callbacks:
     setupFigureControl();
     setupFitting();
-
-    //set up clickable list items in plot selection
-    (function() {
-        var plots = document.getElementById('plotMenu').getElementsByTagName('li'), 
-        i;
-
-        for (i=0; i < plots.length; i++) {
-            plots[i].onclick = toggleData;
-        }
-    })();
  
-    //keep the plot list the same height as the plot region
-    document.getElementById('plotMenu').style.height = document.getElementById('plotWrap').offsetHeight + 'px'; 
+    //set up plot selection top row
+    plotSelectorSections = document.getElementsByClassName('topRowSection')
+    for(i=0; i<plotSelectorSections.length; i++){
+        plotSelectorSections[i].onclick = selectMenuSection;
+    }
+
+    //set up plot toggles
+    plotToggles = document.getElementsByClassName('dd-item')
+    for(i=0; i<plotToggles.length; i++){
+        plotToggles[i].onclick = toggleData;
+    }
 
     //plug in the delete all button
     document.getElementById('deleteAll').onclick = deleteAllPlots;
@@ -109,6 +265,9 @@ function pageLoad(){
 
     //set the refresh loop going
     startRefreshLoop.bind(document.getElementById('upOptions'))();
+
+    //start with the griffin menu selected
+    document.getElementById('GRIFFIN').onclick();
 
 }
 
@@ -154,11 +313,22 @@ function parseODB(payload){
     }
 }
 
+function selectMenuSection(){
+    if(dataStore.currentSubrow){
+        document.getElementById(dataStore.currentSubrow).classList.toggle('hidden')
+        document.getElementById('tab' + dataStore.currentSubrow.slice(6)).classList.toggle('active')
+
+    }
+    document.getElementById('subrow' + this.id).classList.toggle('hidden')
+    document.getElementById('tab' + this.id).classList.toggle('active')
+    dataStore.currentSubrow = 'subrow' + this.id;
+}
+
 //////////////////////////////////
 // data series management
 //////////////////////////////////
 
-function toggleData(){
+function toggleData(event){
     //handles adding and removing data from the histogram
     //intended as callback to toggling items in the plot list.
     var html, node, rows, deleteButtons, zeroButtons, dropFitButtons, i;
@@ -210,7 +380,11 @@ function toggleData(){
     }
 
     //toggle indicator
-    document.getElementById('badge'+id).classList.toggle('hidden')
+    //document.getElementById('badge'+this.id).classList.toggle('hidden')
+
+    //don't close dropdown onclick
+    if(event)
+        event.stopPropagation();
 }
 
 function deleteAllPlots(){

@@ -1,0 +1,38 @@
+<div class='section'>
+    <div class='menu-toprow'>
+        <div class='col-md-4 mini-header topRowTab'>
+            <img src='img/logo.gif'></img>
+            <span class='title'>GRIFFIN Spectrum Viewer</span>
+        </div>
+        {{# topGroups}}
+        <div class='col-md-2 topRowTab' style='background-color:{{color}}' id='tab{{id}}'>
+            <button type="button" class="btn btn-default btn-lg topRowSection" id='{{id}}' style='background-color: rgba(255,255,255,0.5); border: 2px solid #000000;'> 
+                <span>{{name}}</span>
+            </button>
+        </div>
+        {{/ topGroups}}
+    </div>
+
+    <div class='menu-subrow-wrap'>
+        {{# topGroups}}
+            <div id='subrow{{id}}' class='menu-subrow hidden' style='background-color:{{color}}'>
+                {{# subGroups}}
+                    <div class='dropdown subrowDrops'>
+                        <button class="btn btn-default dropdown-toggle" type="button" id="drop{{id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            {{subname}}
+                            <span class="caret"></span>
+                        </button>
+
+                        <ul class="dropdown-menu dd-limited" aria-labelledby="drop{{id}}">
+                            {{# items}}
+                                <li class='dd-item' id='{{.}}'>
+                                    <span>{{.}}</span>
+                                </li>
+                            {{/ items}}
+                        </ul>
+                    </div>
+                {{/ subGroups}}                
+            </div>
+        {{/ topGroups}}
+    </div>
+</div>

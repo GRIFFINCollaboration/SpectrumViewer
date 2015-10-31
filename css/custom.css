@@ -9,6 +9,16 @@ div.sectionWrapper{
     clear: both;
 }
 
+div.UIgroup{
+    border-bottom: 1px solid #999999;
+    padding-bottom: 1em;
+    margin-bottom: 1em;
+}
+
+.UIchunk{
+    margin-bottom: 3px;
+}
+
 div.item{
     border: 5px solid #999999;
     border-radius: 1em;
@@ -271,4 +281,64 @@ table.gainTable tr:nth-child(8n+2){
 /* resolution summary */
 div#resolutionWrap{
     height:100%;
+}
+
+/* spectrum viewer navigation menu */
+
+div.menu-subrow-wrap{
+    clear: both;
+}
+
+div.menu-subrow{
+    padding: 1em;
+    border-left: 2px solid #000000;
+    border-bottom: 2px solid #000000;
+    border-right: 2px solid #000000;    
+}
+
+div.subrowDrops{
+    display: inline;
+    color: #000000;
+}
+
+div.topRowTab{
+    padding: 1em;
+}
+
+div.topRowTab.active{
+    border-left: 2px solid #000000;
+    border-top: 2px solid #000000;
+    border-right: 2px solid #000000;
+}
+
+button.topRowSection:hover{
+    background-color: rgba(255,255,255,0.7) !important;
+}
+
+div.mini-header{
+    background-color: #4C4C4C;
+}
+
+div.mini-header img{
+    width: 3em;
+    height: 100%;
+}
+
+span.title{
+    font-size: 120%;
+    margin-left: 1em;
+}
+
+.dd-item{
+    padding: 0.25em;
+}
+
+.dd-item:hover{
+    background-color: #CFCFCF;
+    cursor: pointer;
+}
+
+.dd-limited{
+    max-height: 400px;
+    overflow: auto;
 }

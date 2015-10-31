@@ -16,15 +16,15 @@
         <script src='http://grsmid00.triumf.ca:9093/?cmd=getSpectrumList'></script>
 
         <script id="body" type="text/template">
-            {{> header}}
+            {{> plotList}}
 
             <!--Plotting-->
-            <div id='plotRegion' class='sectionWrapper'>
-                <div id='plotWrap' class='col-md-8 item plotRegion'>
-                    {{> plotSpectra}}
+            <div id='plotRegion' class='sectionWrapper item'>
+                <div id='plotWrap' class='col-md-10 plotRegion'>
+                    <canvas id='plotID'></canvas>
                 </div>
-                <div id='plotMenu' class='col-md-3 item plotSelector'>
-                    {{> plotSelector}}
+                <div class='col-md-2'>
+                    {{> plotSpectra}}
                 </div>
             </div>
 
@@ -69,7 +69,7 @@
         </script>
 
     	<script type='text/javascript'>
-	    	spectrumViewerUL = new ultralight(['header', 'footer', 'plotSpectra', 'plotSelector', 'fitRow'], dataSetup, pageLoad)
+	    	spectrumViewerUL = new ultralight(['footer', 'plotSpectra', 'plotSelector', 'fitRow', 'plotList'], dataSetup, pageLoad)
             spectrumViewerUL.fetchTemplates();
 	    </script>
 

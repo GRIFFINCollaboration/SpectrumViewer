@@ -16,7 +16,7 @@
 function createFigure(){
     //set up the canvas and viewer object
 
-    var width = 0.9*document.getElementById('plotWrap').offsetWidth;
+    var width = dataStore.plotWidthFraction*document.getElementById('plotWrap').offsetWidth;
     var height = 32/48*width;
     var canvas = document.getElementById('plotID')
 
