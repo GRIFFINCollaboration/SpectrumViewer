@@ -512,15 +512,6 @@ function createRateMonitor(){
             width: document.getElementById('plotID').offsetWidth,
             colors: dataStore.colors,
             axisLabelColor: '#FFFFFF',
-            valueFormatter: function(num, opts, seriesName, dygraph, row, col){
-
-                var species = HTMLement(data.companionSpec[row].A, data.companionSpec[row].Q, data.companionSpec[row].species)
-
-                if(col == 0)
-                    return species + ': ' +  'CSB-DSB: ' + num.toFixed(5);
-                else 
-                    return 'DSB-SEBT: ' + num.toFixed(5);
-            },
             axes: {
                 x: {
                     axisLabelFormatter: function(Date, granularity, opts, dygraph){

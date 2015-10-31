@@ -48,8 +48,8 @@
 
     </div>    
 
-    <div class='UIgroup'>
-        {{# doUpdates}}
+    {{# doUpdates}}
+        <div id='updateWrap' class='UIgroup'>
             <h4>Data Fetching</h4>
             <label id="updateLabel" class="inputLabel">Update Every: </label>
             <select id="upOptions">
@@ -59,7 +59,7 @@
                 <option value="-1">never</option>
             </select>
             <button id="upNow" class="btn btn-default" type="button">Update Now</button>
-        {{/ doUpdates}}
-    </div>
+        </div>
+    {{/ doUpdates}}
 
 </form>

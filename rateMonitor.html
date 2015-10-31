@@ -23,7 +23,8 @@
             <!--Plots-->
             <div id='plotRegion' class='sectionWrapper item'>
                 <div id='plotWrap' class='col-md-6 plotRegion'>
-                    {{> plotSpectra}}
+                    <canvas id='plotID'></canvas>
+                    {{> plotControlHorizontal}}
                 </div>
                 <div id='rateWrap' class='col-md-6 plotRegion'>
                     {{> rateTicker}}
@@ -39,7 +40,7 @@
         </script>
 
         <script type='text/javascript'>
-            spectrumViewerUL = new ultralight(['header', 'footer', 'plotSpectra', 'rateTicker', 'rateControl'], dataSetup, pageLoad)
+            spectrumViewerUL = new ultralight(['header', 'footer', 'plotControlHorizontal', 'rateTicker', 'rateControl'], dataSetup, pageLoad)
             spectrumViewerUL.fetchTemplates();
         </script>
 
