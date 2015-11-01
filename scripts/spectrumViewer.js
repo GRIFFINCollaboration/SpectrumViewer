@@ -183,7 +183,8 @@ function setupDataStore(){
     ]
 
     dataStore = {
-        "topGroups": topGroups
+        "topGroups": topGroups,
+        "plotNameListeners": ['listener', 'anotherListener']
     }
 
 }
