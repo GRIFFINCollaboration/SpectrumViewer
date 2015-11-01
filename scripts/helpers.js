@@ -1,3 +1,62 @@
+function promisePartial(name){
+    // promise to get tempate <name>; thanks http://www.html5rocks.com/en/tutorials/es6/promises/
+    var rootURL, path;
+
+    rootURL = window.location.protocol + "//" + window.location.host;
+    path = window.location.pathname.split('/').slice(0,-1);
+    for(i=0; i<path.length; i++){
+        rootURL += path[i] + '/'
+    }
+
+    url = rootURL + 'partials/' + name + '.mustache';
+
+    // Return a new promise.
+    return new Promise(function(resolve, reject) {
+        // Do the usual XHR stuff
+        var req = new XMLHttpRequest();
+        req.open('GET', url);
+
+        req.onload = function() {
+            // This is called even on 404 etc
+            // so check the status
+            if (req.status == 200) {
+                // Resolve the promise with the response text
+                resolve(req.response);
+            }
+            else {
+                // Otherwise reject with the status text
+                // which will hopefully be a meaningful error
+                reject(Error(req.statusText));
+            }
+        };
+
+        // Handle network errors
+        req.onerror = function() {
+            reject(Error("Network Error"));
+        };
+
+        // Make the request
+        req.send();
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ////////////////////
 // Generic
 ////////////////////
