@@ -11,6 +11,8 @@
 //    URL parsed as json upon resolution.
 // 5. expects a global function spectraCallback(spectra), that 
 //    processes the json returned by the promiseJSONURL.
+// Todo: this would all be better encapsulated as a custom element -
+//       maybe when implementation is a bit more consistent.
 /////////////////////////////////////////////////////////////////////////
 
 function createFigure(){
