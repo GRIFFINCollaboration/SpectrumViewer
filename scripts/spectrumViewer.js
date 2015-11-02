@@ -184,7 +184,11 @@ function setupDataStore(){
 
     dataStore = {
         "topGroups": topGroups,
-        "plotNameListeners": ['listener', 'anotherListener']
+        "waveformSnap": true,
+        "doUpdates": true,
+        "plots": ['plotID', 'x', 'y', 'z'],
+        "plotNameListeners": ['plotControl'],
+        "spectrumServer": 'http://grsmid00.triumf.ca:9093/'
     }
 
 }

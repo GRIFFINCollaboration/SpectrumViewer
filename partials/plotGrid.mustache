@@ -1,0 +1,12 @@
+<div id='plotWrap'>
+    {{# singlePlot}}
+        <div class='col-md-12'>
+            <canvas id='{{.}}'></canvas>
+        </div>
+    {{/ singlePlot}}
+    {{# plots}}
+        <div class='col-md-6'>
+            <canvas id='{{.}}'></canvas>
+        </div>
+    {{/ plots}}
+</div>
