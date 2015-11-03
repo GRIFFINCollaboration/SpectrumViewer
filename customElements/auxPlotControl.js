@@ -63,10 +63,10 @@ xtag.register('x-aux-plot-control', {
             document.getElementById('zero' + event.detail.target + event.detail.plotName).onclick = this.zeroSpectrum; 
             document.getElementById('dropFit' + event.detail.target + event.detail.plotName).onclick = this.dropFit; 
 
-            //plug in fit target radio, click it explicitly
+            //plug in fit target radio, emulate its click behavior
             radio = document.getElementById(event.detail.target + event.detail.plotName + 'Radio')
             radio.onclick = this.setFitTarget
-            radio.click();
+            radio.onclick();
         },
 
         ////////////////////////
@@ -149,7 +149,7 @@ xtag.register('x-aux-plot-control', {
         // callbacks
         /////////////////
 
-        setFitTarget: function(){
+        setFitTarget: function(event){
             //callback for radios to set fit targets
             var target = this.getAttribute('target')
             var spectrum = this.getAttribute('spectrum')

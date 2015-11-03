@@ -88,7 +88,7 @@ xtag.register('x-plot-control-v', {
 
         routeNewPlot: function(event){
             //catch a requestPlot event, do appropriate things with it.
-            var i;
+            var i, evt;
 
             //update list of spectra to poll
             if(this.activeSpectra.indexOf(event.detail.plotName) == -1)
@@ -102,11 +102,12 @@ xtag.register('x-plot-control-v', {
                     //add data now so row adder can find its color assignment
                     dataStore.viewers[this.targets[i]].addData(event.detail.plotName, [0]);
 
-                    evt = new CustomEvent('addPlotRow', {detail: 
-                        { 
+                    evt = new CustomEvent('addPlotRow', {
+                        detail:{ 
                             'plotName': event.detail.plotName,
                             'target': this.targets[i] 
-                        }
+                        },
+                        cancelable: true
                     });
 
                     dataStore.addPlotRowListeners.map(function(id){
