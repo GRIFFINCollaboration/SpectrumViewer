@@ -124,6 +124,18 @@ form#plotControl h4{
 ul#utilitiesList{
     cursor: pointer;
 }
+
+div.cellControl{
+    text-align: right;
+    border-top: 1px solid #999999;
+}
+
+div.cellControl span{
+    font-size: 120%;
+    display: inline;
+    float: left;
+}
+
 /*plot selection*/
 
 div.plotSelector{

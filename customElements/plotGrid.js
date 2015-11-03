@@ -22,8 +22,13 @@ xtag.register('x-plots', {
             var i;
 
             for(i=0; i<dataStore.plots.length; i++){
+                //create figures    
                 this.createFigure(dataStore.plots[i]);
-            }  
+
+                //plug in attachment toggles
+                document.getElementById(dataStore.plots[i] + 'attachAxis').onchange = this.attachCell    
+            }
+
         },
 
         createFigure: function(id){
@@ -40,6 +45,21 @@ xtag.register('x-plots', {
                 dataStore.viewers = {};
             dataStore.viewers[id] = new spectrumViewer(id);
             dataStore.viewers[id].plotData();
+        },
+
+        attachCell: function(e){
+            //dispatch an event carrying the cell in question and its attachment state 
+
+            var evt = new CustomEvent('attachCell', {
+                detail: { 
+                    'cellName': this.value,
+                    'state': this.checked 
+                },
+                cancelable: true
+            });
+            dataStore.attachCellListeners.map(function(id){
+                document.getElementById(id).dispatchEvent(evt);
+            });
         }
     }
 

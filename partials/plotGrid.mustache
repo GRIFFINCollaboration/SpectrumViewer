@@ -6,6 +6,11 @@
     {{/ singlePlot}}
     {{# plots}}
         <div class='col-md-6'>
+            <div class='cellControl'>
+                <span>{{.}}</span>
+                <label for='{{.}}attachAxis'>Attach axis control</label>
+                <input type='checkbox' id='{{.}}attachAxis' checked value='{{.}}'></input>
+            </div>
             <canvas id='{{.}}'></canvas>
         </div>
     {{/ plots}}

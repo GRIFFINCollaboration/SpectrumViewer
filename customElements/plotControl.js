@@ -15,6 +15,9 @@ xtag.register('x-plot-control-v', {
             //listen for plot requests
             this.addEventListener('requestPlot', this.routeNewPlot, false);
 
+            //listen for cell attach / unattach events
+            this.addEventListener('attachCell', this.attachCell, false);
+
             //keep a list of canvases to point at
             this.targets = dataStore.plots;
 
@@ -165,6 +168,15 @@ xtag.register('x-plot-control-v', {
             if(period != -1)
                 dataStore.dataRefreshLoop = setInterval(controlElement.refreshAll.bind(controlElement), period );
 
+        },
+
+        attachCell: function(event){
+            //add or remove a plot cell from the targeting list
+
+            if(event.detail.state && this.targets.indexOf(event.detail.cellName) == -1)
+                this.targets.push(event.detail.cellName);
+            else if(!event.detail.state && this.targets.indexOf(event.detail.cellName) != -1)
+                this.targets.splice(this.targets.indexOf(event.detail.cellName), 1);
         },
 
         //////////////////

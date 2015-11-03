@@ -189,6 +189,7 @@ function setupDataStore(){
         "plots": ['CellA', 'CellB', 'CellC', 'CellD'],
         "plotNameListeners": ['plotControl'],
         "addPlotRowListeners": ['auxCtrl'],
+        "attachCellListeners": ['plotControl'],
         "spectrumServer": 'http://grsmid00.triumf.ca:9093/'
     }
 
