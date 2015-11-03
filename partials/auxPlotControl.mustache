@@ -11,18 +11,4 @@
     <span id='{{id}}fitInstructions' class='hidden'>Click on either side of the peak to perform a fit.</span>
 </div>
 
-{{# plots}}
-    <div class='sectionWrapper'>
-        <h4>{{.}}</h4>
-        <table id='{{id}}{{.}}Table' class="table">
-            <tr>
-                <td class='spectrumNames'>Spectra & Plot Color</td>
-                <td class='center uiCol'>Fit Target</td>
-                <td>Fit Results</td>
-                <td class='dropFitsCol center'>Drop Last Fit</td>
-                <td class='zeroCol center'>Zero</td>
-                <td class='deleteCol center'>Delete</td>
-            </tr>
-        </table>
-    </div>
-{{/ plots}}
+{{> auxPlotControlTable}}

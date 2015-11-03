@@ -136,6 +136,18 @@ div.cellControl span{
     float: left;
 }
 
+span.newPlotButton{
+    color: #4183D7;
+    font-size: 400%;
+    cursor: pointer;
+}
+
+span.deleteCell{
+    margin-right: 5px;
+    margin-top: 3px;
+    cursor: pointer;
+}
+
 /*plot selection*/
 
 div.plotSelector{

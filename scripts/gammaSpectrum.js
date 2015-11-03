@@ -113,6 +113,22 @@ function spectrumViewer(canvasID){
 	////////////////////////////////////////////////////////////////
 	//member functions//////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////
+
+	//recalculate all scale parameters in case canvas size changes
+	this.rescale = function(){
+		this.fontScale = Math.min(Math.max(this.canvas.width / 50, 10), 16); // 10 < fontScale < 16
+		this.context.font = this.fontScale + 'px Arial';
+		this.leftMargin = Math.max(7*this.fontScale, this.canvas.width*0.05); //px
+		this.rightMargin = 20; //px
+		this.bottomMargin = 50; //px
+		this.topMargin = 20; //px
+		this.xAxisPixLength = this.canvas.width - this.leftMargin - this.rightMargin; //px
+		this.yAxisPixLength = this.canvas.height - this.topMargin - this.bottomMargin; //px
+		this.binWidth = 0; //px
+	}
+
+
+
 	//draw the plot frame
 	this.drawFrame = function(){
 		var binsPerTick, countsPerTick, i, label;
@@ -237,10 +253,10 @@ function spectrumViewer(canvasID){
 		var text, histLine;
 		
 		//abandon the fit when redrawing, except on refresh
-		if(!RefreshNow){
-			this.fitted = false;
-			this.containerFit.removeAllChildren();
-		}
+		// if(!RefreshNow){
+		// 	this.fitted = false;
+		// 	this.containerFit.removeAllChildren();
+		// }
 
 		//get the axes right
 		this.chooseLimits();	
@@ -528,7 +544,7 @@ function spectrumViewer(canvasID){
 		var thisSpec;
 
 		this.adjustXaxis();
-		this.clearFits();
+		//this.clearFits();
 
 		this.plotData();
 	};
@@ -697,6 +713,7 @@ function spectrumViewer(canvasID){
 	//dump the fit results
 	this.clearFits = function(callback){
 		this.containerFit.removeAllChildren();
+		this.fitted = false;
 		this.stage.update();
 
 		if(callback)
@@ -880,6 +897,9 @@ function spectrumViewer(canvasID){
 
 		//append the data to the data buffer
 		this.plotBuffer[name] = data;
+
+		//dump fits
+		this.clearFits();
 	};
 
 	//remove a data series from the buffer

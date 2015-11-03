@@ -186,10 +186,13 @@ function setupDataStore(){
         "topGroups": topGroups,
         "waveformSnap": true,
         "doUpdates": true,
-        "plots": ['CellA', 'CellB', 'CellC', 'CellD'],
+        "plots": ['Cell0', 'Cell1', 'Cell2', 'Cell3'],
+        "cellIndex": 4,
         "plotNameListeners": ['plotControl'],
         "addPlotRowListeners": ['auxCtrl'],
         "attachCellListeners": ['plotControl'],
+        "deleteCellListeners": ['plotControl', 'auxCtrl'],
+        "newCellListeners": ['auxCtrl'],
         "spectrumServer": 'http://grsmid00.triumf.ca:9093/'
     }
 

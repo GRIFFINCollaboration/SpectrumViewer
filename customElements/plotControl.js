@@ -18,6 +18,9 @@ xtag.register('x-plot-control-v', {
             //listen for cell attach / unattach events
             this.addEventListener('attachCell', this.attachCell, false);
 
+            //listen for cell attach / unattach events
+            this.addEventListener('deleteCell', this.deleteCell, false);
+
             //keep a list of canvases to point at
             this.targets = dataStore.plots;
 
@@ -177,6 +180,15 @@ xtag.register('x-plot-control-v', {
                 this.targets.push(event.detail.cellName);
             else if(!event.detail.state && this.targets.indexOf(event.detail.cellName) != -1)
                 this.targets.splice(this.targets.indexOf(event.detail.cellName), 1);
+        },
+
+        deleteCell: function(event){
+            //respond to a deleteCell event
+
+            var index = this.targets.indexOf(event.detail.cellName);
+            if(index != -1)
+                this.targets.splice(index);
+
         },
 
         //////////////////

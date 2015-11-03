@@ -2,17 +2,30 @@ xtag.register('x-aux-plot-control', {
     lifecycle:{
         inserted: function(){
             //inject template
-            promisePartial('auxPlotControl').then(
-                function(template){
-                    this.innerHTML = Mustache.to_html(template, {
-                        'id': this.id,
-                        'plots': dataStore.plots
-                    });
+            Promise.all(['auxPlotControl', 'auxPlotControlTable'].map(promisePartial)).then(
+                function(templates){
+                    dataStore.auxControlTable = templates[1];
+                    this.innerHTML = Mustache.to_html(
+                        templates[0], 
+                        {
+                            'id': this.id,
+                            'plots': dataStore.plots
+                        },
+                        {
+                            'auxPlotControlTable': templates[1]
+                        }
+                    );
                 }.bind(this)
             )
 
             //listen for new table rows requests
             this.addEventListener('addPlotRow', this.newTableRow, false);
+
+            //listen for new cell requests
+            this.addEventListener('newCell', this.newTable, false);
+
+            //listen for cell attach / unattach events
+            this.addEventListener('deleteCell', this.deleteTable, false);
 
             //prepare the template for additional table rows
             promisePartial('fitRow').then(
@@ -67,6 +80,27 @@ xtag.register('x-aux-plot-control', {
             radio = document.getElementById(event.detail.target + event.detail.plotName + 'Radio')
             radio.onclick = this.setFitTarget
             radio.onclick();
+        },
+
+        newTable: function(event){
+            //add a new table to go with a new cell
+
+            var buffer = document.createElement('div');
+            var html = Mustache.to_html(
+                dataStore.auxControlTable, 
+                {
+                    'id': this.id,
+                    'plots': [event.detail.cellName]
+                }
+            );
+            buffer.innerHTML = html;
+            this.appendChild(buffer.getElementsByTagName('div')[0]);
+        },
+
+        deleteTable: function(event){
+            //delete a table on deleteCell event
+
+            deleteNode(this.id + event.detail.cellName + 'TableWrapper');
         },
 
         ////////////////////////

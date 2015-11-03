@@ -1,17 +1,8 @@
-<div id='plotWrap'>
-    {{# singlePlot}}
-        <div class='col-md-12'>
-            <canvas id='{{.}}'></canvas>
-        </div>
-    {{/ singlePlot}}
-    {{# plots}}
-        <div class='col-md-6'>
-            <div class='cellControl'>
-                <span>{{.}}</span>
-                <label for='{{.}}attachAxis'>Attach axis control</label>
-                <input type='checkbox' id='{{.}}attachAxis' checked value='{{.}}'></input>
-            </div>
-            <canvas id='{{.}}'></canvas>
-        </div>
-    {{/ plots}}
+<div class='cellControl'>
+    <span id='{{id}}{{label}}Delete' class="glyphicon glyphicon-remove-sign redText deleteCell" aria-hidden="true"></span>
+    <span>{{label}}</span>
+    <label for='{{id}}{{label}}attachAxis'>Attach axis control</label>
+    <input type='checkbox' id='{{id}}{{label}}attachAxis' checked value='{{label}}'></input>
 </div>
+<canvas id='{{label}}'></canvas>
+
