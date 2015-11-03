@@ -61,6 +61,20 @@ function promisePartial(name){
 // Generic
 ////////////////////
 
+function checkedRadio(name){
+    //given the name of a radio group, return the checked radio
+
+    var i, radios = document.getElementsByName(name);
+
+    for (i = 0; i < radios.length; i++) {
+        if (radios[i].checked) {
+            return radios[i];
+        }
+    }
+
+    return null
+}
+
 function releaser(operation, terminate, num) {
     //loop that releases control at each iteration
     if (num < 0){

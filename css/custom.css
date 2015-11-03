@@ -13,6 +13,7 @@ div.UIgroup{
     border-bottom: 1px solid #999999;
     padding-bottom: 1em;
     margin-bottom: 1em;
+    color: #FFFFFF;
 }
 
 .UIchunk{
@@ -123,12 +124,6 @@ form#plotControl h4{
 ul#utilitiesList{
     cursor: pointer;
 }
-
-div.cursors{
-    text-align: left;
-    color: #FFFFFF;
-}
-
 /*plot selection*/
 
 div.plotSelector{
@@ -184,7 +179,7 @@ span.spectrumName{
 }
 
 td.uiCol{
-    width: 6em;
+    width: 7em;
 }
 
 td.zeroRow{
@@ -200,6 +195,10 @@ div.swatch{
     height: 1em;
     margin-left: 1em;
     display: inline-block;
+}
+
+tr.plotControlTable{
+    line-height: 2em;
 }
 
 /* rate monitor */

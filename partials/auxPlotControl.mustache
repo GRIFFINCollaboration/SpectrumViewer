@@ -1,0 +1,27 @@
+<div class='sectionWrapper'>
+    <h4>Plot Control</h4>
+    <button type="button" class="btn btn-default btn-lg" id='{{id}}fitMode' engaged='0'>
+        <span id='{{id}}fitBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> Fit a new Peak
+    </button>
+    <span id='{{id}}fitInstructions' class='hidden'>Click on either side of the peak to perform a fit.</span>
+
+    <button type="button" class="btn btn-default btn-lg" id='{{id}}deleteAll'>
+        <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span> Remove all plots
+    </button>
+</div>
+
+{{# plots}}
+    <div class='sectionWrapper'>
+        <h4>{{.}}</h4>
+        <table id='{{id}}{{.}}Table' class="table">
+            <tr>
+                <td class='spectrumNames'>Spectra & Plot Color</td>
+                <td class='center uiCol'>Fit Target</td>
+                <td>Fit Results</td>
+                <td class='dropFitsCol center'>Drop Last Fit</td>
+                <td class='zeroCol center'>Zero</td>
+                <td class='deleteCol center'>Delete</td>
+            </tr>
+        </table>
+    </div>
+{{/ plots}}

@@ -107,6 +107,9 @@ function spectrumViewer(canvasID){
 	this.RefreshTime = 3; //seconds to wait before a plot refresh when requested
 	this.refreshHandler = null; //pointer to the plot's setTimeout when a repaint is requested
 
+	//state variables
+	this.waveformLock = 0; //state of waveform snap
+
 	////////////////////////////////////////////////////////////////
 	//member functions//////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////
