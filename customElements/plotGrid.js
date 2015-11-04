@@ -127,7 +127,7 @@ xtag.register('x-plots', {
 
             deleteNode(this.id + cell + 'Cell');
             delete dataStore.viewers[cell];
-            dataStore.plots.splice(dataStore.plots.indexOf(cell));
+            dataStore.plots.splice(dataStore.plots.indexOf(cell), 1);
 
             evt = new CustomEvent('deleteCell', {
                 detail: { 

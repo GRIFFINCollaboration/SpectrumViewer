@@ -219,10 +219,20 @@ div.swatch{
     height: 1em;
     margin-left: 1em;
     display: inline-block;
+    padding: 0px !important;
 }
 
 tr.plotControlTable{
     line-height: 2em;
+}
+
+x-aux-plot-control div:nth-child(2n){
+    background-color: #444444;
+    padding: 1em;
+}
+
+x-aux-plot-control div:nth-child(2n+1){
+    padding: 1em;
 }
 
 /* rate monitor */
