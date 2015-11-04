@@ -4,6 +4,9 @@
 
 function setupDataStore(){
     //sets up global variable datastore
+
+    var i, groups = [];
+
     dataStore = {}
     dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';
     dataStore.ODBrequests = [];
@@ -80,14 +83,9 @@ function setupDataStore(){
             'GRG16GN00A',
             'GRG16RN00A',
             'GRG16WN00A'
-        ]
-}
-setupDataStore();
+        ];
 
-function dataSetup(data){
-
-    var i, groups = []
-
+    //generate groups for plot selector
     for(i=1; i<17; i++){
         groups.push({
             "groupID": 'GRG' + alwaysThisLong(i, 2),
@@ -113,12 +111,45 @@ function dataSetup(data){
         })
     }
 
-    return {
-        "detectors" : dataStore.GRIFFINdetectors,
-        "groups": groups
-    }
-
+    dataStore.spectrumGroups = groups;
 }
+setupDataStore();
+
+// function dataSetup(data){
+
+//     var i, groups = []
+
+//     for(i=1; i<17; i++){
+//         groups.push({
+//             "groupID": 'GRG' + alwaysThisLong(i, 2),
+//             "groupTitle": 'GRIFFIN ' + alwaysThisLong(i, 2),
+//             "plots": [
+//                 {
+//                     "plotID": 'GRG' + alwaysThisLong(i, 2) + 'BN00A', 
+//                     "title": 'GRG' + alwaysThisLong(i, 2) + 'BN00A'
+//                 },
+//                 {
+//                     "plotID": 'GRG' + alwaysThisLong(i, 2) + 'GN00A', 
+//                     "title": 'GRG' + alwaysThisLong(i, 2) + 'GN00A'
+//                 },
+//                 {
+//                     "plotID": 'GRG' + alwaysThisLong(i, 2) + 'RN00A', 
+//                     "title": 'GRG' + alwaysThisLong(i, 2) + 'RN00A'
+//                 },
+//                 {
+//                     "plotID": 'GRG' + alwaysThisLong(i, 2) + 'WN00A', 
+//                     "title": 'GRG' + alwaysThisLong(i, 2) + 'WN00A'
+//                 }
+//             ]
+//         })
+//     }
+
+//     return {
+//         "detectors" : dataStore.GRIFFINdetectors,
+//         "groups": groups
+//     }
+
+// }
 
 function pageLoad(){
 

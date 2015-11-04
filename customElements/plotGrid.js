@@ -91,8 +91,9 @@ xtag.register('x-plots', {
             //insert new dom guts
             this.addCell(label);
 
-            //make sure the columns are an appropriate size
+            //make sure the columns are an appropriate size & UI is displayed correctly
             this.manageFigureSizes();
+            this.manageCellControl();
 
             //report new cell to listeners
             evt = new CustomEvent('newCell', {
@@ -113,11 +114,21 @@ xtag.register('x-plots', {
             var colClass = 'plotCell col-md-' + colSize;
             var i, cell;
             var canvas, width, height;
-
+console.log(dataStore.plots)
             for(i=0; i<dataStore.plots.length; i++){
                 cell = document.getElementById(this.id + dataStore.plots[i] + 'Cell');
                 cell.setAttribute('class', colClass);
                 this.createFigure(dataStore.plots[i]);
+            }
+        },
+
+        manageCellControl: function(){
+            //cell control shouldn't be presented if there's only one cell.
+
+            var nCells = dataStore.plots.length;
+
+            if(nCells == 1){
+                document.getElementById(this.id + dataStore.plots[0] + 'attachAxis').checked = true;
             }
         },
 
@@ -140,6 +151,7 @@ xtag.register('x-plots', {
             });
 
             this.manageFigureSizes();
+            this.manageCellControl();
         },
 
         createFigure: function(id){
