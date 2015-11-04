@@ -58,7 +58,7 @@ xtag.register('x-plots', {
             //generate html
             var cell = document.createElement('div');
             var colSize = this.determineColSize();
-            cell.setAttribute('class', 'col-md-'+colSize);
+            cell.setAttribute('class', 'plotCell col-md-'+colSize);
             cell.setAttribute('id', this.id + label + 'Cell');
 
             cell.innerHTML = Mustache.to_html(dataStore.cellTemplate, {
@@ -110,7 +110,7 @@ xtag.register('x-plots', {
         manageFigureSizes: function(){
             //rescale figures as appropriate
             var colSize = this.determineColSize();
-            var colClass = 'col-md-' + colSize;
+            var colClass = 'plotCell col-md-' + colSize;
             var i, cell;
             var canvas, width, height;
 

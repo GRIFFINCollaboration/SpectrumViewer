@@ -140,12 +140,18 @@ span.newPlotButton{
     color: #4183D7;
     font-size: 400%;
     cursor: pointer;
+    clear:both;
+    display: block;
 }
 
 span.deleteCell{
     margin-right: 5px;
     margin-top: 3px;
     cursor: pointer;
+}
+
+div.plotCell.col-md-6:nth-child(2n+1){
+    clear: left;
 }
 
 /*plot selection*/
