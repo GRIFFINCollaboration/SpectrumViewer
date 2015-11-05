@@ -98,7 +98,8 @@ xtag.register('x-plots', {
             //report new cell to listeners
             evt = new CustomEvent('newCell', {
                 detail: { 
-                    'cellName': label, 
+                    'cellName': label,
+                    'state': true //attached / active by default
                 },
                 cancelable: true
             });
@@ -114,7 +115,7 @@ xtag.register('x-plots', {
             var colClass = 'plotCell col-md-' + colSize;
             var i, cell;
             var canvas, width, height;
-console.log(dataStore.plots)
+
             for(i=0; i<dataStore.plots.length; i++){
                 cell = document.getElementById(this.id + dataStore.plots[i] + 'Cell');
                 cell.setAttribute('class', colClass);
@@ -125,10 +126,20 @@ console.log(dataStore.plots)
         manageCellControl: function(){
             //cell control shouldn't be presented if there's only one cell.
 
-            var nCells = dataStore.plots.length;
+            var i, nCells = dataStore.plots.length;
 
             if(nCells == 1){
+                //make sure the one remaining cell is attached to the ui
                 document.getElementById(this.id + dataStore.plots[0] + 'attachAxis').checked = true;
+                this.attachCell.bind(document.getElementById(this.id + dataStore.plots[0] + 'attachAxis'))();
+
+                //hide cell attachment ui
+                document.getElementById(this.id + dataStore.plots[0] + 'Control').classList.add('hidden');
+            } else{
+                //unhide cell attachment ui
+                for(i=0; i<nCells; i++){
+                    document.getElementById(this.id + dataStore.plots[i] + 'Control').classList.remove('hidden');
+                }
             }
         },
 

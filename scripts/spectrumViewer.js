@@ -191,7 +191,7 @@ function setupDataStore(){
         "addPlotRowListeners": ['auxCtrl'],                         //array of ids of elements listneing for addPlotRow events
         "attachCellListeners": ['plotControl'],                     //array of ids of elements listneing for attachCell events
         "deleteCellListeners": ['plotControl', 'auxCtrl'],          //array of ids of elements listneing for deleteCell events
-        "newCellListeners": ['auxCtrl'],                            //array of ids of elements listneing for newCell events
+        "newCellListeners": ['plotControl','auxCtrl'],                            //array of ids of elements listneing for newCell events
         "spectrumServer": 'http://grsmid00.triumf.ca:9093/',        //analyzer url + port
         "ODBrequests": ['http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/Runinfo/Run number&encoding=json-p-nokeys&callback=parseODB'], //array of odb requests to make on refresh
         "zeroedPlots": {}                                              //initialize empty object for zeroed plots

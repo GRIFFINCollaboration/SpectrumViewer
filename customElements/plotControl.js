@@ -18,7 +18,10 @@ xtag.register('x-plot-control-v', {
             //listen for cell attach / unattach events
             this.addEventListener('attachCell', this.attachCell, false);
 
-            //listen for cell attach / unattach events
+            //listen for newCell events (attach them automatically)
+            this.addEventListener('newCell', this.attachCell, false);
+
+            //listen for deleteCell events
             this.addEventListener('deleteCell', this.deleteCell, false);
 
             //keep a list of canvases to point at
