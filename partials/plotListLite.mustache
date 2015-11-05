@@ -1,0 +1,15 @@
+{{# plotGroups}}
+    <h4 id='{{id}}{{groupID}}' class='plotGroupTitle'>
+        <span id='{{id}}closed{{groupID}}' class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span>
+        <span id='{{id}}open{{groupID}}' class="glyphicon glyphicon-circle-arrow-down hidden" aria-hidden="true"></span>
+        {{groupTitle}}
+    </h4>
+    <ul id='{{id}}plots{{groupID}}' class='list-group hidden'>
+        {{# plots}}
+            <li class='list-group-item toggle' id='{{id}}{{plotID}}'>
+                {{title}}
+                <span id='{{id}}badge{{plotID}}' class="badge plotPresence hidden">&#x2713;</span>
+            </li>
+        {{/ plots}}
+    </ul>
+{{/plotGroups}}

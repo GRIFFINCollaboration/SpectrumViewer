@@ -1,8 +1,14 @@
-xtag.register('x-plot-control-v', {
+xtag.register('x-plot-control', {
     lifecycle:{
         inserted: function(){
+
+            var temp
+            if(this.getAttribute('config') == 'vertical')
+                temp = 'plotControlVertical';
+            else if(this.getAttribute('config') == 'horizontal')
+                temp = 'plotControlHorizontal';
             //inject template
-            promisePartial('plotControlVertical').then(
+            promisePartial(temp).then(
                 function(template){
                     this.innerHTML = Mustache.to_html(template, {
                         'id': this.id,
@@ -55,7 +61,8 @@ xtag.register('x-plot-control-v', {
             document.getElementById(this.id+'unzoom').onclick = this.unzoomAllSpectra.bind(this);
 
             //plug in the waveform snap buttion
-            document.getElementById(this.id+'snapWaveform').onclick = this.snapAll.bind(this);
+            if(dataStore.waveformSnap)
+                document.getElementById(this.id+'snapWaveform').onclick = this.snapAll.bind(this);
 
             //lin-log toggle
             linY = document.getElementById(this.id+'linearY');
@@ -133,7 +140,7 @@ xtag.register('x-plot-control-v', {
         },
 
         refreshAll: function(){
-            //refresh all spectra
+            //refresh all spectra & odb parameters
 
             var queries = constructQueries(this.activeSpectra);
 
@@ -141,9 +148,12 @@ xtag.register('x-plot-control-v', {
                 ).then(
                     function(spectra){
                         var i, j, key, viewerKey;
+                        dataStore.rawData = {};
 
                         for(i=0; i<spectra.length; i++){
                             for(key in spectra[i]){
+                                //keep the raw results around
+                                dataStore.rawData[key] = JSON.parse(JSON.stringify(spectra[i][key]));
                                 //repopulate all spectra that use this spectrum
                                 for(viewerKey in dataStore.viewers){
                                     if(dataStore.viewers[viewerKey].plotBuffer[key]){

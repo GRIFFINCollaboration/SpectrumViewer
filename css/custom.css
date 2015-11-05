@@ -325,7 +325,7 @@ table.gainTable tr:nth-child(8n+2){
 
 /* resolution summary */
 div#resolutionWrap{
-    height:100%;
+    /*height:100%;*/
 }
 
 /* spectrum viewer navigation menu */

@@ -18,6 +18,7 @@ xtag.register('x-plots', {
                     //set up fancy new plot button
                     newPlot = document.createElement('span');
                     newPlot.setAttribute('class', 'glyphicon glyphicon-plus-sign newPlotButton');
+                    newPlot.setAttribute('id', this.id + 'newPlotButton');
                     newPlot.onclick = this.manageCellCreation.bind(this);
                     this.appendChild(newPlot);
 
@@ -32,8 +33,8 @@ xtag.register('x-plots', {
 
     methods:{
         configure: function(){
-
-
+            //make sure things are arranged nicely for the number of plots presented initially
+            this.manageCellControl();
         },
 
         determineColSize: function(){

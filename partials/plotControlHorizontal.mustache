@@ -1,64 +1,62 @@
-<form id="plotControl">
+<form id="{{id}}plotControl">
 
     <div class='sectionWrapper'>
 
         <div class='col-md-2 cursors'>
             <h4>Cursor</h4>
-            <span id='cursorReport'>x: - y: -</span>
+            <span id='{{id}}cursorReport'>x: - y: -</span>
         </div>
 
         <div class='col-md-2'>
             <h4>Y-axis Control</h4> 
 
-            <div id="logToggleWrap" class="UIchunkHoriz">
-                <input id='linearY' type='radio' checked name='linlog' value='linear'></input>
-                <label class="inputLabel" id="linLabel" for='linearY'>Linear</label>
-                <input id='logY' type='radio' name='linlog' value='log'></input>
-                <label class="inputLabel" id="logLabel" for='logY'>Log</label>
-            </div> 
+            <div id="{{id}}logToggleWrap"  class='UIchunk btn-group btn-group-sm' roll='group'>
+                <button id='{{id}}linearY'class="btn btn-default" type="button">Set Lin</button>
+                <button id='{{id}}logY'class="btn btn-default" type="button">Set Log</button>
+            </div>
 
         </div> 
 
         <div class='col-md-8'>
             <h4>X-axis Control</h4> 
             <div class='UIchunkHoriz'>
-                <label class="inputLabel" for='minX'>min x:</label>
-                <input class="inputBox" id="minX" value="0" type="number"></input>
+                <label class="inputLabel" for='{{id}}minX'>min x:</label>
+                <input class="inputBox" id="{{id}}minX" value="0" type="number"></input>
 
-                <label class="inputLabel" for='maxX'>max x:</label>
-                <input class="inputBox" id="maxX" value="2048" type="number"></input>
+                <label class="inputLabel" for='{{id}}maxX'>max x:</label>
+                <input class="inputBox" id="{{id}}maxX" value="2048" type="number"></input>
             </div>
 
             <div class='UIchunkHoriz'>
                 <label class="inputLabel">Scroll</label>
                 <div class='btn-group' roll='group'>
-                    <button class="btn btn-default" id="bigLeft" type="button">⇇</button>
-                    <button class="btn btn-default" id="littleLeft" type="button">←</button>
-                    <button class="btn btn-default" id="littleRight" type="button">→</button>
-                    <button class="btn btn-default" id="bigRight" type="button">⇉</button>
+                    <button class="btn btn-default" id="{{id}}bigLeft" type="button">⇇</button>
+                    <button class="btn btn-default" id="{{id}}littleLeft" type="button">←</button>
+                    <button class="btn btn-default" id="{{id}}littleRight" type="button">→</button>
+                    <button class="btn btn-default" id="{{id}}bigRight" type="button">⇉</button>
                 </div>
     
 
                 <div class='btn-group btn-group-sm' roll='group'>
-                    <button class="btn btn-default" id="unzoom" type="button">Unzoom</button>
+                    <button class="btn btn-default" id="{{id}}unzoom" type="button">Unzoom</button>
                     {{# waveformSnap}}
-                        <button class="btn btn-default" id="snapWaveform" type="button" engaged="0">Snap To Wvfrm.</button>
+                        <button class="btn btn-default" id="{{id}}snapWaveform" type="button" engaged="0">Snap To Wvfrm.</button>
                     {{/ waveformSnap}}
                 </div>
             </div>
         </div>
 
         {{# doUpdates}}
-            <div id='updateWrap' class='col-md-3'>        
+            <div id='{{id}}updateWrap' class='col-md-3'>        
                 <h4>Data Fetching</h4>
-                <label id="updateLabel" class="inputLabel">Update Every: </label>
-                <select id="upOptions">
+                <label id="{{id}}updateLabel" class="inputLabel">Update Every: </label>
+                <select id="{{id}}upOptions">
                     <option value="3000" selected="selected">3 s</option>
                     <option value="5000">5 s</option>
                     <option value="10000">10 s</option>
                     <option value="-1">never</option>
                 </select>
-                <button id="upNow" class="btn btn-default" type="button">Update Now</button>
+                <button id="{{id}}upNow" class="btn btn-default" type="button">Update Now</button>
             </div>
         {{/ doUpdates}}
 
