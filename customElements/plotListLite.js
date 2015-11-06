@@ -55,8 +55,10 @@ xtag.register('x-plot-list-lite', {
             //plot the requested plot in target viewer, after removing all other plots found there
 
             //dump old data
-            target.removeData(dataStore.currentPlot);
-            document.getElementById(this.id + 'badge' + dataStore.currentPlot.slice(0,10)).classList.add('hidden');
+            if(dataStore.currentPlot){
+                target.removeData(dataStore.currentPlot);
+                document.getElementById(this.id + 'badge' + dataStore.currentPlot.slice(0,10)).classList.add('hidden');
+            }
 
             //add new data
             target.addData(plot, JSON.parse(JSON.stringify(dataStore.rawData[plot])) );
