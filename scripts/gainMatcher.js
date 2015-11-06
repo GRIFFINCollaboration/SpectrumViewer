@@ -18,7 +18,7 @@ function setupDataStore(){
     //custom element config
     dataStore.plots = ['Spectra'];
     dataStore.attachCellListeners = ['plotControl'];
-    dataStore.fitAllCompleteListeners = ['plotList']
+    dataStore.fitAllCompleteListeners = ['plotList'];
     dataStore.cellIndex = 1;
     //resolution plot
     dataStore.plotStyle = {   
@@ -47,7 +47,8 @@ function setupDataStore(){
             }
         }
     }
-    dataStore.resolutionData = [[0,0,0], [1,0,0], [2,0,0], [3,0,0]];
+    dataStore.plotInitData = [[0,0,0], [1,0,0], [2,0,0], [3,0,0]];
+    dataStore.resolutionData = [];
     dataStore.lowPeakResolution = [];
     dataStore.lowPeakResolution.fill(0,64);
     dataStore.highPeakResolution = [];

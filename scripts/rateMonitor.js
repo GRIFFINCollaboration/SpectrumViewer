@@ -4,8 +4,13 @@
 
 function setupDataStore(){
     //sets up global variable datastore
+    var i, labels = ['time']
 
     dataStore = {};
+    //x-tag config
+    dataStore.plots = ['SUM_Singles_Energy'];
+    dataStore.attachCellListeners = ['plotControl'];
+
     dataStore.manualBKG = {};
     dataStore.rateData = [[new Date(),0,0,0,0,0,0,0,0]];
     dataStore.annotations = {};
@@ -93,8 +98,53 @@ function setupDataStore(){
                 }
             ]
         }
+
+    //dygraph
+    //construct plot labels
+    for(i=0; i<dataStore.defaults.gammas.length; i++){
+        labels.push(dataStore.defaults.gammas[i].title);
+    }
+    for(i=0; i<dataStore.defaults.levels.length; i++){
+        labels.push(dataStore.defaults.levels[i].title)
+    }
+
+    dataStore.plotStyle = {   
+        labels: labels,
+        title: 'Gate Integrals for ' + dataStore.targetSpectrum,
+        //height: document.getElementById(dataStore.plots[0]).offsetHeight - dataStore.viewer.bottomMargin + 20,
+        //width: document.getElementById(dataStore.plots[0]).offsetWidth,
+        colors: dataStore.colors,
+        axisLabelColor: '#FFFFFF',
+        axes: {
+            x: {
+                axisLabelFormatter: function(Date, granularity, opts, dygraph){
+                    return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
+                }
+            }
+        },
+        labelsDiv: 'ratesLegend',
+        legend: 'always'
+    };
+    dataStore.plotInitData = [[new Date(),0,0,0,0,0,0,0,0]];
 }
 setupDataStore();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function dataSetup(data){
     //define data for templates

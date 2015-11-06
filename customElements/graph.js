@@ -18,7 +18,7 @@ xtag.register('x-graph', {
 
     methods:{
         configure: function(){
-            this.initializePlot(dataStore.resolutionData, dataStore.plotStyle);
+            this.initializePlot(dataStore.plotInitData, dataStore.plotStyle);
         },
 
         initializePlot: function(data, style){
@@ -33,7 +33,7 @@ xtag.register('x-graph', {
 
         updateData: function(event){
             //catch an event carrying new data, and update.
-            
+
             this.dygraph.updateOptions( { 'file': event.detail.data } );
         }
     }
