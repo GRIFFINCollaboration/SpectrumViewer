@@ -305,6 +305,35 @@ function createBins(n, constant){
 // Spectrum Viewer specific
 //////////////////////////////////
 
+function dispatcher(payload, listeners, eventName){
+    //dispatch an event carrying payload as its detail, to listeners with ids listed.
+    var evt;
+
+    evt = new CustomEvent(eventName, {
+        detail: payload,
+        cancelable: true
+    });
+
+    listeners.map(function(id){
+        document.getElementById(id).dispatchEvent(evt);
+    });   
+}
+
+function queueAnnotation(series, flag){
+    //sets up the <flag> text to appear in the annotation for the next point on <series>
+
+    if(dataStore.annotations[series] && dataStore.annotations[series].text.indexOf(flag) == -1){
+        dataStore.annotations[series].text += '\n' + flag;
+    } else{
+        dataStore.annotations[series] = {
+            'series': series,
+            'shortText': '?',
+            'text': flag,
+            'cssClass': 'annotation'
+        }
+    }
+}
+
 function togglePlotList(id, suppressRecursion){
     //change whether a plot list is open or closed, for binding to the onclick of the subheaders
     //only allow one list open at a time.

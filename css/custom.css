@@ -250,10 +250,6 @@ div#rateLegend{
     margin-bottom: 1em;
 }
 
-div#rateWrap{
-    height:100%;
-}
-
 input[type="range"]{
     width: 10em;
     display: inline;
@@ -289,7 +285,7 @@ span.range-value::after {
 
 /* plot annotations */
 .annotation{
-    background-color: rgba(0,0,0,0);
+    background-color: #FFFFFF;
     border-radius: 10px;
     color: #000000 !important;
     line-height: 1em;
@@ -321,11 +317,6 @@ table.gainTable tr:nth-child(8n+4),
 table.gainTable tr:nth-child(8n+3),
 table.gainTable tr:nth-child(8n+2){ 
     background-color: #222222;
-}
-
-/* resolution summary */
-div#resolutionWrap{
-    /*height:100%;*/
 }
 
 /* spectrum viewer navigation menu */
