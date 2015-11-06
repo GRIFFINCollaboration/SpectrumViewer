@@ -154,16 +154,21 @@ function spectrumViewer(canvasID){
 
 
 		//Decorate x axis////////////////////////////////////////////////////////
-		//decide how many ticks to draw on the x axis; come as close to a factor of the number of bins as possible:
-		this.nXticks = 6;
-		while( Math.floor(this.XaxisLength / this.nXticks) == Math.floor(this.XaxisLength / (this.nXticks-1)) )
-			this.nXticks--;
-		//draw at most one tick per bin:
-		if(this.XaxisLength < (this.nXticks-1) )
-			this.nXticks = this.XaxisLength+1;
+		//choose a sane number of ticks and tick intervals
+		binsPerTick = Math.log10((this.XaxisLimitMax - this.XaxisLimitMin))
+		binsPerTick = Math.pow(10, Math.floor(binsPerTick) - 1)
+		this.nXticks = Math.round((this.XaxisLimitMax - this.XaxisLimitMin) / binsPerTick) + 1;
+		if(this.nXticks > 11){
+			binsPerTick = Math.log10((this.XaxisLimitMax - this.XaxisLimitMin))
+			binsPerTick = Math.pow(10, Math.floor(binsPerTick))
+			this.nXticks = Math.round((this.XaxisLimitMax - this.XaxisLimitMin) / binsPerTick) + 1;
 
-		//how many bins should there be between each tick?
-		binsPerTick = Math.floor((this.XaxisLimitMax - this.XaxisLimitMin) / (this.nXticks-1));
+			if(this.nXticks < 5){
+				binsPerTick = Math.log10((this.XaxisLimitMax - this.XaxisLimitMin))
+				binsPerTick = Math.pow(10, Math.floor(binsPerTick))/2
+				this.nXticks = Math.round((this.XaxisLimitMax - this.XaxisLimitMin) / binsPerTick) + 1;				
+			}
+		}
 
 		//draw x axis ticks & labels:
 		for(i=0; i<this.nXticks; i++){
