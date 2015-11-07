@@ -1,48 +1,93 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
     <head>
-        <script src='scripts/mustache.js' type="text/javascript"></script>
-        <script src='scripts/ultralight.js' type="text/javascript"></script>
+        <script src='https://cdn.rawgit.com/x-tag/core/master/dist/x-tag-core.min.js' type="text/javascript"></script>
+        <script src='https://cdn.rawgit.com/janl/mustache.js/master/mustache.js' type="text/javascript"></script>
         <script src='scripts/easeljs-0.7.0.min.js' type="text/javascript"></script>
         <script src='scripts/dygraphs.1.1.1.min.js' type="text/javascript"></script>
         <script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
         <script src='scripts/fitit.js' type="text/javascript"></script>
-        <script src='scripts/rateMonitor.js' type="text/javascript"></script>
-        <script src='scripts/helpers.js' type="text/javascript"></script>
-        <script src='scripts/plotSpectraHelpers.js' type="text/javascript"></script>
-
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
+        <script src='scripts/helpers.js' type="text/javascript"></script>
+        <script src='scripts/rateMonitor.js' type="text/javascript"></script>
         <link rel="stylesheet" type="text/css" href="css/custom.css"/>
+        <!--script src='http://grsmid00.triumf.ca:9093/?cmd=getSpectrumList'></script-->
 
-        <script id="body" type="text/template">
-            {{> header}}
-
-            <!--Plots-->
-            <div id='plotRegion' class='sectionWrapper item'>
-                <div id='plotWrap' class='col-md-6 plotRegion'>
-                    <canvas id='plotID'></canvas>
-                    {{> plotControlHorizontal}}
-                </div>
-                <div id='rateWrap' class='col-md-6 plotRegion'>
-                    {{> rateTicker}}
-                </div>
-            </div>
-
-            <!--Window Controls-->
-            <div class='sectionWrapper item expand' id='rateMonitorControl'>
-                {{> rateControl}}
-            </div>
-
-            {{> footer}}
-        </script>
-
-        <script type='text/javascript'>
-            spectrumViewerUL = new ultralight(['header', 'footer', 'plotControlHorizontal', 'rateTicker', 'rateControl'], dataSetup, pageLoad)
-            spectrumViewerUL.fetchTemplates();
-        </script>
-
+        <script src='customElements/header.js' type="text/javascript"></script>
+        <script src='customElements/plotGrid.js' type="text/javascript"></script>
+        <script src='customElements/plotControl.js' type="text/javascript"></script>
+        <script src='customElements/graph.js' type="text/javascript"></script>
+        <script src='customElements/rateSlider.js' type="text/javascript"></script>
+        <script src='customElements/rateControl.js' type="text/javascript"></script>
+        <script src='customElements/footer.js' type="text/javascript"></script>
     </head>
+
+    <body>
+        <x-header></x-header>
+
+        <!--Plots-->
+        <div id='plotRegion' class='sectionWrapper item'>
+            <div id='plotWrap' class='col-md-6 plotRegion'>
+                <x-plots id='plotGrid'></x-plots>
+                <x-plot-control id='plotControl' config='horizontal'></x-plot-control>
+            </div>
+            <div id='rateWrap' class='col-md-6 plotRegion'>
+                <x-graph id='rates'></x-graph>
+                <x-rate-sliders id='rateSliders'></x-rate-sliders>
+            </div>
+        </div>
+
+        <!--Window Controls-->
+        <div class='sectionWrapper item expand' id='rateMonitorControl'>
+            <x-rate-control id='rateControl'></x-rate-control>
+        </div>
+
+        <x-footer></x-footer>
+
+        <script>
+            document.addEventListener("DOMComponentsLoaded", theDomHasLoaded, false);
+            function theDomHasLoaded(){
+
+                var i,
+                    pc = document.getElementById('plotControl'),
+                    rc = document.getElementById('rateControl'),
+                    ticker = document.getElementById('rates'),
+                    vw = dataStore.plots[0];
+
+                document.getElementById('plotGrid').configure();
+                pc.configure();
+                rc.configure();
+                document.getElementById('rateSliders').configure();
+
+                //don't want additional plots in this app
+                deleteNode('plotGridnewPlotButton');
+
+                //prepare initial gamma windows
+                for(i=0; i<dataStore.defaults.gammas.length; i++){
+                    rc.drawWindow(i, dataStore.defaults.gammas[i].min, dataStore.defaults.gammas[i].max);
+                }
+
+                //plot the spectrum of interest
+                dataStore.viewers[vw].addData(dataStore.targetSpectrum, []);
+                pc.activeSpectra = [dataStore.targetSpectrum];
+                pc.refreshAll();
+
+                //set up dygraph
+                dataStore.plotStyle['height'] = document.getElementById(dataStore.plots[0]).offsetHeight - dataStore.viewers[vw].bottomMargin + 20,
+                dataStore.plotStyle['weight'] = document.getElementById(dataStore.plots[0]).offsetWidth
+                document.getElementById('rates').configure();
+
+                //manage which gamma window are on by defualt
+                for(i=0; i<dataStore.defaults.gammas.length; i++){
+                    if(!dataStore.defaults.gammas[i].onByDefault)
+                        document.getElementById('display' + dataStore.defaults.gammas[i].index).click()
+                }
+
+                //don't allow refresh period to change
+                deleteNode('plotControlupdateWrap');
+            }
+        </script>
+    </body>
 </html>
