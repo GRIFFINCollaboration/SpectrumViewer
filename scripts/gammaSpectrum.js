@@ -31,10 +31,10 @@ function spectrumViewer(canvasID){
 	this.yAxisPixLength = this.canvas.height - this.topMargin - this.bottomMargin; //px
 	this.binWidth = 0; //px
 	this.XaxisLimitMin = 0; //default min channel to show on x-axis
-	this.XaxisLimitMax = 512; //default max channel to show on x-axis
+	this.XaxisLimitMax = 2048; //default max channel to show on x-axis
 	this.YaxisLimitMin = 0; //default min counts to show on y-axis
 	this.YaxisLimitMax = 500; //default max counts to show on y-axis
-	this.XaxisLimitAbsMax = 512; //highest maximum allowed on the x-axis
+	this.XaxisLimitAbsMax = 2048; //highest maximum allowed on the x-axis
 	this.XaxisLength = this.XaxisLimitMax-this.XaxisLimitMin; //length of x-axis in bins
 	this.YaxisLength = this.YaxisLimitMax-this.YaxisLimitMin; //height of y-axis in counts
 	this.countHeight = 0; //height of one count
@@ -463,7 +463,7 @@ function spectrumViewer(canvasID){
 			return;
 		}
 		//autodetect max otherwise
-		this.XaxisLimitAbsMax = 512;
+		this.XaxisLimitAbsMax = 2048;
 		for(thisSpec in this.plotBuffer){
 			//skip hidden spectra
 			if(this.hideSpectrum[thisSpec]) continue;
@@ -482,7 +482,7 @@ function spectrumViewer(canvasID){
 		this.XaxisLength = this.XaxisLimitMax - this.XaxisLimitMin;
 		
 		minYvalue = 1000000;
-		this.XaxisLimitAbsMax = 512;
+		this.XaxisLimitAbsMax = 2048;
 		maxYvalue=this.YaxisLimitMax;
 		// Loop through to get the data and set the Y axis limits
 		for(thisSpec in this.plotBuffer){

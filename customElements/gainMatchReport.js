@@ -29,6 +29,9 @@ xtag.register('x-gain-match-report', {
         },
 
         fitAll: function(){
+            //fit all spectra to the peaks defined.
+            //this: x-gain-match-report object
+
             var i, keys = Object.keys(dataStore.rawData);
 
             releaser(
@@ -58,6 +61,9 @@ xtag.register('x-gain-match-report', {
 
         fitSpectra: function(spectrum){
             //redo the fits for the named spectrum.
+            //<spectrum>: string; name of spectrum, per names from analyzer
+            //this: x-gain-match-report object
+
             var viewerName = dataStore.plots[0];
 
             //identify regions of interest
@@ -87,6 +93,7 @@ xtag.register('x-gain-match-report', {
 
         addFitLines: function(){
             //add current fits to the plot
+
             var lower, upper,
                 viewerName = dataStore.plots[0];
 
@@ -122,6 +129,9 @@ xtag.register('x-gain-match-report', {
             //given a spectrum <data>, identify the bins corresponding to the maxima of the two largest peaks
             //around where we expect the calibration peaks to fall (+- 30 bins of bin==peak energy in kev)
             //register a range around those peaks as our automated guesses for where the gammas of interest lie.
+            //<spectrumName>: string; name of spectrum, per names from analyzer
+            //<data>: array; bin contents for a spectrum, array index == bin number.
+            //this: x-gain-match-report object
 
             var i, max, center, ROIlower, ROIupper, buffer,
             dataCopy = JSON.parse(JSON.stringify(data)),
@@ -160,6 +170,13 @@ xtag.register('x-gain-match-report', {
         fitCallback: function(center, width, amplitude, intercept, slope){
             //after fitting, log the fit results, as well as any modification made to the ROI by the fitting algortihm
             //also update table
+            //<center>: number; center of gaussian peak
+            //<width>: number; width of peak
+            //<amplitude>: number; amplitude of peak
+            //<intercept>: number; intercept of linear background beneath peak
+            //<slope>: number; slope of linear background
+            //this: x-gain-match-report object
+
             var lowPeak = document.getElementById('fitLow');
             var highPeak = document.getElementById('fitHigh');
             var viewerName = dataStore.plots[0];
@@ -207,6 +224,9 @@ xtag.register('x-gain-match-report', {
         updateTable: function(spectrum){
             //update the report table with whatever is currently in the dataStore
             //recall dataStore.fitReults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
+            //<spectrumName>: string; name of spectrum, per names from analyzer
+            //this: x-gain-match-report object
+
             var calibration
 
             if(Array.isArray(dataStore.fitResults[spectrum][0]))
@@ -225,6 +245,9 @@ xtag.register('x-gain-match-report', {
         calculateLine: function(lowBin, highBin){
             //given the positions of the low bin and high bin, return [intercept, slope] defining
             //a striaght calibration line using the energies reported in the input.
+            //lowBin: number; center of low energy peak in bins
+            //highBin: number; center of high energy peak in bins
+            //this: x-gain-match-report object
 
             var lowEnergy = document.getElementById(this.id + 'peak1').value
             var highEnergy = document.getElementById(this.id + 'peak2').value
@@ -271,6 +294,7 @@ xtag.register('x-gain-match-report', {
 
         highlightOutliers: function(){
             //step through the fit results, and highlight table rows corresponding to wacky channels
+            //this: x-gain-match-report object
 
             var i;
             var keys = Object.keys(dataStore.fitResults);
@@ -316,6 +340,7 @@ xtag.register('x-gain-match-report', {
 
         updateEnergies: function(){
             //callback for the calibration source dropdown; updates energy input boxes with standard values
+            //this: x-gain-match-report object
 
             var calibtationSource = getSelected(this.id + 'calibrationSource');
             var lowEnergy = document.getElementById(this.id + 'peak1');
@@ -332,6 +357,8 @@ xtag.register('x-gain-match-report', {
 
         customEnergy: function(){
             //callback for changing the calibration energies to custom values
+            //this: x-gain-match-report object
+
             var i, keys = Object.keys(dataStore.fitResults)
             var defaultSources = document.getElementById(this.id + 'calibrationSource')
 
@@ -340,6 +367,8 @@ xtag.register('x-gain-match-report', {
 
         toggleFitMode: function(){
             //gain matcher needs special fit controls for convenience
+            //this: fit mode engage button element
+
             var viewerName = dataStore.plots[0];
 
             if(parseInt(this.getAttribute('engaged'),10) == 0){

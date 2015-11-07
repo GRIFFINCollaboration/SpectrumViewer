@@ -34,6 +34,9 @@ xtag.register('x-plot-list-lite', {
 
         toggleSection: function(groupID, suppressRecursion){
             //toggle a section group open or closed
+            //<groupID>: string; name of expandable dropdown
+            //<suppressRecursion>: bool; true -> prevent recursion
+            //this: x-plot-list-lite object
 
             //close old list
             if(this.openList && !suppressRecursion && groupID!=this.openList){
@@ -53,6 +56,9 @@ xtag.register('x-plot-list-lite', {
 
         exclusivePlot: function(plot, target){
             //plot the requested plot in target viewer, after removing all other plots found there
+            //<plot>: string; name of spectrum from analyzer
+            //<target>: string; spectrumViewer object to plot the plot in.
+            //this: x-plot-list-lite object 
 
             //dump old data
             if(dataStore.currentPlot){
@@ -71,6 +77,8 @@ xtag.register('x-plot-list-lite', {
 
         snapToTop: function(){
             //reset display to first plot, first section
+            //this: x-plot-list-lite object
+            
             document.getElementById(this.id + dataStore.plotGroups[0].groupID).onclick();
             document.getElementById(this.id + dataStore.plotGroups[0].plots[0].plotID).onclick();
 
