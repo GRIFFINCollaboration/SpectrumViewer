@@ -55,6 +55,8 @@ xtag.register('x-aux-plot-control', {
 
         newTableRow: function(event){
             //add a row to table event.detail.target for spectrum event.detail.plotName
+            //<event>: event; addPlotRow custom event
+            //this: x-aux-plot-control object
 
             //generate the row object and append it
             var radio;
@@ -84,6 +86,8 @@ xtag.register('x-aux-plot-control', {
 
         newTable: function(event){
             //add a new table to go with a new cell
+            //<event>: event; newCell custom event
+            //this: x-aux-plot-control object
 
             var buffer = document.createElement('div');
             var html = Mustache.to_html(
@@ -99,6 +103,8 @@ xtag.register('x-aux-plot-control', {
 
         deleteTable: function(event){
             //delete a table on deleteCell event
+            //<event>: event; deleteCell custom event
+            //this: x-aux-plot-control object
 
             deleteNode(this.id + event.detail.cellName + 'TableWrapper');
         },
@@ -109,6 +115,7 @@ xtag.register('x-aux-plot-control', {
 
         deleteAllSpectra: function(){
             //delete every spectrum currently displayed
+
             var deleteButtons = document.getElementsByClassName('deleteRow')
             while(deleteButtons.length > 0){
                 deleteButtons[0].onclick(); //actually modifies deleteButtons in place - keep deleting zeroth element.
@@ -117,6 +124,8 @@ xtag.register('x-aux-plot-control', {
 
         deleteSpectrum: function(){
             //callback for delete button to remove corresponding plot
+            //this: delete button element
+
             var target = this.getAttribute('target')
             var spectrum = this.getAttribute('spectrum')
 
@@ -128,6 +137,8 @@ xtag.register('x-aux-plot-control', {
 
         zeroSpectrum: function(){
             //callback for zero button to zero corresponding plot
+            //this: zero spectrum button element
+
             var target = this.getAttribute('target')
             var spectrum = this.getAttribute('spectrum')
 
@@ -137,6 +148,8 @@ xtag.register('x-aux-plot-control', {
 
         dropFit: function(){
             //abandon last fit result for this spectrum
+            //this: drop last fit button element
+
             var target = this.getAttribute('target')
             var spectrum = this.getAttribute('spectrum')
 
@@ -152,6 +165,7 @@ xtag.register('x-aux-plot-control', {
 
         toggleFitMode: function(){
             //manage the state of the Fit Mode button, and the corresponding state of the viewer.
+            //this: x-aux-plot-control object
 
             //determine which canvas and spectrum we're currently pointing at
             var radio = checkedRadio(this.id+'fitTarget');
@@ -185,6 +199,9 @@ xtag.register('x-aux-plot-control', {
 
         setFitTarget: function(event){
             //callback for radios to set fit targets
+            //<event>: event; onclick
+            //this: fit target radio element
+
             var target = this.getAttribute('target')
             var spectrum = this.getAttribute('spectrum')
 
@@ -193,6 +210,13 @@ xtag.register('x-aux-plot-control', {
 
         fitCallback: function(center, width, amplitude, intercept, slope){
             //route the fit results to the table, and gracefully exit fit mode.
+            //<center>: number; center of gaussian peak
+            //<width>: number; width of peak
+            //<amplitude>: number; amplitude of peak
+            //<intercept>: number; intercept of linear background beneath peak
+            //<slope>: number; slope of linear background
+            //this: x-aux-plot-control object
+
             var radio = checkedRadio(this.id+'fitTarget');
             var target = radio.getAttribute('target');
             var spectrum = radio.getAttribute('spectrum'); 
@@ -219,6 +243,5 @@ xtag.register('x-aux-plot-control', {
             dataStore.viewers[target].leaveFitMode();
         }
     }
-
 
 });

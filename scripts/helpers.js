@@ -18,6 +18,9 @@ function checkedRadio(name){
 
 function releaser(operation, terminate, num) {
     //loop that releases control at each iteration
+    //operation: function of num to perform at each loop
+    //terminate: function to perform at end of loop
+    //num: number of times to loop. 
     if (num < 0){
         terminate()
         return
@@ -319,41 +322,6 @@ function dispatcher(payload, listeners, eventName){
     });   
 }
 
-function queueAnnotation(series, flag){
-    //sets up the <flag> text to appear in the annotation for the next point on <series>
-
-    if(dataStore.annotations[series] && dataStore.annotations[series].text.indexOf(flag) == -1){
-        dataStore.annotations[series].text += '\n' + flag;
-    } else{
-        dataStore.annotations[series] = {
-            'series': series,
-            'shortText': '?',
-            'text': flag,
-            'cssClass': 'annotation'
-        }
-    }
-}
-
-function togglePlotList(id, suppressRecursion){
-    //change whether a plot list is open or closed, for binding to the onclick of the subheaders
-    //only allow one list open at a time.
-
-    //close old list
-    if(dataStore.openList && !suppressRecursion && id!=dataStore.openList){
-        togglePlotList(dataStore.openList, true);
-    }
-
-    //allow manual close of old list
-    if(id == dataStore.openList)
-        dataStore.openList = null;
-    else
-        dataStore.openList = id;
-
-    document.getElementById('plots'+id).classList.toggle('hidden')
-    document.getElementById('closed'+id).classList.toggle('hidden')
-    document.getElementById('open'+id).classList.toggle('hidden')
-}
-
 function constructQueries(keys){
     //takes a list of plot names and produces the query string needed to fetch them, in an array
     //more than 32 requests will be split into separate queries.
@@ -368,16 +336,4 @@ function constructQueries(keys){
     }
 
     return queries
-}
-
-function spectraCallback(spectra){
-    //callback to run after fetching spectra from the analyzer
-    //used for spectrum viewer and rate monitor; gain matcher uses modified version
-    var key
-    for(key in spectra[0]){
-        if(key != 'metadata')
-            dataStore.viewer.addData(key, spectra[0][key]);
-        else
-            dataStore.metadata = JSON.parse(JSON.stringify(spectra[0].metadata));
-    }
 }

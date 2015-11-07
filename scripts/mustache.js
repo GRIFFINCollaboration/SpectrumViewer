@@ -602,4 +602,3 @@
   mustache.Writer = Writer;
 
 }));
-

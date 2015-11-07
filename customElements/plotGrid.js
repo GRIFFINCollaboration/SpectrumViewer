@@ -54,7 +54,9 @@ xtag.register('x-plots', {
 
         addCell: function(label){
             //add a cell to the display.
+            //<label>: string key for this cell and corresponding viewer object
             //assumes label has already been added to dataStore.plots
+            //this: x-plots object
 
             //generate html
             var cell = document.createElement('div');
@@ -146,6 +148,8 @@ xtag.register('x-plots', {
 
         deleteCell: function(cell){
             //handle dropping a cell
+            //<cell>: string; name of cell, per ids in dataStore.plots.
+            //this. x-plots object
             var evt;
 
             deleteNode(this.id + cell + 'Cell');
@@ -168,6 +172,7 @@ xtag.register('x-plots', {
 
         createFigure: function(id){
             //set up a canvas with id, and corresponding viewer object
+            //<id>: string; name of viewer, same as name of corresponding cell, as found in dataStore.plots.
 
             var canvas = document.getElementById(id);
             var width = canvas.parentElement.offsetWidth
@@ -189,6 +194,8 @@ xtag.register('x-plots', {
 
         attachCell: function(e){
             //dispatch an event carrying the cell in question and its attachment state 
+            //<e>: event; onchange.
+            //this: input type=checkbox element.
 
             var evt = new CustomEvent('attachCell', {
                 detail: { 

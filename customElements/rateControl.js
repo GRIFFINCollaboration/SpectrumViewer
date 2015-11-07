@@ -32,7 +32,7 @@ xtag.register('x-rate-control', {
             //plug in gamma window edge moving
             gammaWindowEdges = document.getElementsByClassName('gammaEdge')
             for(i=0; i<gammaWindowEdges.length; i++){
-                gammaWindowEdges[i].onchange = this.moveGammaWindow;
+                gammaWindowEdges[i].onchange = this.moveGammaWindow.bind(this, gammaWindowEdges[i]);
             }
             //plug in snap to window buttons
             snapGammaButtons = document.getElementsByClassName('snapGateToWindow')
@@ -47,12 +47,12 @@ xtag.register('x-rate-control', {
             //plug in background mode options
             fitOptions = document.getElementsByClassName('fitOptions')
             for(i=0; i<fitOptions.length; i++){
-                fitOptions[i].onchange = this.changeFitMethod;
+                fitOptions[i].onchange = this.changeFitMethod.bind(this, fitOptions[i]);
             }
             //plug in fit range inputs
             fitRanges = document.getElementsByClassName('manualBKG')
             for(i=0; i<fitRanges.length; i++){
-                fitRanges[i].onchange = this.updateManualFitRange;
+                fitRanges[i].onchange = this.updateManualFitRange.bind(this, fitRanges[i]);
             }
 
         },
@@ -90,13 +90,13 @@ xtag.register('x-rate-control', {
             dataStore.viewers[this.vw].plotData();
         },
 
-        moveGammaWindow: function(){
+        moveGammaWindow: function(element){
             //callback for chaging gamma window edges
 
-            var color = dataStore.viewers[dataStore.plots[0]].verticals[this.id].color
-            dataStore.viewers[dataStore.plots[0]].removeVertical(this.id)
-            dataStore.viewers[dataStore.plots[0]].addVertical(this.id, parseInt(this.value, 10), color)
-            queueAnnotation(dataStore.defaults.gammas[parseInt(this.id.slice(3),10)].title, 'Gate ' + this.id.substring(0,3) + ' updated to ' + this.value)
+            var color = dataStore.viewers[dataStore.plots[0]].verticals[element.id].color
+            dataStore.viewers[dataStore.plots[0]].removeVertical(element.id)
+            dataStore.viewers[dataStore.plots[0]].addVertical(element.id, parseInt(element.value, 10), color)
+            this.queueAnnotation(dataStore.defaults.gammas[parseInt(element.id.slice(3),10)].title, 'Gate ' + element.id.substring(0,3) + ' updated to ' + element.value)
 
             dataStore.viewers[dataStore.plots[0]].plotData();
         },
@@ -119,22 +119,22 @@ xtag.register('x-rate-control', {
             dispatcher({"index": index, "isVisible": this.checked}, dataStore.dygraphListeners, 'setDyVisible');
         },
 
-        changeFitMethod: function(){
+        changeFitMethod: function(element){
             //callback after changing the fit method radio
-            var index = parseInt(this.name.slice(3),10);
-            queueAnnotation(dataStore.defaults.gammas[index].title, 'BKG Method Changed to ' + this.value)
+            var index = parseInt(element.name.slice(3),10);
+            this.queueAnnotation(dataStore.defaults.gammas[index].title, 'BKG Method Changed to ' + element.value)
             fetchCallback()
         },
 
-        updateManualFitRange: function(){
+        updateManualFitRange: function(element){
             //callback to register a manual fit range
-            var index = parseInt(this.id.slice(4),10);
+            var index = parseInt(element.id.slice(4),10);
             var bkgTechnique = document.querySelector('input[name="bkg'+index+'"]:checked').value;
 
-            if(this.checkValidity()){
-                dataStore.manualBKG[this.id] = this.value
+            if(element.checkValidity()){
+                dataStore.manualBKG[element.id] = element.value
                 if(bkgTechnique == 'manual')
-                    queueAnnotation(dataStore.defaults.gammas[index].title, 'Manual BKG bins updated to ' + this.value)
+                    this.queueAnnotation(dataStore.defaults.gammas[index].title, 'Manual BKG bins updated to ' + element.value)
             }
         },
 
@@ -281,6 +281,21 @@ xtag.register('x-rate-control', {
 
             //update the dygraph
             dispatcher({ 'data': data }, dataStore.dygraphListeners, 'updateDyData')
+        },
+
+        queueAnnotation: function(series, flag){
+            //sets up the <flag> text to appear in the annotation for the next point on <series>
+
+            if(dataStore.annotations[series] && dataStore.annotations[series].text.indexOf(flag) == -1){
+                dataStore.annotations[series].text += '\n' + flag;
+            } else{
+                dataStore.annotations[series] = {
+                    'series': series,
+                    'shortText': '?',
+                    'text': flag,
+                    'cssClass': 'annotation'
+                }
+            }
         }
 
     }
