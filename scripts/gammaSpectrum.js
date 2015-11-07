@@ -169,6 +169,9 @@ function spectrumViewer(canvasID){
 				this.nXticks = Math.round((this.XaxisLimitMax - this.XaxisLimitMin) / binsPerTick) + 1;				
 			}
 		}
+		//make sure we don't overrun the end of the x axis
+		if( (this.nXticks-1)*binsPerTick*this.binWidth > this.xAxisPixLength )
+			this.nXticks--;
 
 		//draw x axis ticks & labels:
 		for(i=0; i<this.nXticks; i++){
