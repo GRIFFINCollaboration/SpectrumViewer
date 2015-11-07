@@ -14,9 +14,6 @@ xtag.register('x-rate-control', {
 
             //shorthand for viewer id
             this.vw = dataStore.plots[0];
-
-            //listen for data update events
-            //this.addEventListener('fitAllComplete', this.snapToTop, false);
         }
     },
 
@@ -58,7 +55,11 @@ xtag.register('x-rate-control', {
         },
 
         drawWindow: function(index, min, max){
-            //draw the appropriate window on the plot; index corresponds to dataStore.defaults.gammas[index]
+            //draw the appropriate window on the plot
+            //<index>: number; window index, corresponds to dataStore.defaults.gammas[index]
+            //<min>: number; min bin for window
+            //<max>: number; max bin for window
+            //this: x-rate-control object
 
             //delete the old lines
             dataStore.viewers[this.vw].removeVertical('min' + index);
@@ -73,6 +74,9 @@ xtag.register('x-rate-control', {
 
         toggleGammaWindow: function(index){
             //toggle the indexed gamma window on or off in the spectrum
+            //<index>: number; window index, corresponds to dataStore.defaults.gammas[index]
+            //this: x-rate-control object
+
             var payload;
 
             //present, remove
@@ -92,6 +96,8 @@ xtag.register('x-rate-control', {
 
         moveGammaWindow: function(element){
             //callback for chaging gamma window edges
+            //<element>: input number element
+            //this: x-rate-control object
 
             var color = dataStore.viewers[dataStore.plots[0]].verticals[element.id].color
             dataStore.viewers[dataStore.plots[0]].removeVertical(element.id)
@@ -103,6 +109,8 @@ xtag.register('x-rate-control', {
 
         snapGateToWindow: function(){
             //callback for button to snap corresponding gamma gate to present window
+            //this: button element
+
             var index = this.id.slice(4)
 
             document.getElementById('min'+index).value = dataStore.viewers[dataStore.plots[0]].XaxisLimitMin;
@@ -115,12 +123,17 @@ xtag.register('x-rate-control', {
         toggleDygraph: function(index){
             //set the visibility state for the indexed series in the dygraph pointed at in dataStore.dygraphListen
             //state based on the checked state of the element using this as an onchange callback.
+            //<index>: number; index of dygraph series to toggle visibility of
+            //this: checkbox element
 
             dispatcher({"index": index, "isVisible": this.checked}, dataStore.dygraphListeners, 'setDyVisible');
         },
 
         changeFitMethod: function(element){
             //callback after changing the fit method radio
+            //<element>: object; input radio element
+            //this: x-rate-control object
+
             var index = parseInt(element.name.slice(3),10);
             this.queueAnnotation(dataStore.defaults.gammas[index].title, 'BKG Method Changed to ' + element.value)
             fetchCallback()
@@ -128,6 +141,9 @@ xtag.register('x-rate-control', {
 
         updateManualFitRange: function(element){
             //callback to register a manual fit range
+            //<element>: object; input text element
+            //this: x-rate-control object
+
             var index = parseInt(element.id.slice(4),10);
             var bkgTechnique = document.querySelector('input[name="bkg'+index+'"]:checked').value;
 
@@ -140,6 +156,8 @@ xtag.register('x-rate-control', {
 
         appendNewPoint: function(){
             //integrate gamma windows and append result as new point on rate monitor.
+            //this: x-rate-control object
+
             var i, j, id, min, max, gates = [], levels = [], bkgTechnique, bkgSample, bkgPattern, bkg, y0, y1, bkgColor;
 
             dataStore.viewers[dataStore.plots[0]].binHighlights = [];
@@ -222,6 +240,8 @@ xtag.register('x-rate-control', {
         constructAutoBackgroundRange: function(min, max){
             //returns [[bin numbers], [corresponding bin values]] based on the gate described by min, max,
             //for use as a background sample to fit to.
+            //<min>: number; gate min bin
+            //<max>: number; gate max bin
 
             var halfwidth, lowerBKG, upperBKG, bkg, bins, i;
 
@@ -242,6 +262,9 @@ xtag.register('x-rate-control', {
             //given an encoded string of bins, parse and return an array consising of an array of those bin numbers, and
             //another array of the corresponding bin heights.
             //encoding is as 20-25;27;32-50 etc.
+            //<encoding>: string; describes bin ranges
+            //<spectrum>: array; bin heights indexed by bin number.
+
             var rangeStrings = encoding.split(';'),
                 i, j, ranges = [],
                 x = [], y = [];
@@ -270,8 +293,9 @@ xtag.register('x-rate-control', {
 
         updateDygraph: function(leadingEdge, windowWidth){
             //decide how many points to keep from the history, and plot.
-            //leadingEdge: as returned by x-rate-slidere windowLeadingEdgeTime
-            //windowWidth: in minutes
+            //<leadingEdge>: number; as returned by x-rate-slidere windowLeadingEdgeTime
+            //<windowWidth>: number; in minutes
+
             var i, period, data, annotations, keys
 
             //extract the appropriate tail of the data history
@@ -285,7 +309,10 @@ xtag.register('x-rate-control', {
 
         queueAnnotation: function(series, flag){
             //sets up the <flag> text to appear in the annotation for the next point on <series>
+            //<series>: string; name of data series to annotate, corresponds to dataStore.defaults.gammas.title
+            //<flag>: string; message to print in annotation
 
+            console.log(series)
             if(dataStore.annotations[series] && dataStore.annotations[series].text.indexOf(flag) == -1){
                 dataStore.annotations[series].text += '\n' + flag;
             } else{

@@ -9,9 +9,6 @@ xtag.register('x-rate-sliders', {
                     });
                 }.bind(this)
             )
-
-            //listen for data update events
-            //this.addEventListener('fitAllComplete', this.snapToTop, false);
         }
     },
 
@@ -25,6 +22,7 @@ xtag.register('x-rate-sliders', {
 
         windowSliderCallback: function(){
             //oninput behavior of the window width slider
+            //this: input range object
 
             var hours = Math.floor(parseInt(this.value, 10) / 60);
             var minutes = parseInt(this.value, 10) % 60;
@@ -34,6 +32,8 @@ xtag.register('x-rate-sliders', {
 
         leadingEdgeSliderCallback: function(parent){
             //oninput behavior of the window leading edge slider
+            //parent: x-rate-sliders object
+            //this: input range object
 
             var seconds = parent.windowLeadingEdgeTime();
             var hours = Math.floor(seconds / (3600));
@@ -46,6 +46,7 @@ xtag.register('x-rate-sliders', {
 
         windowLeadingEdgeTime: function(){
             //returns number of seconds in the past the currently requested window leading edge is
+            //this: x-rate-sliders object
 
             var leadingEdgeSlider = document.getElementById(this.id + 'leadingEdgeSlider');
             var first = dataStore.rateData[0][0];
