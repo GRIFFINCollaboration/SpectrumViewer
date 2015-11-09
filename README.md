@@ -37,7 +37,7 @@ All these projects are built on a collection on custom elements, which are in tu
 All these apps share some common design features:
 
  - Each app uses a global `dataStore` object to namespace global variables. `dataStore` is initialized by a function `setupDataStore`, called immediately in the head. **This is the appropriate place to add global variables.** Documentation on `dataStore` keys is found inline with their declaration. Most notably, `dataStore` contains a key `plots`, an array of strings which label the `gammaspectrum.js` plotting objects available, as well as the associated `x-plots` cells where they are drawn. Those plotting objects in turn live on an object `dataStore.viewers`, for easy global access by all elements; the majority of inter-component communication not encapsulated by a custom event is through reads and writes to these viewer objects.
- - Each app initializes itself via the *minimal* JavaScript in each root `.html` file; scripting should be kept to a minimum here, and encapsulated as methods on the custom elements wherever possible.
+
  - Network requests are done via a series of [Promises](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) and callbacks. When adding new network requests, **it is important to respect this pattern if you want responses to be dealt with at the correct time**. The pattern is:
    - All analyzer requests (per the spec above) are sent in parallel. Spectra are added to the appropriate plots and logged in the `dataStore` as they arrive.
    - On receipt of all analyzer info, all ODB requests are sent in parallel, and processed by the function named in the request's `callback` query string parameter.
