@@ -30,13 +30,13 @@ If the named spectrum is not a valid spectrum, the return object above should co
 
 ## Engineering
 
-All these projects are built on a collection on custom elements, which are in turn built on top of the [x-tag framework](https://x-tag.readme.io/). All of these components exchange information via a collection of [custom events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events), as illustrated below. Layout is ala [Bootstrap](http://getbootstrap.com/), and client-side templating is built on [mustache.js](https://github.com/janl/mustache.js/).
+All these projects are built on a collection on custom elements, which are in turn built on top of the [x-tag framework](https://x-tag.readme.io/). All of these components exchange information via a collection of [custom events](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Creating_and_triggering_events), as illustrated below, as well as through a global `dataStore` object. Layout is ala [Bootstrap](http://getbootstrap.com/), and client-side templating is built on [mustache.js](https://github.com/janl/mustache.js/).
 
 ### 0. Common Features
 
 All these apps share some common design features:
 
- - Each app uses a global `dataStore` object to namespace global variables. `dataStore` is initialized by a function `setupDataStore`, called immediately in the head. **This is the appropriate place to add global variables.** Documentation on `dataStore` keys is found inline with their declaration. Most notably, `dataStore` contains a key `plots`, an array of strings which label the `gammaspectrum.js` plotting objects available, as well as the associated `x-plots` cells where they are drawn. Those plotting objects in turn live on an object `dataStore.viewers`, for easy global access by all elements.
+ - Each app uses a global `dataStore` object to namespace global variables. `dataStore` is initialized by a function `setupDataStore`, called immediately in the head. **This is the appropriate place to add global variables.** Documentation on `dataStore` keys is found inline with their declaration. Most notably, `dataStore` contains a key `plots`, an array of strings which label the `gammaspectrum.js` plotting objects available, as well as the associated `x-plots` cells where they are drawn. Those plotting objects in turn live on an object `dataStore.viewers`, for easy global access by all elements; the majority of inter-component communication not encapsulated by a custom event is through reads and writes to these viewer objects.
  - Each app initializes itself via the *minimal* JavaScript in each root `.html` file; scripting should be kept to a minimum here, and encapsulated as methods on the custom elements wherever possible.
  - Network requests are done via a series of [Promises](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) and callbacks. When adding new network requests, **it is important to respect this pattern if you want responses to be dealt with at the correct time**. The pattern is:
    - All analyzer requests (per the spec above) are sent in parallel. Spectra are added to the appropriate plots and logged in the `dataStore` as they arrive.
@@ -72,9 +72,12 @@ The Rate Monitor elements communicate amongst themselves as above; nodes represe
 
 ### 3. Gain Matcher
 
+![Gain Matcher flow](img/gainMatcher-flow.png)
 
+The Gain Matcher elements communicate amongst themselves as above; nodes represent elements, and edges represent custom events. Basic behavior:
 
-
+ - Data for all 64 GRIFFIN crystals is fetched exactly once, on pageload in the same manner as above by `x-plot-control`.
+ - Upon initiating the gain matching procedure, `x-gain-match-report` estimates the bins where the peaks requested will be found, fits a gaussian plus linear background to the tallest peak found there, and writes the result to its table. Upon completion, a `fitAllComplete` event is sent to `x-plot-list-lite` to set it to display the first plot in the series, and an `updateDyData` event is sent to `x-graph` to refresh the plot of peak widths as a function of detector.
 
 
 
