@@ -132,7 +132,7 @@ function spectrumViewer(canvasID){
 
 	//draw the plot frame
 	this.drawFrame = function(){
-		var binsPerTick, countsPerTick, i, label;
+		var binsPerTick, countsPerTick, i, label, minBin, interval;
 		var axis, tick, text;
 
 		//determine bin render width
@@ -156,41 +156,51 @@ function spectrumViewer(canvasID){
 
 		//Decorate x axis////////////////////////////////////////////////////////
 		//choose a sane number of ticks and tick intervals
-		binsPerTick = Math.log10((this.XaxisLimitMax - this.XaxisLimitMin))
-		binsPerTick = Math.pow(10, Math.floor(binsPerTick) - 1)
-		this.nXticks = Math.round((this.XaxisLimitMax - this.XaxisLimitMin) / binsPerTick) + 1;
-		if(this.nXticks > 11){
-			binsPerTick = Math.log10((this.XaxisLimitMax - this.XaxisLimitMin))
-			binsPerTick = Math.pow(10, Math.floor(binsPerTick))
-			this.nXticks = Math.round((this.XaxisLimitMax - this.XaxisLimitMin) / binsPerTick) + 1;
+		// binsPerTick = Math.log10((this.XaxisLimitMax - this.XaxisLimitMin));
+		// binsPerTick = Math.pow(10, Math.floor(binsPerTick) - 1);
+		// minBin = Math.ceil(this.XaxisLimitMin / binsPerTick )*binsPerTick;
+		// this.nXticks = Math.round((this.XaxisLimitMax - minBin) / binsPerTick) + 1;
+		// if(this.nXticks > 11){
+		// 	binsPerTick = Math.log10((this.XaxisLimitMax - minBin))
+		// 	binsPerTick = Math.pow(10, Math.floor(binsPerTick))
+		// 	this.nXticks = Math.round((this.XaxisLimitMax - minBin) / binsPerTick) + 1;
 
-			if(this.nXticks < 5){
-				binsPerTick = Math.log10((this.XaxisLimitMax - this.XaxisLimitMin))
-				binsPerTick = Math.pow(10, Math.floor(binsPerTick))/2
-				this.nXticks = Math.round((this.XaxisLimitMax - this.XaxisLimitMin) / binsPerTick) + 1;				
-			}
-		}
-		//make sure we don't overrun the end of the x axis
-		if( (this.nXticks-1)*binsPerTick*this.binWidth > this.xAxisPixLength )
-			this.nXticks--;
+		// 	if(this.nXticks < 5){
+		// 		binsPerTick = Math.log10((this.XaxisLimitMax - minBin))
+		// 		binsPerTick = Math.pow(10, Math.floor(binsPerTick))/2
+		// 		this.nXticks = Math.round((this.XaxisLimitMax - minBin) / binsPerTick) + 1;				
+		// 	}
+		// }
+		// //make sure we don't overrun the end of the x axis
+		// if( (this.nXticks-1)*binsPerTick*this.binWidth > this.xAxisPixLength )
+		// 	this.nXticks--;
+
+		interval = Math.log10((this.XaxisLimitMax - this.XaxisLimitMin));
+		if(interval % 1 < 0.35)
+			binsPerTick = Math.pow(10, Math.floor(interval)) / 5 ;
+		else if(interval % 1 < 0.6)
+			binsPerTick = Math.pow(10, Math.floor(interval)) / 2 ;
+		else
+			binsPerTick = Math.pow(10, Math.floor(interval)) ;
+		minBin = Math.ceil(this.XaxisLimitMin / binsPerTick )*binsPerTick;
+		this.nXticks = Math.floor( (this.XaxisLimitMax - minBin)) / binsPerTick;
 
 		//draw x axis ticks & labels:
 		for(i=0; i<this.nXticks; i++){
 			//ticks
 			tick = new createjs.Shape();
 			tick.graphics.ss(this.axisLineWidth).s(this.axisColor);
-			tick.graphics.mt(this.leftMargin + i*binsPerTick*this.binWidth, this.canvas.height - this.bottomMargin);
-			tick.graphics.lt(this.leftMargin + i*binsPerTick*this.binWidth, this.canvas.height - this.bottomMargin + this.tickLength);
+			tick.graphics.mt(this.leftMargin + (i*binsPerTick+minBin-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin);
+			tick.graphics.lt(this.leftMargin + (i*binsPerTick+minBin-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin + this.tickLength);
 			this.containerMain.addChild(tick);
 
 			//labels
-			label = (this.XaxisLimitMin + i*binsPerTick).toFixed(0);
+			label = (minBin + i*binsPerTick).toFixed(0);
 			text = new createjs.Text(label, this.context.font, this.axisColor);
 			text.textBaseline = 'top';
-			text.x = this.leftMargin + i*binsPerTick*this.binWidth - this.context.measureText(label).width/2;
+			text.x = this.leftMargin + (i*binsPerTick+minBin-this.XaxisLimitMin)*this.binWidth - this.context.measureText(label).width/2;
 			text.y = this.canvas.height - this.bottomMargin + this.tickLength + this.xLabelOffset;
 			this.containerMain.addChild(text);
-
 		}
 
 		//Decorate Y axis/////////////////////////////////////////////////////////
