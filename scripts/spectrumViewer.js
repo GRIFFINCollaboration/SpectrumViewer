@@ -156,6 +156,7 @@ function setupDataStore(){
     ]
 
     dataStore = {
+        "pageTitle": 'Spectrum Viewer',                             //header title
         "topGroups": topGroups,                                     //groups in top nav row
         "waveformSnap": true,                                       //do we want the snap to waveform functionality?
         "doUpdates": true,                                          //do we want the data update button and loop?

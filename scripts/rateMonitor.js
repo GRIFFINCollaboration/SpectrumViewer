@@ -7,6 +7,7 @@ function setupDataStore(){
     var i, labels = ['time']
 
     dataStore = {};
+    dataStore.pageTitle = 'Rate Monitor'                                //header title
     //x-tag config
     dataStore.doUpdates = true;                                         //include update loop
     dataStore.plots = ['SUM_Singles_Energy'];                           //names of x-plots cells and spectrumViewer objects

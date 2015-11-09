@@ -4,7 +4,9 @@ xtag.register('x-header', {
             //inject template
             promisePartial('header').then(
                 function(template){
-                    this.innerHTML = Mustache.to_html(template, {});
+                    this.innerHTML = Mustache.to_html(template, {
+                        "title": dataStore.pageTitle
+                    });
                 }.bind(this)
             )
         }
