@@ -414,8 +414,8 @@ function spectrumViewer(canvasID){
 			if(this.fitModeEngage){
 				this.FitLimitLower = Math.min(this.clickBounds[0], this.clickBounds[1]);
 				this.FitLimitUpper = Math.max(this.clickBounds[0], this.clickBounds[1]);
-
 				this.fitData(this.fitTarget);
+				this.clickBounds = [];
 			} else {  //zoom mode
 				//use the mouse drag function to achieve the same effect for clicking:
 				this.XMouseLimitxMin = this.clickBounds[0];
@@ -614,15 +614,6 @@ function spectrumViewer(canvasID){
 			cent++;
 		}
 
-		// Find the width of the peak
-		// x=cent;
-		// while(fitdata[x]>(max/2.0)) x--; 
-		// width=x;
-		// x=cent;
-		// while(fitdata[x]>(max/2.0)) x++; 
-		// width=x-width;
-		// if(width<1) width=1;
-		// width/=2.35;
 		width = this.estimateWidth(fitdata, cent, max);
 
 		cent=cent+this.FitLimitLower+0.5;
