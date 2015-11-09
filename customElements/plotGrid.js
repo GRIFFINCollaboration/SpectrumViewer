@@ -99,17 +99,14 @@ xtag.register('x-plots', {
             this.manageCellControl();
 
             //report new cell to listeners
-            evt = new CustomEvent('newCell', {
-                detail: { 
+            dispatcher(
+                { 
                     'cellName': label,
                     'state': true //attached / active by default
-                },
-                cancelable: true
-            });
-            dataStore.newCellListeners.map(function(id){
-                document.getElementById(id).dispatchEvent(evt);
-            });
-
+                }, 
+                dataStore.newCellListeners, 
+                'newCell'
+            )
         },
 
         manageFigureSizes: function(){
@@ -156,15 +153,7 @@ xtag.register('x-plots', {
             delete dataStore.viewers[cell];
             dataStore.plots.splice(dataStore.plots.indexOf(cell), 1);
 
-            evt = new CustomEvent('deleteCell', {
-                detail: { 
-                    'cellName': cell 
-                },
-                cancelable: true
-            });
-            dataStore.deleteCellListeners.map(function(id){
-                document.getElementById(id).dispatchEvent(evt);
-            });
+            dispatcher({ 'cellName': cell }, dataStore.deleteCellListeners, 'deleteCell');
 
             this.manageFigureSizes();
             this.manageCellControl();
@@ -197,16 +186,14 @@ xtag.register('x-plots', {
             //<e>: event; onchange.
             //this: input type=checkbox element.
 
-            var evt = new CustomEvent('attachCell', {
-                detail: { 
+            dispatcher(
+                { 
                     'cellName': this.value,
                     'state': this.checked 
-                },
-                cancelable: true
-            });
-            dataStore.attachCellListeners.map(function(id){
-                document.getElementById(id).dispatchEvent(evt);
-            });
+                }, 
+                dataStore.attachCellListeners, 
+                'attachCell'
+            )
         }
     }
 

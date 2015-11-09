@@ -81,6 +81,7 @@ function spectrumViewer(canvasID){
 	this.fitMask = new createjs.Shape();
 	this.fitMask.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin).lt(this.leftMargin, this.topMargin).lt(this.canvas.width - this.rightMargin, this.topMargin).lt(this.canvas.width-this.rightMargin, this.canvas.height - this.bottomMargin).closePath();
 	this.containerFit.mask = this.fitMask;
+	this.activeFitLines = {} //object containing fit lines to repaint
 
     //cursors
     this.cursorX = 0; //x-bin of cursor
@@ -259,12 +260,6 @@ function spectrumViewer(canvasID){
 		var i, j, data, thisSpec, totalEntries, color, binBaseline;
 		this.entries = {};
 		var text, histLine;
-		
-		//abandon the fit when redrawing, except on refresh
-		// if(!RefreshNow){
-		// 	this.fitted = false;
-		// 	this.containerFit.removeAllChildren();
-		// }
 
 		//get the axes right
 		this.chooseLimits();	
@@ -347,6 +342,8 @@ function spectrumViewer(canvasID){
 
 		//redraw annotation items
 		this.redrawAnnotation();
+		//redraw fit lines
+		this.redrawFitLines();
 		//shade bins
 		this.shadeBins();
 
@@ -554,7 +551,6 @@ function spectrumViewer(canvasID){
 		var thisSpec;
 
 		this.adjustXaxis();
-		//this.clearFits();
 
 		this.plotData();
 	};
@@ -666,6 +662,15 @@ function spectrumViewer(canvasID){
 			return
 		}
 
+		this.activeFitLines[fitKey + Math.round(cent)] = {
+			'min': this.FitLimitLower,
+			'nBins': fitdata.length,
+			'amplitude': max,
+			'center': cent,
+			'width': width,
+			'intercept': estimate[0],
+			'slope': estimate[1]
+		}
 		fitLine = this.addFitLine(this.FitLimitLower, fitdata.length, max, cent, width, estimate[0], estimate[1])
 
 		this.containerPersistentOverlay.removeAllChildren();
@@ -714,6 +719,18 @@ function spectrumViewer(canvasID){
 		return fitLine;
 	}
 
+	//redraw all the fit lines in their appropriate places
+	this.redrawFitLines = function(){
+		var key, fitLine;
+
+		this.containerFit.removeAllChildren();
+
+		for(key in this.activeFitLines){
+			fitLine = this.addFitLine(this.activeFitLines[key].min, this.activeFitLines[key].nBins, this.activeFitLines[key].amplitude, this.activeFitLines[key].center, this.activeFitLines[key].width, this.activeFitLines[key].intercept, this.activeFitLines[key].slope );
+			this.containerFit.addChild(fitLine);
+		}
+	}
+
 	this.bkgShape = function(x, amplitude, center, width, intercept, slope){
 		//evaluate a gaussian + linear background at x
 
@@ -723,6 +740,7 @@ function spectrumViewer(canvasID){
 	//dump the fit results
 	this.clearFits = function(callback){
 		this.containerFit.removeAllChildren();
+		this.activeFitLines = {};
 		this.fitted = false;
 		this.stage.update();
 
@@ -885,6 +903,9 @@ function spectrumViewer(canvasID){
 	this.addData = function(name, data){
 		var nSeries, i;
 
+		//dump fits
+		this.clearFits();
+
 		//if a series with this name already exists, just update the data
 		if(this.plotBuffer[name]){
 			this.plotBuffer[name] = data;
@@ -907,9 +928,6 @@ function spectrumViewer(canvasID){
 
 		//append the data to the data buffer
 		this.plotBuffer[name] = data;
-
-		//dump fits
-		this.clearFits();
 	};
 
 	//remove a data series from the buffer

@@ -49,13 +49,8 @@ xtag.register('x-plot-list', {
             //don't close the dd onclick:
             e.stopPropagation();
 
-            var evt = new CustomEvent('requestPlot', {
-                detail: { 'plotName': plotName },
-                cancelable: true
-            });
-            dataStore.plotNameListeners.map(function(id){
-                document.getElementById(id).dispatchEvent(evt);
-            });
+            dispatcher({ 'plotName': plotName }, dataStore.plotNameListeners, 'requestPlot');
+
         }
     }
 });

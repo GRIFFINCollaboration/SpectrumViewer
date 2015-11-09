@@ -122,17 +122,15 @@ xtag.register('x-plot-control', {
                     //add data now so row adder can find its color assignment
                     dataStore.viewers[this.targets[i]].addData(event.detail.plotName, [0]);
 
-                    evt = new CustomEvent('addPlotRow', {
-                        detail:{ 
+                    dispatcher(
+                        { 
                             'plotName': event.detail.plotName,
                             'target': this.targets[i] 
-                        },
-                        cancelable: true
-                    });
-
-                    dataStore.addPlotRowListeners.map(function(id){
-                        document.getElementById(id).dispatchEvent(evt);
-                    })                    
+                        }, 
+                        dataStore.addPlotRowListeners, 
+                        'addPlotRow'
+                    )
+                  
                 } else {
                     //add a dummy spectrum to all active plots
                     dataStore.viewers[this.targets[i]].addData(event.detail.plotName, [0]);

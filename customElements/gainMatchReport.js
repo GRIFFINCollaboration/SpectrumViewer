@@ -47,12 +47,8 @@ xtag.register('x-gain-match-report', {
                     dataStore.viewers[dataStore.plots[0]].drawCallback = this.addFitLines;
 
                     //leave the viewer pointing at the first spectrum for fitting
-                    evt = new CustomEvent('fitAllComplete', {
-                        cancelable: true
-                    });
-                    dataStore.fitAllCompleteListeners.map(function(id){
-                        document.getElementById(id).dispatchEvent(evt);
-                    });
+                    dispatcher({}, dataStore.fitAllCompleteListeners, 'fitAllComplete')
+
                 }.bind(this),
 
                 keys.length-1
@@ -329,13 +325,7 @@ xtag.register('x-gain-match-report', {
 
             dataStore.resolutionData = arrangePoints(detectorIndex, [dataStore.lowPeakResolution, dataStore.highPeakResolution], flags );
 
-            evt = new CustomEvent('updateDyData', {
-                detail: { 'data': dataStore.resolutionData },
-                cancelable: true
-            });
-            dataStore.dygraphUpdateListeners.map(function(id){
-                document.getElementById(id).dispatchEvent(evt);
-            });
+            dispatcher({ 'data': dataStore.resolutionData }, dataStore.dygraphUpdateListeners, 'updateDyData');
         },
 
         updateEnergies: function(){

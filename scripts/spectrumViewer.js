@@ -160,7 +160,7 @@ function setupDataStore(){
         "topGroups": topGroups,                                     //groups in top nav row
         "waveformSnap": true,                                       //do we want the snap to waveform functionality?
         "doUpdates": true,                                          //do we want the data update button and loop?
-        "plots": ['Cell0', 'Cell1', 'Cell2', 'Cell3'],              //array of names for default plot cells
+        "plots": ['Cell0'],                                         //array of names for default plot cells
         "plotNameListeners": ['plotControl'],                       //array of ids of elements listneing for requestPlot events
         "addPlotRowListeners": ['auxCtrl'],                         //array of ids of elements listneing for addPlotRow events
         "attachCellListeners": ['plotControl'],                     //array of ids of elements listneing for attachCell events
