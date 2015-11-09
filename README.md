@@ -40,7 +40,7 @@ All these apps share some common design features:
  - Each app initializes itself via the *minimal* JavaScript in each root `.html` file; scripting should be kept to a minimum here, and encapsulated as methods on the custom elements wherever possible.
  - Network requests are done via a series of [Promises](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) and callbacks. When adding new network requests, **it is important to respect this pattern if you want responses to be dealt with at the correct time**. The pattern is:
    - All analyzer requests (per the spec above) are sent in parallel. Spectra are added to the appropriate plots and logged in the `dataStore` as they arrive.
-   - On receipt of all analyzer info, all ODB requests are sent in parallel, and processed by the function `parseODB`.
+   - On receipt of all analyzer info, all ODB requests are sent in parallel, and processed by the function named in the request's `callback` query string parameter.
    - After completion of all ODB requests, a global function `fetchCallback` is run, if it exists.
 
    This structure is found in `customElements/plotControl.js`, in `refreshAll()`, the central function responsible for orchestrating data refreshes over the network. In order to add an analyzer request, the appropriate URL must be added to the `queries` array found there; in order to add an ODB request, modify the string found in `dataStore.ODBrequests[0]`, per the ODB's [AJAX spec](https://midas.triumf.ca/MidasWiki/index.php/AJAX). In order to take action on reciept of ODB information, modify `parseODB()`; in order to take action immediately after all data has been refreshed, modify `fetchCallback()`.
@@ -54,6 +54,28 @@ The Spectrum Viewer elements communicate amongst themselves as above; nodes repr
  - clicking on a spectrum name in `x-plot-list` fires a `requestPlot` event, which tells `x-plot-control` to queue up that histogram for plotting in all cells currently active, and subsequently dispatches an `addPlotRow` event to add a row to the appropriate tables in `x-aux-plot-control`.
  - `x-plot-control` governs data refresh as described in section 0.1.
  - `x-plots` fires `newCell` and `deleteCell` events at the control elements when a new plot is created or destroyed, to keep controls up to date; also, `attachCell` events are sent to `x-plot-control` to attach or unnattach the UI to each individual cell.
+ - `fetchCallback()` refreshes all plots once data has arrived.
+
+### 2. Rate Monitor
+
+![Rate monitor flow](img/rateMonitor-flow.png)
+
+The Rate Monitor elements communicate amongst themselves as above; nodes represent elements, and edges represent custom events. Basic behavior:
+
+ - As usual, `x-plot-control` is responsible for periodically refreshing spectrum and ODB data, in the same manner as above.
+ - `fetchCallback` triggers a series of calculations after data is refreshed:
+   - Linear background fits are performed around all the active gamma windows per the background subtraction options selected in `x-rate-control`, and those backgrounds are subtracted from their corresponding windows.
+   - A rate is calculated by comparing the number of counts in each window, to the number of counts in the corresponding window (after background subtraction) the last time the spectrum was fetched; time between polls is estimated as the interval between receipt times of each poll of the spectrum at the browser.
+   - The dygraph tracking rates and scalers as well as annotations is updated, per the window defined by `x-rate-slider`.
+ - `x-rate-control` can send events to the dygraph to toggle series visibility (`setDyVisible`) and update its data (`updateDyData`).
+ - `x-plots` sends its `attachCell` event to `x-plot-control` exactly once in this case, to plug in on page load.
+
+### 3. Gain Matcher
+
+
+
+
+
 
 
 
