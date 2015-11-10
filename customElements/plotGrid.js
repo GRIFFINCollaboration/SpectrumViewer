@@ -31,8 +31,8 @@ xtag.register('x-plots', {
             ).then(
                 function(){
                     this.configure();
-                    if(typeof plotGridCallback === "function")
-                        plotGridCallback();
+                    if(typeof templateCallback === "function")
+                        templateCallback();
                 }.bind(this)
             )
         }

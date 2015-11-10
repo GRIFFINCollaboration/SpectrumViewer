@@ -9,8 +9,8 @@ xtag.register('x-plot-list', {
             ).then(
                 function(){
                     this.configure();
-                    if(typeof plotListCallback === "function")
-                        plotListCallback();
+                    if(typeof templateCallback === "function")
+                        templateCallback();
                 }.bind(this)
             )
         }

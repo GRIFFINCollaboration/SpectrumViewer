@@ -19,8 +19,8 @@ xtag.register('x-aux-plot-control', {
             ).then(
                 function(){
                     this.configure();
-                    if(typeof auxPlotCallback === "function")
-                        auxPlotCallback();
+                    if(typeof templateCallback === "function")
+                        templateCallback();
                 }.bind(this)
             )
 

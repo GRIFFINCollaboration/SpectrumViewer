@@ -46,23 +46,25 @@
         <x-footer></x-footer>
 
         <script>
-            function plotListCallback(){
-                //callback after x-plot-list completely loaded
+            dataStore.allClear = 4
 
-                document.getElementById('GRIFFIN').onclick();
-            }
+            dataStore.prepOnClear = window.setInterval(
+                function(){
 
-            // document.addEventListener("DOMComponentsLoaded", theDomHasLoaded, false);
-            // function theDomHasLoaded(){
+                    if(dataStore.allClear == 0){
+                        document.getElementById('analyzerPlots').configure();
+                        document.getElementById('plotGrid').configure();
+                        document.getElementById('plotControl').configure();
+                        document.getElementById('auxCtrl').configure();
 
-            //     document.getElementById('analyzerPlots').configure();
-            //     document.getElementById('plotGrid').configure();
-            //     document.getElementById('plotControl').configure();
-            //     document.getElementById('auxCtrl').configure();
+                        //start with GRIFFIN menu displayed
+                        document.getElementById('GRIFFIN').onclick();
 
-            //     //start with GRIFFIN menu displayed
-            //     document.getElementById('GRIFFIN').onclick();
-            // }
+                        window.clearInterval(dataStore.prepOnClear);
+                    }
+                },
+                10
+            )
         </script>
     </body>
 </html>

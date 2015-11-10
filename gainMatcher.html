@@ -61,34 +61,15 @@
         <x-footer></x-footer>
 
         <script>
-            dataStore.allClear = 3;
-
-            function plotGridCallback(){
-                //callback after x-plots completely loaded
-
-                dataStore.allClear--;
-            }
-
-            function gainMatcherCallback(){
-                //callback after x-gain-match-report completely loaded
-
-                dataStore.allClear--;              
-            }
-
-            function plotControlCallback(){
-                //callback after x-plot-control completely loaded
-                
-                dataStore.allClear--;
-            }
+            dataStore.allClear = 4;
 
             dataStore.prepOnClear = window.setInterval(
                 function(){
-                    //document.getElementById('plotGrid').configure();
-                    //document.getElementById('plotControl').configure();
-                    //document.getElementById('plotList').configure();
-                    //document.getElementById('resolution').configure();
-
                     if(dataStore.allClear == 0){
+                        document.getElementById('plotGrid').configure();
+                        document.getElementById('plotControl').configure();
+                        document.getElementById('plotList').configure();
+                        document.getElementById('resolution').configure();
                         document.getElementById('gainMatcher').configure();
 
                         //don't want additional plots in this app

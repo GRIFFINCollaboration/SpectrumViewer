@@ -337,3 +337,9 @@ function constructQueries(keys){
 
     return queries
 }
+
+function templateCallback(){
+    //countdown to all templates loaded
+
+    dataStore.allClear--;
+}

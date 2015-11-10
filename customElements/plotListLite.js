@@ -12,8 +12,8 @@ xtag.register('x-plot-list-lite', {
             ).then(
                 function(){
                     this.configure();
-                    if(typeof plotListLiteCallback === "function")
-                        plotListLiteCallback();
+                    if(typeof templateCallback === "function")
+                        templateCallback();
                 }.bind(this)
             )
 

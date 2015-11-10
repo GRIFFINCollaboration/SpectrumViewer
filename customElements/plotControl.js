@@ -18,9 +18,8 @@ xtag.register('x-plot-control', {
                 }.bind(this)
             ).then(
                 function(){
-                    this.configure();
-                    if(typeof plotControlCallback === "function")
-                        plotControlCallback();
+                    if(typeof templateCallback === "function")
+                        templateCallback();
                 }.bind(this)
             )
 

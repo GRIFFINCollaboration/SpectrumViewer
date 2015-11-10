@@ -13,8 +13,8 @@ xtag.register('x-rate-control', {
             ).then(
                 function(){
                     this.configure();
-                    if(typeof rateControlCallback === "function")
-                        rateControlCallback();
+                    if(typeof templateCallback === "function")
+                        templateCallback();
                 }.bind(this)
             )
 
