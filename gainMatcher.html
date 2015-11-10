@@ -61,25 +61,50 @@
         <x-footer></x-footer>
 
         <script>
-            document.addEventListener("DOMComponentsLoaded", theDomHasLoaded, false);
-            function theDomHasLoaded(){
-                document.getElementById('plotGrid').configure();
-                document.getElementById('plotControl').configure();
-                document.getElementById('plotList').configure();
-                //document.getElementById('resolution').configure();
+            function plotGridCallback(){
+                //callback after x-plots completely loaded
 
                 //don't want additional plots in this app
                 deleteNode('plotGridnewPlotButton');
+            }
+
+            function gainMatcherCallback(){
+                //callback after x-gain-match-report completely loaded
 
                 //plug in special fit controls
                 document.getElementById('fitLow').onclick = document.getElementById('gainMatcher').toggleFitMode;
-                document.getElementById('fitHigh').onclick = document.getElementById('gainMatcher').toggleFitMode;
+                document.getElementById('fitHigh').onclick = document.getElementById('gainMatcher').toggleFitMode;                
+            }
 
-                //register & fetch all spectra
+            function plotControlCallback(){
+                //callback after x-plot-control completely loaded
+                var plotControl = document.getElementById('plotControl')
+
                 for(i=0; i<dataStore.GRIFFINdetectors.length; i++){
                     plotControl.activeSpectra.push(dataStore.GRIFFINdetectors[i] + '_Energy');
                 }
                 plotControl.refreshAll();
+            }
+
+            document.addEventListener("DOMComponentsLoaded", theDomHasLoaded, false);
+            function theDomHasLoaded(){
+                //document.getElementById('plotGrid').configure();
+                //document.getElementById('plotControl').configure();
+                //document.getElementById('plotList').configure();
+                //document.getElementById('resolution').configure();
+
+                //don't want additional plots in this app
+                //deleteNode('plotGridnewPlotButton');
+
+                //plug in special fit controls
+                //document.getElementById('fitLow').onclick = document.getElementById('gainMatcher').toggleFitMode;
+                //document.getElementById('fitHigh').onclick = document.getElementById('gainMatcher').toggleFitMode;
+
+                //register & fetch all spectra
+                // for(i=0; i<dataStore.GRIFFINdetectors.length; i++){
+                //     plotControl.activeSpectra.push(dataStore.GRIFFINdetectors[i] + '_Energy');
+                // }
+                // plotControl.refreshAll();
             }
         </script>
     </body>

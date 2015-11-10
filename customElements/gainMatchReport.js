@@ -9,6 +9,12 @@ xtag.register('x-gain-match-report', {
                         'detectors': dataStore.GRIFFINdetectors
                     });
                 }.bind(this)
+            ).then(
+                function(){
+                    this.configure();
+                    if(typeof gainMatcherCallback === "function")
+                        gainMatcherCallback();
+                }.bind(this)
             )
         }
     },

@@ -8,6 +8,12 @@ xtag.register('x-rate-sliders', {
                         'id': this.id
                     });
                 }.bind(this)
+            ).then(
+                function(){
+                    this.configure();
+                    if(typeof rateSliderCallback === "function")
+                        rateSliderCallback();
+                }.bind(this)
             )
         }
     },

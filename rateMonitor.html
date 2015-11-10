@@ -46,47 +46,93 @@
         <x-footer></x-footer>
 
         <script>
-            document.addEventListener("DOMComponentsLoaded", theDomHasLoaded, false);
-            function theDomHasLoaded(){
+            function plotGridCallback(){
+                //callback after x-plots completely loaded
 
-                var i,
-                    pc = document.getElementById('plotControl'),
-                    rc = document.getElementById('rateControl'),
-                    ticker = document.getElementById('rates'),
-                    vw = dataStore.plots[0];
-
-                document.getElementById('plotGrid').configure();
-                pc.configure();
-                rc.configure();
-                document.getElementById('rateSliders').configure();
+                var vw = dataStore.plots[0]
 
                 //don't want additional plots in this app
-                deleteNode('plotGridnewPlotButton');
-
-                //prepare initial gamma windows
-                for(i=0; i<dataStore.defaults.gammas.length; i++){
-                    rc.drawWindow(i, dataStore.defaults.gammas[i].min, dataStore.defaults.gammas[i].max);
-                }
-
-                //plot the spectrum of interest
-                dataStore.viewers[vw].addData(dataStore.targetSpectrum, []);
-                pc.activeSpectra = [dataStore.targetSpectrum];
-                pc.refreshAll();
+                deleteNode('plotGridnewPlotButton');   
 
                 //set up dygraph
                 dataStore.plotStyle['height'] = document.getElementById(dataStore.plots[0]).offsetHeight - dataStore.viewers[vw].bottomMargin + 20,
                 dataStore.plotStyle['weight'] = document.getElementById(dataStore.plots[0]).offsetWidth
-                document.getElementById('rates').configure();
+                document.getElementById('rates').configure();             
+            }
+
+            function rateControlCallback(){
+                //callback after x-rate-control completely loaded
+
+                //prepare initial gamma windows
+                var i,
+                    rc = document.getElementById('rateControl');
+
+                for(i=0; i<dataStore.defaults.gammas.length; i++){
+                    rc.drawWindow(i, dataStore.defaults.gammas[i].min, dataStore.defaults.gammas[i].max);
+                }
 
                 //manage which gamma window are on by defualt
                 for(i=0; i<dataStore.defaults.gammas.length; i++){
                     if(!dataStore.defaults.gammas[i].onByDefault)
                         document.getElementById('display' + dataStore.defaults.gammas[i].index).click()
                 }
+            }
+
+            function plotControlCallback(){
+                //callback after x-plot-control completely loaded
+
+                var vw = dataStore.plots[0],
+                    pc = document.getElementById('plotControl');
+
+                dataStore.viewers[vw].addData(dataStore.targetSpectrum, []);
+                pc.activeSpectra = [dataStore.targetSpectrum];
+                pc.refreshAll();  
 
                 //don't allow refresh period to change
-                deleteNode('plotControlupdateWrap');
+                deleteNode('plotControlupdateWrap');              
             }
+
+            // document.addEventListener("DOMComponentsLoaded", theDomHasLoaded, false);
+            // function theDomHasLoaded(){
+
+            //     var i,
+            //         pc = document.getElementById('plotControl'),
+            //         rc = document.getElementById('rateControl'),
+            //         ticker = document.getElementById('rates'),
+            //         vw = dataStore.plots[0];
+
+            //     //document.getElementById('plotGrid').configure();
+            //     //pc.configure();
+            //     //rc.configure();
+            //     //document.getElementById('rateSliders').configure();
+
+            //     //don't want additional plots in this app
+            //     //deleteNode('plotGridnewPlotButton');
+
+            //     //prepare initial gamma windows
+            //     // for(i=0; i<dataStore.defaults.gammas.length; i++){
+            //     //     rc.drawWindow(i, dataStore.defaults.gammas[i].min, dataStore.defaults.gammas[i].max);
+            //     // }
+
+            //     //plot the spectrum of interest
+            //     // dataStore.viewers[vw].addData(dataStore.targetSpectrum, []);
+            //     // pc.activeSpectra = [dataStore.targetSpectrum];
+            //     // pc.refreshAll();
+
+            //     //set up dygraph
+            //     // dataStore.plotStyle['height'] = document.getElementById(dataStore.plots[0]).offsetHeight - dataStore.viewers[vw].bottomMargin + 20,
+            //     // dataStore.plotStyle['weight'] = document.getElementById(dataStore.plots[0]).offsetWidth
+            //     // document.getElementById('rates').configure();
+
+            //     //manage which gamma window are on by defualt
+            //     // for(i=0; i<dataStore.defaults.gammas.length; i++){
+            //     //     if(!dataStore.defaults.gammas[i].onByDefault)
+            //     //         document.getElementById('display' + dataStore.defaults.gammas[i].index).click()
+            //     // }
+
+            //     //don't allow refresh period to change
+            //     deleteNode('plotControlupdateWrap');
+            // }
         </script>
     </body>
 </html>

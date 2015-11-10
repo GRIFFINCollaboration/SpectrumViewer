@@ -10,6 +10,12 @@ xtag.register('x-rate-control', {
                         'levels': dataStore.defaults.levels
                     });
                 }.bind(this)
+            ).then(
+                function(){
+                    this.configure();
+                    if(typeof rateControlCallback === "function")
+                        rateControlCallback();
+                }.bind(this)
             )
 
             //shorthand for viewer id

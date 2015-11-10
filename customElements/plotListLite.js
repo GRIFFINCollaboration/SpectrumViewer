@@ -9,6 +9,12 @@ xtag.register('x-plot-list-lite', {
                         'id': this.id
                     });
                 }.bind(this)
+            ).then(
+                function(){
+                    this.configure();
+                    if(typeof plotListLiteCallback === "function")
+                        plotListLiteCallback();
+                }.bind(this)
             )
 
             //listen for data update events
