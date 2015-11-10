@@ -1,6 +1,8 @@
 xtag.register('x-gain-match-report', {
     lifecycle:{
         inserted: function(){
+            dataStore.allClear++;
+            
             //inject template
             promisePartial('gainMatchReport').then(
                 function(template){
@@ -11,9 +13,8 @@ xtag.register('x-gain-match-report', {
                 }.bind(this)
             ).then(
                 function(){
-                    if(typeof templateCallback === "function")
-                        templateCallback();
-                }.bind(this)
+                    dataStore.allClear--;   
+                }
             )
         }
     },

@@ -1,6 +1,8 @@
 xtag.register('x-plot-list-lite', {
     lifecycle:{
         inserted: function(){
+            dataStore.allClear++;
+            
             //inject template
             promisePartial('plotListLite').then(
                 function(template){
@@ -11,9 +13,8 @@ xtag.register('x-plot-list-lite', {
                 }.bind(this)
             ).then(
                 function(){
-                    if(typeof templateCallback === "function")
-                        templateCallback();
-                }.bind(this)
+                    dataStore.allClear--;   
+                }
             )
 
             //listen for data update events

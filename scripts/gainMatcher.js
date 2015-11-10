@@ -8,6 +8,7 @@ function setupDataStore(){
     var i, groups = [];
 
     dataStore = {}
+    dataStore.allClear = 0;
     dataStore.pageTitle = 'Gain Matcher';                                   //header title
     //network and raw data
     dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';           //base url + port of analyzer server

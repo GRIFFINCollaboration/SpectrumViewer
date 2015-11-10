@@ -165,6 +165,8 @@ function promisePartial(name){
     });
 }
 
+promisePartial('footer').then(function(template){dataStore.foot = template })
+
 function subtractHistograms(h0, h1){
     // perform element-wise subtraction h1-h0
 
@@ -336,10 +338,4 @@ function constructQueries(keys){
     }
 
     return queries
-}
-
-function templateCallback(){
-    //countdown to all templates loaded
-
-    dataStore.allClear--;
 }

@@ -1,6 +1,8 @@
 xtag.register('x-plots', {
     lifecycle:{
         inserted: function(){
+            dataStore.allClear++;
+
             //inject template
             promisePartial('plotGrid').then(
                 function(template){
@@ -30,9 +32,8 @@ xtag.register('x-plots', {
                 }.bind(this)
             ).then(
                 function(){
-                    if(typeof templateCallback === "function")
-                        templateCallback();
-                }.bind(this)
+                    dataStore.allClear--;   
+                }
             )
         }
     },

@@ -1,8 +1,9 @@
 xtag.register('x-plot-control', {
     lifecycle:{
         inserted: function(){
+            dataStore.allClear++;
 
-            var temp
+            var temp;
             if(this.getAttribute('config') == 'vertical')
                 temp = 'plotControlVertical';
             else if(this.getAttribute('config') == 'horizontal')
@@ -18,9 +19,8 @@ xtag.register('x-plot-control', {
                 }.bind(this)
             ).then(
                 function(){
-                    if(typeof templateCallback === "function")
-                        templateCallback();
-                }.bind(this)
+                    dataStore.allClear--;   
+                }
             )
 
             //listen for plot requests
