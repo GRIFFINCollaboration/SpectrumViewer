@@ -9,10 +9,8 @@ xtag.register('x-plot-list', {
             ).then(
                 function(){
                     this.configure();
-                    function(){
-                        if(typeof plotListCallback === "function"){
-                            plotListCallback();
-                    }
+                    if(typeof plotListCallback === "function")
+                        plotListCallback();
                 }.bind(this)
             )
         }
