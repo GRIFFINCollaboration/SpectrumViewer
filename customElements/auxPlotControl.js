@@ -16,6 +16,10 @@ xtag.register('x-aux-plot-control', {
                         }
                     );
                 }.bind(this)
+            ).then(
+                function(){
+                    this.configure();
+                }.bind(this)
             )
 
             //listen for new table rows requests

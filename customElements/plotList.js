@@ -6,6 +6,11 @@ xtag.register('x-plot-list', {
                 function(template){
                     this.innerHTML = Mustache.to_html(template, {'topGroups': dataStore.topGroups});
                 }.bind(this)
+            ).then(
+                function(){
+                    this.configure();
+                    document.getElementById('GRIFFIN').onclick();
+                }.bind(this)
             )
         }
     },

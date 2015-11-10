@@ -16,6 +16,10 @@ xtag.register('x-plot-control', {
                         'doUpdates': dataStore.doUpdates
                     });
                 }.bind(this)
+            ).then(
+                function(){
+                    this.configure();
+                }.bind(this)
             )
 
             //listen for plot requests

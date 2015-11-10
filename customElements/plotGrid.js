@@ -26,6 +26,11 @@ xtag.register('x-plots', {
                     for(i=0; i<dataStore.plots.length; i++){
                         this.addCell(dataStore.plots[i]);
                     }
+
+                }.bind(this)
+            ).then(
+                function(){
+                    this.configure();
                 }.bind(this)
             )
         }
