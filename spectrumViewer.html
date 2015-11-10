@@ -48,14 +48,15 @@
         <script>
             document.addEventListener("DOMComponentsLoaded", theDomHasLoaded, false);
             function theDomHasLoaded(){
-                console.log(document.readyState)
+                window.setTimeout(function(){
                 document.getElementById('analyzerPlots').configure();
                 document.getElementById('plotGrid').configure();
                 document.getElementById('plotControl').configure();
                 document.getElementById('auxCtrl').configure();
 
                 //start with GRIFFIN menu displayed
-                document.getElementById('GRIFFIN').onclick();
+                document.getElementById('GRIFFIN').onclick();},
+                10);
             }
         </script>
     </body>
