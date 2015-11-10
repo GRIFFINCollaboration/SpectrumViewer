@@ -312,7 +312,6 @@ xtag.register('x-rate-control', {
             //<series>: string; name of data series to annotate, corresponds to dataStore.defaults.gammas.title
             //<flag>: string; message to print in annotation
 
-            console.log(series)
             if(dataStore.annotations[series] && dataStore.annotations[series].text.indexOf(flag) == -1){
                 dataStore.annotations[series].text += '\n' + flag;
             } else{

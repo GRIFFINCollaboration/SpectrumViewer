@@ -152,3 +152,8 @@ function setupDataStore(){
     dataStore.cellIndex = dataStore.plots.length;
 }
 setupDataStore();
+
+function fetchCallback(){
+    deleteNode('waitMessage');
+    document.getElementById('gainMatcher').configure();
+}
