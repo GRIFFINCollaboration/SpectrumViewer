@@ -22,6 +22,8 @@ xtag.register('x-graph', {
                 }.bind(this), 
                 false
             );
+
+            this.configure();
         }
     },
 

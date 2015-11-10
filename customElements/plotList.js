@@ -9,7 +9,10 @@ xtag.register('x-plot-list', {
             ).then(
                 function(){
                     this.configure();
-                    document.getElementById('GRIFFIN').onclick();
+                    function(){
+                        if(typeof plotListCallback === "function"){
+                            plotListCallback();
+                    }
                 }.bind(this)
             )
         }
