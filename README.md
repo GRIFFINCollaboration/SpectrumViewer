@@ -36,6 +36,11 @@ All these projects are built on a collection on custom elements, which are in tu
 
 All these apps share some common design features:
 
+ - Pageload timing looks like:
+   - load global `dataStore` object (see below for description)
+   - sketch out dom using empty custom elements
+   - custom elements generate their own guts either declaratively or (almost always) by pulling in an external mustache template as part of their `inserted` event. When a custom element requests an external template, it increments `dataStore.allClear`; when the template has loaded, it decrements it again.
+   - main scripting routine proceeds once `dataStore.allClear` has returned to 0. This routine is the function argument to the interval stored in `dataStore.prepOnClear`; **if you want to add any scripting that relies on the DOM being completely loaded, this is where it must go**. Think of it as a superlative version of the `DOMComponentsLoaded` event, that also ensures subsequent templates are present.
  - Each app uses a global `dataStore` object to namespace global variables. `dataStore` is initialized by a function `setupDataStore`, called immediately in the head. **This is the appropriate place to add global variables.** Documentation on `dataStore` keys is found inline with their declaration; note that a number of custom elements draw their configurations from `dataStore`. Most notably, `dataStore` contains a key `plots`, an array of strings which label the `gammaspectrum.js` plotting objects available, as well as the associated `x-plots` cells where they are drawn. Those plotting objects in turn live on an object `dataStore.viewers`, for easy global access by all elements; the majority of inter-component communication not encapsulated by a custom event is through reads and writes to these viewer objects.
 
  - Network requests are done via a series of [Promises](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Promise) and callbacks. When adding new network requests, **it is important to respect this pattern if you want responses to be dealt with at the correct time**. The pattern is:
