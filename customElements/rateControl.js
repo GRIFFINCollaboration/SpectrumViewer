@@ -12,7 +12,6 @@ xtag.register('x-rate-control', {
                 }.bind(this)
             ).then(
                 function(){
-                    this.configure();
                     if(typeof templateCallback === "function")
                         templateCallback();
                 }.bind(this)

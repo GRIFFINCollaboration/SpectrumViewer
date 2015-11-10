@@ -10,7 +10,6 @@ xtag.register('x-rate-sliders', {
                 }.bind(this)
             ).then(
                 function(){
-                    this.configure();
                     if(typeof templateCallback === "function")
                         templateCallback();
                 }.bind(this)

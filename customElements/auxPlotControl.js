@@ -18,7 +18,6 @@ xtag.register('x-aux-plot-control', {
                 }.bind(this)
             ).then(
                 function(){
-                    this.configure();
                     if(typeof templateCallback === "function")
                         templateCallback();
                 }.bind(this)

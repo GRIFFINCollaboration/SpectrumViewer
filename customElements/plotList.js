@@ -8,7 +8,6 @@ xtag.register('x-plot-list', {
                 }.bind(this)
             ).then(
                 function(){
-                    this.configure();
                     if(typeof templateCallback === "function")
                         templateCallback();
                 }.bind(this)
