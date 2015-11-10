@@ -11,7 +11,6 @@ xtag.register('x-gain-match-report', {
                 }.bind(this)
             ).then(
                 function(){
-                    this.configure();
                     if(typeof gainMatcherCallback === "function")
                         gainMatcherCallback();
                 }.bind(this)

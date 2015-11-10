@@ -61,51 +61,55 @@
         <x-footer></x-footer>
 
         <script>
+            dataStore.allClear = 3;
+
             function plotGridCallback(){
                 //callback after x-plots completely loaded
 
-                //don't want additional plots in this app
-                deleteNode('plotGridnewPlotButton');
+                dataStore.allClear--;
             }
 
             function gainMatcherCallback(){
                 //callback after x-gain-match-report completely loaded
 
-                //plug in special fit controls
-                document.getElementById('fitLow').onclick = document.getElementById('gainMatcher').toggleFitMode;
-                document.getElementById('fitHigh').onclick = document.getElementById('gainMatcher').toggleFitMode;                
+                dataStore.allClear--;              
             }
 
             function plotControlCallback(){
                 //callback after x-plot-control completely loaded
-                var plotControl = document.getElementById('plotControl')
-
-                for(i=0; i<dataStore.GRIFFINdetectors.length; i++){
-                    plotControl.activeSpectra.push(dataStore.GRIFFINdetectors[i] + '_Energy');
-                }
-                plotControl.refreshAll();
+                
+                dataStore.allClear--;
             }
 
-            document.addEventListener("DOMComponentsLoaded", theDomHasLoaded, false);
-            function theDomHasLoaded(){
-                //document.getElementById('plotGrid').configure();
-                //document.getElementById('plotControl').configure();
-                //document.getElementById('plotList').configure();
-                //document.getElementById('resolution').configure();
+            dataStore.prepOnClear = window.setInterval(
+                function(){
+                    //document.getElementById('plotGrid').configure();
+                    //document.getElementById('plotControl').configure();
+                    //document.getElementById('plotList').configure();
+                    //document.getElementById('resolution').configure();
 
-                //don't want additional plots in this app
-                //deleteNode('plotGridnewPlotButton');
+                    if(dataStore.allClear == 0){
+                        document.getElementById('gainMatcher').configure();
 
-                //plug in special fit controls
-                //document.getElementById('fitLow').onclick = document.getElementById('gainMatcher').toggleFitMode;
-                //document.getElementById('fitHigh').onclick = document.getElementById('gainMatcher').toggleFitMode;
+                        //don't want additional plots in this app
+                        deleteNode('plotGridnewPlotButton');
 
-                //register & fetch all spectra
-                // for(i=0; i<dataStore.GRIFFINdetectors.length; i++){
-                //     plotControl.activeSpectra.push(dataStore.GRIFFINdetectors[i] + '_Energy');
-                // }
-                // plotControl.refreshAll();
-            }
+                        //plug in special fit controls
+                        document.getElementById('fitLow').onclick = document.getElementById('gainMatcher').toggleFitMode;
+                        document.getElementById('fitHigh').onclick = document.getElementById('gainMatcher').toggleFitMode;
+
+                        //register & fetch all spectra
+                        for(i=0; i<dataStore.GRIFFINdetectors.length; i++){
+                             plotControl.activeSpectra.push(dataStore.GRIFFINdetectors[i] + '_Energy');
+                        }
+                        plotControl.refreshAll();
+
+                        window.clearInterval(dataStore.prepOnClear)
+                    }
+                },
+                10
+            )
+
         </script>
     </body>
 </html>
