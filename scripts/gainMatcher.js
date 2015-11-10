@@ -8,7 +8,7 @@ function setupDataStore(){
     var i, groups = [];
 
     dataStore = {}
-    dataStore.allClear = 0;
+    dataStore.allClear = 0;                                                 //counter to track when all templates are loaded
     dataStore.pageTitle = 'Gain Matcher';                                   //header title
     //network and raw data
     dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';           //base url + port of analyzer server

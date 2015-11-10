@@ -8,6 +8,7 @@ function setupDataStore(){
 
     dataStore = {};
     dataStore.pageTitle = 'Rate Monitor'                                //header title
+    dataStore.allClear = 0;                                             //counter to track when all templates are loaded
     //x-tag config
     dataStore.doUpdates = true;                                         //include update loop
     dataStore.plots = ['SUM_Singles_Energy'];                           //names of x-plots cells and spectrumViewer objects

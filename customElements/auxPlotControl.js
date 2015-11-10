@@ -1,6 +1,8 @@
 xtag.register('x-aux-plot-control', {
     lifecycle:{
         inserted: function(){
+            dataStore.allClear++;
+
             //inject template
             Promise.all(['auxPlotControl', 'auxPlotControlTable'].map(promisePartial)).then(
                 function(templates){
@@ -18,9 +20,8 @@ xtag.register('x-aux-plot-control', {
                 }.bind(this)
             ).then(
                 function(){
-                    if(typeof templateCallback === "function")
-                        templateCallback();
-                }.bind(this)
+                    dataStore.allClear--;   
+                }
             )
 
             //listen for new table rows requests

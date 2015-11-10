@@ -157,6 +157,7 @@ function setupDataStore(){
 
     dataStore = {
         "pageTitle": 'Spectrum Viewer',                             //header title
+        "allClear": 0,                                              //counter to track when all templates are loaded
         "topGroups": topGroups,                                     //groups in top nav row
         "waveformSnap": true,                                       //do we want the snap to waveform functionality?
         "doUpdates": true,                                          //do we want the data update button and loop?

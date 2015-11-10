@@ -1,6 +1,8 @@
 xtag.register('x-rate-control', {
     lifecycle:{
         inserted: function(){
+            dataStore.allClear++;
+
             //inject template
             promisePartial('rateControl').then(
                 function(template){
@@ -12,9 +14,8 @@ xtag.register('x-rate-control', {
                 }.bind(this)
             ).then(
                 function(){
-                    if(typeof templateCallback === "function")
-                        templateCallback();
-                }.bind(this)
+                    dataStore.allClear--;   
+                }
             )
 
             //shorthand for viewer id
