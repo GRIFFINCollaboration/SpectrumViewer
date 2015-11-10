@@ -46,18 +46,28 @@
         <x-footer></x-footer>
 
         <script>
-            document.addEventListener("DOMComponentsLoaded", theDomHasLoaded, false);
-            function theDomHasLoaded(){
-                window.setTimeout(function(){
+            $( document ).ready(function() {
                 document.getElementById('analyzerPlots').configure();
                 document.getElementById('plotGrid').configure();
                 document.getElementById('plotControl').configure();
                 document.getElementById('auxCtrl').configure();
 
                 //start with GRIFFIN menu displayed
-                document.getElementById('GRIFFIN').onclick();},
-                10);
-            }
+                document.getElementById('GRIFFIN').onclick();
+            });
+
+
+            // document.addEventListener("DOMComponentsLoaded", theDomHasLoaded, false);
+            // function theDomHasLoaded(){
+
+            //     document.getElementById('analyzerPlots').configure();
+            //     document.getElementById('plotGrid').configure();
+            //     document.getElementById('plotControl').configure();
+            //     document.getElementById('auxCtrl').configure();
+
+            //     //start with GRIFFIN menu displayed
+            //     document.getElementById('GRIFFIN').onclick();
+            // }
         </script>
     </body>
 </html>
