@@ -46,9 +46,9 @@
         <x-footer></x-footer>
 
         <script>
-            document.addEventListener("DOMContentLoaded", theDomHasLoaded, false);
+            document.addEventListener("DOMComponentsLoaded", theDomHasLoaded, false);
             function theDomHasLoaded(){
-
+                console.log(document.readyState)
                 document.getElementById('analyzerPlots').configure();
                 document.getElementById('plotGrid').configure();
                 document.getElementById('plotControl').configure();
