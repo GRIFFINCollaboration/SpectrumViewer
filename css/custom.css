@@ -103,6 +103,11 @@ div.footer{
     border-top: 2px solid #000000;
 }
 
+div.footer a{
+    color: #FFFFFF;
+    text-decoration: underline;
+}
+
 /*navigation*/
 div.navRow{
     padding: 0em 1em 1em 2em;
