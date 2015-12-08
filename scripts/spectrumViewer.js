@@ -31,7 +31,7 @@ function setupDataStore(){
         {
             "name": "Hit Patterns & Sums",
             "id": "hitsAndSums",
-            "color": '#777777',
+            "color": '#367FA9',
             "subGroups": [
                 {
                     "subname": "Hit Patterns",
@@ -58,7 +58,7 @@ function setupDataStore(){
         {
             "name": "GRIFFIN",
             "id": "GRIFFIN",
-            "color": '#777777',
+            "color": '#367FA9',
             "subGroups": [
                 {
                     "subname": "Energy",
@@ -86,7 +86,7 @@ function setupDataStore(){
         {
             "name": "SCEPTAR",
             "id": "SCEPTAR",
-            "color": '#777777',
+            "color": '#367FA9',
             "subGroups": [
                 {
                     "subname": "Energy",
@@ -114,7 +114,7 @@ function setupDataStore(){
         {
             "name": "DESCANT",
             "id": "DESCANT",
-            "color": '#777777',
+            "color": '#367FA9',
             "subGroups": [
                 {
                     "subname": "Energy",

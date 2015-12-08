@@ -352,7 +352,7 @@ div.topRowTab{
 }
 
 div.topRowTab.active{
-    border-bottom: 2px solid #777777;
+    border-bottom: 2px solid #367FA9;
 }
 
 button.topRowSection:hover{
