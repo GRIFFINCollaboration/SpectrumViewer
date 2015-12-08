@@ -110,6 +110,8 @@ function spectrumViewer(canvasID){
 
 	//state variables
 	this.waveformLock = 0; //state of waveform snap
+	this.windowHistory = [[this.XaxisLimitMin, this.XaxisLimitMax]];  //history of x-axis limits as [lo, hi]
+	this.windowHistoryAt = 0; //index of current x axis limits in this.windowHistory
 
 	////////////////////////////////////////////////////////////////
 	//member functions//////////////////////////////////////////////
@@ -131,7 +133,7 @@ function spectrumViewer(canvasID){
 
 
 	//draw the plot frame
-	this.drawFrame = function(){
+	this.drawFrame = function(suppressHistoryRecord){
 		var binsPerTick, countsPerTick, i, label, minBin, interval;
 		var axis, tick, text;
 
@@ -153,28 +155,7 @@ function spectrumViewer(canvasID){
 		axis.graphics.lt(this.canvas.width - this.rightMargin, this.topMargin);
 		this.containerMain.addChild(axis);
 
-
-		//Decorate x axis////////////////////////////////////////////////////////
-		//choose a sane number of ticks and tick intervals
-		// binsPerTick = Math.log10((this.XaxisLimitMax - this.XaxisLimitMin));
-		// binsPerTick = Math.pow(10, Math.floor(binsPerTick) - 1);
-		// minBin = Math.ceil(this.XaxisLimitMin / binsPerTick )*binsPerTick;
-		// this.nXticks = Math.round((this.XaxisLimitMax - minBin) / binsPerTick) + 1;
-		// if(this.nXticks > 11){
-		// 	binsPerTick = Math.log10((this.XaxisLimitMax - minBin))
-		// 	binsPerTick = Math.pow(10, Math.floor(binsPerTick))
-		// 	this.nXticks = Math.round((this.XaxisLimitMax - minBin) / binsPerTick) + 1;
-
-		// 	if(this.nXticks < 5){
-		// 		binsPerTick = Math.log10((this.XaxisLimitMax - minBin))
-		// 		binsPerTick = Math.pow(10, Math.floor(binsPerTick))/2
-		// 		this.nXticks = Math.round((this.XaxisLimitMax - minBin) / binsPerTick) + 1;				
-		// 	}
-		// }
-		// //make sure we don't overrun the end of the x axis
-		// if( (this.nXticks-1)*binsPerTick*this.binWidth > this.xAxisPixLength )
-		// 	this.nXticks--;
-
+		//Decorate x axis
 		interval = Math.log10((this.XaxisLimitMax - this.XaxisLimitMin));
 		if(interval % 1 < 0.35)
 			binsPerTick = Math.pow(10, Math.floor(interval)) / 5 ;
@@ -201,6 +182,14 @@ function spectrumViewer(canvasID){
 			text.x = this.leftMargin + (i*binsPerTick+minBin-this.XaxisLimitMin)*this.binWidth - this.context.measureText(label).width/2;
 			text.y = this.canvas.height - this.bottomMargin + this.tickLength + this.xLabelOffset;
 			this.containerMain.addChild(text);
+		}
+
+		//keep track of x range limit history
+		//don't add to history if asked not to or if nothing's changed
+		if(!suppressHistoryRecord && (this.windowHistory[this.windowHistoryAt][0] != this.XaxisLimitMin || this.windowHistory[this.windowHistoryAt][1] != this.XaxisLimitMax) ){
+			this.windowHistory = this.windowHistory.slice(0, this.windowHistoryAt+1)
+			this.windowHistory.push([this.XaxisLimitMin, this.XaxisLimitMax]);
+			this.windowHistoryAt = this.windowHistory.length - 1;
 		}
 
 		//Decorate Y axis/////////////////////////////////////////////////////////
@@ -265,7 +254,7 @@ function spectrumViewer(canvasID){
 	};
 
 	//update the plot
-	this.plotData = function(RefreshNow){
+	this.plotData = function(RefreshNow, suppressHistoryRecord){
 
 		var i, j, data, thisSpec, totalEntries, color, binBaseline;
 		this.entries = {};
@@ -274,7 +263,7 @@ function spectrumViewer(canvasID){
 		//get the axes right
 		this.chooseLimits();	
 
-		this.drawFrame();
+		this.drawFrame(suppressHistoryRecord);
 
 		// Now the limits are set loop through and plot the data points
 		j = 0; //j counts plots in the drawing loop
@@ -564,6 +553,18 @@ function spectrumViewer(canvasID){
 
 		this.plotData();
 	};
+
+	//restore x-axis limits to a different point in history
+	this.restoreLimits = function(step){
+		this.windowHistoryAt += step;
+		this.windowHistoryAt = Math.min(this.windowHistoryAt, this.windowHistory.length-1);
+		this.windowHistoryAt = Math.max(this.windowHistoryAt, 0);
+
+		this.XaxisLimitMin = this.windowHistory[this.windowHistoryAt][0];
+		this.XaxisLimitMax = this.windowHistory[this.windowHistoryAt][1];
+
+		this.plotData(null, true);
+	}
 
 	//set the axis to 'linear' or 'log', and repaint
 	this.setAxisType = function(type){

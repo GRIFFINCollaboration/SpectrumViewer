@@ -47,7 +47,7 @@
         <x-footer></x-footer>
 
         <script>
-            dataStore.prepOnClear = window.setInterval(
+            dataStore.prepOnClear = window.setTimeout(
                 function(){
 
                     if(dataStore.allClear == 0){
@@ -61,7 +61,7 @@
                         window.clearInterval(dataStore.prepOnClear);
                     }
                 },
-                10
+                1000
             )
         </script>
     </body>

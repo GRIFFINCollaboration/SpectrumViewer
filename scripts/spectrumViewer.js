@@ -31,7 +31,7 @@ function setupDataStore(){
         {
             "name": "Hit Patterns & Sums",
             "id": "hitsAndSums",
-            "color": '#BF55EC',
+            "color": '#777777',
             "subGroups": [
                 {
                     "subname": "Hit Patterns",
@@ -58,7 +58,7 @@ function setupDataStore(){
         {
             "name": "GRIFFIN",
             "id": "GRIFFIN",
-            "color": '#4183D7',
+            "color": '#777777',
             "subGroups": [
                 {
                     "subname": "Energy",
@@ -86,7 +86,7 @@ function setupDataStore(){
         {
             "name": "SCEPTAR",
             "id": "SCEPTAR",
-            "color": '#87D37C',
+            "color": '#777777',
             "subGroups": [
                 {
                     "subname": "Energy",
@@ -114,7 +114,7 @@ function setupDataStore(){
         {
             "name": "DESCANT",
             "id": "DESCANT",
-            "color": '#E87E04',
+            "color": '#777777',
             "subGroups": [
                 {
                     "subname": "Energy",
@@ -188,7 +188,7 @@ function fetchCallback(){
         keys = Object.keys(dataStore.viewers);
 
     for(i=0; i<keys.length; i++){
-        dataStore.viewers[keys[i]].plotData();
+        dataStore.viewers[keys[i]].plotData(null, true);
     }
 }
 

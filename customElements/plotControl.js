@@ -62,6 +62,10 @@ xtag.register('x-plot-control', {
             document.getElementById(this.id+'littleRight').onclick = this.scrollAllSpectra.bind(this, 1);
             document.getElementById(this.id+'bigRight').onclick = this.scrollAllSpectra.bind(this, 100);
 
+            //prev / next x range buttons
+            document.getElementById(this.id+'prev').onclick = this.cycleXlimits.bind(this, -1);
+            document.getElementById(this.id+'next').onclick = this.cycleXlimits.bind(this,  1);
+
             //unzoom button
             document.getElementById(this.id+'unzoom').onclick = this.unzoomAllSpectra.bind(this);
 
@@ -96,7 +100,7 @@ xtag.register('x-plot-control', {
         configureSinglePlot: function(id){
             //per plot control configuration
             //<id>: string; plot label from dataStore.plots
-            //this: x-plots object
+            //this: x-plot-control object
 
             //plug in cursor reporting
             dataStore.viewers[id].mouseMoveCallback = this.cursorReporting.bind(this);
@@ -112,7 +116,7 @@ xtag.register('x-plot-control', {
         routeNewPlot: function(event){
             //catch a requestPlot event, do appropriate things with it.
             //<event>: event; requestPlot custom event
-            //this: x-plots object
+            //this: x-plot-control object
             var i, evt;
 
             //update list of spectra to poll
@@ -148,7 +152,7 @@ xtag.register('x-plot-control', {
 
         refreshAll: function(){
             //refresh all spectra & odb parameters
-            //this: x-plots object
+            //this: x-plot-control object
 
             var queries = constructQueries(this.activeSpectra);
 
@@ -197,7 +201,7 @@ xtag.register('x-plot-control', {
         attachCell: function(event){
             //add or remove a plot cell from the targeting list
             //<event>: event; attachCell custom event
-            //this: x-plots object
+            //this: x-plot-control object
 
             if(event.detail.state && this.targets.indexOf(event.detail.cellName) == -1)
                 this.targets.push(event.detail.cellName);
@@ -208,7 +212,7 @@ xtag.register('x-plot-control', {
         deleteCell: function(event){
             //respond to a deleteCell event
             //<event>: event; deleteCell custom event
-            //this: x-plots object
+            //this: x-plot-control object
 
             var index = this.targets.indexOf(event.detail.cellName);
             if(index != -1)
@@ -241,7 +245,7 @@ xtag.register('x-plot-control', {
 
         updateAllXranges: function(){
             //update the x-ranges of all active plots based on the text box inputs
-            //this: x-plots object
+            //this: x-plot-control object
             var i;
 
             for(i=0; i<this.targets.length; i++){
@@ -252,7 +256,7 @@ xtag.register('x-plot-control', {
         updatePlotRange: function(plot){
             //update the plot ranges for the named plot onchange of the x-range input fields
             //<plot>: string; name of plot to update, from dataStore.plots
-            //this: x-plots object
+            //this: x-plot-control object
             var xMin = document.getElementById(this.id + 'minX'),
                 xMax = document.getElementById(this.id + 'maxX');
 
@@ -271,7 +275,7 @@ xtag.register('x-plot-control', {
         updateRangeSelector: function(plot){
             //update the UI when the plot is zoomed with the mouse
             //<plot>: string; name of plot to update, from dataStore.plots
-            //this: x-plots object
+            //this: x-plot-control object
             var xMin = dataStore.viewers[plot].XaxisLimitMin,
                 xMax = dataStore.viewers[plot].XaxisLimitMax
 
@@ -285,7 +289,7 @@ xtag.register('x-plot-control', {
 
         manageXvalidity: function(){
             //check that x min < x max, and complain otherwise.
-            //this: x-plots object
+            //this: x-plot-control object
 
             var xMin = document.getElementById(this.id + 'minX'),
                 xMax = document.getElementById(this.id + 'maxX');
@@ -308,7 +312,7 @@ xtag.register('x-plot-control', {
         scrollAllSpectra: function(scrollDistance){
             //scroll the x-ranges of all active plots based via the scroll buttons
             //<scrollDistance>: number; bins to scroll to the right
-            //this: x-plots object
+            //this: x-plot-control object
             var i;
 
             for(i=0; i<this.targets.length; i++){
@@ -318,12 +322,22 @@ xtag.register('x-plot-control', {
 
         unzoomAllSpectra: function(){
             //unzoom the x-ranges of all active plots based via the scroll buttons
-            //this: x-plots object
+            //this: x-plot-control object
             var i;
 
             for(i=0; i<this.targets.length; i++){
                 dataStore.viewers[this.targets[i]].unzoom.bind(dataStore.viewers[this.targets[i]])();
             }            
+        },
+
+        cycleXlimits: function(step){
+            //<step>: number; how many steps to take forward in xrange history
+            //this: x-plot-control object
+            var i;
+            for(i=0; i<this.targets.length; i++){
+                dataStore.viewers[this.targets[i]].restoreLimits.bind(dataStore.viewers[this.targets[i]], step)();
+            } 
+
         },
 
         /////////////////////
@@ -332,7 +346,7 @@ xtag.register('x-plot-control', {
 
         snapAll: function(){
             //snap all active spectra to waveform lock mode
-            //this: x-plots object
+            //this: x-plot-control object
             var i;
 
             for(i=0; i<this.targets.length; i++){
@@ -343,7 +357,7 @@ xtag.register('x-plot-control', {
         waveformSnap: function(plot){
             //toggle the snap to waveform state on the requested plot
             //<plot>: string; name of plot to update, from dataStore.plots
-            //this: x-plots object
+            //this: x-plot-control object
 
             if(dataStore.viewers[plot].waveformLock){
                 dataStore.viewers[plot].demandXmin = null;
@@ -382,7 +396,7 @@ xtag.register('x-plot-control', {
         setAllAxes: function(state){
             //set the y axis state of every active plot
             //<state>: string; 'linear' or 'log'. 
-            //this: x-plots object
+            //this: x-plot-control object
             
             var i;
 

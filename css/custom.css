@@ -339,12 +339,14 @@ div.subrowDrops{
 
 div.topRowTab{
     padding: 1em;
+    border-left: 1px solid #000000;
+    border-right: 1px solid #000000;
+    border-top: 2px solid #000000;
+    border-bottom: 2px solid #000000;
 }
 
 div.topRowTab.active{
-    border-left: 2px solid #000000;
-    border-top: 2px solid #000000;
-    border-right: 2px solid #000000;
+    border-bottom: 2px solid #777777;
 }
 
 button.topRowSection:hover{
@@ -352,7 +354,7 @@ button.topRowSection:hover{
 }
 
 div.mini-header{
-    background-color: #4C4C4C;
+    background-color: #333333;
 }
 
 div.mini-header img{
