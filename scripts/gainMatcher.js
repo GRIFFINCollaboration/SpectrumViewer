@@ -11,7 +11,8 @@ function setupDataStore(){
     dataStore.allClear = 0;                                                 //counter to track when all templates are loaded
     dataStore.pageTitle = 'Gain Matcher';                                   //header title
     //network and raw data
-    dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';           //base url + port of analyzer server
+    dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';           //host + port of analyzer server
+    dataStore.ODBhost = 'http://grsmid00.triumf.ca:8081/';                  //MIDAS / ODB host + port
     dataStore.ODBrequests = [                                               //request strings for odb parameters
         'http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/DAQ/MSC/chan&odb1=/DAQ/MSC/gain&odb2=/DAQ/MSC/offset&encoding=json-p-nokeys&callback=updateODB'
     ];
@@ -170,7 +171,6 @@ function updateODB(obj){
     var channel = obj[0].chan,
         gain = obj[1].gain,
         offset = obj[2].offset,
-        host = document.getElementById('ODBhost').value,
         i, position, urls = [];
 
     //for every griffin channel, update the gains and offsets:
@@ -187,8 +187,8 @@ function updateODB(obj){
     offset = JSON.stringify(offset).slice(1,-1) 
 
     //construct urls to post to
-    urls[0] = host + '?cmd=jset&odb=Custom/dummy[*]&value=2154,2077';
-    //urls[1] = host + '?cmd=jset&odb=Custom/dummy[*]&value=2154,2077';
+    urls[0] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/MSC/gain[*]&value='+gain;
+    urls[1] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/MSC/offset[*]&value='+offset;
 
     //send requests
     for(i=0; i<urls.length; i++){
@@ -198,4 +198,7 @@ function updateODB(obj){
             function(error){console.log(error)}
         )
     }
+
+    //get rid of the modal
+    document.getElementById('dismissODBmodal').click();
 }

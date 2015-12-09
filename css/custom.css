@@ -325,8 +325,9 @@ table.gainTable tr:nth-child(8n+2){
     background-color: #222222;
 }
 
-input.ODBhost {
-    width: 20em;
+/*gain matcher are you sure modal*/
+div.modal{
+    color: #000000;
 }
 
 /* spectrum viewer navigation menu */

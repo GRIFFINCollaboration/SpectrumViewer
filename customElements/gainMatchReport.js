@@ -33,11 +33,19 @@ xtag.register('x-gain-match-report', {
             //set up fit callbacks
             dataStore.viewers[dataStore.plots[0]].fitCallback = this.fitCallback.bind(this);
 
-            //guess host and port from current host and port:
-            document.getElementById('ODBhost').value = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '')
+            //plug in the allow ODB write switch
+            document.getElementById(this.id + 'yesDefinitelyWriteODB').onchange = this.toggleODBwrite.bind(this);
 
             //plug in write to odb button
-            document.getElementById(this.id + 'writeToODB').onclick = promiseScript.bind(null, dataStore.ODBrequests[0]);
+            document.getElementById(this.id + 'writeToODB').onclick = function(){
+                //bail out if there's no fit yet
+                if(Object.keys(dataStore.fitResults).length == 0){
+                    window.alert('You need to perform the gain match (see button at top of page) before writing results to the ODB.');
+                    document.getElementById('dismissODBmodal').click();
+                }
+
+                promiseScript(dataStore.ODBrequests[0]);
+            }
         },
 
         fitAll: function(){
@@ -395,6 +403,17 @@ xtag.register('x-gain-match-report', {
             else
                 dataStore.currentPeak = 1
 
+        },
+
+        toggleODBwrite: function(){
+            //toggle odb writing permission.
+
+            var allowed = document.getElementById(this.id + 'yesDefinitelyWriteODB').checked
+
+            if(allowed)
+                document.getElementById(this.id + 'writeToODB').removeAttribute('disabled');
+            else
+                document.getElementById(this.id + 'writeToODB').setAttribute('disabled', true);
         }
     }
 
