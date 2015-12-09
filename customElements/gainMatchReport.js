@@ -23,7 +23,8 @@ xtag.register('x-gain-match-report', {
         configure: function(){
             //plug in fit all button
             document.getElementById(this.id + 'fitAll').onclick = this.fitAll.bind(this);
-
+            document.getElementById(this.id + 'fitAll').removeAttribute('disabled');
+            
             //plug in source dropdown
             document.getElementById(this.id + 'calibrationSource').onchange = this.updateEnergies.bind(this);
             //plug in peak energy inputs
