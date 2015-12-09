@@ -289,6 +289,10 @@ span.range-value::after {
     content: '';
 }
 
+.snapGateToWindow{
+    margin-bottom: 2px;
+}
+
 /* plot annotations */
 .annotation{
     background-color: #FFFFFF;
