@@ -185,6 +185,32 @@ function subtractHistograms(h0, h1){
 
 }
 
+function XHR(url, errorMessage, callback, reject){
+    //generic XHR request guts
+
+    var req = new XMLHttpRequest();
+    req.open('GET', url);
+
+    req.onload = function() {
+        // This is called even on 404 etc
+        // so check the status
+        if (req.status == 200) {
+            callback();
+        }
+        else {
+            reject(Error(req.statusText));
+        }
+    };
+
+    // Handle network errors
+    req.onerror = function() {
+        reject(Error(errorMessage));
+    };
+
+    // Make the request
+    req.send();
+}
+
 function RCS(data, theory, parameters){
     //return the reduced chi^2 for an array of data compared to an array of corresponding theory predictions
     //assume variance on data = data (ie, poissonian counting error)

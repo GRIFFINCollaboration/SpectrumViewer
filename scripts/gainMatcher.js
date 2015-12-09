@@ -12,7 +12,9 @@ function setupDataStore(){
     dataStore.pageTitle = 'Gain Matcher';                                   //header title
     //network and raw data
     dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';           //base url + port of analyzer server
-    dataStore.ODBrequests = [];                                             //request strings for odb parameters
+    dataStore.ODBrequests = [                                               //request strings for odb parameters
+        'http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/DAQ/MSC/chan&odb1=/DAQ/MSC/gain&odb2=/DAQ/MSC/offset&encoding=json-p-nokeys&callback=updateODB'
+    ];
     dataStore.rawData = {};                                                 //buffer for raw spectrum data
     //fitting
     dataStore.ROI = {};                                                     //regions of interest to look for peaks in: 'plotname': {'ROIupper':[low bin, high bin], 'ROIlower': [low bin, high bin]}
@@ -157,4 +159,43 @@ setupDataStore();
 function fetchCallback(){
     deleteNode('waitMessage');
     document.getElementById('gainMatcher').configure();
+}
+
+function updateODB(obj){
+
+    //bail out if there's no fit yet
+    if(Object.keys(dataStore.fitResults).length == 0)
+        return;
+
+    var channel = obj[0].chan,
+        gain = obj[1].gain,
+        offset = obj[2].offset,
+        host = document.getElementById('ODBhost').value,
+        i, position, urls = [];
+
+    //for every griffin channel, update the gains and offsets:
+    for(i=0; i<channel.length; i++){
+        position = dataStore.GRIFFINdetectors.indexOf(channel[i]);
+        if(position != -1){
+            gain[i] = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Energy'][2][1];
+            offset[i] = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Energy'][2][0];
+        }
+    }
+
+    //turn gain and offset arrays into csv strings
+    gain = JSON.stringify(gain).slice(1,-1) 
+    offset = JSON.stringify(offset).slice(1,-1) 
+
+    //construct urls to post to
+    urls[0] = host + '?cmd=jset&odb=Custom/dummy[*]&value=2154,2077';
+    //urls[1] = host + '?cmd=jset&odb=Custom/dummy[*]&value=2154,2077';
+
+    //send requests
+    for(i=0; i<urls.length; i++){
+        XHR(urls[i], 
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+            function(){return 0},
+            function(error){console.log(error)}
+        )
+    }
 }

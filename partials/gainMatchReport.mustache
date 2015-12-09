@@ -37,5 +37,13 @@
                 </tr>
             {{/ detectors}}
         </table>
+
+
+        <label for='ODBhost'>ODB Host: </label>
+        <input type='url' id='ODBhost' class='rowElement ODBhost' pattern="https?://[A-Za-z0-9-._~/?#@!$&'()*+,;=]*:[0-9]*/" value='http://host:port/'></input>
+        <button type="button" class="btn btn-default btn-lg" id='{{id}}writeToODB'>
+            Write calibration to ODB
+        </button>
+
     </div>
 </div>

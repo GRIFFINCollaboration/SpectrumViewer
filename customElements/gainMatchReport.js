@@ -32,6 +32,9 @@ xtag.register('x-gain-match-report', {
 
             //set up fit callbacks
             dataStore.viewers[dataStore.plots[0]].fitCallback = this.fitCallback.bind(this);
+
+            //plug in write to odb button
+            document.getElementById(this.id + 'writeToODB').onclick = promiseScript.bind(null, dataStore.ODBrequests[0]);
         },
 
         fitAll: function(){
