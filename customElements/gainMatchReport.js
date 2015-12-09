@@ -33,6 +33,9 @@ xtag.register('x-gain-match-report', {
             //set up fit callbacks
             dataStore.viewers[dataStore.plots[0]].fitCallback = this.fitCallback.bind(this);
 
+            //guess host and port from current host and port:
+            document.getElementById('ODBhost').value = location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '')
+
             //plug in write to odb button
             document.getElementById(this.id + 'writeToODB').onclick = promiseScript.bind(null, dataStore.ODBrequests[0]);
         },
