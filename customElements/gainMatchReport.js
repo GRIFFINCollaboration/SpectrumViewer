@@ -24,7 +24,7 @@ xtag.register('x-gain-match-report', {
             //plug in fit all button
             document.getElementById(this.id + 'fitAll').onclick = this.fitAll.bind(this);
             document.getElementById(this.id + 'fitAll').removeAttribute('disabled');
-            
+
             //plug in source dropdown
             document.getElementById(this.id + 'calibrationSource').onchange = this.updateEnergies.bind(this);
             //plug in peak energy inputs
@@ -326,9 +326,9 @@ xtag.register('x-gain-match-report', {
                         || isNaN(dataStore.fitResults[keys[i]][1][1])
                     )
                 ){
-                    document.getElementById(this.id + keys[i].slice(0,10) + 'row').style = 'background-color: #FF0000;'
+                    document.getElementById(this.id + keys[i].slice(0,10) + 'row').setAttribute('style', 'background-color: #FF0000;')
                 } else{
-                    document.getElementById(this.id + keys[i].slice(0,10) + 'row').style = ''
+                    document.getElementById(this.id + keys[i].slice(0,10) + 'row').setAttribute('style', '')
                 }
             }
         },
