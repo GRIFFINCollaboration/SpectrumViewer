@@ -69,7 +69,6 @@
                         document.getElementById('plotControl').configure();
                         document.getElementById('plotList').configure();
                         document.getElementById('resolution').configure();
-                        //document.getElementById('gainMatcher').configure();
 
                         //don't want additional plots in this app
                         deleteNode('plotGridnewPlotButton');
@@ -78,11 +77,12 @@
                         document.getElementById('fitLow').onclick = document.getElementById('gainMatcher').toggleFitMode;
                         document.getElementById('fitHigh').onclick = document.getElementById('gainMatcher').toggleFitMode;
 
-                        //register & fetch all spectra
-                        for(i=0; i<dataStore.GRIFFINdetectors.length; i++){
-                             plotControl.activeSpectra.push(dataStore.GRIFFINdetectors[i] + '_Energy');
-                        }
-                        plotControl.refreshAll();
+                        //identify, register & fetch all spectra
+                        promiseScript(dataStore.DAQquery)
+
+                        $(function () {
+                            $('[data-toggle="tooltip"]').tooltip()
+                        })
 
                         window.clearInterval(dataStore.prepOnClear)
                     }

@@ -228,6 +228,7 @@ td.zeroRow{
 
 div.refitButtons{
     margin-top: 1em;
+    display: inline-block;
 }
 
 div.swatch{

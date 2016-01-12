@@ -66,6 +66,10 @@ xtag.register('x-plot-list-lite', {
             //<target>: string; spectrumViewer object to plot the plot in.
             //this: x-plot-list-lite object 
 
+            // did we find this plot?
+            if(!dataStore.rawData[plot])
+                return;
+
             //dump old data
             if(dataStore.currentPlot){
                 target.removeData(dataStore.currentPlot);
@@ -85,8 +89,11 @@ xtag.register('x-plot-list-lite', {
             //reset display to first plot, first section
             //this: x-plot-list-lite object
             
-            document.getElementById(this.id + dataStore.plotGroups[0].groupID).onclick();
-            document.getElementById(this.id + dataStore.plotGroups[0].plots[0].plotID).onclick();
+            //document.getElementById(this.id + dataStore.plotGroups[0].groupID).onclick();
+            //document.getElementById(this.id + dataStore.plotGroups[0].plots[0].plotID).onclick();
+            
+            document.getElementById(this.id + Object.keys(dataStore.rawData)[0].slice(0,5)).onclick();
+            document.getElementById(this.id + Object.keys(dataStore.rawData)[0].slice(0,10)).onclick();
 
         }
     }

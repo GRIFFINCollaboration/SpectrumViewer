@@ -84,9 +84,15 @@ function promiseJSONURL(url){
         req.onload = function() {
             // This is called even on 404 etc
             // so check the status
+
+            var mungedResponse;
+
             if (req.status == 200) {
                 // Resolve the promise with the response text parsed as JSON
-                resolve(JSON.parse(req.response.replace(/\'/g, '\"')));  //good grief fix this in the server
+                mungedResponse = req.response.replace(/NULL/g,'[]');
+                mungedResponse = mungedResponse.replace(/\'/g, '\"');
+                resolve(JSON.parse(mungedResponse));
+                //resolve(JSON.parse(req.response.replace(/\'/g, '\"')));
             }
             else {
                 // Otherwise reject with the status text

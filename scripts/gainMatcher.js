@@ -59,7 +59,7 @@ function setupDataStore(){
     dataStore.highPeakResolution = [];                                  //as lowPeakResolution
     dataStore.highPeakResolution.fill(0,64);                            //start with zeroes
 
-    dataStore.GRIFFINdetectors = [                                      //10-char codes of griffin detectors, in order.
+    dataStore.GRIFFINdetectors = [                                      //10-char codes of all possible griffin detectors.
             'GRG01BN00A',
             'GRG01GN00A',
             'GRG01RN00A',
@@ -125,6 +125,8 @@ function setupDataStore(){
             'GRG16RN00A',
             'GRG16WN00A'
         ];
+    dataStore.DAQquery = 'http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/DAQ/MSC/chan&encoding=json-p-nokeys&callback=loadData';
+
 
     //generate groups for plot selector
     for(i=1; i<17; i++){
@@ -162,6 +164,20 @@ function fetchCallback(){
     document.getElementById('gainMatcher').configure();
 }
 
+function loadData(DAQ){
+    // given the list of channels plugged into the DAQ from the ODB, load the appropriate spectra.
+
+    var i,
+        channels = DAQ[0].chan;
+
+    for(i=0; i<channels.length; i++){
+        if(channels[i].slice(0,3) == 'GRG')
+            plotControl.activeSpectra.push(channels[i] + '_Energy');
+    }
+
+    plotControl.refreshAll();
+}
+
 function updateODB(obj){
 
     //bail out if there's no fit yet
@@ -189,7 +205,7 @@ function updateODB(obj){
     //construct urls to post to
     urls[0] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/MSC/gain[*]&value='+gain;
     urls[1] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/MSC/offset[*]&value='+offset;
-
+    
     //send requests
     for(i=0; i<urls.length; i++){
         XHR(urls[i], 

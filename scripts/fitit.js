@@ -101,7 +101,7 @@ function histofit(){
 			this.param[i] = this.guess[i];
 
 		while(Math.abs(dNLL) > tolerance && limit>0){
-//console.log(this.param)
+
 			NLL = this.NegLL(this.param);
 			grad = this.nllGrad(this.param);
 
@@ -109,7 +109,7 @@ function histofit(){
 			for(i=0; i<this.param.length; i++){
 				this.param[i] -= grad[i]*this.stepSize;
 			}
-//console.log(this.param)
+			
 			newNLL = this.NegLL(this.param);
 
 			//take smaller steps as we approach minimum
