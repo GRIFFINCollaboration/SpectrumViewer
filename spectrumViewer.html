@@ -58,6 +58,10 @@
                         //start with GRIFFIN menu displayed
                         document.getElementById('GRIFFIN').onclick();
 
+                        $(function () {
+                            $('[data-toggle="tooltip"]').tooltip()
+                        })
+
                         window.clearInterval(dataStore.prepOnClear);
                     }
                 },

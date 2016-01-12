@@ -76,6 +76,10 @@ button.bigButton{
     color: #FF6666;
 }
 
+.tooltip-inner{
+    text-align: left !important;
+}
+
 /*branding*/
 div.branding{
     color: #FFFFFF;
