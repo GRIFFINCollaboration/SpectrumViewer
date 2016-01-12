@@ -88,6 +88,10 @@
                         //don't allow refresh period to change
                         deleteNode('plotControlupdateWrap');
 
+                        $(function () {
+                            $('[data-toggle="tooltip"]').tooltip()
+                        })
+
                         window.clearInterval(dataStore.prepOnClear);
                     }
                 },
