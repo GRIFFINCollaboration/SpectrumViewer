@@ -141,7 +141,8 @@ xtag.register('x-rate-control', {
             //this: x-rate-control object
 
             var index = parseInt(element.name.slice(3),10);
-            this.queueAnnotation(dataStore.defaults.gammas[index].title, 'BKG Method Changed to ' + element.value)
+            this.queueAnnotation(dataStore.defaults.gammas[index].title, 'BKG Method Changed to ' + element.value);
+            dataStore.defaults.gammas[index].newFitMethod = true;
             fetchCallback()
         },
 
@@ -223,6 +224,13 @@ xtag.register('x-rate-control', {
 
             //integrate gamma window on difference histogram
             for(i=0; i<dataStore.defaults.gammas.length; i++){
+                if(dataStore.defaults.gammas[i].newFitMethod){
+                    //can't make a sensible comparison on first tick after fit method change
+                    gates[i] = 0;
+                    dataStore.defaults.gammas[i].newFitMethod = false;
+                    continue;
+                }
+
                 id = dataStore.defaults.gammas[i].index;
                 min = dataStore.viewers[dataStore.plots[0]].verticals['min' + id].bin
                 max = dataStore.viewers[dataStore.plots[0]].verticals['max' + id].bin
