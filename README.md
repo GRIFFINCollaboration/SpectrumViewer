@@ -7,6 +7,13 @@ A collection of remixable spectrum analysis tools.
 
 The Spectrum Viewer pages can be served as static pages from gh-pages, or anywhere you like. `server.js` provides a minimal node server that will do the job; dependencies and setup are at the top of that file.
 
+## Contributing
+
+Contributions are very welcome! If you have an idea, question or comment, please open an issue. If you would like to make a change to this project, please follow these steps:
+ - start by opening an issue or empty PR to discuss your ideas
+ - please limit individual PRs to less than 500 lines (Why? See figure 1 [here](https://smartbear.com/SmartBear/media/pdfs/11_Best_Practices_for_Peer_Code_Review.pdf)).
+ - please encapsulate all new behavior wherever possible in functions of 50 lines or less each.
+
 ## Data Feeds
 
 All these tools rely on being able to query spectrum data from a server providing JSON reponses. The expected API is as follows:
