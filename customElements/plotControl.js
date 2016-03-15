@@ -199,14 +199,20 @@ xtag.register('x-plot-control', {
         },
 
         attachCell: function(event){
-            //add or remove a plot cell from the targeting list
+            //update the list of plot cells attached to the control
             //<event>: event; attachCell custom event
             //this: x-plot-control object
 
-            if(event.detail.state && this.targets.indexOf(event.detail.cellName) == -1)
-                this.targets.push(event.detail.cellName);
-            else if(!event.detail.state && this.targets.indexOf(event.detail.cellName) != -1)
-                this.targets.splice(this.targets.indexOf(event.detail.cellName), 1);
+            var i, 
+                activeToggles = document.getElementsByClassName('activeWindowFlag');
+
+            this.targets = []
+
+            for(i=0; i<activeToggles.length; i++){
+                if(activeToggles[i].checked){
+                    this.targets.push(activeToggles[i].value)
+                }
+            }
         },
 
         deleteCell: function(event){

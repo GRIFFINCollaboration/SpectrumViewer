@@ -195,6 +195,14 @@ span.plotPresence{
     opacity: 0.7;
 }
 
+canvas.plotCanvas{
+    opacity: 0.5;
+}
+
+input.activeWindowFlag:checked + canvas.plotCanvas{
+    opacity: 1;
+}
+
 /* fitting */
 table#fitTable{
     width: 100%;

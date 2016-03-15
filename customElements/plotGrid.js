@@ -81,7 +81,7 @@ xtag.register('x-plots', {
             this.createFigure(label);
 
             //plug in attachment toggles
-            document.getElementById(this.id + label + 'attachAxis').onchange = this.attachCell;
+            document.getElementById(this.id + label + 'attachAxis').onclick = this.attachCell;
 
             //plug in delete button
             document.getElementById(this.id + label + 'Delete').onclick = this.deleteCell.bind(this, label);
@@ -141,7 +141,7 @@ xtag.register('x-plots', {
                 this.attachCell.bind(document.getElementById(this.id + dataStore.plots[0] + 'attachAxis'))();
 
                 //hide cell attachment ui
-                document.getElementById(this.id + dataStore.plots[0] + 'Control').classList.add('hidden');
+                //document.getElementById(this.id + dataStore.plots[0] + 'Control').classList.add('hidden');
             } else{
                 //unhide cell attachment ui
                 for(i=0; i<nCells; i++){
@@ -192,6 +192,18 @@ xtag.register('x-plots', {
             //dispatch an event carrying the cell in question and its attachment state 
             //<e>: event; onchange.
             //this: input type=checkbox element.
+
+            var event = e || window.event,
+                activeToggles, i;
+            
+            // unselect everyone else unless shift pressed
+            if(event && (!event.shiftKey && event.target.checked ) ){
+                activeToggles = document.getElementsByClassName('activeWindowFlag');
+                for(i=0; i<activeToggles.length; i++){
+                    if(activeToggles[i] != event.target)
+                        activeToggles[i].checked = false;
+                }
+            }
 
             dispatcher(
                 { 
