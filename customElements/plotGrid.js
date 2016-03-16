@@ -121,7 +121,6 @@ xtag.register('x-plots', {
             var colSize = this.determineColSize();
             var colClass = 'plotCell col-md-' + colSize;
             var i, cell;
-            var canvas, width, height;
 
             for(i=0; i<dataStore.plots.length; i++){
                 cell = document.getElementById(this.id + dataStore.plots[i] + 'Cell');
@@ -173,6 +172,9 @@ xtag.register('x-plots', {
             var canvas = document.getElementById(id);
             var width = canvas.parentElement.offsetWidth
             var height = 2/3*width;
+            if(height > 0.8*window.innerHeight){
+                height = window.innerHeight / window.innerWidth * width;
+            }
 
             canvas.width = width;
             canvas.height = height;
