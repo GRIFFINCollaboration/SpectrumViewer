@@ -10,7 +10,8 @@ xtag.register('x-plot-list', {
                 }.bind(this)
             ).then(
                 function(){
-                    document.getElementById('analyzerPlots').configure();  
+                    document.getElementById('analyzerPlots').configure();
+                    document.getElementById('GRIFFIN').onclick();  
                 }
             )
         }
