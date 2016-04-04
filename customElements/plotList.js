@@ -1,6 +1,7 @@
 xtag.register('x-plot-list', {
     lifecycle:{
         inserted: function(){
+            dataStore.allClear++;
 
             //inject template
             promisePartial('plotList').then(
@@ -9,8 +10,7 @@ xtag.register('x-plot-list', {
                 }.bind(this)
             ).then(
                 function(){
-                    document.getElementById('analyzerPlots').configure();
-                    document.getElementById('GRIFFIN').onclick();  
+                    dataStore.allClear--;   
                 }
             )
         }

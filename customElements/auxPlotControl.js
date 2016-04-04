@@ -1,6 +1,7 @@
 xtag.register('x-aux-plot-control', {
     lifecycle:{
         inserted: function(){
+            dataStore.allClear++;
 
             //inject template
             Promise.all(['auxPlotControl', 'auxPlotControlTable'].map(promisePartial)).then(
@@ -19,7 +20,7 @@ xtag.register('x-aux-plot-control', {
                 }.bind(this)
             ).then(
                 function(){
-                    document.getElementById('auxCtrl').configure();  
+                    dataStore.allClear--;   
                 }
             )
 
