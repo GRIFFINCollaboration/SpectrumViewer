@@ -80,7 +80,7 @@ function promiseJSONURL(url){
         // Do the usual XHR stuff
         var req = new XMLHttpRequest();
         req.open('GET', url);
-
+console.log(url)
         req.onload = function() {
             // This is called even on 404 etc
             // so check the status
