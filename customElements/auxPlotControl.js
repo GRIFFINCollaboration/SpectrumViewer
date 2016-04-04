@@ -20,7 +20,7 @@ xtag.register('x-aux-plot-control', {
                 }.bind(this)
             ).then(
                 function(){
-                    dataStore.allClear--;   
+                    document.getElementById('auxCtrl').configure();  
                 }
             )
 

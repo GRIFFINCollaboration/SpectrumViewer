@@ -19,7 +19,7 @@ xtag.register('x-plot-control', {
                 }.bind(this)
             ).then(
                 function(){
-                    dataStore.allClear--;   
+                    document.getElementById('plotControl').configure(); 
                 }
             )
 

@@ -47,26 +47,26 @@
         <x-footer></x-footer>
 
         <script>
-            dataStore.prepOnClear = window.setTimeout(
-                function(){
+            // dataStore.prepOnClear = window.setTimeout(
+            //     function(){
 
-                    if(dataStore.allClear == 0){
-                        document.getElementById('analyzerPlots').configure();
-                        document.getElementById('plotGrid').configure();
-                        document.getElementById('plotControl').configure();
-                        document.getElementById('auxCtrl').configure();
-                        //start with GRIFFIN menu displayed
-                        document.getElementById('GRIFFIN').onclick();
+            //         if(dataStore.allClear == 0){
+            //             //document.getElementById('analyzerPlots').configure();
+            //             //document.getElementById('plotGrid').configure();
+            //             //document.getElementById('plotControl').configure();
+            //             //document.getElementById('auxCtrl').configure();
+            //             //start with GRIFFIN menu displayed
+            //             document.getElementById('GRIFFIN').onclick();
 
-                        $(function () {
-                            $('[data-toggle="tooltip"]').tooltip()
-                        })
+            //             $(function () {
+            //                 $('[data-toggle="tooltip"]').tooltip()
+            //             })
 
-                        window.clearInterval(dataStore.prepOnClear);
-                    }
-                },
-                1000
-            )
+            //             window.clearInterval(dataStore.prepOnClear);
+            //         }
+            //     },
+            //     1000
+            // )
         </script>
     </body>
 </html>

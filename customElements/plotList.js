@@ -10,7 +10,7 @@ xtag.register('x-plot-list', {
                 }.bind(this)
             ).then(
                 function(){
-                    dataStore.allClear--;   
+                    document.getElementById('analyzerPlots').configure();  
                 }
             )
         }

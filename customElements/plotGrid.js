@@ -32,7 +32,7 @@ xtag.register('x-plots', {
                 }.bind(this)
             ).then(
                 function(){
-                    dataStore.allClear--;   
+                    document.getElementById('plotGrid').configure();
                 }
             )
         }
