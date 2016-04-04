@@ -1,7 +1,6 @@
 xtag.register('x-plot-control', {
     lifecycle:{
         inserted: function(){
-            dataStore.allClear++;
 
             var temp;
             if(this.getAttribute('config') == 'vertical')

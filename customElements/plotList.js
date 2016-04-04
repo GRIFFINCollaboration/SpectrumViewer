@@ -1,7 +1,6 @@
 xtag.register('x-plot-list', {
     lifecycle:{
         inserted: function(){
-            dataStore.allClear++;
 
             //inject template
             promisePartial('plotList').then(
