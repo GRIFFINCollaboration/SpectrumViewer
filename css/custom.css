@@ -248,12 +248,12 @@ tr.plotControlTable{
     line-height: 2em;
 }
 
-x-aux-plot-control div:nth-child(2n){
+div#auxCtrl div:nth-child(2n){
     background-color: #444444;
     padding: 1em;
 }
 
-x-aux-plot-control div:nth-child(2n+1){
+div#auxCtrl div:nth-child(2n+1){
     padding: 1em;
 }
 

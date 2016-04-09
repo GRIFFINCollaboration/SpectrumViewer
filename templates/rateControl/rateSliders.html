@@ -1,0 +1,11 @@
+<template id='rateSliders'>
+    <label for='{{id}}windowSlider'>Window Width:</label>
+    <input id='{{id}}windowSlider' class='slider' type='range' min=1 max=720 step=1 value=1></input>
+    <span id='{{id}}windowSliderValue' class="range-value">0h:1m</span>
+
+    <br>
+
+    <label for='{{id}}leadingEdgeSlider'>Window Leading Edge:</label>
+    <input id='{{id}}leadingEdgeSlider' class='slider' type='range' min=-1000 max=0 step=1 value=0></input>
+    <span id='{{id}}leadingEdgeSliderValue' class="range-value">now</span>
+</template>

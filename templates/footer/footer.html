@@ -1,0 +1,16 @@
+<template id='footer'>
+    <div class='branding footer'>
+        <h3>Built at TRIUMF</h3>
+        <div class='col-md-4'>
+            <div>&copy; 2013-2016 GRIFFIN Collaboration</div>
+            <a href='https://github.com/GRIFFINCollaboration/SpectrumViewer'>Source Code on GitHub</a>
+        </div>
+        <div class='col-md-8'></div>
+    </div>
+</template>
+
+<script>
+    function setupFooter(wrapperID){
+        document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates.footer, {});
+    }
+</script>

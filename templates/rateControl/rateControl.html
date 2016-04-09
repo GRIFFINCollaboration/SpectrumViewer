@@ -1,0 +1,67 @@
+<template id='rateControl'>
+    <div class='col-md-12'>
+        <h4>Gamma Gates</h4>
+        <table id='{{id}}gammaWindows'>
+            <tr>
+                <td colspan=5><h5>Gate Definitions</h5></td>
+                <td colspan=3><h5>Background Subtraction</h5></td>
+            </tr>
+            <tr>
+                <td>Gate ID</td>
+                <td>Show</td>
+                <td>Min. Bin</td>
+                <td>Max. Bin</td>
+                <td></td>
+                <td>Off</td>
+                <td>Auto</td>
+                <td>Manual Background Bin Selection</td>
+            </tr>
+            {{#gammas}}
+                <tr>
+                    <td>{{title}}</td>
+                    <td class='center'>
+                        <input type=checkbox checked id='display{{index}}' class='gammaToggle'></input>
+                    </td>
+                    <td>
+                        <input type=number value={{min}} id='min{{index}}' class='gammaEdge'></input>
+                    </td>
+                    <td>
+                        <input type=number value={{max}} id='max{{index}}' class='gammaEdge'></input>
+                    </td>
+                    <td>
+                        <button class='snapGateToWindow btn btn-primary' id='snap{{index}}'>Set to Current Window</button>
+                    </td>
+
+                    <td class='center'>
+                        <input type='radio' checked name='bkg{{index}}' value='off' class='fitOptions'></input>
+                    </td>
+                    <td class='center'>
+                        <input type='radio' name='bkg{{index}}' value='auto' class='fitOptions'></input>
+                    </td>
+                    <td>
+                        <input type='radio' name='bkg{{index}}' value='manual' class='fitOptions'></input>
+                        <input id='bins{{index}}' type='text' class='manualBKG' placeholder='bkg bins to fit: 20-25;31;40-50' pattern='(\d+-\d+;|\d+;|\d+-\d+|\d+)+'></input>
+                    </td>
+                </tr>
+            {{/gammas}}
+        </table>
+    </div>
+
+    <div class='col-md-4'>
+        <h4>Levels & Scalars</h4>
+        <table>
+            <tr>
+                <td>Item</td>
+                <td>Show</td>
+            </tr>
+            {{#levels}}
+                <tr>
+                    <td>{{title}}</td>
+                    <td class='center'>
+                        <input type=checkbox checked id='display{{lvlID}}' target='{{lvlID}}' class='levelToggles'></input>
+                    </td>
+                </tr>
+            {{/levels}}
+        </table>
+    </div>
+</template>

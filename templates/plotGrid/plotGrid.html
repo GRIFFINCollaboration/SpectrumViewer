@@ -1,0 +1,213 @@
+<template id='plotGrid'>
+    <div id='{{id}}{{label}}Control' class='cellControl'>
+        <span id='{{id}}{{label}}Delete' class="glyphicon glyphicon-remove-sign redText deleteCell" aria-hidden="true"></span>
+        <span>{{label}}</span>
+        <label for='{{id}}{{label}}attachAxis'>Active Window</label>
+        <input type='checkbox' id='{{id}}{{label}}attachAxis' class='activeWindowFlag' checked value='{{label}}'></input>
+        <canvas id='{{label}}' class='plotCanvas'></canvas>
+    </div>
+</template>
+
+<script>
+    function plotGrid(wrapperID){
+
+        this.wrapID = wrapperID;
+        this.wrap = document.getElementById(wrapperID);
+
+        this.setup = function(){
+
+            var i, wrapper, newPlot;
+            
+            //set up a wrapper for plots
+            wrapper = document.createElement('div');
+            wrapper.setAttribute('id', this.wrapID + 'plotWrap');
+            this.wrap.appendChild(wrapper);
+
+            //set up fancy new plot button
+            newPlot = document.createElement('span');
+            newPlot.setAttribute('class', 'glyphicon glyphicon-plus-sign newPlotButton');
+            newPlot.setAttribute('id', this.wrapperID + 'newPlotButton');
+            newPlot.onclick = this.manageCellCreation.bind(this);
+            this.wrap.appendChild(newPlot);
+
+            //generate an appropriate number of plots
+            for(i=0; i<dataStore.plots.length; i++){
+                this.addCell(dataStore.plots[i]);
+            }
+
+            //make sure things are arranged nicely for the number of plots presented initially
+            this.manageCellControl();
+        }
+
+        this.determineColSize = function(){
+            //determine an appropriate bootstrap column width.
+            //1 plot == 1 col
+            //2-5 plots == 2 cols
+            //6+ plots == 3 cols
+
+            var colSize = 12
+            if(dataStore.plots.length > 1 && dataStore.plots.length < 6)
+                colSize = 6
+            else if(dataStore.plots.length >= 6)
+                colSize = 4
+
+            return colSize
+        }
+
+        this.addCell = function(label){
+            //add a cell to the display.
+            //<label>: string key for this cell and corresponding viewer object
+            //assumes label has already been added to dataStore.plots
+            //this: x-plots object
+
+            //generate html
+            var cell = document.createElement('div');
+            var colSize = this.determineColSize();
+            cell.setAttribute('class', 'plotCell col-md-'+colSize);
+            cell.setAttribute('id', this.wrapID + label + 'Cell');
+
+            cell.innerHTML = Mustache.to_html(dataStore.templates.plotGrid, {
+                'label': label,
+                'id': this.wrapID
+            });
+            document.getElementById(this.wrapID + 'plotWrap').appendChild(cell);
+
+            //initialize plot
+            this.createFigure(label);
+
+            //plug in attachment toggles
+            document.getElementById(this.wrapID + label + 'attachAxis').onclick = this.attachCell;
+
+            //plug in delete button
+            document.getElementById(this.wrapID + label + 'Delete').onclick = this.deleteCell.bind(this.wrap, label);
+        }
+
+        this.manageCellCreation = function(){
+            //top level wrapper for adding a new cell
+            //adds the cell, updates global datastore and dispatches events to announce presence of new cell
+
+            var label, evt;
+
+            //generate new label for cell
+            label = 'Cell' + dataStore.cellIndex;
+            dataStore.cellIndex++;
+            dataStore.plots.push(label);
+
+            //insert new dom guts
+            this.addCell(label);
+
+            //make sure the columns are an appropriate size & UI is displayed correctly
+            this.manageFigureSizes();
+            this.manageCellControl();
+
+            //report new cell to listeners
+            dispatcher(
+                { 
+                    'cellName': label,
+                    'state': true //attached / active by default
+                }, 
+                dataStore.newCellListeners, 
+                'newCell'
+            )
+        }
+
+        this.manageFigureSizes = function(){
+            //rescale figures as appropriate
+            var colSize = this.determineColSize();
+            var colClass = 'plotCell col-md-' + colSize;
+            var i, cell;
+
+            for(i=0; i<dataStore.plots.length; i++){
+                cell = document.getElementById(this.wrapID + dataStore.plots[i] + 'Cell');
+                cell.setAttribute('class', colClass);
+                this.createFigure(dataStore.plots[i]);
+            }
+        }
+
+        this.manageCellControl = function(){
+            //cell control shouldn't be presented if there's only one cell.
+
+            var i, nCells = dataStore.plots.length;
+
+            if(nCells == 1){
+                //make sure the one remaining cell is attached to the ui
+                document.getElementById(this.wrapID + dataStore.plots[0] + 'attachAxis').checked = true;
+                this.attachCell.bind(document.getElementById(this.wrapID + dataStore.plots[0] + 'attachAxis'))();
+
+            } else{
+                //unhide cell attachment ui
+                for(i=0; i<nCells; i++){
+                    document.getElementById(this.wrapID + dataStore.plots[i] + 'Control').classList.remove('hidden');
+                }
+            }
+        }
+
+        this.deleteCell = function(cell){
+            //handle dropping a cell
+            //<cell>: string; name of cell, per ids in dataStore.plots.
+            //this. x-plots object
+            var evt;
+
+            deleteNode(this.wrapID + cell + 'Cell');
+            delete dataStore.viewers[cell];
+            dataStore.plots.splice(dataStore.plots.indexOf(cell), 1);
+
+            dispatcher({ 'cellName': cell }, dataStore.deleteCellListeners, 'deleteCell');
+
+            this.manageFigureSizes();
+            this.manageCellControl();
+        }
+
+        this.createFigure = function(id){
+            //set up a canvas with id, and corresponding viewer object
+            //<id>: string; name of viewer, same as name of corresponding cell, as found in dataStore.plots.
+
+            var canvas = document.getElementById(id);
+            var width = canvas.parentElement.offsetWidth
+            var height = 2/3*width;
+            if(height > 0.8*window.innerHeight){
+                height = window.innerHeight / window.innerWidth * width;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            if(!dataStore.viewers)
+                dataStore.viewers = {};
+            if(!dataStore.viewers[id]){
+                dataStore.viewers[id] = new spectrumViewer(id);
+            } else{
+                dataStore.viewers[id].rescale();
+            }
+
+            dataStore.viewers[id].plotData();
+        }
+
+        this.attachCell = function(e){
+            //dispatch an event carrying the cell in question and its attachment state 
+            //<e>: event; onchange.
+            //this: input type=checkbox element.
+
+            var event = e || window.event,
+                activeToggles, i;
+            
+            // unselect everyone else unless shift pressed
+            if(event && (!event.shiftKey && event.target.checked ) ){
+                activeToggles = document.getElementsByClassName('activeWindowFlag');
+                for(i=0; i<activeToggles.length; i++){
+                    if(activeToggles[i] != event.target)
+                        activeToggles[i].checked = false;
+                }
+            }
+
+            dispatcher(
+                { 
+                    'cellName': this.value,
+                    'state': this.checked 
+                }, 
+                dataStore.attachCellListeners, 
+                'attachCell'
+            )
+        }
+    }
+</script>

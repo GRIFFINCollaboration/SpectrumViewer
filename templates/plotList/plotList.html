@@ -1,0 +1,91 @@
+<template id='plotList'>
+    <div class='section'>
+        <div class='menu-toprow'>
+            <div class='col-md-4 mini-header topRowTab'>
+                <img src='img/logo.gif'></img>
+                <span class='title'>GRIFFIN Spectrum Viewer</span>
+            </div>
+            {{# topGroups}}
+            <div class='col-md-2 topRowTab' style='background-color:{{color}}' id='tab{{id}}'>
+                <button type="button" class="btn btn-default btn-lg topRowSection" id='{{id}}' style='background-color: rgba(255,255,255,0.5); border: 2px solid #000000;'> 
+                    <span>{{name}}</span>
+                </button>
+            </div>
+            {{/ topGroups}}
+        </div>
+
+        <div class='menu-subrow-wrap'>
+            {{# topGroups}}
+                <div id='subrow{{id}}' class='menu-subrow hidden' style='background-color:{{color}}'>
+                    {{# subGroups}}
+                        <div class='dropdown subrowDrops'>
+                            <button class="btn btn-default dropdown-toggle" type="button" id="drop{{id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                {{subname}}
+                                <span class="caret"></span>
+                            </button>
+
+                            <ul class="dropdown-menu dd-limited" aria-labelledby="drop{{id}}">
+                                {{# items}}
+                                    <li class='dd-item' id='{{.}}'>
+                                        <div>{{.}}</div>
+                                    </li>
+                                {{/ items}}
+                            </ul>
+                        </div>
+                    {{/ subGroups}}                
+                </div>
+            {{/ topGroups}}
+        </div>
+    </div>
+</template>
+
+<script>
+    function plotList(wrapperID){
+
+        this.wrapID = wrapperID;
+        this.wrap = document.getElementById(wrapperID);
+
+        this.setup = function(){
+            var i, plotSelectorSections, plotToggles;
+
+            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.plotList, {'topGroups': dataStore.topGroups});
+
+            //set up plot selection top row
+            plotSelectorSections = document.getElementsByClassName('topRowSection')
+            for(i=0; i<plotSelectorSections.length; i++){
+                plotSelectorSections[i].onclick = this.selectMenuSection;
+            }
+
+            //set up plot list clicks
+            plotToggles = document.getElementsByClassName('dd-item')
+            for(i=0; i<plotToggles.length; i++){
+                plotToggles[i].onclick = this.selectPlot.bind(this, plotToggles[i].id);
+            }  
+        }
+    
+        this.selectMenuSection = function(){
+            //select the top level menu tab
+            //this: x-plot-list object
+            if(dataStore.currentSubrow){
+                document.getElementById(dataStore.currentSubrow).classList.toggle('hidden')
+                document.getElementById('tab' + dataStore.currentSubrow.slice(6)).classList.toggle('active')
+            }
+
+            document.getElementById('subrow' + this.id).classList.toggle('hidden')
+            document.getElementById('tab' + this.id).classList.toggle('active')
+            dataStore.currentSubrow = 'subrow' + this.id;
+        }
+
+        this.selectPlot = function(plotName, e){
+            //dispatch an event carrying the requested plot name on click of a dropdown element.
+            //<plotName>: string; name of plot requested from analyzer
+            //<e>: event; onclick.
+
+            //don't close the dd onclick:
+            e.stopPropagation();
+
+            dispatcher({ 'plotName': plotName }, dataStore.plotNameListeners, 'requestPlot');
+
+        }
+    }
+</script>
