@@ -8,3 +8,9 @@
         </div>
     </div>
 </template>
+
+<script>
+    function setupHeader(wrapperID, title){
+        document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates.header, {'title': title});
+    }
+</script>
