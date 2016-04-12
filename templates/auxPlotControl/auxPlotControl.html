@@ -43,7 +43,7 @@
             this.wrap.addEventListener('newCell', this.newTable.bind(this), false);
 
             //listen for cell attach / unattach events
-            this.wrap.addEventListener('deleteCell', this.deleteTable, false);
+            this.wrap.addEventListener('deleteCell', this.deleteTable.bind(this), false);
 
             //plug in delete all button
             document.getElementById(this.wrapID + 'deleteAll').onclick = this.deleteAllSpectra;

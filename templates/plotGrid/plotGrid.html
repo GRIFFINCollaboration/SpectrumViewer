@@ -2,8 +2,10 @@
     <div id='{{id}}{{label}}Control' class='cellControl'>
         <span id='{{id}}{{label}}Delete' class="glyphicon glyphicon-remove-sign redText deleteCell" aria-hidden="true"></span>
         <span>{{label}}</span>
-        <label for='{{id}}{{label}}attachAxis'>Active Window</label>
-        <input type='checkbox' id='{{id}}{{label}}attachAxis' class='activeWindowFlag' checked value='{{label}}'></input>
+        <div id='{{id}}{{label}}axisControl' class='hidden'>
+            <label for='{{id}}{{label}}attachAxis'>Active Window</label>
+            <input type='checkbox' id='{{id}}{{label}}attachAxis' class='activeWindowFlag' checked value='{{label}}'></input>
+        </div>
         <canvas id='{{label}}' class='plotCanvas'></canvas>
     </div>
 </template>
@@ -29,14 +31,6 @@
             newPlot.setAttribute('id', this.wrapID + 'newPlotButton');
             newPlot.onclick = this.manageCellCreation.bind(this);
             this.wrap.appendChild(newPlot);
-
-            //generate an appropriate number of plots
-            // for(i=0; i<dataStore.plots.length; i++){
-            //     this.addCell(dataStore.plots[i]);
-            // }
-
-            //make sure things are arranged nicely for the number of plots presented initially
-            this.manageCellControl();
         }
 
         this.determineColSize = function(){
@@ -79,7 +73,7 @@
             document.getElementById(this.wrapID + label + 'attachAxis').onclick = this.attachCell;
 
             //plug in delete button
-            document.getElementById(this.wrapID + label + 'Delete').onclick = this.deleteCell.bind(this.wrap, label);
+            document.getElementById(this.wrapID + label + 'Delete').onclick = this.deleteCell.bind(this, label);
         }
 
         this.manageCellCreation = function(){
@@ -133,11 +127,11 @@
                 //make sure the one remaining cell is attached to the ui
                 document.getElementById(this.wrapID + dataStore.plots[0] + 'attachAxis').checked = true;
                 this.attachCell.bind(document.getElementById(this.wrapID + dataStore.plots[0] + 'attachAxis'))();
-
+                document.getElementById(this.wrapID + dataStore.plots[0] + 'axisControl').classList.add('hidden');
             } else{
                 //unhide cell attachment ui
                 for(i=0; i<nCells; i++){
-                    document.getElementById(this.wrapID + dataStore.plots[i] + 'Control').classList.remove('hidden');
+                    document.getElementById(this.wrapID + dataStore.plots[i] + 'axisControl').classList.remove('hidden');
                 }
             }
         }
