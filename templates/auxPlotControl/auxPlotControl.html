@@ -37,10 +37,10 @@
             );
 
             //listen for new table rows requests
-            this.wrap.addEventListener('addPlotRow', this.newTableRow, false);
+            this.wrap.addEventListener('addPlotRow', this.newTableRow.bind(this), false);
 
             //listen for new cell requests
-            this.wrap.addEventListener('newCell', this.newTable, false);
+            this.wrap.addEventListener('newCell', this.newTable.bind(this), false);
 
             //listen for cell attach / unattach events
             this.wrap.addEventListener('deleteCell', this.deleteTable, false);
@@ -66,13 +66,14 @@
             row.setAttribute('id', event.detail.target + event.detail.plotName);
             row.setAttribute('class', 'plotControlTable')
             var color = dataStore.viewers[event.detail.target].dataColor[dataStore.viewers[event.detail.target].colorAssignment.indexOf(event.detail.plotName)]
-            var html = Mustache.to_html(dataStore.auxRowTemplate, {
+            var html = Mustache.to_html(dataStore.templates.fitRow, {
                 'spectrum': event.detail.plotName, 
                 'target': event.detail.target, 
                 'color': color,
                 'id': this.wrapID
             });
             row.innerHTML = html;
+
             document.getElementById(this.wrapID + event.detail.target + 'Table').appendChild(row);
 
             //plug in buttons

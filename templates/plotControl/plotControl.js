@@ -24,16 +24,16 @@ function plotControl(wrapperID, config){
         )
 
         //listen for plot requests
-        this.wrap.addEventListener('requestPlot', this.routeNewPlot, false);
+        this.wrap.addEventListener('requestPlot', this.routeNewPlot.bind(this), false);
 
         //listen for cell attach / unattach events
-        this.wrap.addEventListener('attachCell', this.attachCell, false);
+        this.wrap.addEventListener('attachCell', this.attachCell.bind(this), false);
 
         //listen for newCell events (attach them automatically)
-        this.wrap.addEventListener('newCell', this.attachCell, false);
+        this.wrap.addEventListener('newCell', this.attachCell.bind(this), false);
 
         //listen for deleteCell events
-        this.wrap.addEventListener('deleteCell', this.deleteCell, false);
+        this.wrap.addEventListener('deleteCell', this.deleteCell.bind(this), false);
 
         //keep a list of canvases to point at
         this.targets = JSON.parse(JSON.stringify(dataStore.plots));
@@ -91,7 +91,7 @@ function plotControl(wrapperID, config){
     this.configureSinglePlot = function(id){
         //per plot control configuration
         //<id>: string; plot label from dataStore.plots
-        //this: x-plot-control object
+        //this: plotControl object
 
         //plug in cursor reporting
         dataStore.viewers[id].mouseMoveCallback = this.cursorReporting.bind(this);
@@ -107,7 +107,7 @@ function plotControl(wrapperID, config){
     this.routeNewPlot = function(event){
         //catch a requestPlot event, do appropriate things with it.
         //<event>: event; requestPlot custom event
-        //this: x-plot-control object
+        //this: plotControl object
         var i, evt;
 
         //update list of spectra to poll
@@ -143,7 +143,7 @@ function plotControl(wrapperID, config){
 
     this.refreshAll = function(){
         //refresh all spectra & odb parameters
-        //this: x-plot-control object
+        //this: plotControl object
 
         var queries = constructQueries(this.activeSpectra);
 
@@ -178,7 +178,7 @@ function plotControl(wrapperID, config){
 
     this.startRefreshLoop = function(controlElement){
         //sets the refresh loop as a callback to changing the selector menu.
-        //<controlElement>: x-plot-control element
+        //<controlElement>: plotControl element
         //this: select element (or anything with a .value of time in ms)
 
         var period = parseInt(this.value,10); //in miliseconds
@@ -192,7 +192,7 @@ function plotControl(wrapperID, config){
     this.attachCell = function(event){
         //update the list of plot cells attached to the control
         //<event>: event; attachCell custom event
-        //this: x-plot-control object
+        //this: plotControl object
 
         var i, 
             activeToggles = document.getElementsByClassName('activeWindowFlag');
@@ -204,12 +204,13 @@ function plotControl(wrapperID, config){
                 this.targets.push(activeToggles[i].value)
             }
         }
+
     }
 
     this.deleteCell = function(event){
         //respond to a deleteCell event
         //<event>: event; deleteCell custom event
-        //this: x-plot-control object
+        //this: plotControl object
 
         var index = this.targets.indexOf(event.detail.cellName);
         if(index != -1)
@@ -225,7 +226,7 @@ function plotControl(wrapperID, config){
         //report cursor positions
         //<x>: number; bin number under cursor
         //<y>: number; counts position under cursor
-        //this: x-plot-control object
+        //this: plotControl object
 
         var X = '-', Y = '-';
 
@@ -243,7 +244,7 @@ function plotControl(wrapperID, config){
 
     this.updateAllXranges = function(){
         //update the x-ranges of all active plots based on the text box inputs
-        //this: x-plot-control object
+        //this: plotControl object
         var i;
 
         for(i=0; i<this.targets.length; i++){
@@ -254,7 +255,7 @@ function plotControl(wrapperID, config){
     this.updatePlotRange = function(plot){
         //update the plot ranges for the named plot onchange of the x-range input fields
         //<plot>: string; name of plot to update, from dataStore.plots
-        //this: x-plot-control object
+        //this: plotControl object
         var xMin = document.getElementById(this.wrapID + 'minX'),
             xMax = document.getElementById(this.wrapID + 'maxX');
 
@@ -273,7 +274,7 @@ function plotControl(wrapperID, config){
     this.updateRangeSelector = function(plot){
         //update the UI when the plot is zoomed with the mouse
         //<plot>: string; name of plot to update, from dataStore.plots
-        //this: x-plot-control object
+        //this: plotControl object
         var xMin = dataStore.viewers[plot].XaxisLimitMin,
             xMax = dataStore.viewers[plot].XaxisLimitMax
 
@@ -287,7 +288,7 @@ function plotControl(wrapperID, config){
 
     this.manageXvalidity = function(){
         //check that x min < x max, and complain otherwise.
-        //this: x-plot-control object
+        //this: plotControl object
 
         var xMin = document.getElementById(this.wrapID + 'minX'),
             xMax = document.getElementById(this.wrapID + 'maxX');
@@ -310,7 +311,7 @@ function plotControl(wrapperID, config){
     this.scrollAllSpectra = function(scrollDistance){
         //scroll the x-ranges of all active plots based via the scroll buttons
         //<scrollDistance>: number; bins to scroll to the right
-        //this: x-plot-control object
+        //this: plotControl object
         var i;
 
         for(i=0; i<this.targets.length; i++){
@@ -320,7 +321,7 @@ function plotControl(wrapperID, config){
 
     this.unzoomAllSpectra = function(){
         //unzoom the x-ranges of all active plots based via the scroll buttons
-        //this: x-plot-control object
+        //this: plotControl object
         var i;
 
         for(i=0; i<this.targets.length; i++){
@@ -330,7 +331,7 @@ function plotControl(wrapperID, config){
 
     this.cycleXlimits = function(step){
         //<step>: number; how many steps to take forward in xrange history
-        //this: x-plot-control object
+        //this: plotControl object
         var i;
         for(i=0; i<this.targets.length; i++){
             dataStore.viewers[this.targets[i]].restoreLimits.bind(dataStore.viewers[this.targets[i]], step)();
@@ -344,7 +345,7 @@ function plotControl(wrapperID, config){
 
     this.snapAll = function(){
         //snap all active spectra to waveform lock mode
-        //this: x-plot-control object
+        //this: plotControl object
         var i;
 
         for(i=0; i<this.targets.length; i++){
@@ -355,7 +356,7 @@ function plotControl(wrapperID, config){
     this.waveformSnap = function(plot){
         //toggle the snap to waveform state on the requested plot
         //<plot>: string; name of plot to update, from dataStore.plots
-        //this: x-plot-control object
+        //this: plotControl object
 
         if(dataStore.viewers[plot].waveformLock){
             dataStore.viewers[plot].demandXmin = null;
@@ -394,7 +395,7 @@ function plotControl(wrapperID, config){
     this.setAllAxes = function(state){
         //set the y axis state of every active plot
         //<state>: string; 'linear' or 'log'. 
-        //this: x-plot-control object
+        //this: plotControl object
         
         var i;
 
