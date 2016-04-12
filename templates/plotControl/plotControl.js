@@ -30,7 +30,7 @@ function plotControl(wrapperID, config){
         this.wrap.addEventListener('attachCell', this.attachCell.bind(this), false);
 
         //listen for newCell events (attach them automatically)
-        this.wrap.addEventListener('newCell', this.attachCell.bind(this), false);
+        this.wrap.addEventListener('newCell', this.setupNewCell.bind(this), false);
 
         //listen for deleteCell events
         this.wrap.addEventListener('deleteCell', this.deleteCell.bind(this), false);
@@ -44,60 +44,43 @@ function plotControl(wrapperID, config){
 
         //UI callbacks:
         //x-range control:
-        document.getElementById(this.wrapID+'minX').onchange = this.updateAllXranges.bind(this.wrap);
-        document.getElementById(this.wrapID+'maxX').onchange = this.updateAllXranges.bind(this.wrap);
+        document.getElementById(this.wrapID+'minX').onchange = this.updateAllXranges.bind(this);
+        document.getElementById(this.wrapID+'maxX').onchange = this.updateAllXranges.bind(this);
 
         //x scroll:
-        document.getElementById(this.wrapID+'bigLeft').onclick = this.scrollAllSpectra.bind(this.wrap, -100);
-        document.getElementById(this.wrapID+'littleLeft').onclick = this.scrollAllSpectra.bind(this.wrap, -1);
-        document.getElementById(this.wrapID+'littleRight').onclick = this.scrollAllSpectra.bind(this.wrap, 1);
-        document.getElementById(this.wrapID+'bigRight').onclick = this.scrollAllSpectra.bind(this.wrap, 100);
+        document.getElementById(this.wrapID+'bigLeft').onclick = this.scrollAllSpectra.bind(this, -100);
+        document.getElementById(this.wrapID+'littleLeft').onclick = this.scrollAllSpectra.bind(this, -1);
+        document.getElementById(this.wrapID+'littleRight').onclick = this.scrollAllSpectra.bind(this, 1);
+        document.getElementById(this.wrapID+'bigRight').onclick = this.scrollAllSpectra.bind(this, 100);
 
         //prev / next x range buttons
-        document.getElementById(this.wrapID+'prev').onclick = this.cycleXlimits.bind(this.wrap, -1);
-        document.getElementById(this.wrapID+'next').onclick = this.cycleXlimits.bind(this.wrap,  1);
+        document.getElementById(this.wrapID+'prev').onclick = this.cycleXlimits.bind(this, -1);
+        document.getElementById(this.wrapID+'next').onclick = this.cycleXlimits.bind(this,  1);
 
         //unzoom button
-        document.getElementById(this.wrapID+'unzoom').onclick = this.unzoomAllSpectra.bind(this.wrap);
+        document.getElementById(this.wrapID+'unzoom').onclick = this.unzoomAllSpectra.bind(this);
 
         //plug in the waveform snap buttion
         if(dataStore.waveformSnap)
-            document.getElementById(this.wrapID+'snapWaveform').onclick = this.snapAll.bind(this.wrap);
+            document.getElementById(this.wrapID+'snapWaveform').onclick = this.snapAll.bind(this);
 
         //lin-log toggle
         linY = document.getElementById(this.wrapID+'linearY');
         logY = document.getElementById(this.wrapID+'logY');
-        linY.onclick = this.setAllAxes.bind(this.wrap, 'linear');
-        logY.onclick = this.setAllAxes.bind(this.wrap, 'log');
-
-        //plug in controls for each plot
-        for(i=0; i<this.targets.length; i++){
-            this.configureSinglePlot(dataStore.plots[i]);
-        }
+        linY.onclick = this.setAllAxes.bind(this, 'linear');
+        logY.onclick = this.setAllAxes.bind(this, 'log');
 
         //data refresh - note all plots live on the same refresh cycle.
         if(document.getElementById(this.wrapID+'updateWrap')){
             //update interval select
             document.getElementById(this.wrapID+'upOptions').onchange = this.startRefreshLoop.bind(document.getElementById(this.wrapID+'upOptions'), this);
             //update now button
-            document.getElementById(this.wrapID+'upNow').onclick = this.refreshAll.bind(this.wrap);
+            document.getElementById(this.wrapID+'upNow').onclick = this.refreshAll.bind(this);
 
             //set the refresh loop going
             this.startRefreshLoop.bind(document.getElementById(this.wrapID+'upOptions'), this)();
         }
 
-    }
-
-    this.configureSinglePlot = function(id){
-        //per plot control configuration
-        //<id>: string; plot label from dataStore.plots
-        //this: plotControl object
-
-        //plug in cursor reporting
-        dataStore.viewers[id].mouseMoveCallback = this.cursorReporting.bind(this);
-
-        //send plot limit changes back to the control panel
-        dataStore.viewers[id].chooseLimitsCallback = this.updateRangeSelector.bind(this, id)
     }
 
     /////////////////////
@@ -189,6 +172,25 @@ function plotControl(wrapperID, config){
 
     }
 
+    this.setupNewCell = function(event){
+        // response to a newCell event: plug in interaction callbacks and attach the cell by default
+
+        this.configureCell(event.detail.cellName);
+        this.attachCell();
+    }
+
+    this.configureCell = function(id){
+        //per plot control configuration
+        //<id>: string; plot label from dataStore.plots
+        //this: plotControl object
+
+        //plug in cursor reporting
+        dataStore.viewers[id].mouseMoveCallback = this.cursorReporting.bind(this);
+
+        //send plot limit changes back to the control panel
+        dataStore.viewers[id].chooseLimitsCallback = this.updateRangeSelector.bind(this, id)
+    }
+
     this.attachCell = function(event){
         //update the list of plot cells attached to the control
         //<event>: event; attachCell custom event
@@ -275,6 +277,7 @@ function plotControl(wrapperID, config){
         //update the UI when the plot is zoomed with the mouse
         //<plot>: string; name of plot to update, from dataStore.plots
         //this: plotControl object
+        
         var xMin = dataStore.viewers[plot].XaxisLimitMin,
             xMax = dataStore.viewers[plot].XaxisLimitMax
 

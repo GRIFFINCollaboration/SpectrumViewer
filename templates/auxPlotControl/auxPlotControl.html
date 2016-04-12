@@ -58,7 +58,7 @@
         this.newTableRow = function(event){
             //add a row to table event.detail.target for spectrum event.detail.plotName
             //<event>: event; addPlotRow custom event
-            //this: x-aux-plot-control object
+            //this: auxPlotControl object
 
             //generate the row object and append it
             var radio;
@@ -90,7 +90,7 @@
         this.newTable = function(event){
             //add a new table to go with a new cell
             //<event>: event; newCell custom event
-            //this: x-aux-plot-control object
+            //this: auxPlotControl object
 
             var buffer = document.createElement('div');
             var html = Mustache.to_html(
@@ -107,7 +107,7 @@
         this.deleteTable = function(event){
             //delete a table on deleteCell event
             //<event>: event; deleteCell custom event
-            //this: x-aux-plot-control object
+            //this: auxPlotControl object
 
             deleteNode(this.wrapID + event.detail.cellName + 'TableWrapper');
         }
@@ -146,6 +146,8 @@
             var spectrum = this.getAttribute('spectrum')
 
             dataStore.viewers[target].baselines[spectrum] = JSON.parse(JSON.stringify(dataStore.viewers[target].plotBuffer[spectrum]));
+            document.getElementById(target+spectrum+'FitResult').innerHTML = '-';
+            dataStore.viewers[target].clearFits();
             dataStore.viewers[target].plotData();
         }
 
@@ -156,19 +158,14 @@
             var target = this.getAttribute('target')
             var spectrum = this.getAttribute('spectrum')
 
-            var text = document.getElementById(target+spectrum+'FitResult').innerHTML
-            text = text.split('<br>')
-            text = text.slice(0, text.length-2).join('<br>')
-            if(text=='')
-                text = '-'
-
-            document.getElementById(target+spectrum+'FitResult').innerHTML = text
+            document.getElementById(target+spectrum+'FitResult').innerHTML = '-';
+            dataStore.viewers[target].clearFits();
             dataStore.viewers[target].plotData();
         }
 
         this.toggleFitMode = function(){
             //manage the state of the Fit Mode button, and the corresponding state of the viewer.
-            //this: x-aux-plot-control object
+            //this: auxPlotControl object
 
             //determine which canvas and spectrum we're currently pointing at
             var radio = checkedRadio(this.wrapID+'fitTarget');
@@ -179,17 +176,17 @@
             var state = fitModeSwitch.getAttribute('engaged')
 
             //make sure the fit callback is set up
-            dataStore.viewers[target].fitCallback = this.fitCallback.bind(this.wrap);
+            dataStore.viewers[target].fitCallback = this.fitCallback.bind(this);
 
             if(state == 0){
                 dataStore.viewers[target].setupFitMode();
                 fitModeSwitch.setAttribute('engaged', 1);
-                document.getElementById(this.id+'fitBadge').classList.add('redText')
+                document.getElementById(this.wrapID+'fitBadge').classList.add('redText')
             }
             else{
                 dataStore.viewers[target].leaveFitMode();
                 fitModeSwitch.setAttribute('engaged', 0);
-                document.getElementById(this.id+'fitBadge').classList.remove('redText')
+                document.getElementById(this.wrapID+'fitBadge').classList.remove('redText')
             }
 
             //toggle state indicator
@@ -218,7 +215,7 @@
             //<amplitude>: number; amplitude of peak
             //<intercept>: number; intercept of linear background beneath peak
             //<slope>: number; slope of linear background
-            //this: x-aux-plot-control object
+            //this: auxPlotControl object
 
             var radio = checkedRadio(this.wrapID + 'fitTarget');
             var target = radio.getAttribute('target');

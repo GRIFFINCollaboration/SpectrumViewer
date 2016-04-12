@@ -1,42 +1,46 @@
 <template id='plotList'>
-    <div class='section'>
-        <div class='menu-toprow'>
-            <div class='col-md-4 mini-header topRowTab'>
-                <img src='img/logo.gif'></img>
-                <span class='title'>GRIFFIN Spectrum Viewer</span>
-            </div>
-            {{# topGroups}}
-            <div class='col-md-2 topRowTab' style='background-color:{{color}}' id='tab{{id}}'>
-                <button type="button" class="btn btn-default btn-lg topRowSection" id='{{id}}' style='background-color: rgba(255,255,255,0.5); border: 2px solid #000000;'> 
-                    <span>{{name}}</span>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
                 </button>
+                <a class="navbar-brand" href="#"><img src='img/GRIFFIN_Icon.png'></img></a>
             </div>
-            {{/ topGroups}}
-        </div>
 
-        <div class='menu-subrow-wrap'>
-            {{# topGroups}}
-                <div id='subrow{{id}}' class='menu-subrow hidden' style='background-color:{{color}}'>
-                    {{# subGroups}}
-                        <div class='dropdown subrowDrops'>
-                            <button class="btn btn-default dropdown-toggle" type="button" id="drop{{id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                {{subname}}
-                                <span class="caret"></span>
-                            </button>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 
-                            <ul class="dropdown-menu dd-limited" aria-labelledby="drop{{id}}">
-                                {{# items}}
-                                    <li class='dd-item' id='{{.}}'>
-                                        <div>{{.}}</div>
-                                    </li>
-                                {{/ items}}
-                            </ul>
-                        </div>
-                    {{/ subGroups}}                
-                </div>
-            {{/ topGroups}}
-        </div>
-    </div>
+                <form class="navbar-form navbar-left" role="search">
+                    <div class="btn-group" role="group" aria-label="...">
+                        {{# topGroups}}
+                            <button type="button" class="btn btn-default topGroup" id='{{id}}'>{{name}}</button>
+                        {{/ topGroups}}
+                    </div>
+                </form>
+                {{# topGroups}}
+                    <ul id='subrow{{id}}' class="nav navbar-nav navbar-left hidden">
+                        {{# subGroups}}
+                            <li class="dropdown">
+                                    <a id="drop{{id}}" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{subname}} <span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                        {{# items}}
+                                            <li class='dd-item' id='{{.}}'>
+                                                <div>{{.}}</div>
+                                            </li>
+                                        {{/ items}}
+                                    </ul>
+                            </li>
+                        {{/ subGroups}}
+                    </ul>
+                {{/ topGroups}}
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
 </template>
 
 <script>
@@ -51,7 +55,7 @@
             this.wrap.innerHTML = Mustache.to_html(dataStore.templates.plotList, {'topGroups': dataStore.topGroups});
 
             //set up plot selection top row
-            plotSelectorSections = document.getElementsByClassName('topRowSection')
+            plotSelectorSections = document.getElementsByClassName('topGroup')
             for(i=0; i<plotSelectorSections.length; i++){
                 plotSelectorSections[i].onclick = this.selectMenuSection;
             }
@@ -65,15 +69,15 @@
     
         this.selectMenuSection = function(){
             //select the top level menu tab
-            //this: x-plot-list object
-            if(dataStore.currentSubrow){
-                document.getElementById(dataStore.currentSubrow).classList.toggle('hidden')
-                document.getElementById('tab' + dataStore.currentSubrow.slice(6)).classList.toggle('active')
+            //this: top group button object
+            if(dataStore.currentTopGroup){
+                document.getElementById('subrow' + dataStore.currentTopGroup).classList.toggle('hidden')
+                document.getElementById(dataStore.currentTopGroup).classList.toggle('active')
             }
 
             document.getElementById('subrow' + this.id).classList.toggle('hidden')
-            document.getElementById('tab' + this.id).classList.toggle('active')
-            dataStore.currentSubrow = 'subrow' + this.id;
+            this.classList.toggle('active')
+            dataStore.currentTopGroup = this.id;
         }
 
         this.selectPlot = function(plotName, e){

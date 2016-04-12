@@ -80,6 +80,12 @@ button.bigButton{
     text-align: left !important;
 }
 
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+
 /*branding*/
 div.branding{
     color: #FFFFFF;
@@ -151,7 +157,7 @@ span.newPlotButton{
     font-size: 400%;
     cursor: pointer;
     clear:both;
-    display: block;
+    display: inline-block;
     padding-top: 10px;
 }
 
@@ -194,10 +200,6 @@ h4.plotGroupTitle{
 span.plotPresence{
     background-color: #87D37C;
     opacity: 0.7;
-}
-
-input.activeWindowFlag:checked + canvas.plotCanvas{
-    background-color: #111111 !important;
 }
 
 /* fitting */
@@ -393,6 +395,7 @@ span.title{
 
 .dd-item{
     padding: 0.25em;
+    color: #000000;
 }
 
 .dd-item:hover{
