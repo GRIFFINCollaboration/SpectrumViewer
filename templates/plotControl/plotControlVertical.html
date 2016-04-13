@@ -13,30 +13,32 @@
         <div class='UIgroup'>
             <h4>X-axis Control</h4> 
 
-            <div class='UIchunk'>
-                <label class="inputLabel" for='{{id}}minX'>min x:</label>
-                <input class="inputBox" id="{{id}}minX" value="0" type="number"></input>
+            <div class="input-group">
+                <span class="input-group-addon">min x</span>
+                <input id="{{id}}minX" value="0" type="number"></input>
             </div>
 
-            <div class='UIchunk'>
-                <label class="inputLabel" for='{{id}}maxX'>max x:</label>
-                <input class="inputBox" id="{{id}}maxX" value="2048" type="number"></input>
+            <div class="input-group">
+                <span class="input-group-addon">max x</span>
+                <input id="{{id}}maxX" value="2048" type="number"></input>
             </div>
 
-            <div class='UIchunk'>
-                <label class="inputLabel">Scroll</label>
+            <div class="input-group">
+                <span class="input-group-addon">Scroll</span>
                 <div class='btn-group' roll='group'>
                     <button class="btn btn-default" id="{{id}}bigLeft" type="button">⇇</button>
                     <button class="btn btn-default" id="{{id}}littleLeft" type="button">←</button>
                     <button class="btn btn-default" id="{{id}}littleRight" type="button">→</button>
                     <button class="btn btn-default" id="{{id}}bigRight" type="button">⇉</button>
-                </div>
+                </div>                
             </div>
 
-            <label class='inputLabel'>History</label>
-            <div class='UIchunk btn-group btn-group-sm' roll='group'>
-                <button class="btn btn-default" id="{{id}}prev" type="button">Prev.</button>
-                <button class="btn btn-default" id="{{id}}next" type="button">Next</button>
+            <div class="input-group">
+                <span class="input-group-addon">History</span>
+                <div class='btn-group btn-group-sm' roll='group'>
+                    <button class="btn btn-default" id="{{id}}prev" type="button">Prev.</button>
+                    <button class="btn btn-default" id="{{id}}next" type="button">Next</button>
+                </div>            
             </div>
 
             <div class='UIchunk btn-group btn-group-sm' roll='group'>
@@ -60,13 +62,18 @@
         {{# doUpdates}}
             <div id='{{id}}updateWrap' class='UIgroup'>
                 <h4>Data Fetching</h4>
-                <label id="{{id}}updateLabel" class="inputLabel">Update Every: </label>
-                <select id="{{id}}upOptions">
-                    <option value="3000" selected="selected">3 s</option>
-                    <option value="5000">5 s</option>
-                    <option value="10000">10 s</option>
-                    <option value="-1">never</option>
-                </select>
+
+
+                <div class="input-group">
+                    <span class="input-group-addon">Update Every:</span>
+                    <select id="{{id}}upOptions" class='form-control'>
+                        <option value="3000" selected="selected">3 s</option>
+                        <option value="5000">5 s</option>
+                        <option value="10000">10 s</option>
+                        <option value="-1">never</option>
+                    </select>        
+                </div>
+
                 <button id="{{id}}upNow" class="btn btn-default" type="button">Update Now</button>
             </div>
         {{/ doUpdates}}

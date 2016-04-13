@@ -17,7 +17,6 @@
         <link rel="stylesheet" type="text/css" href="css/custom.css"/>
 
         <!--html imports-->
-        <link id='header' rel="import" href="templates/header/header.html">
         <link id='plotList' rel="import" href="templates/plotList/plotList.html">
         <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
         <link id='plotControlVertical' rel="import" href="templates/plotControl/plotControlVertical.html">
@@ -37,14 +36,15 @@
             <div id='plotWrap' class='col-md-10 plotRegion'>
                 <div id='plottingGrid'></div>
             </div>
-            <div class='col-md-2'>
+            <div class='col-md-2 no-pad'>
                 <div id='plotControl'></div>
             </div>
         </div>
 
         <!-- Extra control features -->
+        <hr style='width:60%; border-top: 1px solid #999'></hr>
         <div class='sectionWrapper'>
-            <div class='col-md-10 item'>
+            <div class='col-md-12'>
                 <div id='auxCtrl'></div>
             </div>
         </div>
@@ -53,14 +53,13 @@
 
         <script>
             window.addEventListener('HTMLImportsLoaded', function(e) {
-                dataStore.templates = prepareTemplates(['header','plotList', 'plotGrid', 'plotControlVertical', 'auxPlotControl', 'auxPlotControlTable', 'fitRow', 'footer']);
+                dataStore.templates = prepareTemplates(['plotList', 'plotGrid', 'plotControlVertical', 'auxPlotControl', 'auxPlotControlTable', 'fitRow', 'footer']);
 
                 var _plotList = new plotList('analyzerPlots');
                 var _plotGrid = new plotGrid('plottingGrid');
                 var _plotControl = new plotControl('plotControl', 'vertical');
                 var _auxCtrl = new auxPlotControl('auxCtrl');
 
-                setupHeader('head', 'Spectrum Viewer');
                 _plotList.setup();
                 _plotGrid.setup();
                 _plotControl.setup();

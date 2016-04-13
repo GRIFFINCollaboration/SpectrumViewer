@@ -904,7 +904,7 @@ function spectrumViewer(canvasID){
 	//if such a series already exists, just update its data.
 	this.addData = function(name, data){
 		var nSeries, i;
-data = this.fakeData.energydata0
+		//data = this.fakeData.energydata0 //fake for testing
 		//dump fits
 		this.clearFits();
 

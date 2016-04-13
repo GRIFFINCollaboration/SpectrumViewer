@@ -27,8 +27,8 @@ div.UIgroup{
 }
 
 div.item{
-    border: 5px solid #999999;
-    border-radius: 1em;
+    /*border: 5px solid #999999;
+    border-radius: 1em;*/
     margin: 1em;
     padding: 1em;
     display: block;
@@ -80,10 +80,16 @@ button.bigButton{
     text-align: left !important;
 }
 
-.vcenter {
-    display: inline-block;
-    vertical-align: middle;
-    float: none;
+div.input-group{
+    margin-bottom: 4px;
+}
+
+div.input-group span.input-group-addon{
+    min-width: 3em;
+}
+
+div.no-pad{
+    padding: 0px;
 }
 
 /*branding*/
@@ -112,6 +118,7 @@ div.footer{
     border-top: 2px solid #000000;
     display:inline-block;
     width: 100%;
+    margin-top: 1em;
 }
 
 div.footer a{
