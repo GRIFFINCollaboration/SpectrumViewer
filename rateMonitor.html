@@ -52,40 +52,44 @@
         <script>
             window.addEventListener('HTMLImportsLoaded', function(e) {
 
-                var i,
-                    _plotGrid = new plotGrid('plottingGrid'),
-                    _plotControl = new plotControl('plotControl', 'horizontal'),
-                    _graph = new graph('rates'),
-                    _rateSliders = new rateSliders('rateSlides'),
-                    _rateControl = new rateControl('rateCtrl'),
-                    vw = dataStore.plots[0];
+                var i, vw;
+
+                dataStore._plotGrid = new plotGrid('plottingGrid'),
+                dataStore._plotControl = new plotControl('plotControl', 'horizontal'),
+                dataStore._graph = new graph('rates'),
+                dataStore._rateSliders = new rateSliders('rateSlides'),
+                dataStore._rateControl = new rateControl('rateCtrl'),
+                vw = dataStore.plots[0];
 
                 dataStore.templates = prepareTemplates(['header', 'plotGrid', 'plotControlHorizontal', 'graph', 'rateSliders', 'rateControl', 'gammaWindows', 'levelsAndScalars', 'footer']);
 
                 setupHeader('head', 'Rate Monitor');
-                _plotGrid.setup();
-                _plotControl.setup();
-                _rateSliders.setup();
-                _rateControl.setup();
+                dataStore._plotGrid.setup();
+                dataStore._plotControl.setup();
+                dataStore._rateSliders.setup();
+                dataStore._rateControl.setup();
                 setupFooter('foot');
+
+                //declare our one and only plot
+                dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]);
 
                 //don't want additional plots in this app
                 deleteNode('plottingGridnewPlotButton');
 
                 //prepare initial gamma windows
                 for(i=0; i<dataStore.defaults.gammas.length; i++){
-                    _rateControl.drawWindow(i, dataStore.defaults.gammas[i].min, dataStore.defaults.gammas[i].max);
+                    dataStore._rateControl.drawWindow(i, dataStore.defaults.gammas[i].min, dataStore.defaults.gammas[i].max);
                 }
 
                 //plot the spectrum of interest
                 dataStore.viewers[vw].addData(dataStore.targetSpectrum, []);
-                _plotControl.activeSpectra = [dataStore.targetSpectrum];
-                _plotControl.refreshAll();
+                dataStore._plotControl.activeSpectra = [dataStore.targetSpectrum];
+                dataStore._plotControl.refreshAll();
 
                 //set up dygraph
                 dataStore.plotStyle['height'] = document.getElementById(dataStore.plots[0]).offsetHeight - dataStore.viewers[vw].bottomMargin + 20,
                 dataStore.plotStyle['weight'] = document.getElementById(dataStore.plots[0]).offsetWidth
-                _graph.setup();
+                dataStore._graph.setup();
 
                 //manage which gamma window are on by defualt
                 for(i=0; i<dataStore.defaults.gammas.length; i++){

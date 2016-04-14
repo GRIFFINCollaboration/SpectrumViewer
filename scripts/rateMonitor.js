@@ -12,6 +12,7 @@ function setupDataStore(){
     //x-tag config
     dataStore.doUpdates = true;                                         //include update loop
     dataStore.plots = ['SUM_Singles_Energy'];                           //names of x-plots cells and spectrumViewer objects
+    dataStore.newCellListeners = ['plotControl'];
     dataStore.attachCellListeners = ['plotControl'];                    //ids to dispatch attachCell events to
     dataStore.dygraphListeners = ['rates'];                             //ids to dispatch all dygraph events to
 
@@ -43,54 +44,54 @@ function setupDataStore(){
         "#D35400"
     ]
     dataStore.defaults = {                                             
-            'gammas':[                                                  //default parameters for gamma gates
-                {
-                    'title': 'Gate 1',                                  //human readable name
-                    'min': 497,                                         //default minimum bin
-                    'max': 504,                                         //default maximum bin
-                    'onByDefault': true                                 //displayed by default?
-                },
-                {
-                    'title': 'Gate 2',
-                    'min': 197,
-                    'max': 204,
-                    'onByDefault': true
-                },
-                {
-                    'title': 'Gate 3',
-                    'min': 0,
-                    'max': 0,
-                    'onByDefault': false
-                },
-                {
-                    'title': 'Gate 4',
-                    'min': 0,
-                    'max': 0,
-                    'onByDefault': false
-                },
-                {
-                    'title': 'Gate 5',
-                    'min': 0,
-                    'max': 0,
-                    'onByDefault': false
-                }  
-            ],
+        'gammas':[                                                  //default parameters for gamma gates
+            {
+                'title': 'Gate 1',                                  //human readable name
+                'min': 497,                                         //default minimum bin
+                'max': 504,                                         //default maximum bin
+                'onByDefault': true                                 //displayed by default?
+            },
+            {
+                'title': 'Gate 2',
+                'min': 197,
+                'max': 204,
+                'onByDefault': true
+            },
+            {
+                'title': 'Gate 3',
+                'min': 0,
+                'max': 0,
+                'onByDefault': false
+            },
+            {
+                'title': 'Gate 4',
+                'min': 0,
+                'max': 0,
+                'onByDefault': false
+            },
+            {
+                'title': 'Gate 5',
+                'min': 0,
+                'max': 0,
+                'onByDefault': false
+            }  
+        ],
 
-            'levels':[
-                {
-                    'title': 'Proton Current',                          //human readable name
-                    'lvlID': 'PC'                                       //key corresponding to dataStore.scalars
-                },
-                {
-                    'title': 'Laser Freq. 1',
-                    'lvlID': 'LF1'
-                },
-                {
-                    'title': 'Laser Freq. 2',
-                    'lvlID': 'LF2'
-                }
-            ]
-        }
+        'levels':[
+            {
+                'title': 'Proton Current',                          //human readable name
+                'lvlID': 'PC'                                       //key corresponding to dataStore.scalars
+            },
+            {
+                'title': 'Laser Freq. 1',
+                'lvlID': 'LF1'
+            },
+            {
+                'title': 'Laser Freq. 2',
+                'lvlID': 'LF2'
+            }
+        ]
+    }
 
     //annotate gamma objects
     for(i=0; i<dataStore.defaults.gammas.length; i++){
@@ -146,10 +147,10 @@ function fetchCallback(){
     dataStore.currentTime = Date.now()/1000;
 
     //update the rate monitor and backgrounds fits
-    leadingEdge = document.getElementById('rateSliders').windowLeadingEdgeTime() / 3;
-    windowWidth = parseInt(document.getElementById('rateSliderswindowSlider').value,10);
-    document.getElementById('rateControl').appendNewPoint();
-    document.getElementById('rateControl').updateDygraph(leadingEdge, windowWidth);
+    leadingEdge = dataStore._rateSliders.windowLeadingEdgeTime() / 3;
+    windowWidth = parseInt(document.getElementById('rateSlideswindowSlider').value,10);
+    dataStore._rateControl.appendNewPoint();
+    dataStore._rateControl.updateDygraph(leadingEdge, windowWidth);
     //redraw spectrum, fit results included
     dataStore.viewers[dataStore.plots[0]].plotData();
 }

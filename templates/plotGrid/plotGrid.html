@@ -76,16 +76,18 @@
             document.getElementById(this.wrapID + label + 'Delete').onclick = this.deleteCell.bind(this, label);
         }
 
-        this.manageCellCreation = function(){
-            //top level wrapper for adding a new cell
+        this.manageCellCreation = function(event, customLabel){
+            //top level wrapper for adding a new cell in multi-cell view and / or with external listeners for newCell events
             //adds the cell, updates global datastore and dispatches events to announce presence of new cell
 
             var label, evt;
 
             //generate new label for cell
-            label = 'Cell' + dataStore.cellIndex;
-            dataStore.cellIndex++;
-            dataStore.plots.push(label);
+            label = customLabel || 'Cell' + dataStore.cellIndex;
+            if(label != customLabel){
+                dataStore.cellIndex++;
+                dataStore.plots.push(label);
+            }
 
             //insert new dom guts
             this.addCell(label);

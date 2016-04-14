@@ -38,16 +38,16 @@
 
         this.leadingEdgeSliderCallback = function(parent){
             //oninput behavior of the window leading edge slider
-            //parent: x-rate-sliders object
-            //this: input range object
+            //parent: rateSliders object
+            //this: input[range] element for window's leading edge
 
             var seconds = parent.windowLeadingEdgeTime();
             var hours = Math.floor(seconds / (3600));
             var minutes = Math.floor((seconds % 3600) / 60);
 
-            document.getElementById(parent.id+'leadingEdgeSliderValue').innerHTML = hours + 'h:' + minutes +'m ago'
+            document.getElementById(this.id+'Value').innerHTML = hours + 'h:' + minutes +'m ago'
             if(this.value == 0)
-                document.getElementById(parent.id+'leadingEdgeSliderValue').innerHTML = 'now'
+                document.getElementById(this.id+'Value').innerHTML = 'now'
         },
 
         this.windowLeadingEdgeTime = function(){
