@@ -234,11 +234,11 @@ function plotControl(wrapperID, config){
         var X = '-', Y = '-';
 
         if(typeof x == 'number' && !isNaN(x) )
-            X = x;
+            X = x>10000? x.toExponential(3) : x;
         if(typeof y == 'number' && !isNaN(y) )
-            Y = y;
+            Y = y>10000? y.toExponential(3) : y;
 
-        document.getElementById(this.wrapID + 'cursorReport').innerHTML = 'x: ' + X + ' y: ' + Y
+        document.getElementById(this.wrapID + 'cursorReport').innerHTML = 'Cursor: x: ' + X + ' y: ' + Y
     }
 
     /////////////////////////////
