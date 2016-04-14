@@ -56,11 +56,11 @@
 
                 var i, vw;
 
-                dataStore._plotGrid = new plotGrid('plottingGrid'),
-                dataStore._plotControl = new plotControl('plotControl', 'horizontal'),
-                dataStore._graph = new graph('rates'),
-                dataStore._rateSliders = new rateSliders('rateSlides'),
-                dataStore._rateControl = new rateControl('rateCtrl'),
+                dataStore._plotGrid = new plotGrid('plottingGrid');
+                dataStore._plotControl = new plotControl('plotControl', 'horizontal');
+                dataStore._graph = new graph('rates');
+                dataStore._rateSliders = new rateSliders('rateSlides');
+                dataStore._rateControl = new rateControl('rateCtrl');
                 vw = dataStore.plots[0];
 
                 dataStore.templates = prepareTemplates(['header', 'plotGrid', 'plotControlHorizontal', 'graph', 'rateSliders', 'rateControl', 'gammaWindows', 'levelsAndScalars', 'footer']);

@@ -23,6 +23,7 @@ function setupDataStore(){
     //custom element config
     dataStore.plots = ['Spectra'];                                          //names of x-plots cells and spectrumViewer objects
     dataStore.attachCellListeners = ['plotControl'];                        //ids to dispatch attachCell events to
+    dataStore.newCellListeners = ['plotControl'];
     dataStore.fitAllCompleteListeners = ['plotList'];                       //ids to dispatch fitAllComplete events to
     dataStore.dygraphUpdateListeners = ['resolution'];                      //ids to dispatch dygraphUpdate events to
     //resolution plot
@@ -172,10 +173,10 @@ function loadData(DAQ){
 
     for(i=0; i<channels.length; i++){
         if(channels[i].slice(0,3) == 'GRG')
-            plotControl.activeSpectra.push(channels[i] + '_Energy');
+            dataStore._plotControl.activeSpectra.push(channels[i] + '_Energy');
     }
 
-    plotControl.refreshAll();
+    dataStore._plotControl.refreshAll();
 }
 
 function updateODB(obj){

@@ -12,7 +12,7 @@
         this.setup = function(){
 
             //inject template
-            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.graph, {'id': this.wrapID,});
+            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.graph, {'id': this.wrapID});
 
             //listen for data update events
             this.wrap.addEventListener('updateDyData', this.updateData.bind(this), false);
