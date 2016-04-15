@@ -52,7 +52,7 @@
             //add a cell to the display.
             //<label>: string key for this cell and corresponding viewer object
             //assumes label has already been added to dataStore.plots
-            //this: x-plots object
+            //this: plotGrid object
 
             //generate html
             var cell = document.createElement('div');
@@ -141,7 +141,7 @@
         this.deleteCell = function(cell){
             //handle dropping a cell
             //<cell>: string; name of cell, per ids in dataStore.plots.
-            //this. x-plots object
+            //this. plotGrid object
             var evt;
 
             deleteNode(this.wrapID + cell + 'Cell');

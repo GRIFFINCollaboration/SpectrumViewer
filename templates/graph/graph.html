@@ -33,7 +33,7 @@
             //set up a new plot.
             //<data>: array; data for dygraph configured appropriately: [[x0, y00, y01, ..., y0n,], [x1, y10, y11, ..., y1n], ...]
             //<style>: object; styling object for dygraphs
-            //this: x-graph object
+            //this: graph object
 
             this.dygraph = new Dygraph(
                 document.getElementById(this.wrapID + 'Graph'),
@@ -45,7 +45,7 @@
         this.updateData = function(event){
             //catch an event carrying new data, and update.
             //<event>: event; updateDyData custom event
-            //this: x-graph object
+            //this: graph object
 
             var keys, i, annotations;
 
@@ -75,7 +75,7 @@
             //set visibility of series in this.dygraph
             //<index>: number; index of series to set visibility on
             //<isFisible>: bool; true -> data series at <index> is visible
-            //this: x-graph object
+            //this: graph object
 
             this.dygraph.setVisibility(index, isVisible);
         }

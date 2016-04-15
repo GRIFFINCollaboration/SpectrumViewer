@@ -21,7 +21,7 @@ function setupDataStore(){
     dataStore.ROI = {};                                                     //regions of interest to look for peaks in: 'plotname': {'ROIupper':[low bin, high bin], 'ROIlower': [low bin, high bin]}
     dataStore.fitResults = {};                                              //fit results: 'plotname': [[amplitude, center, width, intercept, slope], [amplitude, center, width, intercept, slope]]            
     //custom element config
-    dataStore.plots = ['Spectra'];                                          //names of x-plots cells and spectrumViewer objects
+    dataStore.plots = ['Spectra'];                                          //names of plotGrid cells and spectrumViewer objects
     dataStore.attachCellListeners = ['plotControl'];                        //ids to dispatch attachCell events to
     dataStore.newCellListeners = ['plotControl'];
     dataStore.fitAllCompleteListeners = ['plotList'];                       //ids to dispatch fitAllComplete events to
