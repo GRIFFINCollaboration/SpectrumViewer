@@ -1,7 +1,7 @@
 <html>
     <head>
         <title>GRIFFIN Rate Monitor</title>
-        <script src='scripts/x-tag-core.min.js' type="text/javascript"></script>
+        <script src='scripts/HTMLImports.min.js' type="text/javascript"></script>
         <script src='scripts/mustache.js' type="text/javascript"></script>
         <script src='scripts/easeljs-0.7.0.min.js' type="text/javascript"></script>
         <script src='scripts/dygraphs.1.1.1.min.js' type="text/javascript"></script>
@@ -15,88 +15,97 @@
         <script src='scripts/rateMonitor.js' type="text/javascript"></script>
         <link rel="stylesheet" type="text/css" href="css/custom.css"/>
 
-        <script src='customElements/header.js' type="text/javascript"></script>
-        <script src='customElements/plotGrid.js' type="text/javascript"></script>
-        <script src='customElements/plotControl.js' type="text/javascript"></script>
-        <script src='customElements/graph.js' type="text/javascript"></script>
-        <script src='customElements/rateSlider.js' type="text/javascript"></script>
-        <script src='customElements/rateControl.js' type="text/javascript"></script>
-        <script src='customElements/footer.js' type="text/javascript"></script>
+        <!--HTML imports-->
+        <link id='header' rel="import" href="templates/header/header.html">
+        <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
+        <link id='plotControlHorizontal' rel="import" href="templates/plotControl/plotControlHorizontal.html">
+        <link id='graph' rel="import" href="templates/graph/graph.html">
+        <link id='rateSliders' rel="import" href="templates/rateControl/rateSliders.html">
+        <link id='rateControl' rel="import" href="templates/rateControl/rateControl.html">
+        <link id='gammaWindows' rel="import" href="templates/rateControl/gammaWindows.html">
+        <link id='levelsAndScalars' rel="import" href="templates/rateControl/levelsAndScalars.html">
+        <link id='footer' rel="import" href="templates/footer/footer.html">
     </head>
 
     <body>
-        <x-header></x-header>
+        <div id='head'></div>
 
         <!--Plots-->
         <div id='plotRegion' class='sectionWrapper item'>
             <div id='plotWrap' class='col-md-6 plotRegion'>
-                <x-plots id='plotGrid'></x-plots>
-                <x-plot-control id='plotControl' config='horizontal'></x-plot-control>
+                <div id='plottingGrid'></div>
+                <div id='plotControl'></div>
             </div>
             <div id='rateWrap' class='col-md-6 plotRegion'>
-                <x-graph id='rates'></x-graph>
-                <x-rate-sliders id='rateSliders'></x-rate-sliders>
+                <div id='rates'></div>
+                <div id='rateSlides'></div>
             </div>
         </div>
+
+        <hr style='width:60%; border-top: 1px solid #999'></hr>
 
         <!--Window Controls-->
         <div class='sectionWrapper item expand' id='rateMonitorControl'>
-            <x-rate-control id='rateControl'></x-rate-control>
+            <div id='rateCtrl'></div>
         </div>
 
-        <x-footer></x-footer>
+        <div id='foot'></div>
 
         <script>
-            dataStore.prepOnClear = window.setInterval(
-                function(){
-                    if(dataStore.allClear == 0){
-                        var i,
-                            pc = document.getElementById('plotControl'),
-                            rc = document.getElementById('rateControl'),
-                            ticker = document.getElementById('rates'),
-                            vw = dataStore.plots[0];
+            window.addEventListener('HTMLImportsLoaded', function(e) {
 
-                        document.getElementById('plotGrid').configure();
-                        pc.configure();
-                        rc.configure();
-                        document.getElementById('rateSliders').configure();
+                var i, vw;
 
-                        //don't want additional plots in this app
-                        deleteNode('plotGridnewPlotButton');
+                dataStore._plotGrid = new plotGrid('plottingGrid');
+                dataStore._plotControl = new plotControl('plotControl', 'horizontal');
+                dataStore._graph = new graph('rates');
+                dataStore._rateSliders = new rateSliders('rateSlides');
+                dataStore._rateControl = new rateControl('rateCtrl');
+                vw = dataStore.plots[0];
 
-                        //prepare initial gamma windows
-                        for(i=0; i<dataStore.defaults.gammas.length; i++){
-                            rc.drawWindow(i, dataStore.defaults.gammas[i].min, dataStore.defaults.gammas[i].max);
-                        }
+                dataStore.templates = prepareTemplates(['header', 'plotGrid', 'plotControlHorizontal', 'graph', 'rateSliders', 'rateControl', 'gammaWindows', 'levelsAndScalars', 'footer']);
 
-                        //plot the spectrum of interest
-                        dataStore.viewers[vw].addData(dataStore.targetSpectrum, []);
-                        pc.activeSpectra = [dataStore.targetSpectrum];
-                        pc.refreshAll();
+                setupHeader('head', 'Rate Monitor');
+                dataStore._plotGrid.setup();
+                dataStore._plotControl.setup();
+                dataStore._rateSliders.setup();
+                dataStore._rateControl.setup();
+                setupFooter('foot');
 
-                        //set up dygraph
-                        dataStore.plotStyle['height'] = document.getElementById(dataStore.plots[0]).offsetHeight - dataStore.viewers[vw].bottomMargin + 20,
-                        dataStore.plotStyle['weight'] = document.getElementById(dataStore.plots[0]).offsetWidth
-                        document.getElementById('rates').configure();
+                //declare our one and only plot
+                dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]);
 
-                        //manage which gamma window are on by defualt
-                        for(i=0; i<dataStore.defaults.gammas.length; i++){
-                            if(!dataStore.defaults.gammas[i].onByDefault)
-                                document.getElementById('display' + dataStore.defaults.gammas[i].index).click()
-                        }
+                //don't want additional plots in this app
+                deleteNode('plottingGridnewPlotButton');
 
-                        //don't allow refresh period to change
-                        deleteNode('plotControlupdateWrap');
+                //prepare initial gamma windows
+                for(i=0; i<dataStore.defaults.gammas.length; i++){
+                    dataStore._rateControl.drawWindow(i, dataStore.defaults.gammas[i].min, dataStore.defaults.gammas[i].max);
+                }
 
-                        $(function () {
-                            $('[data-toggle="tooltip"]').tooltip()
-                        })
+                //plot the spectrum of interest
+                dataStore.viewers[vw].addData(dataStore.targetSpectrum, []);
+                dataStore._plotControl.activeSpectra = [dataStore.targetSpectrum];
+                dataStore._plotControl.refreshAll();
 
-                        window.clearInterval(dataStore.prepOnClear);
-                    }
-                },
-                10
-            )
+                //set up dygraph
+                dataStore.plotStyle['height'] = document.getElementById(dataStore.plots[0]).offsetHeight - dataStore.viewers[vw].bottomMargin + 20,
+                dataStore.plotStyle['weight'] = document.getElementById(dataStore.plots[0]).offsetWidth
+                dataStore._graph.setup();
+
+                //manage which gamma window are on by defualt
+                for(i=0; i<dataStore.defaults.gammas.length; i++){
+                    if(!dataStore.defaults.gammas[i].onByDefault)
+                        document.getElementById('display' + dataStore.defaults.gammas[i].index).click()
+                }
+
+                //don't allow refresh period to change
+                deleteNode('plotControlupdateWrap');
+
+                $(function () {
+                    $('[data-toggle="tooltip"]').tooltip()
+                })
+            });
         </script>
     </body>
 </html>

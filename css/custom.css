@@ -27,8 +27,8 @@ div.UIgroup{
 }
 
 div.item{
-    border: 5px solid #999999;
-    border-radius: 1em;
+    /*border: 5px solid #999999;
+    border-radius: 1em;*/
     margin: 1em;
     padding: 1em;
     display: block;
@@ -80,6 +80,18 @@ button.bigButton{
     text-align: left !important;
 }
 
+div.input-group{
+    margin-bottom: 4px;
+}
+
+div.input-group span.input-group-addon{
+    min-width: 3em;
+}
+
+div.no-pad{
+    padding: 0px;
+}
+
 /*branding*/
 div.branding{
     color: #FFFFFF;
@@ -106,6 +118,7 @@ div.footer{
     border-top: 2px solid #000000;
     display:inline-block;
     width: 100%;
+    margin-top: 1em;
 }
 
 div.footer a{
@@ -151,7 +164,7 @@ span.newPlotButton{
     font-size: 400%;
     cursor: pointer;
     clear:both;
-    display: block;
+    display: inline-block;
     padding-top: 10px;
 }
 
@@ -194,10 +207,6 @@ h4.plotGroupTitle{
 span.plotPresence{
     background-color: #87D37C;
     opacity: 0.7;
-}
-
-input.activeWindowFlag:checked + canvas.plotCanvas{
-    background-color: #111111 !important;
 }
 
 /* fitting */
@@ -248,12 +257,12 @@ tr.plotControlTable{
     line-height: 2em;
 }
 
-x-aux-plot-control div:nth-child(2n){
+div#auxCtrl div:nth-child(2n){
     background-color: #444444;
     padding: 1em;
 }
 
-x-aux-plot-control div:nth-child(2n+1){
+div#auxCtrl div:nth-child(2n+1){
     padding: 1em;
 }
 
@@ -393,6 +402,7 @@ span.title{
 
 .dd-item{
     padding: 0.25em;
+    color: #000000;
 }
 
 .dd-item:hover{

@@ -1,68 +1,64 @@
-xtag.register('x-aux-plot-control', {
-    lifecycle:{
-        inserted: function(){
-            dataStore.allClear++;
+<template id='auxPlotControl'>
+    <div class='sectionWrapper'>
+        <h4>Fitting & Zeroing</h4>
+        <button type="button" class="btn btn-default btn-lg" id='{{id}}fitMode' engaged='0'>
+            <span id='{{id}}fitBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> Fit a new Peak
+        </button>
 
-            //inject template
-            Promise.all(['auxPlotControl', 'auxPlotControlTable'].map(promisePartial)).then(
-                function(templates){
-                    dataStore.auxControlTable = templates[1];
-                    this.innerHTML = Mustache.to_html(
-                        templates[0], 
-                        {
-                            'id': this.id,
-                            'plots': dataStore.plots
-                        },
-                        {
-                            'auxPlotControlTable': templates[1]
-                        }
-                    );
-                }.bind(this)
-            ).then(
-                function(){
-                    dataStore.allClear--;   
+        <button type="button" class="btn btn-default btn-lg" id='{{id}}deleteAll'>
+            <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span> Remove all plots
+        </button>
+
+        <button class="btn btn-info" style='float:right;' data-trigger="hover" data-html="true" data-toggle="tooltip" title="1. Click the 'Fit Target' button beside the plot you want to fit. <br><br> 2. Click 'Fit a New Peak' <br><br> 3. Click on the limits of the fit region. <br><br> Note fit line will be removed when data is updated; stop data update first to avoid this." data-placement="auto left" data-container="body">Fitting Help</button>
+
+        <span id='{{id}}fitInstructions' class='hidden'>Click on either side of the peak to perform a fit.</span>
+    </div>
+
+    {{> auxPlotControlTable}}
+</template>
+
+<script>
+
+    function auxPlotControl(wrapperID){
+
+        this.wrapID = wrapperID;
+        this.wrap = document.getElementById(wrapperID);
+
+        this.setup = function(){
+            this.wrap.innerHTML = Mustache.to_html(
+                dataStore.templates.auxPlotControl, 
+                {
+                    'id': wrapperID,
+                    'plots': dataStore.plots
+                },
+                {
+                    'auxPlotControlTable': dataStore.templates.auxPlotControlTable
                 }
-            )
+            );
 
             //listen for new table rows requests
-            this.addEventListener('addPlotRow', this.newTableRow, false);
+            this.wrap.addEventListener('addPlotRow', this.newTableRow.bind(this), false);
 
             //listen for new cell requests
-            this.addEventListener('newCell', this.newTable, false);
+            this.wrap.addEventListener('newCell', this.newTable.bind(this), false);
 
             //listen for cell attach / unattach events
-            this.addEventListener('deleteCell', this.deleteTable, false);
+            this.wrap.addEventListener('deleteCell', this.deleteTable.bind(this), false);
 
-            //prepare the template for additional table rows
-            promisePartial('fitRow').then(
-                function(template){
-                    dataStore.auxRowTemplate = template;
-                }
-            )
-        }
-    },
-
-    methods:{
-        /////////////////////
-        //configuration
-        /////////////////////
-
-        configure: function(){
             //plug in delete all button
-            document.getElementById(this.id + 'deleteAll').onclick = this.deleteAllSpectra;
+            document.getElementById(this.wrapID + 'deleteAll').onclick = this.deleteAllSpectra;
             //plug in fit mode toggle
-            document.getElementById(this.id + 'fitMode').onclick = this.toggleFitMode.bind(this);
-
-        },
+            document.getElementById(this.wrapID + 'fitMode').onclick = this.toggleFitMode.bind(this);
+        }
 
         ////////////////////////
         // table management
         ////////////////////////
 
-        newTableRow: function(event){
+        this.newTableRow = function(event){
             //add a row to table event.detail.target for spectrum event.detail.plotName
             //<event>: event; addPlotRow custom event
-            //this: x-aux-plot-control object
+            //this: auxPlotControl object
 
             //generate the row object and append it
             var radio;
@@ -70,14 +66,15 @@ xtag.register('x-aux-plot-control', {
             row.setAttribute('id', event.detail.target + event.detail.plotName);
             row.setAttribute('class', 'plotControlTable')
             var color = dataStore.viewers[event.detail.target].dataColor[dataStore.viewers[event.detail.target].colorAssignment.indexOf(event.detail.plotName)]
-            var html = Mustache.to_html(dataStore.auxRowTemplate, {
+            var html = Mustache.to_html(dataStore.templates.fitRow, {
                 'spectrum': event.detail.plotName, 
                 'target': event.detail.target, 
                 'color': color,
-                'id': this.id
+                'id': this.wrapID
             });
             row.innerHTML = html;
-            document.getElementById(this.id + event.detail.target + 'Table').appendChild(row);
+
+            document.getElementById(this.wrapID + event.detail.target + 'Table').appendChild(row);
 
             //plug in buttons
             document.getElementById('delete' + event.detail.target + event.detail.plotName).onclick = this.deleteSpectrum; 
@@ -88,47 +85,47 @@ xtag.register('x-aux-plot-control', {
             radio = document.getElementById(event.detail.target + event.detail.plotName + 'Radio')
             radio.onclick = this.setFitTarget
             radio.onclick();
-        },
+        }
 
-        newTable: function(event){
+        this.newTable = function(event){
             //add a new table to go with a new cell
             //<event>: event; newCell custom event
-            //this: x-aux-plot-control object
+            //this: auxPlotControl object
 
             var buffer = document.createElement('div');
             var html = Mustache.to_html(
-                dataStore.auxControlTable, 
+                dataStore.templates.auxPlotControlTable, 
                 {
-                    'id': this.id,
+                    'id': this.wrapID,
                     'plots': [event.detail.cellName]
                 }
             );
             buffer.innerHTML = html;
-            this.appendChild(buffer.getElementsByTagName('div')[0]);
-        },
+            this.wrap.appendChild(buffer.getElementsByTagName('div')[0]);
+        }
 
-        deleteTable: function(event){
+        this.deleteTable = function(event){
             //delete a table on deleteCell event
             //<event>: event; deleteCell custom event
-            //this: x-aux-plot-control object
+            //this: auxPlotControl object
 
-            deleteNode(this.id + event.detail.cellName + 'TableWrapper');
-        },
+            deleteNode(this.wrapID + event.detail.cellName + 'TableWrapper');
+        }
 
         ////////////////////////
         // data manipulation
         ////////////////////////
 
-        deleteAllSpectra: function(){
+        this.deleteAllSpectra = function(){
             //delete every spectrum currently displayed
 
             var deleteButtons = document.getElementsByClassName('deleteRow')
             while(deleteButtons.length > 0){
                 deleteButtons[0].onclick(); //actually modifies deleteButtons in place - keep deleting zeroth element.
             }
-        },
+        }
 
-        deleteSpectrum: function(){
+        this.deleteSpectrum = function(){
             //callback for delete button to remove corresponding plot
             //this: delete button element
 
@@ -139,9 +136,9 @@ xtag.register('x-aux-plot-control', {
             dataStore.viewers[target].plotData();
 
             deleteNode(target + spectrum);
-        },
+        }
 
-        zeroSpectrum: function(){
+        this.zeroSpectrum = function(){
             //callback for zero button to zero corresponding plot
             //this: zero spectrum button element
 
@@ -149,36 +146,33 @@ xtag.register('x-aux-plot-control', {
             var spectrum = this.getAttribute('spectrum')
 
             dataStore.viewers[target].baselines[spectrum] = JSON.parse(JSON.stringify(dataStore.viewers[target].plotBuffer[spectrum]));
+            document.getElementById(target+spectrum+'FitResult').innerHTML = '-';
+            dataStore.viewers[target].clearFits();
             dataStore.viewers[target].plotData();
-        },
+        }
 
-        dropFit: function(){
+        this.dropFit = function(){
             //abandon last fit result for this spectrum
             //this: drop last fit button element
 
             var target = this.getAttribute('target')
             var spectrum = this.getAttribute('spectrum')
 
-            var text = document.getElementById(target+spectrum+'FitResult').innerHTML
-            text = text.split('<br>')
-            text = text.slice(0, text.length-2).join('<br>')
-            if(text=='')
-                text = '-'
-
-            document.getElementById(target+spectrum+'FitResult').innerHTML = text
+            document.getElementById(target+spectrum+'FitResult').innerHTML = '-';
+            dataStore.viewers[target].clearFits();
             dataStore.viewers[target].plotData();
-        },
+        }
 
-        toggleFitMode: function(){
+        this.toggleFitMode = function(){
             //manage the state of the Fit Mode button, and the corresponding state of the viewer.
-            //this: x-aux-plot-control object
+            //this: auxPlotControl object
 
             //determine which canvas and spectrum we're currently pointing at
-            var radio = checkedRadio(this.id+'fitTarget');
+            var radio = checkedRadio(this.wrapID+'fitTarget');
             var target = radio.getAttribute('target');
             var spectrum = radio.getAttribute('spectrum');            
 
-            var fitModeSwitch = document.getElementById(this.id + 'fitMode')
+            var fitModeSwitch = document.getElementById(this.wrapID + 'fitMode')
             var state = fitModeSwitch.getAttribute('engaged')
 
             //make sure the fit callback is set up
@@ -187,23 +181,23 @@ xtag.register('x-aux-plot-control', {
             if(state == 0){
                 dataStore.viewers[target].setupFitMode();
                 fitModeSwitch.setAttribute('engaged', 1);
-                document.getElementById(this.id+'fitBadge').classList.add('redText')
+                document.getElementById(this.wrapID+'fitBadge').classList.add('redText')
             }
             else{
                 dataStore.viewers[target].leaveFitMode();
                 fitModeSwitch.setAttribute('engaged', 0);
-                document.getElementById(this.id+'fitBadge').classList.remove('redText')
+                document.getElementById(this.wrapID+'fitBadge').classList.remove('redText')
             }
 
             //toggle state indicator
-            document.getElementById(this.id+'fitInstructions').classList.toggle('hidden')
-        },
+            document.getElementById(this.wrapID+'fitInstructions').classList.toggle('hidden')
+        }
 
         /////////////////
         // callbacks
         /////////////////
 
-        setFitTarget: function(event){
+        this.setFitTarget = function(event){
             //callback for radios to set fit targets
             //<event>: event; onclick
             //this: fit target radio element
@@ -212,18 +206,18 @@ xtag.register('x-aux-plot-control', {
             var spectrum = this.getAttribute('spectrum')
 
             dataStore.viewers[target].fitTarget = spectrum;
-        },
+        }
 
-        fitCallback: function(center, width, amplitude, intercept, slope){
+        this.fitCallback = function(center, width, amplitude, intercept, slope){
             //route the fit results to the table, and gracefully exit fit mode.
             //<center>: number; center of gaussian peak
             //<width>: number; width of peak
             //<amplitude>: number; amplitude of peak
             //<intercept>: number; intercept of linear background beneath peak
             //<slope>: number; slope of linear background
-            //this: x-aux-plot-control object
+            //this: auxPlotControl object
 
-            var radio = checkedRadio(this.id+'fitTarget');
+            var radio = checkedRadio(this.wrapID + 'fitTarget');
             var target = radio.getAttribute('target');
             var spectrum = radio.getAttribute('spectrum'); 
 
@@ -248,6 +242,7 @@ xtag.register('x-aux-plot-control', {
             this.toggleFitMode()
             dataStore.viewers[target].leaveFitMode();
         }
+
     }
 
-});
+</script>

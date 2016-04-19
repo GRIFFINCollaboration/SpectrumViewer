@@ -1,32 +1,50 @@
-xtag.register('x-rate-control', {
-    lifecycle:{
-        inserted: function(){
-            dataStore.allClear++;
+<template id='rateControl'>
+    <div class='col-md-12'>
+        <h4>Gamma Gates</h4>
+        <table id='{{id}}gammaWindows'></table>
+    </div>
 
-            //inject template
-            promisePartial('rateControl').then(
-                function(template){
-                    this.innerHTML = Mustache.to_html(template, {
-                        'id': this.id,
-                        'gammas': dataStore.defaults.gammas,
-                        'levels': dataStore.defaults.levels
-                    });
-                }.bind(this)
-            ).then(
-                function(){
-                    dataStore.allClear--;   
+    <div class='col-md-4'>
+        <h4>Levels & Scalars</h4>
+        <table id='{{id}}LevelsAndScalars'></table>
+    </div>
+</template>
+
+<script>
+    function rateControl(wrapperID){
+
+        this.wrapID = wrapperID;
+        this.wrap = document.getElementById(wrapperID);
+
+        this.setup = function(){
+
+            var i, gammaWindowToggles, gammaWindowEdges, snapGammaButtons, levelToggles, fitOptions, fitRanges;
+
+            this.wrap.innerHTML = Mustache.to_html(
+                dataStore.templates.rateControl, 
+                {
+                    'id': this.wrapID,
                 }
-            )
+            );
+            // has to be done as a separate template, since templates and tables don't play too nice together
+            document.getElementById(this.wrapID + 'gammaWindows').innerHTML= Mustache.to_html(
+                dataStore.templates.gammaWindows, 
+                {
+                    'id': this.wrapID,
+                    'gammas': dataStore.defaults.gammas,
+                }
+            );
+            document.getElementById(this.wrapID + 'LevelsAndScalars').innerHTML= Mustache.to_html(
+                dataStore.templates.levelsAndScalars, 
+                {
+                    'id': this.wrapID,
+                    'levels': dataStore.defaults.levels
+                }
+            );
 
             //shorthand for viewer id
             this.vw = dataStore.plots[0];
-        }
-    },
-
-    methods:{
-        configure: function(){
-            var i, gammaWindowToggles, gammaWindowEdges, snapGammaButtons, levelToggles, fitOptions, fitRanges
-
+            
             //plug in gamma window toggles
             gammaWindowToggles = document.getElementsByClassName('gammaToggle')
             for(i=0; i<gammaWindowToggles.length; i++){
@@ -60,12 +78,12 @@ xtag.register('x-rate-control', {
 
         },
 
-        drawWindow: function(index, min, max){
+        this.drawWindow = function(index, min, max){
             //draw the appropriate window on the plot
             //<index>: number; window index, corresponds to dataStore.defaults.gammas[index]
             //<min>: number; min bin for window
             //<max>: number; max bin for window
-            //this: x-rate-control object
+            //this: rateControl object
 
             //delete the old lines
             dataStore.viewers[this.vw].removeVertical('min' + index);
@@ -78,10 +96,10 @@ xtag.register('x-rate-control', {
             dataStore.viewers[this.vw].unsuppressAnnotation('max' + index);
         },
 
-        toggleGammaWindow: function(index){
+        this.toggleGammaWindow = function(index){
             //toggle the indexed gamma window on or off in the spectrum
             //<index>: number; window index, corresponds to dataStore.defaults.gammas[index]
-            //this: x-rate-control object
+            //this: rateControl object
 
             var payload;
 
@@ -100,10 +118,10 @@ xtag.register('x-rate-control', {
             dataStore.viewers[this.vw].plotData();
         },
 
-        moveGammaWindow: function(element){
+        this.moveGammaWindow = function(element){
             //callback for chaging gamma window edges
             //<element>: input number element
-            //this: x-rate-control object
+            //this: rateControl object
 
             var color = dataStore.viewers[dataStore.plots[0]].verticals[element.id].color
             dataStore.viewers[dataStore.plots[0]].removeVertical(element.id)
@@ -113,7 +131,7 @@ xtag.register('x-rate-control', {
             dataStore.viewers[dataStore.plots[0]].plotData();
         },
 
-        snapGateToWindow: function(){
+        this.snapGateToWindow = function(){
             //callback for button to snap corresponding gamma gate to present window
             //this: button element
 
@@ -126,7 +144,7 @@ xtag.register('x-rate-control', {
             document.getElementById('max'+index).onchange()
         },
 
-        toggleDygraph: function(index){
+        this.toggleDygraph = function(index){
             //set the visibility state for the indexed series in the dygraph pointed at in dataStore.dygraphListen
             //state based on the checked state of the element using this as an onchange callback.
             //<index>: number; index of dygraph series to toggle visibility of
@@ -135,10 +153,10 @@ xtag.register('x-rate-control', {
             dispatcher({"index": index, "isVisible": this.checked}, dataStore.dygraphListeners, 'setDyVisible');
         },
 
-        changeFitMethod: function(element){
+        this.changeFitMethod = function(element){
             //callback after changing the fit method radio
             //<element>: object; input radio element
-            //this: x-rate-control object
+            //this: rateControl object
 
             var index = parseInt(element.name.slice(3),10);
             this.queueAnnotation(dataStore.defaults.gammas[index].title, 'BKG Method Changed to ' + element.value);
@@ -146,10 +164,10 @@ xtag.register('x-rate-control', {
             fetchCallback()
         },
 
-        updateManualFitRange: function(element){
+        this.updateManualFitRange = function(element){
             //callback to register a manual fit range
             //<element>: object; input text element
-            //this: x-rate-control object
+            //this: rateControl object
 
             var index = parseInt(element.id.slice(4),10);
             var bkgTechnique = document.querySelector('input[name="bkg'+index+'"]:checked').value;
@@ -161,9 +179,9 @@ xtag.register('x-rate-control', {
             }
         },
 
-        appendNewPoint: function(){
+        this.appendNewPoint = function(){
             //integrate gamma windows and append result as new point on rate monitor.
-            //this: x-rate-control object
+            //this: rateControl object
 
             var i, j, id, min, max, gates = [], levels = [], bkgTechnique, bkgSample, bkgPattern, bkg, y0, y1, bkgColor;
 
@@ -251,7 +269,7 @@ xtag.register('x-rate-control', {
             dataStore.rateData.push( [new Date()].concat(gates).concat(levels) );
         },
 
-        constructAutoBackgroundRange: function(min, max){
+        this.constructAutoBackgroundRange = function(min, max){
             //returns [[bin numbers], [corresponding bin values]] based on the gate described by min, max,
             //for use as a background sample to fit to.
             //<min>: number; gate min bin
@@ -272,7 +290,7 @@ xtag.register('x-rate-control', {
 
         },
 
-        constructManualBackgroundRange: function(encoding, spectrum){
+        this.constructManualBackgroundRange = function(encoding, spectrum){
             //given an encoded string of bins, parse and return an array consising of an array of those bin numbers, and
             //another array of the corresponding bin heights.
             //encoding is as 20-25;27;32-50 etc.
@@ -305,9 +323,9 @@ xtag.register('x-rate-control', {
             return [x,y]
         },
 
-        updateDygraph: function(leadingEdge, windowWidth){
+        this.updateDygraph = function(leadingEdge, windowWidth){
             //decide how many points to keep from the history, and plot.
-            //<leadingEdge>: number; as returned by x-rate-slidere windowLeadingEdgeTime
+            //<leadingEdge>: number; as returned by rateSlider.windowLeadingEdgeTime
             //<windowWidth>: number; in minutes
 
             var i, period, data, annotations, keys
@@ -321,7 +339,7 @@ xtag.register('x-rate-control', {
             dispatcher({ 'data': data }, dataStore.dygraphListeners, 'updateDyData')
         },
 
-        queueAnnotation: function(series, flag){
+        this.queueAnnotation = function(series, flag){
             //sets up the <flag> text to appear in the annotation for the next point on <series>
             //<series>: string; name of data series to annotate, corresponds to dataStore.defaults.gammas.title
             //<flag>: string; message to print in annotation
@@ -337,7 +355,5 @@ xtag.register('x-rate-control', {
                 }
             }
         }
-
     }
-
-});
+</script>

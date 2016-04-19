@@ -1,0 +1,14 @@
+<template id='levelsAndScalars'>
+    <tr>
+        <td>Item</td>
+        <td>Show</td>
+    </tr>
+    {{#levels}}
+        <tr>
+            <td>{{title}}</td>
+            <td class='center'>
+                <input type=checkbox checked id='display{{lvlID}}' target='{{lvlID}}' class='levelToggles'></input>
+            </td>
+        </tr>
+    {{/levels}}
+</template>

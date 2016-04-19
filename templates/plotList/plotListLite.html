@@ -1,0 +1,109 @@
+<template id='plotListLite'>
+    {{# plotGroups}}
+        <h4 id='{{id}}{{groupID}}' class='plotGroupTitle'>
+            <span id='{{id}}closed{{groupID}}' class="glyphicon glyphicon-circle-arrow-right" aria-hidden="true"></span>
+            <span id='{{id}}open{{groupID}}' class="glyphicon glyphicon-circle-arrow-down hidden" aria-hidden="true"></span>
+            {{groupTitle}}
+        </h4>
+        <ul id='{{id}}plots{{groupID}}' class='list-group hidden'>
+            {{# plots}}
+                <li class='list-group-item toggle' id='{{id}}{{plotID}}'>
+                    {{title}}
+                    <span id='{{id}}badge{{plotID}}' class="badge plotPresence hidden">&#x2713;</span>
+                </li>
+            {{/ plots}}
+        </ul>
+    {{/plotGroups}}
+</template>
+
+<script>
+    function plotListLite(wrapperID){
+
+        this.wrapID = wrapperID;
+        this.wrap = document.getElementById(wrapperID);
+
+        this.setup = function(){
+
+            var i, j;
+
+            //inject template
+            this.wrap.innerHTML = Mustache.to_html(
+                dataStore.templates.plotListLite, 
+                {
+                    'id': this.wrapID, 
+                    'plotGroups': dataStore.plotGroups
+                }
+            );
+            
+            for(i=0; i<dataStore.plotGroups.length; i++){
+                //plug in list toggles
+                document.getElementById(this.wrapID + dataStore.plotGroups[i].groupID).onclick = this.toggleSection.bind(this, dataStore.plotGroups[i].groupID, false);
+                //plug in plot requests
+                for(j=0; j<dataStore.plotGroups[i].plots.length; j++){
+                    document.getElementById(this.wrapID + dataStore.plotGroups[i].plots[j].plotID).onclick = this.exclusivePlot.bind(this, dataStore.plotGroups[i].plots[j].plotID+'_Energy', dataStore.viewers[dataStore.plots[0]]);
+                }    
+            }
+        },
+
+        this.toggleSection = function(groupID, suppressRecursion){
+            //toggle a section group open or closed
+            //<groupID>: string; name of expandable dropdown
+            //<suppressRecursion>: bool; true -> prevent recursion
+            //this: plotListLite object
+
+            //close old list
+            if(this.openList && !suppressRecursion && groupID!=this.openList){
+                this.toggleSection(this.openList, true);
+            }
+
+            //allow manual close of old list
+            if(groupID == this.openList)
+                this.openList = null;
+            else
+                this.openList = groupID;
+
+            document.getElementById(this.wrapID + 'plots' + groupID).classList.toggle('hidden');
+            document.getElementById(this.wrapID + 'closed' + groupID).classList.toggle('hidden');
+            document.getElementById(this.wrapID + 'open' + groupID).classList.toggle('hidden');
+        },
+
+        this.exclusivePlot = function(plot, target){
+            //plot the requested plot in target viewer, after removing all other plots found there
+            //<plot>: string; name of spectrum from analyzer
+            //<target>: string; spectrumViewer object to plot the plot in.
+            //this: plotListLite object 
+
+            // did we find this plot?
+            if(!dataStore.rawData[plot])
+                return;
+
+            //dump old data
+            if(dataStore.currentPlot){
+                target.removeData(dataStore.currentPlot);
+                document.getElementById(this.wrapID + 'badge' + dataStore.currentPlot.slice(0,10)).classList.add('hidden');
+            }
+
+            //add new data
+            target.addData(plot, JSON.parse(JSON.stringify(dataStore.rawData[plot])) );
+            document.getElementById(this.wrapID + 'badge' + plot.slice(0,10)).classList.remove('hidden');
+            target.fitTarget = plot;
+            dataStore.currentPlot = plot;
+
+            target.plotData();
+        },
+
+        this.snapToTop = function(){
+            //reset display to first plot, first section
+            //this: plotListLite object
+            
+            //document.getElementById(this.wrapID + dataStore.plotGroups[0].groupID).onclick();
+            //document.getElementById(this.wrapID + dataStore.plotGroups[0].plots[0].plotID).onclick();
+            
+            document.getElementById(this.wrapID + Object.keys(dataStore.rawData)[0].slice(0,5)).onclick();
+            document.getElementById(this.wrapID + Object.keys(dataStore.rawData)[0].slice(0,10)).onclick();
+
+        }
+
+    }
+
+</script>

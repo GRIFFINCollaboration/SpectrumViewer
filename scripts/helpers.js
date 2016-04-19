@@ -171,7 +171,19 @@ function promisePartial(name){
     });
 }
 
-promisePartial('footer').then(function(template){dataStore.foot = template })
+function prepareTemplates(templates){
+    //take an array of template names, and load their inner html into a simmilarly keyed object.
+
+    var i, guts = {};
+
+    for(i=0; i<templates.length; i++){
+        guts[templates[i]] = document.getElementById(templates[i]).import.getElementById(templates[i]).innerHTML
+    }
+
+    return guts
+}
+
+//promisePartial('footer').then(function(template){dataStore.foot = template })
 
 function subtractHistograms(h0, h1){
     // perform element-wise subtraction h1-h0

@@ -1,50 +1,39 @@
-xtag.register('x-plots', {
-    lifecycle:{
-        inserted: function(){
-            dataStore.allClear++;
+<template id='plotGrid'>
+    <div id='{{id}}{{label}}Control' class='cellControl'>
+        <span id='{{id}}{{label}}Delete' class="glyphicon glyphicon-remove-sign redText deleteCell" aria-hidden="true"></span>
+        <span>{{label}}</span>
+        <div id='{{id}}{{label}}axisControl' class='hidden'>
+            <label for='{{id}}{{label}}attachAxis'>Active Window</label>
+            <input type='checkbox' id='{{id}}{{label}}attachAxis' class='activeWindowFlag' checked value='{{label}}'></input>
+        </div>
+        <canvas id='{{label}}' class='plotCanvas'></canvas>
+    </div>
+</template>
 
-            //inject template
-            promisePartial('plotGrid').then(
-                function(template){
+<script>
+    function plotGrid(wrapperID){
 
-                    var i, wrapper, newPlot;
+        this.wrapID = wrapperID;
+        this.wrap = document.getElementById(wrapperID);
 
-                    //save the template for later
-                    dataStore.cellTemplate = template;
-                    
-                    //set up a wrapper for plots
-                    wrapper = document.createElement('div');
-                    wrapper.setAttribute('id', this.id + 'plotWrap');
-                    this.appendChild(wrapper);
+        this.setup = function(){
 
-                    //set up fancy new plot button
-                    newPlot = document.createElement('span');
-                    newPlot.setAttribute('class', 'glyphicon glyphicon-plus-sign newPlotButton');
-                    newPlot.setAttribute('id', this.id + 'newPlotButton');
-                    newPlot.onclick = this.manageCellCreation.bind(this);
-                    this.appendChild(newPlot);
+            var i, wrapper, newPlot;
+            
+            //set up a wrapper for plots
+            wrapper = document.createElement('div');
+            wrapper.setAttribute('id', this.wrapID + 'plotWrap');
+            this.wrap.appendChild(wrapper);
 
-                    //generate an appropriate number of plots
-                    for(i=0; i<dataStore.plots.length; i++){
-                        this.addCell(dataStore.plots[i]);
-                    }
-
-                }.bind(this)
-            ).then(
-                function(){
-                    dataStore.allClear--;   
-                }
-            )
+            //set up fancy new plot button
+            newPlot = document.createElement('span');
+            newPlot.setAttribute('class', 'glyphicon glyphicon-plus-sign newPlotButton');
+            newPlot.setAttribute('id', this.wrapID + 'newPlotButton');
+            newPlot.onclick = this.manageCellCreation.bind(this);
+            this.wrap.appendChild(newPlot);
         }
-    },
 
-    methods:{
-        configure: function(){
-            //make sure things are arranged nicely for the number of plots presented initially
-            this.manageCellControl();
-        },
-
-        determineColSize: function(){
+        this.determineColSize = function(){
             //determine an appropriate bootstrap column width.
             //1 plot == 1 col
             //2-5 plots == 2 cols
@@ -57,46 +46,48 @@ xtag.register('x-plots', {
                 colSize = 4
 
             return colSize
-        },
+        }
 
-        addCell: function(label){
+        this.addCell = function(label){
             //add a cell to the display.
             //<label>: string key for this cell and corresponding viewer object
             //assumes label has already been added to dataStore.plots
-            //this: x-plots object
+            //this: plotGrid object
 
             //generate html
             var cell = document.createElement('div');
             var colSize = this.determineColSize();
             cell.setAttribute('class', 'plotCell col-md-'+colSize);
-            cell.setAttribute('id', this.id + label + 'Cell');
+            cell.setAttribute('id', this.wrapID + label + 'Cell');
 
-            cell.innerHTML = Mustache.to_html(dataStore.cellTemplate, {
+            cell.innerHTML = Mustache.to_html(dataStore.templates.plotGrid, {
                 'label': label,
-                'id': this.id
+                'id': this.wrapID
             });
-            document.getElementById(this.id + 'plotWrap').appendChild(cell);
+            document.getElementById(this.wrapID + 'plotWrap').appendChild(cell);
 
             //initialize plot
             this.createFigure(label);
 
             //plug in attachment toggles
-            document.getElementById(this.id + label + 'attachAxis').onclick = this.attachCell;
+            document.getElementById(this.wrapID + label + 'attachAxis').onclick = this.attachCell;
 
             //plug in delete button
-            document.getElementById(this.id + label + 'Delete').onclick = this.deleteCell.bind(this, label);
-        },
+            document.getElementById(this.wrapID + label + 'Delete').onclick = this.deleteCell.bind(this, label);
+        }
 
-        manageCellCreation: function(){
-            //top level wrapper for adding a new cell
+        this.manageCellCreation = function(event, customLabel){
+            //top level wrapper for adding a new cell in multi-cell view and / or with external listeners for newCell events
             //adds the cell, updates global datastore and dispatches events to announce presence of new cell
 
             var label, evt;
 
             //generate new label for cell
-            label = 'Cell' + dataStore.cellIndex;
-            dataStore.cellIndex++;
-            dataStore.plots.push(label);
+            label = customLabel || 'Cell' + dataStore.cellIndex;
+            if(label != customLabel){
+                dataStore.cellIndex++;
+                dataStore.plots.push(label);
+            }
 
             //insert new dom guts
             this.addCell(label);
@@ -114,48 +105,46 @@ xtag.register('x-plots', {
                 dataStore.newCellListeners, 
                 'newCell'
             )
-        },
+        }
 
-        manageFigureSizes: function(){
+        this.manageFigureSizes = function(){
             //rescale figures as appropriate
             var colSize = this.determineColSize();
             var colClass = 'plotCell col-md-' + colSize;
             var i, cell;
 
             for(i=0; i<dataStore.plots.length; i++){
-                cell = document.getElementById(this.id + dataStore.plots[i] + 'Cell');
+                cell = document.getElementById(this.wrapID + dataStore.plots[i] + 'Cell');
                 cell.setAttribute('class', colClass);
                 this.createFigure(dataStore.plots[i]);
             }
-        },
+        }
 
-        manageCellControl: function(){
+        this.manageCellControl = function(){
             //cell control shouldn't be presented if there's only one cell.
 
             var i, nCells = dataStore.plots.length;
 
             if(nCells == 1){
                 //make sure the one remaining cell is attached to the ui
-                document.getElementById(this.id + dataStore.plots[0] + 'attachAxis').checked = true;
-                this.attachCell.bind(document.getElementById(this.id + dataStore.plots[0] + 'attachAxis'))();
-
-                //hide cell attachment ui
-                //document.getElementById(this.id + dataStore.plots[0] + 'Control').classList.add('hidden');
+                document.getElementById(this.wrapID + dataStore.plots[0] + 'attachAxis').checked = true;
+                this.attachCell.bind(document.getElementById(this.wrapID + dataStore.plots[0] + 'attachAxis'))();
+                document.getElementById(this.wrapID + dataStore.plots[0] + 'axisControl').classList.add('hidden');
             } else{
                 //unhide cell attachment ui
                 for(i=0; i<nCells; i++){
-                    document.getElementById(this.id + dataStore.plots[i] + 'Control').classList.remove('hidden');
+                    document.getElementById(this.wrapID + dataStore.plots[i] + 'axisControl').classList.remove('hidden');
                 }
             }
-        },
+        }
 
-        deleteCell: function(cell){
+        this.deleteCell = function(cell){
             //handle dropping a cell
             //<cell>: string; name of cell, per ids in dataStore.plots.
-            //this. x-plots object
+            //this. plotGrid object
             var evt;
 
-            deleteNode(this.id + cell + 'Cell');
+            deleteNode(this.wrapID + cell + 'Cell');
             delete dataStore.viewers[cell];
             dataStore.plots.splice(dataStore.plots.indexOf(cell), 1);
 
@@ -163,9 +152,9 @@ xtag.register('x-plots', {
 
             this.manageFigureSizes();
             this.manageCellControl();
-        },
+        }
 
-        createFigure: function(id){
+        this.createFigure = function(id){
             //set up a canvas with id, and corresponding viewer object
             //<id>: string; name of viewer, same as name of corresponding cell, as found in dataStore.plots.
 
@@ -188,9 +177,9 @@ xtag.register('x-plots', {
             }
 
             dataStore.viewers[id].plotData();
-        },
+        }
 
-        attachCell: function(e){
+        this.attachCell = function(e){
             //dispatch an event carrying the cell in question and its attachment state 
             //<e>: event; onchange.
             //this: input type=checkbox element.
@@ -217,5 +206,4 @@ xtag.register('x-plots', {
             )
         }
     }
-
-});
+</script>
