@@ -7,6 +7,26 @@ A collection of remixable spectrum analysis tools.
 
 The Spectrum Viewer pages can be served as static pages from gh-pages, or anywhere you like. `server.js` provides a minimal node server that will do the job; dependencies and setup are at the top of that file.
 
+### Spectrum Viewer
+In order to point your Spectrum Viewer at the appropriate spectra, a couple of parameters need to be set in `scripts/spectrumViewer.js`:
+
+ - `dataStore.spectrumServer` should be the url with port where raw spectra are served according to the API described below in 'Data Feeds'.
+ - `dataStore.ODBrequests` should be an array of ODB requests to perform on refresh; see [specifications here](https://midas.triumf.ca/MidasWiki/index.php/AJAX).
+ - The `topGroups` object describes the plot selection and navigation; set names and ids of groups of plots as desired, and make sure the `items` key contains an array listing the exact names of plots to include in the corresponding subgroup.
+
+### Rate Monitor
+In order to point your Rate Monitor at the appropriate spectra, a couple of parameters need to be set in `scripts/rateMonitor.js`:
+
+ - `dataStore.spectrumServer` should be the url with port where raw spectra are served according to the API described below in 'Data Feeds'.
+ - `dataStore.ODBrequests` should be an array of ODB requests to perform on refresh; see [specifications here](https://midas.triumf.ca/MidasWiki/index.php/AJAX).
+
+### Gain Matcher
+In order to point your Gain Matcher at the appropriate spectra, a couple of parameters need to be set in `scripts/gainMatcher.js`:
+
+ - `dataStore.spectrumServer` should be the url with port where raw spectra are served according to the API described below in 'Data Feeds'.
+ - `dataStore.ODBhost`: host and port of MIDAS ODB experiment.
+ - `dataStore.ODBrequests` should be an array of ODB requests to perform on refresh; see [specifications here](https://midas.triumf.ca/MidasWiki/index.php/AJAX).
+
 ## Contributing
 
 Contributions are very welcome! If you have an idea, question or comment, please open an issue. If you would like to make a change to this project, please follow these steps:
