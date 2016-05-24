@@ -414,3 +414,9 @@ span.title{
     max-height: 400px;
     overflow: auto;
 }
+
+/*2d spectra*/
+button.delete-vertex{
+    position: relative;
+    top:-1px;
+}

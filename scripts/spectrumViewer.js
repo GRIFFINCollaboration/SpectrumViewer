@@ -152,6 +152,22 @@ function setupDataStore(){
                     "items": descantCodes.map(function(c){return c + '_Short_Integration'})
                 }
             ]
+        },
+
+        {
+            "name": "IRIS",
+            "id": "IRIS",
+            "color": '#367FA9',
+            "subGroups": [
+                {
+                    "subname": "IC",
+                    "id": "IC",
+                    "items": [
+                       'IRIS_IC',
+                       'test'
+                   ]
+                },
+            ]
         }
     ]
 
@@ -167,8 +183,8 @@ function setupDataStore(){
         "attachCellListeners": ['plotControl'],                     //array of ids of elements listneing for attachCell events
         "deleteCellListeners": ['plotControl', 'auxCtrl'],          //array of ids of elements listneing for deleteCell events
         "newCellListeners": ['plotControl','auxCtrl'],              //array of ids of elements listneing for newCell events
-        "spectrumServer": 'http://grsmid00.triumf.ca:9093/',        //analyzer url + port
-        "ODBrequests": ['http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/Runinfo/Run number&encoding=json-p-nokeys&callback=parseODB'], //array of odb requests to make on refresh
+        "spectrumServer": 'http://iris00.triumf.ca:9094',        //analyzer url + port
+        "ODBrequests": ['http://iris00.triumf.ca:8081/?cmd=jcopy&odb0=/Runinfo/Run number&encoding=json-p-nokeys&callback=parseODB'], //array of odb requests to make on refresh
         "zeroedPlots": {}                                           //initialize empty object for zeroed plots
     }
     dataStore.cellIndex = dataStore.plots.length;

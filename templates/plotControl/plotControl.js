@@ -30,7 +30,6 @@ function plotControl(wrapperID, config){
         this.wrap.addEventListener('attachCell', this.attachCell.bind(this), false);
 
         //listen for newCell events (attach them automatically)
-
         this.wrap.addEventListener('newCell', this.setupNewCell.bind(this), false);
 
         //listen for deleteCell events

@@ -1,0 +1,11 @@
+<template id='cutVertex'>
+    <label>x:</label>
+    <input type='number' class='vertex-x' value='{{initialX}}' onchange='moveCutVertex()'></input>
+
+    <label>y:</label>
+    <input type='number' class='vertex-y' value='{{initialY}}' onchange='moveCutVertex()'></input>
+
+    <button type="button" class="btn btn-danger delete-vertex">
+        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+    </button>
+</template>
