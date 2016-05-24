@@ -2,15 +2,15 @@ function setupDataStore(){
     //declare top level groups
     var topGroups = [
         {
-            "name": "Demo",
-            "id": "demo",
+            "name": "Annikal",
+            "id": "annikal",
             "color": '#367FA9',
             "subGroups": [
                 {
-                    "subname": "Example",
-                    "id": "example",
+                    "subname": "Energy",
+                    "id": "energy",
                     "items": [
-                       'plot_example'
+                       '2D_dE_vs_E'
                    ]
                 }
             ]
@@ -21,7 +21,8 @@ function setupDataStore(){
         "topGroups": topGroups,                                     //groups in top nav row
         "plotNameListeners": ['plotControl'],                       //array of ids of elements listneing for requestPlot events
         "cutVertices": [],                                          //[x,y] vertices of cut region polygon
-        "ODBhost": 'http://grsmid00.triumf.ca:8081',                //host:port of ODB to write cut region vertices to
+        "ODBhost": 'http://annikal.triumf.ca:8081',                 //host:port of ODB to write cut region vertices to
+        "spectrumServer": 'http://annikal.triumf.ca:9093',          //host:port to pull raw spectra from
         "raw": [0]
     }
 }
@@ -84,45 +85,25 @@ function plotControl(wrapperID){
         //refresh the current histogram data, then call fetchCallback()
         //this: plotControl object
 
-        // fakey fake for development
-        if(dataStore.activeSpectra){
-            var  i;
-            dataStore.raw = [4]
-            for(i=0; i<16; i++){
-                dataStore.raw.push(Math.random())
-            }
-            fetchCallback();
-        }
+        // // fakey fake for development
+        // if(dataStore.activeSpectra){
+        //     var  i;
+        //     dataStore.raw = [4]
+        //     for(i=0; i<16; i++){
+        //         dataStore.raw.push(Math.random())
+        //     }
+        //     fetchCallback();
+        // }
 
-        // var queries = constructQueries(this.activeSpectra);
+        var queries = constructQueries(this.activeSpectra);
 
-        // Promise.all(queries.map(promiseJSONURL)
-        //     ).then(
-        //         function(spectra){
-        //             var i, j, key, viewerKey;
-        //             dataStore.rawData = {};
-
-        //             for(i=0; i<spectra.length; i++){
-        //                 for(key in spectra[i]){
-        //                     //keep the raw results around
-        //                     dataStore.rawData[key] = JSON.parse(JSON.stringify(spectra[i][key]));
-        //                     //repopulate all spectra that use this spectrum
-        //                     for(viewerKey in dataStore.viewers){
-        //                         if(dataStore.viewers[viewerKey].plotBuffer[key]){
-        //                             dataStore.viewers[viewerKey].addData(key, spectra[i][key]);
-        //                         }
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     ).then(
-        //         dataStore.ODBrequests.map(promiseScript)
-        //     ).then(
-        //         function(){
-        //             if(typeof fetchCallback === "function"){
-        //                 fetchCallback();
-        //             }
-        //     })
+        Promise.all(queries.map(promiseJSONURL)
+            ).then(
+                function(spectra){
+                    dataStore.raw = spectra[0][dataStore.activeSpectra];
+                    fetchCallback(); 
+                }
+            )
     }
 }
 
@@ -141,6 +122,9 @@ function plotlyClick(data){
     );
     // point the delete vertex button at the right place
     li.getElementsByClassName('delete-vertex')[0].onclick = removeCutVertex;
+    // point the move vertex buttons at the right place
+    li.getElementsByClassName('move-vertex-up')[0].onclick = moveVertex.bind(li, 'up');
+    li.getElementsByClassName('move-vertex-down')[0].onclick = moveVertex.bind(li, 'down');
 
     document.getElementById('cutPolyVertices').appendChild(li);
 
@@ -282,32 +266,34 @@ function moveCutVertex(){
 
 function saveCutToODB(){
     // take the current cut vertices and save them to the ODB
-
-    var writeX = dataStore.ODBhost + '?cmd=jset&odb=/demo/x[*]&value=',
-        writeY = dataStore.ODBhost + '?cmd=jset&odb=/demo/y[*]&value=', 
+    var xVals=[], yVals=[],
         i;
 
     for(i=0; i<dataStore.cutVertices.length; i++){
-        writeX += dataStore.cutVertices[i][0] + ',';
-        writeY += dataStore.cutVertices[i][1] + ',';
+        xVals.push(dataStore.cutVertices[i][0]);
+        yVals.push(dataStore.cutVertices[i][1]);
     }
 
-    writeX = writeX.slice(0,-1);
-    writeY = writeY.slice(0,-1);
-
-    XHR(writeX);
-    XHR(writeY);
-
-    //someday, in the distant future, when MIDAS uses the right cors headers, we'll be able to check the jset response and respond appropriately...
-    //XHR(writeX, null, flashElement.bind(null, 'x-success', 5), flashElement.bind(null, 'x-fail', 5));
-    //XHR(writeY, null, flashElement.bind(null, 'y-success', 5), flashElement.bind(null, 'y-fail', 5));
+    CRUDarrays(
+        ['/DAQ/analyzerGates/x', '/DAQ/analyzerGates/y'], 
+        [xVals, yVals], 
+        [7,7]
+    )
 }
 
-function flashElement(id, n){
-    // remove an element's hidden class, then add it back n seconds later
+function moveVertex(direction){
+    // move vertex one step in <direction>== 'up' or 'down'
+    // this == li node containing this vertex
 
-    document.getElementById(id).classList.remove('hidden');
-    window.setTimeout(function(id){
-        document.getElementById(id).classList.add('hidden');  
-    }.bind(null, id), n*1000)
+    if(direction=='up'){
+        this.parentElement.insertBefore(this, this.previousSibling)
+    }else if(direction=='down'){
+        this.parentElement.insertBefore(this.nextSibling, this)
+    }
+
+    extractCutVertices();
+    fetchCallback();
 }
+
+
+// DAQ/analyzerGates

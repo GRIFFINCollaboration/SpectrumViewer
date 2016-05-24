@@ -125,7 +125,11 @@ function promiseScript(url){
             resolve(null); 
         }
         script.id = 'promiseScript';
-        document.head.appendChild(script);
+        try{
+            document.head.appendChild(script);
+        } catch(err){
+            console.log('script fetch fail')
+        }
     });
 }
 
@@ -382,4 +386,68 @@ function constructQueries(keys){
     }
 
     return queries
+}
+
+//////////////////////////
+// 2D spectrum viewer
+//////////////////////////
+
+function CRUDarrays(path, value, type){
+    // delete the arrays at [path] from the odb, recreate them, and populate them with [value]
+
+    var deletionURL, creationURL, updateURLs = [],
+        i, typeIndex;
+
+    //generate deletion URLs:
+    deletionURL = dataStore.ODBhost + '?cmd=jdelete';
+    for(i=0; i<path.length; i++){
+        deletionURL += '&odb' + i + '=' + path[i];
+    }
+
+    //generate creation URLs:
+    creationURL = dataStore.ODBhost + '?cmd=jcreate';
+    for(i=0; i<path.length; i++){
+
+        if(type[i]=='string')
+            typeIndex = 12;
+        else if(type[i]=='int')
+            typeIndex = 7;
+        else
+            typeIndex = 9; // float, see mhttpd.js
+
+        creationURL += '&odb' + i + '=' + path[i] + '&type' + i + '=' + typeIndex + '&arraylen' + i + '=' + value[i].length;
+        if(typeIndex == 12)
+            creationURL += '&strlen' + i + '=32';
+    }
+
+    //generate update urls:
+    for(i=0; i<path.length; i++){
+        updateURLs.push(dataStore.ODBhost + '?cmd=jset&odb=' + path[i] + '[*]&value=' + value[i].join() );
+    }
+console.log(deletionURL, creationURL, updateURLs)
+    promiseScript(deletionURL).then(function(){
+        promiseScript(creationURL).then(function(){
+            var i;
+            for(i=0; i<updateURLs.length; i++){
+                pokeURL(updateURLs[i]);
+            }
+        })
+    })
+}
+
+function pokeURL(url){
+    // send a GET request to a given URL
+    // to be used for poking MIDAS API endpoints (mostly jset) that expect a GET and don't have a CORS header (so the response can't be meaningfully validated)
+
+    var req = new XMLHttpRequest();
+
+    req.onerror = function(err) {
+        console.log('The request to the following URL returned an error:');
+        console.log(url);
+        console.log(err)
+    };
+
+    req.open('GET', url);
+    // Make the request
+    req.send();
 }
