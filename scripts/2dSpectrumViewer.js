@@ -90,7 +90,7 @@ function plotControl(wrapperID){
             var  i;
             dataStore.raw = [1024]
             for(i=0; i<1024*1024; i++){
-                dataStore.raw.push(0)
+                dataStore.raw.push(Math.random())
             }
             fetchCallback();
         }
@@ -152,7 +152,8 @@ function fetchCallback(){
     //runs after every time the histogram is updated
 
     // make the plot
-    generatePlot();
+    document.getElementById('plotlyTarget').data[0].z = packZ(dataStore.raw);
+    Plotly.redraw('plotlyTarget');
 
     // plug in the onclicks
     document.getElementById('plotlyTarget').on('plotly_click', plotlyClick);
