@@ -110,7 +110,15 @@ function plotControl(wrapperID){
 function plotlyClick(data){
     // do something when the plot is clicked
 
-    var li = document.createElement('li');
+    var li = document.createElement('li'),
+        i;
+
+    // abort if this point already added to list
+    // mitigates funky multiple-fires of plotly_click when updating
+    for(i=0; i<dataStore.cutVertices.length; i++){
+        if(dataStore.cutVertices[i][0] == data.points[0].x && dataStore.cutVertices[i][1] == data.points[0].y)
+            return 0;
+    }
 
     // expand UI
     li.innerHTML = Mustache.to_html(
@@ -154,13 +162,14 @@ function fetchCallback(){
     // make the plot
     document.getElementById('plotlyTarget').data[0].z = packZ(dataStore.raw);
     Plotly.redraw('plotlyTarget');
+    generateOverlay();
 
     // plug in the onclicks
     document.getElementById('plotlyTarget').on('plotly_click', plotlyClick);
 }
 
 function generatePlot(){
-    // take the plot data sitting on datastore.raw, and render it.
+    // create the plot
     var data = [
             {
                 z: packZ(dataStore.raw),
@@ -188,7 +197,6 @@ function generatePlot(){
         }
 
     Plotly.newPlot('plotlyTarget', data, layout);
-    generateOverlay();
 }
 
 function generateOverlay(){
