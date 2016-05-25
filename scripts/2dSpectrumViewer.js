@@ -85,24 +85,25 @@ function plotControl(wrapperID){
         //refresh the current histogram data, then call fetchCallback()
         //this: plotControl object
 
-        // // fakey fake for development
-        // if(dataStore.activeSpectra){
-        //     var  i;
-        //     for(i=0; i<16; i++){
-        //         dataStore.raw.push(Math.random())
-        //     }
-        //     fetchCallback();
-        // }
+        // fakey fake for development
+        if(dataStore.activeSpectra){
+            var  i;
+            dataStore.raw = [1024]
+            for(i=0; i<1024*1024; i++){
+                dataStore.raw.push(0)
+            }
+            fetchCallback();
+        }
 
-        var queries = constructQueries(this.activeSpectra);
+        // var queries = constructQueries(this.activeSpectra);
 
-        Promise.all(queries.map(promiseJSONURL)
-            ).then(
-                function(spectra){
-                    dataStore.raw = spectra[0][dataStore.activeSpectra];
-                    fetchCallback(); 
-                }
-            )
+        // Promise.all(queries.map(promiseJSONURL)
+        //     ).then(
+        //         function(spectra){
+        //             dataStore.raw = spectra[0][dataStore.activeSpectra];
+        //             fetchCallback(); 
+        //         }
+        //     )
     }
 }
 
@@ -130,8 +131,8 @@ function plotlyClick(data){
     //update dataStore
     extractCutVertices();
 
-    //update plot (as if the data has been refreshed)
-    fetchCallback()
+    //update plot overlay
+    generateOverlay();
 }
 
 function extractCutVertices(){
@@ -185,20 +186,28 @@ function generatePlot(){
             height: dim,
         }
 
-        if(dataStore.cutVertices.length > 0){
-            layout.shapes = [
-                {
-                    type: 'path',
-                    path: generatePlotlyPath(),
-                    fillcolor: 'rgba(0,0,0,0)',
-                    line: {
-                        color: 'rgb(255, 0, 0)'
-                    }
-                }
-            ]
-        }
-
     Plotly.newPlot('plotlyTarget', data, layout);
+    generateOverlay();
+}
+
+function generateOverlay(){
+    // generate the gate polygon overlay
+
+    var update = {};
+
+    if(dataStore.cutVertices.length > 0){
+        update.shapes = [
+            {
+                type: 'path',
+                path: generatePlotlyPath(),
+                fillcolor: 'rgba(0,0,0,0)',
+                line: {
+                    color: 'rgb(255, 0, 0)'
+                }
+            }
+        ]
+        Plotly.relayout('plotlyTarget', update);
+    }
 }
 
 function packZ(raw){
@@ -244,7 +253,7 @@ function removeCutVertex(){
         grandparent.removeChild(parent);
 
     extractCutVertices();
-    fetchCallback();
+    generateOverlay();
 }
 
 function moveCutVertex(){
@@ -252,7 +261,7 @@ function moveCutVertex(){
     // this == input:number element
 
     extractCutVertices();
-    fetchCallback();  
+    generateOverlay() 
 }
 
 function saveCutToODB(){
@@ -283,8 +292,6 @@ function moveVertex(direction){
     }
 
     extractCutVertices();
-    fetchCallback();
+    generateOverlay()
 }
 
-
-// DAQ/analyzerGates
