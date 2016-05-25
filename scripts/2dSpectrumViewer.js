@@ -88,7 +88,6 @@ function plotControl(wrapperID){
         // // fakey fake for development
         // if(dataStore.activeSpectra){
         //     var  i;
-        //     dataStore.raw = [4]
         //     for(i=0; i<16; i++){
         //         dataStore.raw.push(Math.random())
         //     }
@@ -160,13 +159,10 @@ function fetchCallback(){
 
 function generatePlot(){
     // take the plot data sitting on datastore.raw, and render it.
-    var binning = generateBins(dataStore.raw.length-1, dataStore.raw[0]),
-        data = [
+    var data = [
             {
-                x: binning.x,
-                y: binning.y,
-                z: dataStore.raw.slice(1),
-                type: 'contour',
+                z: packZ(dataStore.raw),
+                type: 'heatmap',
                 name: 'Plot Name', 
                 hoverinfo:"x+y+z",
                 colorscale: 'Viridis',
@@ -205,24 +201,19 @@ function generatePlot(){
     Plotly.newPlot('plotlyTarget', data, layout);
 }
 
-function generateBins(total, rowlength){
-    // z-data arrives in a linear array, x0,y0, x1,y0, ..., xmax,y0, x0,y1, x1,y1, ...
-    // plotly needs arrays of x and y bin coords in order.
-    // generate these for max xmax = xrowlength, and total number of bins.
+function packZ(raw){
+    // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
+    // plot.ly wants it as [[x0y0, x1y0, ..., xmaxy0], [x0y1, x1y1, ..., xmaxy1], ...]
 
-    var x = [],
-        y = [],
-        nRows = total / rowlength,
-        i,j;
+    var repack = [],
+        nRows = (raw.length-1)/raw[0],
+        i;
 
     for(i=0; i<nRows; i++){
-        for(j=0; j<rowlength; j++){
-            x.push(j);
-            y.push(i);
-        }
+        repack.push(raw.slice(1+raw[0]*i, 1+raw[0]*(i+1)));
     }
 
-    return {'x':x, 'y':y}
+    return repack;
 }
 
 function generatePlotlyPath(){
