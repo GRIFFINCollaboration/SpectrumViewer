@@ -163,6 +163,7 @@ function fetchCallback(){
 
     // make the plot
     document.getElementById('plotlyTarget').data[0].z = packZ(dataStore.raw);
+    document.getElementById('plotlyTarget').layout.title = dataStore.activeSpectra;
     Plotly.redraw('plotlyTarget');
     generateOverlay();
 
