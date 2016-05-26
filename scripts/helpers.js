@@ -424,7 +424,7 @@ function CRUDarrays(path, value, type){
     for(i=0; i<path.length; i++){
         updateURLs.push(dataStore.ODBhost + '?cmd=jset&odb=' + path[i] + '[*]&value=' + value[i].join() );
     }
-console.log(deletionURL, creationURL, updateURLs)
+
     promiseScript(deletionURL).then(function(){
         promiseScript(creationURL).then(function(){
             var i;
