@@ -403,6 +403,7 @@ span.title{
 .dd-item{
     padding: 0.25em;
     color: #000000;
+    white-space: nowrap;
 }
 
 .dd-item:hover{

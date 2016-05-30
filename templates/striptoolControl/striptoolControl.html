@@ -1,0 +1,78 @@
+<template id='striptoolControl'>
+    <!-- Single button -->
+    <div class="btn-group">
+        <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Choose Scalars <span class="caret"></span></button>
+        <ul id='striptool-plot-list' class="dropdown-menu dd-limited">
+            {{#series}}
+                <li class="dd-item">
+                    <input type='checkbox' class='dd-checkbox' value={{index}} id='{{name}}'></input>
+                    <label for='{{name}}' id='{{name}}-label'>{{name}}</label>
+                </li>
+            {{/series}}
+        </ul>
+    </div>
+</template>
+
+<script>
+    function striptoolControl(wrapperID){
+
+        this.wrapID = wrapperID;
+        this.wrap = document.getElementById(wrapperID);
+
+        this.setup = function(){
+            var getSourceNamesURL = dataStore.ODBhost + '?cmd=jcopy&odb=' + dataStore.sourceNamesDir + '&encoding=json-p-nokeys&callback=logStriptoolList'
+
+            // set up striptool picker
+            promiseScript(getSourceNamesURL).then(function(){
+                var i;
+
+                // inject html
+                this.wrap.innerHTML = Mustache.to_html(
+                    dataStore.templates.striptoolControl, 
+                    {
+                        'series': dataStore.sourceNames
+                    }
+                );
+
+                // setup onchange behavior of scalar toggles
+                for(i=0; i<dataStore.sourceNames.length; i++){
+                    document.getElementById(dataStore.sourceNames[i].name).onchange = this.togglePlot.bind(this, dataStore.sourceNames[i].name)
+                    // labels need to be independently prevented from closing the dd on click:
+                    document.getElementById(dataStore.sourceNames[i].name + '-label').onclick = function(e){
+                        e.stopPropagation();
+                    }
+                }
+                //...and the ul, too:
+                document.getElementById('striptool-plot-list').onclick = function(e){
+                    e.stopPropagation();
+                }
+
+            }.bind(this));
+        }
+
+        this.togglePlot = function(plotName, e){
+
+            //don't close the dd onclick:
+            e.stopPropagation();
+
+            console.log(e, plotName)
+
+        }
+
+    }
+
+    function logStriptoolList(sourceNames){
+        // log the list of striptool data source names on the dataStore, with their original position in the array, omitting blanks
+
+        var i;
+
+        dataStore.sourceNames = [];
+        for(i=0;i<sourceNames.Names.length; i++){
+            if(typeof(sourceNames.Names[i])=='string' && sourceNames.Names[i].length>0)
+                dataStore.sourceNames.push({
+                    'name': sourceNames.Names[i],
+                    'index': i
+                })
+        }
+    }
+</script>

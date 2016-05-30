@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <title>GRIFFIN Striptool</title>
+        <script src='scripts/HTMLImports.min.js' type="text/javascript"></script>
+        <script src='scripts/mustache.js' type="text/javascript"></script>
+        <script src='scripts/dygraphs.1.1.1.min.js' type="text/javascript"></script>
+        <script src="scripts/jquery1-11-3.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script src="scripts/bootstrap3-3-5.min.js"></script>
+
+        <script src='scripts/helpers.js' type="text/javascript"></script>
+        <script src='scripts/striptool.js' type="text/javascript"></script>
+        <link rel="stylesheet" type="text/css" href="css/custom.css"/>
+
+        <!--HTML imports-->
+        <link id='header' rel="import" href="templates/header/header.html">
+        <link id='striptoolControl' rel="import" href="templates/striptoolControl/striptoolControl.html">
+        <link id='footer' rel="import" href="templates/footer/footer.html">
+    </head>
+
+    <body>
+        <div id='head'></div>
+
+        <div class='sectionWrapper'>
+            <div class='col-md-9' id='striptool-wrap'></div>
+            <div class='col-md-3' id='striptool-ctrl'></div>
+        </div>
+
+        <div id='foot'></div>
+
+        <script>
+            window.addEventListener('HTMLImportsLoaded', function(e) {
+
+                dataStore._striptoolControl = new striptoolControl('striptool-ctrl');
+
+                dataStore.templates = prepareTemplates(['header', 'striptoolControl', 'footer']);
+
+                setupHeader('head', 'Striptool');
+                dataStore._striptoolControl.setup();
+                setupFooter('foot');
+
+            });
+        </script>
+
+    </body>
+
+</html>
