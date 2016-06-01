@@ -76,6 +76,11 @@ function plotControl(wrapperID){
         //what spectra has our attention?
         dataStore.activeSpectra = event.detail.plotName;
         this.activeSpectra = [event.detail.plotName];
+        dataStore.hm.plotTitle = event.detail.plotName;
+
+        //don't need plot help anymore; swap in roi help
+        document.getElementById('intro-plot-picker').classList.add('hidden');
+        document.getElementById('intro-shift-click').classList.remove('hidden');
 
         //demand refresh
         this.refreshData()
@@ -88,8 +93,8 @@ function plotControl(wrapperID){
         // // fakey fake for development
         // if(dataStore.activeSpectra){
         //     var  i;
-        //     dataStore.raw = [1024]
-        //     for(i=0; i<1024*1024; i++){
+        //     dataStore.raw = [512]
+        //     for(i=0; i<512*512; i++){
         //         dataStore.raw.push(Math.random())
         //     }
         //     fetchCallback();
@@ -109,25 +114,29 @@ function plotControl(wrapperID){
     }
 }
 
-function plotlyClick(data){
+function heatmapClick(evt){
     // do something when the plot is clicked
 
-    var li = document.createElement('li'),
+    var data = evt.detail,
+        li = document.createElement('li'),
         i;
 
     // abort if this point already added to list
-    // mitigates funky multiple-fires of plotly_click when updating
+    // mitigates funky multiple-fires of heatmap_click when updating
     for(i=0; i<dataStore.cutVertices.length; i++){
-        if(dataStore.cutVertices[i][0] == data.points[0].x && dataStore.cutVertices[i][1] == data.points[0].y)
+        if(dataStore.cutVertices[i][0] == data.cell.x && dataStore.cutVertices[i][1] == data.cell.y)
             return 0;
     }
+
+    // don't need plot click help anymore
+    document.getElementById('intro-shift-click').classList.add('hidden');
 
     // expand UI
     li.innerHTML = Mustache.to_html(
         dataStore.templates.cutVertex, 
         {
-            'initialX': data.points[0].x,
-            'initialY': data.points[0].y
+            'initialX': data.cell.x,
+            'initialY': data.cell.y
         }
     );
     // point the delete vertex button at the right place
@@ -142,7 +151,7 @@ function plotlyClick(data){
     extractCutVertices();
 
     //update plot overlay
-    generateOverlay();
+    dataStore.hm.render();
 }
 
 function extractCutVertices(){
@@ -162,69 +171,43 @@ function fetchCallback(){
     //runs after every time the histogram is updated
 
     // make the plot
-    document.getElementById('plotlyTarget').data[0].z = packZ(dataStore.raw);
-    document.getElementById('plotlyTarget').layout.title = dataStore.activeSpectra;
-    Plotly.redraw('plotlyTarget');
-    generateOverlay();
+    dataStore.hm.raw = packZ(dataStore.raw);
+    dataStore.hm.drawData();
+    dataStore.hm.render();
 
     // plug in the onclicks
-    document.getElementById('plotlyTarget').on('plotly_click', plotlyClick);
-}
-
-function generatePlot(){
-    // create the plot
-    var data = [
-            {
-                z: packZ(dataStore.raw),
-                type: 'heatmap',
-                name: 'Plot Name', 
-                hoverinfo:"x+y+z",
-                colorscale: 'Viridis',
-                zaxis: {
-                    autorange: true
-                }
-            }
-        ],
-        dim = Math.min(document.getElementById('plotlyTarget').offsetWidth, window.innerHeight),
-        layout = {
-            title: dataStore.activeSpectra,
-            xaxis:{
-                title: 'x axis'
-            },
-            yaxis:{
-                title: 'y axis'
-            },
-            autosize: false,
-            width: dim,
-            height: dim,
-        }
-
-    Plotly.newPlot('plotlyTarget', data, layout);
+    dataStore.hm.canvas.addEventListener('heatmap_shiftclick', heatmapClick, false);
 }
 
 function generateOverlay(){
     // generate the gate polygon overlay
 
-    var update = {};
+    var i, coords, update = {};
 
-    if(dataStore.cutVertices.length > 0){
-        update.shapes = [
-            {
-                type: 'path',
-                path: generatePlotlyPath(),
-                fillcolor: 'rgba(0,0,0,0)',
-                line: {
-                    color: 'rgb(255, 0, 0)'
-                }
-            }
-        ]
-        Plotly.relayout('plotlyTarget', update);
+    dataStore.hm.ctx[1].clearRect(0,0,dataStore.hm.width, dataStore.hm.height);
+    if(dataStore.cutVertices.length > 1){
+        // line style
+        dataStore.hm.ctx[1].strokeStyle = '#FFFFFF';
+        dataStore.hm.ctx[1].lineWidth = 2;
+        // don't draw outside of data area
+        dataStore.hm.ctx[1].clip(dataStore.hm.dataArea);
+
+        coords = dataStore.hm.cell2coords(dataStore.cutVertices[0][0], dataStore.cutVertices[0][1]);
+        dataStore.hm.ctx[1].beginPath();
+        dataStore.hm.ctx[1].moveTo(coords.x, coords.y);
+        for(i=1;i<dataStore.cutVertices.length; i++){
+            coords = dataStore.hm.cell2coords(dataStore.cutVertices[i][0], dataStore.cutVertices[i][1]);
+            dataStore.hm.ctx[1].lineTo(coords.x, coords.y);
+        }
+        dataStore.hm.ctx[1].closePath();
+        dataStore.hm.ctx[1].stroke();
+        dataStore.hm.ctx[1].restore();
     }
 }
 
 function packZ(raw){
     // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
-    // plot.ly wants it as [[x0y0, x1y0, ..., xmaxy0], [x0y1, x1y1, ..., xmaxy1], ...]
+    // heatmap wants it as [[x0y0, x1y0, ..., xmaxy0], [x0y1, x1y1, ..., xmaxy1], ...]
 
     var repack = [],
         nRows = (raw.length-1)/raw[0],
@@ -237,24 +220,6 @@ function packZ(raw){
     return repack;
 }
 
-function generatePlotlyPath(){
-    // plotly draws shapes from a string encoding:
-    // 'M x0 y0 L x1 y1 L x2 y2 .... Z'
-    // generate this from dataStore.cutVertices
-
-    var i, encoding = 'M ';
-
-    for(i=0; i<dataStore.cutVertices.length; i++){
-        if(i!==0)
-            encoding += 'L '
-
-        encoding += dataStore.cutVertices[i][0] + ' ';
-        encoding += dataStore.cutVertices[i][1] + ' ';
-    }
-
-    return encoding+'Z'
-}
-
 function removeCutVertex(){
     // onclick callback for removing a cut vertex
     // this == delete button
@@ -265,7 +230,7 @@ function removeCutVertex(){
         grandparent.removeChild(parent);
 
     extractCutVertices();
-    generateOverlay();
+    dataStore.hm.render();
 }
 
 function moveCutVertex(){
@@ -273,7 +238,7 @@ function moveCutVertex(){
     // this == input:number element
 
     extractCutVertices();
-    generateOverlay() 
+    dataStore.hm.render();
 }
 
 function saveCutToODB(){
@@ -304,6 +269,6 @@ function moveVertex(direction){
     }
 
     extractCutVertices();
-    generateOverlay()
+    dataStore.hm.render();
 }
 
