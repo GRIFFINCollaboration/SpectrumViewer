@@ -152,22 +152,6 @@ function setupDataStore(){
                     "items": descantCodes.map(function(c){return c + '_Short_Integration'})
                 }
             ]
-        },
-
-        {
-            "name": "IRIS",
-            "id": "IRIS",
-            "color": '#367FA9',
-            "subGroups": [
-                {
-                    "subname": "IC",
-                    "id": "IC",
-                    "items": [
-                       'IRIS_IC',
-                       'test'
-                   ]
-                },
-            ]
         }
     ]
 
