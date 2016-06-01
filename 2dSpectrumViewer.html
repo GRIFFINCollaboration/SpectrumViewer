@@ -62,6 +62,13 @@
                         <button class='btn btn-success' onclick='saveCutToODB()'>Save Cut Region to ODB</button>
                     </div>
 
+                
+                        <div id='info-slow-data' class="alert alert-info hidden" role="alert">
+                            <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+                            Building your histogram...
+                        </div>
+
+
                 </div>
             </div>
         </div>
@@ -91,6 +98,12 @@
                 dataStore.hm = new heatmap(dim,dim);
                 document.getElementById('heatmapTarget').appendChild(dataStore.hm.canvas);
                 dataStore.hm.preRender = generateOverlay;
+                dataStore.hm.slowDataWarning = function(state){
+                    if(state === 'on')
+                        document.getElementById('info-slow-data').classList.remove('hidden');
+                    else
+                        document.getElementById('info-slow-data').classList.add('hidden');
+                }
             });
         </script>
         

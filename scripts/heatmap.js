@@ -58,6 +58,7 @@ function heatmap(width, height){
     this.plotTitleFontSize = 24;
     //user-defined helper functions
     this.preRender = function(){return 0};      // runs first in this.render()
+    this.slowDataWarning = function(state){return 0}; //user feedback when data drawing is taking a long time; state == 'on' or 'off'
 
     // special setter behavior
     Object.defineProperty(this, 'raw', 
@@ -99,25 +100,32 @@ function heatmap(width, height){
         //this.ctx[0].clearRect(0,0,this.width,this.height);
         this.ctx[2].clearRect(0,0,this.width,this.height);
 
-        for(i=this.ymin; i<this.ymax; i++){
-            for(j=this.xmin; j<this.xmax; j++){
-                //abort if nothing has changed
-                if(this._oldraw && (this._oldraw[i][j] === this._raw[i][j]) ) continue;
+        this.slowDataWarning('on');
 
-                // what color should this cell be?
-                color = this.chooseColor(this._raw[i][j]);
+        setTimeout(function(){
+            for(i=this.ymin; i<this.ymax; i++){
+                for(j=this.xmin; j<this.xmax; j++){
+                    //abort if nothing has changed
+                    if(this._oldraw && (this._oldraw[i][j] === this._raw[i][j]) ) continue;
 
-                // make and add the cell
-                this.ctx[0].fillStyle = color;
-                this.ctx[0].strokeStyle = color;
-                x0 = this.leftGutter + (j-this.xmin)*this.cellWidth;
-                y0 = this.height-this.bottomGutter - (i-this.ymin + 1)*this.cellHeight;
-                this.ctx[0].fillRect(x0,y0,this.cellWidth,this.cellHeight);
-                this.ctx[0].strokeRect(x0,y0,this.cellWidth,this.cellHeight);
-            }   
-        }
+                    // what color should this cell be?
+                    color = this.chooseColor(this._raw[i][j]);
 
-        this.render();
+                    // make and add the cell
+                    this.ctx[0].fillStyle = color;
+                    this.ctx[0].strokeStyle = color;
+                    x0 = this.leftGutter + (j-this.xmin)*this.cellWidth;
+                    y0 = this.height-this.bottomGutter - (i-this.ymin + 1)*this.cellHeight;
+                    this.ctx[0].fillRect(x0,y0,this.cellWidth,this.cellHeight);
+                    this.ctx[0].strokeRect(x0,y0,this.cellWidth,this.cellHeight);
+                }   
+            }
+            this.render();
+            this.slowDataWarning('off');
+
+        }.bind(this), 1)
+
+        
     }
 
     this.render = function(){
