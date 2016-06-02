@@ -23,7 +23,8 @@ function setupDataStore(){
         "cutVertices": [],                                          //[x,y] vertices of cut region polygon
         "ODBhost": 'http://annikal.triumf.ca:8081',                 //host:port of ODB to write cut region vertices to
         "spectrumServer": 'http://annikal.triumf.ca:9093',          //host:port to pull raw spectra from
-        "raw": [0]
+        "raw": [0],
+        "closeMenuOnclick": true                                    //don't keep the plot menu open onclick (can only plot one at a time anyway)
     }
 }
 setupDataStore();
@@ -90,27 +91,27 @@ function plotControl(wrapperID){
         //refresh the current histogram data, then call fetchCallback()
         //this: plotControl object
 
-        // // fakey fake for development
-        // if(dataStore.activeSpectra){
-        //     var  i;
-        //     dataStore.raw = [512]
-        //     for(i=0; i<512*512; i++){
-        //         dataStore.raw.push(Math.random())
-        //     }
-        //     fetchCallback();
-        // }
-
-        var queries = constructQueries(this.activeSpectra);
-
+        // fakey fake for development
         if(dataStore.activeSpectra){
-            Promise.all(queries.map(promiseJSONURL)
-                ).then(
-                    function(spectra){
-                        dataStore.raw = spectra[0][dataStore.activeSpectra];
-                        fetchCallback(); 
-                    }
-                )
+            var  i;
+            dataStore.raw = [512]
+            for(i=0; i<512*512; i++){
+                dataStore.raw.push(Math.random())
+            }
+            fetchCallback();
         }
+
+        // var queries = constructQueries(this.activeSpectra);
+
+        // if(dataStore.activeSpectra){
+        //     Promise.all(queries.map(promiseJSONURL)
+        //         ).then(
+        //             function(spectra){
+        //                 dataStore.raw = spectra[0][dataStore.activeSpectra];
+        //                 fetchCallback(); 
+        //             }
+        //         )
+        // }
     }
 }
 

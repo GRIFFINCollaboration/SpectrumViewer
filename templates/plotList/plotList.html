@@ -86,7 +86,8 @@
             //<e>: event; onclick.
 
             //don't close the dd onclick:
-            e.stopPropagation();
+            if(!dataStore.closeMenuOnclick)
+                e.stopPropagation();
 
             dispatcher({ 'plotName': plotName }, dataStore.plotNameListeners, 'requestPlot');
 
