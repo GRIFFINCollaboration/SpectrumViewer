@@ -14,6 +14,13 @@ In order to point your Spectrum Viewer at the appropriate spectra, a couple of p
  - `dataStore.ODBrequests` should be an array of ODB requests to perform on refresh; see [specifications here](https://midas.triumf.ca/MidasWiki/index.php/AJAX).
  - The `topGroups` object describes the plot selection and navigation; set names and ids of groups of plots as desired, and make sure the `items` key contains an array listing the exact names of plots to include in the corresponding subgroup.
 
+### 2D Spectrum Viewer
+In order to point your 2D Spectrum Viewer at the appropriate spectra, a couple of parameters need to be set in `scripts/2dSpectrumViewer.js`:
+
+- `dataStore.spectrumServer` should be the url with port where raw spectra are served according to the API described below in 'Data Feeds'.
+- `dataStore.ODBhost` should be the URL and host of the MIDAS experiment to write region of interest parameterizations to.
+- The `topGroups` object describes the plot selection and navigation; set names and ids of groups of plots as desired, and make sure the `items` key contains an array listing the exact names of plots to include in the corresponding subgroup.
+
 ### Rate Monitor
 In order to point your Rate Monitor at the appropriate spectra, a couple of parameters need to be set in `scripts/rateMonitor.js`:
 
@@ -47,11 +54,19 @@ getSpectrumList({'spectrumlist':['firstSpectrum', 'nextSpectrum', ..., 'lastSpec
 
 `?cmd=callspechandler&spectrum0=firstSpecName&spectrum1=nextSpecName&...`
 
-where the nth SpecName matches a string in the array returned by `getSpectrumList`, returns a JSON object that contains an element of the form `name : array of bin contents` for each spectrum requested:
+where the nth SpecName matches a string in the array returned by `getSpectrumList`, returns a JSON object that contains an element of the form `name : array of bin contents` for each 1D spectrum requested:
 
 ```
 {'firstSpecName' : [0, 3, 2, 7, ...], 'nextSpecName' : [1,5,2,9, ...], ....}
 ```
+
+or, for 2D spectra:
+
+```
+{'2dSpectrumName': [rowLength, z00, z10, ..., z01, z11,.... ]}
+```
+
+where `rowLength` is the number of bins in x in one row, and the z values of all bins are packed counting first along x bins, then along y bins.
 
 If the named spectrum is not a valid spectrum, the return object above should contain an entry `'specName':null`.
 
@@ -88,7 +103,18 @@ The Spectrum Viewer elements communicate amongst themselves as above; nodes repr
  - `plotGrid` fires `newCell` and `deleteCell` events at the control elements when a new plot is created or destroyed, to keep controls up to date; also, `attachCell` events are sent to `plotControl` to attach or unnattach the UI to each individual cell.
  - `fetchCallback()` refreshes all plots once data has arrived.
 
-### 2. Rate Monitor
+### 2. 2D Spectrum Viewer
+
+![Spectrum viewer flow](img/2dSpectrumViewer.png)
+
+The 2D Spectrum Viewer elements communicate amongst themselves as above; nodes represent objects, and edges represent custom events. Basic behavior:
+
+- clicking on a spectrum name in `plotList` fires a `requestPlot` event, which tells `plotControl` to plot the selected histogram in the `heatmap` element.
+- `fetchCallback()` refreshes all plots once data has arrived.
+
+Note that this viewer relies on the [heatmap package](https://github.com/BillMills/heatmap), a high-performance library for quickly drawing histograms with large numbers of bins.
+
+### 3. Rate Monitor
 
 ![Rate monitor flow](img/rateMonitor-flow.png)
 
@@ -102,7 +128,7 @@ The Rate Monitor elements communicate amongst themselves as above; nodes represe
  - `rateControl` can send events to the dygraph to toggle series visibility (`setDyVisible`) and update its data (`updateDyData`).
  - `plotGrid` sends its `newCell` and `attachCell` events to `plotControl` exactly once in this case, to set up on page load.
 
-### 3. Gain Matcher
+### 4. Gain Matcher
 
 ![Gain Matcher flow](img/gainMatcher-flow.png)
 
