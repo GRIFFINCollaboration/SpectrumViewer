@@ -231,7 +231,6 @@ function heatmap(width, height){
         // plot title
         this.ctx[3].font = `${this.plotTitleFontSize}px sans-serif`;
         this.ctx[3].fillText(this.plotTitle, this.leftGutter + (this.width-this.leftGutter-this.rightGutter)/2 - this.ctx[3].measureText(this.plotTitle).width/2, this.topGutter/2);
-
     }
 
     this.chooseTicks = function(min, max){

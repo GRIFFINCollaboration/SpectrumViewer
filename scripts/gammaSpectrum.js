@@ -60,6 +60,8 @@ function spectrumViewer(canvasID){
 	this.chooseLimitsCallback = function(){};
 	this.unitsPerTick = 1; //numerical scaling from bins to whatever units
 	this.unitName = ''; //name of unit corresponding to unitsPerTick; ie unitsPerTick = 100 and unitName = 'keV' means 1 bin == 100 keV.
+	this.onshiftclick = function(){};
+	this.onmetaclick = function(){};
 
 	//data
 	this.plotBuffer = {}; //buffer holding all the spectra we have on hand, packed as 'name':data[], where data[i] = counts in channel i
@@ -1140,28 +1142,36 @@ function spectrumViewer(canvasID){
 	}.bind(this);
 
 	this.canvas.onmousedown = function(event){
-		var x, y
-		if(event.shiftKey){
-			x = this.xpix2bin(this.canvas.relMouseCoords(event).x)
-			y = this.ypix2bin(this.canvas.relMouseCoords(event).y)
-			this.shiftclickCallback.bind(this)({x:x,y:y});
-		}
-		else if(event.button == 0){
+		if(event.shiftKey || event.metaKey) return
+
+		if(event.button == 0){
 			this.highlightStart = this.canvas.relMouseCoords(event).x;
 			this.XMouseLimitxMin = this.xpix2bin(this.canvas.relMouseCoords(event).x);
 		}
 	}.bind(this);
 
 	this.canvas.onmouseup = function(event){
-			if(event.button == 0 && !event.shiftKey){
-				this.highlightStart = -1;
-				this.XMouseLimitxMax = this.xpix2bin(this.canvas.relMouseCoords(event).x); 
-				this.DragWindow();
-			}
+		if(event.shiftKey || event.metaKey) return
+
+		if(event.button == 0){
+			this.highlightStart = -1;
+			this.XMouseLimitxMax = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin); 
+			this.DragWindow();
+		}
+
 	}.bind(this);
 
 	this.canvas.ondblclick = function(event){
 		this.unzoom();
+	}.bind(this);
+
+	this.canvas.onclick = function(event){
+		//shift and ctrl-click are optionally user defined
+		if(event.shiftKey){
+			this.onshiftclick(event);
+		} else if(event.metaKey){
+			this.onmetaclick(event);
+		}
 	}.bind(this);
 
 	//right clicking does obnoxious focus things, messes with canvas onclicks.
