@@ -8,7 +8,9 @@ function setupDataStore(){
     dataStore.attachCellListeners = ['plotControl'];                    //ids to dispatch attachCell events to
     dataStore.ODBrequests = [];
     dataStore.doUpdates = true;                                         //include update loop
-    dataStore.plotHelpText = "Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. <br><br> Set the fit region for the current fit: shift-click either side of the fit region. <br><br> Add a background region for the current fit: ctrl-click either side of the background region."
+    dataStore.plotHelpText = "Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. <br><br> Set the fit region for the current fit: shift-click either side of the fit region."
+    dataStore.tableIndex = 0;                                           //serial number for fitting table row elements
+    dataStore.newFitRegion = [];
 }
 setupDataStore();
 
@@ -18,9 +20,71 @@ function fetchCallback(){
 }
 
 function shiftClick(event){
-    console.log('xx');
+    // define a new fit region.
+    var viewer = dataStore.viewers[dataStore.plots[0]],
+        x = viewer.canvas.relMouseCoords(event).x,
+        y = viewer.canvas.relMouseCoords(event).y,
+        bins = viewer.coord2bin(x,y),
+        targetRow, buffer;
+
+    dataStore.newFitRegion.push(bins.x);
+
+    if(dataStore.newFitRegion.length == 2){
+        // finished defining a new fit region; add new row to table and populate
+
+        //no backwards regions
+        if(dataStore.newFitRegion[0] > dataStore.newFitRegion[1]){
+            buffer = dataStore.newFitRegion[0];
+            dataStore.newFitRegion[0] = dataStore.newFitRegion[1];
+            dataStore.newFitRegion[1] = buffer;
+        }
+
+        createNewFitRow();
+        targetRow = dataStore.tableIndex-1;
+        document.getElementById(`fitLo${targetRow}`).value = dataStore.newFitRegion[0];
+        document.getElementById(`fitHi${targetRow}`).value = dataStore.newFitRegion[1];
+        dataStore.newFitRegion = [];
+        reassess(targetRow);
+    }
 }
 
-function metaClick(event){
-    console.log(event)
+function createNewFitRow(){
+    // add a row for a new gamma ray to the fitting table
+
+    var row = document.createElement('tr');
+
+    row.innerHTML = Mustache.to_html(
+        dataStore.templates.yieldFitRow, 
+        {
+            'index': dataStore.tableIndex
+        }
+    );
+    dataStore.tableIndex++;
+
+    document.getElementById('fitTable').appendChild(row);
 }
+
+function reassess(rowIndex){
+    //recalculate everything in the indicated row
+
+    var viewer = dataStore.viewers[dataStore.plots[0]],
+        result;
+
+    viewer.FitLimitLower = parseInt(document.getElementById(`fitLo${rowIndex}`).value, 10);
+    viewer.FitLimitUpper = parseInt(document.getElementById(`fitHi${rowIndex}`).value, 10);
+
+    viewer.fitLineColor = viewer.dataColor[rowIndex%viewer.dataColor.length];
+    result = viewer.fitData(dataStore.plots[0], 0);
+    
+    document.getElementById(`swatch${rowIndex}`).style = `background-color:${result.color}`
+    document.getElementById(`center${rowIndex}`).innerHTML = result.center.toFixed(2);
+    document.getElementById(`width${rowIndex}`).innerHTML = result.width.toFixed(2);
+    document.getElementById(`amplitude${rowIndex}`).innerHTML = result.amplitude.toFixed(2);
+    document.getElementById(`slope${rowIndex}`).innerHTML = result.slope.toFixed(2);
+    document.getElementById(`intercept${rowIndex}`).innerHTML = result.intercept.toFixed(2);
+
+    console.log(result)
+}
+
+
+

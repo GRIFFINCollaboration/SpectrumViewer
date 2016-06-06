@@ -86,6 +86,7 @@ function spectrumViewer(canvasID){
 	this.fitMask.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin).lt(this.leftMargin, this.topMargin).lt(this.canvas.width - this.rightMargin, this.topMargin).lt(this.canvas.width-this.rightMargin, this.canvas.height - this.bottomMargin).closePath();
 	this.containerFit.mask = this.fitMask;
 	this.activeFitLines = {} //object containing fit lines to repaint
+	this.fitLineColor = '#FF0000'; //color to make the next fit line
 
     //cursors
     this.cursorX = 0; //x-bin of cursor
@@ -607,8 +608,8 @@ function spectrumViewer(canvasID){
 
 	//stick a gaussian on top of the spectrum fitKey between the fit limits
 	this.fitData = function(fitKey, retries){
-		var cent, fitdata, i, max, width, x, y, height, bkg, bins, estimate;
-		var fitLine, fitter;
+		var cent, fitdata, i, max, width, x, y, height, bkg, bins, estimate, result,
+			fitLine, fitter;
 
 		if(!retries)
 			retries = 0;
@@ -671,20 +672,23 @@ function spectrumViewer(canvasID){
 		if( (!max || !cent || !width) && retries<10){
 			this.FitLimitLower--;
 			this.FitLimitUpper++;
-			this.fitData(fitKey, retries+1);
-			return
+			return this.fitData(fitKey, retries+1);
 		}
 
-		this.activeFitLines[fitKey + Math.round(cent)] = {
+		result = {
 			'min': this.FitLimitLower,
 			'nBins': fitdata.length,
 			'amplitude': max,
 			'center': cent,
 			'width': width,
 			'intercept': estimate[0],
-			'slope': estimate[1]
+			'slope': estimate[1],
+			'color': this.fitLineColor
 		}
-		fitLine = this.addFitLine(this.FitLimitLower, fitdata.length, max, cent, width, estimate[0], estimate[1])
+
+		//keep track of results for plotting etc
+		this.activeFitLines[fitKey + Math.round(cent)] = result;
+		fitLine = this.addFitLine(this.FitLimitLower, fitdata.length, max, cent, width, estimate[0], estimate[1], this.fitLineColor)
 
 		this.containerPersistentOverlay.removeAllChildren();
 		this.containerFit.addChild(fitLine);
@@ -694,13 +698,15 @@ function spectrumViewer(canvasID){
 		this.fitModeEngage = 0;
 
 		this.fitCallback(cent, width, max, estimate[0], estimate[1]);
+
+		return result;
 	};
 
-	this.addFitLine = function(lowerLimit, nPoints, amplitude, center, width, intercept, slope){
+	this.addFitLine = function(lowerLimit, nPoints, amplitude, center, width, intercept, slope, color){
 		//returns a createjs.Shape representing a background fit with the given parameters
 
 		var i, x, y, height, fitLine = new createjs.Shape();
-		fitLine.graphics.ss(3).s('#FF0000');
+		fitLine.graphics.ss(3).s(color || '#FF0000');
 		fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - this.bkgShape(lowerLimit, amplitude, center, width, intercept, slope)*this.countHeight);
 		
 		for(i=0;i<nPoints;i+=0.2){
@@ -739,7 +745,7 @@ function spectrumViewer(canvasID){
 		this.containerFit.removeAllChildren();
 
 		for(key in this.activeFitLines){
-			fitLine = this.addFitLine(this.activeFitLines[key].min, this.activeFitLines[key].nBins, this.activeFitLines[key].amplitude, this.activeFitLines[key].center, this.activeFitLines[key].width, this.activeFitLines[key].intercept, this.activeFitLines[key].slope );
+			fitLine = this.addFitLine(this.activeFitLines[key].min, this.activeFitLines[key].nBins, this.activeFitLines[key].amplitude, this.activeFitLines[key].center, this.activeFitLines[key].width, this.activeFitLines[key].intercept, this.activeFitLines[key].slope, this.activeFitLines[key].color);
 			this.containerFit.addChild(fitLine);
 		}
 	}
@@ -1067,26 +1073,15 @@ function spectrumViewer(canvasID){
 	this.drawFrame();
 	//plot mouseover behavior - report mouse coordinates in bin-space, and manage the cursor style
 	this.canvas.addEventListener('mousemove', function(event){
-		var coords, x, y, xBin, yBin;
+		var coords, bins, x, y, xBin, yBin;
 		var crosshairs, highlight;
 
 		coords = this.canvas.relMouseCoords(event);
 		x = coords.x;
 		y = coords.y;
+		bins = this.coord2bin(x,y);
+		xBin = bins.x; yBin = bins.y
 
-        if(x > this.leftMargin && x < this.canvas.width - this.rightMargin && y > this.topMargin){
-	        xBin = Math.floor((x-this.leftMargin)/this.binWidth) + this.XaxisLimitMin;
-    	    
-    	    if(this.AxisType == 1){
-    	    	yBin = (this.canvas.height-this.bottomMargin - y) / this.countHeight;
-    	    	yBin = Math.floor(Math.pow(10,yBin)/10);
-    	    } else {
-    	    	yBin = Math.floor((this.canvas.height-this.bottomMargin - y) / this.countHeight);
-    	    }
-
-    	    this.cursorX = xBin.toFixed(0);
-    	    this.cursorY = yBin.toFixed(0);
-        }
         this.mouseMoveCallback(xBin, Math.max(yBin,0) );
 
         //change cursor to indicate draggable region:
@@ -1188,6 +1183,28 @@ function spectrumViewer(canvasID){
 		// convert the y pixel position returned by relMouseCoords into a bin number
 		return Math.floor((this.canvas.height - this.bottomMargin - y)/this.yAxisPixLength * this.YaxisLength + this.YaxisLimitMin);
 	};
+
+	this.coord2bin = function(x,y){
+		//translate a canvas coordinate into a histogram bin
+
+		var xBin, yBin
+
+        if(x > this.leftMargin && x < this.canvas.width - this.rightMargin && y > this.topMargin){
+	        xBin = Math.floor((x-this.leftMargin)/this.binWidth) + this.XaxisLimitMin;
+    	    
+    	    if(this.AxisType == 1){
+    	    	yBin = (this.canvas.height-this.bottomMargin - y) / this.countHeight;
+    	    	yBin = Math.floor(Math.pow(10,yBin)/10);
+    	    } else {
+    	    	yBin = Math.floor((this.canvas.height-this.bottomMargin - y) / this.countHeight);
+    	    }
+    	    this.cursorX = xBin.toFixed(0);
+    	    this.cursorY = yBin.toFixed(0);
+        }
+
+        return {x:xBin, y:yBin};
+	}
+
 }
 
 //stick a coordinate tracker on the canvas prototype:
