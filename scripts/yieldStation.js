@@ -11,6 +11,7 @@ function setupDataStore(){
     dataStore.plotHelpText = "Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. <br><br> Set the fit region for the current fit: shift-click either side of the fit region."
     dataStore.tableIndex = 0;                                           //serial number for fitting table row elements
     dataStore.newFitRegion = [];
+    dataStore.fitLines = [];
 }
 setupDataStore();
 
@@ -59,9 +60,13 @@ function createNewFitRow(){
             'index': dataStore.tableIndex
         }
     );
-    dataStore.tableIndex++;
-
+    row.setAttribute('id', `row${dataStore.tableIndex}`)
     document.getElementById('fitTable').appendChild(row);
+
+    //plug in the delete button
+    document.getElementById(`delete${dataStore.tableIndex}`).onclick = deleteFit.bind(this, dataStore.tableIndex);
+
+    dataStore.tableIndex++;
 }
 
 function reassess(rowIndex){
@@ -70,12 +75,16 @@ function reassess(rowIndex){
     var viewer = dataStore.viewers[dataStore.plots[0]],
         result;
 
+    // new fit
     viewer.FitLimitLower = parseInt(document.getElementById(`fitLo${rowIndex}`).value, 10);
     viewer.FitLimitUpper = parseInt(document.getElementById(`fitHi${rowIndex}`).value, 10);
-
     viewer.fitLineColor = viewer.dataColor[rowIndex%viewer.dataColor.length];
     result = viewer.fitData(dataStore.plots[0], 0);
-    
+
+    // store the fit line object for later
+    dataStore.fitLines[rowIndex] = result.fitLine;
+
+    // update some table values
     document.getElementById(`swatch${rowIndex}`).style = `background-color:${result.color}`
     document.getElementById(`center${rowIndex}`).innerHTML = result.center.toFixed(2);
     document.getElementById(`width${rowIndex}`).innerHTML = result.width.toFixed(2);
@@ -86,5 +95,11 @@ function reassess(rowIndex){
     console.log(result)
 }
 
+function deleteFit(rowIndex){
+    // delete the indicated table row and corresponding fit line
 
+    dataStore.viewers[dataStore.plots[0]].containerFit.removeChild(dataStore.fitLines[rowIndex]);
+    dataStore.viewers[dataStore.plots[0]].stage.update();
+    deleteNode(`row${rowIndex}`);
+}
 

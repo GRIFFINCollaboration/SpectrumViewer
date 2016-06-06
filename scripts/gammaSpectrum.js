@@ -689,6 +689,7 @@ function spectrumViewer(canvasID){
 		//keep track of results for plotting etc
 		this.activeFitLines[fitKey + Math.round(cent)] = result;
 		fitLine = this.addFitLine(this.FitLimitLower, fitdata.length, max, cent, width, estimate[0], estimate[1], this.fitLineColor)
+		result.fitLine = fitLine;
 
 		this.containerPersistentOverlay.removeAllChildren();
 		this.containerFit.addChild(fitLine);
