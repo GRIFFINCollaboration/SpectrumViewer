@@ -237,7 +237,7 @@
                 integral = functionVals.integrate()
             }
 
-            reportDiv.innerHTML += 'Center: ' + center.toFixed(2) + ', SD: ' + width.toFixed(2) + ', Area: ' + integral.toFixed(2) + '<br>';
+            reportDiv.innerHTML += 'Center: ' + center.toFixed(2) + ', FWHM: ' + (2.35482*width).toFixed(2) + ', Area: ' + integral.toFixed(2) + '<br>';
 
             this.toggleFitMode()
             dataStore.viewers[target].leaveFitMode();
