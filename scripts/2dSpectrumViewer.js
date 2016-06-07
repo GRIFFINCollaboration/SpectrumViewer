@@ -91,27 +91,27 @@ function plotControl(wrapperID){
         //refresh the current histogram data, then call fetchCallback()
         //this: plotControl object
 
-        // fakey fake for development
-        if(dataStore.activeSpectra){
-            var  i;
-            dataStore.raw = [512]
-            for(i=0; i<512*512; i++){
-                dataStore.raw.push(Math.random())
-            }
-            fetchCallback();
-        }
-
-        // var queries = constructQueries(this.activeSpectra);
-
+        // // fakey fake for development
         // if(dataStore.activeSpectra){
-        //     Promise.all(queries.map(promiseJSONURL)
-        //         ).then(
-        //             function(spectra){
-        //                 dataStore.raw = spectra[0][dataStore.activeSpectra];
-        //                 fetchCallback(); 
-        //             }
-        //         )
+        //     var  i;
+        //     dataStore.raw = [512]
+        //     for(i=0; i<512*512; i++){
+        //         dataStore.raw.push(Math.random())
+        //     }
+        //     fetchCallback();
         // }
+
+        var queries = constructQueries(this.activeSpectra);
+
+        if(dataStore.activeSpectra){
+            Promise.all(queries.map(promiseJSONURL)
+                ).then(
+                    function(spectra){
+                        dataStore.raw = spectra[0][dataStore.activeSpectra];
+                        fetchCallback(); 
+                    }
+                )
+        }
     }
 }
 
