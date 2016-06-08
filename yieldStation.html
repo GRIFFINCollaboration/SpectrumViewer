@@ -15,15 +15,17 @@
         <link rel="stylesheet" type="text/css" href="css/custom.css"/>
 
         <!--HTML imports-->
-        <link id='header' rel="import" href="templates/header/header.html">
+        <link id='plotList' rel="import" href="templates/plotList/plotList.html">
         <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
         <link id='plotControlVertical' rel="import" href="templates/plotControl/plotControlVertical.html">
-        <link id='yieldFitRow' rel="import" href="templates/yieldFitRow/yieldFitRow.html">
+        <link id='auxYieldControl' rel="import" href="templates/auxYieldControl/auxYieldControl.html">
+        <link id='auxYieldControlTable' rel="import" href="templates/auxYieldControl/auxYieldControlTable.html">
+        <link id='fitRow' rel="import" href="templates/auxYieldControl/fitRow.html">
         <link id='footer' rel="import" href="templates/footer/footer.html">
     </head>
 
     <body>
-        <div id='head'></div>
+        <div id='analyzerPlots'></div>
 
         <div id='plotRegion' class='sectionWrapper item'>
             <div id='plotWrap' class='col-md-10 plotRegion'>
@@ -34,21 +36,12 @@
             </div>
         </div>
 
-        <div class='sectionWrapper item'>
-            <h2>Fit Results</h2>
-            <table id='fitTable'>
-                <tr>
-                    <td></td>
-                    <td>Fit Min</td>
-                    <td>Fit Max</td>
-                    <td>Center</td>
-                    <td>Width</td>
-                    <td>Amplitude</td>
-                    <td>Slope</td>
-                    <td>Intercept</td>
-                    <td>Efficiency</td>
-                </tr>
-            </table>
+        <!-- Extra control features -->
+        <hr style='width:60%; border-top: 1px solid #999'></hr>
+        <div class='sectionWrapper'>
+            <div class='col-md-12'>
+                <div id='auxCtrl'></div>
+            </div>
         </div>
 
         <div id='foot'></div>
@@ -56,26 +49,24 @@
         <script>
             window.addEventListener('HTMLImportsLoaded', function(e) {
 
+                dataStore._plotList = new plotList('analyzerPlots');
                 dataStore._plotGrid = new plotGrid('plottingGrid');
                 dataStore._plotControl = new plotControl('plotControl', 'vertical');
+                dataStore._auxCtrl = new auxYieldControl('auxCtrl')
 
-                dataStore.templates = prepareTemplates(['header', 'plotGrid', 'plotControlVertical', 'yieldFitRow', 'footer']);
+                dataStore.templates = prepareTemplates(['plotList', 'plotGrid', 'plotControlVertical', 'auxYieldControl', 'auxYieldControlTable', 'fitRow', 'footer']);
 
-                setupHeader('head', 'Yield Station');
+                dataStore._plotList.setup();
                 dataStore._plotGrid.setup();
                 dataStore._plotControl.setup();
-                setupFooter('foot');
-
+                dataStore._auxCtrl.setup();
+                setupFooter('foot');                
+            
                 //declare our one and only plot
                 dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]);
 
                 //don't want additional plots in this app
                 deleteNode('plottingGridnewPlotButton');
-
-                //plot the spectrum of interest
-                dataStore.viewers[dataStore.plots[0]].addData(dataStore.targetSpectrum, []);
-                dataStore._plotControl.activeSpectra = [dataStore.targetSpectrum];
-                dataStore._plotControl.refreshAll();
 
                 //don't allow refresh period to change
                 deleteNode('plotControlupdateWrap');

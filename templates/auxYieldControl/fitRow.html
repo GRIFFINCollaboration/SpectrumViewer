@@ -1,0 +1,29 @@
+<template id='fitRow'>
+    
+    <td>
+        <input id='label{{index}}' type='text'></input>
+    </td>
+    <td>
+        <input id='lifetime{{index}}' type='number'></input>
+        <select id='lifetimeUnit{{index}}'>
+            <option value=1>ns</option>
+            <option value=1000>us</option>
+            <option value=1000000>ms</option>
+            <option value=1000000000>s</option>
+        </select>
+    </td>
+
+    <td>
+        <div id='amplitude{{index}}'></div>
+    </td>
+
+    <td>
+        <input id='efficiency{{index}}' type='number'></input>
+    </td>
+    <td>
+        <button type="button" class="btn btn-default deleteRow" id='delete{{index}}' spectrum='{{index}}'>
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+        </button>
+    </td>
+    
+</template>

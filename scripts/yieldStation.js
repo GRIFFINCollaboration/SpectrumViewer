@@ -1,11 +1,30 @@
 function setupDataStore(){
 
+    var topGroups = [
+        {
+            "name": "Demo",
+            "id": "demo",
+            "subGroups": [
+                {
+                    "subname": "Example",
+                    "id": "example",
+                    "items": ['dummy_plot']
+                }
+            ]
+        }
+    ]
+
     dataStore = {}
-    dataStore.targetSpectrum = 'SUM_Singles_Energy';                    //analyzer key for spectrum to examine
+
+    dataStore.rawData = [];
+    dataStore.topGroups = topGroups;
+
     dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';       //host and port of analyzer
-    dataStore.plots = [dataStore.targetSpectrum];                       //necessary?
+    dataStore.plots = ['yield-station'];                                //names of viewer objects (only one in this case)
     dataStore.newCellListeners = ['plotControl'];
     dataStore.attachCellListeners = ['plotControl'];                    //ids to dispatch attachCell events to
+    dataStore.plotNameListeners = ['plotControl'];
+    dataStore.addPlotRowListeners = ['auxCtrl'];                        //ids to dispatch addPlotRow events to
     dataStore.ODBrequests = [];
     dataStore.doUpdates = true;                                         //include update loop
     dataStore.plotHelpText = "Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. <br><br> Set the fit region for the current fit: shift-click either side of the fit region."
