@@ -173,7 +173,7 @@ function loadData(DAQ){
 
     for(i=0; i<channels.length; i++){
         if(channels[i].slice(0,3) == 'GRG')
-            dataStore._plotControl.activeSpectra.push(channels[i] + '_Energy');
+            dataStore._plotControl.activeSpectra.push(channels[i] + '_Pulse_Height');
     }
 
     dataStore._plotControl.refreshAll();
@@ -194,8 +194,8 @@ function updateODB(obj){
     for(i=0; i<channel.length; i++){
         position = dataStore.GRIFFINdetectors.indexOf(channel[i]);
         if(position != -1){
-            gain[i] = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Energy'][2][1];
-            offset[i] = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Energy'][2][0];
+            gain[i] = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Pulse_Height'][2][1];
+            offset[i] = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Pulse_Height'][2][0];
         }
     }
 

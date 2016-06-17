@@ -374,12 +374,12 @@ function dispatcher(payload, listeners, eventName){
 
 function constructQueries(keys){
     //takes a list of plot names and produces the query string needed to fetch them, in an array
-    //more than 32 requests will be split into separate queries.
+    //more than 16 requests will be split into separate queries.
 
     var i, j, queryString, queries = [];
-    for(i=0; i<Math.ceil(keys.length/32); i++){
+    for(i=0; i<Math.ceil(keys.length/16); i++){
         queryString = dataStore.spectrumServer + '?cmd=callspechandler';
-        for(j=i*32; j<Math.min( (i+1)*32, keys.length ); j++){
+        for(j=i*16; j<Math.min( (i+1)*16, keys.length ); j++){
             queryString += '&spectrum' + j + '=' + keys[j];
         }
         queries.push(queryString);

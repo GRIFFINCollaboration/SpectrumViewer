@@ -40,7 +40,7 @@
                 document.getElementById(this.wrapID + dataStore.plotGroups[i].groupID).onclick = this.toggleSection.bind(this, dataStore.plotGroups[i].groupID, false);
                 //plug in plot requests
                 for(j=0; j<dataStore.plotGroups[i].plots.length; j++){
-                    document.getElementById(this.wrapID + dataStore.plotGroups[i].plots[j].plotID).onclick = this.exclusivePlot.bind(this, dataStore.plotGroups[i].plots[j].plotID+'_Energy', dataStore.viewers[dataStore.plots[0]]);
+                    document.getElementById(this.wrapID + dataStore.plotGroups[i].plots[j].plotID).onclick = this.exclusivePlot.bind(this, dataStore.plotGroups[i].plots[j].plotID+'_Pulse_Height', dataStore.viewers[dataStore.plots[0]]);
                 }    
             }
         },

@@ -3,16 +3,16 @@
         <td>Detector</td>
         <td>Peak 1 Channel</td>
         <td>Peak 2 Channel</td>
-        <td>Intercept</td>
         <td>Slope</td>
+        <td>Intercept</td>
     </tr>
     {{# detectors}}
         <tr id='{{id}}{{.}}row'>
             <td>{{.}}</td>
             <td id='{{id}}{{.}}chan1'>-</td>
             <td id='{{id}}{{.}}chan2'>-</td>
-            <td id='{{id}}{{.}}intercept'>-</td>
             <td id='{{id}}{{.}}slope'>-</td>
+            <td id='{{id}}{{.}}intercept'>-</td>
         </tr>
     {{/ detectors}}
 </template>
