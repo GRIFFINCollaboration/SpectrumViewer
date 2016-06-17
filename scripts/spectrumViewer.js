@@ -157,7 +157,6 @@ function setupDataStore(){
 
     dataStore = {
         "pageTitle": 'Spectrum Viewer',                             //header title
-        "allClear": 0,                                              //counter to track when all templates are loaded
         "topGroups": topGroups,                                     //groups in top nav row
         "waveformSnap": true,                                       //do we want the snap to waveform functionality?
         "doUpdates": true,                                          //do we want the data update button and loop?
@@ -167,8 +166,8 @@ function setupDataStore(){
         "attachCellListeners": ['plotControl'],                     //array of ids of elements listneing for attachCell events
         "deleteCellListeners": ['plotControl', 'auxCtrl'],          //array of ids of elements listneing for deleteCell events
         "newCellListeners": ['plotControl','auxCtrl'],              //array of ids of elements listneing for newCell events
-        "spectrumServer": 'http://grsmid00.triumf.ca:9093',        //analyzer url + port
-        "ODBrequests": ['http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/Runinfo/Run number&encoding=json-p-nokeys&callback=parseODB'], //array of odb requests to make on refresh
+        "spectrumServer": 'http://grsmid00.triumf.ca:9093',         //analyzer url + port
+        "ODBrequests": [],                                          //array of odb requests to make on refresh
         "zeroedPlots": {}                                           //initialize empty object for zeroed plots
     }
     dataStore.cellIndex = dataStore.plots.length;
@@ -189,21 +188,5 @@ function fetchCallback(){
 
     for(i=0; i<keys.length; i++){
         dataStore.viewers[keys[i]].plotData(null, true);
-    }
-}
-
-function parseODB(payload){
-    //keep track of the current run number after every data update
-    var i,
-        keys = Object.keys(dataStore.viewers);
-
-    dataStore.currentRun = payload[0]['Run number']
-
-    //dump all spectra zeroing on run change
-    if(dataStore.currentRun != dataStore.lastRun){
-        for(i=0; i<keys.length; i++){
-            dataStore.viewers[keys[i]].baselines = {};
-        }
-        dataStore.lastRun = dataStore.currentRun
     }
 }

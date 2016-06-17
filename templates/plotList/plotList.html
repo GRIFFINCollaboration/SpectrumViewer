@@ -9,7 +9,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#"><img style='display:inline;' src='img/GRIFFIN_Icon.png'></img> <span>Spectrum Viewer</span></a>
+                <a class="navbar-brand" href="#"><img style='display:inline;' src='img/GRIFFIN_Icon.png'></img> <span>{{title}}</span></a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -52,7 +52,7 @@
         this.setup = function(){
             var i, plotSelectorSections, plotToggles;
 
-            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.plotList, {'topGroups': dataStore.topGroups});
+            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.plotList, {'topGroups': dataStore.topGroups, 'title':dataStore.pageTitle});
 
             //set up plot selection top row
             plotSelectorSections = document.getElementsByClassName('topGroup')

@@ -128,10 +128,8 @@ function plotControl(wrapperID, config){
         //refresh all spectra & odb parameters
         //this: plotControl object
 
-        var queries = constructQueries(this.activeSpectra);
-
-        Promise.all(queries.map(promiseJSONURL)
-            ).then(
+        var queries = constructQueries(this.activeSpectra),
+            spectraFetched = Promise.all(queries.map(promiseJSONURL)).then(
                 function(spectra){
                     var i, j, key, viewerKey;
                     dataStore.rawData = {};
@@ -149,14 +147,21 @@ function plotControl(wrapperID, config){
                         }
                     }
                 }
-            ).then(
+            );
+
+        if(dataStore.ODBrequests.length>0){
+            spectraFetched = spectraFetched.then(
                 dataStore.ODBrequests.map(promiseScript)
-            ).then(
-                function(){
-                    if(typeof fetchCallback === "function"){
-                        fetchCallback();
-                    }
-            })
+            )
+        }
+
+        spectraFetched.then(
+            function(){
+                if(typeof fetchCallback === "function"){
+                    fetchCallback();
+                }
+            }
+        )
     }
 
     this.startRefreshLoop = function(controlElement){
