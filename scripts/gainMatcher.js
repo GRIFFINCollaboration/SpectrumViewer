@@ -162,7 +162,7 @@ setupDataStore();
 
 function fetchCallback(){
     deleteNode('waitMessage');
-    document.getElementById('gainMatcher').configure();
+    //document.getElementById('gainMatcher').configure();
 }
 
 function loadData(DAQ){

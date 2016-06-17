@@ -43,6 +43,18 @@
                     document.getElementById(this.wrapID + dataStore.plotGroups[i].plots[j].plotID).onclick = this.exclusivePlot.bind(this, dataStore.plotGroups[i].plots[j].plotID+'_Pulse_Height', dataStore.viewers[dataStore.plots[0]]);
                 }    
             }
+
+            //display the first spectrum when fitting is complete
+            this.wrap.addEventListener(
+                'fitAllComplete', 
+                function(event){
+                    //open the menu
+                    document.getElementById(this.wrapID + dataStore.plotGroups[0].groupID).click();
+                    //demand the plot
+                    document.getElementById(this.wrapID + dataStore.plotGroups[0].plots[0].plotID).click();
+                }.bind(this),
+                false
+            );
         },
 
         this.toggleSection = function(groupID, suppressRecursion){
