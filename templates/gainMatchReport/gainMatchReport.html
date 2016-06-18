@@ -442,21 +442,21 @@
             if(parseInt(this.getAttribute('engaged'),10) == 0){
                 dataStore.viewers[viewerName].setupFitMode();
                 this.setAttribute('engaged', 1);
-                if(this.wrapID == 'fitLow')
+                if(this.id == 'fitLow')
                     document.getElementById('refitLoBadge').classList.add('redText')
-                if(this.wrapID == 'fitHigh')
+                if(this.id == 'fitHigh')
                     document.getElementById('refitHiBadge').classList.add('redText')
             }
             else{
                 dataStore.viewers[viewerName].leaveFitMode();
                 this.setAttribute('engaged', 0);
-                if(this.wrapID == 'fitLow')
+                if(this.id == 'fitLow')
                     document.getElementById('refitLoBadge').classList.remove('redText')
-                if(this.wrapID == 'fitHigh')
+                if(this.id == 'fitHigh')
                     document.getElementById('refitHiBadge').classList.remove('redText')
             }
 
-            if(this.wrapID == 'fitLow')
+            if(this.id == 'fitLow')
                 dataStore.currentPeak = 0
             else
                 dataStore.currentPeak = 1

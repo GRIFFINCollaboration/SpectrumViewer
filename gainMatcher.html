@@ -88,8 +88,8 @@
                 deleteNode('plottingGridnewPlotButton');
 
                 //plug in special fit controls
-                document.getElementById('fitLow').onclick = document.getElementById('gainMatcher').toggleFitMode;
-                document.getElementById('fitHigh').onclick = document.getElementById('gainMatcher').toggleFitMode;
+                document.getElementById('fitLow').onclick = dataStore._gainMatchReport.toggleFitMode;
+                document.getElementById('fitHigh').onclick = dataStore._gainMatchReport.toggleFitMode;
 
                 //identify, register & fetch all spectra
                 promiseScript(dataStore.DAQquery)
