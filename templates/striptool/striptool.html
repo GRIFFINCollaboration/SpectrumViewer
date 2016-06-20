@@ -1,30 +1,30 @@
-<template id='graph'>
+<link rel="stylesheet" href="striptool.css"/>
+
+<template id='striptool'>
     <div id='{{id}}Graph'></div>
     <div id='{{id}}Legend'></div>
 </template>
 
 <script>
-    function graph(wrapperID){
+    function striptool(wrapID){
 
-        this.wrapID = wrapperID;
-        this.wrap = document.getElementById(wrapperID);
+        this.wrapID = wrapID;
+        this.wrap = document.getElementById(wrapID);
 
         this.setup = function(){
 
             //inject template
-            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.graph, {'id': this.wrapID});
+            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.striptool, {'id': this.wrapID});
 
-            //listen for data update events
-            this.wrap.addEventListener('updateDyData', this.updateData.bind(this), false);
-
-            //listen for series on/off events
-            this.wrap.addEventListener(
-                'setDyVisible', 
+            // custom event listeners
+            listener(this.wrapID, 'updateDyData', this.updateData.bind(this))
+            listener(
+                this.wrapID, 
+                'setDyVisible',                 
                 function(event){
                     this.setVisible(event.detail.index, event.detail.isVisible)
-                }.bind(this), 
-                false
-            );
+                }.bind(this)
+            )
 
             this.initializePlot(dataStore.plotInitData, dataStore.plotStyle);
         },
@@ -33,7 +33,7 @@
             //set up a new plot.
             //<data>: array; data for dygraph configured appropriately: [[x0, y00, y01, ..., y0n,], [x1, y10, y11, ..., y1n], ...]
             //<style>: object; styling object for dygraphs
-            //this: graph object
+            //this: striptool object
 
             this.dygraph = new Dygraph(
                 document.getElementById(this.wrapID + 'Graph'),
@@ -45,7 +45,7 @@
         this.updateData = function(event){
             //catch an event carrying new data, and update.
             //<event>: event; updateDyData custom event
-            //this: graph object
+            //this: striptool object
 
             var keys, i, annotations;
 
@@ -75,7 +75,7 @@
             //set visibility of series in this.dygraph
             //<index>: number; index of series to set visibility on
             //<isFisible>: bool; true -> data series at <index> is visible
-            //this: graph object
+            //this: striptool object
 
             this.dygraph.setVisibility(index, isVisible);
         }

@@ -1,0 +1,21 @@
+form.horizontal {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+div#rateMonitorControl table td {
+    padding-right: 2em;
+}
+
+div#rateMonitorControl table td input{
+    color: #000000;
+}
+
+.snapGateToWindow {
+    margin-bottom: 2px;
+}
+
+input.manualBKG {
+    margin-left: 1em;
+    width: 300px;
+}

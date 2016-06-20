@@ -179,12 +179,12 @@
             if(state == 0){
                 dataStore.viewers[target].setupFitMode();
                 fitModeSwitch.setAttribute('engaged', 1);
-                document.getElementById(this.wrapID+'fitBadge').classList.add('redText')
+                document.getElementById(this.wrapID+'fitBadge').classList.add('red-text')
             }
             else{
                 dataStore.viewers[target].leaveFitMode();
                 fitModeSwitch.setAttribute('engaged', 0);
-                document.getElementById(this.wrapID+'fitBadge').classList.remove('redText')
+                document.getElementById(this.wrapID+'fitBadge').classList.remove('red-text')
             }
 
             //toggle state indicator

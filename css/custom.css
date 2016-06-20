@@ -26,9 +26,15 @@ div.item{
     text-align: center;
 }
 
-div.ui-group{
+div.ui-group-vertical{
     border-bottom: 1px solid #999999;
     padding-bottom: 1em;
+    color: #FFFFFF;
+}
+
+div.ui-group-horizontal{
+    border-right: 1px solid #999999;
+    padding-right: 1em;
     color: #FFFFFF;
 }
 
@@ -38,12 +44,20 @@ div.ui-subgroup{
     justify-content:space-between;
 }
 
-.blackText{
+.black-text{
     color: #000000;
 }
 
-.redText{
+.red-text{
     color: #FF6666;
+}
+
+.btn-group {
+  display: flex;
+}
+
+input[type="number"] {
+    width: 6em;
 }
 
 /*
@@ -103,18 +117,7 @@ div.branding{
     clear: both;
 }
 
-div.header{
-    background-color: #4C4C4C;
-    padding: 2em;
-    border-bottom: 2px solid #000000;
-    margin-bottom: 1em;
-    padding-left: 2em;
-    overflow: auto;
-}
 
-div.header img{
-    width: 5em;
-}
 */
 /*navigation*/
 /*
@@ -152,131 +155,7 @@ div.plotCell.col-md-6:nth-child(2n+1){
 */
 /*plot selection*/
 /*
-div.plotSelector{
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
-    overflow: auto;
-}
 
-li.toggle{
-    color: #000000;
-    cursor: default; 
-}
-
-div.plotSelector li{
-    padding: 2px;
-}
-
-li.toggle:hover{
-    background-color: #EEEEEE;
-}
-
-h4.plotGroupTitle{
-    cursor: pointer;
-}
-
-span.plotPresence{
-    background-color: #87D37C;
-    opacity: 0.7;
-}
-*/
-/* fitting */
-/*
-table#fitTable{
-    width: 100%;
-    margin-top: 5em;
-}
-
-input.manualBKG{
-    margin-left: 1em;
-    width: 300px;
-}
-
-span#fitInstructions{
-    margin-left: 1em;
-}
-
-td.spectrumNames{
-    width: 20em;
-}
-
-span.spectrumName{
-    display: inline-block;
-}
-
-td.uiCol{
-    width: 7em;
-}
-
-td.zeroRow{
-    color: #000000;
-}
-
-div.refitButtons{
-    margin-top: 1em;
-    display: inline-block;
-}
-
-
-
-
-*/
-/* rate monitor */
-/*
-div#rateMonitorControl table td{
-    padding-right: 2em;
-}
-
-div#rateLegend{
-    margin-bottom: 1em;
-}
-
-input[type="range"]{
-    width: 10em;
-    display: inline;
-    height: 10px;
-    border-radius: 5px;
-}
-
-span.range-value {
-
-    display: inline-block;
-    position: relative;
-    color: #000000;
-    font-size: 16px;
-    line-height: 20px;
-    text-align: center;
-    border-radius: 3px;
-    background: #FFFFFF;
-    padding: 5px 10px;
-    margin-left: 7px;
-}
-    
-span.range-value::after {
-    position: absolute;
-    top: 8px;
-    left: -7px;
-    width: 0;
-    height: 0;
-    border-top: 7px solid transparent;
-    border-right: 7px solid #FFFFFF;
-    border-bottom: 7px solid transparent;
-    content: '';
-}
-
-.snapGateToWindow{
-    margin-bottom: 2px;
-}
-*/
-/* plot annotations */
-/*
-.annotation{
-    background-color: #FFFFFF;
-    border-radius: 10px;
-    color: #000000 !important;
-    line-height: 1em;
-}
 */
 /* gain matching table */
 /*

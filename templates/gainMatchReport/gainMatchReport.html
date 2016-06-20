@@ -443,17 +443,17 @@
                 dataStore.viewers[viewerName].setupFitMode();
                 this.setAttribute('engaged', 1);
                 if(this.id == 'fitLow')
-                    document.getElementById('refitLoBadge').classList.add('redText')
+                    document.getElementById('refitLoBadge').classList.add('red-text')
                 if(this.id == 'fitHigh')
-                    document.getElementById('refitHiBadge').classList.add('redText')
+                    document.getElementById('refitHiBadge').classList.add('red-text')
             }
             else{
                 dataStore.viewers[viewerName].leaveFitMode();
                 this.setAttribute('engaged', 0);
                 if(this.id == 'fitLow')
-                    document.getElementById('refitLoBadge').classList.remove('redText')
+                    document.getElementById('refitLoBadge').classList.remove('red-text')
                 if(this.id == 'fitHigh')
-                    document.getElementById('refitHiBadge').classList.remove('redText')
+                    document.getElementById('refitHiBadge').classList.remove('red-text')
             }
 
             if(this.id == 'fitLow')
