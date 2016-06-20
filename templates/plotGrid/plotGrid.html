@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="plotGrid.css"/>
+
 <template id='plotGrid'>
     <div id='{{id}}{{label}}Control' class='cellControl'>
         <span id='{{id}}{{label}}Delete' class="glyphicon glyphicon-remove-sign redText deleteCell" aria-hidden="true"></span>
@@ -6,15 +8,15 @@
             <label for='{{id}}{{label}}attachAxis'>Active Window</label>
             <input type='checkbox' id='{{id}}{{label}}attachAxis' class='activeWindowFlag' checked value='{{label}}'></input>
         </div>
-        <canvas id='{{label}}' class='plotCanvas'></canvas>
+        <canvas id='{{label}}'></canvas>
     </div>
 </template>
 
 <script>
-    function plotGrid(wrapperID){
+    function plotGrid(wrapID){
 
-        this.wrapID = wrapperID;
-        this.wrap = document.getElementById(wrapperID);
+        this.wrapID = wrapID;
+        this.wrap = document.getElementById(wrapID);
 
         this.setup = function(){
 
@@ -102,7 +104,6 @@
                     'cellName': label,
                     'state': true //attached / active by default
                 }, 
-                dataStore.newCellListeners, 
                 'newCell'
             )
         }
@@ -148,7 +149,7 @@
             delete dataStore.viewers[cell];
             dataStore.plots.splice(dataStore.plots.indexOf(cell), 1);
 
-            dispatcher({ 'cellName': cell }, dataStore.deleteCellListeners, 'deleteCell');
+            dispatcher({ 'cellName': cell }, 'deleteCell');
 
             this.manageFigureSizes();
             this.manageCellControl();
@@ -200,8 +201,7 @@
                 { 
                     'cellName': this.value,
                     'state': this.checked 
-                }, 
-                dataStore.attachCellListeners, 
+                },  
                 'attachCell'
             )
         }

@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="plotList.css"/>
+
 <template id='plotList'>
     <nav class="navbar navbar-default">
         <div class="container-fluid">
@@ -30,7 +32,10 @@
                                 <ul class="dropdown-menu dd-limited">
                                     {{# items}}
                                         <li class='dd-item' id='{{.}}'>
-                                            <div>{{.}}</div>
+                                            <div class='plotName'>{{.}}</div>
+                                            <span id='{{.}}badge' class="badge transparent">
+                                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                            </span>
                                         </li>
                                     {{/ items}}
                                 </ul>
@@ -44,10 +49,10 @@
 </template>
 
 <script>
-    function plotList(wrapperID){
+    function plotList(wrapID){
 
-        this.wrapID = wrapperID;
-        this.wrap = document.getElementById(wrapperID);
+        this.wrapID = wrapID;
+        this.wrap = document.getElementById(wrapID);
 
         this.setup = function(){
             var i, plotSelectorSections, plotToggles;
@@ -89,7 +94,7 @@
             if(!dataStore.closeMenuOnclick)
                 e.stopPropagation();
 
-            dispatcher({ 'plotName': plotName }, dataStore.plotNameListeners, 'requestPlot');
+            dispatcher({ 'plotName': plotName }, 'requestPlot');
 
         }
     }

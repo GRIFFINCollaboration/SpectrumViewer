@@ -1,0 +1,14 @@
+div.footer{
+    font-size: 16px;
+    background-color: #4C4C4C;
+    padding: 2em;
+    border-top: 2px solid #000000;
+    display:inline-block;
+    width: 100%;
+    margin-top: 1em;
+}
+
+div.footer a{
+    color: #FFFFFF;
+    text-decoration: underline;
+}

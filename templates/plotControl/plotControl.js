@@ -1,7 +1,7 @@
-function plotControl(wrapperID, config){
+function plotControl(wrapID, config){
 
-    this.wrapID = wrapperID;
-    this.wrap = document.getElementById(wrapperID);
+    this.wrapID = wrapID;
+    this.wrap = document.getElementById(wrapID);
     this.config = config;
 
     this.setup = function(){
@@ -23,17 +23,11 @@ function plotControl(wrapperID, config){
             }
         )
 
-        //listen for plot requests
-        this.wrap.addEventListener('requestPlot', this.routeNewPlot.bind(this), false);
-
-        //listen for cell attach / unattach events
-        this.wrap.addEventListener('attachCell', this.attachCell.bind(this), false);
-
-        //listen for newCell events (attach them automatically)
-        this.wrap.addEventListener('newCell', this.setupNewCell.bind(this), false);
-
-        //listen for deleteCell events
-        this.wrap.addEventListener('deleteCell', this.deleteCell.bind(this), false);
+        // set up custom listeners
+        listener(this.wrapID, 'requestPlot', this.routeNewPlot.bind(this));
+        listener(this.wrapID, 'attachCell', this.attachCell.bind(this));
+        listener(this.wrapID, 'newCell', this.setupNewCell.bind(this));
+        listener(this.wrapID, 'deleteCell', this.deleteCell.bind(this));
 
         //keep a list of canvases to point at
         this.targets = JSON.parse(JSON.stringify(dataStore.plots));
@@ -109,8 +103,7 @@ function plotControl(wrapperID, config){
                     { 
                         'plotName': event.detail.plotName,
                         'target': this.targets[i] 
-                    }, 
-                    dataStore.addPlotRowListeners, 
+                    },  
                     'addPlotRow'
                 )
               

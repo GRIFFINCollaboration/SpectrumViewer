@@ -161,11 +161,6 @@ function setupDataStore(){
         "waveformSnap": true,                                       //do we want the snap to waveform functionality?
         "doUpdates": true,                                          //do we want the data update button and loop?
         "plots": [],                                                //array of names for default plot cells
-        "plotNameListeners": ['plotControl'],                       //array of ids of elements listneing for requestPlot events
-        "addPlotRowListeners": ['auxCtrl'],                         //array of ids of elements listneing for addPlotRow events
-        "attachCellListeners": ['plotControl'],                     //array of ids of elements listneing for attachCell events
-        "deleteCellListeners": ['plotControl', 'auxCtrl'],          //array of ids of elements listneing for deleteCell events
-        "newCellListeners": ['plotControl','auxCtrl'],              //array of ids of elements listneing for newCell events
         "spectrumServer": 'http://grsmid00.triumf.ca:9093',         //analyzer url + port
         "ODBrequests": [],                                          //array of odb requests to make on refresh
         "zeroedPlots": {}                                           //initialize empty object for zeroed plots
