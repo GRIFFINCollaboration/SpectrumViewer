@@ -145,7 +145,7 @@ function fetchCallback(){
     dataStore.currentTime = Date.now()/1000;
 
     //update the rate monitor and backgrounds fits
-    leadingEdge = dataStore._rateSliders.windowLeadingEdgeTime() / 3;
+    leadingEdge = dataStore._striptoolSliders.windowLeadingEdgeTime() / 3;
     windowWidth = parseInt(document.getElementById('rateSlideswindowSlider').value,10);
     dataStore._rateControl.appendNewPoint();
     dataStore._rateControl.updateDygraph(leadingEdge, windowWidth);
