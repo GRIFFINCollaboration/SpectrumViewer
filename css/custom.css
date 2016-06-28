@@ -60,6 +60,14 @@ input[type="number"] {
     width: 6em;
 }
 
+input, button, select, li.toggle{
+    color: #000000;
+}
+
+.badge{
+    background-color: #87D37C;
+}
+
 /*
 .UIchunk{
     margin-bottom: 3px;
@@ -76,9 +84,7 @@ div.expand{
     overflow: auto;
 }
 
-input, button, select{
-    color: #000000;
-}
+
 
 input[type="number"] {
    width: 6em;
@@ -157,41 +163,7 @@ div.plotCell.col-md-6:nth-child(2n+1){
 /*
 
 */
-/* gain matching table */
-/*
-table.gainTable{
-    margin-top: 1em;
-}
 
-div.progress{
-    margin-top: 1em;
-}
-
-.progress-bar {
-    -webkit-transition: none;
-    -moz-transition: none;
-    -ms-transition: none;
-    -o-transition: none;
-    transition: none;
-}​
-
-table.gainTable tr:nth-child(0n+1){
-    font-weight: bold;
-}
-
-table.gainTable tr:nth-child(8n+5),
-table.gainTable tr:nth-child(8n+4),
-table.gainTable tr:nth-child(8n+3),
-table.gainTable tr:nth-child(8n+2){ 
-    background-color: #222222;
-}
-*/
-/*gain matcher are you sure modal*/
-/*
-div.modal{
-    color: #000000;
-}
-*/
 /* spectrum viewer navigation menu */
 
 /*div.menu-subrow-wrap{
