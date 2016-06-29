@@ -20,9 +20,9 @@
         <link id='gainMatchReport' rel="import" href="templates/gainMatchReport/gainMatchReport.html">
         <link id='matchReportTable' rel="import" href="templates/gainMatchReport/matchReportTable.html">
         <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
-        <link id='plotControlHorizontal' rel="import" href="templates/plotControl/plotControlHorizontal.html">
+        <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
         <link id='plotListLite' rel="import" href="templates/plotList/plotListLite.html">
-        <link id='graph' rel="import" href="templates/graph/graph.html">
+        <link id='striptool' rel="import" href="templates/striptool/striptool.html">
         <link id='footer' rel="import" href="templates/footer/footer.html">
     </head>
 
@@ -35,7 +35,7 @@
         <div id='plotRegion' class='sectionWrapper'>
             <div id='plotWrap' class='col-md-9 plotRegion item'>
                 <div id='plottingGrid'></div>
-                <div class='col-md-8' id='plotControl'></div>
+                <div class='col-md-8' id='plotCtrl'></div>
                 <div class='sectionWrapper refitButtons'>
                     <div class='col-md-12'>
                         <button type="button" class="btn btn-default btn-lg" id='fitLow' engaged='0'>
@@ -67,12 +67,12 @@
             window.addEventListener('HTMLImportsLoaded', function(e) {
 
                 dataStore._plotGrid = new plotGrid('plottingGrid');
-                dataStore._plotControl = new plotControl('plotControl', 'horizontal');
+                dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
                 dataStore._plotListLite = new plotListLite('plotList');
                 dataStore._gainMatchReport = new gainMatchReport('gainMatcher');
-                dataStore._graph = new graph('resolution');
+                dataStore._striptool = new striptool('resolution');
 
-                dataStore.templates = prepareTemplates(['header', 'gainMatchReport', 'matchReportTable', 'plotGrid', 'plotControlHorizontal', 'plotListLite', 'graph', 'footer']);
+                dataStore.templates = prepareTemplates(['header', 'gainMatchReport', 'matchReportTable', 'plotGrid', 'plotControl', 'plotListLite', 'striptool', 'footer']);
 
                 setupHeader('head', 'Gain Matcher');
                 dataStore._plotGrid.setup();
@@ -81,7 +81,7 @@
                 dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]);
                 dataStore._plotListLite.setup();
                 dataStore._gainMatchReport.setup();
-                dataStore._graph.setup();
+                dataStore._striptool.setup();
                 setupFooter('foot');
 
                 //don't want additional plots in this app

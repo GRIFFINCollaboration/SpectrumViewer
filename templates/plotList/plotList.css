@@ -1,0 +1,22 @@
+.dd-item{
+    padding: 0.25em;
+    margin-right: 0.25em;
+    color: #000000;
+    white-space: nowrap;
+    display:flex; 
+    justify-content:space-between;
+}
+
+.dd-item:hover{
+    background-color: #CFCFCF;
+    cursor: pointer;
+}
+
+.dd-limited{
+    max-height: 400px;
+    overflow: auto;
+}
+
+div.plotName{
+    display: inline-block;
+}

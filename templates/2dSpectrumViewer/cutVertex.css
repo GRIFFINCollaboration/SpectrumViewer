@@ -1,0 +1,4 @@
+button.delete-vertex, button.move-vertex-up, button.move-vertex-down{
+    position: relative;
+    top:-1px;
+}

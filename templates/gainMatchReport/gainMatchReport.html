@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="gainMatchReport.css"/>
+
 <template id='gainMatchReport'>
     <div class='sectionWrapper item'>
         <div class='col-md-12'>
@@ -56,10 +58,10 @@
 </template>
 
 <script>
-    function gainMatchReport(wrapperID){
+    function gainMatchReport(wrapID){
 
-        this.wrapID = wrapperID;
-        this.wrap = document.getElementById(wrapperID);
+        this.wrapID = wrapID;
+        this.wrap = document.getElementById(wrapID);
 
         this.setup = function(){
             //inject template
@@ -101,7 +103,7 @@
                     window.alert('You need to perform the gain match (see button at top of page) before writing results to the ODB.');
                     document.getElementById('dismissODBmodal').click();
                 }
-
+                console.log('writing')
                 promiseScript(dataStore.ODBrequests[0]);
             }
         },
@@ -125,7 +127,7 @@
                     dataStore.viewers[dataStore.plots[0]].drawCallback = this.addFitLines;
 
                     //leave the viewer pointing at the first spectrum for fitting
-                    dispatcher({}, dataStore.fitAllCompleteListeners, 'fitAllComplete')
+                    dispatcher({}, 'fitAllComplete')
 
                 }.bind(this),
 
@@ -403,7 +405,7 @@
 
             dataStore.resolutionData = arrangePoints(detectorIndex, [dataStore.lowPeakResolution, dataStore.highPeakResolution], flags );
 
-            dispatcher({ 'data': dataStore.resolutionData }, dataStore.dygraphUpdateListeners, 'updateDyData');
+            dispatcher({ 'data': dataStore.resolutionData }, 'updateDyData');
         },
 
         this.updateEnergies = function(){
@@ -443,17 +445,17 @@
                 dataStore.viewers[viewerName].setupFitMode();
                 this.setAttribute('engaged', 1);
                 if(this.id == 'fitLow')
-                    document.getElementById('refitLoBadge').classList.add('redText')
+                    document.getElementById('refitLoBadge').classList.add('red-text')
                 if(this.id == 'fitHigh')
-                    document.getElementById('refitHiBadge').classList.add('redText')
+                    document.getElementById('refitHiBadge').classList.add('red-text')
             }
             else{
                 dataStore.viewers[viewerName].leaveFitMode();
                 this.setAttribute('engaged', 0);
                 if(this.id == 'fitLow')
-                    document.getElementById('refitLoBadge').classList.remove('redText')
+                    document.getElementById('refitLoBadge').classList.remove('red-text')
                 if(this.id == 'fitHigh')
-                    document.getElementById('refitHiBadge').classList.remove('redText')
+                    document.getElementById('refitHiBadge').classList.remove('red-text')
             }
 
             if(this.id == 'fitLow')

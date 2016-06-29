@@ -1,0 +1,25 @@
+span.newPlotButton{
+    color: #4183D7;
+    font-size: 400%;
+    cursor: pointer;
+    clear:both;
+    display: inline-block;
+    padding-top: 10px;
+}
+
+div.cellControl{
+    text-align: right;
+    border-top: 1px solid #999999;
+}
+
+div.cellControl span{
+    font-size: 120%;
+    display: inline;
+    float: left;
+}
+
+span.deleteCell{
+    margin-right: 5px;
+    margin-top: 3px;
+    cursor: pointer;
+}

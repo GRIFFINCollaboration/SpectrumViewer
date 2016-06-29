@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="plotList.css"/>
+
 <template id='plotList'>
     <nav class="navbar navbar-default">
         <div class="container-fluid">
@@ -9,7 +11,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#"><img style='display:inline;' src='img/GRIFFIN_Icon.png'></img> <span>Spectrum Viewer</span></a>
+                <a class="navbar-brand" href="#"><img style='display:inline;' src='img/GRIFFIN_Icon.png'></img> <span>{{title}}</span></a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -30,7 +32,10 @@
                                 <ul class="dropdown-menu dd-limited">
                                     {{# items}}
                                         <li class='dd-item' id='{{.}}'>
-                                            <div>{{.}}</div>
+                                            <div class='plotName'>{{.}}</div>
+                                            <span id='{{.}}badge' class="badge transparent">
+                                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                            </span>
                                         </li>
                                     {{/ items}}
                                 </ul>
@@ -44,15 +49,15 @@
 </template>
 
 <script>
-    function plotList(wrapperID){
+    function plotList(wrapID){
 
-        this.wrapID = wrapperID;
-        this.wrap = document.getElementById(wrapperID);
+        this.wrapID = wrapID;
+        this.wrap = document.getElementById(wrapID);
 
         this.setup = function(){
             var i, plotSelectorSections, plotToggles;
 
-            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.plotList, {'topGroups': dataStore.topGroups});
+            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.plotList, {'topGroups': dataStore.topGroups, 'title':dataStore.pageTitle});
 
             //set up plot selection top row
             plotSelectorSections = document.getElementsByClassName('topGroup')
@@ -89,7 +94,7 @@
             if(!dataStore.closeMenuOnclick)
                 e.stopPropagation();
 
-            dispatcher({ 'plotName': plotName }, dataStore.plotNameListeners, 'requestPlot');
+            dispatcher({ 'plotName': plotName }, 'requestPlot');
 
         }
     }

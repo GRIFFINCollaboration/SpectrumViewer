@@ -114,7 +114,7 @@
                 payload = {"index": index, "isVisible": true };
             }
 
-            dispatcher(payload, dataStore.dygraphListeners, 'setDyVisible');
+            dispatcher(payload, 'setDyVisible');
             dataStore.viewers[this.vw].plotData();
         },
 
@@ -150,7 +150,7 @@
             //<index>: number; index of dygraph series to toggle visibility of
             //this: checkbox element
 
-            dispatcher({"index": index, "isVisible": this.checked}, dataStore.dygraphListeners, 'setDyVisible');
+            dispatcher({"index": index, "isVisible": this.checked}, 'setDyVisible');
         },
 
         this.changeFitMethod = function(element){
@@ -336,7 +336,7 @@
             data = dataStore.rateData.slice(Math.max(0,dataStore.rateData.length - period - leadingEdge), Math.max(0,dataStore.rateData.length - leadingEdge));
 
             //update the dygraph
-            dispatcher({ 'data': data }, dataStore.dygraphListeners, 'updateDyData')
+            dispatcher({ 'data': data }, 'updateDyData')
         },
 
         this.queueAnnotation = function(series, flag){

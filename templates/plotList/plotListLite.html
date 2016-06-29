@@ -17,10 +17,10 @@
 </template>
 
 <script>
-    function plotListLite(wrapperID){
+    function plotListLite(wrapID){
 
-        this.wrapID = wrapperID;
-        this.wrap = document.getElementById(wrapperID);
+        this.wrapID = wrapID;
+        this.wrap = document.getElementById(wrapID);
 
         this.setup = function(){
 
@@ -45,15 +45,15 @@
             }
 
             //display the first spectrum when fitting is complete
-            this.wrap.addEventListener(
+            listener(
+                this.wrapID, 
                 'fitAllComplete', 
                 function(event){
                     //open the menu
                     document.getElementById(this.wrapID + dataStore.plotGroups[0].groupID).click();
                     //demand the plot
                     document.getElementById(this.wrapID + dataStore.plotGroups[0].plots[0].plotID).click();
-                }.bind(this),
-                false
+                }.bind(this)
             );
         },
 

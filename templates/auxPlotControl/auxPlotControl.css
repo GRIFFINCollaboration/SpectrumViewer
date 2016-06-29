@@ -1,0 +1,24 @@
+div.swatch{
+    width: 3em;
+    height: 1em;
+    margin-left: 1em;
+    display: inline-block;
+    padding: 0px !important;
+}
+
+tr.plotControlTable{
+    line-height: 2em;
+}
+
+button.deleteRow{
+    color: #FF7777;
+}
+
+div#auxCtrl div:nth-child(2n){
+    background-color: #444444;
+    padding: 1em;
+}
+
+div#auxCtrl div:nth-child(2n+1){
+    padding: 1em;
+}

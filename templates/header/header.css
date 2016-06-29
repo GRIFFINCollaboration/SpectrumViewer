@@ -1,0 +1,12 @@
+div.header{
+    background-color: #4C4C4C;
+    padding: 2em;
+    border-bottom: 2px solid #000000;
+    margin-bottom: 1em;
+    padding-left: 2em;
+    overflow: auto;
+}
+
+div.header img{
+    width: 5em;
+}

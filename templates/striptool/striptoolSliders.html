@@ -1,4 +1,6 @@
-<template id='rateSliders'>
+<link rel="stylesheet" href="striptool.css"/>
+
+<template id='striptoolSliders'>
     <label for='{{id}}windowSlider'>Window Width:</label>
     <input id='{{id}}windowSlider' class='slider' type='range' min=1 max=720 step=1 value=1></input>
     <span id='{{id}}windowSliderValue' class="range-value">0h:1m</span>
@@ -11,7 +13,7 @@
 </template>
 
 <script>
-    function rateSliders(wrapperID){
+    function striptoolSliders(wrapperID){
 
         this.wrapID = wrapperID;
         this.wrap = document.getElementById(wrapperID);
@@ -19,7 +21,7 @@
         this.setup = function(){
 
             //inject template
-            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.rateSliders, {'id': this.wrapID});
+            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.striptoolSliders, {'id': this.wrapID});
 
             //listeners
             document.getElementById(this.wrapID + 'windowSlider').oninput = this.windowSliderCallback;
@@ -38,7 +40,7 @@
 
         this.leadingEdgeSliderCallback = function(parent){
             //oninput behavior of the window leading edge slider
-            //parent: rateSliders object
+            //parent: striptoolSliders object
             //this: input[range] element for window's leading edge
 
             var seconds = parent.windowLeadingEdgeTime();
@@ -52,7 +54,7 @@
 
         this.windowLeadingEdgeTime = function(){
             //returns number of seconds in the past the currently requested window leading edge is
-            //this: rateSliders object
+            //this: striptoolSliders object
 
             var leadingEdgeSlider = document.getElementById(this.wrapID + 'leadingEdgeSlider');
             var first = dataStore.rateData[0][0];

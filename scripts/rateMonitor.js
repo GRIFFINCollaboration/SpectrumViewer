@@ -7,20 +7,19 @@ function setupDataStore(){
     var i, labels = ['time']
 
     dataStore = {};
+    dataStore.plots = ['SUM_Singles_Energy'];                           //what plot will we be focusing on?
+    dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';       //host and port of analyzer
+    dataStore.ODBrequests = ['http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/Equipment/Epics/Variables/MSRD&odb1=/Runinfo/Run number&encoding=json-p-nokeys&callback=parseScalars'];  //odb requests to make every update
+
+    //you probably don't need to change anything below this line----------------------------------------------------
+
     dataStore.pageTitle = 'Rate Monitor'                                //header title
     dataStore.allClear = 0;                                             //counter to track when all templates are loaded
     dataStore.doUpdates = true;                                         //include update loop
-    dataStore.plots = ['SUM_Singles_Energy'];                           //names of plotGrid cells and spectrumViewer objects
-    dataStore.newCellListeners = ['plotControl'];
-    dataStore.attachCellListeners = ['plotControl'];                    //ids to dispatch attachCell events to
-    dataStore.dygraphListeners = ['rates'];                             //ids to dispatch all dygraph events to
-
     dataStore.manualBKG = {};                                           //string encodings of manual background ranges: 'a-b;c;d-e' indicates all bins on [a,b], plus c, plus [d,e]
     dataStore.rateData = [[new Date(),0,0,0,0,0,0,0,0]];                //dummy data to seed rate data collection
     dataStore.annotations = {};                                         //annotations queued up to add to the next dygraph point
-    dataStore.targetSpectrum = 'SUM_Singles_Energy';                    //analyzer key for spectrum to examine
-    dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';       //host and port of analyzer
-    dataStore.ODBrequests = ['http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/Equipment/Epics/Variables/MSRD&odb1=/Runinfo/Run number&encoding=json-p-nokeys&callback=parseScalars'];  //odb requests to make every update
+    dataStore.targetSpectrum = dataStore.plots[0];                      //analyzer key for spectrum to examine
     dataStore.scalars = {                                               //key:value pairs for scalrs to pull from odb
             'PC': 0,
             'LF1': 0,
@@ -146,7 +145,7 @@ function fetchCallback(){
     dataStore.currentTime = Date.now()/1000;
 
     //update the rate monitor and backgrounds fits
-    leadingEdge = dataStore._rateSliders.windowLeadingEdgeTime() / 3;
+    leadingEdge = dataStore._striptoolSliders.windowLeadingEdgeTime() / 3;
     windowWidth = parseInt(document.getElementById('rateSlideswindowSlider').value,10);
     dataStore._rateControl.appendNewPoint();
     dataStore._rateControl.updateDygraph(leadingEdge, windowWidth);

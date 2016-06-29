@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="auxPlotControl.css"/>
+
 <template id='auxPlotControl'>
     <div class='sectionWrapper'>
         <h4>Fitting & Zeroing</h4>
@@ -19,16 +21,16 @@
 
 <script>
 
-    function auxPlotControl(wrapperID){
+    function auxPlotControl(wrapID){
 
-        this.wrapID = wrapperID;
-        this.wrap = document.getElementById(wrapperID);
+        this.wrapID = wrapID;
+        this.wrap = document.getElementById(wrapID);
 
         this.setup = function(){
             this.wrap.innerHTML = Mustache.to_html(
                 dataStore.templates.auxPlotControl, 
                 {
-                    'id': wrapperID,
+                    'id': wrapID,
                     'plots': dataStore.plots
                 },
                 {
@@ -36,14 +38,10 @@
                 }
             );
 
-            //listen for new table rows requests
-            this.wrap.addEventListener('addPlotRow', this.newTableRow.bind(this), false);
-
-            //listen for new cell requests
-            this.wrap.addEventListener('newCell', this.newTable.bind(this), false);
-
-            //listen for cell attach / unattach events
-            this.wrap.addEventListener('deleteCell', this.deleteTable.bind(this), false);
+            // set up custom event listeners
+            listener(this.wrapID, 'addPlotRow', this.newTableRow.bind(this));
+            listener(this.wrapID, 'newCell', this.newTable.bind(this));
+            listener(this.wrapID, 'deleteCell', this.deleteTable.bind(this));
 
             //plug in delete all button
             document.getElementById(this.wrapID + 'deleteAll').onclick = this.deleteAllSpectra;
@@ -181,12 +179,12 @@
             if(state == 0){
                 dataStore.viewers[target].setupFitMode();
                 fitModeSwitch.setAttribute('engaged', 1);
-                document.getElementById(this.wrapID+'fitBadge').classList.add('redText')
+                document.getElementById(this.wrapID+'fitBadge').classList.add('red-text')
             }
             else{
                 dataStore.viewers[target].leaveFitMode();
                 fitModeSwitch.setAttribute('engaged', 0);
-                document.getElementById(this.wrapID+'fitBadge').classList.remove('redText')
+                document.getElementById(this.wrapID+'fitBadge').classList.remove('red-text')
             }
 
             //toggle state indicator

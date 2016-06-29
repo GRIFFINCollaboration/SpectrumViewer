@@ -8,13 +8,17 @@ function setupDataStore(){
     var i, groups = [];
 
     dataStore = {}
-    dataStore.allClear = 0;                                                 //counter to track when all templates are loaded
-    dataStore.pageTitle = 'Gain Matcher';                                   //header title
+
     //network and raw data
     dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';           //host + port of analyzer server
     dataStore.ODBhost = 'http://grsmid00.triumf.ca:8081/';                  //MIDAS / ODB host + port
+
+    // shouldn't need to change anything below this line -----------------------------------------------------------------------
+
+    dataStore.pageTitle = 'Gain Matcher';                                   //header title
+    dataStore.DAQquery = dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/MSC/chan&encoding=json-p-nokeys&callback=loadData';
     dataStore.ODBrequests = [                                               //request strings for odb parameters
-        'http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/DAQ/MSC/chan&odb1=/DAQ/MSC/gain&odb2=/DAQ/MSC/offset&encoding=json-p-nokeys&callback=updateODB'
+        dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/MSC/chan&odb1=/DAQ/MSC/gain&odb2=/DAQ/MSC/offset&encoding=json-p-nokeys&callback=updateODB'
     ];
     dataStore.rawData = {};                                                 //buffer for raw spectrum data
     //fitting
@@ -22,10 +26,6 @@ function setupDataStore(){
     dataStore.fitResults = {};                                              //fit results: 'plotname': [[amplitude, center, width, intercept, slope], [amplitude, center, width, intercept, slope]]            
     //custom element config
     dataStore.plots = ['Spectra'];                                          //names of plotGrid cells and spectrumViewer objects
-    dataStore.attachCellListeners = ['plotControl'];                        //ids to dispatch attachCell events to
-    dataStore.newCellListeners = ['plotControl'];
-    dataStore.fitAllCompleteListeners = ['plotList'];                       //ids to dispatch fitAllComplete events to
-    dataStore.dygraphUpdateListeners = ['resolution'];                      //ids to dispatch dygraphUpdate events to
     //resolution plot
     dataStore.plotStyle = {                                                 //dygraphs style object
         labels: ['channel', 'Low Energy Peak', 'High Energy Peak'],
@@ -126,7 +126,6 @@ function setupDataStore(){
             'GRG16RN00A',
             'GRG16WN00A'
         ];
-    dataStore.DAQquery = 'http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/DAQ/MSC/chan&encoding=json-p-nokeys&callback=loadData';
 
 
     //generate groups for plot selector

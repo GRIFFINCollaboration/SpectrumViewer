@@ -18,9 +18,9 @@
         <!--HTML imports-->
         <link id='header' rel="import" href="templates/header/header.html">
         <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
-        <link id='plotControlHorizontal' rel="import" href="templates/plotControl/plotControlHorizontal.html">
-        <link id='graph' rel="import" href="templates/graph/graph.html">
-        <link id='rateSliders' rel="import" href="templates/rateControl/rateSliders.html">
+        <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
+        <link id='striptool' rel="import" href="templates/striptool/striptool.html">
+        <link id='striptoolSliders' rel="import" href="templates/striptool/striptoolSliders.html">
         <link id='rateControl' rel="import" href="templates/rateControl/rateControl.html">
         <link id='gammaWindows' rel="import" href="templates/rateControl/gammaWindows.html">
         <link id='levelsAndScalars' rel="import" href="templates/rateControl/levelsAndScalars.html">
@@ -34,7 +34,7 @@
         <div id='plotRegion' class='sectionWrapper item'>
             <div id='plotWrap' class='col-md-6 plotRegion'>
                 <div id='plottingGrid'></div>
-                <div id='plotControl'></div>
+                <div id='plotCtrl'></div>
             </div>
             <div id='rateWrap' class='col-md-6 plotRegion'>
                 <div id='rates'></div>
@@ -57,18 +57,18 @@
                 var i, vw;
 
                 dataStore._plotGrid = new plotGrid('plottingGrid');
-                dataStore._plotControl = new plotControl('plotControl', 'horizontal');
-                dataStore._graph = new graph('rates');
-                dataStore._rateSliders = new rateSliders('rateSlides');
+                dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
+                dataStore._striptool = new striptool('rates');
+                dataStore._striptoolSliders = new striptoolSliders('rateSlides');
                 dataStore._rateControl = new rateControl('rateCtrl');
                 vw = dataStore.plots[0];
 
-                dataStore.templates = prepareTemplates(['header', 'plotGrid', 'plotControlHorizontal', 'graph', 'rateSliders', 'rateControl', 'gammaWindows', 'levelsAndScalars', 'footer']);
+                dataStore.templates = prepareTemplates(['header', 'plotGrid', 'plotControl', 'striptool', 'striptoolSliders', 'rateControl', 'gammaWindows', 'levelsAndScalars', 'footer']);
 
                 setupHeader('head', 'Rate Monitor');
                 dataStore._plotGrid.setup();
                 dataStore._plotControl.setup();
-                dataStore._rateSliders.setup();
+                dataStore._striptoolSliders.setup();
                 dataStore._rateControl.setup();
                 setupFooter('foot');
 
@@ -91,7 +91,7 @@
                 //set up dygraph
                 dataStore.plotStyle['height'] = document.getElementById(dataStore.plots[0]).offsetHeight - dataStore.viewers[vw].bottomMargin + 20,
                 dataStore.plotStyle['weight'] = document.getElementById(dataStore.plots[0]).offsetWidth
-                dataStore._graph.setup();
+                dataStore._striptool.setup();
 
                 //manage which gamma window are on by defualt
                 for(i=0; i<dataStore.defaults.gammas.length; i++){
@@ -100,7 +100,7 @@
                 }
 
                 //don't allow refresh period to change
-                deleteNode('plotControlupdateWrap');
+                deleteNode('updateWrap');
 
                 $(function () {
                     $('[data-toggle="tooltip"]').tooltip()

@@ -19,7 +19,7 @@
         <!--html imports-->
         <link id='plotList' rel="import" href="templates/plotList/plotList.html">
         <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
-        <link id='plotControlVertical' rel="import" href="templates/plotControl/plotControlVertical.html">
+        <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
         <link id='auxPlotControl' rel="import" href="templates/auxPlotControl/auxPlotControl.html">
         <link id='auxPlotControlTable' rel="import" href="templates/auxPlotControl/auxPlotControlTable.html">
         <link id='fitRow' rel="import" href="templates/auxPlotControl/fitRow.html">
@@ -35,7 +35,7 @@
                 <div id='plottingGrid'></div>
             </div>
             <div class='col-md-2 no-pad'>
-                <div id='plotControl'></div>
+                <div id='plotCtrl'></div>
             </div>
         </div>
 
@@ -51,17 +51,17 @@
 
         <script>
             window.addEventListener('HTMLImportsLoaded', function(e) {
-                dataStore.templates = prepareTemplates(['plotList', 'plotGrid', 'plotControlVertical', 'auxPlotControl', 'auxPlotControlTable', 'fitRow', 'footer']);
+                dataStore.templates = prepareTemplates(['plotList', 'plotGrid', 'plotControl', 'auxPlotControl', 'auxPlotControlTable', 'fitRow', 'footer']);
 
-                var _plotList = new plotList('analyzerPlots');
-                var _plotGrid = new plotGrid('plottingGrid');
-                var _plotControl = new plotControl('plotControl', 'vertical');
-                var _auxCtrl = new auxPlotControl('auxCtrl');
+                dataStore._plotList = new plotList('analyzerPlots');
+                dataStore._plotGrid = new plotGrid('plottingGrid');
+                dataStore._plotControl = new plotControl('plotCtrl', 'vertical');
+                dataStore._auxCtrl = new auxPlotControl('auxCtrl');
 
-                _plotList.setup();
-                _plotGrid.setup();
-                _plotControl.setup();
-                _auxCtrl.setup();
+                dataStore._plotList.setup();
+                dataStore._plotGrid.setup();
+                dataStore._plotControl.setup();
+                dataStore._auxCtrl.setup();
                 setupFooter('foot');
 
                 //start with a single plot

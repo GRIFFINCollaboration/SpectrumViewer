@@ -9,23 +9,6 @@ div.sectionWrapper{
     clear: both;
 }
 
-div.UIgroup{
-    border-bottom: 1px solid #999999;
-    padding-bottom: 1em;
-    margin-bottom: 1em;
-    color: #FFFFFF;
-}
-
-.UIchunk{
-    margin-bottom: 3px;
-}
-
-.UIchunkHoriz{
-    margin-bottom: 1em;
-    display:inline-block;
-    margin-right: 1em;
-}
-
 div.item{
     /*border: 5px solid #999999;
     border-radius: 1em;*/
@@ -35,389 +18,60 @@ div.item{
     overflow: auto;
 }
 
-div.expand{
-    display: block;
-    overflow: auto;
+.transparent{
+    opacity: 0;
 }
 
-input, button, select{
-    color: #000000;
-}
-
-input[type="number"] {
-   width: 6em;
-}
-
-td.center{
+.center{
     text-align: center;
 }
 
-input:invalid{
-    background-color: #FF303F;
+div.ui-group-vertical{
+    border-bottom: 1px solid #999999;
+    padding-bottom: 1em;
+    color: #FFFFFF;
 }
 
-button.deleteRow{
-    color: #FF7777;
+div.ui-group-horizontal{
+    border-right: 1px solid #999999;
+    padding-right: 1em;
+    color: #FFFFFF;
 }
 
-.rowElement{
-    margin-right: 1em;
+div.ui-subgroup{
+    margin-bottom: 4px;
+    display: flex;
+    justify-content:space-between;
 }
 
-button.bigButton{
-    margin-top: 1em;
-}
-
-.blackText{
-    color: #000000;
-}
-
-.redText{
-    color: #FF6666;
-}
-
-.tooltip-inner{
-    text-align: left !important;
-}
-
-div.input-group{
+.input-group{
     margin-bottom: 4px;
 }
 
-div.input-group span.input-group-addon{
-    min-width: 3em;
+.black-text{
+    color: #000000;
+}
+
+.red-text{
+    color: #FF6666;
+}
+
+.btn-group {
+  display: flex;
+}
+
+input[type="number"] {
+    width: 6em;
+}
+
+input, button, select, li.toggle{
+    color: #000000;
+}
+
+.badge{
+    background-color: #87D37C;
 }
 
 div.no-pad{
     padding: 0px;
-}
-
-/*branding*/
-div.branding{
-    color: #FFFFFF;
-    clear: both;
-}
-
-div.header{
-    background-color: #4C4C4C;
-    padding: 2em;
-    border-bottom: 2px solid #000000;
-    margin-bottom: 1em;
-    padding-left: 2em;
-    overflow: auto;
-}
-
-div.header img{
-    width: 5em;
-}
-
-div.footer{
-    font-size: 16px;
-    background-color: #4C4C4C;
-    padding: 2em;
-    border-top: 2px solid #000000;
-    display:inline-block;
-    width: 100%;
-    margin-top: 1em;
-}
-
-div.footer a{
-    color: #FFFFFF;
-    text-decoration: underline;
-}
-
-/*navigation*/
-div.navRow{
-    padding: 0em 1em 1em 2em;
-}
-
-/*plot area & control*/
-label.inputLabel{
-    color: #FFFFFF;
-}
-
-form#plotControl{
-    color: #000000;
-}
-
-form#plotControl h4{
-    color: #FFFFFF;
-}
-
-ul#utilitiesList{
-    cursor: pointer;
-}
-
-div.cellControl{
-    text-align: right;
-    border-top: 1px solid #999999;
-}
-
-div.cellControl span{
-    font-size: 120%;
-    display: inline;
-    float: left;
-}
-
-span.newPlotButton{
-    color: #4183D7;
-    font-size: 400%;
-    cursor: pointer;
-    clear:both;
-    display: inline-block;
-    padding-top: 10px;
-}
-
-span.deleteCell{
-    margin-right: 5px;
-    margin-top: 3px;
-    cursor: pointer;
-}
-
-div.plotCell.col-md-6:nth-child(2n+1){
-    clear: left;
-}
-
-/*plot selection*/
-
-div.plotSelector{
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
-    overflow: auto;
-}
-
-li.toggle{
-    color: #000000;
-    cursor: default; 
-}
-
-div.plotSelector li{
-    padding: 2px;
-}
-
-li.toggle:hover{
-    background-color: #EEEEEE;
-}
-
-h4.plotGroupTitle{
-    cursor: pointer;
-}
-
-span.plotPresence{
-    background-color: #87D37C;
-    opacity: 0.7;
-}
-
-/* fitting */
-table#fitTable{
-    width: 100%;
-    margin-top: 5em;
-}
-
-input.manualBKG{
-    margin-left: 1em;
-    width: 300px;
-}
-
-span#fitInstructions{
-    margin-left: 1em;
-}
-
-td.spectrumNames{
-    width: 20em;
-}
-
-span.spectrumName{
-    display: inline-block;
-}
-
-td.uiCol{
-    width: 7em;
-}
-
-td.zeroRow{
-    color: #000000;
-}
-
-div.refitButtons{
-    margin-top: 1em;
-    display: inline-block;
-}
-
-div.swatch{
-    width: 3em;
-    height: 1em;
-    margin-left: 1em;
-    display: inline-block;
-    padding: 0px !important;
-}
-
-tr.plotControlTable{
-    line-height: 2em;
-}
-
-div#auxCtrl div:nth-child(2n){
-    background-color: #444444;
-    padding: 1em;
-}
-
-div#auxCtrl div:nth-child(2n+1){
-    padding: 1em;
-}
-
-/* rate monitor */
-div#rateMonitorControl table td{
-    padding-right: 2em;
-}
-
-div#rateLegend{
-    margin-bottom: 1em;
-}
-
-input[type="range"]{
-    width: 10em;
-    display: inline;
-    height: 10px;
-    border-radius: 5px;
-}
-
-span.range-value {
-    /*thanks http://codepen.io/thelifemgmt/pen/CeLqA for slider styles*/
-    display: inline-block;
-    position: relative;
-    color: #000000;
-    font-size: 16px;
-    line-height: 20px;
-    text-align: center;
-    border-radius: 3px;
-    background: #FFFFFF;
-    padding: 5px 10px;
-    margin-left: 7px;
-}
-    
-span.range-value::after {
-    position: absolute;
-    top: 8px;
-    left: -7px;
-    width: 0;
-    height: 0;
-    border-top: 7px solid transparent;
-    border-right: 7px solid #FFFFFF;
-    border-bottom: 7px solid transparent;
-    content: '';
-}
-
-.snapGateToWindow{
-    margin-bottom: 2px;
-}
-
-/* plot annotations */
-.annotation{
-    background-color: #FFFFFF;
-    border-radius: 10px;
-    color: #000000 !important;
-    line-height: 1em;
-}
-
-/* gain matching table */
-table.gainTable{
-    margin-top: 1em;
-}
-
-div.progress{
-    margin-top: 1em;
-}
-
-.progress-bar {
-    -webkit-transition: none;
-    -moz-transition: none;
-    -ms-transition: none;
-    -o-transition: none;
-    transition: none;
-}​
-
-table.gainTable tr:nth-child(0n+1){
-    font-weight: bold;
-}
-
-table.gainTable tr:nth-child(8n+5),
-table.gainTable tr:nth-child(8n+4),
-table.gainTable tr:nth-child(8n+3),
-table.gainTable tr:nth-child(8n+2){ 
-    background-color: #222222;
-}
-
-/*gain matcher are you sure modal*/
-div.modal{
-    color: #000000;
-}
-
-/* spectrum viewer navigation menu */
-
-div.menu-subrow-wrap{
-    clear: both;
-}
-
-div.menu-subrow{
-    padding: 1em;
-    border-left: 2px solid #000000;
-    border-bottom: 2px solid #000000;
-    border-right: 2px solid #000000;    
-}
-
-div.subrowDrops{
-    display: inline;
-    color: #000000;
-}
-
-div.topRowTab{
-    padding: 1em;
-    border-left: 1px solid #000000;
-    border-right: 1px solid #000000;
-    border-top: 2px solid #000000;
-    border-bottom: 2px solid #000000;
-}
-
-div.topRowTab.active{
-    border-bottom: 2px solid #367FA9;
-}
-
-button.topRowSection:hover{
-    background-color: rgba(255,255,255,0.7) !important;
-}
-
-div.mini-header{
-    background-color: #333333;
-}
-
-div.mini-header img{
-    width: 3em;
-}
-
-span.title{
-    font-size: 120%;
-    margin-left: 1em;
-}
-
-.dd-item{
-    padding: 0.25em;
-    color: #000000;
-    white-space: nowrap;
-}
-
-.dd-item:hover{
-    background-color: #CFCFCF;
-    cursor: pointer;
-}
-
-.dd-limited{
-    max-height: 400px;
-    overflow: auto;
-}
-
-/*2d spectra*/
-button.delete-vertex, button.move-vertex-up, button.move-vertex-down{
-    position: relative;
-    top:-1px;
 }

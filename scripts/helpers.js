@@ -354,11 +354,7 @@ function createBins(n, constant){
 
 }
 
-//////////////////////////////////
-// Spectrum Viewer specific
-//////////////////////////////////
-
-function dispatcher(payload, listeners, eventName){
+function dispatcher(payload, eventName){
     //dispatch an event carrying payload as its detail, to listeners with ids listed.
     var evt;
 
@@ -367,9 +363,20 @@ function dispatcher(payload, listeners, eventName){
         cancelable: true
     });
 
-    listeners.map(function(id){
+    dataStore[eventName+'Listeners'].map(function(id){
         document.getElementById(id).dispatchEvent(evt);
     });   
+}
+
+
+function listener(id, event, callback){
+    //set <id> to listen for custom <event>, and respond with callback(event).
+
+    if(!dataStore[event+'Listeners'])
+        dataStore[event+'Listeners'] = [];
+
+    dataStore[event+'Listeners'].push(id);
+    document.getElementById(id).addEventListener(event, callback, false);
 }
 
 function constructQueries(keys){
