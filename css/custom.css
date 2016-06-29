@@ -44,6 +44,10 @@ div.ui-subgroup{
     justify-content:space-between;
 }
 
+.input-group{
+    margin-bottom: 4px;
+}
+
 .black-text{
     color: #000000;
 }
@@ -66,6 +70,10 @@ input, button, select, li.toggle{
 
 .badge{
     background-color: #87D37C;
+}
+
+div.no-pad{
+    padding: 0px;
 }
 
 /*
@@ -112,9 +120,7 @@ button.bigButton{
     text-align: left !important;
 }
 
-div.no-pad{
-    padding: 0px;
-}
+
 */
 /*branding*/
 /*

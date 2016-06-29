@@ -13,18 +13,18 @@
             <div class='ui-group-vertical'>
                 <h4>X-axis Control</h4> 
 
-                <div class="ui-subgroup">
-                    <span>min x</span>
+                <div class="input-group">
+                    <span class='input-group-addon'>min x</span>
                     <input id="minX" value="0" type="number" class='black-text'></input>
                 </div>
 
-                <div class="ui-subgroup">
-                    <span>max x</span>
+                <div class="input-group">
+                    <span class='input-group-addon'>max x</span>
                     <input id="maxX" value="1024" type="number" class='black-text'></input>
                 </div>
 
-                <div class="ui-subgroup">
-                    <span>Scroll</span>
+                <div class="input-group">
+                    <span class='input-group-addon'>Scroll</span>
                     <div class='btn-group' roll='group'>
                         <button class="btn btn-default" id="bigLeft" type="button">⇇</button>
                         <button class="btn btn-default" id="littleLeft" type="button">←</button>
@@ -33,18 +33,20 @@
                     </div>                
                 </div>
 
-                <div class="ui-subgroup">
-                    <span>History</span>
+                <div class="input-group">
+                    <span class='input-group-addon'>History</span>
                     <div class='btn-group btn-group-sm' roll='group'>
                         <button class="btn btn-default" id="prev" type="button">Previous</button>
                         <button class="btn btn-default" id="next" type="button">Next</button>
                     </div>            
                 </div>
 
-                <button class="btn btn-default btn-sm" id="unzoom" type="button">Unzoom</button>
-                {{# waveformSnap}}
-                    <button class="btn btn-default btn-sm" id="snapWaveform" type="button">Snap To Wvfrm.</button>
-                {{/ waveformSnap}}
+                <div class="btn-group" role="group" aria-label="...">
+                    <button class="btn btn-default btn-sm" id="unzoom" type="button">Unzoom</button>
+                    {{# waveformSnap}}
+                        <button class="btn btn-default btn-sm" id="snapWaveform" type="button">Snap To Wvfrm.</button>
+                    {{/ waveformSnap}}
+                </div>
                 
             </div>
 
@@ -60,8 +62,8 @@
             {{# doUpdates}}
                 <div id='updateWrap' class='ui-group-vertical'>
                     <h4>Data Fetching</h4>
-                    <div class="ui-subgroup">
-                        <span>Update Every:</span>
+                    <div class="input-group">
+                        <span class='input-group-addon'>Update Every:</span>
                         <select id="upOptions" class='form-control'>
                             <option value="3000" selected="selected">3 s</option>
                             <option value="5000">5 s</option>
@@ -93,8 +95,8 @@
                 {{# doUpdates}}
                     <div id='updateWrap' class='ui-group-horizontal'>
                         <h4>Data Fetching</h4>
-                        <div class="ui-subgroup">
-                            <span>Update Every:</span>
+                        <div class="input-group">
+                            <span class='input-group-addon'>Update Every:</span>
                             <select id="upOptions" class='form-control'>
                                 <option value="3000" selected="selected">3 s</option>
                                 <option value="5000">5 s</option>
@@ -112,20 +114,20 @@
                 <h4>X-axis Control</h4> 
 
                 <div class='col-md-4'>
-                    <div class="ui-subgroup">
-                        <span>min x</span>
+                    <div class="input-group">
+                        <span class='input-group-addon'>min x</span>
                         <input id="minX" value="0" type="number" class='black-text small-input'></input>
                     </div>
 
-                    <div class="ui-subgroup">
-                        <span>max x</span>
+                    <div class="input-group">
+                        <span class='input-group-addon'>max x</span>
                         <input id="maxX" value="1024" type="number" class='black-text small-input'></input>
                     </div>
                 </div>
 
                 <div class='col-md-6'>
-                    <div class="ui-subgroup">
-                        <span>Scroll</span>
+                    <div class="input-group">
+                        <span class='input-group-addon'>Scroll</span>
                         <div class='btn-group no-wrap' roll='group'>
                             <button class="btn btn-default" id="bigLeft" type="button">⇇</button>
                             <button class="btn btn-default" id="littleLeft" type="button">←</button>
@@ -134,8 +136,8 @@
                         </div>                
                     </div>
 
-                    <div class="ui-subgroup">
-                        <span>History</span>
+                    <div class="input-group">
+                        <span class='input-group-addon'>History</span>
                         <div class='btn-group btn-group-sm' roll='group'>
                             <button class="btn btn-default" id="prev" type="button">Previous</button>
                             <button class="btn btn-default" id="next" type="button">Next</button>
@@ -144,11 +146,13 @@
                 </div>
 
                 <div class='col-md-2'>
-                    <div class='ui-subgroup'>
-                        <button class="btn btn-default btn-sm" id="unzoom" type="button">Unzoom</button>
-                        {{# waveformSnap}}
-                            <button class="btn btn-default btn-sm" id="snapWaveform" type="button">Snap To Wvfrm.</button>
-                        {{/ waveformSnap}}
+                    <div class='input-group'>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <button class="btn btn-default btn-sm" id="unzoom" type="button">Unzoom</button>
+                            {{# waveformSnap}}
+                                <button class="btn btn-default btn-sm" id="snapWaveform" type="button">Snap To Wvfrm.</button>
+                            {{/ waveformSnap}}
+                        </div>
                     </div>
                 </div>
             </div>

@@ -11,7 +11,6 @@ The Spectrum Viewer pages can be served as static pages from gh-pages, or anywhe
 In order to point your Spectrum Viewer at the appropriate spectra, a couple of parameters need to be set in `scripts/spectrumViewer.js`:
 
  - `dataStore.spectrumServer` should be the url with port where raw spectra are served according to the API described below in 'Data Feeds'.
- - `dataStore.ODBrequests` should be an array of ODB requests to perform on refresh; see [specifications here](https://midas.triumf.ca/MidasWiki/index.php/AJAX).
  - The `topGroups` object describes the plot selection and navigation; set names and ids of groups of plots as desired, and make sure the `items` key contains an array listing the exact names of plots to include in the corresponding subgroup.
 
 ### 2D Spectrum Viewer
@@ -32,7 +31,7 @@ In order to point your Gain Matcher at the appropriate spectra, a couple of para
 
  - `dataStore.spectrumServer` should be the url with port where raw spectra are served according to the API described below in 'Data Feeds'.
  - `dataStore.ODBhost`: host and port of MIDAS ODB experiment.
- - `dataStore.ODBrequests` should be an array of ODB requests to perform on refresh; see [specifications here](https://midas.triumf.ca/MidasWiki/index.php/AJAX).
+ - `dataStore.ODBrequests` should be an array of ODB requests to perform before writing calibration constants to the MSC table; see [request specifications here](https://midas.triumf.ca/MidasWiki/index.php/AJAX).
 
 ## Contributing
 

@@ -19,25 +19,25 @@ function setupDataStore(){
 
     dataStore = {
         "topGroups": topGroups,                                     //groups in top nav row
-        "plotNameListeners": ['plotControl'],                       //array of ids of elements listneing for requestPlot events
         "cutVertices": [],                                          //[x,y] vertices of cut region polygon
         "ODBhost": 'http://annikal.triumf.ca:8081',                 //host:port of ODB to write cut region vertices to
         "spectrumServer": 'http://annikal.triumf.ca:9093',          //host:port to pull raw spectra from
         "raw": [0],
-        "closeMenuOnclick": true                                    //don't keep the plot menu open onclick (can only plot one at a time anyway)
+        "closeMenuOnclick": true,                                   //don't keep the plot menu open onclick (can only plot one at a time anyway)
+        "pageTitle": '2D Spectrum Viewer'
     }
 }
 setupDataStore();
 
-function plotControl(wrapperID){
+function plotControl(wrapID){
     // object to manage data requests and manipulate the plot
 
-    this.wrapID = wrapperID;
-    this.wrap = document.getElementById(wrapperID);
+    this.wrapID = wrapID;
+    this.wrap = document.getElementById(wrapID);
 
     this.setup = function(){
         //listen for plot requests
-        this.wrap.addEventListener('requestPlot', this.routeNewPlot.bind(this), false);
+        listener(this.wrapID, 'requestPlot', this.routeNewPlot.bind(this));
 
         //which spectrum are we polling?
         this.activeSpectra = [null];
