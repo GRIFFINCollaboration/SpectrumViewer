@@ -2,7 +2,7 @@
 
 <template id='plotControl'>
     {{# vertical}}
-        <button class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" title="Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. <br><br> Axis control and new data will affect any plot with its 'Active Window' checkbox set; hold shift while clicking checkbox to activate multiple windows simultaneously. <br><br> Add a new plot: click the '+' below the existing plots." data-placement="auto left" data-container="body">Plotting Help</button>
+        <button class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" title="Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. {{#scaling}} <br><br> X-Scale: Relable the x-axis via x scale, unit and title; for example, if 1 bin = 10 keV, set x scale/bin to 10, x unit to keV, and x title to Energy. {{/scaling}} <br><br> Axis control and new data will affect any plot with its 'Active Window' checkbox set; hold shift while clicking checkbox to activate multiple windows simultaneously. <br><br> Add a new plot: click the '+' below the existing plots." data-placement="auto left" data-container="body">Plotting Help</button>
 
         <form id="plotControlForm">
 
@@ -20,7 +20,7 @@
 
                 <div class="input-group">
                     <span class='input-group-addon'>max x</span>
-                    <input id="maxX" value="1024" type="number" class='black-text'></input>
+                    <input id="maxX" value="2048" type="number" class='black-text'></input>
                 </div>
 
                 <div class="input-group">
@@ -40,6 +40,23 @@
                         <button class="btn btn-default" id="next" type="button">Next</button>
                     </div>            
                 </div>
+
+                {{#scaling}}
+                    <div class="input-group">
+                        <span class='input-group-addon'>x scale/bin</span>
+                        <input id="xScale" value="1" type="number" min="0" step:"any" class='black-text'></input>
+                    </div>
+
+                    <div class="input-group">
+                        <span class='input-group-addon'>x unit</span>
+                        <input id="xUnit" value="" type="text" class='black-text' placeholder="keV, ns, ..."></input>
+                    </div>
+
+                    <div class="input-group">
+                        <span class='input-group-addon'>x title</span>
+                        <input id="xTitle" value="Channel" type="text" class='black-text'></input>
+                    </div>                    
+                {{/scaling}}
 
                 <div class="btn-group" role="group" aria-label="...">
                     <button class="btn btn-default btn-sm" id="unzoom" type="button">Unzoom</button>
@@ -121,7 +138,7 @@
 
                     <div class="input-group">
                         <span class='input-group-addon'>max x</span>
-                        <input id="maxX" value="1024" type="number" class='black-text small-input'></input>
+                        <input id="maxX" value="2048" type="number" class='black-text small-input'></input>
                     </div>
                 </div>
 
@@ -177,6 +194,7 @@
                 {
                     'id': this.wrapID,
                     'waveformSnap': dataStore.waveformSnap,
+                    'scaling': dataStore.scaling,
                     'doUpdates': dataStore.doUpdates,
                     'vertical': this.config == 'vertical',
                     'horizontal': this.config == 'horizontal'
@@ -200,6 +218,13 @@
             //x-range control:
             document.getElementById('minX').onchange = this.updateAllXranges.bind(this);
             document.getElementById('maxX').onchange = this.updateAllXranges.bind(this);
+            //x-scale control:
+            if(document.getElementById('xScale')){
+                document.getElementById('xScale').onchange = this.updateAllXscale.bind(this);
+                document.getElementById('xUnit').onchange = this.updateAllXscale.bind(this);
+                document.getElementById('xTitle').onchange = this.updateAllXscale.bind(this);
+            }
+
 
             //x scroll:
             document.getElementById('bigLeft').onclick = this.scrollAllSpectra.bind(this, -100);
@@ -355,7 +380,8 @@
             //this: plotControl object
 
             var i, 
-                activeToggles = document.getElementsByClassName('activeWindowFlag');
+                activeToggles = document.getElementsByClassName('activeWindowFlag'),
+                state;
 
             this.targets = []
 
@@ -365,6 +391,8 @@
                 }
             }
 
+            //set the UI to something sensible based on the new attachment state
+            this.updateRangeSelector();
         }
 
         this.deleteCell = function(event){
@@ -417,10 +445,9 @@
             //<plot>: string; name of plot to update, from dataStore.plots
             //this: plotControl object
             var xMin = document.getElementById('minX'),
-                xMax = document.getElementById('maxX');
-
-            var x0 = parseInt(xMin.value,10);
-            var x1 = parseInt(xMax.value,10);
+                xMax = document.getElementById('maxX'),
+                x0 = parseInt(xMin.value,10),
+                x1 = parseInt(xMax.value,10);
 
             if(this.manageXvalidity()){
 
@@ -431,18 +458,50 @@
             }
         }
 
-        this.updateRangeSelector = function(plot){
-            //update the UI when the plot is zoomed with the mouse
+        this.updateAllXscale = function(){
+            //update the x-scale of all active plots based on the text box inputs
+            //this: plotControl object
+            var i;
+
+            for(i=0; i<this.targets.length; i++){
+                this.updatePlotScale(this.targets[i]);
+            } 
+        }
+
+        this.updatePlotScale = function(plot){
+            //update the plot scale for the named plot onchange of the x-scale input fields
             //<plot>: string; name of plot to update, from dataStore.plots
             //this: plotControl object
+            var xScale = parseInt(document.getElementById('xScale').value,10),
+                xUnit = document.getElementById('xUnit').value,
+                xTitle = document.getElementById('xTitle').value;
+
+            dataStore.viewers[plot].unitsPerTick = xScale;
+            dataStore.viewers[plot].unitName = xUnit;
+            dataStore.viewers[plot].xAxisTitle = xTitle;
+
+            dataStore.viewers[plot].plotData();
             
-            var xMin = dataStore.viewers[plot].XaxisLimitMin,
-                xMax = dataStore.viewers[plot].XaxisLimitMax
+        }
+
+        this.updateRangeSelector = function(){
+            //update the UI when plot limits are changed
+            //if multiple plots are active, track the settings of the last one
+            //<plot>: string; name of plot to update, from dataStore.plots
+            //this: plotControl object
+
+            var target = this.targets[this.targets.length-1],
+                state = dataStore.viewers[target].AxisType == 1 ? 'log' : 'linear';
 
             if(document.activeElement.id != 'minX')
-                document.getElementById('minX').value = xMin;
+                document.getElementById('minX').value = dataStore.viewers[target].XaxisLimitMin;
             if(document.activeElement.id != 'maxX')
-                document.getElementById('maxX').value = xMax;
+                document.getElementById('maxX').value = dataStore.viewers[target].XaxisLimitMax;
+            document.getElementById('xScale').value = dataStore.viewers[target].unitsPerTick;
+            document.getElementById('xUnit').value = dataStore.viewers[target].unitName;
+            document.getElementById('xTitle').value = dataStore.viewers[target].xAxisTitle;
+            document.getElementById(state + 'Y').classList.add('active');
+            document.getElementById( (state=='linear' ? 'log':'linear') + 'Y').classList.remove('active');
 
             this.manageXvalidity();
         }
@@ -562,7 +621,11 @@
 
             for(i=0; i<this.targets.length; i++){
                 dataStore.viewers[this.targets[i]].setAxisType(state);                
-            } 
+            }
+
+            //manage button state
+            document.getElementById(state + 'Y').classList.add('active');
+            document.getElementById( (state=='linear' ? 'log':'linear') + 'Y').classList.remove('active');
         }
     }
 </script>

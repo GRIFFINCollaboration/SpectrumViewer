@@ -160,6 +160,7 @@ function setupDataStore(){
         "topGroups": topGroups,                                     //groups in top nav row
         "waveformSnap": true,                                       //do we want the snap to waveform functionality?
         "doUpdates": true,                                          //do we want the data update button and loop?
+        "scaling": false,                                           //do we want to expose x-axis rescaling UI?
         "plots": [],                                                //array of names for default plot cells
         "spectrumServer": 'http://grsmid00.triumf.ca:9093',         //analyzer url + port
         "ODBrequests": [],                                          //array of odb requests to make on refresh
