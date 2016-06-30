@@ -187,14 +187,18 @@ function updateODB(obj){
     var channel = obj[0].chan,
         gain = obj[1].gain,
         offset = obj[2].offset,
-        i, position, urls = [];
+        i, g, o, position, urls = [];
 
     //for every griffin channel, update the gains and offsets:
     for(i=0; i<channel.length; i++){
         position = dataStore.GRIFFINdetectors.indexOf(channel[i]);
         if(position != -1){
-            gain[i] = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Pulse_Height'][2][1];
-            offset[i] = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Pulse_Height'][2][0];
+            g = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Pulse_Height'][2][1];
+            g = isNumeric(g) ? g : 1;
+            gain[i] = g;
+            o = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Pulse_Height'][2][0];
+            o = isNumeric(o) ? o : 0;
+            offset[i] = o;
         }
     }
 

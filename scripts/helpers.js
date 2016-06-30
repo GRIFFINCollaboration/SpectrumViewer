@@ -187,7 +187,11 @@ function prepareTemplates(templates){
     return guts
 }
 
-//promisePartial('footer').then(function(template){dataStore.foot = template })
+function isNumeric(n) {
+    // is n a number?
+
+    return !Number.isNaN(parseFloat(n)) && Number.isFinite(n);
+}
 
 function subtractHistograms(h0, h1){
     // perform element-wise subtraction h1-h0
