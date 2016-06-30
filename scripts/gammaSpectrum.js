@@ -48,7 +48,7 @@ function spectrumViewer(canvasID){
 	this.AxisType = 0; //0 == linear, 1 == log
 	this.baseFont = '16px Arial'; //default base font
 	this.expFont = '12px Arial'; //default font for exponents
-	this.xAxisTitle = 'Channels'; //default x-axis title
+	this.xAxisTitle = 'Channel'; //default x-axis title
 	this.yAxisTitle = 'Counts'; //default y-axis title
 	this.drawCallback = function(){}; //callback after plotData, no arguments passed.
 	this.demandXmin = null; //override values for x and y limits, to be used in favour of automatically detected limits.
@@ -58,6 +58,8 @@ function spectrumViewer(canvasID){
 	this.minY = 0; //minimum Y value currently being plotted
 	this.maxY = 1000000; //max Y value currently being plotted
 	this.chooseLimitsCallback = function(){};
+	this.unitsPerTick = 1; //numerical scaling from bins to whatever units
+	this.unitName = ''; //name of unit corresponding to unitsPerTick; ie unitsPerTick = 100 and unitName = 'keV' means 1 bin == 100 keV.
 
 	//data
 	this.plotBuffer = {}; //buffer holding all the spectra we have on hand, packed as 'name':data[], where data[i] = counts in channel i
@@ -134,8 +136,7 @@ function spectrumViewer(canvasID){
 
 	//draw the plot frame
 	this.drawFrame = function(suppressHistoryRecord){
-		var binsPerTick, countsPerTick, i, label, minBin, interval;
-		var axis, tick, text;
+		var binsPerTick, countsPerTick, i, label, minBin, interval, axis, tick, text, buffer;
 
 		//determine bin render width
 		this.binWidth = this.xAxisPixLength / (this.XaxisLimitMax - this.XaxisLimitMin);
@@ -176,7 +177,7 @@ function spectrumViewer(canvasID){
 			this.containerMain.addChild(tick);
 
 			//labels
-			label = (minBin + i*binsPerTick).toFixed(0);
+			label = ((minBin + i*binsPerTick)*this.unitsPerTick).toFixed(0);
 			text = new createjs.Text(label, this.context.font, this.axisColor);
 			text.textBaseline = 'top';
 			text.x = this.leftMargin + (i*binsPerTick+minBin-this.XaxisLimitMin)*this.binWidth - this.context.measureText(label).width/2;
@@ -237,9 +238,10 @@ function spectrumViewer(canvasID){
 		}
 
 		//x axis title:
-		text = new createjs.Text(this.xAxisTitle, this.context.font, this.axisColor);
+		buffer = this.xAxisTitle + (this.unitName.length>0? ` [${this.unitName}]`: '');
+		text = new createjs.Text(buffer, this.context.font, this.axisColor);
 		text.textBaseline = 'bottom';
-		text.x = this.canvas.width - this.rightMargin - this.context.measureText(this.xAxisTitle).width;
+		text.x = this.canvas.width - this.rightMargin - this.context.measureText(buffer).width;
 		text.y = this.canvas.height - this.fontScale/2;
 		this.containerMain.addChild(text);
 
@@ -382,6 +384,9 @@ function spectrumViewer(canvasID){
 			//drawXaxis();
 			this.YaxisLimitMax=5;
 
+			//callback for limit change
+			this.chooseLimitsCallback();
+
 			this.plotData();
 			this.clickBounds = [];
 		} else
@@ -446,7 +451,7 @@ function spectrumViewer(canvasID){
 
 		this.plotData();
 
-		//TBD: callbacks?
+		this.chooseLimitsCallback();
 	};
 
 	//recalculate x axis limits, for use when plots are deleted or hidden
@@ -456,6 +461,7 @@ function spectrumViewer(canvasID){
 		if(typeof this.demandXmax === 'number'){
 			this.XaxisLimitAbsMax = this.demandXmax;
 			this.XaxisLimitMax = this.demandXmax;
+			this.chooseLimitsCallback();
 			return;
 		}
 		//autodetect max otherwise
@@ -467,12 +473,15 @@ function spectrumViewer(canvasID){
 			//Find the maximum X value from the size of the data
 			this.XaxisLimitAbsMax = Math.max(this.XaxisLimitAbsMax, this.plotBuffer[thisSpec].length);
 		}
-		this.XaxisLimitMax = this.XaxisLimitAbsMax;		
+		this.XaxisLimitMax = this.XaxisLimitAbsMax;	
+		this.chooseLimitsCallback();	
 	}
 
 	//choose appropriate axis limits: default will fill the plot area, but can be overridden with this.demandXmin etc.
 	this.chooseLimits = function(){
-		var thisSpec, minYvalue, maxYvalue;
+		var thisSpec, minYvalue, maxYvalue, 
+			originalMinX = this.XaxisLimitMin,
+			originalMaxX = this.XaxisLimitMax;
 
 		this.YaxisLimitMax=5;
 		this.XaxisLength = this.XaxisLimitMax - this.XaxisLimitMin;
@@ -505,7 +514,7 @@ function spectrumViewer(canvasID){
 			//report number of entries:
 			this.entries[thisSpec] = totalEntries;
 
-		}// End of for loop
+		}
 
 		//keep track of min and max y in a convenient place
 		this.minY = minYvalue;
@@ -540,17 +549,16 @@ function spectrumViewer(canvasID){
 			//this.YaxisLength=Math.log10(this.YaxisLimitMax-this.YaxisLimitMin);
 			this.YaxisLength = Math.log10(this.YaxisLimitMax) - Math.log10(this.YaxisLimitMin);
 
-		//callback when limits are chosen - user fudges
-		this.chooseLimitsCallback();
+		//callback when x limits are changed - user fudges
+		if(originalMinX != this.XaxisLimitMin || originalMaxX != this.XaxisLimitMax)
+			this.chooseLimitsCallback();
 
 	};
 
 	//zoom out to the full x-range
 	this.unzoom = function(){
-		var thisSpec;
 
 		this.adjustXaxis();
-
 		this.plotData();
 	};
 
