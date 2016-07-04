@@ -192,7 +192,7 @@ function updateODB(obj){
     //for every griffin channel, update the gains and offsets:
     for(i=0; i<channel.length; i++){
         position = dataStore.GRIFFINdetectors.indexOf(channel[i]);
-        if(position != -1){
+        if( (position != -1) && (document.getElementById(channel[i]+'write').checked)){
             g = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Pulse_Height'][2][1];
             g = isNumeric(g) ? g : 1;
             gain[i] = g;

@@ -90,6 +90,9 @@
             document.getElementById(this.wrapID + 'peak1').onchange = this.customEnergy.bind(this);
             document.getElementById(this.wrapID + 'peak2').onchange = this.customEnergy.bind(this);
 
+            //plug in write to odb toggles
+            document.getElementById('writeAllChannels').onchange = this.toggleAllODBWrites.bind(this);
+
             //set up fit callbacks
             dataStore.viewers[dataStore.plots[0]].fitCallback = this.fitCallback.bind(this);
 
@@ -103,7 +106,6 @@
                     window.alert('You need to perform the gain match (see button at top of page) before writing results to the ODB.');
                     document.getElementById('dismissODBmodal').click();
                 }
-                console.log('writing')
                 promiseScript(dataStore.ODBrequests[0]);
             }
         },
@@ -382,9 +384,10 @@
                         || isNaN(dataStore.fitResults[keys[i]][1][1])
                     )
                 ){
-                    document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', 'background-color: #FF0000;')
+                    document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', 'background-color: #FF0000;');
+                    document.getElementById(keys[i].slice(0,10) + 'write').checked = false;
                 } else{
-                    document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', '')
+                    document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', '');
                 }
             }
         },
@@ -471,6 +474,20 @@
                 document.getElementById(this.wrapID + 'writeToODB').removeAttribute('disabled');
             else
                 document.getElementById(this.wrapID + 'writeToODB').setAttribute('disabled', true);
+        }
+
+        this.toggleAllODBWrites = function(){
+            // make each channel's odb write toggle match the master switch
+
+            var toggles = document.getElementsByClassName('write-to-odb'),
+                master = document.getElementById('writeAllChannels'),
+                state = master.checked,
+                i;
+
+            for(i=0; i<toggles.length; i++){
+                toggles[i].checked = state;
+            }
+
         }
 
     }
