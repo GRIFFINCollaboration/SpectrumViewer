@@ -105,6 +105,7 @@ function spectrumViewer(canvasID){
     this.XMouseLimitxMin = 0; //limits selected with the cursor
     this.XMouseLimitxMax = 0;
     this.clickBounds = [];
+    this.shiftclickCallback = function(){}; //callback on shift+click, passed {x,y} in bins, spectrumViewer bound as this
 
 	//plot repaint loop
 	this.RefreshTime = 3; //seconds to wait before a plot refresh when requested
@@ -1139,16 +1140,22 @@ function spectrumViewer(canvasID){
 	}.bind(this);
 
 	this.canvas.onmousedown = function(event){
-		if(event.button == 0){
+		var x, y
+		if(event.shiftKey){
+			x = this.xpix2bin(this.canvas.relMouseCoords(event).x)
+			y = this.ypix2bin(this.canvas.relMouseCoords(event).y)
+			this.shiftclickCallback.bind(this)({x:x,y:y});
+		}
+		else if(event.button == 0){
 			this.highlightStart = this.canvas.relMouseCoords(event).x;
-			this.XMouseLimitxMin = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin);
+			this.XMouseLimitxMin = this.xpix2bin(this.canvas.relMouseCoords(event).x);
 		}
 	}.bind(this);
 
 	this.canvas.onmouseup = function(event){
-			if(event.button == 0){
+			if(event.button == 0 && !event.shiftKey){
 				this.highlightStart = -1;
-				this.XMouseLimitxMax = parseInt((this.canvas.relMouseCoords(event).x-this.leftMargin)/this.binWidth + this.XaxisLimitMin); 
+				this.XMouseLimitxMax = this.xpix2bin(this.canvas.relMouseCoords(event).x); 
 				this.DragWindow();
 			}
 	}.bind(this);
@@ -1160,6 +1167,16 @@ function spectrumViewer(canvasID){
 	//right clicking does obnoxious focus things, messes with canvas onclicks.
 	this.canvas.oncontextmenu = function(){
 		return false;
+	};
+
+	this.xpix2bin = function(x){
+		// convert the x pixel position returned by relMouseCoords into a bin number
+		return parseInt((x-this.leftMargin)/this.binWidth + this.XaxisLimitMin);
+	};
+
+	this.ypix2bin = function(y){
+		// convert the y pixel position returned by relMouseCoords into a bin number
+		return Math.floor((this.canvas.height - this.bottomMargin - y)/this.yAxisPixLength * this.YaxisLength + this.YaxisLimitMin);
 	};
 }
 

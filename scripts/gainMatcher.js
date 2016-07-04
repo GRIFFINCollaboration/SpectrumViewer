@@ -59,6 +59,7 @@ function setupDataStore(){
     dataStore.lowPeakResolution.fill(0,64);                             //start with zeroes
     dataStore.highPeakResolution = [];                                  //as lowPeakResolution
     dataStore.highPeakResolution.fill(0,64);                            //start with zeroes
+    dataStore.searchRegion = []                                         //[x_start, x_finish, y for peak search bar]
 
     dataStore.GRIFFINdetectors = [                                      //10-char codes of all possible griffin detectors.
             'GRG01BN00A',
@@ -160,8 +161,12 @@ function setupDataStore(){
 setupDataStore();
 
 function fetchCallback(){
+    // change messages
     deleteNode('waitMessage');
-    //document.getElementById('gainMatcher').configure();
+    document.getElementById('regionMessage').classList.remove('hidden');
+
+    //show first plot
+    dataStore._plotListLite.snapToTop();
 }
 
 function loadData(DAQ){
@@ -221,4 +226,30 @@ function updateODB(obj){
 
     //get rid of the modal
     document.getElementById('dismissODBmodal').click();
+}
+
+function shiftclick(clickCoords){
+    // callback for shift-click on plot - draw a horizontal line as the peak search region.
+    // this == spectrumViewer object
+
+    var buffer
+
+    if(dataStore.searchRegion.length == 0){
+        dataStore.searchRegion[0] = clickCoords.x;
+        dataStore.searchRegion[2] = clickCoords.y;
+    } else if (dataStore.searchRegion.length == 3){
+        dataStore.searchRegion[1] = clickCoords.x;
+        if(dataStore.searchRegion[0] > dataStore.searchRegion[1]){
+            buffer = dataStore.searchRegion[0];
+            dataStore.searchRegion[0] = dataStore.searchRegion[1];
+            dataStore.searchRegion[1] = buffer;
+        }
+        this.addLine('searchRegion', dataStore.searchRegion[0], dataStore.searchRegion[2], dataStore.searchRegion[1], dataStore.searchRegion[2], '#00FFFF');
+        this.plotData();
+
+        //user guidance
+        deleteNode('regionMessage');
+        document.getElementById('pickerMessage').classList.remove('hidden');
+        document.getElementById('fitAll').classList.remove('disabled');
+    }
 }
