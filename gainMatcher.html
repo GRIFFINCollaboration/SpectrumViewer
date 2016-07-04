@@ -19,6 +19,7 @@
         <link id='header' rel="import" href="templates/header/header.html">
         <link id='gainMatchReport' rel="import" href="templates/gainMatchReport/gainMatchReport.html">
         <link id='matchReportTable' rel="import" href="templates/gainMatchReport/matchReportTable.html">
+        <link id='gainMatchSetupBar' rel="import" href="templates/gainMatchReport/gainMatchSetupBar.html">
         <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
         <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
         <link id='plotListLite' rel="import" href="templates/plotList/plotListLite.html">
@@ -29,7 +30,32 @@
     <body>
         <div id='head'></div>
 
-        <div id='gainMatcher'></div>
+        <!--helpful hints-->
+        <div class='col-md-6'>
+            <div id='waitMessage' class="alert alert-warning" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Spectra downloading, please wait...
+            </div>
+
+            <div id='regionMessage' class="alert alert-warning hidden" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Shift-click either end of a single line crossing both peaks you'd like to calibrate on.<br>
+                Tip: aim low and wide! 
+            </div>
+
+            <div id='pickerMessage' class="alert alert-warning hidden" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Enter the each peak's position along the line counting from the left, and its energy.
+            </div>
+
+            <div id='reviewMessage' class="alert alert-warning hidden" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Review the results in the table below, and refit any pathological peaks one at a time.
+            </div>
+        </div>
+
+        <!--peak definition-->
+        <div id='setupBar' class='col-md-12'></div>
 
         <!--Spectrum Plotting-->
         <div id='plotRegion' class='sectionWrapper'>
@@ -54,6 +80,8 @@
             </div>
         </div>
 
+        <div id='gainMatcher'></div>
+
         <!--Resolution-->
         <div id='resolutionSection' class='sectionWrapper'>
             <div id='resolutionWrap' class='col-md-6 item'>
@@ -69,10 +97,10 @@
                 dataStore._plotGrid = new plotGrid('plottingGrid');
                 dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
                 dataStore._plotListLite = new plotListLite('plotList');
-                dataStore._gainMatchReport = new gainMatchReport('gainMatcher');
+                dataStore._gainMatchReport = new gainMatchReport('gainMatcher', 'setupBar');
                 dataStore._striptool = new striptool('resolution');
 
-                dataStore.templates = prepareTemplates(['header', 'gainMatchReport', 'matchReportTable', 'plotGrid', 'plotControl', 'plotListLite', 'striptool', 'footer']);
+                dataStore.templates = prepareTemplates(['header', 'gainMatchReport', 'matchReportTable', 'gainMatchSetupBar', 'plotGrid', 'plotControl', 'plotListLite', 'striptool', 'footer']);
 
                 setupHeader('head', 'Gain Matcher');
                 dataStore._plotGrid.setup();
@@ -83,6 +111,9 @@
                 dataStore._gainMatchReport.setup();
                 dataStore._striptool.setup();
                 setupFooter('foot');
+
+                // set up shift-click behavior:
+                dataStore.viewers[dataStore.plots[0]].shiftclickCallback = shiftclick;
 
                 //don't want additional plots in this app
                 deleteNode('plottingGridnewPlotButton');

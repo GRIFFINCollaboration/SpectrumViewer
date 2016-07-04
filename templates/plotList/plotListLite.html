@@ -48,12 +48,8 @@
             listener(
                 this.wrapID, 
                 'fitAllComplete', 
-                function(event){
-                    //open the menu
-                    document.getElementById(this.wrapID + dataStore.plotGroups[0].groupID).click();
-                    //demand the plot
-                    document.getElementById(this.wrapID + dataStore.plotGroups[0].plots[0].plotID).click();
-                }.bind(this)
+                this.snapToTop.bind(this)
+                
             );
         },
 
@@ -102,17 +98,21 @@
             dataStore.currentPlot = plot;
 
             target.plotData();
+
         },
 
-        this.snapToTop = function(){
+        this.snapToTop = function(event){
             //reset display to first plot, first section
             //this: plotListLite object
             
-            //document.getElementById(this.wrapID + dataStore.plotGroups[0].groupID).onclick();
-            //document.getElementById(this.wrapID + dataStore.plotGroups[0].plots[0].plotID).onclick();
-            
-            document.getElementById(this.wrapID + Object.keys(dataStore.rawData)[0].slice(0,5)).onclick();
-            document.getElementById(this.wrapID + Object.keys(dataStore.rawData)[0].slice(0,10)).onclick();
+            if(event){
+                if(document.getElementById(this.wrapID + event.detail.target.slice(0,5)).classList.contains('hidden'))
+                    document.getElementById(this.wrapID + event.detail.target.slice(0,5)).onclick();
+                document.getElementById(this.wrapID + event.detail.target.slice(0,10)).onclick();                
+            } else {
+                document.getElementById(this.wrapID + Object.keys(dataStore.rawData)[0].slice(0,5)).onclick();
+                document.getElementById(this.wrapID + Object.keys(dataStore.rawData)[0].slice(0,10)).onclick();
+            }
 
         }
 

@@ -3,25 +3,6 @@
 <template id='gainMatchReport'>
     <div class='sectionWrapper item'>
         <div class='col-md-12'>
-            <label for='{{id}}calibrationSource'>Calibration Source:</label>
-            <select id='{{id}}calibrationSource' class='rowElement'>
-                <option selected value='Co-60'><sup>60</sup>Co</option>
-                <option value='Eu-152'><sup>152</sup>Eu</option>
-                <option value='custom'>Custom</option>
-            </select>
-
-            <label for='{{id}}peak1'>First Peak (keV):</label>
-            <input type='number' id='{{id}}peak1' class='rowElement' value=1173></input>
-            <label for='{{id}}peak1'>Second Peak (keV):</label>
-            <input type='number' id='{{id}}peak2' class='rowElement' value=1332></input>
-            <button type="button" class="btn btn-primary" id='{{id}}fitAll' disabled>
-                <span id='{{id}}snapPin' class="glyphicon glyphicon-flash" aria-hidden="true"></span> Automate Gain Match
-            </button>
-            <span id='waitMessage'>Spectra downloading, please wait...</span>
-            <div class="progress">
-              <div id='{{id}}progress' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
-            </div>
-
             <table id='{{id}}gainMatchingResults' class='table gainTable'></table>
 
             <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
@@ -58,13 +39,22 @@
 </template>
 
 <script>
-    function gainMatchReport(wrapID){
+    function gainMatchReport(wrapID, setupWrapID){
 
         this.wrapID = wrapID;
+        this.setupWrapID = setupWrapID;
         this.wrap = document.getElementById(wrapID);
+        this.setupWrap = document.getElementById(setupWrapID)
 
         this.setup = function(){
-            //inject template
+            //inject templates
+            this.setupWrap.innerHTML = Mustache.to_html(
+                dataStore.templates.gainMatchSetupBar, 
+                {
+                    'id': this.setupWrapID, 
+                }
+            );
+
             this.wrap.innerHTML = Mustache.to_html(
                 dataStore.templates.gainMatchReport, 
                 {
@@ -81,14 +71,12 @@
             );
 
             //plug in fit all button
-            document.getElementById(this.wrapID + 'fitAll').onclick = this.fitAll.bind(this);
-            document.getElementById(this.wrapID + 'fitAll').removeAttribute('disabled');
+            document.getElementById('fitAll').onclick = this.fitAll.bind(this);
+            document.getElementById('fitAll').removeAttribute('disabled');
 
-            //plug in source dropdown
-            document.getElementById(this.wrapID + 'calibrationSource').onchange = this.updateEnergies.bind(this);
             //plug in peak energy inputs
-            document.getElementById(this.wrapID + 'peak1').onchange = this.customEnergy.bind(this);
-            document.getElementById(this.wrapID + 'peak2').onchange = this.customEnergy.bind(this);
+            document.getElementById('peak1').onchange = this.customEnergy.bind(this);
+            document.getElementById('peak2').onchange = this.customEnergy.bind(this);
 
             //plug in write to odb toggles
             document.getElementById('writeAllChannels').onchange = this.toggleAllODBWrites.bind(this);
@@ -114,13 +102,14 @@
             //fit all spectra to the peaks defined.
             //this: gainMatchReport object
 
-            var i, keys = Object.keys(dataStore.rawData);
+            var i, keys = Object.keys(dataStore.rawData),
+                buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
 
             releaser(
                 function(i){
                     var keys = Object.keys(dataStore.rawData);
                     this.fitSpectra(keys[i])
-                    document.getElementById(this.wrapID + 'progress').setAttribute('style', 'width:' + (100*(keys.length - i) / keys.length) + '%' )   
+                    document.getElementById('progress').setAttribute('style', 'width:' + (100*(keys.length - i) / keys.length) + '%' )   
                 }.bind(this),
 
                 function(){
@@ -128,8 +117,12 @@
                     //set up fit line re-drawing
                     dataStore.viewers[dataStore.plots[0]].drawCallback = this.addFitLines;
 
+                    //comunicate with the user
+                    deleteNode('pickerMessage')
+                    document.getElementById('reviewMessage').classList.remove('hidden');
+
                     //leave the viewer pointing at the first spectrum for fitting
-                    dispatcher({}, 'fitAllComplete')
+                    dispatcher({target: buffer}, 'fitAllComplete')
 
                 }.bind(this),
 
@@ -210,36 +203,24 @@
             //<data>: array; bin contents for a spectrum, array index == bin number.
             //this: gainMatchReport object
 
-            var i, max, center, ROIlower, ROIupper, buffer,
-            dataCopy = JSON.parse(JSON.stringify(data)),
-            ROIwidth = 5;
-            searchWidth = 30,
+            var lowPeakIndex = parseInt(document.getElementById('peak1position').value,10),
+                highPeakIndex = parseInt(document.getElementById('peak2position').value,10),
+                centers = [],
+                ROIwidth = 5,
+                i;
 
-            max = Math.max.apply(Math, dataCopy);
-            center = dataCopy.indexOf(max);
-            ROIlower = [center - ROIwidth, center + ROIwidth];
+            // identify all peak centers of peaks that cross the search region threshold
+            for(i=dataStore.searchRegion[0]; i<dataStore.searchRegion[1]; i++){
+                if(data[i] > dataStore.searchRegion[2] && data[i] > data[i-1] && data[i] > data[i+1])
+                    centers.push(i)
 
-            //mask out this peak so we can find the next biggest
-            for(i=center-ROIwidth; i<=center+ROIwidth; i++){
-                dataCopy[i] = 0
-            }
-
-            max = Math.max.apply(Math, dataCopy);
-            center = dataCopy.indexOf(max);
-            ROIupper = [center - ROIwidth, center + ROIwidth];
-
-            //make sure lower contains the lower energy peak (currently contains the highest intensity peak)
-            if(ROIlower[0] > ROIupper[0]){
-                buffer = JSON.parse(JSON.stringify(ROIlower));
-                ROIlower = JSON.parse(JSON.stringify(ROIupper));
-                ROIupper = JSON.parse(JSON.stringify(buffer));
+                if(centers.length >= highPeakIndex) break;
             }
 
             dataStore.ROI[spectrumName] = {
-                "ROIlower": ROIlower,
-                "ROIupper": ROIupper
+                "ROIlower": [centers[lowPeakIndex-1] - ROIwidth, centers[lowPeakIndex-1] + ROIwidth],
+                "ROIupper": [centers[highPeakIndex-1] - ROIwidth, centers[highPeakIndex-1] + ROIwidth]
             }
-
         },
 
         this.fitCallback = function(center, width, amplitude, intercept, slope){
@@ -324,8 +305,8 @@
             //highBin: number; center of high energy peak in bins
             //this: gainMatchReport object
 
-            var lowEnergy = document.getElementById(this.wrapID + 'peak1').value
-            var highEnergy = document.getElementById(this.wrapID + 'peak2').value
+            var lowEnergy = document.getElementById('peak1').value
+            var highEnergy = document.getElementById('peak2').value
             var slope, intercept;
 
             slope = (lowEnergy - highEnergy) / (lowBin - highBin);
