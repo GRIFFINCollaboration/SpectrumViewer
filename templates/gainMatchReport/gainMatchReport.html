@@ -90,6 +90,9 @@
             document.getElementById(this.wrapID + 'peak1').onchange = this.customEnergy.bind(this);
             document.getElementById(this.wrapID + 'peak2').onchange = this.customEnergy.bind(this);
 
+            //plug in write to odb toggles
+            document.getElementById('writeAllChannels').onchange = this.toggleAllODBWrites.bind(this);
+
             //set up fit callbacks
             dataStore.viewers[dataStore.plots[0]].fitCallback = this.fitCallback.bind(this);
 
@@ -103,7 +106,6 @@
                     window.alert('You need to perform the gain match (see button at top of page) before writing results to the ODB.');
                     document.getElementById('dismissODBmodal').click();
                 }
-                console.log('writing')
                 promiseScript(dataStore.ODBrequests[0]);
             }
         },
@@ -202,8 +204,7 @@
         },
 
         this.guessPeaks = function(spectrumName, data){
-            //given a spectrum <data>, identify the bins corresponding to the maxima of the two largest peaks
-            //around where we expect the calibration peaks to fall (+- 30 bins of bin==peak energy in kev)
+            //given a spectrum <data>, identify the bins corresponding to the maxima of the two largest peaks.
             //register a range around those peaks as our automated guesses for where the gammas of interest lie.
             //<spectrumName>: string; name of spectrum, per names from analyzer
             //<data>: array; bin contents for a spectrum, array index == bin number.
@@ -212,12 +213,10 @@
             var i, max, center, ROIlower, ROIupper, buffer,
             dataCopy = JSON.parse(JSON.stringify(data)),
             ROIwidth = 5;
-            searchWidth = 30;
-            var lowEnergy = parseInt(document.getElementById(this.wrapID + 'peak1').value,10);
-            var highEnergy = parseInt(document.getElementById(this.wrapID + 'peak2').value,10);
+            searchWidth = 30,
 
-            max = Math.max.apply(Math, dataCopy.slice(lowEnergy - searchWidth, lowEnergy + searchWidth));
-            center = dataCopy.slice(lowEnergy - searchWidth, lowEnergy + searchWidth).indexOf(max) + lowEnergy - searchWidth;
+            max = Math.max.apply(Math, dataCopy);
+            center = dataCopy.indexOf(max);
             ROIlower = [center - ROIwidth, center + ROIwidth];
 
             //mask out this peak so we can find the next biggest
@@ -225,8 +224,8 @@
                 dataCopy[i] = 0
             }
 
-            max = Math.max.apply(Math, dataCopy.slice(highEnergy - searchWidth, highEnergy + searchWidth));
-            center = dataCopy.slice(highEnergy - searchWidth, highEnergy + searchWidth).indexOf(max) + highEnergy - searchWidth;
+            max = Math.max.apply(Math, dataCopy);
+            center = dataCopy.indexOf(max);
             ROIupper = [center - ROIwidth, center + ROIwidth];
 
             //make sure lower contains the lower energy peak (currently contains the highest intensity peak)
@@ -385,9 +384,10 @@
                         || isNaN(dataStore.fitResults[keys[i]][1][1])
                     )
                 ){
-                    document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', 'background-color: #FF0000;')
+                    document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', 'background-color: #FF0000;');
+                    document.getElementById(keys[i].slice(0,10) + 'write').checked = false;
                 } else{
-                    document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', '')
+                    document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', '');
                 }
             }
         },
@@ -474,6 +474,20 @@
                 document.getElementById(this.wrapID + 'writeToODB').removeAttribute('disabled');
             else
                 document.getElementById(this.wrapID + 'writeToODB').setAttribute('disabled', true);
+        }
+
+        this.toggleAllODBWrites = function(){
+            // make each channel's odb write toggle match the master switch
+
+            var toggles = document.getElementsByClassName('write-to-odb'),
+                master = document.getElementById('writeAllChannels'),
+                state = master.checked,
+                i;
+
+            for(i=0; i<toggles.length; i++){
+                toggles[i].checked = state;
+            }
+
         }
 
     }

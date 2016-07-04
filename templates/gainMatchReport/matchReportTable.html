@@ -1,10 +1,11 @@
 <template id='matchReportTable'>
     <tr>
-        <td>Detector</td>
-        <td>Peak 1 Channel</td>
-        <td>Peak 2 Channel</td>
-        <td>Slope</td>
-        <td>Intercept</td>
+        <td class='col-md-2'>Detector</td>
+        <td class='col-md-2'>Peak 1 Channel</td>
+        <td class='col-md-2'>Peak 2 Channel</td>
+        <td class='col-md-2'>Slope</td>
+        <td class='col-md-2'>Intercept</td>
+        <td class='col-md-2 center'>Write to ODB <input id='writeAllChannels' type='checkbox' checked></input><td>
     </tr>
     {{# detectors}}
         <tr id='{{id}}{{.}}row'>
@@ -13,6 +14,9 @@
             <td id='{{id}}{{.}}chan2'>-</td>
             <td id='{{id}}{{.}}slope'>-</td>
             <td id='{{id}}{{.}}intercept'>-</td>
+            <td class='center'>
+                <input id='{{.}}write' class='write-to-odb' type='checkbox' checked></input>
+            </td>
         </tr>
     {{/ detectors}}
 </template>
