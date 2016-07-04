@@ -497,9 +497,11 @@
                 document.getElementById('minX').value = dataStore.viewers[target].XaxisLimitMin;
             if(document.activeElement.id != 'maxX')
                 document.getElementById('maxX').value = dataStore.viewers[target].XaxisLimitMax;
-            document.getElementById('xScale').value = dataStore.viewers[target].unitsPerTick;
-            document.getElementById('xUnit').value = dataStore.viewers[target].unitName;
-            document.getElementById('xTitle').value = dataStore.viewers[target].xAxisTitle;
+            if(document.getElementById('xScale')){
+                document.getElementById('xScale').value = dataStore.viewers[target].unitsPerTick;
+                document.getElementById('xUnit').value = dataStore.viewers[target].unitName;
+                document.getElementById('xTitle').value = dataStore.viewers[target].xAxisTitle;
+            }
             document.getElementById(state + 'Y').classList.add('active');
             document.getElementById( (state=='linear' ? 'log':'linear') + 'Y').classList.remove('active');
 
