@@ -124,6 +124,10 @@
                     //leave the viewer pointing at the first spectrum for fitting
                     dispatcher({target: buffer}, 'fitAllComplete')
 
+                    //highlight suspicious rows
+                    this.whatsNormal();
+                    this.highlightOutliers();
+
                 }.bind(this),
 
                 keys.length-1
@@ -260,8 +264,6 @@
 
             //update table
             this.updateTable(dataStore.currentPlot);
-            this.whatsNormal();
-            this.highlightOutliers();
 
             //update plot
             //dataStore.viewers[dataStore.plots[0]].plotData();
@@ -296,6 +298,10 @@
                 document.getElementById(this.wrapID + spectrum.slice(0,10) + 'slope').innerHTML = calibration[1].toFixed(3);
                 dataStore.fitResults[spectrum][2] = calibration
             }
+
+            //highlight suspicious rows
+            this.whatsNormal();
+            this.highlightOutliers();
         },
 
         this.calculateLine = function(lowBin, highBin){
@@ -317,35 +323,35 @@
         },
 
         this.whatsNormal = function(){
-            //identifies the mean and SD of the fit peak position across all detectors for both claibration peaks
+            //identifies the mean and SD of the calibration slope and intercept across all detectors
 
-            var i, mean = [0,0], mean2 = [0,0], sd;
-            var keys = Object.keys(dataStore.fitResults);
-            var numFirst = 0, numSecond = 0
+            var i, meanSlope = 0, sqMeanSlope = 0, meanIntercept = 0, sqMeanIntercept = 0, sdSlope, sdIntercept,
+                keys = Object.keys(dataStore.fitResults),
+                numIntercept = 0, numSlope = 0
 
             for(i=0; i<keys.length; i++){
-                if(dataStore.fitResults[keys[i]][0] && dataStore.fitResults[keys[i]][0][1]){
-                    mean[0] += dataStore.fitResults[keys[i]][0][1];
-                    mean2[0] += Math.pow(dataStore.fitResults[keys[i]][0][1],2);
-                    numFirst++;
+                if(dataStore.fitResults[keys[i]][2] && dataStore.fitResults[keys[i]][2][0]){
+                    meanIntercept += dataStore.fitResults[keys[i]][2][0];
+                    sqMeanIntercept += Math.pow(dataStore.fitResults[keys[i]][2][0], 2);
+                    numIntercept++;
                 }
-                if(dataStore.fitResults[keys[i]][1] && dataStore.fitResults[keys[i]][1][1]){
-                    mean[1] += dataStore.fitResults[keys[i]][1][1];
-                    mean2[1] += Math.pow(dataStore.fitResults[keys[i]][1][1],2);
-                    numSecond++
+                if(dataStore.fitResults[keys[i]][2] && dataStore.fitResults[keys[i]][2][1]){
+                    meanSlope += dataStore.fitResults[keys[i]][2][1];
+                    sqMeanSlope += Math.pow(dataStore.fitResults[keys[i]][2][1], 2);
+                    numSlope++;
                 }
             }
 
-            mean[0] /= numFirst;
-            mean[1] /= numSecond;
-            mean2[0] /= numFirst;
-            mean2[1] /= numSecond;
+            meanIntercept /= numIntercept;
+            sqMeanIntercept /= numIntercept;
+            meanSlope /= numSlope;
+            sqMeanSlope /= numSlope;
 
-            sd = [ Math.sqrt(mean2[0] - Math.pow(mean[0],2)), Math.sqrt(mean2[1] - Math.pow(mean[1],2))]
+            sdIntercept = Math.sqrt(sqMeanIntercept - Math.pow(meanIntercept,2));
+            sdSlope = Math.sqrt(sqMeanSlope - Math.pow(meanSlope,2));
 
-            dataStore.meanPeaks = mean;
-            dataStore.sdPeaks = sd;
-
+            dataStore.meanCalib = [meanIntercept, meanSlope];
+            dataStore.sdCalib = [sdIntercept, sdSlope];
         },
 
         this.highlightOutliers = function(){
@@ -357,11 +363,11 @@
 
             for(i=0; i<keys.length; i++){
                 if( dataStore.fitResults[keys[i]][0] && dataStore.fitResults[keys[i]][1] && (
-                        dataStore.fitResults[keys[i]][0][1] > dataStore.meanPeaks[0] + dataStore.sdPeaks[0]*2
-                        || dataStore.fitResults[keys[i]][0][1] < dataStore.meanPeaks[0] - dataStore.sdPeaks[0]*2
+                        dataStore.fitResults[keys[i]][2][0] > dataStore.meanCalib[0] + dataStore.sdCalib[0]*4
+                        || dataStore.fitResults[keys[i]][2][0] < dataStore.meanCalib[0] - dataStore.sdCalib[0]*4
                         || isNaN(dataStore.fitResults[keys[i]][0][1])
-                        || dataStore.fitResults[keys[i]][1][1] > dataStore.meanPeaks[1] + dataStore.sdPeaks[1]*2
-                        || dataStore.fitResults[keys[i]][1][1] < dataStore.meanPeaks[1] - dataStore.sdPeaks[1]*2
+                        || dataStore.fitResults[keys[i]][2][1] > dataStore.meanCalib[1] + dataStore.sdCalib[1]*2
+                        || dataStore.fitResults[keys[i]][2][1] < dataStore.meanCalib[1] - dataStore.sdCalib[1]*2
                         || isNaN(dataStore.fitResults[keys[i]][1][1])
                     )
                 ){
@@ -369,6 +375,7 @@
                     document.getElementById(keys[i].slice(0,10) + 'write').checked = false;
                 } else{
                     document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', '');
+                    document.getElementById(keys[i].slice(0,10) + 'write').checked = true;
                 }
             }
         },
