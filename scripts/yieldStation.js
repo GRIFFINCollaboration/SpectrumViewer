@@ -8,7 +8,7 @@ function setupDataStore(){
                 {
                     "subname": "Example",
                     "id": "example",
-                    "items": ['dummy_plot', 'empty_plot']
+                    "items": ['dummy_decay', 'dummy_spectrum']
                 }
             ]
         }

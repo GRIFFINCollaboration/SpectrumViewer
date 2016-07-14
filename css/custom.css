@@ -7,6 +7,7 @@ body{
 
 div.sectionWrapper{
     clear: both;
+    margin-bottom: 2px;
 }
 
 div.item{

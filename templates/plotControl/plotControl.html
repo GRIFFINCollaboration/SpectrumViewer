@@ -278,7 +278,7 @@
 
             for(i=0; i<this.targets.length; i++){
 
-                //if new, send an event to the auxilary control table so it can update iteself
+                //if new, send an addPlotRow event for auxiliary tables etc
                 if(!dataStore.viewers[this.targets[i]].plotBuffer[event.detail.plotName]){
 
                     //add data now so row adder can find its color assignment
@@ -315,8 +315,10 @@
                         for(i=0; i<spectra.length; i++){
                             for(key in spectra[i]){
                                 //keep the raw results around
-                                if(key == 'dummy_plot')
+                                if(key == 'dummy_decay')
                                     dataStore.rawData[key] = randomDecay(2048)
+                                else if(key == 'dummy_spectrum')
+                                    dataStore.rawData[key] = dataStore.viewers[0].fakeData.energydata0
                                 else
                                     dataStore.rawData[key] = JSON.parse(JSON.stringify(spectra[i][key]));
                                 //repopulate all spectra that use this spectrum

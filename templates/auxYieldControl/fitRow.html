@@ -1,11 +1,11 @@
 <template id='fitRow'>
     
     <td>
-        <input id='label{{index}}' type='text' placeholder='105Te'></input>
+        <input id='label{{index}}' type='text' class='component-label' placeholder='105Te'></input>
     </td>
     <td>
-        <input id='lifetime{{index}}' type='number' placeholder=633></input>
-        <select id='lifetimeUnit{{index}}'>
+        <input id='lifetime{{index}}' type='number' class='component-lifetime' placeholder=633></input>
+        <select id='lifetimeUnit{{index}}' class='component-lifetime-unit'>
             <option value=1>ns</option>
             <option value=1000>us</option>
             <option value=1000000>ms</option>
@@ -14,12 +14,13 @@
     </td>
 
     <td>
-        <input id='amplitude{{index}}' type='number' placeholder=1000></input>
+        <input id='amplitude{{index}}' type='number' class='component-amplitude' placeholder=1000></input>
     </td>
 
     <td>
         <input id='efficiency{{index}}' type='number' placeholder=0.1></input>
     </td>
+    <td id='yield{{index}}'>-</td>
     <td class='center'>
         <button type="button" class="btn btn-default deleteRow" id='delete{{index}}'>
             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>

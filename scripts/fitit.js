@@ -24,7 +24,7 @@ function histofit(){
 		var i, N=0;
 		for(i=1; i<=n; i++)
 			N += i;
-//console.log([n, lambda, N])
+
 		return n*Math.log(lambda) - lambda - N;
 	}
 
@@ -35,10 +35,10 @@ function histofit(){
 
 		for(i=0; i<this.x.length; i++){
 			lambda = this.fxn.bind(this, this.x[i], param)();
-//console.log(param)
+
 			nll -= this.logPoisson(this.y[i], lambda);
 		}
-//console.log(nll)
+
 		return nll;
 	}
 

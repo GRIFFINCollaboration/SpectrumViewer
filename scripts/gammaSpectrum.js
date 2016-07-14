@@ -768,52 +768,6 @@ function spectrumViewer(canvasID){
 			callback();
 	}
 
-	//detect all peaks in spectrum between min and max
-	//fit them with gaussians on top of a linear background
-	//return background parameters as [intercept, slope]
-	//note: gets really slow, too many spurious peaks identified blows up the parameter space 
-	this.bkgFit = function(spectrum, min, max){
-		var i, concavity, width, 
-			parameterGuesses = [1000,-1],  //<-- background guess is poor
-			fitter = new histofit(),
-			nPeaks = 0,
-			region = spectrum.slice(min, max)
-
-		//detect peaks & estimate widths in the region of interest
-		concavity = this.concavity( region );
-		for(i=0; i<concavity.length; i++){
-			if(concavity[i] < -100){   //<--- TODO: does this criteria make any sense?
-				width = this.estimateWidth(region, i, region[i]);
-				parameterGuesses = parameterGuesses.concat([region[i], min + i+0.5, width])  //<--- amplitude guess is poor
-				nPeaks++;
-			}
-		}
-
-		//set up the fitter and do the fit
-		for(i=min; i<max; i++)
-			fitter.x[i-min] = i+0.5;
-		fitter.y = region;
-		fitter.fxn = this.multiPeak.bind(null, nPeaks);
-		fitter.guess = parameterGuesses;
-		fitter.fitit();
-
-		return fitter.param
-	}
-
-	//a function consisting of a linear background and several gaussian peaks
-	//par[0] = intercept, par[1] = slope of background
-	//par[2+3*n] = amplitude of nth peak, par[2+3*n+1] = center, par[2+3*n+2] = width
-	this.multiPeak = function(nPeaks, x, par){
-		var i, result;
-
-		result = par[0] + x*par[1];
-		for(i=0; i<nPeaks; i++){
-		 	result += par[2+3*i]*Math.exp(-1*(((x-par[2+3*i+1])*(x-par[2+3*i+1]))/(2*par[2+3*i+2]*par[2+3*i+2])));
-		}
-
-		return result
-	}
-
 	//given two arrays of bin numbers (bins) and counts in the corresponding bin (bkg), 
 	//detects peaks, masks them out, and return the resulting bins.
 	this.scrubPeaks = function(bins, bkg){
