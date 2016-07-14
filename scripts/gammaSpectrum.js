@@ -60,8 +60,8 @@ function spectrumViewer(canvasID){
 	this.chooseLimitsCallback = function(){};
 	this.unitsPerTick = 1; //numerical scaling from bins to whatever units
 	this.unitName = ''; //name of unit corresponding to unitsPerTick; ie unitsPerTick = 100 and unitName = 'keV' means 1 bin == 100 keV.
-	this.onshiftclick = function(){};
-	this.onmetaclick = function(){};
+	this.onshiftclick = function(event, viewer, xBin, yBin){};
+	this.onmetaclick = function(event, viewer, xBin, yBin){};
 
 	//data
 	this.plotBuffer = {}; //buffer holding all the spectra we have on hand, packed as 'name':data[], where data[i] = counts in channel i
@@ -99,6 +99,7 @@ function spectrumViewer(canvasID){
     this.lines = {}
     this.suppressedAnnotations = []; //list of annotation id's to not draw
     this.binHighlights = [] //array of objects {color, height in counts}
+    this.activePersistentOverlays = {} //object containing persistent overlays to repaint
 	// mask so annotations only appear in plot area (ie don't overflow the axes)
 	this.annotationMask = new createjs.Shape();
 	this.annotationMask.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin).lt(this.leftMargin, this.topMargin).lt(this.canvas.width - this.rightMargin, this.topMargin).lt(this.canvas.width-this.rightMargin, this.canvas.height - this.bottomMargin).closePath();
@@ -347,8 +348,8 @@ function spectrumViewer(canvasID){
 
 		//redraw annotation items
 		this.redrawAnnotation();
-		//redraw fit lines
-		this.redrawFitLines();
+		//redraw persistent overlay
+		this.redrawPersistentOverlay();
 		//shade bins
 		this.shadeBins();
 
@@ -739,15 +740,58 @@ function spectrumViewer(canvasID){
 		return fitLine;
 	}
 
-	//redraw all the fit lines in their appropriate places
-	this.redrawFitLines = function(){
-		var key, fitLine;
+	this.updatePersistentOverlay = function(line){
+		// adds line to persistent overlay; <line>: {
+		//   min: minimum bin to start drawing line in 
+		//   nBins: number of bins to draw line over
+		//   line: function of x-bin number, returns height to draw line at 
+		//}
 
-		this.containerFit.removeAllChildren();
+		var i, x, y, height, path = new createjs.Shape();
+		path.graphics.ss(3).s('#FF0000');
+		path.graphics.mt( this.leftMargin + (line.min-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - line.line(line.min)*this.countHeight);
+		
+		for(i=0;i<line.nBins;i+=0.2){
+			//draw line on canvas:
+			x = i+line.min;
+			y = line.line(x); 
 
-		for(key in this.activeFitLines){
-			fitLine = this.addFitLine(this.activeFitLines[key].min, this.activeFitLines[key].nBins, this.activeFitLines[key].amplitude, this.activeFitLines[key].center, this.activeFitLines[key].width, this.activeFitLines[key].intercept, this.activeFitLines[key].slope, this.activeFitLines[key].color);
-			this.containerFit.addChild(fitLine);
+			if(i!=0){
+				if(this.AxisType == 0){
+					path.graphics.lt( this.leftMargin + (line.min-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
+				} else if(this.AxisType == 1){
+					if(y<=0) height = 0;
+					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
+					if(height<0) height = 0;
+					path.graphics.lt( this.leftMargin + (line.min-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
+				}
+			} else{
+				if(this.AxisType == 0){
+					path.graphics.mt( this.leftMargin + (line.min-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
+				} else if(this.AxisType == 1){
+					if(y<=0) height = 0;
+					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
+					if(height<0) height = 0;
+					path.graphics.mt( this.leftMargin + (line.min-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
+				}				
+			}
+		}
+
+		this.containerPersistentOverlay.addChild(path);
+		this.stage.update();
+
+		this.activePersistentOverlays[line.min+'Overlay'] = line;
+	}
+
+	this.redrawPersistentOverlay = function(){
+		//redraw all the persistent overlay items where they should be
+
+		var key, line;
+
+		this.containerPersistentOverlay.removeAllChildren();
+
+		for(key in this.activePersistentOverlays){
+			this.updatePersistentOverlay(this.activePersistentOverlays[key]);
 		}
 	}
 
@@ -786,44 +830,6 @@ function spectrumViewer(canvasID){
 		}
 		
 		return [bkgBins, bkgCandidate];
-	}
-
-	//do a straight line fit to the points x, y, and return the results as [intercept, slope]
-	this.linearBKG = function(x, y){
-		var slope, intercept,
-			fitter = new histofit();
-
-		//make some guesses
-		slope = (y[y.length - 1] - y[0]) / (x[x.length - 1] - x[0]);
-		intercept = y[0] - x[0]*slope
-		//set up the fitter and do the fit
-		fitter.x = x;
-		fitter.y = y;
-		fitter.fxn = function(x, par){return par[0] + x*par[1]};
-		fitter.guess = [intercept, slope];
-		fitter.fitit();
-
-		//if the fit fails, fall back to simple line:
-		if(!fitter.param[0] || !fitter.param[1])
-			return fitter.simpleLine(x,y)
-
-		return fitter.param		
-	}
-
-	//given the position of a peak in a spectrum, estimate its width 
-	this.estimateWidth = function(spectrum, peakCenter, peakHeight){
-		var x, width;
-
-		x=peakCenter;
-		while(spectrum[x]>(peakHeight/2.0)) x--; 
-		width=x;
-		x=peakCenter;
-		while(spectrum[x]>(peakHeight/2.0)) x++; 
-		width=x-width;
-		if(width<1) width=1;
-		width/=2.35;
-
-		return width
 	}
 
 	//calucalte second derrivatives of spectrum; return as array
@@ -1116,11 +1122,20 @@ function spectrumViewer(canvasID){
 	}.bind(this);
 
 	this.canvas.onclick = function(event){
+		// expose some optional click responses to the user
+
+		var coords = this.canvas.relMouseCoords(event),
+			x = coords.x,
+			y = coords.y,
+			bins = this.coord2bin(x,y),
+			xBin = bins.x, 
+			yBin = bins.y;
+
 		//shift and ctrl-click are optionally user defined
 		if(event.shiftKey){
-			this.onshiftclick(event);
+			this.onshiftclick(event, this, xBin, yBin);
 		} else if(event.metaKey){
-			this.onmetaclick(event);
+			this.onmetaclick(event, this, xBin, yBin);
 		}
 	}.bind(this);
 

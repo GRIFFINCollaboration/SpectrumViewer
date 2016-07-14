@@ -173,6 +173,8 @@
                 dataStore.viewers = {};
             if(!dataStore.viewers[id]){
                 dataStore.viewers[id] = new spectrumViewer(id);
+                if(dataStore.shiftClickCallback)
+                    dataStore.viewers[id].onshiftclick = dataStore.shiftClickCallback;
             } else{
                 dataStore.viewers[id].rescale();
             }

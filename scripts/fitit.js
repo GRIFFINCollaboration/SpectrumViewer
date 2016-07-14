@@ -1,8 +1,8 @@
+////////////////////////////////
+//generic ML fitting tool
+////////////////////////////////
 function histofit(){
 
-	///////////////////////////////////////////
-	/////member variables//////////////////////
-	///////////////////////////////////////////
 	//Input
 	this.x = []; //independent variables
 	this.y = []; //dependent variables
@@ -14,10 +14,6 @@ function histofit(){
 
 	//Config
 	this.stepSize = 1;  //initial size of step to take along gradient towards minima
-
-	///////////////////////////////////////////
-	/////member functions//////////////////////
-	///////////////////////////////////////////
 
 	//log probability of n counts in a bin where lambda were expected:
 	this.logPoisson = function(n, lambda){
@@ -93,7 +89,9 @@ function histofit(){
 
 		//demand same length of this.x and this.y
 		if(this.x.length != this.y.length){
-			console.log('length of input and output arrays must be equal; fit aborted.')
+			console.log('length of input and output arrays must be equal; fit aborted.');
+			console.log('x: ', this.x);
+			console.log('y: ', this.y);
 			return;
 		}
 
@@ -123,22 +121,26 @@ function histofit(){
 		this.stepSize = 1;
 
 	}
-
-	//simple straight line:
-	this.simpleLine = function(x,y){
-		var i, X=0, Y=0, XY=0, X2=0,
-			slope, intercept;
-
-		for(i=0; i<x.length; i++){
-			X += x[i];
-			Y += y[i];
-			XY += x[i]*y[i];
-			X2 += x[i]*x[i];
-		}
-
-		slope = (x.length*XY - X*Y) / (x.length*X2 - X*X);
-		intercept = (X2*Y - X*XY) / (x.length*X2 - X*X)
-
-		return  [intercept, slope]
-	}
 };
+
+///////////////////////////////
+// simple fit estimators
+///////////////////////////////
+
+//simple straight line:
+function simpleLine(x,y){
+	var i, X=0, Y=0, XY=0, X2=0,
+		slope, intercept;
+
+	for(i=0; i<x.length; i++){
+		X += x[i];
+		Y += y[i];
+		XY += x[i]*y[i];
+		X2 += x[i]*x[i];
+	}
+
+	slope = (x.length*XY - X*Y) / (x.length*X2 - X*X);
+	intercept = (X2*Y - X*XY) / (x.length*X2 - X*X)
+
+	return  [intercept, slope]
+}

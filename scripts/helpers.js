@@ -2,6 +2,12 @@
 // Generic
 ////////////////////
 
+function isNumeric(n) {
+    // is n a number?
+
+    return !Number.isNaN(parseFloat(n)) && Number.isFinite(n);
+}
+
 function checkedRadio(name){
     //given the name of a radio group, return the checked radio
 

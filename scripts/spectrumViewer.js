@@ -164,7 +164,9 @@ function setupDataStore(){
         "plots": [],                                                //array of names for default plot cells
         "spectrumServer": 'http://grsmid00.triumf.ca:9093',         //analyzer url + port
         "ODBrequests": [],                                          //array of odb requests to make on refresh
-        "zeroedPlots": {}                                           //initialize empty object for zeroed plots
+        "zeroedPlots": {},                                          //initialize empty object for zeroed plots
+        "fitLimits": [],                                            //limits for fitting
+        "shiftClickCallback": peakFit                               //function to assign to viewers shift click callback as they are created
     }
     dataStore.cellIndex = dataStore.plots.length;
 
@@ -184,5 +186,20 @@ function fetchCallback(){
 
     for(i=0; i<keys.length; i++){
         dataStore.viewers[keys[i]].plotData(null, true);
+    }
+}
+
+function peakFit(event, viewer, xBin, yBin){
+    // handle peak + bkg fitting; intended as onshiftclick callback for spectrumViewer object
+    var fitResult;
+
+    if(dataStore.fitLimits.length == 0)
+        dataStore.fitLimits[0] = xBin;
+    else if(dataStore.fitLimits.length == 1){
+        dataStore.fitLimits[1] = xBin;
+
+        fitResult = fitGaussianPlusLinearBkg(viewer.plotBuffer[Object.keys(viewer.plotBuffer)[0]], dataStore.fitLimits[0], dataStore.fitLimits[1]);
+        viewer.updatePersistentOverlay(fitResult);
+        dataStore.fitLimits = [];
     }
 }
