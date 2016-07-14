@@ -462,3 +462,17 @@ function pokeURL(url){
     // Make the request
     req.send();
 }
+
+function randomDecay(n){
+    // return an array of integers representing a random, two compoent decay curve
+
+    var counts = [],
+        i
+
+    for(i=0; i<n; i++){
+        counts[i] = Math.floor(100*Math.random() + 500*Math.exp(-i/100) + 1000*Math.exp(-i/500))
+    }
+
+    return counts;
+
+}

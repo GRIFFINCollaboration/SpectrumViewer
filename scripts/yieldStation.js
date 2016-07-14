@@ -8,7 +8,7 @@ function setupDataStore(){
                 {
                     "subname": "Example",
                     "id": "example",
-                    "items": ['dummy_plot']
+                    "items": ['dummy_plot', 'empty_plot']
                 }
             ]
         }
@@ -21,16 +21,14 @@ function setupDataStore(){
 
     dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';       //host and port of analyzer
     dataStore.plots = ['yield-station'];                                //names of viewer objects (only one in this case)
-    dataStore.newCellListeners = ['plotControl'];
-    dataStore.attachCellListeners = ['plotControl'];                    //ids to dispatch attachCell events to
-    dataStore.plotNameListeners = ['plotControl'];
-    dataStore.addPlotRowListeners = ['auxCtrl'];                        //ids to dispatch addPlotRow events to
     dataStore.ODBrequests = [];
     dataStore.doUpdates = true;                                         //include update loop
     dataStore.plotHelpText = "Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. <br><br> Set the fit region for the current fit: shift-click either side of the fit region."
     dataStore.tableIndex = 0;                                           //serial number for fitting table row elements
     dataStore.newFitRegion = [];
     dataStore.fitLines = [];
+    dataStore.pageTitle = "Yield Station";
+    dataStore.componentIndex = 0;                                       //monotonic counter for components to fit
 }
 setupDataStore();
 

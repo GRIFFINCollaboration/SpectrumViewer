@@ -17,9 +17,8 @@
         <!--HTML imports-->
         <link id='plotList' rel="import" href="templates/plotList/plotList.html">
         <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
-        <link id='plotControlVertical' rel="import" href="templates/plotControl/plotControlVertical.html">
+        <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
         <link id='auxYieldControl' rel="import" href="templates/auxYieldControl/auxYieldControl.html">
-        <link id='auxYieldControlTable' rel="import" href="templates/auxYieldControl/auxYieldControlTable.html">
         <link id='fitRow' rel="import" href="templates/auxYieldControl/fitRow.html">
         <link id='footer' rel="import" href="templates/footer/footer.html">
     </head>
@@ -32,14 +31,14 @@
                 <div id='plottingGrid'></div>
             </div>
             <div class='col-md-2 no-pad'>
-                <div id='plotControl'></div>
+                <div id='plotCtrl'></div>
             </div>
         </div>
 
         <!-- Extra control features -->
         <hr style='width:60%; border-top: 1px solid #999'></hr>
         <div class='sectionWrapper'>
-            <div class='col-md-12'>
+            <div class='col-md-10 col-md-offset-1'>
                 <div id='auxCtrl'></div>
             </div>
         </div>
@@ -51,10 +50,10 @@
 
                 dataStore._plotList = new plotList('analyzerPlots');
                 dataStore._plotGrid = new plotGrid('plottingGrid');
-                dataStore._plotControl = new plotControl('plotControl', 'vertical');
+                dataStore._plotControl = new plotControl('plotCtrl', 'vertical');
                 dataStore._auxCtrl = new auxYieldControl('auxCtrl')
 
-                dataStore.templates = prepareTemplates(['plotList', 'plotGrid', 'plotControlVertical', 'auxYieldControl', 'auxYieldControlTable', 'fitRow', 'footer']);
+                dataStore.templates = prepareTemplates(['plotList', 'plotGrid', 'plotControl', 'auxYieldControl', 'fitRow', 'footer']);
 
                 dataStore._plotList.setup();
                 dataStore._plotGrid.setup();
@@ -68,8 +67,13 @@
                 //don't want additional plots in this app
                 deleteNode('plottingGridnewPlotButton');
 
-                //don't allow refresh period to change
-                deleteNode('plotControlupdateWrap');
+                //don't want auto refreshes
+                document.getElementById('upOptions').value = -1;
+                document.getElementById('upOptions').onchange();
+                document.getElementById('updateWrap').classList.add('hidden');
+
+                //log scale by default
+                document.getElementById('logY').click();
 
                 // set up tooltips
                 document.getElementById('plotHelpTooltip').setAttribute('title', dataStore.plotHelpText)

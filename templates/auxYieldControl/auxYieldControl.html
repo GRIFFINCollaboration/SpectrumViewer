@@ -1,40 +1,76 @@
+<link rel="stylesheet" href="auxYieldControl.css"/>
+
 <template id='auxYieldControl'>
-    {{> auxYieldControlTable}}
+    <div id='componentTableWrapper' class='sectionWrapper'>
+        <h4>Components</h4>
+        <table id='componentTable' class="table">
+            <tr>
+                <td>Label</td>
+                <td>Lifetime</td>
+                <td>Amplitude</td>
+                <td>Efficiency</td>
+                <td class='center'>Delete</td>
+            </tr>
+        </table>
+
+        <button id='new-component' class='btn btn-default'>Add New Component</button>
+    </div>
 </template>
 
 <script>
 
-    function auxYieldControl(wrapperID){
+    function auxYieldControl(wrapID){
 
-        this.wrapID = wrapperID;
-        this.wrap = document.getElementById(wrapperID);
+        this.wrapID = wrapID;
+        this.wrap = document.getElementById(wrapID);
 
         this.setup = function(){
-            this.wrap.innerHTML = Mustache.to_html(
+            this.wrap.innerHTML =  Mustache.to_html(
                 dataStore.templates.auxYieldControl, 
                 {
-                    'plots': dataStore.plots[0]
-                },
-                {
-                    'auxYieldControlTable': dataStore.templates.auxYieldControlTable
+
                 }
             );
 
-            //listen for new table rows requests
-            this.wrap.addEventListener('addPlotRow', this.newTable.bind(this), false); // this custom event naming is banans, refactor
+            // set up custom listeners
+            listener(this.wrapID, 'addPlotRow', this.refreshTable.bind(this));
+
+            // plug in UI
+            document.getElementById('new-component').onclick = this.newTableRow.bind(this);
+
+            // start with one component
+            this.newTableRow();
 
         }
 
-        this.newTable = function(event){
+        this.refreshTable = function(event){
             console.log('new table')
         }
 
         this.newTableRow = function(event){
-            console.log('new table row')
+            // add a new component to the table
+
+            var row = document.createElement('tr');
+
+            row.innerHTML = Mustache.to_html(
+                dataStore.templates.fitRow, 
+                {
+                    index: dataStore.componentIndex
+                }
+            );
+            row.setAttribute('id', 'compenentRow'+dataStore.componentIndex);
+            document.getElementById('componentTable').appendChild(row);
+
+            // plug in delete button
+            document.getElementById('delete' + dataStore.componentIndex).onclick = this.deleteRow.bind(this,dataStore.componentIndex);
+
+            dataStore.componentIndex++;
         }
 
-        this.deleteTable = function(event){
-            console.log('delete table')
+        this.deleteRow = function(index){
+            // remove the indexed component row
+
+            deleteNode('compenentRow'+index);
         }
     }
 
