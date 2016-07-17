@@ -191,15 +191,34 @@ function fetchCallback(){
 
 function peakFit(event, viewer, xBin, yBin){
     // handle peak + bkg fitting; intended as onshiftclick callback for spectrumViewer object
-    var fitResult;
+    var target = viewer.canvasID,
+        radio = checkedRadio(this.wrapID + 'fitTarget'),
+        spectrum = document.querySelector('input.' + target + '-fit-target:checked').getAttribute('spectrum'),
+        reportDiv = document.getElementById(target+spectrum+'FitResult'),
+        integral = 0,
+        functionVals = [],
+        i, x, fitResult, sigmas = 5, stepSize = 0.01;
 
     if(dataStore.fitLimits.length == 0)
         dataStore.fitLimits[0] = xBin;
     else if(dataStore.fitLimits.length == 1){
         dataStore.fitLimits[1] = xBin;
 
+        //do the fit
         fitResult = fitGaussianPlusLinearBkg(viewer.plotBuffer[Object.keys(viewer.plotBuffer)[0]], dataStore.fitLimits[0], dataStore.fitLimits[1]);
+        //draw it on the spectrum
         viewer.updatePersistentOverlay(fitResult);
+        //report results in the table
+        if(reportDiv.innerHTML == '-')
+            reportDiv.innerHTML = '';
+        for(i=0; i<2*sigmas*fitResult.width/stepSize; i++){
+            x = fitResult.center - sigmas*fitResult.width + i*stepSize
+            functionVals.push( gauss(fitResult.amplitude, fitResult.center, fitResult.width, x)*stepSize )
+            integral = functionVals.integrate()
+        }
+        reportDiv.innerHTML += 'Center: ' + fitResult.center.toFixed(2) + ', FWHM: ' + (2.35482*fitResult.width).toFixed(2) + ', Area: ' + integral.toFixed(2) + '<br>';
+
+        //refresh for next time.
         dataStore.fitLimits = [];
     }
 }

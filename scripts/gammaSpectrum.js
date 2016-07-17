@@ -13,12 +13,10 @@ function spectrumViewer(canvasID){
 	this.containerOverlay = new createjs.Container(); //layer for overlay: cursors, range highlights
 	this.containerPersistentOverlay = new createjs.Container(); //layer for persistent overlay features
 	this.containerAnnotations = new createjs.Container(); //layer for annotations
-	this.containerFit = new createjs.Container(); //layer for fit curves
 	this.stage.addChild(this.containerMain);
 	this.stage.addChild(this.containerOverlay);
 	this.stage.addChild(this.containerPersistentOverlay);
 	this.stage.addChild(this.containerAnnotations);
-	this.stage.addChild(this.containerFit);
 
 	//axes & drawing
 	this.fontScale = Math.min(Math.max(this.canvas.width / 50, 10), 16); // 10 < fontScale < 16
@@ -73,21 +71,6 @@ function spectrumViewer(canvasID){
 	this.colorAssignment = [null, null, null, null, null, null, null, null, null, null]; //holds the data series key in the array position corresponding to the color to draw it with from this.dataColor
 	this.hideSpectrum = {}; //any spectrum name used as a key holding a truthy value here will be skipped during plotting
 
-	//fitting
-	this.fitTarget = null //id of the spectrum to fit to
-	this.fitted = false; //has the spectrum been fit since the last repaint?
-	this.fitModeEngage = false; //are we currently fitting the spectrum?
-	this.FitLimitLower = -1; //fitting limits
-	this.FitLimitUpper = -1;
-	this.fitCallback = function(){}; //callback to run after fitting, arguments are (center, width, amplitude, linear background intercept, slope)
-	this.MLfit = true; //do a maximum likelihood fit for putting gaussians on peaks; otherwise fit just estimates gaussian form mode and half-max
-	// mask so fits only appear in plot area (ie don't overflow the axes)
-	this.fitMask = new createjs.Shape();
-	this.fitMask.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin).lt(this.leftMargin, this.topMargin).lt(this.canvas.width - this.rightMargin, this.topMargin).lt(this.canvas.width-this.rightMargin, this.canvas.height - this.bottomMargin).closePath();
-	this.containerFit.mask = this.fitMask;
-	this.activeFitLines = {} //object containing fit lines to repaint
-	this.fitLineColor = '#FF0000'; //color to make the next fit line
-
     //cursors
     this.cursorX = 0; //x-bin of cursor
     this.cursorY = 0; //y-bin of cursor
@@ -104,6 +87,7 @@ function spectrumViewer(canvasID){
 	this.annotationMask = new createjs.Shape();
 	this.annotationMask.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin).lt(this.leftMargin, this.topMargin).lt(this.canvas.width - this.rightMargin, this.topMargin).lt(this.canvas.width-this.rightMargin, this.canvas.height - this.bottomMargin).closePath();
 	this.containerAnnotations.mask = this.annotationMask;
+	this.containerPersistentOverlay.mask = this.annotationMask;
 
     //click interactions
     this.XMouseLimitxMin = 0; //limits selected with the cursor
@@ -288,7 +272,6 @@ function spectrumViewer(canvasID){
 			// Loop through the data spectrum that we have
 			histLine = new createjs.Shape();
 			histLine.graphics.ss(this.axisLineWidth).s(color);
-			//histLine.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin);
 			for(i=Math.floor(this.XaxisLimitMin); i<Math.floor(this.XaxisLimitMax); i++){
 				//determine the baseline; 0 if nothing is found
 				if(this.baselines[thisSpec] && this.baselines[thisSpec][i])
@@ -357,9 +340,6 @@ function spectrumViewer(canvasID){
 
 		//callback
 		this.drawCallback();
-
-		// Pause for some time and then recall this function to refresh the data display
-		//if(this.RefreshTime>0 && RefreshNow==1) this.refreshHandler = setTimeout(function(){plotData(1, 'true')},this.RefreshTime*1000); 	
 	};
 
 	//handle drag-to-zoom on the plot
@@ -404,7 +384,7 @@ function spectrumViewer(canvasID){
 
 		if(bin<0) return
 
-		//decide what to do with the clicked limits - zoom or fit?
+		//decide what to do with the clicked limits
 		if(this.clickBounds.length == 0){
 			this.clickBounds[0] = bin;
 			redline = new createjs.Shape();
@@ -412,28 +392,20 @@ function spectrumViewer(canvasID){
 			redline.graphics.mt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.canvas.height - this.bottomMargin);
 			redline.graphics.lt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.topMargin);
 			this.containerPersistentOverlay.addChild(redline);
-		} else if(this.clickBounds[0] == 'abort' && !this.fitModeEngage){
+		} else if(this.clickBounds[0] == 'abort'){
 			this.clickBounds = [];
 		} else if(this.clickBounds.length == 2 ){
 			this.clickBounds = [];
 			this.clickBounds[0] = bin;
 		} else if(this.clickBounds.length == 1){
 			this.clickBounds[1] = bin;
-			//fit mode
-			if(this.fitModeEngage){
-				this.FitLimitLower = Math.min(this.clickBounds[0], this.clickBounds[1]);
-				this.FitLimitUpper = Math.max(this.clickBounds[0], this.clickBounds[1]);
-				this.fitData(this.fitTarget);
-				this.clickBounds = [];
-			} else {  //zoom mode
-				//use the mouse drag function to achieve the same effect for clicking:
-				this.XMouseLimitxMin = this.clickBounds[0];
-				this.XMouseLimitxMax = this.clickBounds[1];
-				this.DragWindow();
-				this.clickBounds = [];
-				this.containerPersistentOverlay.removeAllChildren();
-				this.stage.update();
-			}
+			//use the mouse drag function to achieve the same effect for clicking:
+			this.XMouseLimitxMin = this.clickBounds[0];
+			this.XMouseLimitxMax = this.clickBounds[1];
+			this.DragWindow();
+			this.clickBounds = [];
+			this.containerPersistentOverlay.removeAllChildren();
+			this.stage.update();
 		}
 	};
 
@@ -486,7 +458,8 @@ function spectrumViewer(canvasID){
 	this.chooseLimits = function(){
 		var thisSpec, minYvalue, maxYvalue, 
 			originalMinX = this.XaxisLimitMin,
-			originalMaxX = this.XaxisLimitMax;
+			originalMaxX = this.XaxisLimitMax,
+			spectrum;
 
 		this.YaxisLimitMax=5;
 		this.XaxisLength = this.XaxisLimitMax - this.XaxisLimitMin;
@@ -503,15 +476,23 @@ function spectrumViewer(canvasID){
 			this.XaxisLimitAbsMax = Math.max(this.XaxisLimitAbsMax, this.plotBuffer[thisSpec].length);
 
 			// Find minimum and maximum Y value in the part of the spectrum to be displayed
-			if(Math.min.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)))<minYvalue){
-				minYvalue=Math.min.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)));
+			spectrum = this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax));
+			if(this.baselines[thisSpec])
+				spectrum = spectrum.map(
+					function(current, index, arr){
+						return current - this[index];
+					}, 
+					this.baselines[thisSpec]
+				)
+			if(Math.min.apply(Math, spectrum)<minYvalue){
+				minYvalue=Math.min.apply(Math, spectrum);
 			}
-			if(Math.max.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)))>maxYvalue){
-				maxYvalue=Math.max.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)));
+			if(Math.max.apply(Math, spectrum)>maxYvalue){
+				maxYvalue=Math.max.apply(Math, spectrum);
 			}
 
 			// Find the sum of everything in the current x range
-			data = this.plotBuffer[thisSpec].slice(  Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)   );
+			data = spectrum;
 			totalEntries = 0;
 			for(j=0; j<data.length; j++ ){
 				totalEntries += data[j];
@@ -592,154 +573,6 @@ function spectrumViewer(canvasID){
 		this.plotData();
 	};
 
-	//set up for fit mode, replaces old requestfitlimits
-	this.setupFitMode = function(){
-
-		this.fitModeEngage = 1;
-		this.FitLimitLower=-1;
-		this.FitLimitUpper=-1;		
-	};
-
-	//abandon fit mode without fitting
-	this.leaveFitMode = function(){
-		this.fitModeEngage = 0;
-		this.FitLimitLower=-1;
-		this.FitLimitUpper=-1;	
-	}
-
-	//stick a gaussian on top of the spectrum fitKey between the fit limits
-	this.fitData = function(fitKey, retries){
-		var cent, fitdata, i, max, width, x, y, height, bkg, bins, estimate, result,
-			fitLine, fitter;
-
-		if(!retries)
-			retries = 0;
-
-		//suspend the refresh
-		window.clearTimeout(this.refreshHandler);
-
-		if(this.FitLimitLower<0) this.FitLimitLower=0;
-		if(this.FitLimitUpper>this.XaxisLimitAbsMax) this.FitLimitUpper = this.XaxisLimitAbsMax;
-
- 		//old method just sticks a hat on the peak; use this as initial guess
-		max=1;
-
-		fitdata=this.plotBuffer[fitKey];
-		fitdata=fitdata.slice(this.FitLimitLower, this.FitLimitUpper+1);
-
-		// Find maximum Y value in the fit data
-		if(Math.max.apply(Math, fitdata)>max){
-			max=Math.max.apply(Math, fitdata);
-		}
-
-		// Find the bin with the maximum Y value
-		cent=0;
-		while(fitdata[cent]<max){
-			cent++;
-		}
-
-		width = this.estimateWidth(fitdata, cent, max);
-
-		cent=cent+this.FitLimitLower+0.5;
-
-		//prefit straight bkg
-		x = []
-		y = []
-		for(i=this.FitLimitLower-5; i<this.FitLimitLower; i++){
-			x.push(i)
-			y.push(this.plotBuffer[fitKey][i]) 
-		}
-		for(i=this.FitLimitUpper; i<this.FitLimitUpper+5; i++){
-			x.push(i)
-			y.push(this.plotBuffer[fitKey][i]) 
-		}
-		estimate = this.linearBKG(x,y)
-
-		//use the new prototype fitting package to do a maximum likelihood gaussian fit:
-		if(this.MLfit){
-			fitter = new histofit();
-			for(i=this.FitLimitLower; i<=this.FitLimitUpper; i++)
-				fitter.x[i-this.FitLimitLower] = i+0.5;
-			fitter.y=fitdata;
-			fitter.fxn = function(intercept, slope, x, par){return intercept + slope*x + par[0]*Math.exp(-1*(((x-par[1])*(x-par[1]))/(2*par[2]*par[2])))}.bind(null, estimate[0], estimate[1]);
-			fitter.guess = [max, cent, width];
-			fitter.fitit();
-			max = fitter.param[0];
-			cent = fitter.param[1];
-			width = fitter.param[2];
-		}
-
-		//check if the fit failed, and redo with slightly nudged fit limits
-		if( (!max || !cent || !width) && retries<10){
-			this.FitLimitLower--;
-			this.FitLimitUpper++;
-			return this.fitData(fitKey, retries+1);
-		}
-
-		result = {
-			'min': this.FitLimitLower,
-			'nBins': fitdata.length,
-			'amplitude': max,
-			'center': cent,
-			'width': width,
-			'intercept': estimate[0],
-			'slope': estimate[1],
-			'color': this.fitLineColor
-		}
-
-		//keep track of results for plotting etc
-		this.activeFitLines[fitKey + Math.round(cent)] = result;
-		fitLine = this.addFitLine(this.FitLimitLower, fitdata.length, max, cent, width, estimate[0], estimate[1], this.fitLineColor)
-		result.fitLine = fitLine;
-
-		this.containerPersistentOverlay.removeAllChildren();
-		this.containerFit.addChild(fitLine);
-		this.stage.update();
-
-		this.fitted=1;
-		this.fitModeEngage = 0;
-
-		this.fitCallback(cent, width, max, estimate[0], estimate[1]);
-
-		return result;
-	};
-
-	this.addFitLine = function(lowerLimit, nPoints, amplitude, center, width, intercept, slope, color){
-		//returns a createjs.Shape representing a background fit with the given parameters
-
-		var i, x, y, height, fitLine = new createjs.Shape();
-		fitLine.graphics.ss(3).s(color || '#FF0000');
-		fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - this.bkgShape(lowerLimit, amplitude, center, width, intercept, slope)*this.countHeight);
-		
-		for(i=0;i<nPoints;i+=0.2){
-			//draw fit line on canvas:
-			x = i+lowerLimit;
-			y = this.bkgShape(x, amplitude, center, width, intercept, slope) 
-
-			if(i!=0){
-				if(this.AxisType == 0){
-					fitLine.graphics.lt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
-				} else if(this.AxisType == 1){
-					if(y<=0) height = 0;
-					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
-					if(height<0) height = 0;
-					fitLine.graphics.lt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
-				}
-			} else{
-				if(this.AxisType == 0){
-					fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
-				} else if(this.AxisType == 1){
-					if(y<=0) height = 0;
-					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
-					if(height<0) height = 0;
-					fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
-				}				
-			}
-		}
-
-		return fitLine;
-	}
-
 	this.updatePersistentOverlay = function(line){
 		// adds line to persistent overlay; <line>: {
 		//   min: minimum bin to start drawing line in 
@@ -795,21 +628,18 @@ function spectrumViewer(canvasID){
 		}
 	}
 
+	this.dropPersistentOverlay = function(){
+		//drop everything from the persistent overlay
+
+		this.activePersistentOverlays = {};
+		this.containerPersistentOverlay.removeAllChildren();
+		this.stage.update();
+	}
+
 	this.bkgShape = function(x, amplitude, center, width, intercept, slope){
 		//evaluate a gaussian + linear background at x
 
 		return intercept + slope*x + amplitude*Math.exp(-1*(x-center)*(x-center)/2/width/width);
-	}
-
-	//dump the fit results
-	this.clearFits = function(callback){
-		this.containerFit.removeAllChildren();
-		this.activeFitLines = {};
-		this.fitted = false;
-		this.stage.update();
-
-		if(callback)
-			callback();
 	}
 
 	//given two arrays of bin numbers (bins) and counts in the corresponding bin (bkg), 
@@ -883,8 +713,6 @@ function spectrumViewer(canvasID){
 	this.addData = function(name, data){
 		var nSeries, i;
 		//data = this.fakeData.energydata0 //fake for testing
-		//dump fits
-		this.clearFits();
 
 		//if a series with this name already exists, just update the data
 		if(this.plotBuffer[name]){
@@ -1046,13 +874,12 @@ function spectrumViewer(canvasID){
         this.mouseMoveCallback(xBin, Math.max(yBin,0) );
 
         //change cursor to indicate draggable region:
-        if(this.fitModeEngage){
+        if(event.shiftKey){
         	if( y < (this.canvas.height - this.bottomMargin) )
 	        	document.body.style.cursor = 's-resize';
 	        else 
 	        	document.body.style.cursor = 'n-resize';
-	    }
-        else if(y>this.canvas.height-this.bottomMargin) 
+	    } else if(y>this.canvas.height-this.bottomMargin) 
         	document.body.style.cursor = 'pointer';
         else
         	document.body.style.cursor = 'default';

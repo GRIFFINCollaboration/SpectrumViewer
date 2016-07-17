@@ -3,17 +3,8 @@
 <template id='auxPlotControl'>
     <div class='sectionWrapper'>
         <h4>Fitting & Zeroing</h4>
-        <button type="button" class="btn btn-default btn-lg" id='{{id}}fitMode' engaged='0'>
-            <span id='{{id}}fitBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> Fit a new Peak
-        </button>
 
-        <button type="button" class="btn btn-default btn-lg" id='{{id}}deleteAll'>
-            <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span> Remove all plots
-        </button>
-
-        <button class="btn btn-info" style='float:right;' data-trigger="hover" data-html="true" data-toggle="tooltip" title="1. Click the 'Fit Target' button beside the plot you want to fit. <br><br> 2. Click 'Fit a New Peak' <br><br> 3. Click on the limits of the fit region. <br><br> Note fit line will be removed when data is updated; stop data update first to avoid this." data-placement="auto left" data-container="body">Fitting Help</button>
-
-        <span id='{{id}}fitInstructions' class='hidden'>Click on either side of the peak to perform a fit.</span>
+        <button class="btn btn-info bottom-gutter" data-trigger="hover" data-html="true" data-toggle="tooltip" title="1. Click the 'Fit Target' radio beside the plot you want to fit. <br><br> 2. Shift-click on either side of the peak you want to fit." data-placement="auto left" data-container="body">Fitting Help</button>
     </div>
 
     {{> auxPlotControlTable}}
@@ -42,11 +33,6 @@
             listener(this.wrapID, 'addPlotRow', this.newTableRow.bind(this));
             listener(this.wrapID, 'newCell', this.newTable.bind(this));
             listener(this.wrapID, 'deleteCell', this.deleteTable.bind(this));
-
-            //plug in delete all button
-            document.getElementById(this.wrapID + 'deleteAll').onclick = this.deleteAllSpectra;
-            //plug in fit mode toggle
-            document.getElementById(this.wrapID + 'fitMode').onclick = this.toggleFitMode.bind(this);
         }
 
         ////////////////////////
@@ -59,7 +45,6 @@
             //this: auxPlotControl object
 
             //generate the row object and append it
-            var radio;
             var row = document.createElement('tr');
             row.setAttribute('id', event.detail.target + event.detail.plotName);
             row.setAttribute('class', 'plotControlTable')
@@ -78,11 +63,6 @@
             document.getElementById('delete' + event.detail.target + event.detail.plotName).onclick = this.deleteSpectrum; 
             document.getElementById('zero' + event.detail.target + event.detail.plotName).onclick = this.zeroSpectrum; 
             document.getElementById('dropFit' + event.detail.target + event.detail.plotName).onclick = this.dropFit; 
-
-            //plug in fit target radio, emulate its click behavior
-            radio = document.getElementById(event.detail.target + event.detail.plotName + 'Radio')
-            radio.onclick = this.setFitTarget
-            radio.onclick();
         }
 
         this.newTable = function(event){
@@ -114,15 +94,6 @@
         // data manipulation
         ////////////////////////
 
-        this.deleteAllSpectra = function(){
-            //delete every spectrum currently displayed
-
-            var deleteButtons = document.getElementsByClassName('deleteRow')
-            while(deleteButtons.length > 0){
-                deleteButtons[0].onclick(); //actually modifies deleteButtons in place - keep deleting zeroth element.
-            }
-        }
-
         this.deleteSpectrum = function(){
             //callback for delete button to remove corresponding plot
             //this: delete button element
@@ -145,7 +116,7 @@
 
             dataStore.viewers[target].baselines[spectrum] = JSON.parse(JSON.stringify(dataStore.viewers[target].plotBuffer[spectrum]));
             document.getElementById(target+spectrum+'FitResult').innerHTML = '-';
-            dataStore.viewers[target].clearFits();
+            dataStore.viewers[target].dropPersistentOverlay();
             dataStore.viewers[target].plotData();
         }
 
@@ -157,90 +128,9 @@
             var spectrum = this.getAttribute('spectrum')
 
             document.getElementById(target+spectrum+'FitResult').innerHTML = '-';
-            dataStore.viewers[target].clearFits();
+            dataStore.viewers[target].dropPersistentOverlay();
             dataStore.viewers[target].plotData();
         }
-
-        this.toggleFitMode = function(){
-            //manage the state of the Fit Mode button, and the corresponding state of the viewer.
-            //this: auxPlotControl object
-
-            //determine which canvas and spectrum we're currently pointing at
-            var radio = checkedRadio(this.wrapID+'fitTarget');
-            var target = radio.getAttribute('target');
-            var spectrum = radio.getAttribute('spectrum');            
-
-            var fitModeSwitch = document.getElementById(this.wrapID + 'fitMode')
-            var state = fitModeSwitch.getAttribute('engaged')
-
-            //make sure the fit callback is set up
-            dataStore.viewers[target].fitCallback = this.fitCallback.bind(this);
-
-            if(state == 0){
-                dataStore.viewers[target].setupFitMode();
-                fitModeSwitch.setAttribute('engaged', 1);
-                document.getElementById(this.wrapID+'fitBadge').classList.add('red-text')
-            }
-            else{
-                dataStore.viewers[target].leaveFitMode();
-                fitModeSwitch.setAttribute('engaged', 0);
-                document.getElementById(this.wrapID+'fitBadge').classList.remove('red-text')
-            }
-
-            //toggle state indicator
-            document.getElementById(this.wrapID+'fitInstructions').classList.toggle('hidden')
-        }
-
-        /////////////////
-        // callbacks
-        /////////////////
-
-        this.setFitTarget = function(event){
-            //callback for radios to set fit targets
-            //<event>: event; onclick
-            //this: fit target radio element
-
-            var target = this.getAttribute('target')
-            var spectrum = this.getAttribute('spectrum')
-
-            dataStore.viewers[target].fitTarget = spectrum;
-        }
-
-        this.fitCallback = function(center, width, amplitude, intercept, slope){
-            //route the fit results to the table, and gracefully exit fit mode.
-            //<center>: number; center of gaussian peak
-            //<width>: number; width of peak
-            //<amplitude>: number; amplitude of peak
-            //<intercept>: number; intercept of linear background beneath peak
-            //<slope>: number; slope of linear background
-            //this: auxPlotControl object
-
-            var radio = checkedRadio(this.wrapID + 'fitTarget');
-            var target = radio.getAttribute('target');
-            var spectrum = radio.getAttribute('spectrum'); 
-
-            var spectrum = dataStore.viewers[target].fitTarget,
-                reportDiv = document.getElementById(target+spectrum+'FitResult'),
-                integral = 0,
-                functionVals = [],
-                i, x, sigmas = 5, stepSize = 0.01;
-
-            if(reportDiv.innerHTML == '-')
-                reportDiv.innerHTML = '';
-
-            //calculate peak area in excess of background, for <sigmas> up and down.
-            for(i=0; i<2*sigmas*width/stepSize; i++){
-                x = center - sigmas*width + i*stepSize
-                functionVals.push( gauss(amplitude, center, width, x)*stepSize )
-                integral = functionVals.integrate()
-            }
-
-            reportDiv.innerHTML += 'Center: ' + center.toFixed(2) + ', FWHM: ' + (2.35482*width).toFixed(2) + ', Area: ' + integral.toFixed(2) + '<br>';
-
-            this.toggleFitMode()
-            dataStore.viewers[target].leaveFitMode();
-        }
-
     }
 
 </script>

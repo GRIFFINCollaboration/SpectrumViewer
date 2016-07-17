@@ -76,3 +76,7 @@ input, button, select, li.toggle{
 div.no-pad{
     padding: 0px;
 }
+
+.bottom-gutter{
+    margin-bottom: 1em;
+}
