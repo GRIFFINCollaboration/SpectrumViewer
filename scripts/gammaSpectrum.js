@@ -322,12 +322,9 @@ function spectrumViewer(canvasID){
 
 				} else continue;
 			}
-			//finish the canvas path:
-			//if(this.plotBuffer[thisSpec].length == this.XaxisLimitMax) 
-			//	histLine.graphics.lt(this.canvas.width - this.rightMargin, this.canvas.height - this.bottomMargin );
 			this.containerMain.addChild(histLine);
 			j++;
-		} // End of for loop
+		}
 
 		//redraw annotation items
 		this.redrawAnnotation();

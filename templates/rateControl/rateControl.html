@@ -160,8 +160,7 @@
 
             var index = parseInt(element.name.slice(3),10);
             this.queueAnnotation(dataStore.defaults.gammas[index].title, 'BKG Method Changed to ' + element.value);
-            dataStore.defaults.gammas[index].newFitMethod = true;
-            fetchCallback()
+            //fetchCallback()
         },
 
         this.updateManualFitRange = function(element){
@@ -203,7 +202,6 @@
                     if(bkgTechnique=='auto'){
                         bkgSample = this.constructAutoBackgroundRange(min, max);
                     } else if(bkgTechnique=='manual' && bkgPattern ){ //ie only even try to do this if a valid bkgPattern has made it into the dataStore.
-
                         bkgSample = this.constructManualBackgroundRange(bkgPattern, dataStore.currentSpectrum);
                     }
 
@@ -217,7 +215,7 @@
                     }
 
                     //fit background
-                    bkg = dataStore.viewers[dataStore.plots[0]].linearBKG.apply(null, bkgSample);
+                    bkg = linearBKG.apply(null, bkgSample);
 
                     //update annotation with fit line
                     y0 = bkg[0] + (min-1)*bkg[1];
@@ -242,13 +240,6 @@
 
             //integrate gamma window on difference histogram
             for(i=0; i<dataStore.defaults.gammas.length; i++){
-                if(dataStore.defaults.gammas[i].newFitMethod){
-                    //can't make a sensible comparison on first tick after fit method change
-                    gates[i] = 0;
-                    dataStore.defaults.gammas[i].newFitMethod = false;
-                    continue;
-                }
-
                 id = dataStore.defaults.gammas[i].index;
                 min = dataStore.viewers[dataStore.plots[0]].verticals['min' + id].bin
                 max = dataStore.viewers[dataStore.plots[0]].verticals['max' + id].bin
@@ -257,6 +248,7 @@
                 for(j=min; j<max; j++){
                     gates[i] += dataStore.histoDiff[j];
                 }
+                console.log(id, gates[i])
                 gates[i] /= (dataStore.currentTime - dataStore.oldTime);        
             }
             
