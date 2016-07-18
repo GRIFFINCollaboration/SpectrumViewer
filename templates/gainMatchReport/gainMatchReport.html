@@ -81,9 +81,6 @@
             //plug in write to odb toggles
             document.getElementById('writeAllChannels').onchange = this.toggleAllODBWrites.bind(this);
 
-            //set up fit callbacks
-            dataStore.viewers[dataStore.plots[0]].fitCallback = this.fitCallback.bind(this);
-
             //plug in the allow ODB write switch
             document.getElementById(this.wrapID + 'yesDefinitelyWriteODB').onchange = this.toggleODBwrite.bind(this);
 
@@ -128,6 +125,8 @@
                     this.whatsNormal();
                     this.highlightOutliers();
 
+                    dataStore.currentPeak = -1;
+
                 }.bind(this),
 
                 keys.length-1
@@ -139,65 +138,47 @@
             //<spectrum>: string; name of spectrum, per names from analyzer
             //this: gainMatchReport object
 
-            var viewerName = dataStore.plots[0];
+            var viewerName = dataStore.plots[0],
+                viewer = dataStore.viewers[viewerName],
+                fitResult;
+
+            // dump old annotations
+            viewer.dropPersistentOverlay();
 
             //identify regions of interest
             this.guessPeaks(spectrum, dataStore.rawData[spectrum]);
 
             //set up fitting
-            dataStore.viewers[viewerName].addData(spectrum, JSON.parse(JSON.stringify(dataStore.rawData[spectrum])) );
+            viewer.addData(spectrum, JSON.parse(JSON.stringify(dataStore.rawData[spectrum])) );
             dataStore.currentPlot = spectrum;
-            dataStore.viewers[viewerName].plotData() //kludge to update limits, could be nicer
-            dataStore.viewers[viewerName].fitTarget = spectrum;
+            viewer.plotData() //kludge to update limits, could be nicer
 
             //first peak
             dataStore.currentPeak = 0
-            dataStore.viewers[viewerName].FitLimitLower = dataStore.ROI[spectrum].ROIlower[0]
-            dataStore.viewers[viewerName].FitLimitUpper = dataStore.ROI[spectrum].ROIlower[1]
-            dataStore.viewers[viewerName].fitData(spectrum, 0);
+            fitResult = fitGaussianPlusLinearBkg(viewer.plotBuffer[spectrum], dataStore.ROI[spectrum].ROIlower[0], dataStore.ROI[spectrum].ROIlower[1]);
+            viewer.updatePersistentOverlay(fitResult);
+            this.fitCallback(fitResult)
             
             //second peak
             dataStore.currentPeak = 1
-            dataStore.viewers[viewerName].FitLimitLower = dataStore.ROI[spectrum].ROIupper[0]
-            dataStore.viewers[viewerName].FitLimitUpper = dataStore.ROI[spectrum].ROIupper[1]
-            dataStore.viewers[viewerName].fitData(spectrum, 0);
+            fitResult = fitGaussianPlusLinearBkg(viewer.plotBuffer[spectrum], dataStore.ROI[spectrum].ROIupper[0], dataStore.ROI[spectrum].ROIupper[1]);
+            viewer.updatePersistentOverlay(fitResult);
+            this.fitCallback(fitResult)
             
             //dump data so it doesn't stack up 
-            dataStore.viewers[viewerName].removeData(spectrum);        
+            viewer.removeData(spectrum);        
         },
 
         this.addFitLines = function(){
             //add current fits to the plot
 
             var lower, upper,
-                viewerName = dataStore.plots[0];
+                viewerName = dataStore.plots[0],
+                viewer = dataStore.viewers[viewerName];
 
-            dataStore.viewers[viewerName].containerFit.removeAllChildren();
-
-            //add fit lines
-            lower = dataStore.viewers[viewerName].addFitLine(
-                        dataStore.ROI[dataStore.currentPlot].ROIlower[0], 
-                        dataStore.ROI[dataStore.currentPlot].ROIlower[1] - dataStore.ROI[dataStore.currentPlot].ROIlower[0], 
-                        dataStore.fitResults[dataStore.currentPlot][0][0], 
-                        dataStore.fitResults[dataStore.currentPlot][0][1], 
-                        dataStore.fitResults[dataStore.currentPlot][0][2], 
-                        dataStore.fitResults[dataStore.currentPlot][0][3], 
-                        dataStore.fitResults[dataStore.currentPlot][0][4]
-                    );
-
-            upper = dataStore.viewers[viewerName].addFitLine(
-                        dataStore.ROI[dataStore.currentPlot].ROIupper[0], 
-                        dataStore.ROI[dataStore.currentPlot].ROIupper[1] - dataStore.ROI[dataStore.currentPlot].ROIupper[0], 
-                        dataStore.fitResults[dataStore.currentPlot][1][0], 
-                        dataStore.fitResults[dataStore.currentPlot][1][1], 
-                        dataStore.fitResults[dataStore.currentPlot][1][2], 
-                        dataStore.fitResults[dataStore.currentPlot][1][3], 
-                        dataStore.fitResults[dataStore.currentPlot][1][4]
-                    );
-            dataStore.viewers[viewerName].containerFit.addChild(lower)
-            dataStore.viewers[viewerName].containerFit.addChild(upper)
-
-            dataStore.viewers[viewerName].stage.update();
+            viewer.dropPersistentOverlay();
+            viewer.updatePersistentOverlay(dataStore.fitResults[dataStore.currentPlot][0][5]); //lower peak
+            viewer.updatePersistentOverlay(dataStore.fitResults[dataStore.currentPlot][1][5]); //lupper peak
         },
 
         this.guessPeaks = function(spectrumName, data){
@@ -227,14 +208,10 @@
             }
         },
 
-        this.fitCallback = function(center, width, amplitude, intercept, slope){
+        this.fitCallback = function(fitResult){
             //after fitting, log the fit results, as well as any modification made to the ROI by the fitting algortihm
             //also update table
-            //<center>: number; center of gaussian peak
-            //<width>: number; width of peak
-            //<amplitude>: number; amplitude of peak
-            //<intercept>: number; intercept of linear background beneath peak
-            //<slope>: number; slope of linear background
+            //<fitResult>: from fitGaussianPlusLinearBkg
             //this: gainMatchReport object
 
             var lowPeak = document.getElementById('fitLow');
@@ -246,13 +223,13 @@
                 dataStore.fitResults[dataStore.currentPlot] = [];
 
             //keep track of fit results
-            dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, center, width, intercept, slope]
+            dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [fitResult.amplitude, fitResult.center, fitResult.width, fitResult.intercept, fitResult.slope, fitResult];
 
             //convenient to arrange resolution data here
             if(dataStore.currentPeak == 0)
-                dataStore.lowPeakResolution[dataStore.GRIFFINdetectors.indexOf(dataStore.currentPlot.slice(0,10))] = width;
+                dataStore.lowPeakResolution[dataStore.GRIFFINdetectors.indexOf(dataStore.currentPlot.slice(0,10))] = fitResult.width;
             else if(dataStore.currentPeak == 1)
-                dataStore.highPeakResolution[dataStore.GRIFFINdetectors.indexOf(dataStore.currentPlot.slice(0,10))] = width;
+                dataStore.highPeakResolution[dataStore.GRIFFINdetectors.indexOf(dataStore.currentPlot.slice(0,10))] = fitResult.width;
 
             if(dataStore.currentPeak == 0){
                 dataStore.ROI[dataStore.currentPlot].ROIlower[0] = dataStore.viewers[viewerName].FitLimitLower;
@@ -264,9 +241,6 @@
 
             //update table
             this.updateTable(dataStore.currentPlot);
-
-            //update plot
-            //dataStore.viewers[dataStore.plots[0]].plotData();
 
             //update resolution plot
             this.reconstructResolutionData()
@@ -427,29 +401,32 @@
             //gain matcher needs special fit controls for convenience
             //this: fit mode engage button element
 
-            var viewerName = dataStore.plots[0];
+            var viewerName = dataStore.plots[0],
+                viewer = dataStore.viewers[viewerName];
 
             if(parseInt(this.getAttribute('engaged'),10) == 0){
-                dataStore.viewers[viewerName].setupFitMode();
                 this.setAttribute('engaged', 1);
-                if(this.id == 'fitLow')
-                    document.getElementById('refitLoBadge').classList.add('red-text')
-                if(this.id == 'fitHigh')
-                    document.getElementById('refitHiBadge').classList.add('red-text')
+                if(this.id == 'fitLow'){
+                    dataStore.currentPeak = 0
+                    document.getElementById('refitLoBadge').classList.add('red-text');
+                }
+                if(this.id == 'fitHigh'){
+                    dataStore.currentPeak = 1
+                    document.getElementById('refitHiBadge').classList.add('red-text');
+                }
+
+                viewer.removePersistentOverlay(dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak][5].min+'Overlay');
             }
             else{
-                dataStore.viewers[viewerName].leaveFitMode();
                 this.setAttribute('engaged', 0);
                 if(this.id == 'fitLow')
-                    document.getElementById('refitLoBadge').classList.remove('red-text')
+                    document.getElementById('refitLoBadge').classList.remove('red-text');
                 if(this.id == 'fitHigh')
-                    document.getElementById('refitHiBadge').classList.remove('red-text')
-            }
+                    document.getElementById('refitHiBadge').classList.remove('red-text');
 
-            if(this.id == 'fitLow')
-                dataStore.currentPeak = 0
-            else
-                dataStore.currentPeak = 1
+                dataStore.fitLimits = [];
+                dataStore.currentPeak = -1;
+            }
 
         },
 

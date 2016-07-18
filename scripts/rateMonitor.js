@@ -122,6 +122,7 @@ function setupDataStore(){
         legend: 'always'
     };
     dataStore.plotInitData = [[new Date(),0,0,0,0,0,0,0,0]];            //dummy to initialize plot on
+    dataStore.plotControlHelpText = "Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click.";
 }
 setupDataStore();
 

@@ -157,6 +157,10 @@ function setupDataStore(){
 
     dataStore.plotGroups = groups;                                      //groups to arrange detectors into for dropdowns
     dataStore.cellIndex = dataStore.plots.length;
+    dataStore.shiftClickCallback = shiftclick;
+    dataStore.metaClickCallback = peakRefit;
+    dataStore.fitLimits = [];
+    dataStore.plotControlHelpText = "Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. <br><br> Refit a peak by hand after automated first pass: click the 'Refit Low Energy Peak' or 'Refit High Energy Peak' to indicate which peak you want to refit, then &#8984;-click or <i class='fa fa-windows' aria-hidden='true'></i>-click either side of the peak."
 }
 setupDataStore();
 
@@ -228,17 +232,17 @@ function updateODB(obj){
     document.getElementById('dismissODBmodal').click();
 }
 
-function shiftclick(clickCoords){
+function shiftclick(event, viewer, xBin, yBin){
     // callback for shift-click on plot - draw a horizontal line as the peak search region.
     // this == spectrumViewer object
 
     var buffer
 
     if(dataStore.searchRegion.length == 0){
-        dataStore.searchRegion[0] = clickCoords.x;
-        dataStore.searchRegion[2] = clickCoords.y;
+        dataStore.searchRegion[0] = xBin;
+        dataStore.searchRegion[2] = yBin;
     } else if (dataStore.searchRegion.length == 3){
-        dataStore.searchRegion[1] = clickCoords.x;
+        dataStore.searchRegion[1] = xBin;
         if(dataStore.searchRegion[0] > dataStore.searchRegion[1]){
             buffer = dataStore.searchRegion[0];
             dataStore.searchRegion[0] = dataStore.searchRegion[1];
@@ -251,5 +255,41 @@ function shiftclick(clickCoords){
         deleteNode('regionMessage');
         document.getElementById('pickerMessage').classList.remove('hidden');
         document.getElementById('fitAll').classList.remove('disabled');
+    }
+}
+
+function peakRefit(event, viewer, xBin, yBin){
+    // handle peak + bkg refitting by hand; intended as onmetaclick callback for spectrumViewer object
+    var target = viewer.canvasID,
+        spectrum = dataStore.currentPlot,
+        fitResult;
+
+    //make sure the user explicitly selected a peak to fir
+    if(dataStore.currentPeak == -1)
+        return;
+
+    if(dataStore.fitLimits.length == 0)
+        dataStore.fitLimits[0] = xBin;
+    else if(dataStore.fitLimits.length == 1){
+        dataStore.fitLimits[1] = xBin;
+
+        // keep the user selected limits as the ROI for this peak
+        if(dataStore.currentPeak == 0){
+            dataStore.ROI[spectrum].ROIlower = dataStore.fitLimits.slice(0);
+        } else if(dataStore.currentPeak == 1){
+            dataStore.ROI[spectrum].ROIupper = dataStore.fitLimits.slice(0);
+        }
+
+        fitResult = fitGaussianPlusLinearBkg(viewer.plotBuffer[spectrum], dataStore.fitLimits[0], dataStore.fitLimits[1]);
+        viewer.updatePersistentOverlay(fitResult);
+        dataStore._gainMatchReport.fitCallback(fitResult)
+
+        //highlight suspicious rows
+        this.whatsNormal();
+        this.highlightOutliers();
+
+        //refresh for next time.
+        dataStore.fitLimits = [];
+        dataStore.currentPeak = -1;
     }
 }

@@ -2,7 +2,7 @@
 
 <template id='plotControl'>
     {{# vertical}}
-        <button class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" id="plotHelpTooltip" title="Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. {{#scaling}} <br><br> X-Scale: Relable the x-axis via x scale, unit and title; for example, if 1 bin = 10 keV, set x scale/bin to 10, x unit to keV, and x title to Energy. {{/scaling}} <br><br> Axis control and new data will affect any plot with its 'Active Window' checkbox set; hold shift while clicking checkbox to activate multiple windows simultaneously. <br><br> Add a new plot: click the '+' below the existing plots." data-placement="auto left" data-container="body">Plotting Help</button>
+        <button class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" id="plotHelpTooltip" title='{{helptext}}' data-placement="auto left" data-container="body">Plotting Help</button>
 
         <div id="plotControlForm">
 
@@ -107,7 +107,7 @@
                     <button id='logY'class="btn btn-default scale-y" type="button" value='log'>Log</button>
                 </div>
 
-                <button style='margin-top:1em;' class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" title="Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click." data-placement="auto left" data-container="body">Plotting Help</button>         
+                <button style='margin-top:1em;' class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" title="{{helptext}}" data-placement="auto left" data-container="body">Plotting Help</button>      
 
                 {{# doUpdates}}
                     <div id='updateWrap' class='ui-group-horizontal'>
@@ -197,7 +197,8 @@
                     'scaling': dataStore.scaling,
                     'doUpdates': dataStore.doUpdates,
                     'vertical': this.config == 'vertical',
-                    'horizontal': this.config == 'horizontal'
+                    'horizontal': this.config == 'horizontal',
+                    'helptext': dataStore.plotControlHelpText
                 }
             )
 

@@ -633,6 +633,14 @@ function spectrumViewer(canvasID){
 		this.stage.update();
 	}
 
+	this.removePersistentOverlay = function(name){
+		//remove the named persistent overlay
+
+		delete this.activePersistentOverlays[name];
+		this.redrawPersistentOverlay();
+
+	}
+
 	this.bkgShape = function(x, amplitude, center, width, intercept, slope){
 		//evaluate a gaussian + linear background at x
 

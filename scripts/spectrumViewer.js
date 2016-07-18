@@ -166,9 +166,13 @@ function setupDataStore(){
         "ODBrequests": [],                                          //array of odb requests to make on refresh
         "zeroedPlots": {},                                          //initialize empty object for zeroed plots
         "fitLimits": [],                                            //limits for fitting
-        "shiftClickCallback": peakFit                               //function to assign to viewers shift click callback as they are created
+        "shiftClickCallback": peakFit,                              //function to assign to viewers shift click callback as they are created,
+        "plotControlHelpText": "Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. <br><br> Axis control and new data will affect any plot with its 'Active Window' checkbox set; hold shift while clicking checkbox to activate multiple windows simultaneously. <br><br> Add a new plot: click the '+' below the existing plots."
     }
     dataStore.cellIndex = dataStore.plots.length;
+    if(dataStore.scaling){
+        dataStore.plotControlHelpText += "<br><br> X-Scale: Relable the x-axis via x scale, unit and title; for example, if 1 bin = 10 keV, set x scale/bin to 10, x unit to keV, and x title to Energy."
+    }
 
 }
 setupDataStore();

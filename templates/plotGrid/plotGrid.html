@@ -175,6 +175,8 @@
                 dataStore.viewers[id] = new spectrumViewer(id);
                 if(dataStore.shiftClickCallback)
                     dataStore.viewers[id].onshiftclick = dataStore.shiftClickCallback;
+                if(dataStore.metaClickCallback)
+                    dataStore.viewers[id].onmetaclick = dataStore.metaClickCallback;
             } else{
                 dataStore.viewers[id].rescale();
             }
