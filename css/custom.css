@@ -84,3 +84,7 @@ div.no-pad{
 .top-gutter{
     margin-top: 1em;
 }
+
+div.flex{
+    display:flex;
+}

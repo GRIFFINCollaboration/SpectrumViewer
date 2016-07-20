@@ -29,6 +29,8 @@ function setupDataStore(){
     dataStore.fitLines = [];
     dataStore.pageTitle = "Yield Station";
     dataStore.componentIndex = 0;                                       //monotonic counter for components to fit
+    dataStore.host = 'http://grsmid00.triumf.ca:8081/';
+    dataStore.cycleRequest = dataStore.host + '?cmd=jcopy&odb0=/PPG&encoding=json-p-nokeys&callback=extractCycleParameters';
 }
 setupDataStore();
 
@@ -58,86 +60,47 @@ function fitDecay(){
     viewer.updatePersistentOverlay(fitResult);
 }
 
-// function shiftClick(event){
-//     // define a new fit region.
-//     var viewer = dataStore.viewers[dataStore.plots[0]],
-//         x = viewer.canvas.relMouseCoords(event).x,
-//         y = viewer.canvas.relMouseCoords(event).y,
-//         bins = viewer.coord2bin(x,y),
-//         targetRow, buffer;
+function extractCycleParameters(ppg){
+    //extract the implantation and decay times from a JSON representation of /ODB/PPG,
+    //and set these in the UI.
 
-//     dataStore.newFitRegion.push(bins.x);
+    var ppg = ppg[0],
+        current = ppg.Current,
+        cycleDefinition = ppg.Cycles[current],
+        i, implantation = 1, decay = 1, implantationUnit = 1, decayUnit = 1;
 
-//     if(dataStore.newFitRegion.length == 2){
-//         // finished defining a new fit region; add new row to table and populate
+    if(cycleDefinition){
+        // identify relevant cycle steps
+        for(i=0; i<cycleDefinition.PPGcodes.length; i++){
+            if( (0x00010001 & cycleDefinition.PPGcodes[i]) == 0x00010001){
+                //found the implantation step
+                implantation = cycleDefinition.durations[i];
+            } else if ( (0xC004C004 & cycleDefinition.PPGcodes[i]) == 0xC004C004){
+                //found the decay step
+                decay = cycleDefinition.durations[i];
+            }
+        }
 
-//         //no backwards regions
-//         if(dataStore.newFitRegion[0] > dataStore.newFitRegion[1]){
-//             buffer = dataStore.newFitRegion[0];
-//             dataStore.newFitRegion[0] = dataStore.newFitRegion[1];
-//             dataStore.newFitRegion[1] = buffer;
-//         }
+        //write to UI
+        if(implantation>=60000){
+            implantation /= 60000;
+            implantationUnit = 60000;
+        } else if(implantationUnit>=1000){
+            implantation /= 1000;
+            implantationUnit = 1000;
+        }
+        if(decay>=60000){
+            decay /= 60000;
+            decayUnit = 60000;
+        } else if(decayUnit>=1000){
+            decay /= 1000;
+            decayUnit = 1000;
+        }
 
-//         createNewFitRow();
-//         targetRow = dataStore.tableIndex-1;
-//         document.getElementById(`fitLo${targetRow}`).value = dataStore.newFitRegion[0];
-//         document.getElementById(`fitHi${targetRow}`).value = dataStore.newFitRegion[1];
-//         dataStore.newFitRegion = [];
-//         reassess(targetRow);
-//     }
-// }
-
-// function createNewFitRow(){
-//     // add a row for a new gamma ray to the fitting table
-
-//     var row = document.createElement('tr');
-
-//     row.innerHTML = Mustache.to_html(
-//         dataStore.templates.yieldFitRow, 
-//         {
-//             'index': dataStore.tableIndex
-//         }
-//     );
-//     row.setAttribute('id', `row${dataStore.tableIndex}`)
-//     document.getElementById('fitTable').appendChild(row);
-
-//     //plug in the delete button
-//     document.getElementById(`delete${dataStore.tableIndex}`).onclick = deleteFit.bind(this, dataStore.tableIndex);
-
-//     dataStore.tableIndex++;
-// }
-
-// function reassess(rowIndex){
-//     //recalculate everything in the indicated row
-
-//     var viewer = dataStore.viewers[dataStore.plots[0]],
-//         result;
-
-//     // new fit
-//     viewer.FitLimitLower = parseInt(document.getElementById(`fitLo${rowIndex}`).value, 10);
-//     viewer.FitLimitUpper = parseInt(document.getElementById(`fitHi${rowIndex}`).value, 10);
-//     viewer.fitLineColor = viewer.dataColor[rowIndex%viewer.dataColor.length];
-//     result = viewer.fitData(dataStore.plots[0], 0);
-
-//     // store the fit line object for later
-//     dataStore.fitLines[rowIndex] = result.fitLine;
-
-//     // update some table values
-//     document.getElementById(`swatch${rowIndex}`).style = `background-color:${result.color}`
-//     document.getElementById(`center${rowIndex}`).innerHTML = result.center.toFixed(2);
-//     document.getElementById(`width${rowIndex}`).innerHTML = result.width.toFixed(2);
-//     document.getElementById(`amplitude${rowIndex}`).innerHTML = result.amplitude.toFixed(2);
-//     document.getElementById(`slope${rowIndex}`).innerHTML = result.slope.toFixed(2);
-//     document.getElementById(`intercept${rowIndex}`).innerHTML = result.intercept.toFixed(2);
-
-//     console.log(result)
-// }
-
-// function deleteFit(rowIndex){
-//     // delete the indicated table row and corresponding fit line
-
-//     dataStore.viewers[dataStore.plots[0]].containerFit.removeChild(dataStore.fitLines[rowIndex]);
-//     dataStore.viewers[dataStore.plots[0]].stage.update();
-//     deleteNode(`row${rowIndex}`);
-// }
+        document.getElementById('implantation').value = implantation;
+        document.getElementById('implantationUnit').value = implantationUnit;
+        document.getElementById('decay').value = decay;
+        document.getElementById('decayUnit').value = decayUnit;
+    }
+}
 

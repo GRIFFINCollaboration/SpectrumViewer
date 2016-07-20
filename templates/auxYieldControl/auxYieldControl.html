@@ -3,6 +3,30 @@
 <template id='auxYieldControl'>
     <div id='componentTableWrapper' class='sectionWrapper'>
         <h4>Run Parameters</h4>
+        <div id='runParameters' class='flex'>
+            <div class='col-md-4'>
+                <label>Implantation period:</label>
+                <input id='implantation' type='number' value=1></input>
+                <select id='implantationUnit'>
+                    <option value=1>ms</option>
+                    <option value=1000>s</option>
+                    <option value=60000>min</option>
+                </select>
+            </div>
+            <div class='col-md-4'>
+                <label>Decay period:</label>
+                <input id='decay' type='number' value=1></input>
+                <select id='decayUnit'>
+                    <option value=1>ms</option>
+                    <option value=1000>s</option>
+                    <option value=60000>min</option>
+                </select>
+            </div>
+            <div class='col-md-4'>
+                <label>Number of cycles counted:</label>
+                <input id='nCycles' type='number' value=1></input>
+            </div>
+        </div>
 
         <hr></hr>
 
@@ -13,6 +37,7 @@
                 <td>Lifetime</td>
                 <td>Amplitude</td>
                 <td>Efficiency</td>
+                <td>BR</td>
                 <td>Yield</td>
                 <td class='center'>Delete</td>
             </tr>
@@ -23,7 +48,7 @@
         <hr></hr>
 
         <h4>Histogram & Fitting Parameters</h4>
-        <div class='sectionWrapper'>
+        <div class='flex'>
             <div class='col-md-4'>
                 <label>Histogram calibration: </label>
                 <input id='calibration' type='number' value=1></input>

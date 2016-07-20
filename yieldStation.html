@@ -88,6 +88,9 @@
                 //log scale by default
                 document.getElementById('logY').click();
 
+                //attempt to infer cycle parameters from ODB
+                promiseScript(dataStore.cycleRequest);
+
                 // set up tooltips
                 document.getElementById('plotHelpTooltip').setAttribute('title', dataStore.plotHelpText)
                 $(function () {
