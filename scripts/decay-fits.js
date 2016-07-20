@@ -7,11 +7,11 @@ function fitMulticomponentDecayPlusFlatBkg(histo, min, max, lifetimes, amplitude
     if(!retries)
         retries = 0;
 
-    roi=histo.slice(min, max+1);
+    roi=histo.slice(min, max);
 
     //ML fit to n-component decay curve with known lifetimes
     fitter = new histofit();
-    for(i=min; i<=max; i++)
+    for(i=min; i<max; i++)
         fitter.x[i-min] = i+0.5;
     fitter.y=roi;
     fitter.fxn = function(lifetimes, x, par){
@@ -29,8 +29,8 @@ function fitMulticomponentDecayPlusFlatBkg(histo, min, max, lifetimes, amplitude
 
     //check if the fit failed, and redo with slightly nudged fit limits
     for(i=0; i<fitter.param.length; i++){
-        if(!isNumeric(fitter.param[i]))
-            return fitMulticomponentDecayPlusFlatBkg(histo, min-1, max+1, lifetimes, amplitudeGuess, backgroundGuess, retries+1)
+        if(!isNumeric(fitter.param[i]) && retries<10)
+            return fitMulticomponentDecayPlusFlatBkg(histo, min+1, max-1, lifetimes, amplitudeGuess, backgroundGuess, retries+1)
     }
 
     result = {
@@ -44,7 +44,9 @@ function fitMulticomponentDecayPlusFlatBkg(histo, min, max, lifetimes, amplitude
             }
 
             return activity + bkg;
-        }.bind(null, fitter.params.slice(0,fitter.params.length-1), lifetimes, fitter.params[fitter.params.length-1]);
+        }.bind(null, fitter.param.slice(0,fitter.param.length-1), lifetimes, fitter.param[fitter.param.length-1]),
+        'amplitudes': fitter.param.slice(0,fitter.param.length-1),
+        'bkg': fitter.param[fitter.param.length-1]
     }
 
     return result;

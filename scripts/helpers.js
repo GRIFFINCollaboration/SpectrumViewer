@@ -482,3 +482,13 @@ function randomDecay(n){
     return counts;
 
 }
+
+HTMLCollection.prototype.toArray = function () {
+    var i, a = [];
+
+    for(i=0; i<this.length; i++){
+        a.push(this[i])
+    }
+
+    return a;
+}

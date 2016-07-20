@@ -12,6 +12,8 @@
 
         <script src='scripts/helpers.js' type="text/javascript"></script>
         <script src='scripts/yieldStation.js' type="text/javascript"></script>
+        <script src='scripts/decay-fits.js' type="text/javascript"></script>
+
         <link rel="stylesheet" type="text/css" href="css/custom.css"/>
 
         <!--HTML imports-->
@@ -57,6 +59,17 @@
 
                 dataStore._plotList.setup();
                 dataStore._plotGrid.setup();
+                //only allow one spectrum at a time - special extra setup for plotGrid to listen for new plots and dumps old ones.
+                listener(dataStore._plotGrid.wrapID, 'requestPlot', function(event){
+                    var viewer = dataStore.viewers[dataStore.plots[0]],
+                        key;
+
+                    for(key in viewer.plotBuffer){
+                        viewer.removeData(key);
+                    }
+
+                    dataStore.currentSpectrum = event.detail.plotName;
+                });
                 dataStore._plotControl.setup();
                 dataStore._auxCtrl.setup();
                 setupFooter('foot');                
@@ -80,9 +93,6 @@
                 $(function () {
                     $('[data-toggle="tooltip"]').tooltip()
                 })
-
-                // plug in shift-click and meta-click behavior
-                dataStore.viewers[dataStore.plots[0]].onshiftclick = shiftClick;
             });
         </script>
 

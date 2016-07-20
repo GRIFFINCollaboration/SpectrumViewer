@@ -2,6 +2,10 @@
 
 <template id='auxYieldControl'>
     <div id='componentTableWrapper' class='sectionWrapper'>
+        <h4>Run Parameters</h4>
+
+        <hr></hr>
+
         <h4>Components</h4>
         <table id='componentTable' class="table">
             <tr>
@@ -13,21 +17,34 @@
                 <td class='center'>Delete</td>
             </tr>
         </table>
+
+        <button id='new-component' class='btn btn-default'>Add New Component</button>
+
+        <hr></hr>
+
+        <h4>Histogram & Fitting Parameters</h4>
         <div class='sectionWrapper'>
-            <label>Histogram calibration: </label>
-            <input id='calibration' type='number' value=1></input>
-            <select id='calibrationUnit'>
-                <option value=1>ns</option>
-                <option value=1000>us</option>
-                <option value=1000000>ms</option>
-                <option value=1000000000>s</option>
-            </select>
-            <label>/bin</label>
+            <div class='col-md-4'>
+                <label>Histogram calibration: </label>
+                <input id='calibration' type='number' value=1></input>
+                <select id='calibrationUnit'>
+                    <option value=1>ns</option>
+                    <option value=1000>us</option>
+                    <option value=1000000>ms</option>
+                    <option value=1000000000>s</option>
+                </select>
+                <label>/bin</label>
+            </div>
+            <div class='col-md-8'>
+                <label>Fit range (bins):</label>
+                <label>Min: </label>
+                <input type='number' id='decayMinBin' step='1'></input>
+                <label>Max: </label>
+                <input type='number' id='decayMaxBin' step='1'></input>
+            </div>
         </div>
-        <div class='sectionWrapper'>
-            <button id='new-component' class='btn btn-default'>Add New Component</button>
-            <button id='fit-decay' class='btn btn-info'>Fit Decay Spectrum</button>
-        </div>
+
+        <button id='fit-decay' class='btn btn-info top-gutter' onclick='fitDecay()'>Fit Decay Spectrum</button>
     </div>
 </template>
 
@@ -58,7 +75,10 @@
         }
 
         this.refreshTable = function(event){
-            console.log('new table')
+
+            document.getElementById('decayMinBin').value = dataStore.viewers[dataStore.plots[0]].XaxisLimitMin;
+            document.getElementById('decayMaxBin').value = dataStore.viewers[dataStore.plots[0]].XaxisLimitMax
+
         }
 
         this.newTableRow = function(event){

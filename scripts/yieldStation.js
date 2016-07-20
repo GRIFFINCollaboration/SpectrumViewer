@@ -37,86 +37,107 @@ function fetchCallback(){
     dataStore.viewers[dataStore.plots[0]].plotData();
 }
 
-function shiftClick(event){
-    // define a new fit region.
-    var viewer = dataStore.viewers[dataStore.plots[0]],
-        x = viewer.canvas.relMouseCoords(event).x,
-        y = viewer.canvas.relMouseCoords(event).y,
-        bins = viewer.coord2bin(x,y),
-        targetRow, buffer;
+function fitDecay(){
+    // fit the decay curve, and perform yield calculations
 
-    dataStore.newFitRegion.push(bins.x);
+    var viewer = dataStore.viewers[dataStore.plots[0]], 
+        histo = viewer.plotBuffer[dataStore.currentSpectrum],
+        min = parseInt(document.getElementById('decayMinBin').value,10),
+        max = parseInt(document.getElementById('decayMaxBin').value,10),
+        lifetimes = document.getElementsByClassName('component-lifetime').toArray().map(function(current, index, arr){
+            return current.value
+        }),
+        amplitudeGuess = document.getElementsByClassName('component-amplitude').toArray().map(function(current, index, arr){
+            return current.value
+        }),
+        backgroundGuess = 1,
+        fitResult = fitMulticomponentDecayPlusFlatBkg(histo, min, max, lifetimes, amplitudeGuess, backgroundGuess);
 
-    if(dataStore.newFitRegion.length == 2){
-        // finished defining a new fit region; add new row to table and populate
-
-        //no backwards regions
-        if(dataStore.newFitRegion[0] > dataStore.newFitRegion[1]){
-            buffer = dataStore.newFitRegion[0];
-            dataStore.newFitRegion[0] = dataStore.newFitRegion[1];
-            dataStore.newFitRegion[1] = buffer;
-        }
-
-        createNewFitRow();
-        targetRow = dataStore.tableIndex-1;
-        document.getElementById(`fitLo${targetRow}`).value = dataStore.newFitRegion[0];
-        document.getElementById(`fitHi${targetRow}`).value = dataStore.newFitRegion[1];
-        dataStore.newFitRegion = [];
-        reassess(targetRow);
-    }
+    // draw the fit
+    viewer.dropPersistentOverlay();
+    viewer.updatePersistentOverlay(fitResult);
 }
 
-function createNewFitRow(){
-    // add a row for a new gamma ray to the fitting table
+// function shiftClick(event){
+//     // define a new fit region.
+//     var viewer = dataStore.viewers[dataStore.plots[0]],
+//         x = viewer.canvas.relMouseCoords(event).x,
+//         y = viewer.canvas.relMouseCoords(event).y,
+//         bins = viewer.coord2bin(x,y),
+//         targetRow, buffer;
 
-    var row = document.createElement('tr');
+//     dataStore.newFitRegion.push(bins.x);
 
-    row.innerHTML = Mustache.to_html(
-        dataStore.templates.yieldFitRow, 
-        {
-            'index': dataStore.tableIndex
-        }
-    );
-    row.setAttribute('id', `row${dataStore.tableIndex}`)
-    document.getElementById('fitTable').appendChild(row);
+//     if(dataStore.newFitRegion.length == 2){
+//         // finished defining a new fit region; add new row to table and populate
 
-    //plug in the delete button
-    document.getElementById(`delete${dataStore.tableIndex}`).onclick = deleteFit.bind(this, dataStore.tableIndex);
+//         //no backwards regions
+//         if(dataStore.newFitRegion[0] > dataStore.newFitRegion[1]){
+//             buffer = dataStore.newFitRegion[0];
+//             dataStore.newFitRegion[0] = dataStore.newFitRegion[1];
+//             dataStore.newFitRegion[1] = buffer;
+//         }
 
-    dataStore.tableIndex++;
-}
+//         createNewFitRow();
+//         targetRow = dataStore.tableIndex-1;
+//         document.getElementById(`fitLo${targetRow}`).value = dataStore.newFitRegion[0];
+//         document.getElementById(`fitHi${targetRow}`).value = dataStore.newFitRegion[1];
+//         dataStore.newFitRegion = [];
+//         reassess(targetRow);
+//     }
+// }
 
-function reassess(rowIndex){
-    //recalculate everything in the indicated row
+// function createNewFitRow(){
+//     // add a row for a new gamma ray to the fitting table
 
-    var viewer = dataStore.viewers[dataStore.plots[0]],
-        result;
+//     var row = document.createElement('tr');
 
-    // new fit
-    viewer.FitLimitLower = parseInt(document.getElementById(`fitLo${rowIndex}`).value, 10);
-    viewer.FitLimitUpper = parseInt(document.getElementById(`fitHi${rowIndex}`).value, 10);
-    viewer.fitLineColor = viewer.dataColor[rowIndex%viewer.dataColor.length];
-    result = viewer.fitData(dataStore.plots[0], 0);
+//     row.innerHTML = Mustache.to_html(
+//         dataStore.templates.yieldFitRow, 
+//         {
+//             'index': dataStore.tableIndex
+//         }
+//     );
+//     row.setAttribute('id', `row${dataStore.tableIndex}`)
+//     document.getElementById('fitTable').appendChild(row);
 
-    // store the fit line object for later
-    dataStore.fitLines[rowIndex] = result.fitLine;
+//     //plug in the delete button
+//     document.getElementById(`delete${dataStore.tableIndex}`).onclick = deleteFit.bind(this, dataStore.tableIndex);
 
-    // update some table values
-    document.getElementById(`swatch${rowIndex}`).style = `background-color:${result.color}`
-    document.getElementById(`center${rowIndex}`).innerHTML = result.center.toFixed(2);
-    document.getElementById(`width${rowIndex}`).innerHTML = result.width.toFixed(2);
-    document.getElementById(`amplitude${rowIndex}`).innerHTML = result.amplitude.toFixed(2);
-    document.getElementById(`slope${rowIndex}`).innerHTML = result.slope.toFixed(2);
-    document.getElementById(`intercept${rowIndex}`).innerHTML = result.intercept.toFixed(2);
+//     dataStore.tableIndex++;
+// }
 
-    console.log(result)
-}
+// function reassess(rowIndex){
+//     //recalculate everything in the indicated row
 
-function deleteFit(rowIndex){
-    // delete the indicated table row and corresponding fit line
+//     var viewer = dataStore.viewers[dataStore.plots[0]],
+//         result;
 
-    dataStore.viewers[dataStore.plots[0]].containerFit.removeChild(dataStore.fitLines[rowIndex]);
-    dataStore.viewers[dataStore.plots[0]].stage.update();
-    deleteNode(`row${rowIndex}`);
-}
+//     // new fit
+//     viewer.FitLimitLower = parseInt(document.getElementById(`fitLo${rowIndex}`).value, 10);
+//     viewer.FitLimitUpper = parseInt(document.getElementById(`fitHi${rowIndex}`).value, 10);
+//     viewer.fitLineColor = viewer.dataColor[rowIndex%viewer.dataColor.length];
+//     result = viewer.fitData(dataStore.plots[0], 0);
+
+//     // store the fit line object for later
+//     dataStore.fitLines[rowIndex] = result.fitLine;
+
+//     // update some table values
+//     document.getElementById(`swatch${rowIndex}`).style = `background-color:${result.color}`
+//     document.getElementById(`center${rowIndex}`).innerHTML = result.center.toFixed(2);
+//     document.getElementById(`width${rowIndex}`).innerHTML = result.width.toFixed(2);
+//     document.getElementById(`amplitude${rowIndex}`).innerHTML = result.amplitude.toFixed(2);
+//     document.getElementById(`slope${rowIndex}`).innerHTML = result.slope.toFixed(2);
+//     document.getElementById(`intercept${rowIndex}`).innerHTML = result.intercept.toFixed(2);
+
+//     console.log(result)
+// }
+
+// function deleteFit(rowIndex){
+//     // delete the indicated table row and corresponding fit line
+
+//     dataStore.viewers[dataStore.plots[0]].containerFit.removeChild(dataStore.fitLines[rowIndex]);
+//     dataStore.viewers[dataStore.plots[0]].stage.update();
+//     deleteNode(`row${rowIndex}`);
+// }
 
