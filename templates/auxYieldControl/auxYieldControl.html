@@ -1,6 +1,12 @@
 <link rel="stylesheet" href="auxYieldControl.css"/>
 
 <template id='auxYieldControl'>
+
+    <div class='btn-group' roll='group'>
+        <button class="btn btn-default active" id="decayTab" type="button">Decay Spectra</button>
+        <button class="btn btn-default" id="gammaTab" type="button">Gamma Ray Spectra</button>
+    </div>  
+
     <div id='componentTableWrapper' class='sectionWrapper'>
         <h4>Run Parameters</h4>
         <div id='runParameters' class='flex'>
@@ -30,46 +36,71 @@
 
         <hr></hr>
 
-        <h4>Components</h4>
-        <table id='componentTable' class="table">
-            <tr>
-                <td>Label</td>
-                <td>Lifetime</td>
-                <td>Amplitude</td>
-                <td>Efficiency</td>
-                <td>BR</td>
-                <td>Yield</td>
-                <td class='center'>Delete</td>
-            </tr>
-        </table>
+        <div id='decayTableWrapper'>
+            <h4>Components</h4>
 
-        <button id='new-component' class='btn btn-default'>Add New Component</button>
+            <table id='componentTable' class="table">
+                <tr>
+                    <td>Species</td>
+                    <td>Lifetime</td>
+                    <td>Amplitude</td>
+                    <td>Efficiency</td>
+                    <td>BR</td>
+                    <td>Yield</td>
+                    <td class='center'>Delete</td>
+                </tr>
+            </table>
 
-        <hr></hr>
+            <button id='new-component' class='btn btn-default'>Add New Component</button>
 
-        <h4>Histogram & Fitting Parameters</h4>
-        <div class='flex'>
-            <div class='col-md-4'>
-                <label>Histogram calibration: </label>
-                <input id='calibration' type='number' value=1></input>
-                <select id='calibrationUnit'>
-                    <option value=1>ns</option>
-                    <option value=1000>us</option>
-                    <option value=1000000>ms</option>
-                    <option value=1000000000>s</option>
-                </select>
-                <label>/bin</label>
+            <hr></hr>
+
+            <h4>Histogram & Fitting Parameters</h4>
+            <div class='flex'>
+                <div class='col-md-4'>
+                    <label>Histogram calibration: </label>
+                    <input id='calibration' type='number' value=1></input>
+                    <select id='calibrationUnit'>
+                        <option value=1>ns</option>
+                        <option value=1000>us</option>
+                        <option value=1000000>ms</option>
+                        <option value=1000000000>s</option>
+                    </select>
+                    <label>/bin</label>
+                </div>
+                <div class='col-md-8'>
+                    <label>Fit range (bins):</label>
+                    <label>Min: </label>
+                    <input type='number' id='decayMinBin' step='1'></input>
+                    <label>Max: </label>
+                    <input type='number' id='decayMaxBin' step='1'></input>
+                </div>
             </div>
-            <div class='col-md-8'>
-                <label>Fit range (bins):</label>
-                <label>Min: </label>
-                <input type='number' id='decayMinBin' step='1'></input>
-                <label>Max: </label>
-                <input type='number' id='decayMaxBin' step='1'></input>
-            </div>
+
+            <button id='fit-decay' class='btn btn-info top-gutter' onclick='fitDecay()'>Fit Decay Spectrum</button>
         </div>
 
-        <button id='fit-decay' class='btn btn-info top-gutter' onclick='fitDecay()'>Fit Decay Spectrum</button>
+        <div id='gammaTableWrapper' class='hidden'>
+            <h4>Gamma Rays</h4>
+
+            <table id='gammaTable' class="table">
+                <tr>
+                    <td>Species</td>
+                    <td>Min. Bin</td>
+                    <td>Max. Bin</td>
+                    <td>Efficiency</td>
+                    <td>BR</td>
+                    <td>Yield</td>
+                    <td class='center'>Delete</td>
+                </tr>
+            </table>
+
+            <button id='new-gamma' class='btn btn-default'>Add New Gamma</button>
+
+            <hr></hr>
+
+            <button id='fit-peaks' class='btn btn-info top-gutter' onclick='fitPeaks()'>Fit Gamma Spectrum</button>
+        </div>
     </div>
 </template>
 
@@ -92,11 +123,28 @@
             listener(this.wrapID, 'addPlotRow', this.refreshTable.bind(this));
 
             // plug in UI
-            document.getElementById('new-component').onclick = this.newTableRow.bind(this);
+            document.getElementById('new-component').onclick = this.newTableRow.bind(this, 'component');
+            document.getElementById('new-gamma').onclick = this.newTableRow.bind(this, 'gamma');
 
-            // start with one component
-            this.newTableRow();
+            document.getElementById('decayTab').onclick = this.swapTab.bind(null, 'decay');
 
+            document.getElementById('gammaTab').onclick = this.swapTab.bind(null, 'gamma');
+
+            // start with one row in each table
+            this.newTableRow('gamma');
+            this.newTableRow('component')
+
+        }
+
+        this.swapTab = function(target){
+            // swap into the named tab
+
+            var other = target == 'gamma' ? 'decay' : 'gamma';
+
+            document.getElementById(target + 'Tab').classList.add('active');
+            document.getElementById(other + 'Tab').classList.remove('active');
+            document.getElementById(target + 'TableWrapper').classList.remove('hidden');
+            document.getElementById(other + 'TableWrapper').classList.add('hidden');
         }
 
         this.refreshTable = function(event){
@@ -106,30 +154,32 @@
 
         }
 
-        this.newTableRow = function(event){
+        this.newTableRow = function(type, event){
             // add a new component to the table
+            // type == 'component' or 'gamma'
 
-            var row = document.createElement('tr');
+            var row = document.createElement('tr'),
+                template = type == 'gamma' ? dataStore.templates.gammaFitRow : dataStore.templates.fitRow
 
             row.innerHTML = Mustache.to_html(
-                dataStore.templates.fitRow, 
+                template, 
                 {
                     index: dataStore.componentIndex
                 }
             );
-            row.setAttribute('id', 'compenentRow'+dataStore.componentIndex);
-            document.getElementById('componentTable').appendChild(row);
+            row.setAttribute('id', type+'Row'+dataStore.componentIndex);
+            document.getElementById(type+'Table').appendChild(row);
 
             // plug in delete button
-            document.getElementById('delete' + dataStore.componentIndex).onclick = this.deleteRow.bind(this,dataStore.componentIndex);
+            document.getElementById('delete' + dataStore.componentIndex).onclick = this.deleteRow.bind(this, type, dataStore.componentIndex);
 
             dataStore.componentIndex++;
         }
 
-        this.deleteRow = function(index){
+        this.deleteRow = function(type, index){
             // remove the indexed component row
 
-            deleteNode('compenentRow'+index);
+            deleteNode(type+'Row'+index);
         }
     }
 

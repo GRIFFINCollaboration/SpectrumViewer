@@ -1,10 +1,10 @@
 <template id='fitRow'>
     
     <td>
-        <input id='label{{index}}' type='text' class='component-label' placeholder='105Te'></input>
+        <input id='label{{index}}' type='text' class='component-label'></input>
     </td>
     <td>
-        <input id='lifetime{{index}}' type='number' class='component-lifetime' step='any' placeholder=633></input>
+        <input id='lifetime{{index}}' type='number' class='component-lifetime' step='any'></input>
         <select id='lifetimeUnit{{index}}' class='component-lifetime-unit'>
             <option value=1>ns</option>
             <option value=1000>us</option>
@@ -14,16 +14,16 @@
     </td>
 
     <td>
-        <input id='amplitude{{index}}' type='number' class='component-amplitude' step='any' placeholder=1000></input>
+        <input id='amplitude{{index}}' type='number' class='component-amplitude' step='any' ></input>
     </td>
 
     <td>
-        <input id='efficiency{{index}}' type='number' placeholder=0.1 step='any'></input>
+        <input id='efficiency{{index}}' class='component-efficiency' type='number' value=1 step='any'></input>
     </td>
     <td>
-        <input id='br{{index}}' type='number' value=1 step='any'></input>
+        <input id='br{{index}}' class='component-br' type='number' value=1 step='any'></input>
     </td>
-    <td id='yield{{index}}'>-</td>
+    <td id='yield{{index}}' class='component-yield'>-</td>
     <td class='center'>
         <button type="button" class="btn btn-default deleteRow" id='delete{{index}}'>
             <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>

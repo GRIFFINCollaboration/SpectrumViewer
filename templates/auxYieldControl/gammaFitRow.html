@@ -1,0 +1,31 @@
+<template id='gammaFitRow'>
+    
+    <td>
+        <input id='label{{index}}' type='text' class='gamma-label'></input>
+    </td>
+
+    <td>
+        <input id='min{{index}}' type='number' class='gamma-min'></input>
+    </td>
+
+    <td>
+        <input id='max{{index}}' type='number' class='gamma-max'></input>
+    </td>
+
+    <td>
+        <input id='efficiency{{index}}' class='gamma-efficiency' type='number' value=1 step='any'></input>
+    </td>
+
+    <td>
+        <input id='br{{index}}' class='gamma-br' type='number' value=1 step='any'></input>
+    </td>
+
+    <td id='yield{{index}}' class='gamma-yield'>-</td>
+
+    <td class='center'>
+        <button type="button" class="btn btn-default deleteRow" id='delete{{index}}'>
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+        </button>
+    </td>
+    
+</template>

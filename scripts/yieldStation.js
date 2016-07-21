@@ -31,6 +31,7 @@ function setupDataStore(){
     dataStore.componentIndex = 0;                                       //monotonic counter for components to fit
     dataStore.host = 'http://grsmid00.triumf.ca:8081/';
     dataStore.cycleRequest = dataStore.host + '?cmd=jcopy&odb0=/PPG&encoding=json-p-nokeys&callback=extractCycleParameters';
+    dataStore.summary = {};
 }
 setupDataStore();
 
@@ -46,18 +47,116 @@ function fitDecay(){
         histo = viewer.plotBuffer[dataStore.currentSpectrum],
         min = parseInt(document.getElementById('decayMinBin').value,10),
         max = parseInt(document.getElementById('decayMaxBin').value,10),
+        labels = document.getElementsByClassName('component-label'),
         lifetimes = document.getElementsByClassName('component-lifetime').toArray().map(function(current, index, arr){
-            return current.value
+            return parseFloat(current.value);
         }),
-        amplitudeGuess = document.getElementsByClassName('component-amplitude').toArray().map(function(current, index, arr){
+        amplitudes = document.getElementsByClassName('component-amplitude'),
+        efficiencies = document.getElementsByClassName('component-efficiency').toArray().map(function(current, index, arr){
+            return parseFloat(current.value);
+        }),
+        brs = document.getElementsByClassName('component-br').toArray().map(function(current, index, arr){
+            return parseFloat(current.value);
+        }),
+        yields = document.getElementsByClassName('component-yield'),
+        amplitudeGuess = amplitudes.toArray().map(function(current, index, arr){
             return current.value
         }),
         backgroundGuess = 1,
-        fitResult = fitMulticomponentDecayPlusFlatBkg(histo, min, max, lifetimes, amplitudeGuess, backgroundGuess);
+        fitResult = fitMulticomponentDecayPlusFlatBkg(histo, min, max, lifetimes, amplitudeGuess, backgroundGuess),
+        implantation = parseFloat(document.getElementById('implantation').value)*getSelected('implantationUnit'),
+        decay = parseFloat(document.getElementById('decay').value)*getSelected('decayUnit'),
+        nCycles = parseInt(document.getElementById('nCycles').value, 10),
+        i, y = [];
+
+    dataStore.summary[dataStore.currentSpectrum] = [];
+
+    for(i=0; i<amplitudes.length; i++){
+        //write fit results to ui
+        amplitudes[i].value = fitResult.amplitudes[i];
+
+        //calculate yield
+        y[i] = evaluateDecayYield(fitResult.amplitudes[i], efficiencies[i], brs[i], implantation, decay, nCycles);
+        yields[i].innerHTML = y[i].toFixed(3);
+
+        // produce json summary
+        dataStore.summary[dataStore.currentSpectrum][i] = {
+            'species': labels[i].value,
+            'lifetime': lifetimes[i],
+            'amplitude': fitResult.amplitudes[i],
+            'efficiency': efficiencies[i],
+            'br': brs[i],
+            'yield': y[i]
+        }
+    }
+    console.log(dataStore.summary[dataStore.currentSpectrum])
 
     // draw the fit
     viewer.dropPersistentOverlay();
     viewer.updatePersistentOverlay(fitResult);
+}
+
+function evaluateDecayYield(amplitude, efficiency, br, implantation, decay, nCycles){
+    return amplitude/efficiency/br;
+}
+
+function fitPeaks(){
+    // fit the selected gamma peaks, and perform yield calculations
+
+    var viewer = dataStore.viewers[dataStore.plots[0]], 
+        histo = viewer.plotBuffer[dataStore.currentSpectrum],
+        labels = document.getElementsByClassName('gamma-label'),
+        min = document.getElementsByClassName('gamma-min').toArray().map(function(current, index, arr){
+            return parseInt(current.value, 10);
+        }),
+        max = document.getElementsByClassName('gamma-max').toArray().map(function(current, index, arr){
+            return parseInt(current.value, 10);
+        }),
+        efficiencies = document.getElementsByClassName('gamma-efficiency').toArray().map(function(current, index, arr){
+            return parseFloat(current.value);
+        }),
+        brs = document.getElementsByClassName('gamma-br').toArray().map(function(current, index, arr){
+            return parseFloat(current.value);
+        }),
+        yields = document.getElementsByClassName('gamma-yield'),
+        implantation = parseFloat(document.getElementById('implantation').value)*getSelected('implantationUnit'),
+        decay = parseFloat(document.getElementById('decay').value)*getSelected('decayUnit'),
+        nCycles = parseInt(document.getElementById('nCycles').value, 10),
+        i, y = [], fitResults = [];
+
+    dataStore.summary[dataStore.currentSpectrum] = [];
+    viewer.dropPersistentOverlay();
+
+    for(i=0; i<labels.length; i++){
+        //perform the fit - each row is a separate fit for gammas
+        fitResults[i] = fitGaussianPlusLinearBkg(histo, min[i], max[i]);
+
+        //calculate yield
+        y[i] = evaluateGammaYield(fitResults[i], efficiencies[i], brs[i], implantation, decay, nCycles);
+        yields[i].innerHTML = y[i].toFixed(3);
+
+        // produce json summary
+        dataStore.summary[dataStore.currentSpectrum][i] = {
+            'species': labels[i].value,
+            'center': fitResults[i].center,
+            'width': fitResults[i].width,
+            'amplitude': fitResults[i].amplitude,
+            'slope': fitResults[i].slope,
+            'intercept': fitResults[i].intercept,
+            'efficiency': efficiencies[i],
+            'br': brs[i],
+            'yield': y[i]
+        }
+
+        // draw the fit
+        viewer.updatePersistentOverlay(fitResults[i]);
+    }
+    console.log(dataStore.summary[dataStore.currentSpectrum])
+
+}
+
+function evaluateGammaYield(fitResult, efficiency, br, implantation, decay, nCycles){
+    return fitResult.amplitude / efficiency / br;
 }
 
 function extractCycleParameters(ppg){

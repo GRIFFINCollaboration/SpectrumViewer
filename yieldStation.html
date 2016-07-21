@@ -13,6 +13,7 @@
         <script src='scripts/helpers.js' type="text/javascript"></script>
         <script src='scripts/yieldStation.js' type="text/javascript"></script>
         <script src='scripts/decay-fits.js' type="text/javascript"></script>
+        <script src='scripts/gamma-fits.js' type="text/javascript"></script>
 
         <link rel="stylesheet" type="text/css" href="css/custom.css"/>
 
@@ -22,6 +23,7 @@
         <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
         <link id='auxYieldControl' rel="import" href="templates/auxYieldControl/auxYieldControl.html">
         <link id='fitRow' rel="import" href="templates/auxYieldControl/fitRow.html">
+        <link id='gammaFitRow' rel="import" href="templates/auxYieldControl/gammaFitRow.html">
         <link id='footer' rel="import" href="templates/footer/footer.html">
     </head>
 
@@ -55,7 +57,7 @@
                 dataStore._plotControl = new plotControl('plotCtrl', 'vertical');
                 dataStore._auxCtrl = new auxYieldControl('auxCtrl')
 
-                dataStore.templates = prepareTemplates(['plotList', 'plotGrid', 'plotControl', 'auxYieldControl', 'fitRow', 'footer']);
+                dataStore.templates = prepareTemplates(['plotList', 'plotGrid', 'plotControl', 'auxYieldControl', 'fitRow', 'gammaFitRow', 'footer']);
 
                 dataStore._plotList.setup();
                 dataStore._plotGrid.setup();
