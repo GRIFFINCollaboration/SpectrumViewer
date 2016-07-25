@@ -307,45 +307,45 @@
             //refresh all spectra & odb parameters
             //this: plotControl object
 
-            // var queries = constructQueries(this.activeSpectra),
-            //     spectraFetched = Promise.all(queries.map(promiseJSONURL)).then(
-            //         function(spectra){
-            //             var i, j, key, viewerKey;
-            //             dataStore.rawData = {};
+            var queries = constructQueries(this.activeSpectra),
+                spectraFetched = Promise.all(queries.map(promiseJSONURL)).then(
+                    function(spectra){
+                        var i, j, key, viewerKey;
+                        dataStore.rawData = {};
 
-            //             for(i=0; i<spectra.length; i++){
-            //                 for(key in spectra[i]){
-            //                     //keep the raw results around
-            //                     if(key == 'dummy_decay')
-            //                         dataStore.rawData[key] = randomDecay(2048)
-            //                     else if(key == 'dummy_spectrum')
-            //                         dataStore.rawData[key] = dataStore.viewers[Object.keys(dataStore.viewers)[0]].fakeData.energydata0
-            //                     else
-            //                         dataStore.rawData[key] = JSON.parse(JSON.stringify(spectra[i][key]));
-            //                     //repopulate all spectra that use this spectrum
-            //                     for(viewerKey in dataStore.viewers){
-            //                         if(dataStore.viewers[viewerKey].plotBuffer[key]){
-            //                             dataStore.viewers[viewerKey].addData(key, dataStore.rawData[key]);
-            //                         }
-            //                     }
-            //                 }
-            //             }
-            //         }
-            //     );
+                        for(i=0; i<spectra.length; i++){
+                            for(key in spectra[i]){
+                                //keep the raw results around
+                                if(key == 'dummy_decay')
+                                    dataStore.rawData[key] = randomDecay(2048)
+                                else if(key == 'dummy_spectrum')
+                                    dataStore.rawData[key] = dataStore.viewers[Object.keys(dataStore.viewers)[0]].fakeData.energydata0
+                                else
+                                    dataStore.rawData[key] = JSON.parse(JSON.stringify(spectra[i][key]));
+                                //repopulate all spectra that use this spectrum
+                                for(viewerKey in dataStore.viewers){
+                                    if(dataStore.viewers[viewerKey].plotBuffer[key]){
+                                        dataStore.viewers[viewerKey].addData(key, dataStore.rawData[key]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                );
 
             // hack to throw a spectrum up when the analyzer is down-----------------
-            var spectraFetched = new Promise(function(res, rej){
-                var viewerKey, key = 'dummy_decay';
+            // var spectraFetched = new Promise(function(res, rej){
+            //     var viewerKey, key = 'dummy_decay';
 
-                dataStore.rawData = {}
+            //     dataStore.rawData = {}
 
-                for(viewerKey in dataStore.viewers){        
-                    dataStore.rawData[key] = randomDecay(2048)//dataStore.viewers[viewerKey].fakeData.energydata0
-                    dataStore.viewers[viewerKey].addData(key, dataStore.rawData[key]);
-                }                
+            //     for(viewerKey in dataStore.viewers){        
+            //         dataStore.rawData[key] = randomDecay(2048)//dataStore.viewers[viewerKey].fakeData.energydata0
+            //         dataStore.viewers[viewerKey].addData(key, dataStore.rawData[key]);
+            //     }                
 
-                res()
-            })
+            //     res()
+            // })
             // end hack--------------------------------------------------------------
 
             if(dataStore.ODBrequests.length>0){
