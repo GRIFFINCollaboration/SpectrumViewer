@@ -48,8 +48,9 @@ function fitDecay(){
         min = parseInt(document.getElementById('decayMinBin').value,10),
         max = parseInt(document.getElementById('decayMaxBin').value,10),
         labels = document.getElementsByClassName('component-label'),
+        lifetimeUnits = document.getElementsByClassName('component-lifetime-unit'),
         lifetimes = document.getElementsByClassName('component-lifetime').toArray().map(function(current, index, arr){
-            return parseFloat(current.value);
+            return parseFloat(current.value)*getSelected(lifetimeUnits[index].id); // lifetime in ns
         }),
         amplitudes = document.getElementsByClassName('component-amplitude'),
         efficiencies = document.getElementsByClassName('component-efficiency').toArray().map(function(current, index, arr){
@@ -62,8 +63,9 @@ function fitDecay(){
         amplitudeGuess = amplitudes.toArray().map(function(current, index, arr){
             return current.value
         }),
-        backgroundGuess = 1,
-        fitResult = fitMulticomponentDecayPlusFlatBkg(histo, min, max, lifetimes, amplitudeGuess, backgroundGuess),
+        backgroundGuess = parseFloat(document.getElementById('background-counts').value),
+        xScale = parseFloat(document.getElementById('calibration').value)*getSelected('calibrationUnit'),
+        fitResult = fitMulticomponentDecayPlusFlatBkg(histo, min, max, xScale, lifetimes, amplitudeGuess, backgroundGuess),
         implantation = parseFloat(document.getElementById('implantation').value)*getSelected('implantationUnit'),
         decay = parseFloat(document.getElementById('decay').value)*getSelected('decayUnit'),
         nCycles = parseInt(document.getElementById('nCycles').value, 10),
@@ -74,6 +76,7 @@ function fitDecay(){
     for(i=0; i<amplitudes.length; i++){
         //write fit results to ui
         amplitudes[i].value = fitResult.amplitudes[i];
+        document.getElementById('background-counts').value = fitResult.bkg;
 
         //calculate yield
         y[i] = evaluateDecayYield(fitResult.amplitudes[i], efficiencies[i], brs[i], implantation, decay, nCycles);
