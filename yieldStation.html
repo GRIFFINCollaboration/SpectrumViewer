@@ -30,7 +30,7 @@
     <body>
         <div id='analyzerPlots'></div>
 
-        <div id='plotRegion' class='sectionWrapper item'>
+        <div id='plotRegion' class='item'>
             <div id='plotWrap' class='col-md-10 plotRegion'>
                 <div id='plottingGrid'></div>
             </div>
@@ -41,9 +41,9 @@
 
         <!-- Extra control features -->
         <hr style='width:60%; border-top: 1px solid #999'></hr>
-        <div class='sectionWrapper'>
+        <div>
             <div class='col-md-10 col-md-offset-1'>
-                <div id='auxCtrl'></div>
+                <div id='auxCtrl' class='ui-panel col-md-12'></div>
             </div>
         </div>
 
@@ -85,7 +85,7 @@
                 //don't want auto refreshes
                 document.getElementById('upOptions').value = -1;
                 document.getElementById('upOptions').onchange();
-                document.getElementById('updateWrap').classList.add('hidden');
+                deleteNode('updateWrap');
 
                 //log scale by default
                 document.getElementById('logY').click();

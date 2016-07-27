@@ -5,9 +5,11 @@ body{
     color: #FFFFFF;
 }
 
-div.sectionWrapper{
-    clear: both;
-    margin-bottom: 2px;
+.ui-panel{
+    padding: 1em;
+    background-color: #222222;
+    border-radius: 1em;
+    display:inline-block;
 }
 
 div.item{
@@ -28,15 +30,21 @@ div.item{
 }
 
 div.ui-group-vertical{
-    border-bottom: 1px solid #999999;
     padding-bottom: 1em;
     color: #FFFFFF;
 }
 
+div div.ui-group-vertical:not(:last-child) {
+    border-bottom: 1px solid #999999;
+}
+
 div.ui-group-horizontal{
-    border-right: 1px solid #999999;
     padding-right: 1em;
     color: #FFFFFF;
+}
+
+div div.ui-group-horizontal:not(:first-child) {
+    border-right: 1px solid #999999;
 }
 
 div.ui-subgroup{
