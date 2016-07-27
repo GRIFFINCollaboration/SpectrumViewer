@@ -131,9 +131,12 @@
             document.getElementById('new-component').onclick = this.newTableRow.bind(this, 'component');
             document.getElementById('new-gamma').onclick = this.newTableRow.bind(this, 'gamma');
 
-            document.getElementById('decayTab').onclick = this.swapTab.bind(null, 'decay');
+            document.getElementById('decayTab').onclick = this.swapTab.bind(this, 'decay');
+            document.getElementById('gammaTab').onclick = this.swapTab.bind(this, 'gamma');
 
-            document.getElementById('gammaTab').onclick = this.swapTab.bind(null, 'gamma');
+            // plug in fit limit redraw for decay mode
+            document.getElementById('decayMinBin').onchange = this.drawFitBounds.bind(this, 'decay');
+            document.getElementById('decayMaxBin').onchange = this.drawFitBounds.bind(this, 'decay');
 
             // start with one row in each table
             this.newTableRow('gamma');
@@ -150,13 +153,47 @@
             document.getElementById(other + 'Tab').classList.remove('active');
             document.getElementById(target + 'TableWrapper').classList.remove('hidden');
             document.getElementById(other + 'TableWrapper').classList.add('hidden');
+
+            this.drawFitBounds(target);
+        }
+
+        this.drawFitBounds = function(target){
+            //draw the appropriate set of fit bounds for the current display
+
+            var viewer = dataStore.viewers[dataStore.plots[0]],
+                gammaMin = document.getElementsByClassName('gamma-min'),
+                gammaMax = document.getElementsByClassName('gamma-max'),
+                i, min, max;
+
+            //drop old lines
+            viewer.verticals = {};
+
+            if(target == 'decay'){
+                viewer.addVertical('decayMinBin', parseInt(document.getElementById('decayMinBin').value,10), '#FF0000');
+                viewer.addVertical('decayMaxBin', parseInt(document.getElementById('decayMaxBin').value,10), '#FF0000');
+            } else if(target == 'gamma'){
+                for(i=0; i<gammaMin.length; i++){
+                    min = parseInt(gammaMin[i].value,10);
+                    max = parseInt(gammaMax[i].value,10);
+                    viewer.addVertical(min+'-min', min, '#FF0000');
+                    viewer.addVertical(min+'-max', max, '#FF0000');
+                }
+            }
+
+            viewer.plotData();
+
         }
 
         this.refreshTable = function(event){
 
-            document.getElementById('decayMinBin').value = dataStore.viewers[dataStore.plots[0]].XaxisLimitMin;
-            document.getElementById('decayMaxBin').value = dataStore.viewers[dataStore.plots[0]].XaxisLimitMax
+            var min = document.getElementById('decayMinBin'),
+                max = document.getElementById('decayMaxBin');
 
+            min.value = dataStore.viewers[dataStore.plots[0]].XaxisLimitMin;
+            max.value = dataStore.viewers[dataStore.plots[0]].XaxisLimitMax
+
+            min.onchange();
+            max.onchange();
         }
 
         this.newTableRow = function(type, event){
@@ -174,6 +211,12 @@
             );
             row.setAttribute('id', type+'Row'+dataStore.componentIndex);
             document.getElementById(type+'Table').appendChild(row);
+
+            // plug in fit limit redraw for new gamma row
+            if(type == 'gamma'){
+                document.getElementById('min'+dataStore.componentIndex).onchange = this.drawFitBounds.bind(this, 'gamma');
+                document.getElementById('max'+dataStore.componentIndex).onchange = this.drawFitBounds.bind(this, 'gamma');
+            }
 
             // plug in delete button
             document.getElementById('delete' + dataStore.componentIndex).onclick = this.deleteRow.bind(this, type, dataStore.componentIndex);
