@@ -15,6 +15,11 @@ function setupDataStore(){
             griffinCodes.push('GRG' + alwaysThisLong(i,2) + griffinQuads[j] + 'N00A');
         }
     }
+    for(i=1; i<17; i++){
+        for(j=0; j<griffinQuads.length; j++){
+            griffinCodes.push('GRG' + alwaysThisLong(i,2) + griffinQuads[j] + 'N00B');
+        }
+    }
 
     //generate SCEPTAR detector nomenclature codes
     for(i=1; i<21; i++){
