@@ -125,7 +125,71 @@ function setupDataStore(){
             'GRG16BN00A',
             'GRG16GN00A',
             'GRG16RN00A',
-            'GRG16WN00A'
+            'GRG16WN00A',
+            'GRG01BN00B',
+            'GRG01GN00B',
+            'GRG01RN00B',
+            'GRG01WN00B',
+            'GRG02BN00B',
+            'GRG02GN00B',
+            'GRG02RN00B',
+            'GRG02WN00B',
+            'GRG03BN00B',
+            'GRG03GN00B',
+            'GRG03RN00B',
+            'GRG03WN00B',
+            'GRG04BN00B',
+            'GRG04GN00B',
+            'GRG04RN00B',
+            'GRG04WN00B',
+            'GRG05BN00B',
+            'GRG05GN00B',
+            'GRG05RN00B',
+            'GRG05WN00B',
+            'GRG06BN00B',
+            'GRG06GN00B',
+            'GRG06RN00B',
+            'GRG06WN00B',
+            'GRG07BN00B',
+            'GRG07GN00B',
+            'GRG07RN00B',
+            'GRG07WN00B',
+            'GRG08BN00B',
+            'GRG08GN00B',
+            'GRG08RN00B',
+            'GRG08WN00B',
+            'GRG09BN00B',
+            'GRG09GN00B',
+            'GRG09RN00B',
+            'GRG09WN00B',
+            'GRG10BN00B',
+            'GRG10GN00B',
+            'GRG10RN00B',
+            'GRG10WN00B',
+            'GRG11BN00B',
+            'GRG11GN00B',
+            'GRG11RN00B',
+            'GRG11WN00B',
+            'GRG12BN00B',
+            'GRG12GN00B',
+            'GRG12RN00B',
+            'GRG12WN00B',
+            'GRG13BN00B',
+            'GRG13GN00B',
+            'GRG13RN00B',
+            'GRG13WN00B',
+            'GRG14BN00B',
+            'GRG14GN00B',
+            'GRG14RN00B',
+            'GRG14WN00B',
+            'GRG15BN00B',
+            'GRG15GN00B',
+            'GRG15RN00B',
+            'GRG15WN00B',
+            'GRG16BN00B',
+            'GRG16GN00B',
+            'GRG16RN00B',
+            'GRG16WN00B'
         ];
 
 
@@ -150,6 +214,22 @@ function setupDataStore(){
                 {
                     "plotID": 'GRG' + alwaysThisLong(i, 2) + 'WN00A', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'WN00A'
+                },
+                {
+                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'BN00B', 
+                    "title": 'GRG' + alwaysThisLong(i, 2) + 'BN00B'
+                },
+                {
+                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'GN00B', 
+                    "title": 'GRG' + alwaysThisLong(i, 2) + 'GN00B'
+                },
+                {
+                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'RN00B', 
+                    "title": 'GRG' + alwaysThisLong(i, 2) + 'RN00B'
+                },
+                {
+                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'WN00B', 
+                    "title": 'GRG' + alwaysThisLong(i, 2) + 'WN00B'
                 }
             ]
         })
