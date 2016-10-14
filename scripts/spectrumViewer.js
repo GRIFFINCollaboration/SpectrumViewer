@@ -53,7 +53,8 @@ function setupDataStore(){
                     "subname": "Sum Spectra",
                     "id": "sums",
                     "items": [
-                        'SUM_Singles_Energy',
+                        'SUM_Singles_Low_gain_Energy',
+                        'SUM_Singles_High_gain_Energy',
                         'SUM_Addback_Energy'
                     ]
                 }
