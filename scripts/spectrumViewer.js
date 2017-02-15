@@ -26,6 +26,11 @@ function setupDataStore(){
         sceptarCodes.push('SEP' + alwaysThisLong(i,2) + 'XN00X');
     }
 
+    //generate PACES detector nomenclature codes
+    for(i=1; i<6; i++){
+        sceptarCodes.push('PAC' + alwaysThisLong(i,2) + 'XN00X');
+    }
+
     //generate DESCANT detector nomenclature codes
     for(i=1; i<71; i++){
         descantCodes.push('DSC' + alwaysThisLong(i,2) + 'XN00X');
@@ -113,6 +118,34 @@ function setupDataStore(){
                     "subname": "Waveform",
                     "id": "SEPwaveform",
                     "items": sceptarCodes.map(function(c){return c + '_Waveform'})
+                }
+            ]
+        },
+
+        {
+            "name": "PACES",
+            "id": "PACES",
+            "color": '#367FA9',
+            "subGroups": [
+                {
+                    "subname": "Energy",
+                    "id": "PACenergy",
+                    "items": pacesCodes.map(function(c){return c + '_Energy'})
+                },
+                {
+                    "subname": "Time",
+                    "id": "PACtime",
+                    "items": pacesCodes.map(function(c){return c + '_Time'})
+                },
+                {
+                    "subname": "Pulse Height",
+                    "id": "PACpulseHeight",
+                    "items": pacesCodes.map(function(c){return c + '_Pulse_Height'})
+                },
+                {
+                    "subname": "Waveform",
+                    "id": "PACwaveform",
+                    "items": pacesCodes.map(function(c){return c + '_Waveform'})
                 }
             ]
         },
