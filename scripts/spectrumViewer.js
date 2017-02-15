@@ -187,7 +187,7 @@ function setupDataStore(){
                     "subname": "Energy Waveform",
                     "id": "DALwaveform",
                     "items": labr3Codes.map(function(c){return c + '_Waveform'})
-                }
+                },
                 {
                     "subname": "Pulse Height",
                     "id": "DATpulseHeight",
