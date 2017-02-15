@@ -29,7 +29,7 @@ function setupDataStore(){
 
     //generate PACES detector nomenclature codes
     for(i=1; i<6; i++){
-        sceptarCodes.push('PAC' + alwaysThisLong(i,2) + 'XN00X');
+        pacesCodes.push('PAC' + alwaysThisLong(i,2) + 'XN00X');
     }
 
     //generate DESCANT detector nomenclature codes
