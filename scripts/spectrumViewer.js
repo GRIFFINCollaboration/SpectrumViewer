@@ -187,7 +187,15 @@ function setupDataStore(){
                     "subname": "Energy Waveform",
                     "id": "DALwaveform",
                     "items": labr3Codes.map(function(c){return c + '_Waveform'})
-                },
+                }
+            ]
+        },
+
+        {
+            "name": "TACS",
+            "id": "TACS",
+            "color": '#367FA9',
+            "subGroups": [
                 {
                     "subname": "Pulse Height",
                     "id": "DATpulseHeight",
