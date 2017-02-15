@@ -174,6 +174,11 @@ function setupDataStore(){
                     "items": labr3Codes.map(function(c){return c + '_Energy'})
                 },
                 {
+                    "subname": "Pulse Height",
+                    "id": "DATpulseHeight",
+                    "items": tacCodes.map(function(c){return c + '_Pulse_Height'})
+                },
+                {
                     "subname": "Time",
                     "id": "DALtime",
                     "items": labr3Codes.map(function(c){return c + '_Time'})
@@ -187,18 +192,6 @@ function setupDataStore(){
                     "subname": "Energy Waveform",
                     "id": "DALwaveform",
                     "items": labr3Codes.map(function(c){return c + '_Waveform'})
-                }
-            ]
-        },
-        {
-            "name": "TACS",
-            "id": "TACS",
-            "color": '#367FA9',
-            "subGroups": [
-                {
-                    "subname": "Pulse Height",
-                    "id": "DATpulseHeight",
-                    "items": tacCodes.map(function(c){return c + '_Pulse_Height'})
                 },
                 {
                     "subname": "TAC Waveform",
