@@ -23,12 +23,12 @@ function setupDataStore(){
     }
 
     //generate SCEPTAR detector nomenclature codes
-    for(i=1; i<21; i++){
+    for(i=0; i<20; i++){
         sceptarCodes.push('SEP' + alwaysThisLong(i,2) + 'XN00X');
     }
 
     //generate PACES detector nomenclature codes
-    for(i=1; i<6; i++){
+    for(i=0; i<5; i++){
         pacesCodes.push('PAC' + alwaysThisLong(i,2) + 'XN00X');
     }
 
