@@ -7,6 +7,7 @@ function setupDataStore(){
     var griffinQuads = ['B', 'G', 'R', 'W'];
     var griffinCodes = []
     var sceptarCodes = []
+    var pacesCodes = []
     var descantCodes = []
 
     //generate GRIFFFIN detector nomenclature codes
