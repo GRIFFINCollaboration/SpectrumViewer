@@ -174,7 +174,7 @@ function setupDataStore(){
                     "items": labr3Codes.map(function(c){return c + '_Energy'})
                 },
                 {
-                    "subname": "Pulse Height",
+                    "subname": "TAC",
                     "id": "DATpulseHeight",
                     "items": tacCodes.map(function(c){return c + '_Pulse_Height'})
                 },
