@@ -8,6 +8,8 @@ function setupDataStore(){
     var griffinCodes = []
     var sceptarCodes = []
     var pacesCodes = []
+    var labr3Codes = []
+    var tacCodes = []
     var descantCodes = []
 
     //generate GRIFFFIN detector nomenclature codes
@@ -30,6 +32,16 @@ function setupDataStore(){
     //generate PACES detector nomenclature codes
     for(i=0; i<5; i++){
         pacesCodes.push('PAC' + alwaysThisLong(i,2) + 'XN00X');
+    }
+
+    //generate LaBr3 detector nomenclature codes
+    for(i=1; i<8; i++){
+        labr3Codes.push('DAL' + alwaysThisLong(i,2) + 'XN00X');
+    }
+
+    //generate LaBr3 TACs detector nomenclature codes
+    for(i=1; i<8; i++){
+        tacCodes.push('DAT' + alwaysThisLong(i,2) + 'XN00X');
     }
 
     //generate DESCANT detector nomenclature codes
@@ -147,6 +159,44 @@ function setupDataStore(){
                     "subname": "Waveform",
                     "id": "PACwaveform",
                     "items": pacesCodes.map(function(c){return c + '_Waveform'})
+                }
+            ]
+        },
+
+        {
+            "name": "LABR3",
+            "id": "LABR3",
+            "color": '#367FA9',
+            "subGroups": [
+                {
+                    "subname": "Energy",
+                    "id": "DALenergy",
+                    "items": labr3Codes.map(function(c){return c + '_Energy'})
+                },
+                {
+                    "subname": "Time",
+                    "id": "DALtime",
+                    "items": labr3Codes.map(function(c){return c + '_Time'})
+                },
+                {
+                    "subname": "Pulse Height",
+                    "id": "DALpulseHeight",
+                    "items": labr3Codes.map(function(c){return c + '_Pulse_Height'})
+                },
+                {
+                    "subname": "Energy Waveform",
+                    "id": "DALwaveform",
+                    "items": labr3Codes.map(function(c){return c + '_Waveform'})
+                }
+                {
+                    "subname": "Pulse Height",
+                    "id": "DATpulseHeight",
+                    "items": tacCodes.map(function(c){return c + '_Pulse_Height'})
+                },
+                {
+                    "subname": "TAC Waveform",
+                    "id": "DATwaveform",
+                    "items": tacCodes.map(function(c){return c + '_Waveform'})
                 }
             ]
         },
