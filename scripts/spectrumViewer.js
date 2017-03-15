@@ -35,12 +35,12 @@ function setupDataStore(){
     }
 
     //generate LaBr3 detector nomenclature codes
-    for(i=1; i<8; i++){
+    for(i=1; i<9; i++){
         labr3Codes.push('DAL' + alwaysThisLong(i,2) + 'XN00X');
     }
 
     //generate LaBr3 TACs detector nomenclature codes
-    for(i=1; i<8; i++){
+    for(i=1; i<9; i++){
         tacCodes.push('DAT' + alwaysThisLong(i,2) + 'XN00X');
     }
 
