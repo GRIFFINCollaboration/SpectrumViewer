@@ -175,8 +175,8 @@ function setupDataStore(){
                 },
                 {
                     "subname": "TAC",
-                    "id": "DATpulseHeight",
-                    "items": tacCodes.map(function(c){return c + '_Pulse_Height'})
+                    "id": "DATenergy",
+                    "items": tacCodes.map(function(c){return c + '_Energy'})
                 },
                 {
                     "subname": "Time",
