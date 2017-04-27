@@ -41,7 +41,7 @@ function setupDataStore(){
 
     //generate LaBr3 TACs detector nomenclature codes
     for(i=1; i<9; i++){
-        tacCodes.push('DAT' + alwaysThisLong(i,2) + 'XN00X');
+        tacCodes.push('DAT' + alwaysThisLong(i,2) + 'XT00X');
     }
 
     //generate DESCANT detector nomenclature codes
