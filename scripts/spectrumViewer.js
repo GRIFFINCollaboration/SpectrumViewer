@@ -74,7 +74,9 @@ function setupDataStore(){
                     "items": [
                         'SUM_Singles_Low_gain_Energy',
                         'SUM_Singles_High_gain_Energy',
-                        'SUM_Addback_Energy'
+                        'SUM_Addback_Energy',
+                        'SUM_PACES_Energy',
+                        'SUM_LaBr3_Energy'
                     ]
                 }
             ]
