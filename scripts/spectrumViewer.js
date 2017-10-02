@@ -31,7 +31,7 @@ function setupDataStore(){
     }
 
     //generate PACES detector nomenclature codes
-    for(i=0; i<5; i++){
+    for(i=1; i<6; i++){
         pacesCodes.push('PAC' + alwaysThisLong(i,2) + 'XN00X');
     }
 
