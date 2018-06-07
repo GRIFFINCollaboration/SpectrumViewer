@@ -6,6 +6,7 @@ function setupDataStore(){
     var i,j
     var griffinQuads = ['B', 'G', 'R', 'W'];
     var griffinCodes = []
+    var grifBGOCodes = []
     var sceptarCodes = []
     var pacesCodes = []
     var labr3Codes = []
@@ -24,6 +25,15 @@ function setupDataStore(){
         }
     }
 
+    //generate GRIFFFIN BGO detector nomenclature codes
+    for(i=1; i<17; i++){
+        for(j=0; j<griffinQuads.length; j++){
+            for(k=0; k<6; k++){
+		griffinCodes.push('GRS' + alwaysThisLong(i,2) + griffinQuads[j] + 'N0'+ alwaysThisLong(k,2) + 'X');
+	    }
+        }
+    }
+    
     //generate SCEPTAR detector nomenclature codes
     sceptarCodes.push('ZDS00XN00X');
     for(i=0; i<20; i++){
@@ -106,6 +116,34 @@ function setupDataStore(){
                     "subname": "Waveform",
                     "id": "GRGwaveform",
                     "items": griffinCodes.map(function(c){return c + '_Waveform'})
+                }
+            ]
+        },
+
+        {
+            "name": "BGO",
+            "id": "BGO",
+            "color": '#367FA9',
+            "subGroups": [
+                {
+                    "subname": "Energy",
+                    "id": "GRSenergy",
+                    "items": grifBGOCodes.map(function(c){return c + '_Energy'})
+                },
+                {
+                    "subname": "Time",
+                    "id": "GRStime",
+                    "items": grifBGOCodes.map(function(c){return c + '_Time'})
+                },
+                {
+                    "subname": "Pulse Height",
+                    "id": "GRSpulseHeight",
+                    "items": grifBGOCodes.map(function(c){return c + '_Pulse_Height'})
+                },
+                {
+                    "subname": "Waveform",
+                    "id": "GRSwaveform",
+                    "items": grifBGOCodes.map(function(c){return c + '_Waveform'})
                 }
             ]
         },
