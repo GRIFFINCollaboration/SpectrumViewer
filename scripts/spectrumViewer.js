@@ -28,7 +28,7 @@ function setupDataStore(){
     //generate GRIFFFIN BGO detector nomenclature codes
     for(i=1; i<17; i++){
         for(j=0; j<griffinQuads.length; j++){
-            for(k=0; k<5; k++){
+            for(k=1; k<6; k++){
 		grifBGOCodes.push('GRS' + alwaysThisLong(i,2) + griffinQuads[j] + 'N'+ alwaysThisLong(k,2) + 'X');
 	    }
         }
