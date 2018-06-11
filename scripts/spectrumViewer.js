@@ -10,6 +10,7 @@ function setupDataStore(){
     var sceptarCodes = []
     var pacesCodes = []
     var labr3Codes = []
+    var labBGOCodes = []
     var tacCodes = []
     var descantCodes = []
 
@@ -47,12 +48,19 @@ function setupDataStore(){
 
     //generate LaBr3 detector nomenclature codes
     for(i=1; i<9; i++){
-        labr3Codes.push('DAL' + alwaysThisLong(i,2) + 'XN00X');
+        labr3Codes.push('LBL' + alwaysThisLong(i,2) + 'XN00X');
+    }
+
+    //generate LaBr3 detector nomenclature codes
+    for(i=1; i<9; i++){
+        labBGOCodes.push('LBS' + alwaysThisLong(i,2) + 'AN00X');
+        labBGOCodes.push('LBS' + alwaysThisLong(i,2) + 'BN00X');
+        labBGOCodes.push('LBS' + alwaysThisLong(i,2) + 'CN00X');
     }
 
     //generate LaBr3 TACs detector nomenclature codes
     for(i=1; i<9; i++){
-        tacCodes.push('DAT' + alwaysThisLong(i,2) + 'XT00X');
+        tacCodes.push('LBT' + alwaysThisLong(i,2) + 'XT00X');
     }
 
     //generate DESCANT detector nomenclature codes
@@ -211,33 +219,61 @@ function setupDataStore(){
             "subGroups": [
                 {
                     "subname": "Energy",
-                    "id": "DALenergy",
+                    "id": "LBLenergy",
                     "items": labr3Codes.map(function(c){return c + '_Energy'})
                 },
                 {
                     "subname": "TAC",
-                    "id": "DATenergy",
+                    "id": "LBTenergy",
                     "items": tacCodes.map(function(c){return c + '_Energy'})
                 },
                 {
                     "subname": "Time",
-                    "id": "DALtime",
+                    "id": "LBLtime",
                     "items": labr3Codes.map(function(c){return c + '_Time'})
                 },
                 {
                     "subname": "Pulse Height",
-                    "id": "DALpulseHeight",
+                    "id": "LBLpulseHeight",
                     "items": labr3Codes.map(function(c){return c + '_Pulse_Height'})
                 },
                 {
                     "subname": "Energy Waveform",
-                    "id": "DALwaveform",
+                    "id": "LBLwaveform",
                     "items": labr3Codes.map(function(c){return c + '_Waveform'})
                 },
                 {
                     "subname": "TAC Waveform",
-                    "id": "DATwaveform",
+                    "id": "LBTwaveform",
                     "items": tacCodes.map(function(c){return c + '_Waveform'})
+                }
+            ]
+        },
+
+        {
+            "name": "LABR3 BGO",
+            "id": "LABBGO",
+            "color": '#367FA9',
+            "subGroups": [
+                {
+                    "subname": "Energy",
+                    "id": "LBSenergy",
+                    "items": labBGOCodes.map(function(c){return c + '_Energy'})
+                },
+                {
+                    "subname": "Time",
+                    "id": "LBStime",
+                    "items": labBGOCodes.map(function(c){return c + '_Time'})
+                },
+                {
+                    "subname": "Pulse Height",
+                    "id": "LBSpulseHeight",
+                    "items": labBGOCodes.map(function(c){return c + '_Pulse_Height'})
+                },
+                {
+                    "subname": "Energy Waveform",
+                    "id": "LBSwaveform",
+                    "items": labBGOCodes.map(function(c){return c + '_Waveform'})
                 }
             ]
         },
