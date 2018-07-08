@@ -37,7 +37,7 @@ function setupDataStore(){
     
     //generate SCEPTAR detector nomenclature codes
     sceptarCodes.push('ZDS01XN00X');
-    for(i=0; i<20; i++){
+    for(i=1; i<21; i++){
         sceptarCodes.push('SEP' + alwaysThisLong(i,2) + 'XN00X');
     }
 
