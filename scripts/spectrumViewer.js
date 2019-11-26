@@ -37,6 +37,7 @@ function setupDataStore(){
     
     //generate SCEPTAR detector nomenclature codes
     sceptarCodes.push('ZDS01XN00X');
+    sceptarCodes.push('ZDS02XN00X');
     for(i=1; i<21; i++){
         sceptarCodes.push('SEP' + alwaysThisLong(i,2) + 'XN00X');
     }
@@ -64,7 +65,8 @@ function setupDataStore(){
     }
 
     //generate DESCANT detector nomenclature codes
-    for(i=1; i<71; i++){
+    for(i=1; i<89; i++){
+	if(i>70 && i<80){ continue; }
         descantCodes.push('DSC' + alwaysThisLong(i,2) + 'XN00X');
     }
 
