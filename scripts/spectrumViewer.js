@@ -39,12 +39,12 @@ function setupDataStore(){
     sceptarCodes.push('ZDS01XN00X');
     sceptarCodes.push('ZDS02XN00X');
     for(i=1; i<21; i++){
-        sceptarCodes.push('SEP' + alwaysThisLong(i,2) + 'XN00X');
+        sceptarCodes.push('SEP' + alwaysThisLong(i,2) + 'XN00A');
     }
 
     //generate PACES detector nomenclature codes
     for(i=1; i<6; i++){
-        pacesCodes.push('PAC' + alwaysThisLong(i,2) + 'XN00X');
+        pacesCodes.push('PAC' + alwaysThisLong(i,2) + 'XN00A');
     }
 
     //generate LaBr3 detector nomenclature codes
