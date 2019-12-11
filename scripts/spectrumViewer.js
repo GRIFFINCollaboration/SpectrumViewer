@@ -36,10 +36,10 @@ function setupDataStore(){
     }
     
     //generate SCEPTAR detector nomenclature codes
-    sceptarCodes.push('ZDS01XN00X');
-    sceptarCodes.push('ZDS02XN00X');
+    sceptarCodes.push('ZDS01XN00A');
+    sceptarCodes.push('ZDS01XN00B');
     for(i=1; i<21; i++){
-        sceptarCodes.push('SEP' + alwaysThisLong(i,2) + 'XN00A');
+        sceptarCodes.push('SEP' + alwaysThisLong(i,2) + 'XN00X');
     }
 
     //generate PACES detector nomenclature codes
