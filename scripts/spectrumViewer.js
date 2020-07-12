@@ -98,6 +98,32 @@ function setupDataStore(){
                         'SUM_PACES_Energy',
                         'SUM_LaBr3_Energy'
                     ]
+                },
+                {
+                    "subname": "Pile-up Spectra",
+                    "id": "pus",
+                    "items": [
+                        'PU_Low_gain_Pile-up',
+                        'PU_High_gain_Pile-up',
+                        'PU_BGO_Pile-up',
+                        'PU_SCEPTAR_Pile-up',
+                        'PU_ZDS_Pile-up',
+                        'PU_PACES_Pile-up',
+                        'PU_LaBr3_Pile-up'
+                    ]
+                },
+                {
+                    "subname": "CFD-check Spectra",
+                    "id": "tcs",
+                    "items": [
+                        'TC_Low_gain_CFD-check',
+                        'TC_High_gain_CFD-check',
+                        'TC_BGO_CFD-check',
+                        'TC_SCEPTAR_CFD-check',
+                        'TC_ZDS_CFD-check',
+                        'TC_PACES_CFD-check',
+                        'TC_LaBr3_CFD-check'
+                    ]
                 }
             ]
         },
