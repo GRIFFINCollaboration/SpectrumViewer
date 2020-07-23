@@ -62,19 +62,7 @@ function setupDataStore(){
                 'min': 0,
                 'max': 0,
                 'onByDefault': false
-            },
-            {
-                'title': 'Gate 4',
-                'min': 0,
-                'max': 0,
-                'onByDefault': false
-            },
-            {
-                'title': 'Gate 5',
-                'min': 0,
-                'max': 0,
-                'onByDefault': false
-            }  
+            } 
         ],
 
         'levels':[
@@ -95,7 +83,7 @@ function setupDataStore(){
                 'lvlID': 'LF3'
             },
             {
-                'title': 'TRILIS Freq. 2',
+                'title': 'TRILIS Freq. 4',
                 'lvlID': 'LF4'
             }
         ]
