@@ -100,6 +100,17 @@ function setupDataStore(){
                     ]
                 },
                 {
+                    "subname": "Coinc. Spectra",
+                    "id": "coinc",
+                    "items": [
+			'COINC_gamma-gamma',
+			'COINC_beta-gamma',
+			'COINC_beta-PACES',
+			'COINC_gamma-PACES',
+			'COINC_beta-Addback'
+                    ]
+                },
+                {
                     "subname": "Pile-up Spectra",
                     "id": "pus",
                     "items": [
