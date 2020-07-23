@@ -23,7 +23,9 @@ function setupDataStore(){
     dataStore.scalars = {                                               //key:value pairs for scalrs to pull from odb
             'PC': 0,
             'LF1': 0,
-            'LF2': 0
+            'LF2': 0,
+            'LF3': 0,
+            'LF4': 0
         }
     dataStore.currentSpectrum = [];                                     //latest polled spectrum, after background subtraction
     dataStore.oldSpectrum = [];                                         //previous bkg-subtracted spectrum
@@ -81,12 +83,20 @@ function setupDataStore(){
                 'lvlID': 'PC'                                       //key corresponding to dataStore.scalars
             },
             {
-                'title': 'Laser Freq. 1',
+                'title': 'TRILIS Freq. 1',
                 'lvlID': 'LF1'
             },
             {
-                'title': 'Laser Freq. 2',
+                'title': 'TRILIS Freq. 2',
                 'lvlID': 'LF2'
+            },
+            {
+                'title': 'TRILIS Freq. 3',
+                'lvlID': 'LF3'
+            },
+            {
+                'title': 'TRILIS Freq. 2',
+                'lvlID': 'LF4'
             }
         ]
     }
@@ -163,6 +173,8 @@ function parseScalars(scalars){
         'PC': scalars[0].MSRD[39],
         'LF1': scalars[0].MSRD[29],
         'LF2': scalars[0].MSRD[30],
+        'LF3': scalars[0].MSRD[31],
+        'LF4': scalars[0].MSRD[32],
         'run': scalars[1]['Run number']
     }
 }
