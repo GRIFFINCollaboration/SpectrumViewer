@@ -7,7 +7,7 @@ function setupDataStore(){
     var i, labels = ['time']
 
     dataStore = {};
-    dataStore.plots = ['SUM_Singles_Energy'];                           //what plot will we be focusing on?
+    dataStore.plots = ['SUM_Singles_Low_gain_Energy'];                  //what plot will we be focusing on?
     dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';       //host and port of analyzer
     dataStore.ODBrequests = ['http://grsmid00.triumf.ca:8081/?cmd=jcopy&odb0=/Equipment/Epics/Variables/MSRD&odb1=/Runinfo/Run number&encoding=json-p-nokeys&callback=parseScalars'];  //odb requests to make every update
 
