@@ -127,8 +127,8 @@ function setupDataStore(){
                     "subname": "Pile-up Spectra",
                     "id": "pus",
                     "items": [
-                        'PU_Low_gain_Pile-up',
-                        'PU_High_gain_Pile-up',
+                        'PU_GeA_Pile-up',
+                        'PU_GeB_Pile-up',
                         'PU_BGO_Pile-up',
                         'PU_SCEPTAR_Pile-up',
                         'PU_ZDS_Pile-up',
@@ -142,8 +142,8 @@ function setupDataStore(){
                     "subname": "CFD-check Spectra",
                     "id": "tcs",
                     "items": [
-                        'TC_Low_gain_CFD-check',
-                        'TC_High_gain_CFD-check',
+                        'TC_GeA_CFD-check',
+                        'TC_GeB_CFD-check',
                         'TC_BGO_CFD-check',
                         'TC_SCEPTAR_CFD-check',
                         'TC_ZDS_CFD-check',
