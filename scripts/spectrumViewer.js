@@ -111,6 +111,17 @@ function setupDataStore(){
                     ]
                 },
                 {
+                    "subname": "deltaT. Spectra",
+                    "id": "deltaT",
+                    "items": [
+			'deltaT_gamma-gamma',
+			'deltaT_beta-gamma',
+			'deltaT_beta-PACES',
+			'deltaT_gamma-PACES',
+			'deltaT_beta-Addback'
+                    ]
+                },
+                {
                     "subname": "Pile-up Spectra",
                     "id": "pus",
                     "items": [
