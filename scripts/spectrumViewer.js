@@ -92,11 +92,13 @@ function setupDataStore(){
                     "subname": "Sum Spectra",
                     "id": "sums",
                     "items": [
-                        'SUM_Singles_Low_gain_Energy',
-                        'SUM_Singles_High_gain_Energy',
+                        'SUM_Singles_GeA_Energy',
+                        'SUM_Singles_GeB_Energy',
                         'SUM_Addback_Energy',
                         'SUM_PACES_Energy',
-                        'SUM_LaBr3_Energy'
+                        'SUM_LaBr3_Energy',
+                        'SUM_BGO_Energy',
+                        'SUM_LBGO_Energy'
                     ]
                 },
                 {
@@ -131,7 +133,9 @@ function setupDataStore(){
                         'PU_SCEPTAR_Pile-up',
                         'PU_ZDS_Pile-up',
                         'PU_PACES_Pile-up',
-                        'PU_LaBr3_Pile-up'
+                        'PU_LaBr3_Pile-up',
+                        'PU_LBGO_Pile-up',
+                        'PU_TAC_Pile-up'
                     ]
                 },
                 {
@@ -144,7 +148,9 @@ function setupDataStore(){
                         'TC_SCEPTAR_CFD-check',
                         'TC_ZDS_CFD-check',
                         'TC_PACES_CFD-check',
-                        'TC_LaBr3_CFD-check'
+                        'TC_LaBr3_CFD-check',
+                        'TC_LBGO_CFD-check',
+                        'TC_TAC_CFD-check'
                     ]
                 }
             ]
