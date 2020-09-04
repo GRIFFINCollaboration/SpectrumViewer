@@ -109,7 +109,8 @@ function setupDataStore(){
 			'COINC_beta-gamma',
 			'COINC_beta-PACES',
 			'COINC_gamma-PACES',
-			'COINC_beta-Addback'
+			'COINC_beta-Addback',
+			'COINC_beta-LaBr3'
                     ]
                 },
                 {
@@ -121,7 +122,8 @@ function setupDataStore(){
 			'deltaT_beta-PACES',
 			'deltaT_gamma-PACES',
 			'deltaT_beta-Addback',
-			'deltaT_gamma-BGO'
+			'deltaT_gamma-BGO',
+			'deltaT_gamma-LaBr3'
                     ]
                 },
                 {
