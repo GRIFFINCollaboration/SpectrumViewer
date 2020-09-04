@@ -123,7 +123,7 @@ function setupDataStore(){
 			'deltaT_gamma-PACES',
 			'deltaT_beta-Addback',
 			'deltaT_gamma-BGO',
-			'deltaT_gamma-LaBr3'
+			'deltaT_beta-LaBr3'
                     ]
                 },
                 {
