@@ -98,7 +98,11 @@ function setupDataStore(){
                         'SUM_PACES_Energy',
                         'SUM_LaBr3_Energy',
                         'SUM_BGO_Energy',
-                        'SUM_LBGO_Energy'
+                        'SUM_LBGO_Energy',
+                        'SUM_Singles_GeA_E_PUreject',
+                        'SUM_Singles_GeA_E_PUonly',
+                        'SUM_LaBr3_E_PUreject',
+                        'SUM_LaBr3_E_PUonly'
                     ]
                 },
                 {
