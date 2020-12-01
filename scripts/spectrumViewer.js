@@ -114,7 +114,8 @@ function setupDataStore(){
 			'COINC_beta-PACES',
 			'COINC_gamma-PACES',
 			'COINC_beta-Addback',
-			'COINC_beta-LaBr3'
+			'COINC_beta-LaBr3',
+			'COINC_LaBr3-LaBr3'
                     ]
                 },
                 {
