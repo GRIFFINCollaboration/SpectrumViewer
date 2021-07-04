@@ -421,7 +421,7 @@ function updateScalerData(){
 	//update data history
 	dataStore.rateData[j].push( [new Date()].concat(levels) );
     }
-    
+    console.log(dataStore.scalars,dataStore.rateData);
 }
 
 function updateStaticDygraphs(leadingEdge, windowWidth){
