@@ -9,46 +9,24 @@
     function striptool(wrapID){
 
         this.wrapID = wrapID;
-    this.wrap = document.getElementById(wrapID);
-    switch(wrapID){
-    case "rates":
-    this.IDNum = 0;
-    break; 
-    case "Infrarates":
-    this.IDNum = 1;
-    break;
-    case "ISACrates":
-    this.IDNum = 2;
-    break;
-    case "SEPrates":
-    this.IDNum = 3;
-    break; 
-    case "Photonrates":
-    this.IDNum = 4;
-    break;
-    case "Chargedrates":
-    this.IDNum = 5;
-    break;
-    case "Otherrates":
-    this.IDNum = 6;
-    break;
-    }
+        this.wrap = document.getElementById(wrapID);
+
         this.setup = function(){
 
             //inject template
             this.wrap.innerHTML = Mustache.to_html(dataStore.templates.striptool, {'id': this.wrapID});
 
             // custom event listeners
-            listener(this.wrapID, 'updateDyData'+this.IDNum, this.updateData.bind(this))
+            listener(this.wrapID, 'updateDyData', this.updateData.bind(this))
             listener(
                 this.wrapID, 
-                'setDyVisible'+this.IDNum,                 
+                'setDyVisible',                 
                 function(event){
                     this.setVisible(event.detail.index, event.detail.isVisible)
                 }.bind(this)
             )
 
-            this.initializePlot(dataStore.plotInitData[this.IDNum], dataStore.plotStyle[this.IDNum]);
+            this.initializePlot(dataStore.plotInitData, dataStore.plotStyle);
         },
 
         this.initializePlot = function(data, style){
@@ -75,19 +53,19 @@
 
             //check for annotations to add
             //update annotations
-            if(dataStore.annotations[this.IDNum]){
-            keys = Object.keys(dataStore.annotations[this.IDNum])
+            if(dataStore.annotations){
+            keys = Object.keys(dataStore.annotations)
                 if(keys.length > 0 ){
-                    annotations = this.dygraph.annotations[this.IDNum]()
+                    annotations = this.dygraph.annotations()
                     for(i=0; i<keys.length; i++){
                         //mark up annotation with the right time
-                        dataStore.annotations[this.IDNum][keys[i]].x = event.detail.data[event.detail.data.length-1][0].getTime();
+                        dataStore.annotations[keys[i]].x = event.detail.data[event.detail.data.length-1][0].getTime();
                         //add to list
-                        annotations.push(dataStore.annotations[this.IDNum][keys[i]]);
+                        annotations.push(dataStore.annotations[keys[i]]);
                     }
                     //set annotations on dygraph and dump the annotation buffer
                     this.dygraph.setAnnotations(annotations)
-                    dataStore.annotations[this.IDNum] = {};
+                    dataStore.annotations = {};
                 }
             }
 
