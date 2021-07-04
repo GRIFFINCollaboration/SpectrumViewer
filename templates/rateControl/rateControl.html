@@ -267,7 +267,10 @@
 
             //update data history
             dataStore.rateData.push( [new Date()].concat(gates).concat(levels) );
-        },
+
+      console.log(dataStore.rateData);
+
+       },
 
         this.constructAutoBackgroundRange = function(min, max){
             //returns [[bin numbers], [corresponding bin values]] based on the gate described by min, max,
