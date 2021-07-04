@@ -30,41 +30,7 @@
     <body>
         <div id='head'></div>
 
-	<!--Controls-->
-        <div class='sectionWrapper item expand' id='rateMonitorControl'>
-            <div id='timeaxisControlWrap' class='col-md-6 plotRegion'>
-                <div id='rateSlides'></div>
-            </div>
-	    <div id='striptoolControlWrap' class='col-md-6 plotRegion'>
-               <div id='yaxisControls'></div>
-	    </div>
-	</div>
-	
-	<!--Static Plots-->
-	<div id='plotRegion2' class='sectionWrapper item'>
-	    <div id='InfrastructurerateWrap' class='col-md-4 plotRegion'>
-	        <div id='Infrarates'></div>
-	    </div>
- 	    <div id='ISACrateWrap' class='col-md-4 plotRegion'>
-	        <div id='ISACrates'></div>
-            </div>
-            <div id='SEPrateWrap' class='col-md-4 plotRegion'>
-                <div id='SEPrates'></div>
-            </div>
-        </div>
-        <div id='plotRegion3' class='sectionWrapper item'>
-            <div id='GRIFFINrateWrap' class='col-md-4 plotRegion'>
-                <div id='Photonrates'></div>
-            </div>
-            <div id='ChargedrateWrap' class='col-md-4 plotRegion'>
-                <div id='Chargedrates'></div>
-            </div>
-            <div id='OtherrateWrap' class='col-md-4 plotRegion'>
-                <div id='Otherrates'></div>
-            </div>
-        </div>
-	
-        <!--Gamma spectrum and rates plots-->
+        <!--Plots-->
         <div id='plotRegion' class='sectionWrapper item'>
             <div id='plotWrap' class='col-md-6 plotRegion'>
                 <div id='plottingGrid'></div>
@@ -72,6 +38,7 @@
             </div>
             <div id='rateWrap' class='col-md-6 plotRegion'>
                 <div id='rates'></div>
+                <div id='rateSlides'></div>
             </div>
         </div>
 
@@ -91,13 +58,7 @@
 
                 dataStore._plotGrid = new plotGrid('plottingGrid');
                 dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
-                dataStore._striptool = new striptool('rates'); 
-                dataStore._striptoolInfra = new striptool('Infrarates'); 
-                dataStore._striptoolISAC = new striptool('ISACrates'); 
-                dataStore._striptoolSEP = new striptool('SEPrates'); 
-                dataStore._striptoolPhoton = new striptool('Photonrates'); 
-                dataStore._striptoolCharged = new striptool('Chargedrates'); 
-                dataStore._striptoolOther = new striptool('Otherrates');
+                dataStore._striptool = new striptool('rates');
                 dataStore._striptoolSliders = new striptoolSliders('rateSlides');
                 dataStore._rateControl = new rateControl('rateCtrl');
                 vw = dataStore.plots[0];
@@ -118,8 +79,8 @@
                 deleteNode('plottingGridnewPlotButton');
 
                 //prepare initial gamma windows
-                for(i=0; i<dataStore.defaults[0].gammas.length; i++){
-                    dataStore._rateControl.drawWindow(i, dataStore.defaults[0].gammas[i].min, dataStore.defaults[0].gammas[i].max);
+                for(i=0; i<dataStore.defaults.gammas.length; i++){
+                    dataStore._rateControl.drawWindow(i, dataStore.defaults.gammas[i].min, dataStore.defaults.gammas[i].max);
                 }
 
                 //plot the spectrum of interest
@@ -128,20 +89,14 @@
                 dataStore._plotControl.refreshAll();
 
                 //set up dygraph
-                dataStore.plotStyle[0]['height'] = document.getElementById(dataStore.plots[0]).offsetHeight - dataStore.viewers[vw].bottomMargin + 20,
-                dataStore.plotStyle[0]['weight'] = document.getElementById(dataStore.plots[0]).offsetWidth
+                dataStore.plotStyle['height'] = document.getElementById(dataStore.plots[0]).offsetHeight - dataStore.viewers[vw].bottomMargin + 20,
+                dataStore.plotStyle['weight'] = document.getElementById(dataStore.plots[0]).offsetWidth
                 dataStore._striptool.setup();
-                dataStore._striptoolInfra.setup();
-                dataStore._striptoolISAC.setup();
-                dataStore._striptoolSEP.setup(); 
-                dataStore._striptoolPhoton.setup();
-                dataStore._striptoolCharged.setup();
-                dataStore._striptoolOther.setup();
 
                 //manage which gamma window are on by defualt
-                for(i=0; i<dataStore.defaults[0].gammas.length; i++){
-                    if(!dataStore.defaults[0].gammas[i].onByDefault)
-                        document.getElementById('display' + dataStore.defaults[0].gammas[i].index).click()
+                for(i=0; i<dataStore.defaults.gammas.length; i++){
+                    if(!dataStore.defaults.gammas[i].onByDefault)
+                        document.getElementById('display' + dataStore.defaults.gammas[i].index).click()
                 }
 
                 //don't allow refresh period to change
