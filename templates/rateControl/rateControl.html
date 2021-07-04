@@ -31,14 +31,14 @@
                 dataStore.templates.gammaWindows, 
                 {
                     'id': this.wrapID,
-                    'gammas': dataStore.defaults.gammas,
+                    'gammas': dataStore.defaults[0].gammas,
                 }
             );
             document.getElementById(this.wrapID + 'LevelsAndScalars').innerHTML= Mustache.to_html(
                 dataStore.templates.levelsAndScalars, 
                 {
                     'id': this.wrapID,
-                    'levels': dataStore.defaults.levels
+                    'levels': dataStore.defaults[0].levels
                 }
             );
 
@@ -63,7 +63,7 @@
             //plug in misc level toggles
             levelToggles = document.getElementsByClassName('levelToggles')
             for(i=0; i<levelToggles.length; i++){
-                levelToggles[i].onchange = this.toggleDygraph.bind(levelToggles[i], i + dataStore.defaults.gammas.length);
+                levelToggles[i].onchange = this.toggleDygraph.bind(levelToggles[i], i + dataStore.defaults[0].gammas.length);
             }
             //plug in background mode options
             fitOptions = document.getElementsByClassName('fitOptions')
@@ -80,7 +80,7 @@
 
         this.drawWindow = function(index, min, max){
             //draw the appropriate window on the plot
-            //<index>: number; window index, corresponds to dataStore.defaults.gammas[index]
+            //<index>: number; window index, corresponds to dataStore.defaults[0].gammas[index]
             //<min>: number; min bin for window
             //<max>: number; max bin for window
             //this: rateControl object
@@ -89,8 +89,8 @@
             dataStore.viewers[this.vw].removeVertical('min' + index);
             dataStore.viewers[this.vw].removeVertical('max' + index);
             //make new lines
-            dataStore.viewers[this.vw].addVertical('min' + index, min, dataStore.defaults.gammas[index].color)
-            dataStore.viewers[this.vw].addVertical('max' + index, max, dataStore.defaults.gammas[index].color)
+            dataStore.viewers[this.vw].addVertical('min' + index, min, dataStore.defaults[0].gammas[index].color)
+            dataStore.viewers[this.vw].addVertical('max' + index, max, dataStore.defaults[0].gammas[index].color)
             //make sure these lines aren't getting suppressed
             dataStore.viewers[this.vw].unsuppressAnnotation('min' + index);
             dataStore.viewers[this.vw].unsuppressAnnotation('max' + index);
@@ -98,7 +98,7 @@
 
         this.toggleGammaWindow = function(index){
             //toggle the indexed gamma window on or off in the spectrum
-            //<index>: number; window index, corresponds to dataStore.defaults.gammas[index]
+            //<index>: number; window index, corresponds to dataStore.defaults[0].gammas[index]
             //this: rateControl object
 
             var payload;
@@ -114,7 +114,7 @@
                 payload = {"index": index, "isVisible": true };
             }
 
-            dispatcher(payload, 'setDyVisible');
+            dispatcher(payload, 'setDyVisible0');
             dataStore.viewers[this.vw].plotData();
         },
 
@@ -126,7 +126,7 @@
             var color = dataStore.viewers[dataStore.plots[0]].verticals[element.id].color
             dataStore.viewers[dataStore.plots[0]].removeVertical(element.id)
             dataStore.viewers[dataStore.plots[0]].addVertical(element.id, parseInt(element.value, 10), color)
-            this.queueAnnotation(dataStore.defaults.gammas[parseInt(element.id.slice(3),10)].title, 'Gate ' + element.id.substring(0,3) + ' updated to ' + element.value)
+            this.queueAnnotation(dataStore.defaults[0].gammas[parseInt(element.id.slice(3),10)].title, 'Gate ' + element.id.substring(0,3) + ' updated to ' + element.value)
 
             dataStore.viewers[dataStore.plots[0]].plotData();
         },
@@ -150,7 +150,7 @@
             //<index>: number; index of dygraph series to toggle visibility of
             //this: checkbox element
 
-            dispatcher({"index": index, "isVisible": this.checked}, 'setDyVisible');
+            dispatcher({"index": index, "isVisible": this.checked}, 'setDyVisible0');
         },
 
         this.changeFitMethod = function(element){
@@ -159,8 +159,8 @@
             //this: rateControl object
 
             var index = parseInt(element.name.slice(3),10);
-            this.queueAnnotation(dataStore.defaults.gammas[index].title, 'BKG Method Changed to ' + element.value);
-            dataStore.defaults.gammas[index].newFitMethod = true;
+            this.queueAnnotation(dataStore.defaults[0].gammas[index].title, 'BKG Method Changed to ' + element.value);
+            dataStore.defaults[0].gammas[index].newFitMethod = true;
             fetchCallback()
         },
 
@@ -175,7 +175,7 @@
             if(element.checkValidity()){
                 dataStore.manualBKG[element.id] = element.value
                 if(bkgTechnique == 'manual')
-                    this.queueAnnotation(dataStore.defaults.gammas[index].title, 'Manual BKG bins updated to ' + element.value)
+                    this.queueAnnotation(dataStore.defaults[0].gammas[index].title, 'Manual BKG bins updated to ' + element.value)
             }
         },
 
@@ -187,8 +187,8 @@
 
             dataStore.viewers[dataStore.plots[0]].binHighlights = [];
             //subtract backgrounds from gates in new histogram if asked.
-            for(i=0; i<dataStore.defaults.gammas.length; i++){
-                id = dataStore.defaults.gammas[i].index;
+            for(i=0; i<dataStore.defaults[0].gammas.length; i++){
+                id = dataStore.defaults[0].gammas[i].index;
                 min = dataStore.viewers[dataStore.plots[0]].verticals['min' + id].bin
                 max = dataStore.viewers[dataStore.plots[0]].verticals['max' + id].bin
 
@@ -241,15 +241,15 @@
             dataStore.histoDiff = subtractHistograms(dataStore.oldSpectrum, dataStore.currentSpectrum);
 
             //integrate gamma window on difference histogram
-            for(i=0; i<dataStore.defaults.gammas.length; i++){
-                if(dataStore.defaults.gammas[i].newFitMethod){
+            for(i=0; i<dataStore.defaults[0].gammas.length; i++){
+                if(dataStore.defaults[0].gammas[i].newFitMethod){
                     //can't make a sensible comparison on first tick after fit method change
                     gates[i] = 0;
-                    dataStore.defaults.gammas[i].newFitMethod = false;
+                    dataStore.defaults[0].gammas[i].newFitMethod = false;
                     continue;
                 }
 
-                id = dataStore.defaults.gammas[i].index;
+                id = dataStore.defaults[0].gammas[i].index;
                 min = dataStore.viewers[dataStore.plots[0]].verticals['min' + id].bin
                 max = dataStore.viewers[dataStore.plots[0]].verticals['max' + id].bin
 
@@ -261,12 +261,12 @@
             }
             
             //add on levels data
-            for(i=0; i<dataStore.defaults.levels.length; i++){
-                levels.push( dataStore.scalars[dataStore.defaults.levels[i].lvlID] );
+            for(i=0; i<dataStore.defaults[0].levels.length; i++){
+                levels.push( dataStore.scalars[dataStore.defaults[0].levels[i].lvlID] );
             }
 
             //update data history
-            dataStore.rateData.push( [new Date()].concat(gates).concat(levels) );
+            dataStore.rateData[0].push( [new Date()].concat(gates).concat(levels) );
         },
 
         this.constructAutoBackgroundRange = function(min, max){
@@ -333,21 +333,21 @@
             //extract the appropriate tail of the data history
             period = windowWidth * 60 // in seconds
             period = Math.ceil(period/3); //this many points to keep at the end, 3 seconds per point
-            data = dataStore.rateData.slice(Math.max(0,dataStore.rateData.length - period - leadingEdge), Math.max(0,dataStore.rateData.length - leadingEdge));
+            data = dataStore.rateData[0].slice(Math.max(0,dataStore.rateData[0].length - period - leadingEdge), Math.max(0,dataStore.rateData[0].length - leadingEdge));
 
             //update the dygraph
-            dispatcher({ 'data': data }, 'updateDyData')
+            dispatcher({ 'data': data }, 'updateDyData0')
         },
 
         this.queueAnnotation = function(series, flag){
             //sets up the <flag> text to appear in the annotation for the next point on <series>
-            //<series>: string; name of data series to annotate, corresponds to dataStore.defaults.gammas.title
+            //<series>: string; name of data series to annotate, corresponds to dataStore.defaults[0].gammas.title
             //<flag>: string; message to print in annotation
 
-            if(dataStore.annotations[series] && dataStore.annotations[series].text.indexOf(flag) == -1){
-                dataStore.annotations[series].text += '\n' + flag;
+            if(dataStore.annotations[0][series] && dataStore.annotations[0][series].text.indexOf(flag) == -1){
+                dataStore.annotations[0][series].text += '\n' + flag;
             } else{
-                dataStore.annotations[series] = {
+                dataStore.annotations[0][series] = {
                     'series': series,
                     'shortText': '?',
                     'text': flag,
