@@ -270,6 +270,11 @@
 
             //update data history
             dataStore.rateData[0].push( [new Date()].concat(gates).concat(levels) );
+
+            //Protect against keeping the initial zero values at the start because this makes the y scaling very annoying
+	    if(dataStore.rateData[0].length == 3){
+	       dataStore.rateData[0][0] = dataStore.rateData[0][1] = dataStore.rateData[0][2];
+	    }
         },
 
         this.constructAutoBackgroundRange = function(min, max){

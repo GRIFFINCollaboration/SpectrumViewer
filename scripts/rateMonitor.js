@@ -519,15 +519,12 @@ function updateScalerData(){
         for(i=0; i<dataStore.defaults[j].levels.length; i++){
             levels.push( dataStore.scalars[dataStore.defaults[j].levels[i].lvlID] );
         }
-
-	console.log(j,dataStore.rateData[j]);
 	
 	//update data history
 	dataStore.rateData[j].push( [new Date()].concat(levels) );
 	
 	//Protect against keeping the initial zero values at the start because this makes the y scaling very annoying
 	if(dataStore.rateData[j].length == 3){
-	    console.log("Adjustment for "+j);
 	    dataStore.rateData[j][0] = dataStore.rateData[j][1] = dataStore.rateData[j][2];
 	}
     }
