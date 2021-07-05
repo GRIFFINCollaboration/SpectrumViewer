@@ -245,36 +245,63 @@ function setupDataStore(){
     dataStore.plotStyle[1] = {                                             //dygraph plot style object for Infrarates
         labels: labels[1],
         title: 'GRIFFIN Vacuum and Shack',
+	series: {
+	    'Shack temperature (C)':{
+		axis: 'y2'
+	    },
+	},
         colors: dataStore.colors,
         axisLabelColor: '#FFFFFF',
         axes: {
             x: {
                 axisLabelFormatter: function(Date, granularity, opts, dygraph){
                     return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
-                }
+                },
+            y: {
+                valueRange : [1E-8,1E-6]
+               },
+            y2: {
+                valueRange : [0,35]
+                },
             }
         },
-        labelsDiv: 'ratesLegend',
+        labelsDiv: 'InfraratesLegend',
         legend: 'always'
     };
     dataStore.plotStyle[2] = {                                             //dygraph plot style object for ISACrates
         labels: labels[2],
         title: 'Proton beam and Beam kicker',
+	series: {
+	    'Kicker Voltage (V)':{
+		axis: 'y2'
+	    },
+	},
         colors: dataStore.colors,
         axisLabelColor: '#FFFFFF',
         axes: {
             x: {
                 axisLabelFormatter: function(Date, granularity, opts, dygraph){
                     return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
-                }
+                },
+            y: {
+                valueRange : [0,105]
+               },
+            y2: {
+                valueRange : [0,10]
+                },
             }
         },
-        labelsDiv: 'ratesLegend',
+        labelsDiv: 'ISACratesLegend',
         legend: 'always'
     };
     dataStore.plotStyle[3] = {                                             //dygraph plot style object for SEPrates
         labels: labels[3],
         title: 'Mass separators',
+	series: {
+	    'Mass-Separator Field':{
+		axis: 'y2'
+	    },
+	},
         colors: dataStore.colors,
         axisLabelColor: '#FFFFFF',
         axes: {
@@ -284,12 +311,17 @@ function setupDataStore(){
                 }
             }
         },
-        labelsDiv: 'ratesLegend',
+        labelsDiv: 'SEPratesLegend',
         legend: 'always'
     };
     dataStore.plotStyle[4] = {                                             //dygraph plot style object for SEPrates
         labels: labels[4],
         title: 'Photon Hit rates',
+	series: {
+	    'LaBr3 Array Rate (Hz)':{
+		axis: 'y2'
+	    },
+	},
         colors: dataStore.colors,
         axisLabelColor: '#FFFFFF',
         axes: {
@@ -299,12 +331,17 @@ function setupDataStore(){
                 }
             }
         },
-        labelsDiv: 'ratesLegend',
+        labelsDiv: 'PhotonratesLegend',
         legend: 'always'
     };
     dataStore.plotStyle[5] = {                                             //dygraph plot style object for SEPrates
         labels: labels[5],
         title: 'Charged-particle Hit rates',
+	series: {
+	    'PACES Array Rate (Hz)':{
+		axis: 'y2'
+	    },
+	},
         colors: dataStore.colors,
         axisLabelColor: '#FFFFFF',
         axes: {
@@ -314,12 +351,17 @@ function setupDataStore(){
                 }
             }
         },
-        labelsDiv: 'ratesLegend',
+        labelsDiv: 'ChargedratesLegend',
         legend: 'always'
     };
     dataStore.plotStyle[6] = {                                             //dygraph plot style object for SEPrates
         labels: labels[6],
         title: 'TACs and total data rate',
+	series: {
+	    'kBytes per sec':{
+		axis: 'y2'
+	    },
+	},
         colors: dataStore.colors,
         axisLabelColor: '#FFFFFF',
         axes: {
@@ -329,7 +371,7 @@ function setupDataStore(){
                 }
             }
         },
-        labelsDiv: 'ratesLegend',
+        labelsDiv: 'OtherratesLegend',
         legend: 'always'
     };
     dataStore.plotInitData = [];
