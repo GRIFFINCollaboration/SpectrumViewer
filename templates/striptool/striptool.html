@@ -77,9 +77,9 @@
             // Fix Y axis range 
            // this.dygraph.updateOptions( { 'axes': { 'y' : { 'valueRange': [dataStore.Y1AxisMinValue[this.IDNum],dataStore.Y1AxisMaxValue[this.IDNum]] } } } );
           //  this.dygraph.updateOptions( { 'axes': { 'y2': { 'valueRange': [dataStore.Y2AxisMinValue[this.IDNum],dataStore.Y2AxisMaxValue[this.IDNum]] } } } );
-           // this.dygraph.updateOptions( { axes: { y : { valueRange: [dataStore.Y1AxisMinValue[this.IDNum],dataStore.Y1AxisMaxValue[this.IDNum]] } } } );
-          //  this.dygraph.updateOptions( { axes: { y2: { valueRange: [dataStore.Y2AxisMinValue[this.IDNum],dataStore.Y2AxisMaxValue[this.IDNum]] } } } ); 
-            this.dygraph.updateOptions( { valueRange: [dataStore.Y1AxisMinValue[this.IDNum],dataStore.Y1AxisMaxValue[this.IDNum]] } );
+            this.dygraph.updateOptions( { axes: { y : { valueRange: [dataStore.Y1AxisMinValue[this.IDNum],dataStore.Y1AxisMaxValue[this.IDNum]] } } } );
+            this.dygraph.updateOptions( { axes: { y2: { valueRange: [dataStore.Y2AxisMinValue[this.IDNum],dataStore.Y2AxisMaxValue[this.IDNum]] } } } ); 
+          //  this.dygraph.updateOptions( { valueRange: [dataStore.Y1AxisMinValue[this.IDNum],dataStore.Y1AxisMaxValue[this.IDNum]] } );
            // this.dygraph.updateOptions( { valueRange: [dataStore.Y2AxisMinValue[this.IDNum],dataStore.Y2AxisMaxValue[this.IDNum]] } );
 
             //check for annotations to add
