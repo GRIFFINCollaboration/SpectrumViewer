@@ -366,6 +366,7 @@ function fetchCallback(){
     leadingEdge = dataStore._striptoolSliders.windowLeadingEdgeTime() / 3;
     windowWidth = parseInt(document.getElementById('rateSlideswindowSlider').value,10);
     dataStore._rateControl.appendNewPoint();
+    console.log('In fetchCallback: ',leadingEdge,windowWidth);
     dataStore._rateControl.updateDygraph(leadingEdge, windowWidth);
     //update the static dygraph data and plots
     updateScalerData();
