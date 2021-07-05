@@ -258,6 +258,7 @@ function setupDataStore(){
                     return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
                 },
             y: {
+                logscale : 'true', 
                 valueRange : [1E-8,1E-6]
                },
             y2: {
