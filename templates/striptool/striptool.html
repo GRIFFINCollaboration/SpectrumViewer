@@ -47,6 +47,8 @@
             //<event>: event; updateDyData custom event
             //this: striptool object
 
+    console.log(this,event);
+    
             var keys, i, annotations;
 
             this.dygraph.updateOptions( { 'file': event.detail.data } );
