@@ -433,13 +433,13 @@ function setupDataStore(){
         legend: 'always'
     };
     dataStore.plotInitData = [];
-    dataStore.plotInitData[0] = [[new Date(),10,20,30,40,50,60,70,80]];            //dummy to initialize plot on
-    dataStore.plotInitData[1] = [[new Date(),12,22]];            //dummy to initialize plot on
-    dataStore.plotInitData[2] = [[new Date(),15,25]];            //dummy to initialize plot on
-    dataStore.plotInitData[3] = [[new Date(),18,28]];            //dummy to initialize plot on
-    dataStore.plotInitData[4] = [[new Date(),108,208]];            //dummy to initialize plot on
-    dataStore.plotInitData[5] = [[new Date(),118,218]];            //dummy to initialize plot on
-    dataStore.plotInitData[6] = [[new Date(),128,228]];            //dummy to initialize plot on
+    dataStore.plotInitData[0] = [[new Date(),0,0,0,0,0,0,0,0]];            //dummy to initialize plot on
+    dataStore.plotInitData[1] = [[new Date(),0,0]];            //dummy to initialize plot on
+    dataStore.plotInitData[2] = [[new Date(),0,0]];            //dummy to initialize plot on
+    dataStore.plotInitData[3] = [[new Date(),0,0]];            //dummy to initialize plot on
+    dataStore.plotInitData[4] = [[new Date(),0,0]];            //dummy to initialize plot on
+    dataStore.plotInitData[5] = [[new Date(),0,0]];            //dummy to initialize plot on
+    dataStore.plotInitData[6] = [[new Date(),0,0]];            //dummy to initialize plot on
 }
 setupDataStore();
 
