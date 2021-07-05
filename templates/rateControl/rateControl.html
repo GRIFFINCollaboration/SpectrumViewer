@@ -257,7 +257,10 @@
                 for(j=min; j<max; j++){
                     gates[i] += dataStore.histoDiff[j];
                 }
-                gates[i] /= (dataStore.currentTime - dataStore.oldTime);        
+                gates[i] /= (dataStore.currentTime - dataStore.oldTime);           
+
+                // protection from a large negative number at the Beginning of Run.
+                if(gates[i]<0){gates[i]=0;}    
             }
             
             //add on levels data
