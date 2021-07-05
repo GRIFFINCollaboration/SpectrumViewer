@@ -519,6 +519,8 @@ function updateScalerData(){
         for(i=0; i<dataStore.defaults[j].levels.length; i++){
             levels.push( dataStore.scalars[dataStore.defaults[j].levels[i].lvlID] );
         }
+
+	console.log(j,dataStore.rateData);
 	
 	//update data history
 	dataStore.rateData[j].push( [new Date()].concat(levels) );
