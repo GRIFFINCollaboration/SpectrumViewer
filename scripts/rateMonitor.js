@@ -257,12 +257,16 @@ function setupDataStore(){
                 axisLabelFormatter: function(Date, granularity, opts, dygraph){
                     return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
                 },
-            y: {
+	    y: {
                 logscale : 'true', 
-                valueRange : [1E-8,1E-6]
+                valueRange : [1E-8,1E-6],
+                drawGrid: 'true',
+                independentTicks: 'true'
                },
             y2: {
-                valueRange : [0,35]
+                valueRange : [0,35],
+                drawGrid: 'true',
+                independentTicks: 'true'
                 },
             }
         },
@@ -285,10 +289,14 @@ function setupDataStore(){
                     return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
                 },
             y: {
-                valueRange : [0,105]
+                valueRange : [0,105],
+                drawGrid: 'true',
+                independentTicks: 'true'
                },
             y2: {
-                valueRange : [0,10]
+                valueRange : [0,10],
+                drawGrid: 'true',
+                independentTicks: 'true'
                 },
             }
         },
@@ -309,7 +317,15 @@ function setupDataStore(){
             x: {
                 axisLabelFormatter: function(Date, granularity, opts, dygraph){
                     return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
-                }
+                },
+            y: {
+                drawGrid: 'true',
+                independentTicks: 'true'
+               },
+            y2: {
+                drawGrid: 'true',
+                independentTicks: 'true'
+                },
             }
         },
         labelsDiv: 'SEPratesLegend',
@@ -329,7 +345,15 @@ function setupDataStore(){
             x: {
                 axisLabelFormatter: function(Date, granularity, opts, dygraph){
                     return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
-                }
+                },
+            y: {
+                drawGrid: 'true',
+                independentTicks: 'true'
+               },
+            y2: {
+                drawGrid: 'true',
+                independentTicks: 'true'
+                },
             }
         },
         labelsDiv: 'PhotonratesLegend',
@@ -349,7 +373,15 @@ function setupDataStore(){
             x: {
                 axisLabelFormatter: function(Date, granularity, opts, dygraph){
                     return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
-                }
+                },
+            y: {
+                drawGrid: 'true',
+                independentTicks: 'true'
+               },
+            y2: {
+                drawGrid: 'true',
+                independentTicks: 'true'
+                },
             }
         },
         labelsDiv: 'ChargedratesLegend',
@@ -369,7 +401,15 @@ function setupDataStore(){
             x: {
                 axisLabelFormatter: function(Date, granularity, opts, dygraph){
                     return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
-                }
+                },
+            y: {
+                drawGrid: 'true',
+                independentTicks: 'true'
+               },
+            y2: {
+                drawGrid: 'true',
+                independentTicks: 'true'
+                },
             }
         },
         labelsDiv: 'OtherratesLegend',
