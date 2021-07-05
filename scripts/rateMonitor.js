@@ -79,7 +79,7 @@ function setupDataStore(){
         "#D35400"
     ];
     dataStore.Y1AxisMinValue = [0,1E-8,0,-4500,0,0,0];               //default Y axis limits - Min value for Y1 axis
-    dataStore.Y1AxisMaxValue = [100,1E-6,105,4500,10000,5000,1000];     //default Y axis limits - Max value for Y1 axis
+    dataStore.Y1AxisMaxValue = [100,1E-6,25,4500,10000,5000,1000];     //default Y axis limits - Max value for Y1 axis
     dataStore.Y2AxisMinValue = [750,0,0,-4500,0,0,0];                //default Y axis limits - Min value for Y2 axis
     dataStore.Y2AxisMaxValue = [950,35,50,4500,5000,5000,10000];      //default Y axis limits - Max value for Y2 axis
     dataStore.defaults = [];
@@ -250,7 +250,15 @@ function setupDataStore(){
             x: {
                 axisLabelFormatter: function(Date, granularity, opts, dygraph){
                     return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
-                }
+                },
+            y: {
+                drawGrid: 'true',
+                independentTicks: 'true'
+               },
+            y2: {
+                drawGrid: 'true',
+                independentTicks: 'true'
+                },
             }
         },
         labelsDiv: 'ratesLegend',
@@ -272,13 +280,11 @@ function setupDataStore(){
                     return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
                 },
 	    y: {
-                logscale : 'true', 
-                valueRange : [dataStore.Y1AxisMinValue[1],dataStore.Y1AxisMaxValue[1]],
+                logscale : 'true',
                 drawGrid: 'true',
                 independentTicks: 'true'
                },
             y2: {
-                valueRange : [dataStore.Y2AxisMinValue[1],dataStore.Y2AxisMaxValue[1]],
                 drawGrid: 'true',
                 independentTicks: 'true'
                 },
@@ -303,12 +309,10 @@ function setupDataStore(){
                     return alwaysThisLong(Date.getHours(), 2) + ':' + alwaysThisLong(Date.getMinutes(), 2) + ':' + alwaysThisLong(Date.getSeconds(), 2)
                 },
             y: {
-                valueRange : [0,105],
                 drawGrid: 'true',
                 independentTicks: 'true'
                },
             y2: {
-                valueRange : [0,10],
                 drawGrid: 'true',
                 independentTicks: 'true'
                 },
