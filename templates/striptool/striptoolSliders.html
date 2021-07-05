@@ -58,7 +58,7 @@
 
             var leadingEdgeSlider = document.getElementById(this.wrapID + 'leadingEdgeSlider');
             var first = dataStore.rateData[0][0];
-            var last = dataStore.rateData[dataStore.rateData.length - 1][0];
+            var last = dataStore.rateData[dataStore.rateData[0].length - 1][0];
             var history = -1 * parseInt(leadingEdgeSlider.value,10) / ( parseInt(leadingEdgeSlider.max,10) - parseInt(leadingEdgeSlider.min,10) );
 
             return Math.floor((last-first)*history / 1000);
