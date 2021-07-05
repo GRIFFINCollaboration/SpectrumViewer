@@ -521,13 +521,12 @@ function updateScalerData(){
         }
 	
 	//update data history
-	//Protect against keeping zero values at the start because this makes the y scaling very annoying
-	    dataStore.rateData[j].push( [new Date()].concat(levels) );
-//	if(dataStore.rateData[j].length <2){
-//	    dataStore.rateData[j] = [new Date()].concat(levels);
-//	}else{
-//	    dataStore.rateData[j].push( [new Date()].concat(levels) );
-//	}
+	dataStore.rateData[j].push( [new Date()].concat(levels) );
+	
+	//Protect against keeping the initial zero values at the start because this makes the y scaling very annoying
+	if(dataStore.rateData[j].length == 2){
+	    dataStore.rateData[j][0] = dataStore.rateData[j][1];
+	}
     }
     
 }
