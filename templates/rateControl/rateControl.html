@@ -264,6 +264,7 @@
             for(i=0; i<dataStore.defaults[0].levels.length; i++){
                 levels.push( dataStore.scalars[dataStore.defaults[0].levels[i].lvlID] );
             }
+console.log(levels);
 
             //update data history
             dataStore.rateData[0].push( [new Date()].concat(gates).concat(levels) );
