@@ -78,10 +78,10 @@ function setupDataStore(){
         "#AA5FC7",
         "#D35400"
     ];
-    dataStore.Y1AxisMinValue = [0,1E-8,0,-4500,0,0,0];               //default Y axis limits - Min value for Y1 axis
-    dataStore.Y1AxisMaxValue = [100,1E-6,25,4500,10000,5000,1000];     //default Y axis limits - Max value for Y1 axis
-    dataStore.Y2AxisMinValue = [750,0,0,-4500,0,0,0];                //default Y axis limits - Min value for Y2 axis
-    dataStore.Y2AxisMaxValue = [950,35,50,4500,5000,5000,10000];      //default Y axis limits - Max value for Y2 axis
+    dataStore.Y1AxisMinValue = [0,1E-8,0,-6000,0,0,0];               //default Y axis limits - Min value for Y1 axis
+    dataStore.Y1AxisMaxValue = [100,1E-6,25,6000,10000,5000,1000];     //default Y axis limits - Max value for Y1 axis
+    dataStore.Y2AxisMinValue = [750,0,0,-6000,0,0,0];                //default Y axis limits - Min value for Y2 axis
+    dataStore.Y2AxisMaxValue = [950,35,50,6000,5000,5000,10000];      //default Y axis limits - Max value for Y2 axis
     dataStore.defaults = [];
     dataStore.defaults[0] = {                                             
         'gammas':[                                                  //default parameters for gamma gates
