@@ -61,6 +61,8 @@
             var last = dataStore.rateData[dataStore.rateData[0].length - 1][0];
             var history = -1 * parseInt(leadingEdgeSlider.value,10) / ( parseInt(leadingEdgeSlider.max,10) - parseInt(leadingEdgeSlider.min,10) );
 
+console.log(leadingEdgeSlider,first,last,history);
+
             return Math.floor((last-first)*history / 1000);
         }
 
