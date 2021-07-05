@@ -527,6 +527,7 @@ function updateScalerData(){
 	
 	//Protect against keeping the initial zero values at the start because this makes the y scaling very annoying
 	if(dataStore.rateData[j].length == 2){
+	    console.log("Adjustment for "+j);
 	    dataStore.rateData[j][0] = dataStore.rateData[j][1];
 	}
     }
