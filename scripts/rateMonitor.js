@@ -230,6 +230,23 @@ function setupDataStore(){
     dataStore.plotStyle[0] = {                                             //dygraph plot style object for rates
         labels: labels[0],
         title: 'Gate Integrals for ' + dataStore.targetSpectrum,
+	series: {
+	    'Proton Current':{
+		axis: 'y2'
+	    },
+	    'TRILIS Freq. 1':{
+		axis: 'y2'
+	    },
+	    'TRILIS Freq. 2':{
+		axis: 'y2'
+	    },
+	    'TRILIS Freq. 3':{
+		axis: 'y2'
+	    },
+	    'TRILIS Freq. 4':{
+		axis: 'y2'
+	    },
+	},
         colors: dataStore.colors,
         axisLabelColor: '#FFFFFF',
         axes: {
