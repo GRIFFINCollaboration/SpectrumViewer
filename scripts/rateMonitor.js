@@ -333,7 +333,7 @@ function setupDataStore(){
     };
     dataStore.plotStyle[4] = {                                             //dygraph plot style object for SEPrates
         labels: labels[4],
-        title: 'Photon Hit rates',
+        title: 'Gamma Hit rates',
 	series: {
 	    'LaBr3 Array Rate (Hz)':{
 		axis: 'y2'
