@@ -337,7 +337,7 @@ console.log(dataStore.rateData[0]);
             period = Math.ceil(period/3); //this many points to keep at the end, 3 seconds per point
             data = dataStore.rateData[0].slice(Math.max(0,dataStore.rateData[0].length - period - leadingEdge), Math.max(0,dataStore.rateData[0].length - leadingEdge));
 
-console.log(dataStore.rateData[0].length, dataStore.rateData[0],data);
+console.log(dataStore.rateData[0].length, dataStore.rateData[0],data,period, leadingEdge,(dataStore.rateData[0].length - period - leadingEdge),(dataStore.rateData[0].length - leadingEdge));
             //update the dygraph
             dispatcher({ 'data': data }, 'updateDyData0')
         },
