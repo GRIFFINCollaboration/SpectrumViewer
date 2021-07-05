@@ -74,13 +74,9 @@
             // Add the new data to the plot
             this.dygraph.updateOptions( { 'file': event.detail.data } );
 
-            // Fix Y axis range 
-           // this.dygraph.updateOptions( { 'axes': { 'y' : { 'valueRange': [dataStore.Y1AxisMinValue[this.IDNum],dataStore.Y1AxisMaxValue[this.IDNum]] } } } );
-          //  this.dygraph.updateOptions( { 'axes': { 'y2': { 'valueRange': [dataStore.Y2AxisMinValue[this.IDNum],dataStore.Y2AxisMaxValue[this.IDNum]] } } } );
+            // Fix the Y axis range with latest numbers from the datastore
             this.dygraph.updateOptions( { axes: { y : { valueRange: [dataStore.Y1AxisMinValue[this.IDNum],dataStore.Y1AxisMaxValue[this.IDNum]] } } } );
             this.dygraph.updateOptions( { axes: { y2: { valueRange: [dataStore.Y2AxisMinValue[this.IDNum],dataStore.Y2AxisMaxValue[this.IDNum]] } } } ); 
-          //  this.dygraph.updateOptions( { valueRange: [dataStore.Y1AxisMinValue[this.IDNum],dataStore.Y1AxisMaxValue[this.IDNum]] } );
-           // this.dygraph.updateOptions( { valueRange: [dataStore.Y2AxisMinValue[this.IDNum],dataStore.Y2AxisMaxValue[this.IDNum]] } );
 
             //check for annotations to add
             //update annotations
