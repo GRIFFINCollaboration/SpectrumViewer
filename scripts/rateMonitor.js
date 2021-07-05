@@ -25,8 +25,8 @@ function setupDataStore(){
     dataStore.doUpdates = true;                                         //include update loop
     dataStore.manualBKG = {};                                           //string encodings of manual background ranges: 'a-b;c;d-e' indicates all bins on [a,b], plus c, plus [d,e]
     dataStore.rateData = [];
-    dataStore.rateData[0] = [[new Date(),0,0,0,0,0,0,0,0]];                //dummy data to seed rate data collection
-    dataStore.rateData[1] = [[new Date(),0,0]];                //dummy data to seed rate data collection
+    dataStore.rateData[0] = [[new Date(),0,0,0,0,0,0,0]];                //dummy data to seed rate data collection
+    dataStore.rateData[1] = [[new Date(),5E-7,21]];                //dummy data to seed rate data collection
     dataStore.rateData[2] = [[new Date(),0,0]];                //dummy data to seed rate data collection
     dataStore.rateData[3] = [[new Date(),0,0]];                //dummy data to seed rate data collection
     dataStore.rateData[4] = [[new Date(),0,0]];                //dummy data to seed rate data collection
@@ -77,7 +77,11 @@ function setupDataStore(){
         "#619D48",
         "#AA5FC7",
         "#D35400"
-    ]
+    ];
+    dataStore.Y1AxisMinValue = [0,1E-8,-4500,0,0,0];               //default Y axis limits - Min value for Y1 axis
+    dataStore.Y1AxisMaxValue = [100,1E-6,4500,1000,1000,1000];     //default Y axis limits - Max value for Y1 axis
+    dataStore.Y2AxisMinValue = [750,0,-4500,0,0,0];                //default Y axis limits - Min value for Y2 axis
+    dataStore.Y2AxisMaxValue = [950,35,4500,1000,1000,10000];      //default Y axis limits - Max value for Y2 axis
     dataStore.defaults = [];
     dataStore.defaults[0] = {                                             
         'gammas':[                                                  //default parameters for gamma gates
@@ -103,12 +107,8 @@ function setupDataStore(){
 
         'levels':[
             {
-                'title': 'Proton Current',                          //human readable name
-                'lvlID': 'PC'                                       //key corresponding to dataStore.scalars
-            },
-            {
-                'title': 'TRILIS Freq. 1',
-                'lvlID': 'LF1'
+                'title': 'TRILIS Freq. 1',                          //human readable name
+                'lvlID': 'LF1'                                       //key corresponding to dataStore.scalars
             },
             {
                 'title': 'TRILIS Freq. 2',
@@ -231,9 +231,6 @@ function setupDataStore(){
         labels: labels[0],
         title: 'Gate Integrals for ' + dataStore.targetSpectrum,
 	series: {
-	    'Proton Current':{
-		axis: 'y2'
-	    },
 	    'TRILIS Freq. 1':{
 		axis: 'y2'
 	    },
@@ -276,12 +273,12 @@ function setupDataStore(){
                 },
 	    y: {
                 logscale : 'true', 
-                valueRange : [1E-8,1E-6],
+                valueRange : [dataStore.Y1AxisMinValue[1],dataStore.Y1AxisMaxValue[1]],
                 drawGrid: 'true',
                 independentTicks: 'true'
                },
             y2: {
-                valueRange : [0,35],
+                valueRange : [dataStore.Y2AxisMinValue[1],dataStore.Y2AxisMaxValue[1]],
                 drawGrid: 'true',
                 independentTicks: 'true'
                 },
@@ -433,8 +430,8 @@ function setupDataStore(){
         legend: 'always'
     };
     dataStore.plotInitData = [];
-    dataStore.plotInitData[0] = [[new Date(),0,0,0,0,0,0,0,0]];            //dummy to initialize plot on
-    dataStore.plotInitData[1] = [[new Date(),0,0]];            //dummy to initialize plot on
+    dataStore.plotInitData[0] = [[new Date(),0,0,0,0,0,0,0]];            //dummy to initialize plot on
+    dataStore.plotInitData[1] = [[new Date(),5E-7,21]];            //dummy to initialize plot on
     dataStore.plotInitData[2] = [[new Date(),0,0]];            //dummy to initialize plot on
     dataStore.plotInitData[3] = [[new Date(),0,0]];            //dummy to initialize plot on
     dataStore.plotInitData[4] = [[new Date(),0,0]];            //dummy to initialize plot on
@@ -517,7 +514,7 @@ function updateScalerData(){
 	
 	//add on levels data
         for(i=0; i<dataStore.defaults[j].levels.length; i++){
-            levels.push( dataStore.scalars[dataStore.defaults[j].levels[i].lvlID] );
+            levels.push( parseFloat(dataStore.scalars[dataStore.defaults[j].levels[i].lvlID]) );
         }
 	
 	//update data history
