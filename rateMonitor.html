@@ -181,6 +181,10 @@ i=0;
        opt.text = dataStore.defaults[i].levels[j].title; 
        sel.appendChild(opt);
     }
+       var opt = document.createElement("option");
+       opt.value = 0;
+       opt.text = "Gamma-ray Gates"; 
+       sel.appendChild(opt);
 
 sel.onchange = function () { ChangeSeriesSelect(this.value); }; 
 
