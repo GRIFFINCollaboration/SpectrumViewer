@@ -324,7 +324,7 @@ function setupDataStore(){
 		axis: 'y2'
 	    },
 	},
-        colors: [ "#AAE66A", "#786FBC" ],
+        colors: [ "#F22613", "#786FBC" ],
         axisLabelColor: '#FFFFFF',
         axes: {
             x: {
