@@ -37,7 +37,10 @@
                 <div id='rateSlides'></div>
             </div>
 	    <div id='striptoolControlWrap' class='col-md-6 plotRegion'>
-               <div id='yaxisControls'></div>
+	    <div id='yaxisControlsWrap'>
+	      <h4>Y-axis Control for all striptools</h4>
+	      <div id='yaxisControls'></div>
+	    </div>
 	    </div>
 	</div>
 	
@@ -100,7 +103,7 @@
                 dataStore._striptoolCharged = new striptool('Chargedrates'); 
                 dataStore._striptoolOther = new striptool('Otherrates');
                 dataStore._striptoolSliders = new striptoolSliders('rateSlides');
-                dataStore._rateControl = new rateControl('rateCtrl');
+	        dataStore._rateControl = new rateControl('rateCtrl');
                 vw = dataStore.plots[0];
 
                 dataStore.templates = prepareTemplates(['header', 'plotGrid', 'plotControl', 'striptool', 'striptoolSliders', 'rateControl', 'gammaWindows', 'levelsAndScalars', 'footer']);
@@ -139,6 +142,58 @@
                 dataStore._striptoolCharged.setup();
                 dataStore._striptoolOther.setup();
 
+                //set up dygraph Y axis controls
+var tbl = document.createElement('table');
+tbl.id = 'yaxisControlsTable'; 
+tbl.style.width = '80%';
+//var tbdy = document.createElement('tbody');
+//tbl.appendChild(tbdy);
+document.getElementById('yaxisControls').appendChild(tbl); 
+var row = document.getElementById('yaxisControlsTable').insertRow(0); 
+var cell1 = row.insertCell(0); 
+var cell2 = row.insertCell(1); 
+cell1.innerHTML = 'Series:';
+cell2.innerHTML = '<select id=SeriesSelector></select>'; 
+var row = document.getElementById('yaxisControlsTable').insertRow(1); 
+var cell1 = row.insertCell(0); 
+var cell2 = row.insertCell(1); 
+cell1.innerHTML = 'Y axis Min:';
+cell2.innerHTML = '<input id=YMinInput></input>'; 
+var row = document.getElementById('yaxisControlsTable').insertRow(2); 
+var cell1 = row.insertCell(0); 
+var cell2 = row.insertCell(1); 
+cell1.innerHTML = 'Y axis Max:';
+cell2.innerHTML = '<input id=YMaxInput></input>';
+
+sel = document.getElementById("SeriesSelector"); 
+for(i=1; i<dataStore.defaults.length; i++){
+   for(j=0; j<dataStore.defaults[i].levels.length; j++){
+       var opt = document.createElement("option");
+       opt.value =(i*10)+j;
+       opt.text = dataStore.defaults[i].levels[j].title; 
+       sel.appendChild(opt);
+    }
+}
+i=0;
+   for(j=0; j<dataStore.defaults[i].levels.length; j++){
+       var opt = document.createElement("option");
+       opt.value = 1;
+       opt.text = dataStore.defaults[i].levels[j].title; 
+       sel.appendChild(opt);
+    }
+
+sel.onchange = function () { ChangeSeriesSelect(this.value); }; 
+
+document.getElementById("YMinInput").onchange = function () { SetYAxisMin(this.value); };
+
+document.getElementById("YMaxInput").onchange = function() { SetYAxisMax(this.value); };
+
+// set initial values of the inputs 
+   document.getElementById("YMinInput").value = dataStore.YAxisMinValue[Math.floor(document.getElementById("SeriesSelector").value/10)][document.getElementById("SeriesSelector").value%10]; 
+   document.getElementById("YMaxInput").value = dataStore.YAxisMaxValue[Math.floor(document.getElementById("SeriesSelector").value/10)][document.getElementById("SeriesSelector").value%10];
+
+
+
                 //manage which gamma window are on by defualt
                 for(i=0; i<dataStore.defaults[0].gammas.length; i++){
                     if(!dataStore.defaults[0].gammas[i].onByDefault)
@@ -152,6 +207,25 @@
                     $('[data-toggle="tooltip"]').tooltip()
                 })
             });
+
+
+
+function ChangeSeriesSelect(thisValue){
+console.log('SeriesSelected: ', thisValue, thisValue/10, thisValue%10);
+   document.getElementById("YMinInput").value = dataStore.YAxisMinValue[Math.floor(thisValue/10)][thisValue%10]; 
+   document.getElementById("YMaxInput").value = dataStore.YAxisMaxValue[Math.floor(thisValue/10)][thisValue%10]; 
+}
+
+function SetYAxisMin(thisValue){
+    dataStore.YAxisMinValue[Math.floor(document.getElementById("SeriesSelector").value/10)][document.getElementById("SeriesSelector").value%10] = thisValue;
+console.log('SetYMin: ', thisValue, document.getElementById("SeriesSelector").value/10, document.getElementById("SeriesSelector").value%10);
+}
+
+function SetYAxisMax(thisValue){
+    dataStore.YAxisMaxValue[Math.floor(document.getElementById("SeriesSelector").value/10)][document.getElementById("SeriesSelector").value%10] = thisValue;
+}
+
+
         </script>
     </body>
 </html>

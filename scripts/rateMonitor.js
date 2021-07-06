@@ -78,10 +78,33 @@ function setupDataStore(){
         "#AA5FC7",
         "#D35400"
     ];
-    dataStore.Y1AxisMinValue = [0,1E-8,0,-6000,0,0,0];               //default Y axis limits - Min value for Y1 axis
-    dataStore.Y1AxisMaxValue = [100,1E-6,25,6000,10000,5000,1000];     //default Y axis limits - Max value for Y1 axis
-    dataStore.Y2AxisMinValue = [750,0,0,-6000,0,0,0];                //default Y axis limits - Min value for Y2 axis
-    dataStore.Y2AxisMaxValue = [950,35,50,6000,5000,5000,10000];      //default Y axis limits - Max value for Y2 axis
+ //   dataStore.Y1AxisMinValue = [0,1E-8,0,-6000,0,0,0];               //default Y axis limits - Min value for Y1 axis
+ //   dataStore.Y1AxisMaxValue = [100,1E-6,25,6000,10000,5000,1000];     //default Y axis limits - Max value for Y1 axis
+ //   dataStore.Y2AxisMinValue = [750,0,0,-6000,0,0,0];                //default Y axis limits - Min value for Y2 axis
+ //   dataStore.Y2AxisMaxValue = [950,35,50,6000,5000,5000,10000];      //default Y axis limits - Max value for Y2 axis
+
+    dataStore.YAxisMinValue = [  //default Y axis limits - for Y1 amd Y2 axis of each plot
+	[0,750],                 // First entry is Y1 axis, second entry is Y2 axis for each plot
+	[1E-8,0],
+	[0,0],
+	[-6000,-6000],
+	[0,0],
+	[0,0],
+	[0,0]
+    ];
+    dataStore.YAxisMaxValue = [   //default Y axis limits - for Y1 amd Y2 axis of each plot
+	[100,950],                // First entry is Y1 axis, second entry is Y2 axis for each plot
+	[1E-6,35],
+	[25,40],
+	[6000,6000],
+	[10000,5000],
+	[5000,5000],
+	[1000,10000]
+    ];
+
+
+
+    
     dataStore.defaults = [];
     dataStore.defaults[0] = {                                             
         'gammas':[                                                  //default parameters for gamma gates
