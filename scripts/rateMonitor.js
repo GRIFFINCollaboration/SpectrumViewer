@@ -94,7 +94,7 @@ function setupDataStore(){
     ];
     dataStore.YAxisMaxValue = [   //default Y axis limits - for Y1 amd Y2 axis of each plot
 	[100,950],                // First entry is Y1 axis, second entry is Y2 axis for each plot
-	[1E-6,35],
+	[5E-6,35],
 	[25,40],
 	[6000,6000],
 	[10000,5000],
