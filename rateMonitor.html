@@ -215,18 +215,15 @@ document.getElementById("YMaxInput").onchange = function() { SetYAxisMax(this.va
 
 
 function ChangeSeriesSelect(thisValue){
-console.log('SeriesSelected: ', thisValue, Math.floor(thisValue/10), thisValue%10);
    document.getElementById("YMinInput").value = dataStore.YAxisMinValue[Math.floor(thisValue/10)][Math.floor(thisValue%10)]; 
    document.getElementById("YMaxInput").value = dataStore.YAxisMaxValue[Math.floor(thisValue/10)][Math.floor(thisValue%10)]; 
 }
 
 function SetYAxisMin(thisValue){
-console.log('SetYMin: ', thisValue, Math.floor(document.getElementById("SeriesSelector").value/10), document.getElementById("SeriesSelector").value%10,dataStore.YAxisMinValue);
     dataStore.YAxisMinValue[Math.floor(document.getElementById("SeriesSelector").value/10)][Math.floor(document.getElementById("SeriesSelector").value%10)] = parseFloat(thisValue);
 }
 
 function SetYAxisMax(thisValue){
-console.log('SetYMax: ', thisValue, Math.floor(document.getElementById("SeriesSelector").value/10), document.getElementById("SeriesSelector").value%10,dataStore.YAxisMaxValue);
     dataStore.YAxisMaxValue[Math.floor(document.getElementById("SeriesSelector").value/10)][Math.floor(document.getElementById("SeriesSelector").value%10)] = parseFloat(thisValue);
 }
 
