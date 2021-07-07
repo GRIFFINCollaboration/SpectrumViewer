@@ -110,20 +110,20 @@ function setupDataStore(){
         'gammas':[                                                  //default parameters for gamma gates
             {
                 'title': 'Gate 1',                                  //human readable name
-                'min': 497,                                         //default minimum bin
-                'max': 504,                                         //default maximum bin
+                'min': 139,                                         //default minimum bin
+                'max': 146,                                         //default maximum bin
                 'onByDefault': true                                 //displayed by default?
             },
             {
                 'title': 'Gate 2',
-                'min': 197,
-                'max': 204,
+                'min': 156,
+                'max': 163,
                 'onByDefault': true
             },
             {
                 'title': 'Gate 3',
-                'min': 0,
-                'max': 0,
+                'min': 53,
+                'max': 59,
                 'onByDefault': false
             } 
         ],
