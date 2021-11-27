@@ -15,8 +15,8 @@ function setupDataStore(){
 
     dataStore = {};
     dataStore.plots = ['SUM_Singles_GeA_Energy'];                       //what plot will we be focusing on?
-    dataStore.spectrumServer = 'http://grifstore1.triumf.ca:9093/';       //host and port of analyzer
-    dataStore.ODBrequests = ['http://grifstore1.triumf.ca:8081/?cmd=jcopy&odb0=/Equipment/Epics/Variables/MSRD&odb1=/Runinfo/Run number&encoding=json-p-nokeys&callback=parseScalars'];  //odb requests to make every update
+    dataStore.spectrumServer = 'http://grifstore0.triumf.ca:9093/';       //host and port of analyzer
+    dataStore.ODBrequests = ['http://grifstore0.triumf.ca:8081/?cmd=jcopy&odb0=/Equipment/Epics/Variables/MSRD&odb1=/Runinfo/Run number&encoding=json-p-nokeys&callback=parseScalars'];  //odb requests to make every update
 
     //you probably don't need to change anything below this line----------------------------------------------------
 
