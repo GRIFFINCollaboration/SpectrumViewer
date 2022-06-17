@@ -403,17 +403,17 @@
             //callback for the calibration source dropdown; updates energy input boxes with standard values
             //this: gainMatchReport object
 
-            var calibtationSource = getSelected(this.wrapID + 'calibrationSource');
+            var calibrationSource = getSelected(this.wrapID + 'calibrationSource');
             var lowEnergy = document.getElementById(this.wrapID + 'peak1');
             var highEnergy = document.getElementById(this.wrapID + 'peak2');
 
-            if(calibtationSource == 'Co-60'){
+            if(calibrationSource == 'Co-60'){
                 lowEnergy.value = 1173.23
                 highEnergy.value = 1332.49
-            } else if(calibtationSource == 'Eu-152'){
+            } else if(calibrationSource == 'Eu-152'){
                 lowEnergy.value = 121.78
                 highEnergy.value = 1408.01
-            } else if(calibtationSource == 'Bi-207'){
+            } else if(calibrationSource == 'Bi-207'){
                 lowEnergy.value = 569.70
                 highEnergy.value = 1063.66
             }
