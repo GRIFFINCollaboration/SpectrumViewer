@@ -74,6 +74,9 @@
             document.getElementById('fitAll').onclick = this.fitAll.bind(this);
             document.getElementById('fitAll').removeAttribute('disabled');
 
+            //plug in calibration source dropdown
+            document.getElementById('calibrationSource').onchange = this.updateEnergies.bind(this);
+    
             //plug in peak energy inputs
             document.getElementById('peak1').onchange = this.customEnergy.bind(this);
             document.getElementById('peak2').onchange = this.customEnergy.bind(this);
