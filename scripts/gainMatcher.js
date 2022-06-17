@@ -16,9 +16,9 @@ function setupDataStore(){
     // shouldn't need to change anything below this line -----------------------------------------------------------------------
 
     dataStore.pageTitle = 'Gain Matcher';                                   //header title
-    dataStore.DAQquery = dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/MSC/chan&encoding=json-p-nokeys&callback=loadData';
+    dataStore.DAQquery = dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/PSC/chan&encoding=json-p-nokeys&callback=loadData';
     dataStore.ODBrequests = [                                               //request strings for odb parameters
-        dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/MSC/chan&odb1=/DAQ/MSC/gain&odb2=/DAQ/MSC/offset&encoding=json-p-nokeys&callback=updateODB'
+        dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/PSC/chan&odb1=/DAQ/PSC/gain&odb2=/DAQ/MSC/offset&encoding=json-p-nokeys&callback=updateODB'
     ];
     dataStore.rawData = {};                                                 //buffer for raw spectrum data
     //fitting
@@ -292,8 +292,8 @@ function updateODB(obj){
     offset = JSON.stringify(offset).slice(1,-1) 
 
     //construct urls to post to
-    urls[0] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/MSC/gain[*]&value='+gain;
-    urls[1] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/MSC/offset[*]&value='+offset;
+    urls[0] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/PSC/gain[*]&value='+gain;
+    urls[1] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/PSC/offset[*]&value='+offset;
     
     //send requests
     for(i=0; i<urls.length; i++){
