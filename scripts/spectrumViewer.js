@@ -71,6 +71,11 @@ function setupDataStore(){
         descantCodes.push('DSC' + alwaysThisLong(i,2) + 'XN00X');
     }
 
+    //generate OGS detector nomenclature codes
+    for(i=1; i<9; i++){
+        ogsCodes.push('OGS' + alwaysThisLong(i,2) + 'XP00X');
+    }
+
     //declare top level groups
     var topGroups = [
         {
