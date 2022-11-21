@@ -13,6 +13,7 @@ function setupDataStore(){
     var labBGOCodes = []
     var tacCodes = []
     var descantCodes = []
+    var ogsCodes = []
 
     //generate GRIFFFIN detector nomenclature codes
     for(i=1; i<17; i++){
@@ -381,6 +382,49 @@ function setupDataStore(){
                     "subname": "Short Integration",
                     "id": "DSCshortInt",
                     "items": descantCodes.map(function(c){return c + '_Short_Integration'})
+                }
+            ]
+        },
+	    
+        {
+            "name": "OGS",
+            "id": "OGS",
+            "color": '#367FA9',
+            "subGroups": [
+                {
+                    "subname": "Energy",
+                    "id": "OGSenergy",
+                    "items": ogsCodes.map(function(c){return c + '_Energy'})
+                },
+                {
+                    "subname": "Time",
+                    "id": "OGStime",
+                    "items": ogsCodes.map(function(c){return c + '_Time'})
+                },
+                {
+                    "subname": "Pulse Height",
+                    "id": "OGSpulseHeight",
+                    "items": ogsCodes.map(function(c){return c + '_Pulse_Height'})
+                },
+                {
+                    "subname": "Waveform",
+                    "id": "OGSwaveform",
+                    "items": ogsCodes.map(function(c){return c + '_Waveform'})
+                },
+                {
+                    "subname": "Zero Crossing",
+                    "id": "OGSzero",
+                    "items": ogsCodes.map(function(c){return c + '_Zero_Crossing'})
+                },
+                {
+                    "subname": "Long Integration",
+                    "id": "OGSlongInt",
+                    "items": ogsCodes.map(function(c){return c + '_Long_Integration'})
+                },
+                {
+                    "subname": "Short Integration",
+                    "id": "OGSshortInt",
+                    "items": ogsCodes.map(function(c){return c + '_Short_Integration'})
                 }
             ]
         }
