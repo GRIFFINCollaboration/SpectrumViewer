@@ -75,6 +75,9 @@ function setupDataStore(){
     for(i=1; i<9; i++){
         ogsCodes.push('OGS' + alwaysThisLong(i,2) + 'XP00X');
     }
+    for(i=1; i<9; i++){
+        ogsCodes.push('OGS' + alwaysThisLong(i,2) + 'XN00X');
+    }
 
     //declare top level groups
     var topGroups = [
