@@ -75,7 +75,7 @@
             document.getElementById('fitAll').removeAttribute('disabled');
 
             //plug in calibration source dropdown
-            document.getElementById('gainmatchercalibrationSource').onchange = this.updateEnergies.bind(this);
+            document.getElementById('calibrationSource').onchange = this.updateEnergies.bind(this);
     
             //plug in peak energy inputs
             document.getElementById('peak1').onchange = this.customEnergy.bind(this);
@@ -403,7 +403,6 @@
             //callback for the calibration source dropdown; updates energy input boxes with standard values
             //this: gainMatchReport object
 
-console.log(this.wrapID + 'calibrationSource');
             var calibrationSourceName = getSelected(this.wrapID + 'calibrationSource');
             var lowEnergy = document.getElementById(this.wrapID + 'peak1');
             var highEnergy = document.getElementById(this.wrapID + 'peak2');
