@@ -10,8 +10,8 @@ function setupDataStore(){
     dataStore = {}
 
     //network and raw data
-    dataStore.spectrumServer = 'http://grifstore1.triumf.ca:9093/';           //host + port of analyzer server
-    dataStore.ODBhost = 'http://grifstore1.triumf.ca:8081/';                  //MIDAS / ODB host + port
+    dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';           //host + port of analyzer server
+    dataStore.ODBhost = 'http://grsmid00.triumf.ca:8081/';                  //MIDAS / ODB host + port
 
     // shouldn't need to change anything below this line -----------------------------------------------------------------------
 
