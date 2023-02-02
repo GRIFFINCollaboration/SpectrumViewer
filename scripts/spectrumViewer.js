@@ -7,6 +7,7 @@ function setupDataStore(){
     var griffinQuads = ['B', 'G', 'R', 'W'];
     var griffinCodes = []
     var grifBGOCodes = []
+    var ariesCodes = []
     var sceptarCodes = []
     var pacesCodes = []
     var labr3Codes = []
@@ -36,6 +37,11 @@ function setupDataStore(){
         }
     }
     
+    //generate ARIES detector nomenclature codes
+    for(i=1; i<71; i++){
+        ariesCodes.push('ART' + alwaysThisLong(i,2) + 'XS00X');
+    }
+
     //generate SCEPTAR detector nomenclature codes
     sceptarCodes.push('ZDS01XN00A');
     sceptarCodes.push('ZDS01XN00B');
@@ -225,6 +231,34 @@ function setupDataStore(){
                     "subname": "Waveform",
                     "id": "GRSwaveform",
                     "items": grifBGOCodes.map(function(c){return c + '_Waveform'})
+                }
+            ]
+        },
+
+        {
+            "name": "ARIES",
+            "id": "ARIES",
+            "color": '#367FA9',
+            "subGroups": [
+                {
+                    "subname": "Energy",
+                    "id": "ARTenergy",
+                    "items": ariesCodes.map(function(c){return c + '_Energy'})
+                },
+                {
+                    "subname": "Time",
+                    "id": "ARTtime",
+                    "items": ariesCodes.map(function(c){return c + '_Time'})
+                },
+                {
+                    "subname": "Pulse Height",
+                    "id": "ARTpulseHeight",
+                    "items": ariesCodes.map(function(c){return c + '_Pulse_Height'})
+                },
+                {
+                    "subname": "Waveform",
+                    "id": "ARTwaveform",
+                    "items": ariesCodes.map(function(c){return c + '_Waveform'})
                 }
             ]
         },
