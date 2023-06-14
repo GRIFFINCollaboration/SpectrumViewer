@@ -363,6 +363,7 @@ function dispatcher(payload, eventName){
     var evt;
     
     console.log('dispatcher event: '+eventName+'Listeners'+' with payload = '+payload);
+    console.log(dataStore);
 
     evt = new CustomEvent(eventName, {
         detail: payload,
