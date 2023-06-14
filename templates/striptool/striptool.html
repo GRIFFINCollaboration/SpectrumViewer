@@ -35,6 +35,11 @@
     }
         this.setup = function(){
 
+            // Set a value if this is undefined
+            if (this.IDNum === undefined) {
+               this.IDNum = 0;
+            }   
+            
             //inject template
             this.wrap.innerHTML = Mustache.to_html(dataStore.templates.striptool, {'id': this.wrapID});
 
