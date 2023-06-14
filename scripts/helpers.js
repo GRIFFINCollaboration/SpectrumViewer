@@ -361,13 +361,14 @@ function createBins(n, constant){
 function dispatcher(payload, eventName){
     //dispatch an event carrying payload as its detail, to listeners with ids listed.
     var evt;
+    
+    console.log('dispatcher event: '+eventName+'Listeners'+' with payload = '+payload);
 
     evt = new CustomEvent(eventName, {
         detail: payload,
         cancelable: true
     });
 
-    console.log('dispatcher event: '+eventName+'Listeners');
     dataStore[eventName+'Listeners'].map(function(id){
         document.getElementById(id).dispatchEvent(evt);
     });   
