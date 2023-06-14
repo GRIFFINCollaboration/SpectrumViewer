@@ -396,7 +396,7 @@
 
             dataStore.resolutionData = arrangePoints(detectorIndex, [dataStore.lowPeakResolution, dataStore.highPeakResolution], flags );
 
-            dispatcher({ 'data': dataStore.resolutionData }, 'updateDyData0');
+            dispatcher({ 'data': dataStore.resolutionData }, 'updateDyData');
         },
 
         this.updateEnergies = function(){
