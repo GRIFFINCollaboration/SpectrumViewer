@@ -361,9 +361,6 @@ function createBins(n, constant){
 function dispatcher(payload, eventName){
     //dispatch an event carrying payload as its detail, to listeners with ids listed.
     var evt;
-    
-    console.log('dispatcher event: '+eventName+'Listeners'+' with payload = '+payload);
-    console.log(dataStore);
 
     evt = new CustomEvent(eventName, {
         detail: payload,
