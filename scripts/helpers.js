@@ -367,6 +367,7 @@ function dispatcher(payload, eventName){
         cancelable: true
     });
 
+    console.log('dispatcher event: '+eventName+'Listeners');
     dataStore[eventName+'Listeners'].map(function(id){
         document.getElementById(id).dispatchEvent(evt);
     });   
