@@ -18,7 +18,7 @@ function setupDataStore(){
     dataStore.pageTitle = 'Gain Matcher';                                   //header title
     dataStore.DAQquery = dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/PSC/chan&encoding=json-p-nokeys&callback=loadData';
     dataStore.ODBrequests = [                                               //request strings for odb parameters
-        dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/PSC/chan&odb1=/DAQ/PSC/gain&odb2=/DAQ/MSC/offset&encoding=json-p-nokeys&callback=updateODB'
+        dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/PSC/chan&odb1=/DAQ/PSC/gain&odb2=/DAQ/PSC/offset&encoding=json-p-nokeys&callback=updateODB'
     ];
     dataStore.rawData = {};                                                 //buffer for raw spectrum data
     //fitting
