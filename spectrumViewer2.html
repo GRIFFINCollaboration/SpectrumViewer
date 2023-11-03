@@ -1,0 +1,82 @@
+<html>
+    <head>
+        <title>GRIFFIN Spectrum Viewer</title>
+        <!--libraries-->
+        <script src='scripts/HTMLImports.min.js' type="text/javascript"></script>
+        <script src='scripts/mustache.js' type="text/javascript"></script>
+        <script src='scripts/easeljs-0.7.0.min.js' type="text/javascript"></script>
+        <script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
+        <script src='scripts/fitit.js' type="text/javascript"></script>
+        <script src="scripts/jquery1-11-3.min.js" type="text/javascript"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script src="scripts/bootstrap3-3-5.min.js" type="text/javascript"></script>
+
+        <!--our scripts-->
+        <script src='scripts/helpers.js' type="text/javascript"></script>
+        <script src='scripts/spectrumViewer2.js' type="text/javascript"></script>
+        <link rel="stylesheet" type="text/css" href="css/custom.css"/>
+
+        <!--html imports-->
+        <link id='plotList' rel="import" href="templates/plotList/plotList.html">
+        <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
+        <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
+        <link id='auxPlotControl' rel="import" href="templates/auxPlotControl/auxPlotControl.html">
+        <link id='auxPlotControlTable' rel="import" href="templates/auxPlotControl/auxPlotControlTable.html">
+        <link id='fitRow' rel="import" href="templates/auxPlotControl/fitRow.html">
+        <link id='footer' rel="import" href="templates/footer/footer.html">
+    </head>
+
+    <body>
+        <div id='analyzerPlots'></div>
+
+        <!--Plotting-->
+        <div id='plotRegion' class='sectionWrapper item'>
+            <div id='plotWrap' class='col-md-10 plotRegion'>
+                <div id='plottingGrid'></div>
+            </div>
+            <div class='col-md-2 no-pad'>
+                <div id='plotCtrl'></div>
+            </div>
+        </div>
+
+        <!-- Extra control features -->
+        <hr style='width:60%; border-top: 1px solid #999'></hr>
+        <div class='sectionWrapper'>
+            <div class='col-md-12'>
+                <div id='auxCtrl'></div>
+            </div>
+        </div>
+
+        <div id='foot'></div>
+
+	<script>
+	
+    
+            window.addEventListener('HTMLImportsLoaded', function(e) {
+                dataStore.templates = prepareTemplates(['plotList', 'plotGrid', 'plotControl', 'auxPlotControl', 'auxPlotControlTable', 'fitRow', 'footer']);
+
+                dataStore._plotList = new plotList('analyzerPlots');
+                dataStore._plotGrid = new plotGrid('plottingGrid');
+                dataStore._plotControl = new plotControl('plotCtrl', 'vertical');
+                dataStore._auxCtrl = new auxPlotControl('auxCtrl');
+
+                dataStore._plotList.setup();
+                dataStore._plotGrid.setup();
+                dataStore._plotControl.setup();
+                dataStore._auxCtrl.setup();
+                setupFooter('foot');
+
+                //start with a single plot
+                document.getElementById('plottingGridnewPlotButton').click();
+
+                //start with GRIFFIN menu displayed
+               // document.getElementById('GRIFFIN').onclick();
+
+                $(function () {
+                    $('[data-toggle="tooltip"]').tooltip()
+                })
+	    });
+	
+        </script>
+    </body>
+</html>
