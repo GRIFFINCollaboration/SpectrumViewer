@@ -1,0 +1,56 @@
+<html>
+    <head>
+        <title>GRIFFIN Analyzer Control Panel</title>
+        <!--libraries-->
+        <script src='scripts/HTMLImports.min.js' type="text/javascript"></script>
+        <script src='scripts/mustache.js' type="text/javascript"></script>
+        <script src='scripts/easeljs-0.7.0.min.js' type="text/javascript"></script>
+        <script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
+        <script src='scripts/fitit.js' type="text/javascript"></script>
+        <script src="scripts/jquery1-11-3.min.js" type="text/javascript"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script src="scripts/bootstrap3-3-5.min.js" type="text/javascript"></script>
+
+        <!--our scripts-->
+        <script src='scripts/helpers.js' type="text/javascript"></script>
+        <script src='scripts/analyzerInterface.js' type="text/javascript"></script>
+        <link rel="stylesheet" type="text/css" href="css/analyzer.css"/>
+
+        <!--html imports-->
+        <link id='header' rel="import" href="templates/header/header.html">
+        <link id='analyzer-menu' rel="import" href="templates/analyzer-menu/analyzer-menu.html">
+        <link id='analyzer-sorting' rel="import" href="templates/analyzer-sorting/analyzer-sorting.html">
+        <link id='analyzer-histograms' rel="import" href="templates/analyzer-histograms/analyzer-histograms.html">
+        <link id='globalBlock' rel="import" href="templates/analyzer-histograms/conditionBlock.html">
+        <link id='gateBlock' rel="import" href="templates/analyzer-histograms/conditionBlock.html">
+        <link id='histogramBlock' rel="import" href="templates/analyzer-histograms/conditionBlock.html">
+        <link id='histogramConditionRow' rel="import" href="templates/analyzer-histograms/conditionContents.html">
+        <link id='gateConditionRow' rel="import" href="templates/analyzer-histograms/conditionContents.html">
+        <link id='analyzer-viewer' rel="import" href="templates/analyzer-viewer/analyzer-viewer.html">
+        <link id='plotList' rel="import" href="templates/plotList/plotList.html">
+        <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
+        <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
+        <link id='auxPlotControl' rel="import" href="templates/auxPlotControl/auxPlotControl.html">
+        <link id='auxPlotControlTable' rel="import" href="templates/auxPlotControl/auxPlotControlTable.html">
+        <link id='fitRow' rel="import" href="templates/auxPlotControl/fitRow.html">
+        <link id='footer' rel="import" href="templates/footer/footer.html">
+    </head>
+
+    <body>
+        <div id='head'></div>
+        <div id='messageDiv' class='col-md-12'></div>
+        <div id='menu' class='col-md-12'></div>
+
+        <div class='section-wrapper'>
+            <div id='AnalyzerDisplay' class='col-md-12'></div>
+        </div>
+
+        <div id='foot'></div>
+
+        <script>
+
+	
+        </script>
+
+    </body>
+</html>

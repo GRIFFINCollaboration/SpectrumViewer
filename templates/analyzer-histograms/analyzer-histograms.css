@@ -1,0 +1,37 @@
+div.and-row{
+    margin-bottom: 4px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #777777;
+}
+
+div.or-block{
+    background-color: #FA8072;
+    border-radius: 2em;
+    padding: 2em;
+    margin-bottom: 1em;
+}
+
+div.left-tab{
+    background-color: #222222;
+    text-align: center;
+    font-size: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+div.or-control{
+    clear: both;
+}
+
+div#logic-wrap div:nth-child(1) div.left-tab{
+    opacity: 0;
+}
+
+div.or-block div.and-row:nth-child(1) span.and-label{
+    opacity: 0;
+}
+
+.allowed-det-check{
+    margin-right: 0.5em !important;
+}

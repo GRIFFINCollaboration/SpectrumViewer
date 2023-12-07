@@ -1,0 +1,62 @@
+<link rel="stylesheet" href="analyzer-menu.css">
+
+<template id='analyzer-menu'>
+<div id='menu-wrap'> </div>
+</template>
+
+<script>
+
+        // Variables for menu buttons
+        var buttonNames = ["Sorting Control", "Histogram & Gate Definitions", "Spectrum Viewer & Analysis"];
+        var buttonIDs = ["SortingButton", "HistogramsButton", "ViewerButton"];
+        var buttonLinks = ["setupAnalyzerSorting", "setupAnalyzerHistograms", "setupAnalyzerViewer"];
+
+
+function menuButtonClick(thisID){
+
+    // set default state to all buttons
+    for(i=0; i<buttonIDs.length; i++){
+       document.getElementById(buttonIDs[i]).setAttribute('class', 'btn btn-default btn-lg');
+    }
+
+    //set button active state
+    document.getElementById(thisID).classList.add('btn-warning');
+
+    // Stop the heartbeat as moving away from the sorting page
+    clearTimeout(dataStore.heartbeatTimer);
+
+    if(thisID == "SortingButton"){ setupAnalyzerSorting('AnalyzerDisplay'); }
+    if(thisID == "HistogramsButton"){ setupAnalyzerHistograms('AnalyzerDisplay'); }
+    if(thisID == "ViewerButton"){ setupAnalyzerViewer('AnalyzerDisplay'); }
+}
+
+function injectMenuButtons(){
+
+        var i, newLink, current;
+        var wrap = document.getElementById('menu-wrap');
+        var DisplayDiv = 'AnalyzerDisplay';
+
+        // Create menu buttons
+    for(i=0; i<buttonNames.length; i++){
+                newButton = document.createElement('button'); 
+                newButton.setAttribute('id', buttonIDs[i]); 
+                newButton.setAttribute('class', 'btn btn-default btn-lg'); 
+                newButton.innerHTML = buttonNames[i];
+                newButton.style.padding = '4px';
+                newButton.onclick = function(){
+                   menuButtonClick(this.id);
+                }.bind(newButton);
+                wrap.appendChild(newButton);
+      }
+}
+
+    function setupAnalyzerMenu(wrapperID){
+       document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-menu'], {});
+       injectMenuButtons();
+
+    //set active state
+    document.getElementById("SortingButton").classList.add('btn-warning');
+}
+
+
+</script>

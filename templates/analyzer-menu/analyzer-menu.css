@@ -1,0 +1,17 @@
+div#nav-wrap{
+    margin-bottom: 1em;
+}
+
+.btn-default{
+    background-color: #DAA520; /* goldenrod*/
+    border-color: #DAA520; /* goldenrod*/
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+.btn-warning{
+    background-color: #ff7144; /* promo */
+    border-color: #ff7144; /* promo */
+    margin-left: 2px;
+    margin-right: 2px;
+}

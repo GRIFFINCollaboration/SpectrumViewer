@@ -1,0 +1,63 @@
+<link rel="stylesheet" href="analyzer-sorting.css">
+<script src='analyzer-sorting.js' type="text/javascript"></script>
+
+<template id='analyzer-sorting'>
+	
+    <div class='section-wrapper'>
+      <div class='col-md-12 pan' id='Sorting-Status'>
+	<h2>Sorting Status</h2>
+    <div class="progress">
+      <div id='progress' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">Analyzer is idle, ready for files to be submitted.</div>
+    </div>
+	<div class='h4' id='SortingStatus'></div>
+        </div>
+    </div>
+
+    <div class='section-wrapper'>
+        <div class='col-md-12 pan' id='Sorting-Jobs-Queue'>
+            <h2>Current Job Queue</h2>
+            <div id='JobsQueue'>The queue is currently empty. Submit files from the list below to sort them.</div>
+        </div>
+    </div>
+
+    <div class='section-wrapper'>
+        <div class='col-md-12 pan' id='Sorting-Job-Submit'>
+            <h2>Sorting Job Submission</h2>
+	<div id='JobSubmit'>
+            <div id='submitDivSelect'></div>
+	    <div class="form-group">
+      <label for="MidFilesSelect">Select the MIDAS files to sort (hold ctrl/cmd or shift (or drag with the mouse) to select more than one):</label>
+      <select multiple class="form-control" id="MidFilesSelect">
+  </select>
+</div>
+	</div>
+        </div>
+    </div>
+
+</template>
+
+<script>
+    function setupAnalyzerSorting(wrapperID){
+        document.getElementById(wrapperID).innerHTML = "";
+        document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-sorting'], {});
+
+    // Get the initial list of MIDAS files
+    getMidasFileListFromServer();
+    
+    // initiate heartbeat for the Sort Status
+    initiateSortStatusHeartbeat();
+    
+    // Create Submit button
+    newButton = document.createElement('button'); 
+    newButton.setAttribute('id', 'submitSortButtonSelect'); 
+    newButton.setAttribute('class', 'btn btn-default btn-lg'); 
+    newButton.innerHTML = "Submit selected files to the sorting queue";
+    newButton.style.padding = '4px';
+    newButton.onclick = function(){
+    SubmitSelectedFilesFromSelectToSortQueue();
+    }.bind(newButton);
+    document.getElementById('submitDivSelect').appendChild(newButton);
+
+}
+
+</script>

@@ -1,0 +1,40 @@
+<template id='histogramConditionRow'>
+  <div class='col-md-8'>
+    <span class='and-label'>Condition</span>
+    <select id="histogramCondition{{histogramNumber}}-{{histogramConditionNumber}}" onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
+      {{#gateCondition}}
+      <option value="{{name}}">{{name}}</option>
+	{{/gateCondition}}
+    </select>
+  </div>
+  <div class='col-md-1'>
+    <button class='btn btn-danger' onclick='deleteHistogramConditionRow({{histogramNumber}}, {{histogramConditionNumber}})'>Remove this condition line</button>
+  </div>
+</template>
+  
+<template id='gateConditionRow'>
+  <div class='row'>
+  <div class='col-md-12'>
+    <span class='and-label'>Condition</span>
+    <select id='gateConditionVariableSelect{{gateNumber}}-{{gateConditionNumber}}' onchange='saveGateChangeToAnalyzerODB({{gateNumber}})' selectedIndex = '0'>
+      {{#sortCodeVariables}}
+      <option value='{{short}}'>{{description}}</option>
+	{{/sortCodeVariables}}
+    </select>
+  </div>
+  <div class='col-md-4'>
+    <select id='gateConditionLogicSelect{{gateNumber}}-{{gateConditionNumber}}' onchange='saveGateChangeToAnalyzerODB({{gateNumber}})' selectedIndex = '0'>
+      {{#logicOptions}}
+      <option value='{{short}}'>{{description}}</option>
+	{{/logicOptions}}
+    </select>
+  <div class='col-md-4'>
+    <input type='number' value='4096' step='1' id='gateConditionValue{{gateNumber}}-{{gateConditionNumber}}' class='small-number' onchange='saveGateChangeToAnalyzerODB({{gateNumber}})'></input>
+  </div>
+  <div class='col-md-2'>
+    <button class='btn btn-danger' onclick='deleteGateConditionRow({{gateNumber}}, {{gateConditionNumber}})'>Remove this line</button>
+  </div>
+  </div>
+</template>
+  
+  

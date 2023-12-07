@@ -1,0 +1,138 @@
+<template id='globalBlock'>
+    <div id='leftTab{{globalNumber}}' class='col-md-1 left-tab'>Global Condition</div>
+    <div id='globalContent{{globalNumber}}' class='col-md-11 globalContent'>
+    <div class='global-control'>
+      <table id='GlobalContentTable{{globalNumber}}'>
+	<tr>
+	  <td><label for='globalName{{globalNumber}}'>Global Name:</label></td>
+	  <td>
+	    <input type='text' name='globalName{{globalNumber}}' id='globalName{{globalNumber}}' value='Global_condition_name' onchange='requestNewGlobalName()'>
+	  </td>
+	</tr>
+	<tr>
+	  <td>
+	    <label for='globalMin{{globalNumber}}'>Minimum value:</label>
+	    <input type='number' value='-100' step='1' id='globalMin{{globalNumber}}' class='small-number' onchange='requestNewGlobalName()'></input>
+	  </td>
+	  <td>
+	    <label for='globalMax{{globalNumber}}'>Maximum value:</label>
+	    <input type='number' value='100' step='1' id='globalMax{{globalNumber}}' class='small-number' onchange='requestNewGlobalName()'></input>
+	  </td>
+	</tr>
+      </table>
+    <button id='deleteGlobalCondition{{globalNumber}}' class='btn btn-danger' onclick='deleteGlobalBlock({{globalNumber}})'>Remove this Global condition</button>
+    </div>
+</template>
+    
+<template id='gateBlock'>
+    <div id='leftTab{{gateNumber}}' class='col-md-1 left-tab'>Gate Condition</div>
+    <div id='gateContent{{gateNumber}}' class='col-md-11 gateContent'>
+    <div class='gate-control'>
+      <table id='gateContentTable{{histogramNumber}}'>
+	<tr>
+	  <td><label for='gateName{{gateNumber}}'>Gate Name:</label></td>
+	  <td><input type='text' name='gateName{{gateNumber}}' id='gateName{{gateNumber}}' value='Gate_name' onchange='requestNewHistogramName()'></td>
+	</tr>
+	<tr>
+	  <td>	  
+	    <select id="gateConditionVariableSelect{{gateNumber}}{{gateConditionNumber}}" onchange='requestNewGateName()'>
+	      {{#sortCodeVariables}}
+	      <option value="{{short}}">{{description}}</option>
+		{{/sortCodeVariables}}
+	    </select>
+	  </td>
+	  <td>
+	    <select id="gateConditionLogicSelect{{gateNumber}}{{gateConditionNumber}}" onchange='requestNewGateName()'>
+	      {{#logicOptions}}
+	      <option value="{{short}}">{{description}}</option>
+		{{/logicOptions}}
+	    </select>
+	  </td>
+	  <td>
+	    <input type='number' value='4096' step='1' id='gateConditionValue{{gateNumber}}{{gateConditionNumber}}' class='small-number' onchange='requestNewHistogramName()'></input>
+	  </td>
+	</tr>
+      </table>
+      <button class='btn btn-info' id='andNewGateConditionRow{{gateNumber}}' onclick='addNewGateConditionRow({{gateNumber}});'>Add a new line to this Gate condition</button>
+      <button id='deleteGateCondition{{gateNumber}}' class='btn btn-danger' onclick='deleteGateBlock({{gateNumber}})'>Remove this Gate condition</button>
+    </div>
+</template>
+
+<template id='histogramBlock'>
+    <div id='leftTab{{histogramNumber}}' class='col-md-1 left-tab'>Histogram Definition</div>
+    <div id='histogramContent{{histogramNumber}}' class='col-md-11 histogramContent'>
+    <div class='histogram-control'>
+      <table id='histogramContentTable{{histogramNumber}}'>
+	<tr>
+	  <td><label for='histogramName{{histogramNumber}}'>Histogram Name:</label></td>
+	  <td>
+	    <input type='text' name='histogramName{{histogramNumber}}' id='histogramName{{histogramNumber}}' value='Histogram_name' onchange='requestNewHistogramName()'>
+	  </td>
+	</tr>
+	<tr>
+	  <td><label for='dimensionType{{histogramNumber}}'>Histogram Type:</label></td>
+	  <td>
+	    <label for='1dimension{{histogramNumber}}'>1D</label>
+	    <input type='radio' name='dimensionType{{histogramNumber}}' id='1dimension{{histogramNumber}}' value='1' onchange='requestNewHistogramName()'>
+	    <label for='2dimension{{histogramNumber}}'>2D</label>
+	    <input type='radio' name='dimensionType{{histogramNumber}}' id='2dimension{{histogramNumber}}' value='2' onchange='requestNewHistogramName()' checked>
+	  </td>
+	</tr>
+	<tr>
+	  <td>
+	    <label for='Xvariable{{histogramNumber}}'>Variable for X axis:</label>
+	  </td>
+	  <td>
+	    <select id='Xvariable{{histogramNumber}}' onchange='requestNewHistogramName()'>
+	      <option value='energy'>Energy</option>
+	      <option value='addback'>Addback Energy</option>
+	      <option value='time'>Time</option>
+	    </select>
+	  </td>
+	</tr>
+	<tr>
+	  <td>
+	    <label for='Xmin{{histogramNumber}}'>Minimum value for X axis:</label>
+	    <input type='number' value='0' step='1' id='Xmin{{histogramNumber}}' class='small-number' onchange='requestNewHistogramName()'></input>
+	  </td>
+        <td>
+	  <label for='Xmax{{histogramNumber}}'>Maximum value for X axis:</label>
+	  <input type='number' value='4096' step='1' id='Xmax{{histogramNumber}}' class='small-number' onchange='requestNewHistogramName()'></input>
+	</td>
+	<td>
+	  <label for='Xbins{{histogramNumber}}'>Number of bins for X axis:</label>
+	  <input type='number' value='4096' step='1' id='Xbins{{histogramNumber}}' class='small-number' onchange='requestNewHistogramName()'></input>
+	</td>
+      </tr>
+      <tr>
+	<td>
+	  <label for='Yvariable{{histogramNumber}}'>Variable for Y axis:</label>
+	</td>
+	<td>
+	  <select id='Yvariable{{histogramNumber}}' onchange='requestNewHistogramName()'>
+	    <option value='energy'>Energy</option>
+	    <option value='addback'>Addback Energy</option>
+	    <option value='time'>Time</option>
+	  </select>
+	</td>
+      </tr>
+      <tr>
+	<td>
+	  <label for='Ymin{{histogramNumber}}'>Minimum value for Y axis:</label>
+	  <input type='number' value='0' step='1' id='Ymin{{histogramNumber}}' class='small-number' onchange='requestNewHistogramName()'></input>
+	</td>
+	<td>
+	  <label for='Ymax{{histogramNumber}}'>Maximum value for Y axis:</label>
+	  <input type='number' value='4096' step='1' id='Ymax{{histogramNumber}}' class='small-number' onchange='requestNewHistogramName()'></input>
+	</td>
+	<td>
+	  <label for='Ybins{{histogramNumber}}'>Number of bins for Y axis:</label>
+	  <input type='number' value='4096' step='1' id='Ybins{{histogramNumber}}' class='small-number' onchange='requestNewHistogramName()'></input>
+	</td>
+      </tr>
+    </table>
+  <button class='btn btn-info' id='addNewHistogramCondition{{histogramNumber}}' onclick='addNewHistogramCondition({{histogramNumber}});'>Add a new condition to this Histogram Definition</button>
+  <button id='duplicateHistogramDefinition{{histogramNumber}}' class='btn btn-info' onclick='duplicateHistogramBlock({{histogramNumber}})'>Duplicate this Histogram definition</button>
+  <button id='deleteHistogramDefinition{{histogramNumber}}' class='btn btn-danger' onclick='deleteHistogramBlock({{histogramNumber}})'>Remove this Histogram definition</button>
+  </div>
+</template>    

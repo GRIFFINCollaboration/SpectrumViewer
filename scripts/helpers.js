@@ -35,7 +35,7 @@ function releaser(operation, terminate, num) {
 function getSelected(id){
     //return the current value selected by the select element with id.
     //thx http://stackoverflow.com/questions/1085801/get-selected-value-in-dropdown-list-using-javascript
-
+    
     var e = document.getElementById(id);
     return e.options[e.selectedIndex].value;
 }
@@ -175,9 +175,23 @@ function promisePartial(name){
     });
 }
 
+function heartbeatXHR(url, errorMessage, callback, reject){
+    //start the data fetching heartbeat that uses a XHR request
+    //note the dataStore.heartbeat object needs to be defined first.
+
+    url = dataStore.spectrumServer + '/?cmd=getSortStatus';
+    errorMessage = "Problem getting Sort Status from analyzer server";
+    callback = processSortStatus;
+    XHR(url, errorMessage, callback, function(error){ErrorConnectingToAnalyzerServer(error)});
+    
+    window.clearTimeout(dataStore.heartbeatTimer)
+    dataStore.heartbeatTimer = window.setTimeout(heartbeatXHR, dataStore.heartbeatInterval);
+   
+}
+
 function prepareTemplates(templates){
     //take an array of template names, and load their inner html into a simmilarly keyed object.
-
+    
     var i, guts = {};
 
     for(i=0; i<templates.length; i++){
@@ -221,7 +235,7 @@ function XHR(url, errorMessage, callback, reject){
         // This is called even on 404 etc
         // so check the status
         if (req.status == 200) {
-            callback();
+            callback(req.response);
         }
         else {
             reject(Error(req.statusText));
@@ -478,4 +492,90 @@ function pokeURL(url){
     req.open('GET', url);
     // Make the request
     req.send();
+}
+
+function inverseMatrix(_A) {
+    // Credit to https://gist.github.com/husa/5652439
+    var temp,
+    N = _A.length,
+    E = [];
+   
+    for (var i = 0; i < N; i++)
+      E[i] = [];
+   
+    for (i = 0; i < N; i++)
+      for (var j = 0; j < N; j++) {
+        E[i][j] = 0;
+        if (i == j)
+          E[i][j] = 1;
+      }
+   
+    for (var k = 0; k < N; k++) {
+      temp = _A[k][k];
+   
+      for (var j = 0; j < N; j++)
+      {
+        _A[k][j] /= temp;
+        E[k][j] /= temp;
+      }
+   
+      for (var i = k + 1; i < N; i++)
+      {
+        temp = _A[i][k];
+   
+        for (var j = 0; j < N; j++)
+        {
+          _A[i][j] -= _A[k][j] * temp;
+          E[i][j] -= E[k][j] * temp;
+        }
+      }
+    }
+   
+    for (var k = N - 1; k > 0; k--)
+    {
+      for (var i = k - 1; i >= 0; i--)
+      {
+        temp = _A[i][k];
+   
+        for (var j = 0; j < N; j++)
+        {
+          _A[i][j] -= _A[k][j] * temp;
+          E[i][j] -= E[k][j] * temp;
+        }
+      }
+    }
+   
+    for (var i = 0; i < N; i++)
+      for (var j = 0; j < N; j++)
+        _A[i][j] = E[i][j];
+    return _A;
+}
+
+function transposeMatrix(matrix) {
+    console.log('helpers,transposeMatrix(matrix):'+matrix);
+    const rows = matrix.length, cols = matrix[0].length;
+  const grid = [];
+  for (let j = 0; j < cols; j++) {
+    grid[j] = Array(rows);
+  }
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      grid[j][i] = matrix[i][j];
+    }
+  }
+  return grid;
+}
+
+function dotProductMatrix(a,b){
+  let result = 0;
+  for (let i = 0; i < 3; i++) {
+    result += a[i] * b[i];
+    console.log('result'+i+'='+result);
+  }
+    console.log('dotProductMatrix a,b,result'+a+' - '+b+' - '+result);
+    return result;
+}
+
+function strncmp(a, b, n){
+    return a.substring(0, n) == b.substring(0, n);
 }
