@@ -7,12 +7,14 @@
         </div>
         <div class='col-md-11'>
             <h1>GRIFFIN {{title}}</h1>
-        </div>
+	</div>
+	<div id=serverHostNameDisplay class='headerContent'>Connected to {{server}}</div>
+	<div id=currentDateTimeDisplay class='headerContent'></div>
     </div>
 </template>
 
 <script>
     function setupHeader(wrapperID, title){
-        document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates.header, {'title': title});
+        document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates.header, {'title': title, 'server': dataStore.spectrumServer});
     }
 </script>
