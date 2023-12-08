@@ -150,3 +150,13 @@ div.headerContent{
     position: relative;
     right: 0;
 }
+
+.analyzer-input-text{
+    width: 100%;
+    background-color: #191C40;
+    border: 2px solid #FA8072; /* Salmon pink */
+    border-radius: 25px;
+    color: #DAA520; /* goldenrod*/
+    padding: 6px;
+    margin-bottom: 6px;
+}

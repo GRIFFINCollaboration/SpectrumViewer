@@ -24,6 +24,12 @@
         <div class='col-md-12 pan' id='Sorting-Job-Submit'>
             <h2>Sorting Job Submission</h2>
 	<div id='JobSubmit'>
+            <div class='container-fluid'>
+	      <div class='col-md-2'><h5>MIDAS Data File Directory:</h5></div>
+	      <div class='col-md-4' id='DataDirectoryInputDiv'></div>
+	      <div class='col-md-2'><h5>Configuration File Directory:</h5></div>
+	      <div class='col-md-4' id='ConfigDirectoryInputDiv'></div>
+	    </div>
             <div id='submitDivSelect'></div>
 	    <div class="form-group">
       <label for="MidFilesSelect">Select the MIDAS files to sort (hold ctrl/cmd or shift (or drag with the mouse) to select more than one):</label>
@@ -46,8 +52,28 @@
     
     // initiate heartbeat for the Sort Status
     initiateSortStatusHeartbeat();
+
+    // Create the text input for the midas data file directory
+    newInput = document.createElement('input');
+    newInput.type = 'text'; 
+    newInput.className = 'analyzer-input-text'; 
+    newInput.value = dataStore.midasFileDataDirectoryPath; 
+    newButton.onchange = function(){
+    dataStore.midasFileDataDirectoryPath = this.value;
+    }.bind(newInput);
+    document.getElementById('DataDirectoryInputDiv').appendChild(newInput);
     
-    // Create Submit button
+    // Create the text input for the Config file directory
+    newInput = document.createElement('input');
+    newInput.type = 'text';
+    newInput.className = 'analyzer-input-text'; 
+    newInput.value = dataStore.configFileDataDirectoryPath; 
+    newButton.onchange = function(){
+    dataStore.configFileDataDirectoryPath = this.value;
+    }.bind(newInput);
+    document.getElementById('ConfigDirectoryInputDiv').appendChild(newInput);
+    
+    // Create Submit button for submitting midas files for sorting
     newButton = document.createElement('button'); 
     newButton.setAttribute('id', 'submitSortButtonSelect'); 
     newButton.setAttribute('class', 'btn btn-default btn-lg'); 

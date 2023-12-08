@@ -20,6 +20,7 @@ function setupDataStore(callback){
         "spectrumServer": thisSpectrumServer,      //analyzer url + port number
 
 	// Sorting Status variables
+	"configFileDataDirectoryPath": "/home/grifstor/daq/analyzer/grif-replay",                // initial config file directory path
 	"midasFileDataDirectoryPath": "/tig/grifstore1b/grifalt/schedule145/Dec2023",                // initial data directory path
 	"midasFileList": [],                     // place to store the list of midas files available to sort which is provided by the server
 
