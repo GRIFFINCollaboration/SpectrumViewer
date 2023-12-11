@@ -53,6 +53,9 @@
     // initiate heartbeat for the Sort Status
     initiateSortStatusHeartbeat();
 
+    // Get the initial list of Histogram files
+    getHistoFileListFromServer();
+    
     // Create the text input for the midas data file directory
     newInput = document.createElement('input');
     newInput.type = 'text'; 

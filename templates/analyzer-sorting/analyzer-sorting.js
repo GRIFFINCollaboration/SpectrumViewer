@@ -101,9 +101,17 @@ function processSortStatus(payload){
 
 function getMidasFileListFromServer(){
 
-    // use a one-off XHR request with callback for getting the initial list of MIDAS files
+    // use a one-off XHR request with callback for getting the list of MIDAS files
     url = dataStore.spectrumServer + '/?cmd=getDatafileList&dir='+dataStore.midasFileDataDirectoryPath;
     XHR(url, "Problem getting list of MIDAS files from analyzer server", processMidasFileList, function(error){ErrorConnectingToAnalyzerServer(error)});
+
+}
+
+function getHistoFileListFromServer(){
+
+    // use a one-off XHR request with callback for getting the list of Histo files
+    url = dataStore.spectrumServer + '/?cmd=getHistofileList&dir='+dataStore.histoFileDataDirectoryPath;
+    XHR(url, "Problem getting list of Histogram files from analyzer server", processHistoFileList, function(error){ErrorConnectingToAnalyzerServer(error)});
 
 }
 
@@ -123,6 +131,23 @@ function processMidasFileList(payload){
 
     // Build the selectable list of midas files for the user
     buildMidasFileTableSelect();
+}
+
+function processHistoFileList(payload){
+
+  //  payload = " [ run21758_000.mid , run21783_000.mid , run21830_000.mid , run21834_000.mid , run21731_000.mid , run21781_003.mid , run21781_000.mid , run21781_001.mid , run21781_002.mid , run21666_000.mid , run21696_000.mid , run21668_000.mid]";
+
+    // receive the payload and split into an array of strings
+    var thisPayload = payload.split("]")[0].split("[ \n")[1];
+    
+    // tidy up the strings to extract the list of midas files
+    dataStore.histoFileList = thisPayload.split(" , \n ");
+
+    // Sort the list in numberical and alphabetical order, then reverse the order so the newer files appear first (note this is not ideal for sub-runs)
+    dataStore.histoFileList.sort();
+    dataStore.histoFileList.reverse();
+
+    console.log(dataStore.histoFileList);
 }
 
 function buildMidasFileTableSelect(){

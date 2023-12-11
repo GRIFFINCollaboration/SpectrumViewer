@@ -160,3 +160,9 @@ div.headerContent{
     padding: 6px;
     margin-bottom: 6px;
 }
+
+.histo-row{
+    border-bottom: solid 1px #FA8072; /* Salmon pink */
+    padding: 4px;
+    margin-bottom: 6px;
+}

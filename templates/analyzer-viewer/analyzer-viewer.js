@@ -23,8 +23,8 @@ function setupViewerDataStore(callback){
 */
 
     
-    console.log(dataStore.SpectrumList);
-    SpectrumList = dataStore.midasFileSpectrumList;
+    console.log(dataStore.histoFileSpectrumList);
+    SpectrumList = dataStore.histoFileSpectrumList;
 
     //declare the holder for the top level groups
     var topGroups = [];
@@ -99,8 +99,8 @@ function fetchCallback(){
     }
 }
 
-function GetMidasFileSpectrumListFromServer(ServerName, callback){
-    console.log('Execute GetSpectrumFromServer...');
+function GetHistoFileSpectrumListFromServer(ServerName, callback){
+    console.log('Execute GetHistoFileSpectrumListFromServer...');
 
     
     // Get the Spectrum List from the analyser server
@@ -115,10 +115,9 @@ function GetMidasFileSpectrumListFromServer(ServerName, callback){
   req.onreadystatechange = () => {
       if (req.readyState === 4) {
 	 // console.log('Response text is: '+req.response);
-	 // JSONString = req.response.split(")")[0].split("(")[1];
 	  JSONString = req.response;
-	//  console.log('JSON String is: '+JSONString);
-	 dataStore.SpectrumList = JSON.parse(JSONString);
+        // console.log('JSON String is: '+JSONString);
+	 dataStore.histoFileSpectrumList = JSON.parse(JSONString);
 	  // The third argument passed to this function is the callback for the next function, so we pass it on here
           callback(arguments[2]);
     }

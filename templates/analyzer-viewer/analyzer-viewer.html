@@ -41,8 +41,7 @@
         document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-viewer'], {});
 
     // Get the Spectrum List from the server and then set up the data store. Once that is done then the event listeners can be added.
-    GetMidasFileSpectrumListFromServer(dataStore.spectrumServer,setupViewerDataStore,setupEventListeners);
+    GetHistoFileSpectrumListFromServer(dataStore.spectrumServer,setupViewerDataStore,setupEventListeners);
 
-	
     }
 </script>

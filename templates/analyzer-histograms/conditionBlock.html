@@ -44,76 +44,76 @@
     <div id='leftTab{{histogramNumber}}' class='col-md-1 left-tab'>Histogram Definition</div>
     <div id='histogramContent{{histogramNumber}}' class='col-md-11 histogramContent'>
     <div class='histogram-control'>
-      <table id='histogramContentTable{{histogramNumber}}'>
-	<tr>
-	  <td><label for='histogramName{{histogramNumber}}'>Histogram Name:</label></td>
-	  <td>
-	    <input type='text' name='histogramName{{histogramNumber}}' id='histogramName{{histogramNumber}}' value='Histogram_name' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
-	  </td>
-	</tr>
-	<tr>
-	  <td><label for='dimensionType{{histogramNumber}}'>Histogram Type:</label></td>
-	  <td>
+    <div id='histogramContentTable{{histogramNumber}}' class="container-fluid">
+      <div id='histogramNameRow{{histogramNumber}}' class='row histo-row'>
+          <div class='col-md-3'><label for='histogramName{{histogramNumber}}'>Histogram Path/Name:</label></div>
+          <div class='col-md-3'>
+	  <input type='text' name='histogramPath{{histogramNumber}}' id='histogramPath{{histogramNumber}}' value='Histogram_path' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
+	  </div>
+          <div class='col-md-3'>
+	  <input type='text' name='histogramName{{histogramNumber}}' id='histogramName{{histogramNumber}}' value='Histogram_name' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
+	  </div>
+	  <div class='col-md-2'><label for='dimensionType{{histogramNumber}}'>Type:</label>
 	    <label for='1dimension{{histogramNumber}}'>1D</label>
-	    <input type='radio' name='dimensionType{{histogramNumber}}' id='1dimension{{histogramNumber}}' value='1' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
+	    <input type='radio' name='dimensionType{{histogramNumber}}' id='1dimension{{histogramNumber}}' value='1' onchange='toggleHistogramDimensions({{histogramNumber}}, 1)' checked>
 	    <label for='2dimension{{histogramNumber}}'>2D</label>
-	    <input type='radio' name='dimensionType{{histogramNumber}}' id='2dimension{{histogramNumber}}' value='2' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})' checked>
-	  </td>
-	</tr>
-	<tr>
-	  <td>
+	    <input type='radio' name='dimensionType{{histogramNumber}}' id='2dimension{{histogramNumber}}' value='2' onchange='toggleHistogramDimensions({{histogramNumber}}, 2)'>
+	  </div>
+      </div>
+      <div id='XvariableRow{{histogramNumber}}' class='row'>
+	  <div class='col-md-2'>
 	    <label for='Xvariable{{histogramNumber}}'>Variable for X axis:</label>
-	  </td>
-	  <td>
+	  </div>
+	  <div class='col-md-9'>
 	    <select id='Xvariable{{histogramNumber}}' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
 	      <option value='energy'>Energy</option>
 	      <option value='addback'>Addback Energy</option>
 	      <option value='time'>Time</option>
 	    </select>
-	  </td>
-	</tr>
-	<tr>
-	  <td>
-	    <label for='Xmin{{histogramNumber}}'>Minimum value for X axis:</label>
+	  </div>
+      </div>
+      <div id='XinputRow{{histogramNumber}}' class='row histo-row'>
+	  <div class='col-md-3'>
+	    <label for='Xmin{{histogramNumber}}'>X axis Min.:</label>
 	    <input type='number' value='0' step='1' id='Xmin{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
-	  </td>
-        <td>
-	  <label for='Xmax{{histogramNumber}}'>Maximum value for X axis:</label>
+	  </div>
+        <div class='col-md-3'>
+	  <label for='Xmax{{histogramNumber}}'>X axis Max.:</label>
 	  <input type='number' value='4096' step='1' id='Xmax{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
-	</td>
-	<td>
-	  <label for='Xbins{{histogramNumber}}'>Number of bins for X axis:</label>
+	</div>
+	<div class='col-md-4'>
+	  <label for='Xbins{{histogramNumber}}'>X axis Bins:</label>
 	  <input type='number' value='4096' step='1' id='Xbins{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
-	</td>
-      </tr>
-      <tr>
-	<td>
+	</div>
+      </div>
+      <div id='YvariableRow{{histogramNumber}}' class='row'>
+	<div class='col-md-2'>
 	  <label for='Yvariable{{histogramNumber}}'>Variable for Y axis:</label>
-	</td>
-	<td>
+	</div>
+	<div class='col-md-9'>
 	  <select id='Yvariable{{histogramNumber}}' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
 	    <option value='energy'>Energy</option>
 	    <option value='addback'>Addback Energy</option>
 	    <option value='time'>Time</option>
 	  </select>
-	</td>
-      </tr>
-      <tr>
-	<td>
-	  <label for='Ymin{{histogramNumber}}'>Minimum value for Y axis:</label>
+	</div>
+      </div>
+      <div id='YinputRow{{histogramNumber}}' class='row histo-row'>
+	<div class='col-md-3'>
+	  <label for='Ymin{{histogramNumber}}'>Y axis Min.:</label>
 	  <input type='number' value='0' step='1' id='Ymin{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
-	</td>
-	<td>
-	  <label for='Ymax{{histogramNumber}}'>Maximum value for Y axis:</label>
+	</div>
+	<div class='col-md-3'>
+	  <label for='Ymax{{histogramNumber}}'>Y axis Max.:</label>
 	  <input type='number' value='4096' step='1' id='Ymax{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
-	</td>
-	<td>
-	  <label for='Ybins{{histogramNumber}}'>Number of bins for Y axis:</label>
+	</div>
+	<div class='col-md-4'>
+	  <label for='Ybins{{histogramNumber}}'>Y axis Bins:</label>
 	  <input type='number' value='4096' step='1' id='Ybins{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
-	</td>
-      </tr>
-    </table>
-    <div id='histogramContentConditionTable{{histogramNumber}}'></div>
+	</div>
+      </div>
+    </div>
+    <div id='histogramContentConditionTable{{histogramNumber}}' class='container-fluid'></div>
   <button class='btn btn-info' id='addNewHistogramCondition{{histogramNumber}}' onclick='addNewHistogramCondition({{histogramNumber}});'>Add a new condition to this Histogram Definition</button>
   <button id='duplicateHistogramDefinition{{histogramNumber}}' class='btn btn-info' onclick='duplicateHistogramBlock({{histogramNumber}})'>Duplicate this Histogram definition</button>
   <button id='deleteHistogramDefinition{{histogramNumber}}' class='btn btn-danger' onclick='deleteHistogramBlock({{histogramNumber}})'>Remove this Histogram definition</button>

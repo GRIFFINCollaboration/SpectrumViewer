@@ -16,8 +16,9 @@ function setupDataStore(callback){
     // Create the dataStore object
     dataStore = {
 	// General variables
-        "pageTitle": 'Analyzer Interface',       //header title
-        "spectrumServer": thisSpectrumServer,      //analyzer url + port number
+        "pageTitle": 'Analyzer Interface',               //header title
+        "spectrumServer": thisSpectrumServer,            //analyzer url + port number
+	"ODBhost": 'http://grifstore0.triumf.ca:8081',   // mhttpd server 
 
 	// Sorting Status variables
 	"configFileDataDirectoryPath": "/home/grifstor/daq/analyzer/grif-replay",                // initial config file directory path
@@ -158,7 +159,10 @@ function setupDataStore(callback){
 	],
 	
 	// Spectrum viewer variables
-	"midasFileSpectrumList": [],                                // place to store the current list of spectra available from the current histogram file
+	"histoFileDataDirectoryPath": "/tig/grifstore1b/grifalt/schedule145/Dec2023",                // initial histogram file directory path
+	"histoFileList": [],                                // place to store the list of histogram files available to be opened
+	"histoFileName": "run21850_000.tar",                        // place to store the name of the histogram file to be opened
+	"histoFileSpectrumList": [],                                // place to store the current list of spectra available from the current histogram file
         "pageTitle": 'Spectrum Viewer',                             //header title
         "topGroups": [],                                            //groups in top nav row
         "waveformSnap": true,                                       //do we want the snap to waveform functionality?

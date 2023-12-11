@@ -124,6 +124,9 @@
 	// Add the first row for the first condition
         dataStore.histogramDefinition.nRows[dataStore.histogramDefinition.histogramIndex] = 0;
 	addNewHistogramCondition(dataStore.histogramDefinition.histogramIndex);
+
+	// Default to 1D
+	toggleHistogramDimensions(dataStore.histogramDefinition.histogramIndex, 1)
 	
 	// Increase the Histogram counter
         dataStore.histogramDefinition.histogramIndex++;
@@ -325,6 +328,21 @@ function addNewGateConditionRow(gateIndex){
 	dataStore.histogramDefinition.nRows[histogramNumber]--;
     }
 
+function toggleHistogramDimensions(histogramNumber, dimension){
+
+    // If dimension is changing to 1D, hide the y axis contents
+    if(dimension==1){
+	console.log('Hide the stuff!');
+	document.getElementById('YvariableRow'+histogramNumber).style.display = 'none';
+	document.getElementById('YinputRow'+histogramNumber).style.display = 'none';
+    }else{
+	// If dimension is changing to 2D, reveal the y axis contents
+	console.log('Show the stuff!');
+	document.getElementById('YvariableRow'+histogramNumber).style.display = 'block';
+	document.getElementById('YinputRow'+histogramNumber).style.display = 'block';
+    }
+    
+}
     function addNewAND(orIndex){
         // add a new AND row to the indexed OR block
 
@@ -377,8 +395,48 @@ function saveGlobalChangeToAnalyzerODB(globalNumber){
 
     console.log('saveGlobalChangeToAnalyzerODB '+globalNumber);
     console.log(dataStore.globalCondition);
-    // Submit this change to the analyzer server via a JSET URL command
     
+    // Submit this change to the analyzer server via a JSET URL command
+
+    // The following is for the analyzer server
+    // cmd=addGlobal&globalname=XXXX&min=XXX&max=XXX
+    var url = dataStore.spectrumServer + '/?cmd=addGlobal';
+    url += '&globalname='+dataStore.globalCondition.contents[globalNumber].name;
+    url += '&globalmin='+dataStore.globalCondition.contents[globalNumber].min;
+    url += '&globalmax='+dataStore.globalCondition.contents[globalNumber].max;
+    
+    console.log('Save Global, URL for analyzer server: '+url);
+
+    // Send the request
+        XHR(url, 
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+            function(){return 0},
+            function(error){console.log(error)}
+           );
+     /*
+    //construct urls to post to
+    var urls = [];
+    var createCmd = "?cmd=jcreate&odb=Analyzer/Globals/";
+    var setCmd = "?cmd=jset&odb=Analyzer/Globals/";
+    
+    urls[0] = dataStore.ODBhost + createCmd + dataStore.globalCondition.contents[globalNumber].name + "&type=subdirectory";
+    urls[1] = dataStore.ODBhost + createCmd + dataStore.globalCondition.contents[globalNumber].name + "/Min" + "&type=7";
+    urls[2] = dataStore.ODBhost + createCmd + dataStore.globalCondition.contents[globalNumber].name + "/Max" + "&type=7";
+    urls[3] = dataStore.ODBhost + setCmd + dataStore.globalCondition.contents[globalNumber].name + "/Min" + "&value=" + dataStore.globalCondition.contents[globalNumber].min;
+    urls[4] = dataStore.ODBhost + setCmd + dataStore.globalCondition.contents[globalNumber].name + "/Max" + "&value=" + dataStore.globalCondition.contents[globalNumber].max;
+    
+    //send requests
+    for(i=0; i<urls.length; i++){
+	console.log('URLs for jset: '+urls[i]);
+	
+        XHR(urls[i], 
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+            function(){return 0},
+            function(error){console.log(error)}
+           )
+	
+    }
+*/
 }
 
 function saveGateChangeToAnalyzerODB(gateNumber){
@@ -404,6 +462,53 @@ function saveGateChangeToAnalyzerODB(gateNumber){
 	dataStore.gateCondition.contents[gateNumber] = newContents;
 
     // Submit this change to the analyzer server via a JSET URL command
+
+    // The following is for the analyzer server
+    // cmd=addGate&gatename=XXXX&varname=XXX&op=XXX&value=XXX
+    var url = dataStore.spectrumServer + '/?cmd=addGate';
+    url += '&gatename='+dataStore.gateCondition.contents[gateNumber].name;
+    for(var i=0; i<dataStore.gateCondition.contents[gateNumber].gateCondition.length; i++){
+	url += '&varname'+i+'='+dataStore.gateCondition.contents[gateNumber].gateCondition[i].Variable;
+	url += '&op'+i+'='+dataStore.gateCondition.contents[gateNumber].gateCondition[i].Logic;
+	url += '&value'+i+'='+dataStore.gateCondition.contents[gateNumber].gateCondition[i].Value;
+    }
+    
+    console.log('Save Gate, URL for analyzer server: '+url);
+
+    // Send the request
+        XHR(url, 
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+            function(){return 0},
+            function(error){console.log(error)}
+           );
+    
+    /*
+    // The following is for mhttpd 
+    //construct urls to post to
+    var urls = [];
+    var createCmd = "?cmd=jcreate&odb=Analyzer/Gates/";
+    var setCmd = "?cmd=jset&odb=Analyzer/Gates/";
+    
+    urls[0] = dataStore.ODBhost + createCmd + dataStore.gateCondition.contents[gateNumber].name + "&type=subdirectory";
+    urls[1] = dataStore.ODBhost + createCmd + dataStore.gateCondition.contents[gateNumber].name + "/Variable" + "&type=7";
+    urls[2] = dataStore.ODBhost + createCmd + dataStore.gateCondition.contents[gateNumber].name + "/Logic" + "&type=7";
+    urls[3] = dataStore.ODBhost + createCmd + dataStore.gateCondition.contents[gateNumber].name + "/Value" + "&type=7";
+    urls[4] = dataStore.ODBhost + setCmd + dataStore.gateCondition.contents[gateNumber].name + "/Variable" + "&value=" + dataStore.gateCondition.contents[gateNumber].Variable;
+    urls[5] = dataStore.ODBhost + setCmd + dataStore.gateCondition.contents[gateNumber].name + "/Logic" + "&value=" + dataStore.gateCondition.contents[gateNumber].Logic;
+    urls[6] = dataStore.ODBhost + setCmd + dataStore.gateCondition.contents[gateNumber].name + "/Value" + "&value=" + dataStore.gateCondition.contents[gateNumber].Value;
+    
+    //send requests
+    for(i=0; i<urls.length; i++){
+	console.log('URLs for jset: '+urls[i]);
+	
+        XHR(urls[i], 
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+            function(){return 0},
+            function(error){console.log(error)}
+           )
+	
+    }
+*/
     
 }
 
@@ -411,6 +516,16 @@ function saveHistogramChangeToAnalyzerODB(histogramNumber){
     //when something changes in any of the definitions, save the change to the dataStore and send it to the analyzer ODB
 	var newContents = {
 	    "name" : document.getElementById('histogramName'+histogramNumber).value,
+	    "path" : document.getElementById('histogramPath'+histogramNumber).value,
+	    "type" : document.querySelector('input[name=dimensionType'+histogramNumber+']:checked').value,
+	    "Xvariable" : document.getElementById('Xvariable'+histogramNumber).value,
+	    "Xmin" : document.getElementById('Xmin'+histogramNumber).value,
+	    "Xmax" : document.getElementById('Xmax'+histogramNumber).value,
+	    "Xbins" : document.getElementById('Xbins'+histogramNumber).value,
+	    "Yvariable" : document.getElementById('Yvariable'+histogramNumber).value,
+	    "Ymin" : document.getElementById('Ymin'+histogramNumber).value,
+	    "Ymax" : document.getElementById('Ymax'+histogramNumber).value,
+	    "Ybins" : document.getElementById('Ybins'+histogramNumber).value,
 	    "histogramCondition" : []
 	};
 
@@ -420,7 +535,7 @@ function saveHistogramChangeToAnalyzerODB(histogramNumber){
 	var indexID = dataStore.histogramDefinition.contents[histogramNumber].histogramCondition[i].indexID;
 	var newCondition ={
                        "indexID" : indexID,
-	               "Variable" : document.getElementById('histogramCondition'+histogramNumber+'-'+indexID).value
+	               "Gate" : document.getElementById('histogramCondition'+histogramNumber+'-'+indexID).value
 	}
 	newContents.histogramCondition.push(newCondition); // This is just a local variable
     }
@@ -430,4 +545,57 @@ function saveHistogramChangeToAnalyzerODB(histogramNumber){
 //    console.log(dataStore.histogramDefinition);
     // Submit this change to the analyzer server via a JSET URL command
     
+    // The following is for the analyzer server
+    // cmd=addHistogram&name=XXXX&title=XXX&path=XXXX&op=XXX&xbins=XXX&xvarname=XXX[optional... &ybins=XXX&yvarname=XXXX]&gate1=XXX&gate2=XXX....
+    var url = dataStore.spectrumServer + '/?cmd=addHistogram';
+    url += '&title='+dataStore.histogramDefinition.contents[histogramNumber].name;
+    url += '&path='+dataStore.histogramDefinition.contents[histogramNumber].path;
+    url += '&xvarname='+dataStore.histogramDefinition.contents[histogramNumber].Xvariable;
+    url += '&xbins='+dataStore.histogramDefinition.contents[histogramNumber].Xbins;
+    url += '&xmin='+dataStore.histogramDefinition.contents[histogramNumber].Xmin;
+    url += '&xmax='+dataStore.histogramDefinition.contents[histogramNumber].Xmax;
+    if(dataStore.histogramDefinition.contents[histogramNumber].type==2){
+	url += '&yvarname='+dataStore.histogramDefinition.contents[histogramNumber].Yvariable;
+	url += '&ybins='+dataStore.histogramDefinition.contents[histogramNumber].Ybins;
+	url += '&ymin='+dataStore.histogramDefinition.contents[histogramNumber].Ymin;
+	url += '&ymax='+dataStore.histogramDefinition.contents[histogramNumber].Ymax;
+    }
+    for(var i=0; i<dataStore.histogramDefinition.contents[histogramNumber].histogramCondition.length; i++){
+	url += '&gate'+i+'='+dataStore.histogramDefinition.contents[histogramNumber].histogramCondition[i].Gate;
+    }
+    
+    console.log('Save Histogram, URL for analyzer server: '+url);
+
+    // Send the request
+        XHR(url, 
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+            function(){return 0},
+            function(error){console.log(error)}
+           );
+    
+    /*
+    //construct urls to post to
+    var urls = [];
+    var createCmd = "?cmd=jcreate&odb=Analyzer/Histograms/";
+    var setCmd = "?cmd=jset&odb=Analyzer/Histograms/";
+    
+    urls[0] = dataStore.ODBhost + createCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "&type=subdirectory";
+    urls[1] = dataStore.ODBhost + createCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "/Variable" + "&type=7";
+    urls[2] = dataStore.ODBhost + createCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "/Logic" + "&type=7";
+    urls[3] = dataStore.ODBhost + createCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "/Value" + "&type=7";
+    urls[4] = dataStore.ODBhost + setCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "/Variable" + "&value=" + dataStore.gateCondition.contents[gateNumber].Variable;
+    urls[5] = dataStore.ODBhost + setCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "/Logic" + "&value=" + dataStore.gateCondition.contents[gateNumber].Logic;
+    urls[6] = dataStore.ODBhost + setCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "/Value" + "&value=" + dataStore.gateCondition.contents[gateNumber].Value;
+    
+    //send requests
+    for(i=0; i<urls.length; i++){
+	console.log('URLs for jset: '+urls[i]);
+	
+        XHR(urls[i], 
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+            function(){return 0},
+            function(error){console.log(error)}
+           )	
+    }
+*/
 }
