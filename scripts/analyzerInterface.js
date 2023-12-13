@@ -92,6 +92,14 @@ function setupDataStore(callback){
             "description": 'HPGe Pileup value equal to number of Hits'
 	    },
 	    {
+            "short": 'HPGeIP',
+            "description": 'HPGe Integration period of the Pulse Height evaluation algorithum'
+	    },
+	    {
+            "short": 'HPGeDT',
+            "description": 'HPGe deadtime accumulated since previous accepted hit'
+	    },
+	    {
             "short": 'HPGeEU',
             "description": 'Singles HPGe Energy in keV without Compton suppression'
 	    },
@@ -128,6 +136,19 @@ function setupDataStore(callback){
 	    {
             "short": 'TSD_HPGe_Beta',
             "description": 'Time difference between HPGe and Beta using leading edge in 10 nanosecond units'
+	    },
+            // Cycle Timing (PPG events)
+	    {
+            "short": 'Cycle_Num',
+            "description": 'Cycle number since beginning of run'
+	    },
+	    {
+            "short": 'Cycle_Time',
+            "description": 'Time since the beginning of the current Cycle'
+	    },
+	    {
+            "short": 'Cycle_Pattern',
+            "description": 'The current PPG pattern'
 	    }
 	],
 

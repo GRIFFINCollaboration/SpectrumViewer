@@ -3,17 +3,16 @@
     <div id='globalContent{{globalNumber}}' class='col-md-11 globalContent'>
     <div class='global-control'>
        <div id='GlobalContentTable{{globalNumber}}'>
-          <div class="row">
-	    <div col-md-12>
+          <div class='row'>
+	    <div class='col-md-5'>
 	      <label for='globalName{{globalNumber}}'>Global Name:</label>
-	      <input type='text' name='globalName{{globalNumber}}' id='globalName{{globalNumber}}' value='Global_condition_name' onchange='saveGlobalChangeToAnalyzerODB({{globalNumber}})'>
+	      <input type='text' class='text-name' name='globalName{{globalNumber}}' id='globalName{{globalNumber}}' value='Global_condition_name' onchange='saveGlobalChangeToAnalyzerODB({{globalNumber}})'>
 	    </div>
-	  </div>
-	  
-	  <div class="row">
-	    <div col-md-12>
+	    <div class='col-md-3'>
 	      <label for='globalMin{{globalNumber}}'>Minimum value:</label>
 	      <input type='number' value='-100' step='1' id='globalMin{{globalNumber}}' class='small-number' onchange='saveGlobalChangeToAnalyzerODB({{globalNumber}})'></input>
+	    </div>
+	    <div class='col-md-3'>
 	      <label for='globalMax{{globalNumber}}'>Maximum value:</label>
 	      <input type='number' value='100' step='1' id='globalMax{{globalNumber}}' class='small-number' onchange='saveGlobalChangeToAnalyzerODB({{globalNumber}})'></input>
 	    </div>
@@ -28,13 +27,15 @@
     <div id='leftTab{{gateNumber}}' class='col-md-1 left-tab'>Gate Condition</div>
     <div id='gateContent{{gateNumber}}' class='col-md-11 gateContent'>
       <div class='gate-control'>
-      <div id='gateContentTable{{histogramNumber}}'>
-        <div>
-           <div><label for='gateName{{gateNumber}}'>Gate Name:</label></div>
-           <div><input type='text' name='gateName{{gateNumber}}' id='gateName{{gateNumber}}' value='Gate_name' onchange='saveGateChangeToAnalyzerODB({{gateNumber}})'></div>
+        <div id='gateContentTable{{histogramNumber}}'>
+          <div class='row'>
+	    <div class='col-md-12'>
+	       <label for='gateName{{gateNumber}}'>Gate Name:</label>
+               <input type='text' class='text-name' name='gateName{{gateNumber}}' id='gateName{{gateNumber}}' value='Gate_name' onchange='saveGateChangeToAnalyzerODB({{gateNumber}})'>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
     <div id='gateContentConditionTable{{gateNumber}}'></div>
     <button class='btn btn-info' id='andNewGateConditionRow{{gateNumber}}' onclick='addNewGateConditionRow({{gateNumber}});'>Add a new line to this Gate condition</button>
     <button id='deleteGateCondition{{gateNumber}}' class='btn btn-danger' onclick='deleteGateBlock({{gateNumber}})'>Remove this Gate condition</button>
@@ -46,12 +47,12 @@
     <div class='histogram-control'>
     <div id='histogramContentTable{{histogramNumber}}' class="container-fluid">
       <div id='histogramNameRow{{histogramNumber}}' class='row histo-row'>
-          <div class='col-md-3'><label for='histogramName{{histogramNumber}}'>Histogram Path/Name:</label></div>
-          <div class='col-md-3'>
-	  <input type='text' name='histogramPath{{histogramNumber}}' id='histogramPath{{histogramNumber}}' value='Histogram_path' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
+          <div class='col-md-2'><label for='histogramName{{histogramNumber}}'>Histogram Path/Name:</label></div>
+          <div class='col-md-4'>
+	  <input type='text' class='text-name' name='histogramPath{{histogramNumber}}' id='histogramPath{{histogramNumber}}' value='Histogram_path' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
 	  </div>
-          <div class='col-md-3'>
-	  <input type='text' name='histogramName{{histogramNumber}}' id='histogramName{{histogramNumber}}' value='Histogram_name' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
+          <div class='col-md-4'>
+	  <input type='text' class='text-name' name='histogramName{{histogramNumber}}' id='histogramName{{histogramNumber}}' value='Histogram_name' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
 	  </div>
 	  <div class='col-md-2'><label for='dimensionType{{histogramNumber}}'>Type:</label>
 	    <label for='1dimension{{histogramNumber}}'>1D</label>
@@ -66,9 +67,9 @@
 	  </div>
 	  <div class='col-md-9'>
 	    <select id='Xvariable{{histogramNumber}}' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
-	      <option value='energy'>Energy</option>
-	      <option value='addback'>Addback Energy</option>
-	      <option value='time'>Time</option>
+	      {{#sortCodeVariables}}
+	      <option value='{{short}}'>{{description}}</option>
+		{{/sortCodeVariables}}
 	    </select>
 	  </div>
       </div>
@@ -92,9 +93,9 @@
 	</div>
 	<div class='col-md-9'>
 	  <select id='Yvariable{{histogramNumber}}' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
-	    <option value='energy'>Energy</option>
-	    <option value='addback'>Addback Energy</option>
-	    <option value='time'>Time</option>
+	    {{#sortCodeVariables}}
+	    <option value='{{short}}'>{{description}}</option>
+	      {{/sortCodeVariables}}
 	  </select>
 	</div>
       </div>
@@ -115,7 +116,6 @@
     </div>
     <div id='histogramContentConditionTable{{histogramNumber}}' class='container-fluid'></div>
   <button class='btn btn-info' id='addNewHistogramCondition{{histogramNumber}}' onclick='addNewHistogramCondition({{histogramNumber}});'>Add a new condition to this Histogram Definition</button>
-  <button id='duplicateHistogramDefinition{{histogramNumber}}' class='btn btn-info' onclick='duplicateHistogramBlock({{histogramNumber}})'>Duplicate this Histogram definition</button>
   <button id='deleteHistogramDefinition{{histogramNumber}}' class='btn btn-danger' onclick='deleteHistogramBlock({{histogramNumber}})'>Remove this Histogram definition</button>
   </div>
 </template>    

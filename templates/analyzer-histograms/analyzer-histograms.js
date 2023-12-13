@@ -7,11 +7,149 @@
     // setup
     ////////////////
 
+function buildExampleConfig(){
+
+	var newContents = {
+	    "name" : 'Gamma-BGO time difference',
+	    "min" : -50,
+	    "max" : 50
+	};
+	dataStore.globalCondition.contents[0] = newContents;
+
+	var newContents = {
+	    "name" : 'Gamma-Gamma time difference',
+	    "min" : -100,
+	    "max" : 100
+	};
+	dataStore.globalCondition.contents[1] = newContents;
+
+	var newContents = {
+	    "name" : 'Beta-Gamma time difference',
+	    "min" : -80,
+	    "max" : 80
+	};
+	dataStore.globalCondition.contents[2] = newContents;
+    
+    for(var i=0; i<dataStore.globalCondition.contents.length; i++){
+	addNewGlobal(i);
+    }
+
+    // Gates
+	var newContents = {
+	    "name" : 'HPGe-energy',
+	    "gateCondition" : []
+	};
+	var newCondition ={
+                       "indexID" : 0,
+	               "Variable" : 'HPGeE',
+	               "Logic" : 'GT',
+	               "Value" : 5
+	};
+	newContents.gateCondition.push(newCondition); // This is just a local variable
+    
+    // Update the dataStore with the latest values
+    dataStore.gateCondition.contents[0] = newContents;
+	var newContents = {
+	    "name" : 'Beta-gamma',
+	    "gateCondition" : []
+	};
+	var newCondition ={
+                       "indexID" : 0,
+	               "Variable" : 'BetaE',
+	               "Logic" : 'GT',
+	               "Value" : 10
+	};
+	newContents.gateCondition.push(newCondition); // This is just a local variable
+	var newCondition ={
+                       "indexID" : 1,
+	               "Variable" : 'TD_HPGe_Beta',
+	               "Logic" : 'LT',
+	               "Value" : 100
+	};
+	newContents.gateCondition.push(newCondition); // This is just a local variable
+    
+    // Update the dataStore with the latest values
+    dataStore.gateCondition.contents[1] = newContents;
+
+    for(var i=0; i<dataStore.gateCondition.contents.length; i++){
+	addNewGate(i);
+    }
+
+    // Histogram example
+    
+	var newContents = {
+	    "name" : 'Beta-gated Singles',
+	    "path" : 'Matrices',
+	    "type" : 1,
+	    "Xvariable" : 'HPGeE',
+	    "Xmin" : 0,
+	    "Xmax" : 16384,
+	    "Xbins" : 16384,
+	    "Yvariable" : '',
+	    "Ymin" : 0,
+	    "Ymax" : 0,
+	    "Ybins" : 0,
+	    "histogramCondition" : []
+	};
+	var newCondition ={
+                       "indexID" : 0,
+	    "Gate" : 'Beta-gamma'
+	}
+	newContents.histogramCondition.push(newCondition); // This is just a local variable
+    // Update the dataStore with the latest values
+	dataStore.histogramDefinition.contents[0] = newContents;
+    
+	var newContents = {
+	    "name" : 'Gamma-Gamma',
+	    "path" : 'Matrices',
+	    "type" : 2,
+	    "Xvariable" : 'HPGeE',
+	    "Xmin" : 0,
+	    "Xmax" : 8192,
+	    "Xbins" : 8192,
+	    "Yvariable" : 'HPGeE',
+	    "Ymin" : 0,
+	    "Ymax" : 8192,
+	    "Ybins" : 8192,
+	    "histogramCondition" : []
+	};
+    // Update the dataStore with the latest values
+	dataStore.histogramDefinition.contents[1] = newContents;
+
+	var newContents = {
+	    "name" : 'Beta-gated Gamma-Gamma',
+	    "path" : 'Matrices',
+	    "type" : 2,
+	    "Xvariable" : 'HPGeE',
+	    "Xmin" : 0,
+	    "Xmax" : 8192,
+	    "Xbins" : 8192,
+	    "Yvariable" : 'HPGeE',
+	    "Ymin" : 0,
+	    "Ymax" : 8192,
+	    "Ybins" : 8192,
+	    "histogramCondition" : []
+	};
+	var newCondition ={
+                       "indexID" : 0,
+	    "Gate" : 'Beta-gamma'
+	}
+	newContents.histogramCondition.push(newCondition); // This is just a local variable
+    // Update the dataStore with the latest values
+    dataStore.histogramDefinition.contents[2] = newContents;
+
+    for(var i=0; i<dataStore.histogramDefinition.contents.length; i++){
+	addNewHistogram(i);
+    }
+
+}
+
     function processHistograms(payload){
         // callback after getting the Config file containing the Global conditions, Gates conditions and Histogram definitions from the server/ODB
         // finish initial setup
 
 	// Place the response from the server into the dataStore
+	console.log(payload);
         dataStore.Configs = payload;
 	
         // populate the current configuration - this should be received from the server
@@ -23,37 +161,49 @@
     // DOM manipulations
     //////////////////////////
 
-    function addNewGlobal(){
+    function addNewGlobal(arrayIndex){
         // add a new Global Condition block
+	if(arrayIndex == 'undefined'){
+	    var arrayIndex = -1;
+	}
 
 	// Create the new html block
         var wrap = document.createElement('div');
+	var globalIndex = dataStore.globalCondition.globalIndex;
         wrap.setAttribute('class', 'condition-block');
-        wrap.setAttribute('id', 'globalCondition' + dataStore.globalCondition.globalIndex);
+        wrap.setAttribute('id', 'globalCondition' + globalIndex);
         wrap.innerHTML = Mustache.to_html(
             dataStore.templates['globalBlock'], 
             {  
-                "globalNumber": dataStore.globalCondition.globalIndex
+                "globalNumber": globalIndex
             }
         );
         document.getElementById('globals-wrap').appendChild(wrap);
 
+	// Populate the Gate with the entry in dataStore.gateCondition.contents[arrayIndex] if an arrayIndex was provided
+	if(arrayIndex>=0){
+	    document.getElementById('globalName'+globalIndex).value = dataStore.globalCondition.contents[arrayIndex].name;
+	    document.getElementById('globalMin'+globalIndex).value = dataStore.globalCondition.contents[arrayIndex].min;
+	    document.getElementById('globalMax'+globalIndex).value = dataStore.globalCondition.contents[arrayIndex].max;
+	}
+	    
 	// Create the new condition in the dataStore and fill with generic initial values
-	var newContents = {
-	    "name" : 'new-global-condition',
-	    "min" : -100,
-	    "max" : 100
-	};
-	dataStore.globalCondition.contents[dataStore.globalCondition.globalIndex] = newContents;
-
+	// but only if there is not a definition there already
+	if(arrayIndex>=0){
+	    var newContents = {
+		"name" : 'new-global-condition',
+		"min" : -100,
+		"max" : 100
+	    };
+	    dataStore.globalCondition.contents[dataStore.globalCondition.globalIndex] = newContents;
+	}
+	
 	// Increase the Global counters
-        dataStore.globalCondition.nRows[dataStore.globalCondition.globalIndex] = 0;
+        dataStore.globalCondition.nRows[globalIndex] = 0;
         dataStore.globalCondition.globalIndex++;
     }
 
     function deleteGlobalBlock(globalNumber){
-	console.log('deleteGlobalNode '+globalNumber);
-	console.log(dataStore.globalCondition);
         // delete the indexed Global block
         deleteNode('globalCondition' + globalNumber);
 	
@@ -63,37 +213,56 @@
 	// decrease the Global counters
 	dataStore.globalCondition.nRows.splice(globalNumber,1);
         dataStore.globalCondition.globalIndex--;
-	console.log(dataStore.globalCondition);
     }
 
-    function addNewGate(){
+    function addNewGate(arrayIndex){
         // add a new Gate Condition block
+	if(arrayIndex == 'undefined'){
+	    var arrayIndex = -1;
+	}
 
 	// Create the new html block
         var wrap = document.createElement('div');
+	var gateIndex = dataStore.gateCondition.gateIndex;
         wrap.setAttribute('class', 'condition-block');
-        wrap.setAttribute('id', 'gateCondition' + dataStore.gateCondition.gateIndex);
+        wrap.setAttribute('id', 'gateCondition' + gateIndex);
         wrap.innerHTML = Mustache.to_html(
             dataStore.templates['gateBlock'], 
             {  
-                "gateNumber": dataStore.gateCondition.gateIndex,
+                "gateNumber": gateIndex,
                 "sortCodeVariables": dataStore.sortCodeVariables,
                 "logicOptions": dataStore.logicOptions
             }
         );
         document.getElementById('gates-wrap').appendChild(wrap);
 	
+	// Populate the Gate with the entry in dataStore.gateCondition.contents[arrayIndex] if an arrayIndex was provided
+	if(arrayIndex>=0){
+	    document.getElementById('gateName'+gateIndex).value = dataStore.gateCondition.contents[arrayIndex].name;
+	}
+	    
 	// Add the first row for the first condition
-        dataStore.gateCondition.nRows[dataStore.gateCondition.gateIndex] = 0;
-	addNewGateConditionRow(dataStore.gateCondition.gateIndex);
+        dataStore.gateCondition.nRows[gateIndex] = 0;
+	addNewGateConditionRow(gateIndex,arrayIndex);
+
+	// Populate the Gate with the entry in dataStore.gateCondition.contents[arrayIndex] if an arrayIndex was provided
+	if(arrayIndex>=0){
+	    for(var i=0; i<dataStore.gateCondition.contents[arrayIndex].gateCondition.length; i++){
+		if(i>0){
+		    // Create the additonal condition row for this dataStore entry
+		    addNewGateConditionRow(gateIndex,arrayIndex);
+		}
+		document.getElementById('gateConditionVariableSelect'+gateIndex+'-'+i).value = dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Variable;
+		document.getElementById('gateConditionLogicSelect'+gateIndex+'-'+i).value = dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Logic;
+		document.getElementById('gateConditionValue'+gateIndex+'-'+i).value = dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Value;
+	    }
+	}
 	
 	// Increase the Gate counter
         dataStore.gateCondition.gateIndex++;
     }
 
     function deleteGateBlock(gateNumber){
-	console.log('deleteGateNode '+gateNumber);
-	console.log(dataStore.gateCondition);
         // delete the indexed Gate block
         deleteNode('gateCondition' + gateNumber);
 	
@@ -103,67 +272,75 @@
 	// decrease the Gate counters
 	dataStore.gateCondition.nRows.splice(gateNumber,1);
         dataStore.gateCondition.gateIndex--;
-	console.log(dataStore.gateCondition);
     }
 
-    function addNewHistogram(){
+    function addNewHistogram(arrayIndex){
         // add a new Histogram Condition block
-
+	if(arrayIndex == 'undefined'){
+	    var arrayIndex = -1;
+	}
+	
 	// Create the new html block
         var wrap = document.createElement('div');
+	var histogramIndex = dataStore.histogramDefinition.histogramIndex;
         wrap.setAttribute('class', 'condition-block');
-        wrap.setAttribute('id', 'histogramCondition' + dataStore.histogramDefinition.histogramIndex);
+        wrap.setAttribute('id', 'histogramCondition' + histogramIndex);
         wrap.innerHTML = Mustache.to_html(
             dataStore.templates['histogramBlock'], 
             {  
-                "histogramNumber": dataStore.histogramDefinition.histogramIndex
+                "histogramNumber": histogramIndex,
+                "sortCodeVariables": dataStore.sortCodeVariables
             }
         );
         document.getElementById('histograms-wrap').appendChild(wrap);
 	
+	// Populate the Histogram with the entry in dataStore.histogramDefinition.contents[arrayIndex] if an arrayIndex was provided
+	if(arrayIndex>=0){
+	    document.getElementById('histogramName'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].name;
+	    document.getElementById('histogramPath'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].path;
+	    if(dataStore.histogramDefinition.contents[arrayIndex].type ==2){
+		document.getElementById('2dimension'+histogramIndex).checked = true;
+	    }else{
+		document.getElementById('1dimension'+histogramIndex).checked = true;
+		toggleHistogramDimensions(histogramIndex, 1)
+	    }
+	    document.getElementById('Xvariable'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].Xvariable;
+	    document.getElementById('Xmin'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].Xmin;
+	    document.getElementById('Xmax'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].Xmax;
+	    document.getElementById('Xbins'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].Xbins;
+	    document.getElementById('Yvariable'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].Yvariable;
+	    document.getElementById('Ymin'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].Ymin;
+	    document.getElementById('Ymax'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].Ymax;
+	    document.getElementById('Ybins'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].Ybins;
+	}
+	
+	// Default to 1D for new definitions
+	if(arrayIndex<0){
+	    toggleHistogramDimensions(histogramIndex, 1)
+	}
+	
 	// Add the first row for the first condition
-        dataStore.histogramDefinition.nRows[dataStore.histogramDefinition.histogramIndex] = 0;
-	addNewHistogramCondition(dataStore.histogramDefinition.histogramIndex);
+        dataStore.histogramDefinition.nRows[histogramIndex] = 0;
+	addNewHistogramCondition(histogramIndex,arrayIndex);
 
-	// Default to 1D
-	toggleHistogramDimensions(dataStore.histogramDefinition.histogramIndex, 1)
+	// Populate the Histogram with the entry in dataStore.histogramDefinition.contents[arrayIndex] if an arrayIndex was provided
+	if(arrayIndex>=0){
+	    for(var i=0; i<dataStore.histogramDefinition.contents[arrayIndex].histogramCondition.length; i++){
+		if(i>0){
+		    // Create the additonal condition row for this dataStore entry
+		    addNewHistogramConditionRow(histogramIndex,arrayIndex);
+		}
+		document.getElementById('histogramCondition'+histogramIndex+'-'+i).value = dataStore.histogramDefinition.contents[arrayIndex].histogramCondition[i].Gate;
+	    }
+	}
 	
 	// Increase the Histogram counter
         dataStore.histogramDefinition.histogramIndex++;
     }
 
-    function duplicateHistogramBlock(histogramNumber){
-        // add a new Histogram Definition block and populate it with the contents of the existing one
-	var existingHistogramNumber = histogramNumber;
-	
-	// Create the new html block
-        var wrap = document.createElement('div');
-        wrap.setAttribute('class', 'condition-block');
-        wrap.setAttribute('id', 'histogramDefinition' + dataStore.histogramDefinition.histogramIndex);
-        wrap.innerHTML = Mustache.to_html(
-            dataStore.templates['histogramBlock'], 
-            {  
-                "histogramNumber": dataStore.histogramDefinition.histogramIndex
-            }
-        );
-        document.getElementById('histograms-wrap').appendChild(wrap);
-
-	// Use the var existingHistogramNumber to now populate the contents with the values from the existing definition
-	//
-	//
-	//
-	//
-	
-	// Increase the Histogram counters
-        dataStore.histogramDefinition.nRows[dataStore.histogramDefinition.histogramIndex] = 0;
-        dataStore.histogramDefinition.histogramIndex++;
-    }
-
     function deleteHistogramBlock(histogramNumber){
-	console.log('deleteHistogramNode '+histogramNumber);
-	console.log(dataStore.histogramDefinition);
         // delete the indexed Histogram block
-        deleteNode('histogramDefinition' + histogramNumber);
+        deleteNode('histogramCondition' + histogramNumber);
 	
 	// delete the indexed Histogram contents from the dataStore
 	dataStore.histogramDefinition.contents.splice(histogramNumber,1);
@@ -171,15 +348,17 @@
 	// decrease the Histogram counters
 	dataStore.histogramDefinition.nRows.splice(histogramNumber,1);
         dataStore.histogramDefinition.histogramIndex--;
-	console.log(dataStore.histogramDefinition);
     }
 
-function addNewGateConditionRow(gateIndex){
-    
+function addNewGateConditionRow(gateIndex,arrayIndex){
+    // The arrayIndex argument is only passed by the initial setup functions to populate the Gate with the values from the dataStore 
+	if(arrayIndex == 'undefined'){
+	    var arrayIndex = -1;
+	}
     var gateConditionIndex = dataStore.gateCondition.nRows[gateIndex];
     
     // If this is the first condition row, create the space in the datastore for it
-    if (gateConditionIndex == 0 ) {
+    if (gateConditionIndex == 0 && arrayIndex<0) {
 	// This is the first condition row for this gateIndex and the space in the dataStore must be created for it
 	var newContents = {
 	    "name" : document.getElementById('gateName'+gateIndex).value,
@@ -189,7 +368,9 @@ function addNewGateConditionRow(gateIndex){
     }
 
     // Ensure this new row has a unique indexID. This needs to be done because some rows may have been deleted.
-    if(gateConditionIndex>0){
+    if(arrayIndex>=0){
+	thisIndexID = gateConditionIndex;
+    }else if(gateConditionIndex>0){
 	thisIndexID = gateConditionIndex;
 	for(var i=0; i<dataStore.gateCondition.contents[gateIndex].gateCondition.length; i++){
 	    if(dataStore.gateCondition.contents[gateIndex].gateCondition[i].indexID>=thisIndexID){
@@ -203,9 +384,9 @@ function addNewGateConditionRow(gateIndex){
         // add a new GateCondition row to the indexed gate block
         var table = document.getElementById('gateContentConditionTable'+gateIndex),
             row = document.createElement('div');
-        row.setAttribute('class', 'col-md-12 and-row');
-        row.setAttribute('id', 'gateCondition' + gateIndex + thisIndexID)
-        row.innerHTML = Mustache.to_html(
+            row.setAttribute('class', 'col-md-12 and-row');
+            row.setAttribute('id', 'gateCondition' + gateIndex + thisIndexID)
+            row.innerHTML = Mustache.to_html(
             dataStore.templates['gateConditionRow'], 
             {  
                 "gateNumber": gateIndex,
@@ -216,16 +397,19 @@ function addNewGateConditionRow(gateIndex){
         );
         table.appendChild(row);
 
-	// Add the space for this new condition to the dataStore
+    // Add the space for this new condition to the dataStore
+    // but only if there is not a definition there already
+    if(arrayIndex<0){
 	var newCondition ={
-                       "indexID" : thisIndexID,
-	               "Variable" : 'Gate1',
-	               "Logic" : 'GT',
-	               "Value" : 100
+            "indexID" : thisIndexID,
+	    "Variable" : 'Gate1',
+	    "Logic" : 'GT',
+	    "Value" : 100
 	}
-    // Update the dataStore with the latest values
+	// Update the dataStore with the latest values
 	dataStore.gateCondition.contents[gateIndex].gateCondition[gateConditionIndex] = newCondition;
-	
+    }
+    
     // Increase the Gate Condition Counter
     dataStore.gateCondition.nRows[gateIndex]++;
     }
@@ -247,13 +431,18 @@ function addNewGateConditionRow(gateIndex){
 	dataStore.gateCondition.nRows[gateNumber]--;
     }
 
-    function addNewHistogramCondition(histogramIndex){
+function addNewHistogramCondition(histogramIndex,arrayIndex){
         // add a new histogramCondition row to the indexed histogram block
+	
+    // The arrayIndex argument is only passed by the initial setup functions to populate the Gate with the values from the dataStore 
+	if(arrayIndex == 'undefined'){
+	    var arrayIndex = -1;
+	}
     
     var histogramConditionIndex = dataStore.histogramDefinition.nRows[histogramIndex];
     
     // If this is the first condition row, create the space in the datastore for it
-    if (histogramConditionIndex == 0 ) {
+    if (histogramConditionIndex == 0  && arrayIndex<0) {
 	// This is the first condition row for this histogramIndex and the space in the dataStore must be created for it
 	var newContents = {
 	    "name" : document.getElementById('histogramName'+histogramIndex).value,
@@ -263,7 +452,9 @@ function addNewGateConditionRow(gateIndex){
     }
 
     // Ensure this new row has a unique indexID. This needs to be done because some rows may have been deleted.
-    if(histogramConditionIndex>0){
+    if(arrayIndex>=0){
+	thisIndexID = histogramConditionIndex;
+    }else if(histogramConditionIndex>0){
 	thisIndexID = histogramConditionIndex;
 	for(var i=0; i<dataStore.histogramDefinition.contents[histogramIndex].histogramCondition.length; i++){
 	    if(dataStore.histogramDefinition.contents[histogramIndex].histogramCondition[i].indexID>=thisIndexID){
@@ -283,7 +474,7 @@ function addNewGateConditionRow(gateIndex){
 	    }
 	    listOfGateConditions.push(thisObject);
 	}
-	
+
         // add a new HistogramCondition row to the indexed gate block
         var table = document.getElementById('histogramContentConditionTable'+histogramIndex),
             row = document.createElement('div');
@@ -298,18 +489,21 @@ function addNewGateConditionRow(gateIndex){
             }
         );
         table.appendChild(row);
-
-	// Add the space for this new condition to the dataStore
+    
+    // Add the space for this new condition to the dataStore
+    // but only if there is not a definition there already
+    if(arrayIndex<0){
 	var newCondition ={
-                       "indexID" : thisIndexID,
-	               "Variable" : 'Gate10'
+            "indexID" : thisIndexID,
+	    "Variable" : 'Gate10'
 	}
 	// Update the dataStore with the latest values
 	dataStore.histogramDefinition.contents[histogramIndex].histogramCondition[histogramConditionIndex] = newCondition;
-	
-	// Increase the Histogram Condition Counter
-	dataStore.histogramDefinition.nRows[histogramIndex]++;
     }
+    
+    // Increase the Histogram Condition Counter
+    dataStore.histogramDefinition.nRows[histogramIndex]++;
+}
 
     function deleteHistogramConditionRow(histogramNumber, histogramConditionNumber){
         // delete the indexed histogramCondition row in the indexed histogram block
@@ -332,42 +526,15 @@ function toggleHistogramDimensions(histogramNumber, dimension){
 
     // If dimension is changing to 1D, hide the y axis contents
     if(dimension==1){
-	console.log('Hide the stuff!');
 	document.getElementById('YvariableRow'+histogramNumber).style.display = 'none';
 	document.getElementById('YinputRow'+histogramNumber).style.display = 'none';
     }else{
 	// If dimension is changing to 2D, reveal the y axis contents
-	console.log('Show the stuff!');
 	document.getElementById('YvariableRow'+histogramNumber).style.display = 'block';
 	document.getElementById('YinputRow'+histogramNumber).style.display = 'block';
     }
     
 }
-    function addNewAND(orIndex){
-        // add a new AND row to the indexed OR block
-
-        var table = document.getElementById('filterContent'+orIndex),
-            row = document.createElement('div');
-        row.setAttribute('class', 'col-md-12 and-row');
-        row.setAttribute('id', 'ANDrow' + orIndex + dataStore.filter.nRows[orIndex])
-        row.innerHTML = Mustache.to_html(
-            dataStore.templates['andRow'], 
-            {  
-                "orNumber": orIndex,
-                "andNumber": dataStore.filter.nRows[orIndex],
-                "detType": dataStore.detectorTypes[dataStore.hostname]
-            }
-        );
-        table.appendChild(row);
-
-        dataStore.filter.nRows[orIndex]++;
-    }
-
-    function deleteAND(orNumber, andNumber){
-        // delete the indexed AND row in the indexed OR block
-
-        deleteNode('ANDrow' + orNumber + andNumber);
-    }
 
 
     /////////////////////
@@ -392,9 +559,6 @@ function saveGlobalChangeToAnalyzerODB(globalNumber){
 	    "max" : document.getElementById('globalMax'+globalNumber).value
 	};
 	dataStore.globalCondition.contents[globalNumber] = newContents;
-
-    console.log('saveGlobalChangeToAnalyzerODB '+globalNumber);
-    console.log(dataStore.globalCondition);
     
     // Submit this change to the analyzer server via a JSET URL command
 
@@ -440,6 +604,7 @@ function saveGlobalChangeToAnalyzerODB(globalNumber){
 }
 
 function saveGateChangeToAnalyzerODB(gateNumber){
+    console.log('saveGateChangeToAnalyzerODB');
     //when something changes in any of the definitions, save the change to the dataStore and send it to the analyzer ODB
 	var newContents = {
 	    "name" : document.getElementById('gateName'+gateNumber).value,
