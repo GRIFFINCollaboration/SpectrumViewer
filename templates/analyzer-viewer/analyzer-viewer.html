@@ -36,7 +36,7 @@
 
 <script>
     function setupAnalyzerViewer(wrapperID){
-
+console.log('setupAnalyzerViewer function');
         document.getElementById(wrapperID).innerHTML = "";
         document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-viewer'], {});
 

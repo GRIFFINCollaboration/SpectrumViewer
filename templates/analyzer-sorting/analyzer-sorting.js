@@ -117,11 +117,6 @@ function getHistoFileListFromServer(){
 
 function processMidasFileList(payload){
 
-    //  payload = " [ run21758_000.mid , run21783_000.mid , run21830_000.mid , run21834_000.mid , run21731_000.mid , run21781_003.mid , run21781_000.mid , run21781_001.mid , run21781_002.mid , run21666_000.mid , run21696_000.mid , run21668_000.mid]";
-
-     //dataStore.midasFileListNames = [];
-     //dataStore.midasFileListSizes = [];
-
     // receive the payload and split into an array of strings
     var thisPayload = payload.split("]")[0].split("[ \n")[1];
     
@@ -193,8 +188,6 @@ function processMidasFileList(payload){
 }
 
 function processHistoFileList(payload){
-
-  //  payload = " [ run21758_000.mid , run21783_000.mid , run21830_000.mid , run21834_000.mid , run21731_000.mid , run21781_003.mid , run21781_000.mid , run21781_001.mid , run21781_002.mid , run21666_000.mid , run21696_000.mid , run21668_000.mid]";
 
     // receive the payload and split into an array of strings
     var thisPayload = payload.split("]")[0].split("[ \n")[1];

@@ -7,12 +7,16 @@
 var urlData = parseQuery();
 var thisSpectrumServer = 'http://'+urlData.backend+'.triumf.ca:'+urlData.port;
 //var thisSpectrumServer = 'http://grifstore0.triumf.ca:9093';
+var histoDirectory = urlData.histoDir;
+var histoFile = urlData.histoFile;
 var SpectrumList;
 var dataStore = {};
 console.log('Server is: '+thisSpectrumServer);
 
 function setupDataStore(callback){
     console.log('Execute setupDataStore...');
+    console.log(histoDirectory);
+    console.log(histoFile);
 
     /*
     // Test JSON object
@@ -118,14 +122,69 @@ function fetchCallback(){
     }
 }
 
+function getHistoFileListFromServer(){
+
+    // use a one-off XHR request with callback for getting the list of Histo files
+    url = thisSpectrumServer + '/?cmd=getHistofileList&dir='+histoDirectory;
+    XHR(url, "Problem getting list of Histogram files from analyzer server", processHistoFileList, function(error){ErrorConnectingToAnalyzerServer(error)});
+
+}
+
+function ErrorConnectingToAnalyzerServer(error){
+    var string = 'Problem connecting to analyzer server: '+thisSpectrumServer+'<br>'+error;
+    document.getElementById('histo-list-menu-div').innerHTML = string;
+    document.getElementById('histo-list-menu-div').style.display= 'block';
+    document.getElementById('histo-list-menu-div').style.width= '100%';
+    document.getElementById('histo-list-menu-div').style.backgroundColor= 'red';
+}
+
+function processHistoFileList(payload){
+    console.log(payload);
+
+    // receive the payload and split into an array of strings
+    var thisPayload = payload.split("]")[0].split("[ \n")[1];
+    
+    // tidy up the strings to extract the list of midas files
+    dataStore.histoFileList = thisPayload.split(" , \n ");
+
+    // Sort the list in numberical and alphabetical order, then reverse the order so the newer files appear first (note this is not ideal for sub-runs)
+    dataStore.histoFileList.sort();
+    dataStore.histoFileList.reverse();
+
+    // Set up the list of histo files
+    setupHistoListSelect();
+
+    console.log(dataStore.histoFileList);
+}
+
+function setupHistoListSelect(){
+    // Display the analyzer server name
+    document.getElementById('histo-list-menu-div').innerHTML = thisSpectrumServer;
+
+    // Create a select input for the histo file list
+    var newSelect = document.createElement("select");
+    newSelect.id = 'HistoListSelect';
+    newSelect.name = 'HistoListSelect';
+// Add an onchange function here
+    
+    document.getElementById('histo-list-menu-div').appendChild(newSelect);
+
+    // Add the list of histo files as the options
+    thisSelect = document.getElementById('HistoListSelect');
+    for(var i=0; i<dataStore.histoFileList.length; i++){
+	thisSelect.add( new Option(dataStore.histoFileList[i], dataStore.histoFileList[i]) );
+    }
+
+}
+
 function GetSpectrumListFromServer(ServerName, callback){
     console.log('Execute GetSpectrumFromServer...');
 
     
     // Get the Spectrum List from the analyser server
     
-    var errorMessage = 'Error receiving Spectrum List from server, '+ServerName; 
-    var urlString = ServerName+'/?cmd=getSpectrumList';
+    var errorMessage = 'Error receiving Spectrum List from server, '+thisSpectrumServer; 
+    var urlString = thisSpectrumServer+'/?cmd=getSpectrumList';
     
     var req = new XMLHttpRequest();
     req.open('GET', urlString);
