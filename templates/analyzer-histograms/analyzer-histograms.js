@@ -29,10 +29,6 @@ function buildExampleConfig(){
 	    "max" : 80
 	};
 	dataStore.globalCondition.contents[2] = newContents;
-    
-    for(var i=0; i<dataStore.globalCondition.contents.length; i++){
-	addNewGlobal(i);
-    }
 
     // Gates
 	var newContents = {
@@ -71,9 +67,6 @@ function buildExampleConfig(){
     // Update the dataStore with the latest values
     dataStore.gateCondition.contents[1] = newContents;
 
-    for(var i=0; i<dataStore.gateCondition.contents.length; i++){
-	addNewGate(i);
-    }
 
     // Histogram example
     
@@ -138,24 +131,45 @@ function buildExampleConfig(){
     // Update the dataStore with the latest values
     dataStore.histogramDefinition.contents[2] = newContents;
 
-    for(var i=0; i<dataStore.histogramDefinition.contents.length; i++){
-	addNewHistogram(i);
-    }
-
+  //  buildConfigMenu();
 }
 
-    function processHistograms(payload){
+    function processConfigFile(payload){
         // callback after getting the Config file containing the Global conditions, Gates conditions and Histogram definitions from the server/ODB
         // finish initial setup
 
-	// Place the response from the server into the dataStore
+	// Unpack the response and place the response from the server into the dataStore
 	console.log(payload);
-        dataStore.Configs = payload;
+        dataStore.Configs = JSON.parse(payload);
+	console.log(dataStore.Configs);
+	console.log(dataStore.gateCondition);
+	console.log(JSON.stringify(dataStore.globalCondition));
+	console.log(JSON.stringify(dataStore.gateCondition));
+	console.log(JSON.stringify(dataStore.histogramDefinition));
 	
-        // populate the current configuration - this should be received from the server
-        loadConfig(dataStore.Configs.Current);
+        // populate the current configuration based on what was received from the server
         buildConfigMenu();
     }
+
+function buildConfigMenu(){
+    // Create and populate the Global, Gate and Histogram blocks based on the Config file received from the server
+
+    // Build Global content
+    for(var i=0; i<dataStore.globalCondition.contents.length; i++){
+	addNewGlobal(i);
+    }
+    
+    // Build Gate content
+    for(var i=0; i<dataStore.gateCondition.contents.length; i++){
+	addNewGate(i);
+    }
+    
+    // Build the Histogram content
+    for(var i=0; i<dataStore.histogramDefinition.contents.length; i++){
+	addNewHistogram(i);
+    }
+    
+}
 
     //////////////////////////
     // DOM manipulations
@@ -204,6 +218,19 @@ function buildExampleConfig(){
     }
 
     function deleteGlobalBlock(globalNumber){
+    // delete the Global condition from the server version
+    var url = dataStore.spectrumServer + '/?cmd=removeGlobal';
+    url += '&globalname='+dataStore.globalCondition.contents[globalNumber].name;
+    
+    console.log('Remove Global, URL for analyzer server: '+url);
+/*
+    // Send the request
+        XHR(url, 
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+            function(){return 0},
+            function(error){console.log(error)}
+           );
+    */
         // delete the indexed Global block
         deleteNode('globalCondition' + globalNumber);
 	
@@ -262,7 +289,21 @@ function buildExampleConfig(){
         dataStore.gateCondition.gateIndex++;
     }
 
-    function deleteGateBlock(gateNumber){
+function deleteGateBlock(gateNumber){
+    // delete the Gate condition from the server version
+    var url = dataStore.spectrumServer + '/?cmd=removeGate';
+    url += '&gatename='+dataStore.gateCondition.contents[gateNumber].name;
+    
+    console.log('Remove Gate, URL for analyzer server: '+url);
+/*
+    // Send the request
+        XHR(url, 
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+            function(){return 0},
+            function(error){console.log(error)}
+           );
+    */
+    
         // delete the indexed Gate block
         deleteNode('gateCondition' + gateNumber);
 	
@@ -339,6 +380,19 @@ function buildExampleConfig(){
     }
 
     function deleteHistogramBlock(histogramNumber){
+    // delete the Histogram condition from the server version
+    var url = dataStore.spectrumServer + '/?cmd=removeHistogram';
+    url += '&histoname='+dataStore.histogramDefinition.contents[histogramNumber].name;
+    
+    console.log('Remove Histogram, URL for analyzer server: '+url);
+/*
+    // Send the request
+        XHR(url, 
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+            function(){return 0},
+            function(error){console.log(error)}
+           );
+    */
         // delete the indexed Histogram block
         deleteNode('histogramCondition' + histogramNumber);
 	
@@ -577,30 +631,7 @@ function saveGlobalChangeToAnalyzerODB(globalNumber){
             function(){return 0},
             function(error){console.log(error)}
            );
-     /*
-    //construct urls to post to
-    var urls = [];
-    var createCmd = "?cmd=jcreate&odb=Analyzer/Globals/";
-    var setCmd = "?cmd=jset&odb=Analyzer/Globals/";
     
-    urls[0] = dataStore.ODBhost + createCmd + dataStore.globalCondition.contents[globalNumber].name + "&type=subdirectory";
-    urls[1] = dataStore.ODBhost + createCmd + dataStore.globalCondition.contents[globalNumber].name + "/Min" + "&type=7";
-    urls[2] = dataStore.ODBhost + createCmd + dataStore.globalCondition.contents[globalNumber].name + "/Max" + "&type=7";
-    urls[3] = dataStore.ODBhost + setCmd + dataStore.globalCondition.contents[globalNumber].name + "/Min" + "&value=" + dataStore.globalCondition.contents[globalNumber].min;
-    urls[4] = dataStore.ODBhost + setCmd + dataStore.globalCondition.contents[globalNumber].name + "/Max" + "&value=" + dataStore.globalCondition.contents[globalNumber].max;
-    
-    //send requests
-    for(i=0; i<urls.length; i++){
-	console.log('URLs for jset: '+urls[i]);
-	
-        XHR(urls[i], 
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
-            function(){return 0},
-            function(error){console.log(error)}
-           )
-	
-    }
-*/
 }
 
 function saveGateChangeToAnalyzerODB(gateNumber){

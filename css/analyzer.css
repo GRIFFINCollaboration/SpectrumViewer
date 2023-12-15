@@ -146,6 +146,21 @@ div.headerContent{
     color: #DAA520; /* goldenrod*/
 }
 
+#MidFilesTableContainerDiv{
+    overflow-y: scroll;
+    height: 400px;
+    width: 100%;
+    background-color: #191C40;
+    border: 2px solid #FA8072; /* Salmon pink */
+    border-radius: 25px;
+    color: #DAA520; /* goldenrod*/
+}
+
+#MidFilesTable{
+    width: 100%;
+    table-layout: fixed;
+}
+
 .midasFileOptionFileSizeDiv{
     position: relative;
     right: 0;

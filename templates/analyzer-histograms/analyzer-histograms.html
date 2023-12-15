@@ -42,9 +42,13 @@
 
         // get the Global conditions, Gates conditions and Histogram definitions from the server/ODB
       //  promiseScript('http://' + dataStore.host + '/?cmd=jcopy&odb=/Filter&encoding=json-p-nokeys&callback=processHistograms');
+    url = dataStore.spectrumServer + '/?cmd=viewConfig';
+    XHR(url, "Problem getting Config file from analyzer server", processConfigFile, function(error){ErrorConnectingToAnalyzerServer(error)});
 
+    buildExampleConfig();
+    
     //Create a dummy Config file and then process it
-
+/*
    var payload = 
 {
     "Analyzer" : {
@@ -78,7 +82,7 @@
     };
     buildExampleConfig();
 //processHistograms(payload);
-
+*/
     
     }
 </script>

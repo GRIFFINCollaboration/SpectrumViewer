@@ -24,19 +24,18 @@
         <div class='col-md-12 pan' id='Sorting-Job-Submit'>
             <h2>Sorting Job Submission</h2>
 	<div id='JobSubmit'>
-            <div class='container-fluid'>
+	  <div class='container-fluid'>
 	      <div class='col-md-2'><h5>MIDAS Data File Directory:</h5></div>
 	      <div class='col-md-4' id='DataDirectoryInputDiv'></div>
 	      <div class='col-md-2'><h5>Configuration File Directory:</h5></div>
 	      <div class='col-md-4' id='ConfigDirectoryInputDiv'></div>
 	    </div>
-            <div id='submitDivSelect'></div>
-	    <div class="form-group">
-      <label for="MidFilesSelect">Select the MIDAS files to sort (hold ctrl/cmd or shift (or drag with the mouse) to select more than one):</label>
-      <select multiple class="form-control" id="MidFilesSelect">
-  </select>
-</div>
-	</div>
+            <div id='submitDivTable'></div>
+	      <h4>Select the MIDAS files to sort, then press the button to submit them to the sort queue:</h4>
+	    <div id="MidFilesTableContainerDiv">
+	      <table id="MidFilesTable"></table>
+	    </div>
+	  </div>
         </div>
     </div>
 
@@ -57,7 +56,8 @@
     getHistoFileListFromServer();
     
     // Create the text input for the midas data file directory
-    newInput = document.createElement('input');
+    newInput = document.createElement('input'); 
+    newInput.id = 'DataDirectoryInput'; 
     newInput.type = 'text'; 
     newInput.className = 'analyzer-input-text'; 
     newInput.value = dataStore.midasFileDataDirectoryPath; 
@@ -67,7 +67,8 @@
     document.getElementById('DataDirectoryInputDiv').appendChild(newInput);
     
     // Create the text input for the Config file directory
-    newInput = document.createElement('input');
+    newInput = document.createElement('input'); 
+    newInput.id = 'ConfigDirectoryInput'; 
     newInput.type = 'text';
     newInput.className = 'analyzer-input-text'; 
     newInput.value = dataStore.configFileDataDirectoryPath; 
@@ -76,16 +77,16 @@
     }.bind(newInput);
     document.getElementById('ConfigDirectoryInputDiv').appendChild(newInput);
     
-    // Create Submit button for submitting midas files for sorting
+    // Create Submit button
     newButton = document.createElement('button'); 
-    newButton.setAttribute('id', 'submitSortButtonSelect'); 
+    newButton.setAttribute('id', 'submitSortButtonTable'); 
     newButton.setAttribute('class', 'btn btn-default btn-lg'); 
     newButton.innerHTML = "Submit selected files to the sorting queue";
     newButton.style.padding = '4px';
     newButton.onclick = function(){
-    SubmitSelectedFilesFromSelectToSortQueue();
+    SubmitSelectedFilesFromTableToSortQueue();
     }.bind(newButton);
-    document.getElementById('submitDivSelect').appendChild(newButton);
+    document.getElementById('submitDivTable').appendChild(newButton);
 
 }
 
