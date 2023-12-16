@@ -61,7 +61,7 @@
     newInput.type = 'text'; 
     newInput.className = 'analyzer-input-text'; 
     newInput.value = dataStore.midasFileDataDirectoryPath; 
-    newButton.onchange = function(){
+    newInput.onchange = function(){
     dataStore.midasFileDataDirectoryPath = this.value;
     }.bind(newInput);
     document.getElementById('DataDirectoryInputDiv').appendChild(newInput);
@@ -72,7 +72,7 @@
     newInput.type = 'text';
     newInput.className = 'analyzer-input-text'; 
     newInput.value = dataStore.configFileDataDirectoryPath; 
-    newButton.onchange = function(){
+    newInput.onchange = function(){
     dataStore.configFileDataDirectoryPath = this.value;
     }.bind(newInput);
     document.getElementById('ConfigDirectoryInputDiv').appendChild(newInput);

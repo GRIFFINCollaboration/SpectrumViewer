@@ -95,11 +95,24 @@ function setupDataStore(callback){
         "plots": [],                                                //array of names for default plot cells
         "spectrumServer": thisSpectrumServer,                       //analyzer url + port number
         "ODBrequests": [],                                          //array of odb requests to make on refresh
-        "zeroedPlots": {}                                           //initialize empty object for zeroed plots
+      "zeroedPlots": {},                                           //initialize empty object for zeroed plots
+
+      "histoDirectory" : urlData.histoDir,                         // histogram directory taken from URL. Then can be changed from a select
+      "histoFileName" : urlData.histoFile                        // histogram filename taken from URL. Then can be changed from a select
   }
 
     dataStore.cellIndex = dataStore.plots.length;
+    console.log(dataStore.cellIndex);
+    console.log(dataStore.plots);
 
+    if(dataStore.histoDirectory==undefined){
+	dataStore.histoDirectory = '';
+    }
+
+    if(dataStore.histoFileName==undefined){
+	dataStore.histoFileName = '';
+    }
+    
     callback();
 }
 
@@ -165,7 +178,9 @@ function setupHistoListSelect(){
     var newSelect = document.createElement("select");
     newSelect.id = 'HistoListSelect';
     newSelect.name = 'HistoListSelect';
-// Add an onchange function here
+    newSelect.onchange = function(){
+    dataStore.histoFileName = this.value;
+    }.bind(newSelect);
     
     document.getElementById('histo-list-menu-div').appendChild(newSelect);
 
@@ -177,14 +192,23 @@ function setupHistoListSelect(){
 
 }
 
+
 function GetSpectrumListFromServer(ServerName, callback){
     console.log('Execute GetSpectrumFromServer...');
-
     
     // Get the Spectrum List from the analyser server
     
-    var errorMessage = 'Error receiving Spectrum List from server, '+thisSpectrumServer; 
-    var urlString = thisSpectrumServer+'/?cmd=getSpectrumList';
+    var errorMessage = 'Error receiving Spectrum List from server, '+thisSpectrumServer;
+
+    // url is just /?cmd=getSpectrumList for online data.
+    // url includes a histoFile for opening a midas file
+    // dataStore.histoFileName
+    var urlString = thisSpectrumServer;
+    urlString += '/?cmd=getSpectrumList';
+    if(urlData.histoFile.length>0){
+	urlString += '&filename='+urlData.histoFile;
+    }
+    console.log(urlString);
     
     var req = new XMLHttpRequest();
     req.open('GET', urlString);
@@ -234,7 +258,7 @@ function setupEventListeners(){
                 document.getElementById('plottingGridnewPlotButton').click();
 
                 //start with GRIFFIN menu displayed
-                document.getElementById('Griffin').onclick();
+              //  document.getElementById('Griffin').onclick();
 
                 $(function () {
                     $('[data-toggle="tooltip"]').tooltip()

@@ -145,6 +145,7 @@ function processMidasFileList(payload){
     var thisMidasRunList = [{
 	    "RunName" : '',
 	    "RunSize" : 0,
+	    "Expanded" : false,
 	"SubRunList" : [{
 	                "Name" : '',
 	                "Size" : 0,
@@ -164,6 +165,7 @@ function processMidasFileList(payload){
 	    "RunName" : '',
 	    "NumSubruns" : 0,
 	    "RunSize" : 0,
+	    "Expanded" : false,
 	"SubRunList" : []
           };
 	    thisMidasRunList[num].RunName = thisRunName;
@@ -255,13 +257,79 @@ function buildMidasFileTable(){
      
     cell1.innerHTML = dataStore.midasRunList[num].RunName;
     cell2.innerHTML = dataStore.midasRunList[num].NumSubruns+' subruns';
+    cell2.id = 'MidasSubrunDiv-'+(num+1);
     cell3.innerHTML = thisRunSizeString;
     cell4.innerHTML = thisSortTimeString;
     cell5.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.midasRunList[num].RunName+'-checkbox'+'\" value=\"'+dataStore.midasRunList[num].RunName+'\" onclick=ToggleCheckboxOfThisMIDASFile(\"midasRunTableRow-'+(num+1)+'\")>';
+
+    // Create button to expand list of subruns
+    newButton = document.createElement('button'); 
+     newButton.setAttribute('id', 'expandSubrunListButton'+(num+1)); 
+    newButton.setAttribute('class', 'btn btn-default btn-xs'); 
+    newButton.innerHTML = "Expand"+(num+1);
+     newButton.style.padding = '4px';
+     newButton.value = (num+1);
+    newButton.onclick = function(){
+	expandSubrunList(this.value);
+    }.bind(newButton);
+    document.getElementById('MidasSubrunDiv-'+(num+1)).appendChild(newButton);
   }
     
 }
 
+function expandSubrunList(RowID){
+
+    // Define the index number and current position in the table from the RowID
+    // RowID is equal to the original rowIndex when the table was built, but rows may have been added or removed since then.
+    var indexID = (parseInt(RowID)-1);
+    var subRowID = document.getElementById('midasRunTableRow-'+RowID).rowIndex + 1;
+
+    // Indicate that this list of subruns has been expanded
+    // This is used to know to check these subruns when the submit button is pressed
+    dataStore.midasRunList[indexID].Expanded = true;
+
+    // Remove the Expand button
+    document.getElementById('expandSubrunListButton'+RowID).remove();
+
+    // Uncheck the full run
+    ToggleCheckboxOfThisMIDASFile('midasRunTableRow-'+RowID);
+    
+    for(var num=0; num<(dataStore.midasRunList[indexID].SubRunList.length); num++){
+	var row = document.getElementById("MidFilesTable").insertRow(subRowID); 
+     row.id = 'midasSubRunTableRow-'+RowID+'-'+(num+1);
+     row.onclick = function(e){
+         ToggleCheckboxOfThisMIDASFile(this.id);
+     };
+     
+     var cell1 = row.insertCell(0); 
+     var cell2 = row.insertCell(1);
+     var cell3 = row.insertCell(2);
+     var cell4 = row.insertCell(3);
+     var cell5 = row.insertCell(4);
+
+	// Calculate the estimated Sorting time and make it easily human readable
+	thisRunSize = dataStore.midasRunList[indexID].SubRunList[num].Size/1000000; // in MB
+	if(thisRunSize<1000){
+	    thisRunSizeString = thisRunSize.toFixed(1)+' MB';
+	}else{
+	    thisRunSizeString = (thisRunSize/1000).toFixed(1)+' GB';
+	}
+	// Calculate the estimated Sorting time and make it easily human readable
+	thisSortTime = (thisRunSize/200).toFixed(1); // Sort speed defined here as 200MB/s - should be made dynamic
+	if(thisSortTime<60){
+	    thisSortTimeString = 'Requires '+thisSortTime+' seconds to sort';
+	}else{
+	    thisSortTimeString = 'Requires '+(thisSortTime/60.0).toFixed(1)+' minutes to sort';
+	}
+     
+    cell1.innerHTML = '';
+    cell2.innerHTML = dataStore.midasRunList[indexID].SubRunList[num].Name;
+    cell3.innerHTML = thisRunSizeString;
+    cell4.innerHTML = thisSortTimeString;
+    cell5.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.midasRunList[indexID].SubRunList[num].Name+'-checkbox'+'\" value=\"'+dataStore.midasRunList[indexID].SubRunList[num].Name+'\" onclick=ToggleCheckboxOfThisMIDASFile(\"midasSubRunTableRow-'+RowID+'-'+(num+1)+'\")>';
+    }
+    
+}
 
 function ToggleCheckboxOfAllMIDASFiles(state){
     // Toggle the status of the checkbox for all MIDAS files in the list
@@ -274,21 +342,31 @@ function ToggleCheckboxOfAllMIDASFiles(state){
 
 function ToggleCheckboxOfThisMIDASFile(rowID){
     // Toggle the status of the checkbox for this row in the list, and highlight it
+    // Works for Runs or subrun files
 
-    num = (rowID.split('-')[1])-1;
-    state = document.getElementById(dataStore.midasRunList[num].RunName+'-checkbox').checked;
-
-    // Toggle the state and highlight the row if selected
-    if(state ==  false){
-	state=true;
-	document.getElementById(rowID).style.backgroundColor = '#2e3477';
+    var thisRowID = rowID;
+    var RunID = parseInt(rowID.split('-')[1])-1;
+    
+    if(rowID.includes('Sub')){
+	subRunID = (rowID.split('-')[2])-1;
+	// Find the current state of the checkbox and then toggle it
+	thisCheckbox = document.getElementById(dataStore.midasRunList[RunID].SubRunList[subRunID].Name+'-checkbox');
+	
     }else{
-	state=false;
-	document.getElementById(rowID).style.backgroundColor = '#191C40';
+	// Find the current state of the checkbox so we can toggle it
+	thisCheckbox = document.getElementById(dataStore.midasRunList[RunID].RunName+'-checkbox');
     }
 
-    // Set the checkbox
-    document.getElementById(dataStore.midasRunList[num].RunName+'-checkbox').checked = state;
+    // Find the state of the checkbox and toggle the state
+    state = thisCheckbox.checked;
+    if(state){ state=false; color = '#191C40'; }else{ state=true; color='#2e3477'; }
+    
+    // Toggle the color of the row
+    document.getElementById(thisRowID).style.backgroundColor = color;
+
+    // Toggle the state of the checkbox
+    thisCheckbox.checked = state;
+
 }
 
     function SubmitSelectedFilesFromTableToSortQueue(){
@@ -309,6 +387,13 @@ function ToggleCheckboxOfThisMIDASFile(rowID){
 	for(var i=0; i<dataStore.midasRunList.length; i++){
 	    if(document.getElementById(dataStore.midasRunList[i].RunName+'-checkbox').checked == true){
 		urls[urls.length] = dataStore.spectrumServer + '?cmd=addDatafile&filename='+DataFileDirectory+dataStore.midasRunList[i].RunName;
+	    }else if(dataStore.midasRunList[i].Expanded){
+		// If the list of subruns for this Run was expanded in the table then check if any are checked for sorting
+		for(var j=0; j<dataStore.midasRunList[i].SubRunList.length; j++){
+		    if(document.getElementById(dataStore.midasRunList[i].SubRunList[j].Name+'-checkbox').checked == true){
+			urls[urls.length] = dataStore.spectrumServer + '?cmd=addDatafile&filename='+DataFileDirectory+dataStore.midasRunList[i].SubRunList[j].Name;
+		    }
+		}
 	    }
 	}
 	
