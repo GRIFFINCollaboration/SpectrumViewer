@@ -266,7 +266,7 @@ function buildMidasFileTable(){
     newButton = document.createElement('button'); 
      newButton.setAttribute('id', 'expandSubrunListButton'+(num+1)); 
     newButton.setAttribute('class', 'btn btn-default btn-xs'); 
-    newButton.innerHTML = "Expand"+(num+1);
+    newButton.innerHTML = "Expand";
      newButton.style.padding = '4px';
      newButton.value = (num+1);
     newButton.onclick = function(){
@@ -340,6 +340,18 @@ function ToggleCheckboxOfAllMIDASFiles(state){
  }
 }
 
+function UncheckAllSubruns(){
+	for(var i=0; i<dataStore.midasRunList.length; i++){
+	   if(dataStore.midasRunList[i].Expanded){
+		for(var j=0; j<dataStore.midasRunList[i].SubRunList.length; j++){
+		    if(document.getElementById(dataStore.midasRunList[i].SubRunList[j].Name+'-checkbox').checked == true){
+			document.getElementById(dataStore.midasRunList[i].SubRunList[j].Name+'-checkbox').click();
+		    }
+		}
+	    }
+	}
+}
+
 function ToggleCheckboxOfThisMIDASFile(rowID){
     // Toggle the status of the checkbox for this row in the list, and highlight it
     // Works for Runs or subrun files
@@ -409,5 +421,9 @@ function ToggleCheckboxOfThisMIDASFile(rowID){
             function(error){console.log(error)}
         )
 	}
+
+	// Uncheck all the files
+	ToggleCheckboxOfAllMIDASFiles(false);
+	UncheckAllSubruns();
 	
     }
