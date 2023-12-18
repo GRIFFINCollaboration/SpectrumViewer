@@ -30,6 +30,10 @@
 	      <div class='col-md-2'><h5>Configuration File Directory:</h5></div>
 	      <div class='col-md-4' id='ConfigDirectoryInputDiv'></div>
 	    </div>
+	  <div class='container-fluid'>
+	      <div class='col-md-2'><h5>Histogram File Directory:</h5></div>
+	      <div class='col-md-4' id='HistoDirectoryInputDiv'></div>
+	    </div>
             <div id='submitDivTable'></div>
 	      <h4>Select the MIDAS files to sort, then press the button to submit them to the sort queue:</h4>
 	    <div id="MidFilesTableContainerDiv">
@@ -76,6 +80,18 @@
     dataStore.configFileDataDirectoryPath = this.value;
     }.bind(newInput);
     document.getElementById('ConfigDirectoryInputDiv').appendChild(newInput);
+    
+    // Create the text input for the Histogram file directory
+    newInput = document.createElement('input'); 
+    newInput.id = 'HistoDirectoryInput'; 
+    newInput.type = 'text'; 
+    newInput.className = 'analyzer-input-text'; 
+    newInput.value = dataStore.histoFileDirectoryPath; 
+    newInput.onchange = function(){
+    dataStore.histoFileDirectoryPath = this.value;
+    getHistoFileListFromServer();
+    }.bind(newInput);
+    document.getElementById('HistoDirectoryInputDiv').appendChild(newInput);
     
     // Create Submit button
     newButton = document.createElement('button'); 

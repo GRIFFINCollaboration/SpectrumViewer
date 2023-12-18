@@ -7,27 +7,15 @@
         <div class='col-md-12 pan' id='Viewer-Viewer'>
             <h2>Analyzer Spectrum Viewer</h2>
 	  <div id='Viewer'>
-	  
-	    <div id='analyzerPlots'></div>
-	
-	    <!--Plotting-->
-	    <div id='plotRegion' class='sectionWrapper item'>
-	       <div id='plotWrap' class='col-md-10 plotRegion'>
-	         <div id='plottingGrid'></div>
-	       </div>
-	       <div class='col-md-2 no-pad'>
-	         <div id='plotCtrl'></div>
-	       </div>
-	    </div>
-	
-            <!-- Extra control features -->
-            <hr style='width:60%; border-top: 1px solid #999'></hr>
-            <div class='sectionWrapper'>
-              <div class='col-md-12'>
-                <div id='auxCtrl'></div>
-              </div>
-            </div>
 
+	    <div id="HistoFilesTableContainerDiv">
+	      <div class='container-fluid'>
+	        <div class='col-md-2'><h5>Histogram File Directory:</h5></div>
+	        <div class='col-md-4' id='HistoDirectoryInputDiv'></div>
+	      </div>
+	      <div id='AnalyzerViewerDiv'>Here it is</div>
+	      <table id="HistoFilesTable"></table>
+	    </div>
 	  </div>
         </div>
     </div>
@@ -36,12 +24,27 @@
 
 <script>
     function setupAnalyzerViewer(wrapperID){
-console.log('setupAnalyzerViewer function');
         document.getElementById(wrapperID).innerHTML = "";
         document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-viewer'], {});
 
-    // Get the Spectrum List from the server and then set up the data store. Once that is done then the event listeners can be added.
-    GetHistoFileSpectrumListFromServer(dataStore.spectrumServer,setupViewerDataStore,setupEventListeners);
+    // Refresh the list of histogram files from the server
+    getHistoFileListFromServer();
+
+    // Create the text input for the Histogram file directory
+    newInput = document.createElement('input'); 
+    newInput.id = 'HistoDirectoryInput'; 
+    newInput.type = 'text'; 
+    newInput.className = 'analyzer-input-text'; 
+    newInput.value = dataStore.histoFileDirectoryPath; 
+    newInput.onchange = function(){
+    dataStore.histoFileDirectoryPath = this.value;
+    getHistoFileListFromServer();
+    thisTimeout = setTimeout(buildHistosFileTable, 200);
+    }.bind(newInput);
+    document.getElementById('HistoDirectoryInputDiv').appendChild(newInput);
+    
+    // Set up the content of this sub page
+    setupViewerContent();
 
     }
 </script>

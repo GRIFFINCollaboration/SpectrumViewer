@@ -108,35 +108,238 @@ function setupDataStore(callback){
             "short": 'HPGeAU',
             "description": 'Addback HPGe Energy in keV without Compton suppression'
 	    },
-	    // SCEPTAR
 	    {
-            "short": 'BetaE',
-            "description": 'SCEPTAR Energy in arbitrary units'
+            "short": 'GRGTHETA',
+            "description": 'Theta angle of HPGE crystal with respect to the beam axis'
 	    },
 	    {
-            "short": 'BetaT',
+            "short": 'GRGPHI',
+            "description": 'Phi angle of HPGE crystal with respect to lab coordinate system'
+	    },
+	    {
+            "short": 'CLVTHETA',
+            "description": 'Theta angle of centre of HPGE clover with respect to the beam axis'
+	    },
+	    {
+            "short": 'CLVPHI',
+            "description": 'Phi angle of centre of HPGE clover with respect to lab coordinate system'
+	    },
+	    // SCEPTAR
+	    {
+            "short": 'SEPE',
+            "description": 'SCEPTAR Pulse Height in arbitrary units'
+	    },
+	    {
+            "short": 'SEPT',
             "description": 'SCEPTAR Time from CFD in nanoseconds'
 	    },
 	    {
-            "short": 'BetaTS',
+            "short": 'SEPTS',
             "description": 'SCEPTAR Timestamp value from leading-edge in 10 nanoseconds steps'
 	    },
 	    {
-            "short": 'BetaPH',
+            "short": 'SEPPH',
             "description": 'SCEPTAR raw Pulse Height in ADC units'
 	    },
 	    {
-            "short": 'BetaPU',
+            "short": 'SEPPU',
             "description": 'SCEPTAR Pileup value equal to number of Hits'
+	    },
+	    {
+            "short": 'SEPTHETA',
+            "description": 'Theta angle of SCEPTAR paddle with respect to the beam axis'
+	    },
+	    {
+            "short": 'SEPPHI',
+            "description": 'Phi angle of SCEPTAR paddle with respect to lab coordinate system'
+	    },
+	    {
+            "short": 'SEPNUM',
+            "description": 'The number of this SCEPTAR paddle [1-20]'
+	    },
+	    // PACES
+	    {
+            "short": 'PACE',
+            "description": 'PACES energy in keV'
+	    },
+	    {
+            "short": 'PACT',
+            "description": 'PACES Time from CFD in nanoseconds'
+	    },
+	    {
+            "short": 'PACTS',
+            "description": 'PACES Timestamp value from leading-edge in 10 nanoseconds steps'
+	    },
+	    {
+            "short": 'PACPH',
+            "description": 'PACES raw Pulse Height in ADC units'
+	    },
+	    {
+            "short": 'PACPU',
+            "description": 'PACES Pileup value equal to number of Hits'
+	    },
+	    {
+            "short": 'PACTHETA',
+            "description": 'Theta angle of PACES crystal with respect to the beam axis'
+	    },
+	    {
+            "short": 'PACPHI',
+            "description": 'Phi angle of PACES crystal with respect to lab coordinate system'
+	    },
+	    {
+            "short": 'PACNUM',
+            "description": 'The number of this PACES crystal [1-5]'
+	    },
+	    // LaBr3
+	    {
+            "short": 'LBLE',
+            "description": 'LaBr3 energy in keV'
+	    },
+	    {
+            "short": 'LBLT',
+            "description": 'LaBr3 Time from CFD in nanoseconds'
+	    },
+	    {
+            "short": 'LBLTS',
+            "description": 'LaBr3 Timestamp value from leading-edge in 10 nanoseconds steps'
+	    },
+	    {
+            "short": 'LBLPH',
+            "description": 'LaBr3 raw Pulse Height in ADC units'
+	    },
+	    {
+            "short": 'LBLPU',
+            "description": 'LaBr3 Pileup value equal to number of Hits'
+	    },
+	    {
+            "short": 'LBLTHETA',
+            "description": 'Theta angle of LaBr3 crystal with respect to the beam axis'
+	    },
+	    {
+            "short": 'LBLPHI',
+            "description": 'Phi angle of LaBr3 crystal with respect to lab coordinate system'
+	    },
+	    {
+            "short": 'LBLNUM',
+            "description": 'The number of this LaBr3 crystal [1-8]'
 	    },
             // Time Differences
 	    {
-            "short": 'TD_HPGe_Beta',
-            "description": 'Time difference between HPGe and Beta using CFD in nanoseconds'
+            "short": 'MIDAS_Time',
+            "description": 'Time since the beginning of run based on the MIDAS CPU time'
 	    },
 	    {
-            "short": 'TSD_HPGe_Beta',
-            "description": 'Time difference between HPGe and Beta using leading edge in 10 nanosecond units'
+            "short": 'TD_GRG_GRG',
+            "description": 'Time difference between two HPGe crystals using CFD in nanoseconds'
+	    },
+	    {
+            "short": 'TD_SEP_SEP',
+            "description": 'Time difference between two SCEPTAR paddles using CFD in nanoseconds'
+	    },
+	    {
+            "short": 'TD_PAC_PAC',
+            "description": 'Time difference between two PACES crystals using CFD in nanoseconds'
+	    },
+	    {
+            "short": 'TD_LBL_LBL',
+            "description": 'Time difference between two LaBr3 detectors using CFD in nanoseconds'
+	    },
+	    {
+            "short": 'TD_GRG_GRG',
+            "description": 'Time difference between two HPGe crystals using leading edge in 10 nanosecond units'
+	    },
+	    {
+            "short": 'TD_SEP_SEP',
+            "description": 'Time difference between two SCEPTAR paddles using leading edge in 10 nanosecond units'
+	    },
+	    {
+            "short": 'TD_PAC_PAC',
+            "description": 'Time difference between two PACES crystals using leading edge in 10 nanosecond units'
+	    },
+	    {
+            "short": 'TD_LBL_LBL',
+            "description": 'Time difference between two LaBr3 detectors using leading edge in 10 nanosecond units'
+	    },
+	    {
+            "short": 'TD_GRG_SEP',
+            "description": 'Time difference between HPGe and SCEPTAR using CFD in nanoseconds'
+	    },
+	    {
+            "short": 'TSD_GRG_SEP',
+            "description": 'Time difference between HPGe and SCEPTAR using leading edge in 10 nanosecond units'
+	    },
+	    {
+            "short": 'TD_GRG_PAC',
+            "description": 'Time difference between HPGe and PACES using CFD in nanoseconds'
+	    },
+	    {
+            "short": 'TSD_GRG_PAC',
+            "description": 'Time difference between HPGe and PACES using leading edge in 10 nanosecond units'
+	    },
+	    {
+            "short": 'TD_PAC_SEP',
+            "description": 'Time difference between PACES and SCEPTAR using CFD in nanoseconds'
+	    },
+	    {
+            "short": 'TSD_PAC_SEP',
+            "description": 'Time difference between PACES and SCEPTAR using leading edge in 10 nanosecond units'
+	    },
+	    {
+            "short": 'TD_GRG_LBL',
+            "description": 'Time difference between HPGe and LaBr3 using CFD in nanoseconds'
+	    },
+	    {
+            "short": 'TSD_GRG_LBL',
+            "description": 'Time difference between HPGe and LaBr3 using leading edge in 10 nanosecond units'
+	    },
+	    {
+            "short": 'TD_LBL_SEP',
+            "description": 'Time difference between LaBr3 and SCEPTAR using CFD in nanoseconds'
+	    },
+	    {
+            "short": 'TSD_LBL_SEP',
+            "description": 'Time difference between LaBr3 and SCEPTAR using leading edge in 10 nanosecond units'
+	    },
+            // Angular Differences - for HPGe need to know the distance of 110mm or 145mm
+	    {
+            "short": 'ANG_GRG_GRG',
+            "description": 'Angular difference between the centre of two HPGe crystals in degrees'
+	    },
+	    {
+            "short": 'ANG_CLV_CLV',
+            "description": 'Angular difference between the centre of two HPGe clovers in degrees'
+	    },
+	    {
+            "short": 'ANG_SEP_SEP',
+            "description": 'Angular difference between the centre of two SCEPTAR paddles in degrees'
+	    },
+	    {
+            "short": 'ANG_PAC_PAC',
+            "description": 'Angular difference between the centre of two PACES crystals in degrees'
+	    },
+	    {
+            "short": 'ANG_LBL_LBL',
+            "description": 'Angular difference between the centre of two LaBr3 detectors in degrees'
+	    },
+	    {
+            "short": 'ANG_GRG_SEP',
+            "description": 'Angular difference between the centre of a HPGe crystal and SCEPTAR paddle in degrees'
+	    },
+	    {
+            "short": 'ANG_GRG_PAC',
+            "description": 'Angular difference between the centre of a HPGe crystal and PACES crystal in degrees'
+	    },
+	    {
+            "short": 'ANG_GRG_LBL',
+            "description": 'Angular difference between the centre of a HPGe crystal and LaBr3 detector in degrees'
+	    },
+	    {
+            "short": 'ANG_PAC_LBL',
+            "description": 'Angular difference between the centre of a PACES crystal and LaBr3 detector in degrees'
+	    },
+	    {
+            "short": 'ANG_LBL_SEP',
+            "description": 'Angular difference between the centre of a LaBr3 detector and SCEPTAR paddle in degrees'
 	    },
             // Cycle Timing (PPG events)
 	    {
@@ -177,11 +380,15 @@ function setupDataStore(callback){
 	    {
             "short": 'NE',
             "description": 'Not equal to'
+	    },
+	    {
+            "short": 'RA',
+            "description": 'Range[Min-Max]'
 	    }
 	],
 	
 	// Spectrum viewer variables
-	"histoFileDataDirectoryPath": "/tig/grifstore0b/griffin/schedule140/Calibrations-July2021",                // initial histogram file directory path
+	"histoFileDirectoryPath": "/tig/grifstore0b/griffin/schedule140/Calibrations-July2021",                // initial histogram file directory path
 	"histoFileList": [],                                // place to store the list of histogram files available to be opened
 	"histoFileName": "run21850_000.tar",                        // place to store the name of the histogram file to be opened
 	"histoFileSpectrumList": [],                                // place to store the current list of spectra available from the current histogram file

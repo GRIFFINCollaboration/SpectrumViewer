@@ -343,6 +343,57 @@ function parseQuery(){
 	return elts;
 }
 
+function getHistoFileListFromServer(){
+
+    // use a one-off XHR request with callback for getting the list of Histo files
+    url = dataStore.spectrumServer + '/?cmd=getHistofileList&dir='+dataStore.histoFileDataDirectoryPath;
+    XHR(url, "Problem getting list of Histogram files from analyzer server", processHistoFileList, function(error){ErrorConnectingToAnalyzerServer(error)});
+
+}
+
+function GetSpectrumListFromServer(ServerName, callback){
+    console.log('Execute GetSpectrumFromServer in helpers.js ...');
+    
+    // Get the Spectrum List from the analyser server
+    
+    var errorMessage = 'Error receiving Spectrum List from server, '+thisSpectrumServer;
+
+    // url is just /?cmd=getSpectrumList for online data.
+    // url includes a histoFile for opening a midas file
+    // dataStore.histoFileName
+    var urlString = thisSpectrumServer;
+    urlString += '/?cmd=getSpectrumList';
+    if(urlData.histoFile.length>0){
+	urlString += '&filename='+urlData.histoFile;
+    }
+    console.log(urlString);
+    
+    var req = new XMLHttpRequest();
+    req.open('GET', urlString);
+
+    // Once the response is received, convert the text response from the server to JSON Object
+  req.onreadystatechange = () => {
+      if (req.readyState === 4) {
+	 // console.log('Response text is: '+req.response);
+	 // JSONString = req.response.split(")")[0].split("(")[1];
+	  JSONString = req.response;
+	//  console.log('JSON String is: '+JSONString);
+	 SpectrumList = JSON.parse(JSONString);
+	  // The third argument passed to this function is the callback for the next function, so we pass it on here
+          callback(arguments[2]);
+    }
+  };
+
+    // Handle network errors
+    req.onerror = function() {
+        reject(Error(errorMessage));
+    };
+
+    // Make the request
+    req.send();
+
+}
+
 ////////////////////
 // Dygraphs
 ////////////////////
@@ -421,6 +472,12 @@ function constructQueries(keys){
     var i, j, queryString, queries = [];
     for(i=0; i<Math.ceil(keys.length/16); i++){
         queryString = dataStore.spectrumServer + '?cmd=callspechandler';
+	if(dataStore.histoFileName!=undefined){
+	    if(dataStore.histoFileName.length>0){
+		queryString += '&filename='+dataStore.histoFileName;
+	    }
+	}
+	
         for(j=i*16; j<Math.min( (i+1)*16, keys.length ); j++){
             queryString += '&spectrum' + j + '=' + keys[j];
         }

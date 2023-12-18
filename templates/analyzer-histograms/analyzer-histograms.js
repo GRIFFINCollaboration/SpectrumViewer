@@ -131,6 +131,7 @@ function buildExampleConfig(){
     // Update the dataStore with the latest values
     dataStore.histogramDefinition.contents[2] = newContents;
 
+    console.log(dataStore);
   //  buildConfigMenu();
 }
 
@@ -138,14 +139,14 @@ function buildExampleConfig(){
         // callback after getting the Config file containing the Global conditions, Gates conditions and Histogram definitions from the server/ODB
         // finish initial setup
 
+
+//	payload = "{\"Analyzer\":[{\"Gates\" : [         { \"name\" : \"BetaVeto\",            \"gateCondition\" : [               [\"IndexID\" : 0, \"Variable\" : \"SepE\" , \"Logic\" : \"EQ\" , \"Value\" : 0]            ]         },         { \"name\" : \"GeBetaDt\",            \"gateCondition\" : [               [\"IndexID\" : 0, \"Variable\" : \"SepE\" , \"Logic\" : \"GT\" , \"Value\" : 0],               [\"IndexID\" : 1, \"Variable\" : \"GeSepdT\" , \"Logic\" : \"LT\" , \"Value\" : 100]            ]         },         { \"name\" : \"BetaCoinc\",            \"gateCondition\" : [               [\"IndexID\" : 0, \"Variable\" : \"SepE\" , \"Logic\" : \"GT\" , \"Value\" : 0]            ]         }      ]}]   }";	
+	
 	// Unpack the response and place the response from the server into the dataStore
 	console.log(payload);
+	console.log(JSON.stringify(dataStore.histogramDefinition));
         dataStore.Configs = JSON.parse(payload);
 	console.log(dataStore.Configs);
-	console.log(dataStore.gateCondition);
-	console.log(JSON.stringify(dataStore.globalCondition));
-	console.log(JSON.stringify(dataStore.gateCondition));
-	console.log(JSON.stringify(dataStore.histogramDefinition));
 	
         // populate the current configuration based on what was received from the server
         buildConfigMenu();

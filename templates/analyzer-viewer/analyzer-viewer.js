@@ -2,85 +2,13 @@
 // Analyzer Interface Viewer setup
 ////////////////////////////
 
-function setupViewerDataStore(callback){
-    console.log('Execute setupViewerDataStore...');
-
-    /*
-    // Test JSON object
-   SpectrumList = {
-                     "Hits_and_Sums" : [
-                                        ["Hits", "HITPATTERN_Energy", "HITPATTERN_Time", "HITPATTERN_Waveform", "HITPATTERN_Pulse_Height", "HITPATTERN_Rate"], 
-                                        ["Sums", "SUM_Singles_GeA_Energy", "SUM_Singles_GeB_Energy", "SUM_SCEPTAR_Energy", "SUM_LaBr3_Energy", "SUM_TAC_Energy"],
-                                        ["Coinc", "COINC_gamma-gamma", "COINC_beta-gamma", "COINC_beta-PACES", "COINC_gamma-PACES", "COINC_beta-Addback"],
-                                        ["DeltaT", "deltaT_gamma-gamma"],
-                     ],
-                     "Griffin" : [
-	                          ["Energy", "GRG01BN00A_Energy", "GRG01GN00A_Energy", "GRG01RN00A_Energy", "GRG01WN00A_Energy", "GRG01BN00B_Energy"],
-	                          ["Time", "GRG01BN00A_Time", "GRG01GN00A_Time", "GRG01RN00A_Time", "GRG01WN00A_Time", "GRG01BN00B_Time"],
-	                 ["Pulse_Height", "GRG01BN00A_Pulse_Height", "GRG01GN00A_Pulse_Height", "GRG01RN00A_Pulse_Height", "GRG01WN00A_Pulse_Height", "GRG01BN00B_Pulse_Height"],
-                     ],
-                  }
-*/
-
+function setupViewerContent(){
     
-    console.log(dataStore.histoFileSpectrumList);
     SpectrumList = dataStore.histoFileSpectrumList;
 
-    //declare the holder for the top level groups
-    var topGroups = [];
-
-    // Sort through the list from the server to find the folders, subfolders and histogram titles
-    // Use this to set up the topGroups, subGroups and items for the menu generation
-    for (i in SpectrumList) 
-    { 
-	thisFolderTitle = i; // this is the topGroup
-
-	// Create a new topGroup for this folder
-	newGroup = {
-                     "name": thisFolderTitle,
-                     "id": thisFolderTitle,
-                     "color": '#367FA9',
-                     "subGroups": []
-	           }
-	
-	for (j in SpectrumList[i]) 
-	{
-	    for (k in SpectrumList[i][j]) 
-	    {
-		y = SpectrumList[i][j][k]
-		if (typeof y === 'string' || y instanceof String){
-		    if(k==0){
-			thisSubfolderTitle = y;   // this is the subGroup
-
-			// Create a new subGroup
-			newSubgroup = {
-                                       "subname": thisSubfolderTitle,
-                                       "id": thisFolderTitle.substring(0,3)+thisSubfolderTitle,
-                                       "items": []
-                                      }
-			// Add this subGroup to the topGroup
-                        newGroup.subGroups.push(newSubgroup);
-		    }else{
-			thisHistoTitle = y;   // this is the items
-
-			// Add this histogram to the items list in this subGroup of the topGroup
-                        newGroup.subGroups[newGroup.subGroups.length-1].items.push(thisHistoTitle);			
-		    }
-		}
-	    }
-	}
-	// Add this new topGroup to the topGroups object
-	topGroups.push(newGroup)
-    }
-
-    // Add the top groups to the dataStore
-    dataStore.topGroups = topGroups;
-
-    // Update the counters
-    dataStore.cellIndex = dataStore.plots.length;
-
-    // Call the callback function provided in the arguments
-    callback();
+    // Build the content of the table from the Histogram list that was already received from the server
+    buildHistosFileTable();
+    
 }
 
 
@@ -99,67 +27,97 @@ function fetchCallback(){
     }
 }
 
-function GetHistoFileSpectrumListFromServer(ServerName, callback){
-    console.log('Execute GetHistoFileSpectrumListFromServer...');
-
+function buildHistosFileTable(){
+    // Create a row in the table for each histo file in the list provided by the server
+    document.getElementById("HistoFilesTable").innerHTML = '';
+    document.getElementById('AnalyzerViewerDiv').innerHTML ='Click on a histogram file name below to open it in the online viewer. (The checkboxes do not do anything yet.)';
     
-    // Get the Spectrum List from the analyser server
-    
-    var errorMessage = 'Error receiving Spectrum List from server, '+ServerName; 
-    var urlString = ServerName+'/?cmd=getSpectrumList';
-    
-    var req = new XMLHttpRequest();
-    req.open('GET', urlString);
+    // Add a title row to the table
+    var row = document.getElementById("HistoFilesTable").insertRow(document.getElementById("HistoFilesTable").rows.length); 
+    row.id = 'histoFileTableRow-'+(0);
+    var cell1 = row.insertCell(0); 
+    var cell2 = row.insertCell(1);
+    var cell3 = row.insertCell(2);
+    var cell4 = row.insertCell(3);
+    var cell5 = row.insertCell(4);
+    cell1.innerHTML = 'Directory: '+dataStore.histoFileDirectoryPath;
+    cell2.innerHTML = '';
+    cell3.innerHTML = '';
+    cell4.innerHTML = '';
+    cell5.innerHTML = '';
+   // cell5.innerHTML = '<input type=\"checkbox\" id=\"Primary-checkbox\">';
 
-    // Once the response is received, convert the text response from the server to JSON Object
-  req.onreadystatechange = () => {
-      if (req.readyState === 4) {
-	 // console.log('Response text is: '+req.response);
-	  JSONString = req.response;
-        // console.log('JSON String is: '+JSONString);
-	 dataStore.histoFileSpectrumList = JSON.parse(JSONString);
-	  // The third argument passed to this function is the callback for the next function, so we pass it on here
-          callback(arguments[2]);
-    }
-  };
-
-    // Handle network errors
-    req.onerror = function() {
-        reject(Error(errorMessage));
+    /*
+    document.getElementById("Primary-checkbox").onclick = function(e){
+        ToggleCheckboxOfAllHistoFiles(this.checked);
     };
-
-    // Make the request
-    req.send();
-
-}
-
-function setupEventListeners(){
-    console.log('Execute setupEventListeners...');
-
-            window.addEventListener('HTMLImportsLoaded', function(e) {
-
-                dataStore._plotList = new plotList('analyzerPlots');
-                dataStore._plotGrid = new plotGrid('plottingGrid');
-                dataStore._plotControl = new plotControl('plotCtrl', 'vertical');
-                dataStore._auxCtrl = new auxPlotControl('auxCtrl');
-
-                dataStore._plotList.setup();
-                dataStore._plotGrid.setup();
-                dataStore._plotControl.setup();
-                dataStore._auxCtrl.setup();
-                setupFooter('foot');
-
-                //start with a single plot
-                document.getElementById('plottingGridnewPlotButton').click();
-
-                //start with GRIFFIN menu displayed
-                document.getElementById('Griffin').onclick();
-
-                $(function () {
-                    $('[data-toggle="tooltip"]').tooltip()
-                })
-	    });
+*/
     
-		console.log('Finished setupEventListeners');
+    // Add a row for each Histo file in the list received from the server
+    if(dataStore.histoFileList.length>0 && dataStore.histoFileList[0].length>3){
+	for(var num=0; num<dataStore.histoFileList.length; num++){
+	    var row = document.getElementById("HistoFilesTable").insertRow(document.getElementById("HistoFilesTable").rows.length); 
+	    row.id = 'histoFileTableRow-'+(num+1);
+	    row.onclick = function(e){
+		ToggleCheckboxOfThisHistoFile(this.id);
+	    };
+	    
+	    var cell1 = row.insertCell(0); 
+	    var cell2 = row.insertCell(1);
+	    var cell3 = row.insertCell(2);
+	    var cell4 = row.insertCell(3);
+	    var cell5 = row.insertCell(4);
+	    
+	    	var URLString = dataStore.spectrumServer+'/spectrumViewer2.html?backend='+urlData.backend+'&port='+urlData.port+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
+	  //  var URLString = 'http://localhost:1234'+'/spectrumViewer2.html?backend='+urlData.backend+'&port='+urlData.port+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
+	    
+	    cell1.innerHTML = '<a href=\"'+URLString+'\" target=\"_blank\">'+dataStore.histoFileList[num]+'</a>';
+	    cell2.innerHTML = '';
+	    cell3.innerHTML = '';
+	    cell4.innerHTML = '';
+	    cell5.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.histoFileList[num]+'-checkbox'+'\" value=\"'+dataStore.histoFileList[num]+'\" onclick=ToggleCheckboxOfThisHistoFile(\"histoFileTableRow-'+(num+1)+'\")>';
+	    
+	}
+    }else{
+	// Add a single row and write a message that no hisotgram files were found.
+	document.getElementById('AnalyzerViewerDiv').innerHTML ='';
+	document.getElementById("HistoFilesTable").deleteRow(0);
+	var row = document.getElementById("HistoFilesTable").insertRow(document.getElementById("HistoFilesTable").rows.length); 
+	row.id = 'histoFileTableRow-'+(num+1);
+	var cell1 = row.insertCell(0); 
+	
+	cell1.innerHTML = 'The directory \"'+dataStore.histoFileDirectoryPath+'\" does not contain any histogram files.';
+    }
+    
 }
 
+function ToggleCheckboxOfAllHistoFiles(state){
+    // Toggle the status of the checkbox for all Histo files in the list
+    if(state){ color='#2e3477'; }else{ color = '#191C40'; }
+    for(var i=0; i<dataStore.histoFileList.length; i++){
+	document.getElementById(dataStore.histoFileList[i]+'-checkbox').checked = state;
+	document.getElementById('histoFileTableRow-'+(i+1)).style.backgroundColor = color;
+    }
+}
+
+function ToggleCheckboxOfThisHistoFile(rowID){
+    // Toggle the status of the checkbox for this row in the list, and highlight it
+    // Works for Runs or subrun files
+
+    var thisRowID = rowID;
+    var RunID = parseInt(rowID.split('-')[1])-1;
+    
+    // Find the current state of the checkbox so we can toggle it
+    thisCheckbox = document.getElementById(dataStore.histoFileList[RunID]+'-checkbox');
+
+    // Find the state of the checkbox and toggle the state
+    state = thisCheckbox.checked;
+    if(state){ state=false; color = '#191C40'; }else{ state=true; color='#2e3477'; }
+    
+    // Toggle the color of the row
+    document.getElementById(thisRowID).style.backgroundColor = color;
+
+    // Toggle the state of the checkbox
+    thisCheckbox.checked = state;
+
+}

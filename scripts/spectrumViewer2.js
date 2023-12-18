@@ -104,6 +104,7 @@ function setupDataStore(callback){
     dataStore.cellIndex = dataStore.plots.length;
     console.log(dataStore.cellIndex);
     console.log(dataStore.plots);
+    console.log(dataStore);
 
     if(dataStore.histoDirectory==undefined){
 	dataStore.histoDirectory = '';
@@ -133,14 +134,6 @@ function fetchCallback(){
     for(i=0; i<keys.length; i++){
         dataStore.viewers[keys[i]].plotData(null, true);
     }
-}
-
-function getHistoFileListFromServer(){
-
-    // use a one-off XHR request with callback for getting the list of Histo files
-    url = thisSpectrumServer + '/?cmd=getHistofileList&dir='+histoDirectory;
-    XHR(url, "Problem getting list of Histogram files from analyzer server", processHistoFileList, function(error){ErrorConnectingToAnalyzerServer(error)});
-
 }
 
 function ErrorConnectingToAnalyzerServer(error){
@@ -180,6 +173,7 @@ function setupHistoListSelect(){
     newSelect.name = 'HistoListSelect';
     newSelect.onchange = function(){
     dataStore.histoFileName = this.value;
+    GetSpectrumListFromServer(thisSpectrumServer,setupDataStore,setupEventListeners);
     }.bind(newSelect);
     
     document.getElementById('histo-list-menu-div').appendChild(newSelect);
@@ -193,51 +187,9 @@ function setupHistoListSelect(){
 }
 
 
-function GetSpectrumListFromServer(ServerName, callback){
-    console.log('Execute GetSpectrumFromServer...');
-    
-    // Get the Spectrum List from the analyser server
-    
-    var errorMessage = 'Error receiving Spectrum List from server, '+thisSpectrumServer;
-
-    // url is just /?cmd=getSpectrumList for online data.
-    // url includes a histoFile for opening a midas file
-    // dataStore.histoFileName
-    var urlString = thisSpectrumServer;
-    urlString += '/?cmd=getSpectrumList';
-    if(urlData.histoFile.length>0){
-	urlString += '&filename='+urlData.histoFile;
-    }
-    console.log(urlString);
-    
-    var req = new XMLHttpRequest();
-    req.open('GET', urlString);
-
-    // Once the response is received, convert the text response from the server to JSON Object
-  req.onreadystatechange = () => {
-      if (req.readyState === 4) {
-	 // console.log('Response text is: '+req.response);
-	 // JSONString = req.response.split(")")[0].split("(")[1];
-	  JSONString = req.response;
-	//  console.log('JSON String is: '+JSONString);
-	 SpectrumList = JSON.parse(JSONString);
-	  // The third argument passed to this function is the callback for the next function, so we pass it on here
-          callback(arguments[2]);
-    }
-  };
-
-    // Handle network errors
-    req.onerror = function() {
-        reject(Error(errorMessage));
-    };
-
-    // Make the request
-    req.send();
-
-}
-
 function setupEventListeners(){
     console.log('Execute setupEventListeners...');
+    console.log(dataStore.plots);
 
     
             window.addEventListener('HTMLImportsLoaded', function(e) {
@@ -255,7 +207,7 @@ function setupEventListeners(){
                 setupFooter('foot');
 
                 //start with a single plot
-                document.getElementById('plottingGridnewPlotButton').click();
+               // document.getElementById('plottingGridnewPlotButton').click();
 
                 //start with GRIFFIN menu displayed
               //  document.getElementById('Griffin').onclick();
@@ -266,4 +218,5 @@ function setupEventListeners(){
 	    });
     
 		console.log('Finished setupEventListeners');
+    console.log(dataStore.plots);
 }

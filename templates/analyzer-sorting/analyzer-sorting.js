@@ -110,7 +110,7 @@ function getMidasFileListFromServer(){
 function getHistoFileListFromServer(){
 
     // use a one-off XHR request with callback for getting the list of Histo files
-    url = dataStore.spectrumServer + '/?cmd=getHistofileList&dir='+dataStore.histoFileDataDirectoryPath;
+    url = dataStore.spectrumServer + '/?cmd=getHistofileList&dir='+dataStore.histoFileDirectoryPath;
     XHR(url, "Problem getting list of Histogram files from analyzer server", processHistoFileList, function(error){ErrorConnectingToAnalyzerServer(error)});
 
 }
@@ -190,7 +190,7 @@ function processMidasFileList(payload){
 }
 
 function processHistoFileList(payload){
-
+    
     // receive the payload and split into an array of strings
     var thisPayload = payload.split("]")[0].split("[ \n")[1];
     
@@ -201,7 +201,6 @@ function processHistoFileList(payload){
     dataStore.histoFileList.sort();
     dataStore.histoFileList.reverse();
 
-    console.log(dataStore.histoFileList);
 }
 
 function buildMidasFileTable(){
@@ -266,7 +265,7 @@ function buildMidasFileTable(){
     newButton = document.createElement('button'); 
      newButton.setAttribute('id', 'expandSubrunListButton'+(num+1)); 
     newButton.setAttribute('class', 'btn btn-default btn-xs'); 
-    newButton.innerHTML = "Expand";
+    newButton.innerHTML = "Show all";
      newButton.style.padding = '4px';
      newButton.value = (num+1);
     newButton.onclick = function(){
@@ -387,7 +386,8 @@ function ToggleCheckboxOfThisMIDASFile(rowID){
 
 	// Build list of urls for the selected files
 	//var DataFileDirectory = '/tig/grifstore1b/grifalt/schedule145/Dec2023/';
-	var DataFileDirectory = dataStore.midasFileDataDirectoryPath;
+	var DataFileDirectory = dataStore.midasFileDataDirectoryPath;;
+	var HistoFileDirectory = dataStore.histoFileDirectoryPath;
 
 	// Format check for the data file
 	
@@ -398,7 +398,7 @@ function ToggleCheckboxOfThisMIDASFile(rowID){
 	var urls = [];
 	for(var i=0; i<dataStore.midasRunList.length; i++){
 	    if(document.getElementById(dataStore.midasRunList[i].RunName+'-checkbox').checked == true){
-		urls[urls.length] = dataStore.spectrumServer + '?cmd=addDatafile&filename='+DataFileDirectory+dataStore.midasRunList[i].RunName;
+		urls[urls.length] = dataStore.spectrumServer + '?cmd=addDatafile&filename='+DataFileDirectory+dataStore.midasRunList[i].RunName+'&histodir=' + HistoFileDirectory;
 	    }else if(dataStore.midasRunList[i].Expanded){
 		// If the list of subruns for this Run was expanded in the table then check if any are checked for sorting
 		for(var j=0; j<dataStore.midasRunList[i].SubRunList.length; j++){

@@ -487,6 +487,7 @@ function setupDataStore(){
         "zeroedPlots": {}                                           //initialize empty object for zeroed plots
     }
     dataStore.cellIndex = dataStore.plots.length;
+    console.log(dataStore);
 
 }
 setupDataStore();
