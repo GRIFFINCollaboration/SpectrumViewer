@@ -11,22 +11,22 @@ function buildExampleConfig(){
 
 	var newContents = {
 	    "name" : 'Gamma-BGO time difference',
-	    "min" : -50,
-	    "max" : 50
+	    "min" : -60,
+	    "max" : 60
 	};
 	dataStore.globalCondition.contents[0] = newContents;
 
 	var newContents = {
 	    "name" : 'Gamma-Gamma time difference',
-	    "min" : -100,
-	    "max" : 100
+	    "min" : -120,
+	    "max" : 120
 	};
 	dataStore.globalCondition.contents[1] = newContents;
 
 	var newContents = {
 	    "name" : 'Beta-Gamma time difference',
-	    "min" : -80,
-	    "max" : 80
+	    "min" : -70,
+	    "max" : 70
 	};
 	dataStore.globalCondition.contents[2] = newContents;
 
@@ -138,16 +138,29 @@ function buildExampleConfig(){
     function processConfigFile(payload){
         // callback after getting the Config file containing the Global conditions, Gates conditions and Histogram definitions from the server/ODB
         // finish initial setup
-
-
-//	payload = "{\"Analyzer\":[{\"Gates\" : [         { \"name\" : \"BetaVeto\",            \"gateCondition\" : [               [\"IndexID\" : 0, \"Variable\" : \"SepE\" , \"Logic\" : \"EQ\" , \"Value\" : 0]            ]         },         { \"name\" : \"GeBetaDt\",            \"gateCondition\" : [               [\"IndexID\" : 0, \"Variable\" : \"SepE\" , \"Logic\" : \"GT\" , \"Value\" : 0],               [\"IndexID\" : 1, \"Variable\" : \"GeSepdT\" , \"Logic\" : \"LT\" , \"Value\" : 100]            ]         },         { \"name\" : \"BetaCoinc\",            \"gateCondition\" : [               [\"IndexID\" : 0, \"Variable\" : \"SepE\" , \"Logic\" : \"GT\" , \"Value\" : 0]            ]         }      ]}]   }";	
 	
 	// Unpack the response and place the response from the server into the dataStore
-	console.log(payload);
-	console.log(JSON.stringify(dataStore.histogramDefinition));
+//	console.log(payload);
         dataStore.Configs = JSON.parse(payload);
-	console.log(dataStore.Configs);
+//	console.log(dataStore.Configs);
+
+	// Unpack the Config file from the server into the dataStore layout
+
+    // Unpack Global content
+	for(var i=0; i<dataStore.Configs.Analyzer[2].Globals.length; i++){
+	    dataStore.globalCondition.contents.push(dataStore.Configs.Analyzer[2].Globals[i]);   
+	}
 	
+    // Unpack Gate content
+    for(var i=0; i<dataStore.Configs.Analyzer[0].Gates.length; i++){
+	    dataStore.gateCondition.contents.push(dataStore.Configs.Analyzer[0].Gates[i]);   
+    }
+    
+    // Unpack the Histogram content
+    for(var i=0; i<dataStore.Configs.Analyzer[1].Histograms.length; i++){
+	dataStore.histogramDefinition.contents.push(dataStore.Configs.Analyzer[1].Histograms[i]);
+    }
+    
         // populate the current configuration based on what was received from the server
         buildConfigMenu();
     }
@@ -214,7 +227,6 @@ function buildConfigMenu(){
 	}
 	
 	// Increase the Global counters
-        dataStore.globalCondition.nRows[globalIndex] = 0;
         dataStore.globalCondition.globalIndex++;
     }
 
@@ -239,7 +251,6 @@ function buildConfigMenu(){
 	dataStore.globalCondition.contents.splice(globalNumber,1);
 	
 	// decrease the Global counters
-	dataStore.globalCondition.nRows.splice(globalNumber,1);
         dataStore.globalCondition.globalIndex--;
     }
 

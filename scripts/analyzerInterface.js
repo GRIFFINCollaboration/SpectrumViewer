@@ -43,7 +43,6 @@ function setupDataStore(callback){
 	"Configs" : {},                          // plase to park Config file information
         "globalCondition" : {                   // place to park Global condition info on the dataStore
                 "globalIndex" : 0,               // monotonically increasing counter to create unique IDs for new Glabal condition blocks
-            "nRows" : [],               // array of monotonic counters for number of rows inserted into Global condition block; Global block # == array index. 
 	    "contents" : []             // array of structures holding the variables and values for each Global condition
     	},
 	

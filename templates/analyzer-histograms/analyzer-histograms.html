@@ -45,7 +45,8 @@
     url = dataStore.spectrumServer + '/?cmd=viewConfig';
     XHR(url, "Problem getting Config file from analyzer server", processConfigFile, function(error){ErrorConnectingToAnalyzerServer(error)});
 
-    buildExampleConfig();
+    // This build a fake config configuration into the dataStore. Used for initial testing.
+   // buildExampleConfig();
     
     //Create a dummy Config file and then process it
 /*
@@ -80,7 +81,7 @@
        }
     }
     };
-    buildExampleConfig();
+  //  buildExampleConfig();
 //processHistograms(payload);
 */
     
