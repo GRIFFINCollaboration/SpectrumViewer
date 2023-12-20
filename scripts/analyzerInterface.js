@@ -222,6 +222,93 @@ function setupDataStore(callback){
             "short": 'LBLNUM',
             "description": 'The number of this LaBr3 crystal [1-8]'
 	    },
+	    // TACs
+	    {
+            "short": 'LBTE',
+            "description": 'TAC Pulse Height in arbitrary units'
+	    },
+	    {
+            "short": 'LBTT',
+            "description": 'TAC Time from CFD in nanoseconds'
+	    },
+	    {
+            "short": 'LBTTS',
+            "description": 'TAC Timestamp value from leading-edge in 10 nanoseconds steps'
+	    },
+	    {
+            "short": 'LBTPH',
+            "description": 'TAC raw Pulse Height in ADC units'
+	    },
+	    {
+            "short": 'LBTPU',
+            "description": 'TAC Pileup value equal to number of Hits'
+	    },
+	    {
+            "short": 'LBTNUM',
+            "description": 'The number of this TAC module [1-8]'
+	    },
+	    // Clover BGO Suppression shields
+	    {
+            "short": 'GRSE',
+            "description": 'Clover BGO energy in keV'
+	    },
+	    {
+            "short": 'GRST',
+            "description": 'Clover BGO Time from CFD in nanoseconds'
+	    },
+	    {
+            "short": 'GRSTS',
+            "description": 'Clover BGO Timestamp value from leading-edge in 10 nanoseconds steps'
+	    },
+	    {
+            "short": 'GRSPH',
+            "description": 'Clover BGO raw Pulse Height in ADC units'
+	    },
+	    {
+            "short": 'GRSPU',
+            "description": 'Clover BGO Pileup value equal to number of Hits'
+	    },
+	    {
+            "short": 'GRSNUM',
+            "description": 'The number of this Clover BGO crystal [1 to 20*16=320]'
+	    },
+	    {
+            "short": 'GRSPOS',
+            "description": 'The HPGe Clover number (1-16) to which this BGO belongs'
+	    },
+	    {
+            "short": 'GRSTYPE',
+            "description": 'The type of this Clover BGO crystal [front, side, back]'
+	    },
+	    // Ancillary position BGO Suppression shields
+	    {
+            "short": 'LBSE',
+            "description": 'Ancillary position BGO energy in keV'
+	    },
+	    {
+            "short": 'LBST',
+            "description": 'Ancillary position BGO Time from CFD in nanoseconds'
+	    },
+	    {
+            "short": 'LBSTS',
+            "description": 'Ancillary position BGO Timestamp value from leading-edge in 10 nanoseconds steps'
+	    },
+	    {
+            "short": 'LBSPH',
+            "description": 'Ancillary position BGO raw Pulse Height in ADC units'
+	    },
+	    {
+            "short": 'LBSPU',
+            "description": 'Ancillary position BGO Pileup value equal to number of Hits'
+	    },
+	    {
+            "short": 'LBSNUM',
+            "description": 'The number of this Ancillary position BGO crystal [1 to 3*8=24]'
+	    },
+	    {
+            "short": 'LBSPOS',
+            "description": 'The ancillary position number (1-8) to which this BGO belongs'
+	    },
             // Time Differences
 	    {
             "short": 'MIDAS_Time',
