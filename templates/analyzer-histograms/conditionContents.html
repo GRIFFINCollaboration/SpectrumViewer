@@ -23,13 +23,13 @@
       </select>
     </div>
     <div class='col-md-2'>
-      <select id='gateConditionLogicSelect{{gateNumber}}-{{gateConditionNumber}}' onchange='saveGateChangeToAnalyzerODB({{gateNumber}})' selectedIndex = '0'>
+      <select id='gateConditionLogicSelect{{gateNumber}}-{{gateConditionNumber}}' onchange='onLogicSelectChange({{gateNumber}},{{gateConditionNumber}})' selectedIndex = '0'>
         {{#logicOptions}}
         <option value='{{short}}'>{{description}}</option>
 	{{/logicOptions}}
       </select>
     </div>
-    <div class='col-md-2'>
+    <div id='gateConditionValueDiv{{gateNumber}}-{{gateConditionNumber}}' class='col-md-3'>
       <input type='number' value='4096' step='1' id='gateConditionValue{{gateNumber}}-{{gateConditionNumber}}' class='small-number' onchange='saveGateChangeToAnalyzerODB({{gateNumber}})'></input>
     </div>
   </div>

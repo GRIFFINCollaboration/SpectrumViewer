@@ -497,6 +497,60 @@ function addNewGateConditionRow(gateIndex,arrayIndex){
 	dataStore.gateCondition.nRows[gateNumber]--;
     }
 
+
+function onLogicSelectChange(gateNumber, gateConditionNumber){
+    if(document.getElementById('gateConditionLogicSelect'+gateNumber+'-'+gateConditionNumber).value == 'RA'){
+	// The Range option has just been selected. Change the Value input box into Min and Max input boxes
+	
+	// Remove the Value input box
+	document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).innerHTML = '';
+	
+	// Insert the Min input box
+	var newInput = document.createElement("input");
+	newInput.type = 'number';
+	newInput.id = 'gateConditionRangeMin'+gateNumber+'-'+gateConditionNumber;
+	newInput.value = '0';
+	newInput.onchange = function(){
+	    saveGateChangeToAnalyzerODB(gateNumber);
+	}.bind(newInput);
+	document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);
+	
+	// Insert the Max input box
+	var newInput = document.createElement("input");
+	newInput.type = 'number';
+	newInput.id = 'gateConditionRangeMax'+gateNumber+'-'+gateConditionNumber;
+	newInput.value = '1000';
+	newInput.onchange = function(){
+	    saveGateChangeToAnalyzerODB(gateNumber);
+	}.bind(newInput);
+	document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);
+	
+	// Update the dataStore and server version
+	saveGateChangeToAnalyzerODB(gateNumber);
+    }else if(dataStore.gateCondition.contents[gateNumber].gateCondition[gateConditionNumber].Logic == 'RA'){
+	// The Range option was previously selected and now changed. Remove the Min and Max input boxes and insert the Value input box
+	
+	// Remove the Min and Max input boxes
+	document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).innerHTML = '';
+	
+	// Insert the Value input box
+	var newInput = document.createElement("input");
+	newInput.type = 'number';
+	newInput.id = 'gateConditionValue'+gateNumber+'-'+gateConditionNumber;
+	newInput.value = '4096';
+	newInput.onchange = function(){
+	    saveGateChangeToAnalyzerODB(gateNumber);
+	}.bind(newInput);
+	document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);
+	
+	// Update the dataStore and server version
+	saveGateChangeToAnalyzerODB(gateNumber);
+    }else{
+	// The Range option was not selected this time, or the previous time. So just save whatever change was made to the dataStore and server version
+	saveGateChangeToAnalyzerODB(gateNumber);
+    }
+}
+
 function addNewHistogramCondition(histogramIndex,arrayIndex){
         // add a new histogramCondition row to the indexed histogram block
 	
@@ -602,7 +656,6 @@ function toggleHistogramDimensions(histogramNumber, dimension){
     
 }
 
-
     /////////////////////
     // data loading
     /////////////////////
@@ -648,6 +701,7 @@ function saveGlobalChangeToAnalyzerODB(globalNumber){
 
 function saveGateChangeToAnalyzerODB(gateNumber){
     console.log('saveGateChangeToAnalyzerODB');
+    
     //when something changes in any of the definitions, save the change to the dataStore and send it to the analyzer ODB
 	var newContents = {
 	    "name" : document.getElementById('gateName'+gateNumber).value,
@@ -658,11 +712,22 @@ function saveGateChangeToAnalyzerODB(gateNumber){
     // So we need to only get the values from the indexes which exist
     for(var i=0; i<dataStore.gateCondition.contents[gateNumber].gateCondition.length; i++){
 	var indexID = dataStore.gateCondition.contents[gateNumber].gateCondition[i].indexID;
+
+	// The Range Logic type has two inputs for Max and Min values. They are packed together into a single 32-bit word as two 16-bit values.
+	if(document.getElementById('gateConditionLogicSelect'+gateNumber+'-'+indexID).value == 'RA'){
+	    var thisMin = parseInt(document.getElementById('gateConditionRangeMin'+gateNumber+'-'+indexID).value);
+	    var thisMax = parseInt(document.getElementById('gateConditionRangeMax'+gateNumber+'-'+indexID).value);
+	    var thisValue = (thisMin | (thisMax<<16));
+	}else{
+	    var thisValue = document.getElementById('gateConditionValue'+gateNumber+'-'+indexID).value;
+	}
+
+	// Create space for the condition
 	var newCondition ={
                        "indexID" : indexID,
 	               "Variable" : document.getElementById('gateConditionVariableSelect'+gateNumber+'-'+indexID).value,
 	               "Logic" : document.getElementById('gateConditionLogicSelect'+gateNumber+'-'+indexID).value,
-	               "Value" : document.getElementById('gateConditionValue'+gateNumber+'-'+indexID).value
+	               "Value" : thisValue
 	}
 	newContents.gateCondition.push(newCondition); // This is just a local variable
     }
@@ -689,35 +754,6 @@ function saveGateChangeToAnalyzerODB(gateNumber){
             function(){return 0},
             function(error){console.log(error)}
            );
-    
-    /*
-    // The following is for mhttpd 
-    //construct urls to post to
-    var urls = [];
-    var createCmd = "?cmd=jcreate&odb=Analyzer/Gates/";
-    var setCmd = "?cmd=jset&odb=Analyzer/Gates/";
-    
-    urls[0] = dataStore.ODBhost + createCmd + dataStore.gateCondition.contents[gateNumber].name + "&type=subdirectory";
-    urls[1] = dataStore.ODBhost + createCmd + dataStore.gateCondition.contents[gateNumber].name + "/Variable" + "&type=7";
-    urls[2] = dataStore.ODBhost + createCmd + dataStore.gateCondition.contents[gateNumber].name + "/Logic" + "&type=7";
-    urls[3] = dataStore.ODBhost + createCmd + dataStore.gateCondition.contents[gateNumber].name + "/Value" + "&type=7";
-    urls[4] = dataStore.ODBhost + setCmd + dataStore.gateCondition.contents[gateNumber].name + "/Variable" + "&value=" + dataStore.gateCondition.contents[gateNumber].Variable;
-    urls[5] = dataStore.ODBhost + setCmd + dataStore.gateCondition.contents[gateNumber].name + "/Logic" + "&value=" + dataStore.gateCondition.contents[gateNumber].Logic;
-    urls[6] = dataStore.ODBhost + setCmd + dataStore.gateCondition.contents[gateNumber].name + "/Value" + "&value=" + dataStore.gateCondition.contents[gateNumber].Value;
-    
-    //send requests
-    for(i=0; i<urls.length; i++){
-	console.log('URLs for jset: '+urls[i]);
-	
-        XHR(urls[i], 
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
-            function(){return 0},
-            function(error){console.log(error)}
-           )
-	
-    }
-*/
-    
 }
 
 function saveHistogramChangeToAnalyzerODB(histogramNumber){
@@ -781,29 +817,4 @@ function saveHistogramChangeToAnalyzerODB(histogramNumber){
             function(error){console.log(error)}
            );
     
-    /*
-    //construct urls to post to
-    var urls = [];
-    var createCmd = "?cmd=jcreate&odb=Analyzer/Histograms/";
-    var setCmd = "?cmd=jset&odb=Analyzer/Histograms/";
-    
-    urls[0] = dataStore.ODBhost + createCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "&type=subdirectory";
-    urls[1] = dataStore.ODBhost + createCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "/Variable" + "&type=7";
-    urls[2] = dataStore.ODBhost + createCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "/Logic" + "&type=7";
-    urls[3] = dataStore.ODBhost + createCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "/Value" + "&type=7";
-    urls[4] = dataStore.ODBhost + setCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "/Variable" + "&value=" + dataStore.gateCondition.contents[gateNumber].Variable;
-    urls[5] = dataStore.ODBhost + setCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "/Logic" + "&value=" + dataStore.gateCondition.contents[gateNumber].Logic;
-    urls[6] = dataStore.ODBhost + setCmd + dataStore.histogramDefinition.contents[histogramNumber].name + "/Value" + "&value=" + dataStore.gateCondition.contents[gateNumber].Value;
-    
-    //send requests
-    for(i=0; i<urls.length; i++){
-	console.log('URLs for jset: '+urls[i]);
-	
-        XHR(urls[i], 
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
-            function(){return 0},
-            function(error){console.log(error)}
-           )	
-    }
-*/
 }
