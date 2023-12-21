@@ -37,9 +37,10 @@ function processSortStatus(payload){
 	document.getElementById("SortingStatus").innerHTML = 'Analyzer is idle, ready for files to be submitted.';
 	return;
     }
-
+    
     // Handle the Analyzer running response
     // [Data Directory] [Filename] [Run number] [Subrun number] [File size in bytes] [bytes sorted]
+    // The above line repeats for all files in the current queue
 
     // Timestamp this Sort Status (in seconds)
     dataStore.SortStatusCurrentTimestamp = Math.floor(Date.now() / 1000);
@@ -97,6 +98,25 @@ function processSortStatus(payload){
     // Save the timestamp and bytes sorted for use at the next update
     dataStore.SortStatusPreviousTimestamp = dataStore.SortStatusCurrentTimestamp;
     dataStore.SortStatusPreviousMegaBytesSorted = dataStore.SortStatusCurrentMegaBytesSorted;
+
+    // Update the Sort queue table
+    var thisPayloadArray = payload.split(",");
+    console.log(thisPayloadArray);
+    document.getElementById("JobsQueue").innerHTML = '';
+    var totalQueueFileSize = 0;
+    for(i=0; i<thisPayloadArray.length-1; i++){
+	console.log(thisPayloadArray[i]);
+	var thisPayload = thisPayloadArray[i].split(" ");
+	if(i>0){
+	    document.getElementById("JobsQueue").innerHTML += ', '+thisPayload[1]+' ('+parseInt(thisPayload[4] / 1000000)+' MB)';
+	totalQueueFileSize += parseInt(thisPayload[4] / 1000000);
+	}else{
+	    document.getElementById("JobsQueue").innerHTML += thisPayload[1]+' ('+parseInt(thisPayload[4] / 1000000)+' MB)';
+	}
+    }
+    if(totalQueueFileSize>0){
+    document.getElementById("JobsQueue").innerHTML += '<br>Time to sort entire queue is '+parseFloat(totalQueueFileSize/dataStore.SortStatusCurrentSortSpeed).toFixed(1)+' seconds';
+    }
 }
 
 function getMidasFileListFromServer(){
