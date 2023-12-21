@@ -18,7 +18,7 @@
       <span class='and-label'>Condition</span>
       <select id='gateConditionVariableSelect{{gateNumber}}-{{gateConditionNumber}}' onchange='saveGateChangeToAnalyzerODB({{gateNumber}})' selectedIndex = '0'>
        {{#sortCodeVariables}}
-        <option value='{{short}}'>{{description}}</option>
+        <option value='{{name}}'>{{title}}</option>
        {{/sortCodeVariables}}
       </select>
     </div>

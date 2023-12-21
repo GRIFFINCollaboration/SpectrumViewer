@@ -9,35 +9,86 @@ var thisSpectrumServer = 'http://'+urlData.backend+'.triumf.ca:'+urlData.port;
 //var thisSpectrumServer = 'http://grifstore0.triumf.ca:9093';
 var histoDirectory = urlData.histoDir;
 var histoFile = urlData.histoFile;
-var SpectrumList;
+//var SpectrumList; // now local variable in processSpectrumList
 var dataStore = {};
 console.log('Server is: '+thisSpectrumServer);
+
+// Get the initial list of Histogram files available from the server
+getHistoFileListFromServer();
+
+// Get the Spectrum List from the server
+GetSpectrumListFromServer(thisSpectrumServer,processSpectrumList);
+
+// Set up the data store. Once that is done then the event listeners can be added.
+setupDataStore(setupEventListeners);
+
 
 function setupDataStore(callback){
     console.log('Execute setupDataStore...');
     console.log(histoDirectory);
     console.log(histoFile);
-
-    /*
-    // Test JSON object
-   SpectrumList = {
-                     "Hits_and_Sums" : [
-                                        ["Hits", "HITPATTERN_Energy", "HITPATTERN_Time", "HITPATTERN_Waveform", "HITPATTERN_Pulse_Height", "HITPATTERN_Rate"], 
-                                        ["Sums", "SUM_Singles_GeA_Energy", "SUM_Singles_GeB_Energy", "SUM_SCEPTAR_Energy", "SUM_LaBr3_Energy", "SUM_TAC_Energy"],
-                                        ["Coinc", "COINC_gamma-gamma", "COINC_beta-gamma", "COINC_beta-PACES", "COINC_gamma-PACES", "COINC_beta-Addback"],
-                                        ["DeltaT", "deltaT_gamma-gamma"],
-                     ],
-                     "Griffin" : [
-	                          ["Energy", "GRG01BN00A_Energy", "GRG01GN00A_Energy", "GRG01RN00A_Energy", "GRG01WN00A_Energy", "GRG01BN00B_Energy"],
-	                          ["Time", "GRG01BN00A_Time", "GRG01GN00A_Time", "GRG01RN00A_Time", "GRG01WN00A_Time", "GRG01BN00B_Time"],
-	                 ["Pulse_Height", "GRG01BN00A_Pulse_Height", "GRG01GN00A_Pulse_Height", "GRG01RN00A_Pulse_Height", "GRG01WN00A_Pulse_Height", "GRG01BN00B_Pulse_Height"],
-                     ],
-                  }
-*/
-
     
-    console.log(SpectrumList);
+    // Create the dataStore object
+  dataStore = {
+        "pageTitle": 'Spectrum Viewer',                             //header title
+        "topGroups": [],                                     //groups in top nav row
+        "waveformSnap": true,                                       //do we want the snap to waveform functionality?
+        "doUpdates": true,                                          //do we want the data update button and loop?
+        "scaling": false,                                           //do we want to expose x-axis rescaling UI?
+        "plots": [],                                                //array of names for default plot cells
+        "spectrumServer": thisSpectrumServer,                       //analyzer url + port number
+        "ODBrequests": [],                                          //array of odb requests to make on refresh
+      "zeroedPlots": {},                                           //initialize empty object for zeroed plots
 
+      "histoDirectory" : urlData.histoDir,                         // histogram directory taken from URL. Then can be changed from a select
+      "histoFileName" : urlData.histoFile                        // histogram filename taken from URL. Then can be changed from a select
+  }
+
+    dataStore.cellIndex = dataStore.plots.length;
+    console.log(dataStore.cellIndex);
+    console.log(dataStore.plots);
+    console.log(dataStore);
+
+    if(dataStore.histoDirectory==undefined){
+	dataStore.histoDirectory = '';
+    }
+
+    if(dataStore.histoFileName==undefined){
+	dataStore.histoFileName = '';
+    }
+    
+    callback();
+}
+
+
+/////////////////
+// helpers
+/////////////////
+
+function fetchCallback(){
+    //fires after all data has been updated
+
+    var i, 
+        keys = Object.keys(dataStore.viewers);
+
+    for(i=0; i<keys.length; i++){
+        dataStore.viewers[keys[i]].plotData(null, true);
+    }
+}
+
+function ErrorConnectingToAnalyzerServer(error){
+    var string = 'Problem connecting to analyzer server: '+thisSpectrumServer+'<br>'+error;
+    document.getElementById('histo-list-menu-div').innerHTML = string;
+    document.getElementById('histo-list-menu-div').style.display= 'block';
+    document.getElementById('histo-list-menu-div').style.width= '100%';
+    document.getElementById('histo-list-menu-div').style.backgroundColor= 'red';
+}
+
+function processSpectrumList(payload){
+
+    console.log(payload);
+    var SpectrumList = JSON.parse(payload);
+    
     //declare the holder for the top level groups
     var topGroups = [];
 
@@ -84,64 +135,9 @@ function setupDataStore(callback){
 	// Add this new topGroup to the topGroups object
 	topGroups.push(newGroup)
     }
+
+    dataStore.topGroups = topGroups;
     
-    // Create the dataStore object
-  dataStore = {
-        "pageTitle": 'Spectrum Viewer',                             //header title
-        "topGroups": topGroups,                                     //groups in top nav row
-        "waveformSnap": true,                                       //do we want the snap to waveform functionality?
-        "doUpdates": true,                                          //do we want the data update button and loop?
-        "scaling": false,                                           //do we want to expose x-axis rescaling UI?
-        "plots": [],                                                //array of names for default plot cells
-        "spectrumServer": thisSpectrumServer,                       //analyzer url + port number
-        "ODBrequests": [],                                          //array of odb requests to make on refresh
-      "zeroedPlots": {},                                           //initialize empty object for zeroed plots
-
-      "histoDirectory" : urlData.histoDir,                         // histogram directory taken from URL. Then can be changed from a select
-      "histoFileName" : urlData.histoFile                        // histogram filename taken from URL. Then can be changed from a select
-  }
-
-    dataStore.cellIndex = dataStore.plots.length;
-    console.log(dataStore.cellIndex);
-    console.log(dataStore.plots);
-    console.log(dataStore);
-
-    if(dataStore.histoDirectory==undefined){
-	dataStore.histoDirectory = '';
-    }
-
-    if(dataStore.histoFileName==undefined){
-	dataStore.histoFileName = '';
-    }
-    
-    callback();
-}
-
-// Get the Spectrum List from the server and then set up the data store. Once that is done then the event listeners can be added.
-GetSpectrumListFromServer(thisSpectrumServer,setupDataStore,setupEventListeners);
-
-
-/////////////////
-// helpers
-/////////////////
-
-function fetchCallback(){
-    //fires after all data has been updated
-
-    var i, 
-        keys = Object.keys(dataStore.viewers);
-
-    for(i=0; i<keys.length; i++){
-        dataStore.viewers[keys[i]].plotData(null, true);
-    }
-}
-
-function ErrorConnectingToAnalyzerServer(error){
-    var string = 'Problem connecting to analyzer server: '+thisSpectrumServer+'<br>'+error;
-    document.getElementById('histo-list-menu-div').innerHTML = string;
-    document.getElementById('histo-list-menu-div').style.display= 'block';
-    document.getElementById('histo-list-menu-div').style.width= '100%';
-    document.getElementById('histo-list-menu-div').style.backgroundColor= 'red';
 }
 
 function processHistoFileList(payload){

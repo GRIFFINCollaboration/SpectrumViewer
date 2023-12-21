@@ -374,13 +374,8 @@ function GetSpectrumListFromServer(ServerName, callback){
     // Once the response is received, convert the text response from the server to JSON Object
   req.onreadystatechange = () => {
       if (req.readyState === 4) {
-	 // console.log('Response text is: '+req.response);
-	 // JSONString = req.response.split(")")[0].split("(")[1];
-	  JSONString = req.response;
-	//  console.log('JSON String is: '+JSONString);
-	 SpectrumList = JSON.parse(JSONString);
-	  // The third argument passed to this function is the callback for the next function, so we pass it on here
-          callback(arguments[2]);
+	  // Send the response to the callback function
+          callback(req.response);
     }
   };
 

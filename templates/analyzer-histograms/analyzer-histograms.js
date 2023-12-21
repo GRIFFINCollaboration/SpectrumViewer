@@ -146,19 +146,24 @@ function buildExampleConfig(){
 
 	// Unpack the Config file from the server into the dataStore layout
 
+    // Unpack Sort Variables content
+	for(var i=0; i<dataStore.Configs.Analyzer[0].Variables.length; i++){
+	    dataStore.sortCodeVariables.push(dataStore.Configs.Analyzer[0].Variables[i]);   
+	}
+	
     // Unpack Global content
-	for(var i=0; i<dataStore.Configs.Analyzer[2].Globals.length; i++){
-	    dataStore.globalCondition.contents.push(dataStore.Configs.Analyzer[2].Globals[i]);   
+	for(var i=0; i<dataStore.Configs.Analyzer[3].Globals.length; i++){
+	    dataStore.globalCondition.contents.push(dataStore.Configs.Analyzer[3].Globals[i]);   
 	}
 	
     // Unpack Gate content
-    for(var i=0; i<dataStore.Configs.Analyzer[0].Gates.length; i++){
-	    dataStore.gateCondition.contents.push(dataStore.Configs.Analyzer[0].Gates[i]);   
+    for(var i=0; i<dataStore.Configs.Analyzer[1].Gates.length; i++){
+	    dataStore.gateCondition.contents.push(dataStore.Configs.Analyzer[1].Gates[i]);   
     }
     
     // Unpack the Histogram content
-    for(var i=0; i<dataStore.Configs.Analyzer[1].Histograms.length; i++){
-	dataStore.histogramDefinition.contents.push(dataStore.Configs.Analyzer[1].Histograms[i]);
+    for(var i=0; i<dataStore.Configs.Analyzer[2].Histograms.length; i++){
+	dataStore.histogramDefinition.contents.push(dataStore.Configs.Analyzer[2].Histograms[i]);
     }
     
         // populate the current configuration based on what was received from the server
@@ -501,54 +506,56 @@ function addNewGateConditionRow(gateIndex,arrayIndex){
 function onLogicSelectChange(gateNumber, gateConditionNumber){
     if(document.getElementById('gateConditionLogicSelect'+gateNumber+'-'+gateConditionNumber).value == 'RA'){
 	// The Range option has just been selected. Change the Value input box into Min and Max input boxes
-	
-	// Remove the Value input box
-	document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).innerHTML = '';
-	
-	// Insert the Min input box
-	var newInput = document.createElement("input");
-	newInput.type = 'number';
-	newInput.id = 'gateConditionRangeMin'+gateNumber+'-'+gateConditionNumber;
-	newInput.value = '0';
-	newInput.onchange = function(){
-	    saveGateChangeToAnalyzerODB(gateNumber);
-	}.bind(newInput);
-	document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);
-	
-	// Insert the Max input box
-	var newInput = document.createElement("input");
-	newInput.type = 'number';
-	newInput.id = 'gateConditionRangeMax'+gateNumber+'-'+gateConditionNumber;
-	newInput.value = '1000';
-	newInput.onchange = function(){
-	    saveGateChangeToAnalyzerODB(gateNumber);
-	}.bind(newInput);
-	document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);
-	
-	// Update the dataStore and server version
-	saveGateChangeToAnalyzerODB(gateNumber);
+	insertRangeInputs(gateNumber,gateConditionNumber);
     }else if(dataStore.gateCondition.contents[gateNumber].gateCondition[gateConditionNumber].Logic == 'RA'){
 	// The Range option was previously selected and now changed. Remove the Min and Max input boxes and insert the Value input box
-	
-	// Remove the Min and Max input boxes
-	document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).innerHTML = '';
-	
-	// Insert the Value input box
-	var newInput = document.createElement("input");
-	newInput.type = 'number';
-	newInput.id = 'gateConditionValue'+gateNumber+'-'+gateConditionNumber;
-	newInput.value = '4096';
-	newInput.onchange = function(){
-	    saveGateChangeToAnalyzerODB(gateNumber);
-	}.bind(newInput);
-	document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);
-	
-	// Update the dataStore and server version
-	saveGateChangeToAnalyzerODB(gateNumber);
+	removeRangeInputs(gateNumber,gateConditionNumber);
     }else{
 	// The Range option was not selected this time, or the previous time. So just save whatever change was made to the dataStore and server version
-	saveGateChangeToAnalyzerODB(gateNumber);
     }
+    
+    // Update the dataStore and server version
+    saveGateChangeToAnalyzerODB(gateNumber);
+}
+
+function insertRangeInputs(gateNumber,gateConditionNumber){
+    // Remove the Value input box
+    document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).innerHTML = '';
+    
+    // Insert the Min input box
+    var newInput = document.createElement("input");
+    newInput.type = 'number';
+    newInput.id = 'gateConditionRangeMin'+gateNumber+'-'+gateConditionNumber;
+    newInput.value = '0';
+    newInput.onchange = function(){
+	saveGateChangeToAnalyzerODB(gateNumber);
+    }.bind(newInput);
+    document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);
+    
+    // Insert the Max input box
+    var newInput = document.createElement("input");
+    newInput.type = 'number';
+    newInput.id = 'gateConditionRangeMax'+gateNumber+'-'+gateConditionNumber;
+    newInput.value = '1000';
+    newInput.onchange = function(){
+	saveGateChangeToAnalyzerODB(gateNumber);
+    }.bind(newInput);
+    document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);	
+}
+
+function removeRangeInputs(gateNumber,gateConditionNumber){
+    // Remove the Min and Max input boxes
+    document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).innerHTML = '';
+    
+    // Insert the Value input box
+    var newInput = document.createElement("input");
+    newInput.type = 'number';
+    newInput.id = 'gateConditionValue'+gateNumber+'-'+gateConditionNumber;
+    newInput.value = '4096';
+    newInput.onchange = function(){
+	saveGateChangeToAnalyzerODB(gateNumber);
+    }.bind(newInput);
+    document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);    
 }
 
 function addNewHistogramCondition(histogramIndex,arrayIndex){

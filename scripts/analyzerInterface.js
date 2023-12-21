@@ -57,7 +57,8 @@ function setupDataStore(callback){
             "contents" : []            // place to save Histogram definition parameters
 	},
 
-        "sortCodeVariables" : [          // List of sort Code Variables available for histograms, gates and conditions
+        "sortCodeVariables" : [],          // List of sort Code Variables available for histograms, gates and conditions
+	/*
             // HPGe
 	    {
             "short": 'HPGeE',
@@ -441,7 +442,7 @@ function setupDataStore(callback){
             "description": 'The current PPG pattern'
 	    }
 	],
-
+*/
 	"logicOptions" : [                       // List of logic options used for building Gating conditions
 	    {
             "short": 'ET',

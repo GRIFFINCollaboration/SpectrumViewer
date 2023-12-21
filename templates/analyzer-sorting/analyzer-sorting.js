@@ -403,7 +403,7 @@ function ToggleCheckboxOfThisMIDASFile(rowID){
 		// If the list of subruns for this Run was expanded in the table then check if any are checked for sorting
 		for(var j=0; j<dataStore.midasRunList[i].SubRunList.length; j++){
 		    if(document.getElementById(dataStore.midasRunList[i].SubRunList[j].Name+'-checkbox').checked == true){
-			urls[urls.length] = dataStore.spectrumServer + '?cmd=addDatafile&filename='+DataFileDirectory+dataStore.midasRunList[i].SubRunList[j].Name;
+			urls[urls.length] = dataStore.spectrumServer + '?cmd=addDatafile&filename='+DataFileDirectory+dataStore.midasRunList[i].SubRunList[j].Name+'&histodir=' + HistoFileDirectory;
 		    }
 		}
 	    }
