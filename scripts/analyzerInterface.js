@@ -445,7 +445,7 @@ function setupDataStore(callback){
 */
 	"logicOptions" : [                       // List of logic options used for building Gating conditions
 	    {
-            "short": 'ET',
+            "short": 'EQ',
             "description": 'Equal to'
 	    },
 	    {

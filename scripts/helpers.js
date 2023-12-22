@@ -340,13 +340,14 @@ function parseQuery(){
 		elts[value[0]] = value[1];
 	}
     
-	return elts;
+    return elts;
 }
 
 function getHistoFileListFromServer(){
 
     // use a one-off XHR request with callback for getting the list of Histo files
-    url = dataStore.spectrumServer + '/?cmd=getHistofileList&dir='+dataStore.histoFileDataDirectoryPath;
+    url = dataStore.spectrumServer + '/?cmd=getHistofileList&dir='+dataStore.histoFileDirectoryPath;
+    console.log('getHistoFileListFromServer: '+url);
     XHR(url, "Problem getting list of Histogram files from analyzer server", processHistoFileList, function(error){ErrorConnectingToAnalyzerServer(error)});
 
 }
@@ -356,17 +357,17 @@ function GetSpectrumListFromServer(ServerName, callback){
     
     // Get the Spectrum List from the analyser server
     
-    var errorMessage = 'Error receiving Spectrum List from server, '+thisSpectrumServer;
+    var errorMessage = 'Error receiving Spectrum List from server, '+ServerName;
 
     // url is just /?cmd=getSpectrumList for online data.
     // url includes a histoFile for opening a midas file
     // dataStore.histoFileName
-    var urlString = thisSpectrumServer;
+    var urlString = ServerName;
     urlString += '/?cmd=getSpectrumList';
-    if(urlData.histoFile.length>0){
-	urlString += '&filename='+urlData.histoFile;
+    if(dataStore.histoFileName.length>0){
+	urlString += '&filename='+dataStore.histoFileName;
     }
-    console.log(urlString);
+    console.log('GetSpectrumListFromServer: '+urlString);
     
     var req = new XMLHttpRequest();
     req.open('GET', urlString);
