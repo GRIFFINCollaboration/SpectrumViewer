@@ -172,10 +172,6 @@ function processHistoFileList(payload){
     if(dataStore.histoFileName.length>0){
 	GetSpectrumListFromServer(dataStore.spectrumServer,processSpectrumList);
     }
-    else{
-     // Now can set up the event listeners
-     setupEventListeners();
-    }
 }
 
 function setupHistoListSelect(){
@@ -206,51 +202,19 @@ function setupHistoListSelect(){
 	console.log(thisSelect);
 	thisSelect.value = dataStore.histoFileName;
     }
-
+	
 }
 
 function constructNewSpectrumMenu(){
     console.log('constructNewSpectrumMenu');
     console.log(dataStore);
-
-   document.getElementById('bs-example-navbar-collapse-1').innerHTML = '';
-
-    setupEventListeners();
-    //dataStore._plotList = new plotList('bs-example-navbar-collapse-1');
-    //dataStore._plotList.setup();
+    
+    // Clear any previous menu content
+    document.getElementById('bs-example-navbar-collapse-1').innerHTML = '';
+    
+    // build the menu based on these topGroups and subGroups
+    dataStore._plotList = new plotList('bs-example-navbar-collapse-1');
+    dataStore._plotList.setup();
+    
 }
 
-function setupEventListeners(){
-    console.log('Execute setupEventListeners...');
-    console.log(dataStore.plots);
-
-    console.log(dataStore.topGroups);
-    console.log(dataStore.pageTitle);
-    
-    window.addEventListener('HTMLImportsLoaded', function(e) {
-        dataStore.templates = prepareTemplates(['plotListHeader', 'plotList', 'plotGrid', 'plotControl', 'auxPlotControl', 'auxPlotControlTable', 'fitRow', 'footer']);
-	
-        dataStore._plotListHeader = new plotListHeader('navbar-header-div');
-        dataStore._plotList = new plotList('bs-example-navbar-collapse-1');
-        dataStore._plotGrid = new plotGrid('plottingGrid');
-        dataStore._plotControl = new plotControl('plotCtrl', 'vertical');
-        dataStore._auxCtrl = new auxPlotControl('auxCtrl');
-	
-        dataStore._plotListHeader.setup();
-        dataStore._plotList.setup();
-        dataStore._plotGrid.setup();
-        dataStore._plotControl.setup();
-        dataStore._auxCtrl.setup();
-        setupFooter('foot');
-	
-        //start with a single plot
-	document.getElementById('plottingGridnewPlotButton').click();
-	
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-        })
-    });
-    
-    console.log('Finished setupEventListeners');
-    console.log(dataStore.plots);
-}
