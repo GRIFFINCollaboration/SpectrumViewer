@@ -1,0 +1,107 @@
+<link rel="stylesheet" href="plotList.css"/>
+
+<template id='plotListHeader'>
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#"><img style='display:inline;' src='img/GRIFFIN_Icon.png'></img> <span>{{title}}</span></a>
+</template>
+
+
+<template id='plotList'>
+                <form class="navbar-form navbar-left" role="search">
+                    <div class="btn-group" role="group" aria-label="...">
+                        {{# topGroups}}
+                            <button type="button" class="btn btn-default topGroup" id='{{id}}'>{{name}}</button>
+                        {{/ topGroups}}
+                    </div>
+                </form>
+                {{# topGroups}}
+                    <ul id='subrow{{id}}' class="nav navbar-nav navbar-left hidden">
+                        {{# subGroups}}
+                            <li class="dropdown">
+                                <a id="drop{{id}}" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{subname}} <span class="caret"></span></a>
+                                <ul class="dropdown-menu dd-limited">
+                                    {{# items}}
+                                        <li class='dd-item' id='{{.}}'>
+                                            <div class='plotName'>{{.}}</div>
+                                            <span id='{{.}}badge' class="badge transparent">
+                                                <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                            </span>
+                                        </li>
+                                    {{/ items}}
+                                </ul>
+                            </li>
+                        {{/ subGroups}}
+                    </ul>
+                {{/ topGroups}}
+</template>
+
+	
+<script>
+    function plotList(wrapID){
+
+        this.wrapID = wrapID;
+        this.wrap = document.getElementById(wrapID);
+
+        this.setup = function(){
+            var i, plotSelectorSections, plotToggles;
+
+            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.plotList, {'topGroups': dataStore.topGroups, 'title':dataStore.pageTitle});
+
+            //set up plot selection top row
+            plotSelectorSections = document.getElementsByClassName('topGroup')
+            for(i=0; i<plotSelectorSections.length; i++){
+                plotSelectorSections[i].onclick = this.selectMenuSection;
+            }
+
+            //set up plot list clicks
+            plotToggles = document.getElementsByClassName('dd-item')
+            for(i=0; i<plotToggles.length; i++){
+                plotToggles[i].onclick = this.selectPlot.bind(this, plotToggles[i].id);
+            }  
+        }
+    
+        this.selectMenuSection = function(){
+            //select the top level menu tab
+            //this: top group button object
+            if(dataStore.currentTopGroup){
+                document.getElementById('subrow' + dataStore.currentTopGroup).classList.toggle('hidden')
+                document.getElementById(dataStore.currentTopGroup).classList.toggle('active')
+            }
+
+            document.getElementById('subrow' + this.id).classList.toggle('hidden')
+            this.classList.toggle('active')
+            dataStore.currentTopGroup = this.id;
+        }
+
+        this.selectPlot = function(plotName, e){
+            //dispatch an event carrying the requested plot name on click of a dropdown element.
+            //<plotName>: string; name of plot requested from analyzer
+            //<e>: event; onclick.
+
+            //don't close the dd onclick:
+            if(!dataStore.closeMenuOnclick)
+                e.stopPropagation();
+
+            dispatcher({ 'plotName': plotName }, 'requestPlot');
+
+        }
+}
+
+
+function plotListHeader(wrapID){
+
+   this.wrapID = wrapID;
+   this.wrap = document.getElementById(wrapID);
+
+   this.setup = function(){
+                  this.wrap.innerHTML = Mustache.to_html(dataStore.templates.plotListHeader, {'title':dataStore.pageTitle});
+                }
+    
+}
+
+</script>
