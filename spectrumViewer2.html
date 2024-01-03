@@ -27,8 +27,12 @@
         <link id='footer' rel="import" href="templates/footer/footer.html">
     </head>
 
-    <body>
-        <div id='histo-list-menu-div'>Server name</div>
+<body>
+         <div id='histo-list-container' class='container-fluid'>
+            <div id='histo-list-server-div' class='col-md-3'></div>
+	    <div id='histo-list-directory-div' class='col-md-6'>Histogram Directory: </div>
+	    <div id='histo-list-menu-div' class='col-md-3'></div>
+        </div>
 	<div id='analyzerPlots'>
 	  
 	  <nav class="navbar navbar-default">
@@ -88,6 +92,22 @@
         $(function () {
             $('[data-toggle="tooltip"]').tooltip()
 	})
+
+	
+    // Display the analyzer server name
+    document.getElementById('histo-list-server-div').innerHTML = dataStore.spectrumServer;
+
+    // Create the text input for the Histogram file directory
+    newInput = document.createElement('input'); 
+    newInput.id = 'HistoDirectoryInput'; 
+    newInput.type = 'text';
+    newInput.style.width = '300px';
+    newInput.value = dataStore.histoFileDirectoryPath; 
+    newInput.onchange = function(){
+    dataStore.histoFileDirectoryPath = this.value;
+    getHistoFileListFromServer();
+    }.bind(newInput);
+    document.getElementById('histo-list-directory-div').appendChild(newInput);
 	
 	});
 

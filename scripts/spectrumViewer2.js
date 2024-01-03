@@ -175,9 +175,9 @@ function processHistoFileList(payload){
 }
 
 function setupHistoListSelect(){
-    // Display the analyzer server name
-    document.getElementById('histo-list-menu-div').innerHTML = dataStore.spectrumServer+'  ';
-
+    // Clear the previous contents
+    document.getElementById('histo-list-menu-div').innerHTML = 'Histogram file: ';
+	
     // Create a select input for the histo file list
     var newSelect = document.createElement("select");
     newSelect.id = 'HistoListSelect';
@@ -192,6 +192,7 @@ function setupHistoListSelect(){
 
     // Add the list of histo files as the options
     thisSelect = document.getElementById('HistoListSelect');
+	thisSelect.add( new Option('Online', 'Online') );
     for(var i=0; i<dataStore.histoFileList.length; i++){
 	thisSelect.add( new Option(dataStore.histoFileList[i], dataStore.histoFileList[i]) );
     }

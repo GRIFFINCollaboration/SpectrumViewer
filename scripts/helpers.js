@@ -364,7 +364,7 @@ function GetSpectrumListFromServer(ServerName, callback){
     // dataStore.histoFileName
     var urlString = ServerName;
     urlString += '/?cmd=getSpectrumList';
-    if(dataStore.histoFileName.length>0){
+    if(dataStore.histoFileName.length>0 && dataStore.histoFileName!='Online'){
 	urlString += '&filename='+dataStore.histoFileName;
     }
     console.log('GetSpectrumListFromServer: '+urlString);
