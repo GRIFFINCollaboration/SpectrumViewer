@@ -469,7 +469,7 @@ function constructQueries(keys){
     for(i=0; i<Math.ceil(keys.length/16); i++){
         queryString = dataStore.spectrumServer + '?cmd=callspechandler';
 	if(dataStore.histoFileName!=undefined){
-	    if(dataStore.histoFileName.length>0){
+	    if(dataStore.histoFileName.length>0 && dataStore.histoFileName!='Online'){
 		queryString += '&filename='+dataStore.histoFileName;
 	    }
 	}
