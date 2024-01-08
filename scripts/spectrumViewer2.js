@@ -203,7 +203,11 @@ function setupHistoListSelect(){
 	console.log(thisSelect);
 	thisSelect.value = dataStore.histoFileName;
     }
-	
+
+    // Get the spectrum list for whatever is selected on startup
+    dataStore.histoFileName = document.getElementById('HistoListSelect').value;
+    GetSpectrumListFromServer(dataStore.spectrumServer,processSpectrumList);
+    console.log('Ininital Histogram file selected is '+dataStore.histoFileName);
 }
 
 function constructNewSpectrumMenu(){
