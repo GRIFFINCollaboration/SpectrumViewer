@@ -365,7 +365,12 @@ function GetSpectrumListFromServer(ServerName, callback){
     var urlString = ServerName;
     urlString += '/?cmd=getSpectrumList';
     if(dataStore.histoFileName.length>0 && dataStore.histoFileName!='Online'){
-	urlString += '&filename='+dataStore.histoFileName;
+	var HistoFileDirectory = dataStore.histoFileDirectoryPath;
+	// Format check for the data file
+	if(HistoFileDirectory[HistoFileDirectory.length]!='/'){
+	    HistoFileDirectory += '/';
+	}
+	urlString += '&filename='+HistoFileDirectory+dataStore.histoFileName;
     }
     console.log('GetSpectrumListFromServer: '+urlString);
     
@@ -470,7 +475,12 @@ function constructQueries(keys){
         queryString = dataStore.spectrumServer + '?cmd=callspechandler';
 	if(dataStore.histoFileName!=undefined){
 	    if(dataStore.histoFileName.length>0 && dataStore.histoFileName!='Online'){
-		queryString += '&filename='+dataStore.histoFileName;
+		var HistoFileDirectory = dataStore.histoFileDirectoryPath;
+		// Format check for the data file
+		if(HistoFileDirectory[HistoFileDirectory.length]!='/'){
+		    HistoFileDirectory += '/';
+		}
+		queryString += '&filename='+HistoFileDirectory+dataStore.histoFileName;
 	    }
 	}
 	

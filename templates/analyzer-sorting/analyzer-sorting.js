@@ -406,12 +406,12 @@ function ToggleCheckboxOfThisMIDASFile(rowID){
 
 	// Build list of urls for the selected files
 	//var DataFileDirectory = '/tig/grifstore1b/grifalt/schedule145/Dec2023/';
-	var DataFileDirectory = dataStore.midasFileDataDirectoryPath;;
+	var DataFileDirectory = dataStore.midasFileDataDirectoryPath;
 	var HistoFileDirectory = dataStore.histoFileDirectoryPath;
 
 	// Format check for the data file
 	
-	if(DataFileDirectory[DataFileDirectory/length]!='/'){
+	if(DataFileDirectory[DataFileDirectory.length]!='/'){
 	    DataFileDirectory += '/';
 	}
 
