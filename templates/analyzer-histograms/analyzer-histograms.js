@@ -196,7 +196,7 @@ function buildConfigMenu(){
 
     function addNewGlobal(arrayIndex){
         // add a new Global Condition block
-	if(arrayIndex == 'undefined'){
+	if(isNaN(arrayIndex)){
 	    var arrayIndex = -1;
 	}
 
@@ -261,7 +261,7 @@ function buildConfigMenu(){
 
     function addNewGate(arrayIndex){
         // add a new Gate Condition block
-	if(arrayIndex == 'undefined'){
+	if(isNaN(arrayIndex)){
 	    var arrayIndex = -1;
 	}
 
@@ -334,7 +334,7 @@ function deleteGateBlock(gateNumber){
 
     function addNewHistogram(arrayIndex){
         // add a new Histogram Condition block
-	if(arrayIndex == 'undefined'){
+	if(isNaN(arrayIndex)){
 	    var arrayIndex = -1;
 	}
 	
