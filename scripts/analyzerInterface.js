@@ -56,6 +56,9 @@ function setupDataStore(callback){
             "nRows" : [],            // array of monotonic counters for number of rows inserted into Histogram condition block; Histogram block # == array index. 
             "contents" : []            // place to save Histogram definition parameters
 	},
+	"uniqueGloablName" : '',        // place to save the unique global namne entered in the modal     
+	"uniqueGateName" : '',          // place to save the unique gate namne entered in the modal     
+	"uniqueHistogramName" : '',     // place to save the unique histogram namne entered in the modal             
 
         "sortCodeVariables" : [],          // List of sort Code Variables available for histograms, gates and conditions
 	/*

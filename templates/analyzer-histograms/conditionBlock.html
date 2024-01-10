@@ -6,7 +6,7 @@
           <div class='row'>
 	    <div class='col-md-5'>
 	      <label for='globalName{{globalNumber}}'>Global Name:</label>
-	      <input type='text' class='text-name' name='globalName{{globalNumber}}' id='globalName{{globalNumber}}' value='Global_condition_name' onchange='saveGlobalChangeToAnalyzerODB({{globalNumber}})'>
+	      <input type='text' class='text-name' name='globalName{{globalNumber}}' id='globalName{{globalNumber}}' onchange='saveGlobalChangeToAnalyzerODB({{globalNumber}})'>
 	    </div>
 	    <div class='col-md-3'>
 	      <label for='globalMin{{globalNumber}}'>Minimum value:</label>
@@ -31,7 +31,7 @@
           <div class='row'>
 	    <div class='col-md-12'>
 	       <label for='gateName{{gateNumber}}'>Gate Name:</label>
-               <input type='text' class='text-name' name='gateName{{gateNumber}}' id='gateName{{gateNumber}}' value='Gate_name' onchange='saveGateChangeToAnalyzerODB({{gateNumber}})'>
+               <input type='text' class='text-name' name='gateName{{gateNumber}}' id='gateName{{gateNumber}}' onchange='saveGateChangeToAnalyzerODB({{gateNumber}})'>
             </div>
           </div>
         </div>
@@ -52,7 +52,7 @@
 	  <input type='text' class='text-name' name='histogramPath{{histogramNumber}}' id='histogramPath{{histogramNumber}}' value='Histogram_path' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
 	  </div>
           <div class='col-md-4'>
-	  <input type='text' class='text-name' name='histogramName{{histogramNumber}}' id='histogramName{{histogramNumber}}' value='Histogram_name' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
+	  <input type='text' class='text-name' name='histogramName{{histogramNumber}}' id='histogramName{{histogramNumber}}' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'>
 	  </div>
 	  <div class='col-md-2'><label for='dimensionType{{histogramNumber}}'>Type:</label>
 	    <label for='1dimension{{histogramNumber}}'>1D</label>

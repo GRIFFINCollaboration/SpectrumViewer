@@ -196,8 +196,23 @@ function buildConfigMenu(){
 
     function addNewGlobal(arrayIndex){
         // add a new Global Condition block
+	
+	// The argument arrayIndex is used for populating initial values of the html with those from a specific set in the dataStore.
+	// Set arrayIndex to -1 to create a new instance and create the new space for it in the dataStore
+	// Every instance requires a unique name
 	if(isNaN(arrayIndex)){
+	    // This is a new instance so everything must be created
 	    var arrayIndex = -1;
+
+	    // Get the unique gate name entered in the modal
+	    var thisGlobalName = dataStore.uniqueGlobalName;
+
+	    // Close the modal
+	    $('#globalModal').modal('hide');
+	}else{
+	    // The values for this instance are already stored in the dataStore
+	    // A unique name is required for this instance.
+	    var thisGlobalName = dataStore.globalCondition.contents[arrayIndex].name;
 	}
 
 	// Create the new html block
@@ -215,9 +230,11 @@ function buildConfigMenu(){
 
 	// Populate the Gate with the entry in dataStore.gateCondition.contents[arrayIndex] if an arrayIndex was provided
 	if(arrayIndex>=0){
-	    document.getElementById('globalName'+globalIndex).value = dataStore.globalCondition.contents[arrayIndex].name;
+	    document.getElementById('globalName'+globalIndex).value = thisGlobalName;
 	    document.getElementById('globalMin'+globalIndex).value = dataStore.globalCondition.contents[arrayIndex].min;
 	    document.getElementById('globalMax'+globalIndex).value = dataStore.globalCondition.contents[arrayIndex].max;
+	}else{
+	    document.getElementById('globalName'+globalIndex).value = thisGlobalName;
 	}
 	    
 	// Create the new condition in the dataStore and fill with generic initial values
@@ -233,6 +250,11 @@ function buildConfigMenu(){
 	
 	// Increase the Global counters
         dataStore.globalCondition.globalIndex++;
+
+	// If this is a new instance, save it also to the server
+	if(arrayIndex<0){
+	    saveGlobalChangeToAnalyzerODB(globalIndex);
+	}
     }
 
     function deleteGlobalBlock(globalNumber){
@@ -261,8 +283,23 @@ function buildConfigMenu(){
 
     function addNewGate(arrayIndex){
         // add a new Gate Condition block
+	
+	// The argument arrayIndex is used for populating initial values of the html with those from a specific set in the dataStore.
+	// Set arrayIndex to -1 to create a new instance and create the new space for it in the dataStore
+	// Every instance requires a unique name
 	if(isNaN(arrayIndex)){
+	    // This is a new instance so everything must be created
 	    var arrayIndex = -1;
+
+	    // Get the unique gate name entered in the modal
+	    var thisGateName = dataStore.uniqueGateName;
+
+	    // Close the modal
+	    $('#gateModal').modal('hide');
+	}else{
+	    // The values for this instance are already stored in the dataStore
+	    // A unique name is required for this instance.
+	    var thisGateName = dataStore.gateCondition.contents[arrayIndex].name;
 	}
 
 	// Create the new html block
@@ -281,9 +318,8 @@ function buildConfigMenu(){
         document.getElementById('gates-wrap').appendChild(wrap);
 	
 	// Populate the Gate with the entry in dataStore.gateCondition.contents[arrayIndex] if an arrayIndex was provided
-	if(arrayIndex>=0){
-	    document.getElementById('gateName'+gateIndex).value = dataStore.gateCondition.contents[arrayIndex].name;
-	}
+	document.getElementById('gateName'+gateIndex).value = thisGateName;
+	
 	    
 	// Add the first row for the first condition
         dataStore.gateCondition.nRows[gateIndex] = 0;
@@ -304,6 +340,11 @@ function buildConfigMenu(){
 	
 	// Increase the Gate counter
         dataStore.gateCondition.gateIndex++;
+
+	// If this is a new instance, save it also to the server
+	if(arrayIndex<0){
+	    saveGateChangeToAnalyzerODB(gateIndex);
+	}
     }
 
 function deleteGateBlock(gateNumber){
@@ -334,8 +375,23 @@ function deleteGateBlock(gateNumber){
 
     function addNewHistogram(arrayIndex){
         // add a new Histogram Condition block
+
+	// The argument arrayIndex is used for populating initial values of the html with those from a specific set in the dataStore.
+	// Set arrayIndex to -1 to create a new instance and create the new space for it in the dataStore
+	// Every instance requires a unique name
 	if(isNaN(arrayIndex)){
+	    // This is a new instance so everything must be created
 	    var arrayIndex = -1;
+
+	    // Get the unique histogram name entered in the modal
+	    var thisHistogramName = dataStore.uniqueHistogramName;
+
+	    // Close the modal
+	    $('#histogramModal').modal('hide');
+	}else{
+	    // The values for this instance are already stored in the dataStore
+	    // A unique name is required for this instance.
+	    var thisHistogramName = dataStore.histogramDefinition.contents[arrayIndex].name;
 	}
 	
 	// Create the new html block
@@ -354,7 +410,7 @@ function deleteGateBlock(gateNumber){
 	
 	// Populate the Histogram with the entry in dataStore.histogramDefinition.contents[arrayIndex] if an arrayIndex was provided
 	if(arrayIndex>=0){
-	    document.getElementById('histogramName'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].name;
+	    document.getElementById('histogramName'+histogramIndex).value = thisHistogramName;
 	    document.getElementById('histogramPath'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].path;
 	    if(dataStore.histogramDefinition.contents[arrayIndex].type ==2){
 		document.getElementById('2dimension'+histogramIndex).checked = true;
@@ -371,8 +427,7 @@ function deleteGateBlock(gateNumber){
 	    document.getElementById('Ymax'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].Ymax;
 	    document.getElementById('Ybins'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].Ybins;
 	}else{
-	    // This is a new Histogram definition and it needs a unique name
-	    
+	    document.getElementById('histogramName'+histogramIndex).value = thisHistogramName;
 	}
 	
 	// Default to 1D for new definitions
@@ -397,6 +452,11 @@ function deleteGateBlock(gateNumber){
 	
 	// Increase the Histogram counter
         dataStore.histogramDefinition.histogramIndex++;
+
+	// If this is a new instance, save it also to the server
+	if(arrayIndex<0){
+	    saveHistogramChangeToAnalyzerODB(histogramIndex);
+	}
     }
 
     function deleteHistogramBlock(histogramNumber){
@@ -680,6 +740,84 @@ function toggleHistogramDimensions(histogramNumber, dimension){
             nameField.value = 'my-new-config';
     }
 
+function enterUniqueGlobalName(){
+    BadName=0;
+    var thisName = document.getElementById('globalModalInput').value;
+    if(thisName.length<1){
+	BadName=1;
+    }
+
+    // Check that this name does not match any existing global condition names
+    for(var i=0; i<dataStore.globalCondition.contents.length; i++){
+	if(dataStore.globalCondition.contents[i].name == thisName){
+	    // this name is not unique
+	    BadName=1;
+	}
+    }
+
+    if(BadName){
+	// This name already exists or is too short
+	document.getElementById('globalModalButton').disabled = true;
+    }else{
+	// This name is unique
+	dataStore.uniqueGlobalName = thisName;
+	document.getElementById('globalModalButton').disabled = false;
+    }
+    
+}
+
+function enterUniqueGateName(){
+    BadName=0;
+    var thisName = document.getElementById('gateModalInput').value;
+    if(thisName.length<1){
+	BadName=1;
+    }
+
+    // Check that this name does not match any existing gate condition names
+    for(var i=0; i<dataStore.gateCondition.contents.length; i++){
+	if(dataStore.gateCondition.contents[i].name == thisName){
+	    // this name is not unique
+	    BadName=1;
+	}
+    }
+
+    if(BadName){
+	// This name already exists or is too short
+	document.getElementById('gateModalButton').disabled = true;
+    }else{
+	// This name is unique
+	dataStore.uniqueGateName = thisName;
+	document.getElementById('gateModalButton').disabled = false;
+    }
+    
+}
+
+function enterUniqueHistogramName(){
+    BadName=0;
+    var thisName = document.getElementById('histogramModalInput').value;
+    if(thisName.length<1){
+	BadName=1;
+    }
+
+    // Check that this name does not match any existing histogram definition names
+    for(var i=0; i<dataStore.histogramDefinition.contents.length; i++){
+	if(dataStore.histogramDefinition.contents[i].name == thisName){
+	    // this name is not unique
+	    BadName=1;
+	}
+    }
+
+    if(BadName){
+	// This name already exists or is too short
+	document.getElementById('histogramModalButton').disabled = true;
+    }else{
+	// This name is unique
+	dataStore.uniqueHistogramName = thisName;
+	document.getElementById('histogramModalButton').disabled = false;
+    }
+    
+}
+
 function saveGlobalChangeToAnalyzerODB(globalNumber){
     //when something changes in any of the definitions, save the change to the dataStore and send it to the analyzer ODB
 	var newContents = {
@@ -802,6 +940,7 @@ function saveHistogramChangeToAnalyzerODB(histogramNumber){
     // The following is for the analyzer server
     // cmd=addHistogram&name=XXXX&title=XXX&path=XXXX&op=XXX&xbins=XXX&xvarname=XXX[optional... &ybins=XXX&yvarname=XXXX]&gate1=XXX&gate2=XXX....
     var url = dataStore.spectrumServer + '/?cmd=addHistogram';
+    url += '&name='+dataStore.histogramDefinition.contents[histogramNumber].name;
     url += '&title='+dataStore.histogramDefinition.contents[histogramNumber].name;
     url += '&path='+dataStore.histogramDefinition.contents[histogramNumber].path;
     url += '&xvarname='+dataStore.histogramDefinition.contents[histogramNumber].Xvariable;

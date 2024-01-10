@@ -8,7 +8,7 @@
             <h2>Global Conditions</h2>
 	<div id='GlobalConditions'>
             <div id='globals-wrap'></div>
-            <button class='btn btn-info' onclick='addNewGlobal();'>Add a new Global condition</button>
+	    <button type='button' class='btn btn-info' data-toggle='modal' data-target='#globalModal'>Add a new Global condition</button>
 	</div>
         </div>
     </div>
@@ -18,7 +18,7 @@
             <h2>Gating Conditions</h2>
 	<div id='GateConditions'>
             <div id='gates-wrap'></div>
-            <button class='btn btn-info' onclick='addNewGate();'>Add a new Gate condition</button>
+	    <button type='button' class='btn btn-info' data-toggle='modal' data-target='#gateModal'>Add a new Gate condition</button>
 	</div>
         </div>
     </div>
@@ -28,11 +28,79 @@
             <h2>Histogram Definitions</h2>
 	<div id='HistogramDefinitions'>
 	<div id='histograms-wrap'></div>
-            <button class='btn btn-info' onclick='addNewHistogram();'>Add a new Histogram definition</button>
+	<button type='button' class='btn btn-info' data-toggle='modal' data-target='#histogramModal'>Add a new Histogram definition</button>
 	</div>
         </div>
     </div>
 
+
+<!-- Modals -->
+<div id="globalModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Create a New Global Condition</h4>
+      </div>
+      <div class="modal-body">
+        <p>Please enter a unique name for the new global.</p>
+	<input type="text" class="analyzer-input-text" id="globalModalInput" oninput='enterUniqueGlobalName();' placeholder="Enter global name">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" id='globalModalButton' onclick='addNewGlobal();' disabled>Create Global</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+  
+<div id="gateModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Create a New Gate Condition</h4>
+      </div>
+      <div class="modal-body">
+        <p>Please enter a unique name for the new gate.</p>
+	<input type="text" class="analyzer-input-text" id="gateModalInput" oninput='enterUniqueGateName();' placeholder="Enter gate name">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" id='gateModalButton' onclick='addNewGate();' disabled>Create Gate</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+  
+<div id="histogramModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Create a New Histogram Definition</h4>
+      </div>
+      <div class="modal-body">
+        <p>Please enter a unique name for the new histogram.</p>
+	<input type="text" class="analyzer-input-text" id="histogramModalInput" oninput='enterUniqueHistogramName();' placeholder="Enter histogram name">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" id='histogramModalButton' onclick='addNewHistogram();' disabled>Create Histogram</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+    
 </template>
     
 <script>
