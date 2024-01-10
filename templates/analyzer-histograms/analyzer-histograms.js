@@ -370,6 +370,9 @@ function deleteGateBlock(gateNumber){
 	    document.getElementById('Ymin'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].Ymin;
 	    document.getElementById('Ymax'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].Ymax;
 	    document.getElementById('Ybins'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].Ybins;
+	}else{
+	    // This is a new Histogram definition and it needs a unique name
+	    
 	}
 	
 	// Default to 1D for new definitions

@@ -40,50 +40,9 @@
         document.getElementById(wrapperID).innerHTML = "";
         document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-histograms'], {});
 
-        // get the Global conditions, Gates conditions and Histogram definitions from the server/ODB
-      //  promiseScript('http://' + dataStore.host + '/?cmd=jcopy&odb=/Filter&encoding=json-p-nokeys&callback=processHistograms');
+    // get the Global conditions, Gates conditions and Histogram definitions from the server/ODB
     url = dataStore.spectrumServer + '/?cmd=viewConfig';
     XHR(url, "Problem getting Config file from analyzer server", processConfigFile, function(error){ErrorConnectingToAnalyzerServer(error)});
-
-    // This build a fake config configuration into the dataStore. Used for initial testing.
-   // buildExampleConfig();
-    
-    //Create a dummy Config file and then process it
-/*
-   var payload = 
-{
-    "Analyzer" : {
-       "Gates" : {
-          "BetaVeto" : "SepE=0",
-          "GeBetaDt" : "GeSepdT<100",
-          "BetaCoinc" : "SepE>0"
-       },
-       "Histograms" : {
-          "GeEx" : {
-             "Title" : "GeBetaVeto",
-             "Path" : "Extras/Test",
-             "X variable" : "GeE",
-             "X bins" : 256,
-             "Gate0" : "BetaVeto"
-          },
-          "GeE" : {
-             "Title" : "Singles Ge Energy",
-             "Path" : "Extras/Test",
-             "X variable" : "GeE",
-             "X bins" : 256
-          },
-          "SepT" : {
-             "Title" : "Sceptar Time",
-             "Path" : "Extras/Test",
-             "X variable" : "SepT",
-             "X bins" : 256
-          }
-       }
-    }
-    };
-  //  buildExampleConfig();
-//processHistograms(payload);
-*/
     
     }
 </script>
