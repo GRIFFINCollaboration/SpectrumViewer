@@ -101,6 +101,30 @@
   </div>
 </div>
     
+<div id="alertModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Warning</h4>
+      </div>
+      <div class="modal-body">
+        <p>Numerical values must be between -2,147,483,648 and +2,147,483,647.</p>
+	<p>The values for the Range option are limited to between −32,768 and +32,767.</p>
+        <p>The following characters are not permitted in names or titles; &, =, {, }, ?, !</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<button type='button' class='btn invisible' id='alertModalButton' data-toggle='modal' data-target='#alertModal'>Info</button>
+    
 </template>
     
 <script>

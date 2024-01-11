@@ -140,7 +140,7 @@ function buildExampleConfig(){
         // finish initial setup
 	
 	// Unpack the response and place the response from the server into the dataStore
-//	console.log(payload);
+	console.log(payload);
         dataStore.Configs = JSON.parse(payload);
 //	console.log(dataStore.Configs);
 
@@ -334,7 +334,14 @@ function buildConfigMenu(){
 		}
 		document.getElementById('gateConditionVariableSelect'+gateIndex+'-'+i).value = dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Variable;
 		document.getElementById('gateConditionLogicSelect'+gateIndex+'-'+i).value = dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Logic;
-		document.getElementById('gateConditionValue'+gateIndex+'-'+i).value = dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Value;
+		if(dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Logic == 'RA'){
+		    insertRangeInputs(gateIndex,i);
+		    document.getElementById('gateConditionRangeMin'+gateIndex+'-'+i).value = ((dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Value && 0xFF00)>>16);
+		    document.getElementById('gateConditionRangeMax'+gateIndex+'-'+i).value = (dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Value && 0x00FF);
+		    
+		}else{
+		    document.getElementById('gateConditionValue'+gateIndex+'-'+i).value = dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Value;
+		}
 	    }
 	}
 	
@@ -830,7 +837,24 @@ function saveGlobalChangeToAnalyzerODB(globalNumber){
 	    "min" : document.getElementById('globalMin'+globalNumber).value,
 	    "max" : document.getElementById('globalMax'+globalNumber).value
 	};
+
+    // Check for special characters that are not allowed
+    var specials = ['&','=','{','}','?','!'];
+    for(var i=0; i<specials.length; i++){
+	if(newContents.name.includes(specials[i])){
+	    // We have a problem character
+	    console.log('Bad chracter found in '+newContents.name);
+	    newContents.name = newContents.name.replace(specials[i], '-');
+	    console.log('Changed to '+newContents.name);
+	    document.getElementById('globalName'+globalNumber).value = newContents.name;
+	    
+	    document.getElementById('alertModalButton').click();
+	}
+    }
+    
+    // save the change to the dataStore
 	dataStore.globalCondition.contents[globalNumber] = newContents;
+
     
     // Submit this change to the analyzer server via a JSET URL command
 
@@ -860,6 +884,20 @@ function saveGateChangeToAnalyzerODB(gateNumber){
 	    "name" : document.getElementById('gateName'+gateNumber).value,
 	    "gateCondition" : []
 	};
+    
+    // Check for special characters that are not allowed
+    var specials = ['&','=','{','}','?','!'];
+    for(var i=0; i<specials.length; i++){
+	if(newContents.name.includes(specials[i])){
+	    // We have a problem character
+	    console.log('Bad character found in '+newContents.name);
+	    newContents.name = newContents.name.replace(specials[i], '-');
+	    console.log('Changed to '+newContents.name);
+	    document.getElementById('gateName'+gateNumber).value = newContents.name;
+	    
+	    document.getElementById('alertModalButton').click();
+	}
+    }
 
     // Some elements could have been deleted from the list so the index numbers of the Id input elements might not be continuous.
     // So we need to only get the values from the indexes which exist
@@ -925,6 +963,29 @@ function saveHistogramChangeToAnalyzerODB(histogramNumber){
 	    "Ybins" : document.getElementById('Ybins'+histogramNumber).value,
 	    "histogramCondition" : []
 	};
+    
+    // Check for special characters that are not allowed
+    var specials = ['&','=','{','}','?','!'];
+    for(var i=0; i<specials.length; i++){
+	if(newContents.name.includes(specials[i])){
+	    // We have a problem character
+	    console.log('Bad character found in '+newContents.name);
+	    newContents.name = newContents.name.replace(specials[i], '-');
+	    console.log('Changed to '+newContents.name);
+	    document.getElementById('histogramName'+histogramNumber).value = newContents.name;
+	    
+	    document.getElementById('alertModalButton').click();
+	}
+	if(newContents.path.includes(specials[i])){
+	    // We have a problem character
+	    console.log('Bad character found in '+newContents.path);
+	    newContents.path = newContents.path.replace(specials[i], '-');
+	    console.log('Changed to '+newContents.path);
+	    document.getElementById('histogramPath'+histogramNumber).value = newContents.path;
+	    
+	    document.getElementById('alertModalButton').click();
+	}
+    }
 
     // Some elements could have been deleted from the list so the index numbers of the Id input elements might not be continuous.
     // So we need to only get the values from the indexes which exist
