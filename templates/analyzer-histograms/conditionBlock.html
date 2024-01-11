@@ -10,11 +10,11 @@
 	    </div>
 	    <div class='col-md-3'>
 	      <label for='globalMin{{globalNumber}}'>Minimum value:</label>
-	      <input type='number' value='-100' step='1' id='globalMin{{globalNumber}}' class='small-number' onchange='saveGlobalChangeToAnalyzerODB({{globalNumber}})'></input>
+	      <input type='number' value='-100' step='1' min='–2147483648' max='2147483646' id='globalMin{{globalNumber}}' class='small-number' onchange='saveGlobalChangeToAnalyzerODB({{globalNumber}})'></input>
 	    </div>
 	    <div class='col-md-3'>
 	      <label for='globalMax{{globalNumber}}'>Maximum value:</label>
-	      <input type='number' value='100' step='1' id='globalMax{{globalNumber}}' class='small-number' onchange='saveGlobalChangeToAnalyzerODB({{globalNumber}})'></input>
+	      <input type='number' value='100' step='1' min='–2147483647' max='2147483647' id='globalMax{{globalNumber}}' class='small-number' onchange='saveGlobalChangeToAnalyzerODB({{globalNumber}})'></input>
 	    </div>
 	  </div>
 	  
@@ -76,15 +76,15 @@
       <div id='XinputRow{{histogramNumber}}' class='row histo-row'>
 	  <div class='col-md-3'>
 	    <label for='Xmin{{histogramNumber}}'>X axis Min.:</label>
-	    <input type='number' value='0' step='1' id='Xmin{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
+	    <input type='number' value='0' step='1' min='–2147483648' max='2147483646' id='Xmin{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
 	  </div>
         <div class='col-md-3'>
 	  <label for='Xmax{{histogramNumber}}'>X axis Max.:</label>
-	  <input type='number' value='4096' step='1' id='Xmax{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
+	  <input type='number' value='4096' step='1' min='–2147483647' max='2147483647' id='Xmax{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
 	</div>
 	<div class='col-md-4'>
 	  <label for='Xbins{{histogramNumber}}'>X axis Bins:</label>
-	  <input type='number' value='4096' step='1' id='Xbins{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
+	  <input type='number' value='4096' step='1' min='0' max='2147483647' id='Xbins{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
 	</div>
       </div>
       <div id='YvariableRow{{histogramNumber}}' class='row'>
@@ -102,15 +102,15 @@
       <div id='YinputRow{{histogramNumber}}' class='row histo-row'>
 	<div class='col-md-3'>
 	  <label for='Ymin{{histogramNumber}}'>Y axis Min.:</label>
-	  <input type='number' value='0' step='1' id='Ymin{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
+	  <input type='number' value='0' step='1' min='–2147483648' max='2147483646' id='Ymin{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
 	</div>
 	<div class='col-md-3'>
 	  <label for='Ymax{{histogramNumber}}'>Y axis Max.:</label>
-	  <input type='number' value='4096' step='1' id='Ymax{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
+	  <input type='number' value='4096' step='1' min='–2147483647' max='2147483647' id='Ymax{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
 	</div>
 	<div class='col-md-4'>
 	  <label for='Ybins{{histogramNumber}}'>Y axis Bins:</label>
-	  <input type='number' value='4096' step='1' id='Ybins{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
+	  <input type='number' value='4096' step='1' min='0' max='2147483647' id='Ybins{{histogramNumber}}' class='small-number' onchange='saveHistogramChangeToAnalyzerODB({{histogramNumber}})'></input>
 	</div>
       </div>
     </div>

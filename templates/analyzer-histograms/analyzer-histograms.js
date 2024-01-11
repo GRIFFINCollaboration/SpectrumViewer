@@ -590,6 +590,8 @@ function insertRangeInputs(gateNumber,gateConditionNumber){
     newInput.type = 'number';
     newInput.id = 'gateConditionRangeMin'+gateNumber+'-'+gateConditionNumber;
     newInput.value = '0';
+    newInput.min = '−32768';
+    newInput.max = '32766';
     newInput.onchange = function(){
 	saveGateChangeToAnalyzerODB(gateNumber);
     }.bind(newInput);
@@ -600,6 +602,8 @@ function insertRangeInputs(gateNumber,gateConditionNumber){
     newInput.type = 'number';
     newInput.id = 'gateConditionRangeMax'+gateNumber+'-'+gateConditionNumber;
     newInput.value = '1000';
+    newInput.min = '−32767';
+    newInput.max = '32767';
     newInput.onchange = function(){
 	saveGateChangeToAnalyzerODB(gateNumber);
     }.bind(newInput);
@@ -615,6 +619,8 @@ function removeRangeInputs(gateNumber,gateConditionNumber){
     newInput.type = 'number';
     newInput.id = 'gateConditionValue'+gateNumber+'-'+gateConditionNumber;
     newInput.value = '4096';
+    newInput.min = '–2147483648';
+    newInput.max = '2147483647';
     newInput.onchange = function(){
 	saveGateChangeToAnalyzerODB(gateNumber);
     }.bind(newInput);
@@ -655,7 +661,6 @@ function addNewHistogramCondition(histogramIndex,arrayIndex){
 	thisIndexID = 0;
     }
 
-	//var listOfGateConditions = ["Gate1","Gate2","Gate3","Gate4"];
 	var listOfGateConditions = [];
 	for(var i=0; i<dataStore.gateCondition.contents.length; i++){
 	    thisName = dataStore.gateCondition.contents[i].name;
