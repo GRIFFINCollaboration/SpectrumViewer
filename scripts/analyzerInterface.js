@@ -482,6 +482,7 @@ function setupDataStore(callback){
 	"histoFileList": [],                                // place to store the list of histogram files available to be opened
 	"histoFileName": "run21850_000.tar",                        // place to store the name of the histogram file to be opened
 	"histoFileSpectrumList": [],                                // place to store the current list of spectra available from the current histogram file
+	"histoSumFilename": "SummedHisto.tar",                      // initial filename for a sum of histogram files
         "pageTitle": 'Spectrum Viewer',                             //header title
         "topGroups": [],                                            //groups in top nav row
         "waveformSnap": true,                                       //do we want the snap to waveform functionality?

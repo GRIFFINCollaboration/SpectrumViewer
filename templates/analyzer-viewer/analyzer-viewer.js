@@ -30,7 +30,7 @@ function fetchCallback(){
 function buildHistosFileTable(){
     // Create a row in the table for each histo file in the list provided by the server
     document.getElementById("HistoFilesTable").innerHTML = '';
-    document.getElementById('AnalyzerViewerDiv').innerHTML ='Click on a histogram file name below to open it in the online viewer. (The checkboxes do not do anything yet.)';
+    document.getElementById('AnalyzerViewerDiv').innerHTML ='Click on a histogram file name below to open it in the online viewer. Select files that you wish to sum together then click the button.';
     
     // Add a title row to the table
     var row = document.getElementById("HistoFilesTable").insertRow(document.getElementById("HistoFilesTable").rows.length); 
@@ -119,5 +119,46 @@ function ToggleCheckboxOfThisHistoFile(rowID){
 
     // Toggle the state of the checkbox
     thisCheckbox.checked = state;
+
+}
+
+function submitHistoFileSumRequestToServer(){
+    console.log('submitHistoFileSumRequestToServer');
+    // Build a URL from the list of selected files and the sum histogram filename. Then submit ot the server
+
+
+	// Format check for the data file
+    HistoFileDirectory = dataStore.histoFileDirectoryPath;
+    if(HistoFileDirectory[HistoFileDirectory.length]!='/'){
+	HistoFileDirectory += '/';
+    }
+    
+    var url = dataStore.spectrumServer + '/?cmd=sumHistos';
+    url += '&outputfilename='+dataStore.histoSumFilename;
+
+    var num=0;
+	for(var i=0; i<dataStore.histoFileList.length; i++){
+	    if(document.getElementById(dataStore.histoFileList[i]+'-checkbox').checked == true){
+		url += '&filename'+num+'='+HistoFileDirectory+dataStore.histoFileList[i];
+		num++;
+	    }
+	}
+    
+    console.log('sumHistos, URL for analyzer server: '+url);
+
+    if(num>1){
+	// Send the request
+        XHR(url, 
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+            function(){return 0},
+            function(error){console.log(error)}
+           );
+	
+	// Uncheck all the files
+	ToggleCheckboxOfAllHistoFiles(false);
+    }else{
+	// Please select at least two histogram files to sum together
+	document.getElementById('alertSumModalButton').click();
+    }
 
 }
