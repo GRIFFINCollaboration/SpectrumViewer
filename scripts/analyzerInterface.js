@@ -21,8 +21,8 @@ function setupDataStore(callback){
 	"ODBhost": 'http://grifstore0.triumf.ca:8081',   // mhttpd server 
 
 	// Sorting Status variables
-	"configFileDataDirectoryPath": "/home/grifstor/daq/analyzer/grif-replay",                // initial config file directory path
-	"midasFileDataDirectoryPath": "/tig/grifstore0b/griffin/schedule140/Calibrations-July2021",                // initial data directory path
+	"configFileDataDirectoryPath": "/home/grifstor/daq/analyzer/grif-replay",                                 // initial config file directory path
+	"midasFileDataDirectoryPath": "/tig/grifstore0b/griffin/schedule140/Calibrations-Aug2021",                // initial data directory path
 	"midasFileList": { "Names" : [], "Sizes" : [] },  // place to store the list of midas files available to sort which is provided by the server
 	"midasRunList": {},                               // place to store the list of midas runs available to sort which is provided by the server
 
@@ -478,8 +478,8 @@ function setupDataStore(callback){
 	],
 	
 	// Spectrum viewer variables
-	"histoFileDirectoryPath": "/tig/grifstore0b/griffin/schedule140/Calibrations-July2021",                // initial histogram file directory path
-	"histoFileList": [],                                // place to store the list of histogram files available to be opened
+	"histoFileDirectoryPath": "/tig/grifstore0b/griffin/schedule140/Histograms",    // initial histogram file directory path
+	"histoFileList": [],                                                            // place to store the list of histogram files available to be opened
 	"histoFileName": "run21850_000.tar",                        // place to store the name of the histogram file to be opened
 	"histoFileSpectrumList": [],                                // place to store the current list of spectra available from the current histogram file
 	"histoSumFilename": "SummedHisto.tar",                      // initial filename for a sum of histogram files

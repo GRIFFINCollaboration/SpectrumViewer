@@ -69,13 +69,13 @@ function buildHistosFileTable(){
 	    var cell5 = row.insertCell(4);
 	    
 	  //  	var URLString = 'https://griffincollaboration.github.io/SpectrumViewer/spectrumViewer2.html?backend='+urlData.backend+'&port='+urlData.port+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
-	    var URLString = 'http://localhost:1234'+'/spectrumViewer2.html?backend='+urlData.backend+'&port='+urlData.port+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
+	    var URLString = 'http://localhost:1234'+'/spectrumViewer2.html?backend='+urlData.backend+'&port='+urlData.port+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num].trim();
 	    
 	    cell1.innerHTML = '<a href=\"'+URLString+'\" target=\"_blank\">'+dataStore.histoFileList[num]+'</a>';
 	    cell2.innerHTML = '';
 	    cell3.innerHTML = '';
 	    cell4.innerHTML = '';
-	    cell5.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.histoFileList[num]+'-checkbox'+'\" value=\"'+dataStore.histoFileList[num]+'\" onclick=ToggleCheckboxOfThisHistoFile(\"histoFileTableRow-'+(num+1)+'\")>';
+	    cell5.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.histoFileList[num]+'-checkbox'+'\" value=\"'+dataStore.histoFileList[num].trim()+'\" onclick=ToggleCheckboxOfThisHistoFile(\"histoFileTableRow-'+(num+1)+'\")>';
 	    
 	}
     }else{
@@ -139,7 +139,7 @@ function submitHistoFileSumRequestToServer(){
     var num=0;
 	for(var i=0; i<dataStore.histoFileList.length; i++){
 	    if(document.getElementById(dataStore.histoFileList[i]+'-checkbox').checked == true){
-		url += '&filename'+num+'='+HistoFileDirectory+dataStore.histoFileList[i];
+		url += '&filename'+num+'='+HistoFileDirectory+dataStore.histoFileList[i].trim();
 		num++;
 	    }
 	}
