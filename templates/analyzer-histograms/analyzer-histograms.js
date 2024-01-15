@@ -144,6 +144,23 @@ function buildExampleConfig(){
         dataStore.Configs = JSON.parse(payload);
 //	console.log(dataStore.Configs);
 
+	// Reset the dataStore of any old definitions
+	dataStore.sortCodeVariables = [];
+        dataStore.globalCondition = {                   // place to park Global condition info on the dataStore
+                "globalIndex" : 0,               // monotonically increasing counter to create unique IDs for new Glabal condition blocks
+	    "contents" : []             // array of structures holding the variables and values for each Global condition
+    	};
+        dataStore.gateCondition = {                  // place to park Gate condition info on the dataStore
+              "gateIndex" : 0,                 // monotonically increasing counter to create unique IDs for new Gate condition blocks
+            "nRows" : [],                 // array of monotonic counters for number of rows inserted into Gate condition block; Gate block # == array index. 
+	    "contents" : []             // array of structures holding the variables and values for each Gate condition
+	};
+        dataStore.histogramDefinition = {             // place to park Histogram definition info on the dataStore
+                   "histogramIndex" : 0,            // monotonically increasing counter to create unique IDs for new Histogram condition blocks
+            "nRows" : [],            // array of monotonic counters for number of rows inserted into Histogram condition block; Histogram block # == array index. 
+            "contents" : []            // place to save Histogram definition parameters
+	};
+	
 	// Unpack the Config file from the server into the dataStore layout
 
     // Unpack Sort Variables content
@@ -357,7 +374,7 @@ function buildConfigMenu(){
 function deleteGateBlock(gateNumber){
     // delete the Gate condition from the server version
     var url = dataStore.spectrumServer + '/?cmd=removeGate';
-    url += '&gatename='+dataStore.gateCondition.contents[gateNumber].name;
+    url += '&condname='+dataStore.gateCondition.contents[gateNumber].name;
     
     console.log('Remove Gate, URL for analyzer server: '+url);
 
@@ -491,8 +508,10 @@ function deleteGateBlock(gateNumber){
     }
 
 function addNewGateConditionRow(gateIndex,arrayIndex){
+	console.log('addNewGateConditionRow');
+    console.log(dataStore.gateCondition);
     // The arrayIndex argument is only passed by the initial setup functions to populate the Gate with the values from the dataStore 
-	if(arrayIndex == 'undefined'){
+	if(isNaN(arrayIndex)){
 	    var arrayIndex = -1;
 	}
     var gateConditionIndex = dataStore.gateCondition.nRows[gateIndex];
@@ -552,6 +571,8 @@ function addNewGateConditionRow(gateIndex,arrayIndex){
     
     // Increase the Gate Condition Counter
     dataStore.gateCondition.nRows[gateIndex]++;
+
+    console.log(dataStore.gateCondition);
     }
 
     function deleteGateConditionRow(gateNumber, gateConditionNumber){
@@ -640,7 +661,7 @@ function addNewHistogramCondition(histogramIndex,arrayIndex){
         // add a new histogramCondition row to the indexed histogram block
 	
     // The arrayIndex argument is only passed by the initial setup functions to populate the Gate with the values from the dataStore 
-	if(arrayIndex == 'undefined'){
+	if(isNaN(arrayIndex)){
 	    var arrayIndex = -1;
 	}
     
@@ -883,6 +904,7 @@ function saveGlobalChangeToAnalyzerODB(globalNumber){
 
 function saveGateChangeToAnalyzerODB(gateNumber){
     console.log('saveGateChangeToAnalyzerODB');
+    console.log(dataStore.gateCondition);
     
     //when something changes in any of the definitions, save the change to the dataStore and send it to the analyzer ODB
 	var newContents = {
@@ -905,7 +927,7 @@ function saveGateChangeToAnalyzerODB(gateNumber){
     }
 
     // Some elements could have been deleted from the list so the index numbers of the Id input elements might not be continuous.
-    // So we need to only get the values from the indexes which exist
+    // So we need to only get the values from html objects with the indexes which exist
     for(var i=0; i<dataStore.gateCondition.contents[gateNumber].gateCondition.length; i++){
 	var indexID = dataStore.gateCondition.contents[gateNumber].gateCondition[i].indexID;
 
