@@ -3,8 +3,11 @@
         <td class='col-md-2'>Detector</td>
         <td class='col-md-2'>Peak 1 Channel</td>
         <td class='col-md-2'>Peak 2 Channel</td>
-        <td class='col-md-2'>Slope</td>
-        <td class='col-md-2'>Intercept</td>
+        <td class='col-md-2'>Peak 3 Channel</td>
+        <td class='col-md-2'>Peak 4 Channel</td>
+        <td class='col-md-2'>Quad</td>
+        <td class='col-md-2'>Gain</td>
+        <td class='col-md-2'>Offset</td>
         <td class='col-md-2 center'>Write to ODB <input id='writeAllChannels' type='checkbox' checked></input><td>
     </tr>
     {{# detectors}}
@@ -12,8 +15,11 @@
             <td>{{.}}</td>
             <td id='{{id}}{{.}}chan1'>-</td>
             <td id='{{id}}{{.}}chan2'>-</td>
-            <td id='{{id}}{{.}}slope'>-</td>
-            <td id='{{id}}{{.}}intercept'>-</td>
+            <td id='{{id}}{{.}}chan3'>-</td>
+            <td id='{{id}}{{.}}chan4'>-</td>
+            <td id='{{id}}{{.}}quad'>-</td>
+            <td id='{{id}}{{.}}gain'>-</td>
+            <td id='{{id}}{{.}}offset'>-</td>
             <td class='center'>
                 <input id='{{.}}write' class='write-to-odb' type='checkbox' checked></input>
             </td>

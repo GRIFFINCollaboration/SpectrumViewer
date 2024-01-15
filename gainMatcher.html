@@ -5,6 +5,7 @@
         <script src='scripts/mustache.js' type="text/javascript"></script>
         <script src='scripts/easeljs-0.7.0.min.js' type="text/javascript"></script>
         <script src='scripts/dygraphs.1.1.1.min.js' type="text/javascript"></script>
+        <script src='scripts/regression.min.js' type="text/javascript"></script>
         <script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
         <script src='scripts/fitit.js' type="text/javascript"></script>
         <script src="scripts/jquery1-11-3.min.js"></script>
@@ -32,28 +33,50 @@
 
         <!--helpful hints-->
         <div class='col-md-6'>
-            <div id='waitMessage' class="alert alert-warning" role="alert">
+            <div id='decisionMessage' class="alert alert-warning" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Select if you want to manually select peaks or try the auto-peak finder.
+            </div>
+
+            <div id='waitMessage' class="alert alert-warning hidden" role="alert">
                 <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
                 Spectra downloading, please wait...
             </div>
 
             <div id='regionMessage' class="alert alert-warning hidden" role="alert">
                 <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-                Shift-click either end of a single line crossing both peaks you'd like to calibrate on.<br>
+                Shift-click the centres of 4 peaks you'd like to calibrate with. The peak of interest should be the tallest within the search area defined.
+
+	      <br>The click also sets the position on the y axis so aim for the full height of the peak.
+            </div>
+	    <!-- Original text for this shiftclick message
+            <div id='regionMessage' class="alert alert-warning hidden" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Shift-click each end of a single line crossing both peaks you'd like to calibrate with.
+	      <br>The first click also sets the position on the y axis.<br>
                 Tip: aim low and wide! 
             </div>
-
+            -->
             <div id='pickerMessage' class="alert alert-warning hidden" role="alert">
                 <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-                Enter the each peak's position along the line counting from the left, and its energy.
+                Enter each peak's position along the line counting from the left, and its energy.
             </div>
 
             <div id='reviewMessage' class="alert alert-warning hidden" role="alert">
                 <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-                Review the results in the table below, and refit any pathological peaks one at a time.
+                Review the results in the table below, and refit any troublesome peaks one at a time.
             </div>
         </div>
 
+	<div id='decisionBar' class='col-md-12'>
+                    <div class='col-md-12'>
+                        <button type="button" class="btn btn-default" id='manualCalibration' engaged='0' onclick=setupManualCalibration()>
+                            <span id='manCalibBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> 
+                            <span id='manualText'>Manual Calibration</span>
+                        </button>
+                    </div>
+	</div>
+	
         <!--peak definition-->
         <div id='setupBar' class='col-md-12'></div>
 
@@ -66,17 +89,25 @@
                     <div class='col-md-12'>
                         <button type="button" class="btn btn-default btn-lg" id='fitLow' engaged='0'>
                             <span id='refitLoBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> 
-                            <span id='loText'>Refit Low Energy Peak</span>
+                            <span id='loText'>Refit Peak 1</span>
+                        </button>
+                        <button type="button" class="btn btn-default btn-lg" id='fitMid' engaged='0'>
+                            <span id='refitMidBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> 
+                            <span id='hiText'>Refit Peak 2</span>
                         </button>
                         <button type="button" class="btn btn-default btn-lg" id='fitHigh' engaged='0'>
                             <span id='refitHiBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> 
-                            <span id='hiText'>Refit High Energy Peak</span>
+                            <span id='hiText'>Refit Peak 3</span>
+                        </button>
+                        <button type="button" class="btn btn-default btn-lg" id='fitvHi' engaged='0'>
+                            <span id='refitvHiBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> 
+                            <span id='hiText'>Refit Peak 4</span>
                         </button>
                     </div>
                 </div>
             </div>
             <div class='col-md-2 item'>
-                <div id='plotList'></div>
+                <div id='plotList' style='overflow-y:scroll; height:400px;'></div>
             </div>
         </div>
 
@@ -97,7 +128,7 @@
                 dataStore._plotGrid = new plotGrid('plottingGrid');
                 dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
                 dataStore._plotListLite = new plotListLite('plotList');
-                dataStore._gainMatchReport = new gainMatchReport('gainMatcher', 'setupBar');
+                dataStore._gainMatchReport = new gainMatchReport('gainMatcher', 'setupBar'); 
                 dataStore._striptool = new striptool('resolution');
 
                 dataStore.templates = prepareTemplates(['header', 'gainMatchReport', 'matchReportTable', 'gainMatchSetupBar', 'plotGrid', 'plotControl', 'plotListLite', 'striptool', 'footer']);
@@ -108,22 +139,27 @@
                 //set up spectrum cell
                 dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]);
                 dataStore._plotListLite.setup();
-                dataStore._gainMatchReport.setup();
-                dataStore._striptool.setup();
+                dataStore._gainMatchReport.setup(); 
+                dataStore._striptool.setup(); 
                 setupFooter('foot');
-
-                // set up shift-click behavior:
-                dataStore.viewers[dataStore.plots[0]].shiftclickCallback = shiftclick;
 
                 //don't want additional plots in this app
                 deleteNode('plottingGridnewPlotButton');
 
-                //plug in special fit controls
-                document.getElementById('fitLow').onclick = dataStore._gainMatchReport.toggleFitMode;
-                document.getElementById('fitHigh').onclick = dataStore._gainMatchReport.toggleFitMode;
-
-                //identify, register & fetch all spectra
-                promiseScript(dataStore.DAQquery)
+	        //plug in mode decision controls
+	        for(var i=0; i<dataStore.sourceInfo.length; i++){
+	         // Create Submit button
+	          newButton = document.createElement('button'); 
+	          newButton.setAttribute('id', 'automaticCalibration-'+dataStore.sourceInfo[i].name); 
+	          newButton.setAttribute('class', 'btn btn-default'); 
+	          newButton.setAttribute('engaged', '0');
+	          newButton.value = dataStore.sourceInfo[i].name;
+	          newButton.innerHTML = '<span id=\'autoCalibBadge-'+dataStore.sourceInfo[i].name+'\' class=\'glyphicon glyphicon-equalizer\' aria-hidden=\'true\'></span><span id=\'autoText\'>Auto-Calibrate '+dataStore.sourceInfo[i].title+'</span>';
+          	  newButton.onclick = function(){
+          	  setupAutomaticCalibration(this.value);
+	          }.bind(newButton);
+          	  document.getElementById('decisionBar').appendChild(newButton);
+                }          
 
                 $(function () {
                     $('[data-toggle="tooltip"]').tooltip()

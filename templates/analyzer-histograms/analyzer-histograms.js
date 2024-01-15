@@ -263,14 +263,14 @@ function buildConfigMenu(){
     url += '&globalname='+dataStore.globalCondition.contents[globalNumber].name;
     
     console.log('Remove Global, URL for analyzer server: '+url);
-/*
+
     // Send the request
         XHR(url, 
             'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
             function(){return 0},
             function(error){console.log(error)}
            );
-    */
+
         // delete the indexed Global block
         deleteNode('globalCondition' + globalNumber);
 	
@@ -360,14 +360,13 @@ function deleteGateBlock(gateNumber){
     url += '&gatename='+dataStore.gateCondition.contents[gateNumber].name;
     
     console.log('Remove Gate, URL for analyzer server: '+url);
-/*
+
     // Send the request
         XHR(url, 
             'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
             function(){return 0},
             function(error){console.log(error)}
            );
-    */
     
         // delete the indexed Gate block
         deleteNode('gateCondition' + gateNumber);
@@ -472,14 +471,14 @@ function deleteGateBlock(gateNumber){
     url += '&histoname='+dataStore.histogramDefinition.contents[histogramNumber].name;
     
     console.log('Remove Histogram, URL for analyzer server: '+url);
-/*
+
     // Send the request
         XHR(url, 
             'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
             function(){return 0},
             function(error){console.log(error)}
            );
-    */
+
         // delete the indexed Histogram block
         deleteNode('histogramCondition' + histogramNumber);
 	
@@ -570,6 +569,9 @@ function addNewGateConditionRow(gateIndex,arrayIndex){
 	    
 	// Decrease the Gate Condition Counter
 	dataStore.gateCondition.nRows[gateNumber]--;
+
+	// Update the server
+	saveGateChangeToAnalyzerODB(gateNumber);
     }
 
 
@@ -722,6 +724,9 @@ function addNewHistogramCondition(histogramIndex,arrayIndex){
 	    
 	// Decrease the Histogram Condition Counter
 	dataStore.histogramDefinition.nRows[histogramNumber]--;
+
+	// Update the server
+	saveHistogramChangeToAnalyzerODB(histogramNumber);
     }
 
 function toggleHistogramDimensions(histogramNumber, dimension){
