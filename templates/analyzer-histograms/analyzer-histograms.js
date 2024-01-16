@@ -353,9 +353,8 @@ function buildConfigMenu(){
 		document.getElementById('gateConditionLogicSelect'+gateIndex+'-'+i).value = dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Logic;
 		if(dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Logic == 'RA'){
 		    insertRangeInputs(gateIndex,i);
-		    document.getElementById('gateConditionRangeMin'+gateIndex+'-'+i).value = ((dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Value && 0xFF00)>>16);
-		    document.getElementById('gateConditionRangeMax'+gateIndex+'-'+i).value = (dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Value && 0x00FF);
-		    
+		    document.getElementById('gateConditionRangeMin'+gateIndex+'-'+i).value = (dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Value & 0xFFFF);
+		    document.getElementById('gateConditionRangeMax'+gateIndex+'-'+i).value = (dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Value >> 16);
 		}else{
 		    document.getElementById('gateConditionValue'+gateIndex+'-'+i).value = dataStore.gateCondition.contents[arrayIndex].gateCondition[i].Value;
 		}
