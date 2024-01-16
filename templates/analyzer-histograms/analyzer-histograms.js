@@ -373,7 +373,7 @@ function buildConfigMenu(){
 function deleteGateBlock(gateNumber){
     // delete the Gate condition from the server version
     var url = dataStore.spectrumServer + '/?cmd=removeGate';
-    url += '&condname='+dataStore.gateCondition.contents[gateNumber].name;
+    url += '&gatename='+dataStore.gateCondition.contents[gateNumber].name;
     
     console.log('Remove Gate, URL for analyzer server: '+url);
 
