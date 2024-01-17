@@ -453,6 +453,62 @@ function loadData(DAQ){
     dataStore._plotControl.refreshAll();
 }
 
+function updateAnalyzer(){
+
+    // For the ODB it first grabs the PSB table and then sets values only for the channels that are defined there.
+    // For the Analyzer we could get a similar list from the spectrum menu of the Histogram file that was selected.
+    // That should probably be done for the building of the initial spectrum list for gain-matching if Histogram mode is selected.
+    // Need to reformat the URLs generated here for the Analyzer
+    
+    //bail out if there's no fit yet
+    if(Object.keys(dataStore.fitResults).length == 0)
+        return;
+
+    var  gain =[], offset = [], quad = [];
+    var i, j=0, q, g, o, num=0, position, urls = [];
+
+    //for every channel, update the quads, gains and offsets:
+    urls[0]=dataStore.spectrumServer + '?cmd=setCalibration';
+    for(i=0; i<dataStore.THESEdetectors.length; i++){
+        if( document.getElementById(dataStore.THESEdetectors[i]+'write').checked){
+            q = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][2];
+            q = isNumeric(q) ? q : 1;
+            quad[i] = q;
+            g = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][1];
+            g = isNumeric(g) ? g : 1;
+            gain[i] = g;
+            o = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][0];
+            o = isNumeric(o) ? o : 0;
+            offset[i] = o;
+
+	    // Write a separate URL for each clover
+	    if(i>0 && (dataStore.THESEdetectors[i].slice(0,3) == 'GRG') && ((i%4) == 0)){ num++; j=0; urls[num]= dataStore.spectrumServer + '?cmd=setCalibration';}
+	    console.log('i, num = '+i+', '+num+', '+dataStore.THESEdetectors[i]);
+	    urls[num] += '&channelName'+j+'='+dataStore.THESEdetectors[i]+'&quad'+j+'='+quad[i]+'&gain'+j+'='+gain[i]+'&offset'+j+'='+offset[i];
+	    j++;
+	    
+        }else{
+	    // Set some values rather than have these entries undefined for unchecked channels
+	    // Channels that did not produce good coefficients are not included in the URLs
+            quad[i] = 1;
+            gain[i] = 1;
+            offset[i] = 0;
+	}
+    }
+    
+    //send requests
+    for(i=0; i<urls.length; i++){
+        XHR(urls[i], 
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+            function(){return 0},
+            function(error){console.log(error)}
+        )
+    }
+
+    //get rid of the modal
+    document.getElementById('dismissAnalyzermodal').click();
+}
+
 function updateODB(obj){
 
     //bail out if there's no fit yet
@@ -465,7 +521,7 @@ function updateODB(obj){
         quad = obj[3].quadratic,
         i, q, g, o, position, urls = [];
 
-    //for every griffin channel, update the quads, gains and offsets:
+    //for every channel, update the quads, gains and offsets:
     for(i=0; i<channel.length; i++){
         position = dataStore.THESEdetectors.indexOf(channel[i]);
         if( (position != -1) && (document.getElementById(channel[i]+'write').checked)){

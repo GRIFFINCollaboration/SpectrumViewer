@@ -5,7 +5,11 @@
         <div class='col-md-12'>
             <table id='{{id}}gainMatchingResults' class='table gainTable'></table>
 
-            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myAnalyzerModal">
+                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Write calibration to Analyzer
+            </button>
+<br>
+            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myODBModal">
                 <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Write calibration to ODB
             </button>
 <br>
@@ -17,16 +21,41 @@
         </div>
     </div>
 
-    <!--are you sure modal-->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <!--are you sure modal for Analyzer write-->
+    <div class="modal fade" id="myAnalyzerModal" tabindex="-1" role="dialog" aria-labelledby="myAnalyzerModalLabel">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="myModalLabel">Change values in ODB?</h4>
+                    <h4 class="modal-title" id="myAnalyzerModalLabel">Change values in Analyzer Config file?</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to change the gain and offset values for all GRIFFIN detectors in the ODB? There is no undo.</p>
+                    <p>Are you sure you want to change the quadratic, gain and offset values for all selected detectors in the Analyzer? There is no undo.</p>
+                    <input type='checkbox' id='{{id}}yesDefinitelyWriteAnalyzer'></input>
+                    <label for='{{id}}yesDefinitelyWriteAnalyzer'>I'm very sure.</label>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id='dismissAnalyzermodal'>
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> Abort
+                    </button>
+                    <button type="button" class="btn btn-default" id='{{id}}writeToAnalyzer' disabled>
+                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Write
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+    <!--are you sure modal for ODB write-->
+    <div class="modal fade" id="myODBModal" tabindex="-1" role="dialog" aria-labelledby="myODBModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myODBModalLabel">Change values in ODB?</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to change the quadratic, gain and offset values for all selected detectors in the ODB? There is no undo.</p>
                     <input type='checkbox' id='{{id}}yesDefinitelyWriteODB'></input>
                     <label for='{{id}}yesDefinitelyWriteODB'>I'm very sure.</label>
                 </div>
@@ -118,10 +147,23 @@
             }
 
             // Set up the Cal file button 
-document.getElementById('saveCal').onclick = function(){ buildCalfile(); }
+            document.getElementById('saveCal').onclick = function(){ buildCalfile(); }
 
             //set up fit callbacks
             dataStore.viewers[dataStore.plots[0]].fitCallback = this.fitCallback.bind(this);
+
+            //plug in the allow Analyzer write switch
+            document.getElementById(this.wrapID + 'yesDefinitelyWriteAnalyzer').onchange = this.toggleAnalyzerwrite.bind(this);
+
+            //plug in write to Analyzer button
+            document.getElementById(this.wrapID + 'writeToAnalyzer').onclick = function(){
+                //bail out if there's no fit yet
+                if(Object.keys(dataStore.fitResults).length == 0){
+                    window.alert('You need to perform the gain match (see button at top of page) before writing results to the Analyzer.');
+                    document.getElementById('dismissAnalyzermodal').click();
+                }
+                updateAnalyzer();
+            }
 
             //plug in the allow ODB write switch
             document.getElementById(this.wrapID + 'yesDefinitelyWriteODB').onchange = this.toggleODBwrite.bind(this);
@@ -485,9 +527,11 @@ if(breakForLoop){ break; }
 }//end of i for
 
 if(!breakForLoop){
+/*
 console.log('\n\nAn optimal solution was not found for '+spectrumName);
 console.log('Search regions: '+dataStore.searchRegionP1[0]+'-'+dataStore.searchRegionP1[1]+', '+dataStore.searchRegionP2[0]+'-'+dataStore.searchRegionP2[1]+', '+dataStore.searchRegionP3[0]+'-'+dataStore.searchRegionP3[1]+', '+dataStore.searchRegionP4[0]+'-'+dataStore.searchRegionP4[1]);
 console.log('Found peaks are: '+foundP1peaks+', '+foundP2peaks+', '+foundP3peaks+', '+foundP4peaks);
+*/
 var breakForLoop=0;
 for(i=0; i<3; i++){
 
@@ -867,6 +911,17 @@ intercept = result.equation[2];
                 dataStore.currentPeak = 3
 
         },
+
+        this.toggleAnalyzerwrite = function(){
+            //toggle Analyzer writing permission.
+
+            var allowed = document.getElementById(this.wrapID + 'yesDefinitelyWriteAnalyzer').checked
+
+            if(allowed)
+                document.getElementById(this.wrapID + 'writeToAnalyzer').removeAttribute('disabled');
+            else
+                document.getElementById(this.wrapID + 'writeToAnalyzer').setAttribute('disabled', true);
+        }
 
         this.toggleODBwrite = function(){
             //toggle odb writing permission.
