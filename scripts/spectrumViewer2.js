@@ -74,7 +74,7 @@ function GetURLArguments(callback){
     
     if(dataStore.histoFileDirectoryPath==undefined){
 	// No directory for the histogram files has been provided in the URL, so we provide a default one
-	dataStore.histoFileDirectoryPath = '/home/grifstor/daq/analyzer/grif-replay';
+	dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms';
     }
     if(dataStore.histoFileName==undefined){
 	// No histogram filename has been provided in the URL, so we set the string back to nothing

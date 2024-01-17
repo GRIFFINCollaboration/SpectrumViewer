@@ -13,6 +13,13 @@ function setupDataStore(){
     dataStore.spectrumServer = 'http://grsmid00.triumf.ca:9093/';           //host + port of analyzer server
     dataStore.ODBhost = 'http://grsmid00.triumf.ca:8081/';                  //MIDAS / ODB host + port
 
+    // Histogram directory and filename
+    dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms';
+    dataStore.histoFileName = '';
+
+    // Get the analyzer Server and ODB host names from the URL
+    GetURLArguments();
+    
     dataStore.numberOfClovers = 16;                                     // Default number of clovers is all of the array
     // shouldn't need to change anything below this line -----------------------------------------------------------------------
 
@@ -33,7 +40,7 @@ function setupDataStore(){
     //custom element config
     dataStore.plots = ['Spectra'];                                          //names of plotGrid cells and spectrumViewer objects
 
-    dataStore.resolutionData = [];                                      //dygraphs-sorted peak widths for both peaks, in same order as GRIFFINdetectors: [[detectorIndex, low peak width, high peak width], ...]
+    dataStore.resolutionData = [];                                      //dygraphs-sorted peak widths for both peaks, in same order as THESEdetectors: [[detectorIndex, low peak width, high peak width], ...]
     dataStore.lowPeakResolution = [];                                   //low energy peak resolutions, indexed per GRIFFINdetectors
     dataStore.lowPeakResolution.fill(0,(dataStore.numberOfClovers*4*2));                             //start with zeroes
     dataStore.midPeakResolution = [];                                  //as midPeakResolution
@@ -47,6 +54,13 @@ function setupDataStore(){
     dataStore.searchRegionP3 = [];                                         //[x_start, x_finish, y for peak search bar]
     dataStore.searchRegionP4 = [];                                         //[x_start, x_finish, y for peak search bar]
 
+    dataStore.modeChoice = [                                               // Mode choice (online/histogram file) information to generate buttons
+	{"name": "Online", "text": "Use online data"},
+	{"name": "Histo", "text": "Use a histogram file"}
+    ];
+    
+    dataStore.detectorChoice = [{"name": "HPGe"},{"name": "PACES"}];       // Detector choice information to generate buttons
+    
     dataStore.sourceInfo = [                                            // Source information and settings
 	{"name":  "Co-60", "title":  "60Co", "lowEnergy":  74.97, "midEnergy": 1173.23, "highEnergy": 1332.49, "vhiEnergy": 2614.52, "maxXValue":2650 },
 	{"name":  "Co-56", "title":  "56Co", "lowEnergy": 122.06, "midEnergy":  846.77, "highEnergy": 1238.29, "vhiEnergy": 2598.50, "maxXValue":2650 },
@@ -56,141 +70,264 @@ function setupDataStore(){
 	{"name": "Bi-207", "title": "207Bi", "lowEnergy":  74.97, "midEnergy":  569.70, "highEnergy": 1063.66, "vhiEnergy": 1770.23, "maxXValue":2000 },
 	{"name": "Background", "title": "Background", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "maxXValue":2650 }
     ];
+
+    dataStore.THESEdetectors = [];                                    //10-char codes of all possible griffin/paces detectors. Contents based on detectorChoice
+
+    dataStore.cellIndex = dataStore.plots.length;
+
+    //resolution plot
+    dataStore.plotInitData = [];
+    dataStore.plotInitData[0] = [[0,0,0,0,0], [1,0,0,0,0], [2,0,0,0,0], [3,0,0,0,0], [4,0,0,0,0]];      //initial dummy data
+    dataStore.plotInitData[1] = [[0,0,0,0,0], [1,0,0,0,0], [2,0,0,0,0], [3,0,0,0,0], [4,0,0,0,0]];      //initial dummy data
+    dataStore.plotStyle = [];
+    dataStore.plotStyle[0] = {                                              //dygraphs style object
+        labels: ["channel", "Peak1 Width", "Peak2 Width", "Peak3 Width", "Peak4 Width"],
+        title: 'Per-Crystal Resolution',
+        axisLabelColor: '#FFFFFF',
+        colors: ["#AAE66A", "#EFB2F0", "#B2D1F0", "#F0DBB2"],
+        labelsDiv: 'resolutionLegend',
+        drawPoints: 'true',
+        pointSize: '5',
+	strokeWidth: '0',
+        legend: 'always',
+        valueFormatter: function(num, opts, seriesName, dygraph, row, col){
+
+            if(col == 0)
+                return dataStore.THESEdetectors[num]
+            else
+                return num.toFixed(3)
+        },
+        axes: {
+            x: {
+                axisLabelFormatter: function(number, granularity, opts, dygraph){
+                    if(number < dataStore.THESEdetectors.length)
+                        return dataStore.THESEdetectors[number].slice(3,6);
+                    else
+                        return number
+                    
+                }
+            },
+
+            y : {
+		     valueRange: [0,5]
+		    }
+        }
+    }
+    dataStore.plotStyle[1] = {                                              //dygraphs style object
+        labels: ["channel", "Peak1 Width", "Peak2 Width", "Peak3 Width", "Peak4 Width"],
+        title: 'Per-Crystal Resolution',
+        axisLabelColor: '#FFFFFF',
+        colors: ["#AAE66A", "#EFB2F0", "#B2D1F0", "#F0DBB2"],
+        labelsDiv: 'resolutionLegend',
+        drawPoints: 'true',
+        pointSize: '5',
+	strokeWidth: 0,
+        legend: 'always',
+        valueFormatter: function(num, opts, seriesName, dygraph, row, col){
+
+            if(col == 0)
+                return dataStore.THESEdetectors[num]
+            else
+                return num.toFixed(3)
+        },
+        axes: {
+            x: {
+                axisLabelFormatter: function(number, granularity, opts, dygraph){
+                    if(number < dataStore.THESEdetectors.length)
+                        return dataStore.THESEdetectors[number].slice(3,6);
+                    else
+                        return number
+                    
+                }
+            },
+
+            y : {
+		     valueRange: [0,15]
+		    }
+        }
+    }
+    dataStore.YAxisMinValue = [[0,0], [0,0]];
+    dataStore.YAxisMaxValue = [[0,0], [0,0]];
+    dataStore.annotations = [0,0];
+
+}
+setupDataStore();
+
+function fetchCallback(){
+    // change messages
+    deleteNode('waitMessage');
+    if(document.getElementById('regionMessage')){
+	document.getElementById('regionMessage').classList.remove('hidden');
+    }
+	
+    //show first plot
+    dataStore._plotListLite.snapToTop();
+
+    //release the fit all button only if in auto mode because then search regions are predefined
+    if(dataStore.mode == 'auto'){
+	document.getElementById('fitAll').classList.remove('disabled');
+	document.getElementById('fitAll').onclick();
+    }
+}
+
+function GetURLArguments(){
+	//return an object with keys/values as per query string
+	//note all values will be strings.
+
+	var elts = {};
+	var queryString = window.location.search.substring(1)
+	var value, i;
+        var urlData = [];
+
+
+	queryString = queryString.split('&');
+	for(i=0; i<queryString.length; i++){
+		value = queryString[i].split('=');
+		urlData[value[0]] = value[1];
+	}
+
+    // Save the information to the dataStore
+    // Save the hostname and port number for getting spectrum data and writing to the config file
+    dataStore.spectrumServer = 'http://'+urlData.analyzerBackend+'.triumf.ca:'+urlData.analyzerPort;
     
-    dataStore.GRIFFINdetectors = [                                      //10-char codes of all possible griffin detectors.
-            'GRG01BN00A',
-            'GRG01GN00A',
-            'GRG01RN00A',
-            'GRG01WN00A',
-            'GRG02BN00A',
-            'GRG02GN00A',
-            'GRG02RN00A',
-            'GRG02WN00A',
-            'GRG03BN00A',
-            'GRG03GN00A',
-            'GRG03RN00A',
-            'GRG03WN00A',
-            'GRG04BN00A',
-            'GRG04GN00A',
-            'GRG04RN00A',
-            'GRG04WN00A',
-            'GRG05BN00A',
-            'GRG05GN00A',
-            'GRG05RN00A',
-            'GRG05WN00A',
-            'GRG06BN00A',
-            'GRG06GN00A',
-            'GRG06RN00A',
-            'GRG06WN00A',
-            'GRG07BN00A',
-            'GRG07GN00A',
-            'GRG07RN00A',
-            'GRG07WN00A',
-            'GRG08BN00A',
-            'GRG08GN00A',
-            'GRG08RN00A',
-            'GRG08WN00A',
-            'GRG09BN00A',
-            'GRG09GN00A',
-            'GRG09RN00A',
-            'GRG09WN00A',
-            'GRG10BN00A',
-            'GRG10GN00A',
-            'GRG10RN00A',
-            'GRG10WN00A',
-            'GRG11BN00A',
-            'GRG11GN00A',
-            'GRG11RN00A',
-            'GRG11WN00A',
-            'GRG12BN00A',
-            'GRG12GN00A',
-            'GRG12RN00A',
-            'GRG12WN00A',
-            'GRG13BN00A',
-            'GRG13GN00A',
-            'GRG13RN00A',
-            'GRG13WN00A',
-            'GRG14BN00A',
-            'GRG14GN00A',
-            'GRG14RN00A',
-            'GRG14WN00A',
-            'GRG15BN00A',
-            'GRG15GN00A',
-            'GRG15RN00A',
-            'GRG15WN00A',
-            'GRG16BN00A',
-            'GRG16GN00A',
-            'GRG16RN00A',
-            'GRG16WN00A',
-            'GRG01BN00B',
-            'GRG01GN00B',
-            'GRG01RN00B',
-            'GRG01WN00B',
-            'GRG02BN00B',
-            'GRG02GN00B',
-            'GRG02RN00B',
-            'GRG02WN00B',
-            'GRG03BN00B',
-            'GRG03GN00B',
-            'GRG03RN00B',
-            'GRG03WN00B',
-            'GRG04BN00B',
-            'GRG04GN00B',
-            'GRG04RN00B',
-            'GRG04WN00B',
-            'GRG05BN00B',
-            'GRG05GN00B',
-            'GRG05RN00B',
-            'GRG05WN00B',
-            'GRG06BN00B',
-            'GRG06GN00B',
-            'GRG06RN00B',
-            'GRG06WN00B',
-            'GRG07BN00B',
-            'GRG07GN00B',
-            'GRG07RN00B',
-            'GRG07WN00B',
-            'GRG08BN00B',
-            'GRG08GN00B',
-            'GRG08RN00B',
-            'GRG08WN00B',
-            'GRG09BN00B',
-            'GRG09GN00B',
-            'GRG09RN00B',
-            'GRG09WN00B',
-            'GRG10BN00B',
-            'GRG10GN00B',
-            'GRG10RN00B',
-            'GRG10WN00B',
-            'GRG11BN00B',
-            'GRG11GN00B',
-            'GRG11RN00B',
-            'GRG11WN00B',
-            'GRG12BN00B',
-            'GRG12GN00B',
-            'GRG12RN00B',
-            'GRG12WN00B',
-            'GRG13BN00B',
-            'GRG13GN00B',
-            'GRG13RN00B',
-            'GRG13WN00B',
-            'GRG14BN00B',
-            'GRG14GN00B',
-            'GRG14RN00B',
-            'GRG14WN00B',
-            'GRG15BN00B',
-            'GRG15GN00B',
-            'GRG15RN00B',
-            'GRG15WN00B',
-            'GRG16BN00B',
-            'GRG16GN00B',
-            'GRG16RN00B',
-            'GRG16WN00B'
-        ];
+    // Save the information to the dataStore
+    // Save the hostname and port number for writing the ODB parameters
+    dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+'.triumf.ca:'+urlData.ODBHostPort;
+    
+}
 
+function setupMenusFromModeChoice(modeType){
+    
+    //user guidance
+    deleteNode('modeMessage');
 
+    // If histograms are required then inject the inputs for this
+    if(modeType == 'Histo'){
+	//user guidance
+	document.getElementById('histogramMessage').classList.remove('hidden');
+
+	// Remove the mode buttons and use this Div for the histogram directory and file inputs
+	for(i=0; i<dataStore.modeChoice.length; i++){
+	deleteNode('modeChoice-'+dataStore.modeChoice[i].name);
+	}
+	
+	// Create the text input for the Histogram file directory
+	var newLabel = document.createElement("label");
+	newLabel.for = 'HistoDirectoryInput';
+	newLabel.innerHTML = 'Histogram fileDirectory: ';
+	document.getElementById('modeChoiceBar').appendChild(newLabel);
+	
+	newInput = document.createElement('input'); 
+	newInput.id = 'HistoDirectoryInput'; 
+	newInput.type = 'text';
+	newInput.style.width = '400px';
+	newInput.value = dataStore.histoFileDirectoryPath; 
+	newInput.onchange = function(){
+	    dataStore.histoFileDirectoryPath = this.value;
+	    getHistoFileListFromServer();
+	}.bind(newInput);
+	document.getElementById('modeChoiceBar').appendChild(newInput);
+
+	// Grab the histogram list for the default directory
+	getHistoFileListFromServer();
+	
+	
+    }else{
+	// Online mode so do straight to detector choice
+	// Hide the mode choice
+	document.getElementById('modeChoiceBar').classList.add("hidden");
+	
+	//user guidance
+	deleteNode('histogramMessage');
+	document.getElementById('detectorMessage').classList.remove('hidden');
+	
+	// Display the detector choice
+	document.getElementById('detectorChoiceBar').classList.remove("hidden");
+    }
+    
+}
+
+function processHistoFileList(payload){
+    console.log(payload);
+
+    // receive the payload and split into an array of strings
+    var thisPayload = payload.split(" ]")[0].split("[ \n")[1];
+    
+    // tidy up the strings to extract the list of midas files
+    dataStore.histoFileList = thisPayload.split(" , \n ");
+
+    // Sort the list in numberical and alphabetical order, then reverse the order so the newer files appear first (note this is not ideal for sub-runs)
+    dataStore.histoFileList.sort();
+    dataStore.histoFileList.reverse();
+
+    // Set up the list of histo files
+    setupHistoListSelect();
+
+    console.log(dataStore.histoFileList);
+
+}
+
+function setupHistoListSelect(){
+    // Add the title text
+    var newLabel = document.createElement("label");
+    newLabel.for = 'HistoListSelect';
+    newLabel.innerHTML = 'Histogram file: ';
+    document.getElementById('modeChoiceBar').appendChild(newLabel);
+	
+    // Create a select input for the histo file list
+    var newSelect = document.createElement("select");
+    newSelect.id = 'HistoListSelect';
+    newSelect.name = 'HistoListSelect';
+    newSelect.onchange = function(){
+    dataStore.histoFileName = this.value;
+	console.log('Histogram selected is '+dataStore.histoFileName);
+	
+	//user guidance
+	deleteNode('histogramMessage');
+	document.getElementById('detectorMessage').classList.remove('hidden');
+	
+	// Display the detector choice
+	document.getElementById('detectorChoiceBar').classList.remove("hidden");
+    }.bind(newSelect);
+    document.getElementById('modeChoiceBar').appendChild(newSelect);
+
+    // Add the list of histo files as the options
+    thisSelect = document.getElementById('HistoListSelect');
+    for(var i=0; i<dataStore.histoFileList.length; i++){
+	thisSelect.add( new Option(dataStore.histoFileList[i], dataStore.histoFileList[i]) );
+    }
+
+}
+
+function setupMenusFromDetectorChoice(detectorType){
+
+    // Hide the detector choice
+    document.getElementById('detectorChoiceBar').classList.add("hidden");
+
+    // Display the Source choice
+    document.getElementById('decisionBarAuto').classList.remove("hidden");
+    document.getElementById('decisionBarManual').classList.remove("hidden");
+
+    // setup the dataStore for this choice of detectorType
+
+    var i, num=0, groups = [];
+    // Save the lists of spectrum names to the dataStore for this detectorType
+    if(detectorType == 'HPGe'){
+	// Set up GRIFFIN detectors
+
+    var crystals = ["B","G","R","W"];
+    var letter = ["A","B"];
+    for(j=0; j<2; j++){
+	for(i=1; i<(dataStore.numberOfClovers+1); i++){
+	    for(k=0; k<4; k++){
+		dataStore.THESEdetectors[num] = 'GRG'+alwaysThisLong(i, 2)+crystals[k]+'N00'+letter[j];
+		num++;
+	    }
+	}
+    }
+    
     //generate groups for plot selector
-    for(i=1; i<17; i++){
+    for(i=1; i<(dataStore.numberOfClovers+1); i++){
         groups.push({
             "groupID": 'GRG' + alwaysThisLong(i, 2),
             "groupTitle": 'GRIFFIN ' + alwaysThisLong(i, 2),
@@ -230,104 +367,62 @@ function setupDataStore(){
             ]
         })
     }
+}else if(detectorType == 'PACES'){
 
-    dataStore.plotGroups = groups;                                      //groups to arrange detectors into for dropdowns
-    dataStore.cellIndex = dataStore.plots.length;
+    dataStore.THESEdetectors = [                                      //10-char codes of all possible griffin detectors.
+            'PAC01XN00A',
+            'PAC02XN00A',
+            'PAC03XN00A',
+            'PAC04XN00A',
+            'PAC05XN00A'
+        ];
 
-    //resolution plot
-    dataStore.plotInitData = [];
-    dataStore.plotInitData[0] = [[0,0,0,0,0], [1,0,0,0,0], [2,0,0,0,0], [3,0,0,0,0], [4,0,0,0,0]];      //initial dummy data
-    dataStore.plotInitData[1] = [[0,0,0,0,0], [1,0,0,0,0], [2,0,0,0,0], [3,0,0,0,0], [4,0,0,0,0]];      //initial dummy data
-    dataStore.plotStyle = [];
-    dataStore.plotStyle[0] = {                                              //dygraphs style object
-        labels: ["channel", "Peak1 Width", "Peak2 Width", "Peak3 Width", "Peak4 Width"],
-        title: 'Per-Crystal Resolution',
-        axisLabelColor: '#FFFFFF',
-        colors: ["#AAE66A", "#EFB2F0", "#B2D1F0", "#F0DBB2"],
-        labelsDiv: 'resolutionLegend',
-        drawPoints: 'true',
-        pointSize: '5',
-	strokeWidth: '0',
-        legend: 'always',
-        valueFormatter: function(num, opts, seriesName, dygraph, row, col){
 
-            if(col == 0)
-                return dataStore.GRIFFINdetectors[num]
-            else
-                return num.toFixed(3)
-        },
-        axes: {
-            x: {
-                axisLabelFormatter: function(number, granularity, opts, dygraph){
-                    if(number < dataStore.GRIFFINdetectors.length)
-                        return dataStore.GRIFFINdetectors[number].slice(3,6);
-                    else
-                        return number
-                    
+    //generate groups for plot selector
+        groups.push({
+            "groupID": 'PAC',
+            "groupTitle": 'PACES',
+            "plots": [
+                {
+                    "plotID": 'PAC01XN00A', 
+                    "title": 'PAC01XN00A'
+                },
+                {
+                    "plotID": 'PAC02XN00A', 
+                    "title": 'PAC02XN00A'
+                },
+                {
+                    "plotID": 'PAC03XN00A', 
+                    "title": 'PAC03XN00A'
+                },
+                {
+                    "plotID": 'PAC04XN00A', 
+                    "title": 'PAC04XN00A'
+                },
+                {
+                    "plotID": 'PAC05XN00A', 
+                    "title": 'PAC05XN00A'
                 }
-            },
+            ]
+        })
 
-            y : {
-		     valueRange: [0,5]
-		    }
-        }
-    }
-    dataStore.plotStyle[1] = {                                              //dygraphs style object
-        labels: ["channel", "Peak1 Width", "Peak2 Width", "Peak3 Width", "Peak4 Width"],
-        title: 'Per-Crystal Resolution',
-        axisLabelColor: '#FFFFFF',
-        colors: ["#AAE66A", "#EFB2F0", "#B2D1F0", "#F0DBB2"],
-        labelsDiv: 'resolutionLegend',
-        drawPoints: 'true',
-        pointSize: '5',
-	strokeWidth: 0,
-        legend: 'always',
-        valueFormatter: function(num, opts, seriesName, dygraph, row, col){
-
-            if(col == 0)
-                return dataStore.GRIFFINdetectors[num]
-            else
-                return num.toFixed(3)
-        },
-        axes: {
-            x: {
-                axisLabelFormatter: function(number, granularity, opts, dygraph){
-                    if(number < dataStore.GRIFFINdetectors.length)
-                        return dataStore.GRIFFINdetectors[number].slice(3,6);
-                    else
-                        return number
-                    
-                }
-            },
-
-            y : {
-		     valueRange: [0,15]
-		    }
-        }
-    }
-    dataStore.YAxisMinValue = [[0,0], [0,0]];
-    dataStore.YAxisMaxValue = [[0,0], [0,0]];
-    dataStore.annotations = [0,0];
+}
     
-}
-setupDataStore();
+    dataStore.plotGroups = groups;     //groups to arrange detectors into for dropdowns
+    
+    // Generate the spectrum lists based on the list of detectors
+    dataStore._plotListLite = new plotListLite('plotList');
+    dataStore._plotListLite.setup();
 
-function fetchCallback(){
-    // change messages
-    deleteNode('waitMessage');
-    if(document.getElementById('regionMessage')){
-	document.getElementById('regionMessage').classList.remove('hidden');
-    }
-	
-    //show first plot
-    dataStore._plotListLite.snapToTop();
+    // Generate the gain match report table based on the list of detectors
+    dataStore._gainMatchReport = new gainMatchReport('gainMatcher', 'setupBar'); 
+    dataStore._gainMatchReport.setup(); 
 
-    //release the fit all button only if in auto mode because then search regions are predefined
-    if(dataStore.mode == 'auto'){
-	document.getElementById('fitAll').classList.remove('disabled');
-	document.getElementById('fitAll').onclick();
-    }
+    //user guidance
+    deleteNode('detectorMessage');
+    document.getElementById('decisionMessage').classList.remove('hidden');
 }
+
 
 function loadData(DAQ){
     // given the list of channels plugged into the DAQ from the ODB, load the appropriate spectra.
@@ -338,14 +433,20 @@ function loadData(DAQ){
     dataStore.PSCchannels = DAQ[0].chan;
     dataStore.PSCaddresses = DAQ[1].PSC;
     dataStore.RunNumber = DAQ[2][ 'Run number' ];
-    
-    //Add the run number to the name of the Cal file
-    document.getElementById('saveCalname').value = 'GRIFFIN-Cal-File-Run'+dataStore.RunNumber+'.cal';
+
+    //Add the detector tyep and run number to the name of the Cal file
+    if(dataStore.THESEdetectors[0].slice(0,3) == 'GRG'){
+	document.getElementById('saveCalname').value = 'GRIFFIN-Cal-File-Run'+dataStore.RunNumber+'.cal';
+    }else if(dataStore.THESEdetectors[0].slice(0,3) == 'PAC'){
+	document.getElementById('saveCalname').value = 'PACES-Cal-File-Run'+dataStore.RunNumber+'.cal';
+    }
+
+    // Trigger the saving of this new filename
     document.getElementById('saveCalname').onchange();
 
-    
+    // Plug in the active spectra names    
     for(i=0; i<channels.length; i++){
-        if(channels[i].slice(0,3) == 'GRG')
+        if(channels[i].slice(0,3) == dataStore.THESEdetectors[0].slice(0,3))
             dataStore._plotControl.activeSpectra.push(channels[i] + '_Pulse_Height');
     }
 
@@ -366,15 +467,15 @@ function updateODB(obj){
 
     //for every griffin channel, update the quads, gains and offsets:
     for(i=0; i<channel.length; i++){
-        position = dataStore.GRIFFINdetectors.indexOf(channel[i]);
+        position = dataStore.THESEdetectors.indexOf(channel[i]);
         if( (position != -1) && (document.getElementById(channel[i]+'write').checked)){
-            q = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Pulse_Height'][4][2];
+            q = dataStore.fitResults[dataStore.THESEdetectors[position]+'_Pulse_Height'][4][2];
             q = isNumeric(q) ? q : 1;
             quad[i] = q;
-            g = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Pulse_Height'][4][1];
+            g = dataStore.fitResults[dataStore.THESEdetectors[position]+'_Pulse_Height'][4][1];
             g = isNumeric(g) ? g : 1;
             gain[i] = g;
-            o = dataStore.fitResults[dataStore.GRIFFINdetectors[position]+'_Pulse_Height'][4][0];
+            o = dataStore.fitResults[dataStore.THESEdetectors[position]+'_Pulse_Height'][4][0];
             o = isNumeric(o) ? o : 0;
             offset[i] = o;
         }
@@ -410,6 +511,12 @@ function setupManualCalibration(){
     // Set the mode of operation
     dataStore.mode = 'manual';
     
+    // Hide the unnessary buttons
+    document.getElementById('decisionBarAuto').classList.add('hidden');
+    
+    // Reveal the peak info inputs
+    document.getElementById('setupBar').classList.remove("hidden");
+
     // Set the decision button to engaged
     document.getElementById('manualCalibration').setAttribute('engaged', 1);
     document.getElementById('manCalibBadge').classList.add('red-text')
@@ -437,12 +544,23 @@ function setupAutomaticCalibration(sourceType){
 
     // Set the mode of operation
     dataStore.mode = 'auto';
+
+    // Hide the unnessary buttons
+    for(var i=0; i<dataStore.sourceInfo.length; i++){
+	if(dataStore.sourceInfo[i].name != sourceType){
+            document.getElementById('automaticCalibration-'+dataStore.sourceInfo[i].name).classList.add('hidden');
+	}
+    }      
+    document.getElementById('manualCalibration').classList.add('hidden');    
     
     // Set the decision button to engaged
     thisID = 'automaticCalibration-' + sourceType;
     thisBadgeID = 'autoCalibBadge-' + sourceType;
     document.getElementById(thisID).setAttribute('engaged', 1);
     document.getElementById(thisBadgeID).classList.add('red-text')
+    
+    // Reveal the peak info inputs
+    document.getElementById('setupBar').classList.remove("hidden");
     
     // Set the search area automatically instead of asking for user input
     autoPeakSearchLimits(sourceType);
@@ -475,9 +593,6 @@ function autoPeakSearchLimits(sourceType){
 
     // Find the index number for the source information for this sourceType
     var index = dataStore.sourceInfo.map(function(e) { return e.name; }).indexOf(sourceType);
-
-    console.log(dataStore.sourceInfo);
-    console.log('Index for '+sourceType+' is '+index);
 
     // Set the peak energies for this source
     var lowEnergy  = dataStore.sourceInfo[index].lowEnergy;
@@ -576,7 +691,7 @@ function buildCalfile(){
        CAL += 'Number:	'+i+'\n';
 	CAL += 'Address:	0x'+dataStore.PSCaddresses[i].toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+'\n';
        CAL += 'Digitizer:	GRF16\n';
-        if(dataStore.PSCchannels[i].slice(0,3) == 'GRG'){
+        if(dataStore.PSCchannels[i].slice(0,3) == dataStore.THESEdetectors[0].slice(0,3)){
 	CAL += 'EngCoeff:	'+dataStore.fitResults[dataStore.PSCchannels[i]+'_Pulse_Height'][4][0]+' '+dataStore.fitResults[dataStore.PSCchannels[i]+'_Pulse_Height'][4][1]+' '+dataStore.fitResults[dataStore.PSCchannels[i]+'_Pulse_Height'][4][2]+'\n';
 	}else{
        CAL += 'EngCoeff:	0 1 0\n';

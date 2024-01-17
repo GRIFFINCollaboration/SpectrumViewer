@@ -33,7 +33,22 @@
 
         <!--helpful hints-->
         <div class='col-md-6'>
-            <div id='decisionMessage' class="alert alert-warning" role="alert">
+            <div id='modeMessage' class="alert alert-warning" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Select if you want to use data being collected online now, or use an offline histogram file.
+            </div>
+
+            <div id='histogramMessage' class="alert alert-warning hidden" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Select which histogram file should be used for the energy gain-matching.
+            </div>
+
+            <div id='detectorMessage' class="alert alert-warning hidden" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Select which detector type you want to perform energy gain-matching for.
+            </div>
+
+            <div id='decisionMessage' class="alert alert-warning hidden" role="alert">
                 <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
                 Select if you want to manually select peaks or try the auto-peak finder.
             </div>
@@ -68,17 +83,25 @@
             </div>
         </div>
 
-	<div id='decisionBar' class='col-md-12'>
+	<div id='modeChoiceBar' class='col-md-12'>
+	</div>
+	
+	<div id='detectorChoiceBar' class='col-md-12 hidden'>
+	</div>
+
+	<div id='decisionBarAuto' class='col-md-12 hidden'>
+	</div>
+	<div id='decisionBarManual' class='col-md-12 hidden'>
                     <div class='col-md-12'>
                         <button type="button" class="btn btn-default" id='manualCalibration' engaged='0' onclick=setupManualCalibration()>
                             <span id='manCalibBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> 
-                            <span id='manualText'>Manual Calibration</span>
+                            <span id='manualText'>Manually enter peak info</span>
                         </button>
                     </div>
 	</div>
 	
         <!--peak definition-->
-        <div id='setupBar' class='col-md-12'></div>
+        <div id='setupBar' class='col-md-12 hidden'></div>
 
         <!--Spectrum Plotting-->
         <div id='plotRegion' class='sectionWrapper'>
@@ -127,8 +150,6 @@
 
                 dataStore._plotGrid = new plotGrid('plottingGrid');
                 dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
-                dataStore._plotListLite = new plotListLite('plotList');
-                dataStore._gainMatchReport = new gainMatchReport('gainMatcher', 'setupBar'); 
                 dataStore._striptool = new striptool('resolution');
 
                 dataStore.templates = prepareTemplates(['header', 'gainMatchReport', 'matchReportTable', 'gainMatchSetupBar', 'plotGrid', 'plotControl', 'plotListLite', 'striptool', 'footer']);
@@ -137,28 +158,55 @@
                 dataStore._plotGrid.setup();
                 dataStore._plotControl.setup();
                 //set up spectrum cell
-                dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]);
-                dataStore._plotListLite.setup();
-                dataStore._gainMatchReport.setup(); 
+                dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]); 
                 dataStore._striptool.setup(); 
                 setupFooter('foot');
 
                 //don't want additional plots in this app
                 deleteNode('plottingGridnewPlotButton');
 
-	        //plug in mode decision controls
+
+	         // Create Mode choice buttons
+	         for(var i=0; i<dataStore.modeChoice.length; i++){
+	           newButton = document.createElement('button'); 
+	           newButton.setAttribute('id', 'modeChoice-'+dataStore.modeChoice[i].name); 
+	           newButton.setAttribute('class', 'btn btn-default');
+	           newButton.setAttribute('engaged', '0');
+	           newButton.value = dataStore.modeChoice[i].name;
+	           newButton.innerHTML = dataStore.modeChoice[i].text;
+          	   newButton.onclick = function(){
+          	   setupMenusFromModeChoice(this.value);
+	           }.bind(newButton);
+	           document.getElementById('modeChoiceBar').appendChild(newButton);
+	         }
+	
+	         // Create Detector choice buttons
+	         for(var i=0; i<dataStore.detectorChoice.length; i++){
+	           newButton = document.createElement('button'); 
+	           newButton.setAttribute('id', 'detectorChoice-'+dataStore.detectorChoice[i].name); 
+	           newButton.setAttribute('class', 'btn btn-default');
+	           newButton.setAttribute('engaged', '0');
+	           newButton.value = dataStore.detectorChoice[i].name;
+	           newButton.innerHTML = 'Calibrate '+dataStore.detectorChoice[i].name;
+          	   newButton.onclick = function(){
+          	   setupMenusFromDetectorChoice(this.value);
+	           }.bind(newButton);
+	           document.getElementById('detectorChoiceBar').appendChild(newButton);
+	         }
+	
+	        //plug in source decision controls
 	        for(var i=0; i<dataStore.sourceInfo.length; i++){
-	         // Create Submit button
+	         // Create Auto calibrate source Submit button
 	          newButton = document.createElement('button'); 
 	          newButton.setAttribute('id', 'automaticCalibration-'+dataStore.sourceInfo[i].name); 
 	          newButton.setAttribute('class', 'btn btn-default'); 
 	          newButton.setAttribute('engaged', '0');
 	          newButton.value = dataStore.sourceInfo[i].name;
-	          newButton.innerHTML = '<span id=\'autoCalibBadge-'+dataStore.sourceInfo[i].name+'\' class=\'glyphicon glyphicon-equalizer\' aria-hidden=\'true\'></span><span id=\'autoText\'>Auto-Calibrate '+dataStore.sourceInfo[i].title+'</span>';
+	          newButton.innerHTML = '<span id=\'autoCalibBadge-'+dataStore.sourceInfo[i].name+'\' class=\'glyphicon glyphicon-equalizer\' aria-hidden=\'true\'></span><span id=\'autoText\'>Calibrate '+dataStore.sourceInfo[i].title+'</span>';
           	  newButton.onclick = function(){
           	  setupAutomaticCalibration(this.value);
 	          }.bind(newButton);
-          	  document.getElementById('decisionBar').appendChild(newButton);
+          	  document.getElementById('decisionBarAuto').appendChild(newButton);
                 }          
 
                 $(function () {
