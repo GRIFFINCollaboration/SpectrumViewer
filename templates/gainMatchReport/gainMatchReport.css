@@ -2,6 +2,11 @@ table.gainTable{
     margin-top: 1em;
 }
 
+table.gainTable tbody{
+    max-height: 400px;
+    overflow: auto;
+}
+ 
 div.progress{
     margin-top: 1em;
 }
