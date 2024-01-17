@@ -2,7 +2,7 @@
 
 <template id='gainMatchReport'>
     <div class='sectionWrapper item'>
-        <div class='col-md-12'>
+        <div class='col-md-12' height='400px' overflow-y='scroll'>
             <table id='{{id}}gainMatchingResults' class='table gainTable'></table>
 
             <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
@@ -99,14 +99,23 @@
             document.getElementById('peak3').onchange = this.customEnergy.bind(this); 
             document.getElementById('peak4').onchange = this.customEnergy.bind(this);
 
+            // plug in onclick functions to the spectrum name cells
+            for(var i=0; i<dataStore.THESEdetectors.length; i++){
+              thisSpectrum = dataStore.THESEdetectors[i] + '_Pulse_Height';
+              document.getElementById(this.wrapID + dataStore.THESEdetectors[i] + 'name').onclick = function(){
+              dataStore._plotListLite.exclusivePlot(this.innerHTML, dataStore.viewers[dataStore.plots[0]]);
+              document.body.scrollTop = document.documentElement.scrollTop = 0;
+             }
+            }
+
             //plug in write to odb toggles
             document.getElementById('writeAllChannels').onchange = this.toggleAllODBWrites.bind(this);
 
-//make sure the file name for Cal file download gets passed around:
-document.getElementById('saveCalname').onchange = function(){
-//set the filename to whatever the user has requested:
-document.getElementById('saveCal').download = this.value;
-}
+            //make sure the file name for Cal file download gets passed around:
+             document.getElementById('saveCalname').onchange = function(){
+            //set the filename to whatever the user has requested:
+             document.getElementById('saveCal').download = this.value;
+            }
 
             // Set up the Cal file button 
 document.getElementById('saveCal').onclick = function(){ buildCalfile(); }
@@ -616,8 +625,6 @@ if(breakForLoop){ break; }
             //this: gainMatchReport object
 
             var calibration
-
-document.getElementById(this.wrapID + spectrum.slice(0,10) + 'name').onclick = dataStore._plotListLite.exclusivePlot(spectrum, dataStore.viewers[dataStore.plots[0]]);
 
             if(Array.isArray(dataStore.fitResults[spectrum][0]))
                 document.getElementById(this.wrapID + spectrum.slice(0,10) + 'chan1').innerHTML = dataStore.fitResults[spectrum][0][1].toFixed(3); 
