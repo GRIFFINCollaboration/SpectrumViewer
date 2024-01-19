@@ -62,17 +62,24 @@ function processSortStatus(payload){
 
     // Calculate quantities from the current Sort Status values
     dataStore.SortStatusCurrentSortSpeed = parseFloat((dataStore.SortStatusCurrentMegaBytesSorted-dataStore.SortStatusPreviousMegaBytesSorted)/(dataStore.SortStatusCurrentTimestamp - dataStore.SortStatusPreviousTimestamp)).toFixed(1);
+    calculateAverageSortSpeed();
     dataStore.SortStatusCurrentPercentageComplete = parseFloat((dataStore.SortStatusCurrentMegaBytesSorted/dataStore.SortStatusCurrentFileSize)*100.0).toFixed(1);
     dataStore.SortStatusCurrentRemainingSortTime = parseFloat((dataStore.SortStatusCurrentFileSize-dataStore.SortStatusCurrentMegaBytesSorted)/dataStore.SortStatusCurrentSortSpeed).toFixed(1);
 
-    // Protect against nonsense values
-    if(dataStore.SortStatusCurrentSortSpeed<0){ dataStore.SortStatusCurrentSortSpeed=0.0; }
-    if(!dataStore.SortStatusCurrentSortSpeed){ dataStore.SortStatusCurrentSortSpeed=0.0; }
-    if(dataStore.SortStatusCurrentPercentageComplete<0){ dataStore.SortStatusCurrentPercentageComplete=0.0; }
-    if(dataStore.SortStatusCurrentRemainingSortTime<0){ dataStore.SortStatusCurrentRemainingSortTime=0.0; }
+    console.log('===================================');
+    console.log(dataStore.SortStatusCurrentTimestamp);
+    console.log(dataStore.SortStatusSortSpeedHistory);
+    console.log(dataStore.SortStatusCurrentSortSpeed);
+    console.log(dataStore.SortStatusAverageSortSpeed);
+    
+    // Protect against nonsense values, but also against divide by zero errors
+    if(dataStore.SortStatusCurrentSortSpeed<0){ dataStore.SortStatusCurrentSortSpeed=0.1; }
+    if(!dataStore.SortStatusCurrentSortSpeed){ dataStore.SortStatusCurrentSortSpeed=0.1; }
+    if(dataStore.SortStatusCurrentPercentageComplete<0){ dataStore.SortStatusCurrentPercentageComplete=0.1; }
+    if(dataStore.SortStatusCurrentRemainingSortTime<0){ dataStore.SortStatusCurrentRemainingSortTime=0.1; }
 
     // Check the values in the console
-    /*
+    
     console.log('Dir: '+dataStore.midasFileDataDirectoryPath);
     console.log('File: '+dataStore.SortStatusCurrentFileName);
     console.log('Run: '+dataStore.SortStatusCurrentRunNumber);
@@ -80,12 +87,13 @@ function processSortStatus(payload){
     console.log('Size: '+dataStore.SortStatusCurrentFileSize+' MB');
     console.log('Sorted: '+dataStore.SortStatusCurrentMegaBytesSorted+' MB');
     console.log('Percent: '+dataStore.SortStatusCurrentPercentageComplete);
-    console.log('Speed: '+dataStore.SortStatusCurrentSortSpeed);
+    console.log('Current Speed: '+dataStore.SortStatusCurrentSortSpeed);
+    console.log('Average Speed: '+dataStore.SortStatusAverageSortSpeed);
     console.log('Remaining: '+dataStore.SortStatusCurrentRemainingSortTime);
-*/
+
 
     // Update the printed Sort Status information on screen
-    string = 'Sorting Run '+dataStore.SortStatusCurrentRunNumber+', subrun '+dataStore.SortStatusCurrentSubRunNumber+' at '+dataStore.SortStatusCurrentSortSpeed+' MB/s. Sorted '+dataStore.SortStatusCurrentMegaBytesSorted+' of '+dataStore.SortStatusCurrentFileSize+' MBs ('+dataStore.SortStatusCurrentPercentageComplete+'% completed). Estimated time to complete = '+dataStore.SortStatusCurrentRemainingSortTime+' s.';
+    string = 'Sorting Run '+dataStore.SortStatusCurrentRunNumber+', subrun '+dataStore.SortStatusCurrentSubRunNumber+' at '+dataStore.SortStatusAverageSortSpeed+' MB/s. Sorted '+dataStore.SortStatusCurrentMegaBytesSorted+' of '+dataStore.SortStatusCurrentFileSize+' MBs ('+dataStore.SortStatusCurrentPercentageComplete+'% completed). Estimated time to complete = '+dataStore.SortStatusCurrentRemainingSortTime+' s.';
     document.getElementById("SortingStatus").innerHTML = string;
 
     // Update the progress bar to show the current sort progress
@@ -108,16 +116,40 @@ function processSortStatus(payload){
 	console.log(thisPayloadArray[i]);
 	var thisPayload = thisPayloadArray[i].split(" ");
 	if(i>0){
-	    document.getElementById("JobsQueue").innerHTML += ', '+thisPayload[1]+' ('+parseInt(thisPayload[4] / 1000000)+' MB)';
+	    document.getElementById("JobsQueue").innerHTML += '<br>'+thisPayload[1]+' ('+parseInt(thisPayload[4] / 1000000)+' MB, requires '+parseFloat(parseInt(thisPayload[4] / 1000000)/dataStore.SortStatusAverageSortSpeed).toFixed(1)+' seconds to sort)';
 	totalQueueFileSize += parseInt(thisPayload[4] / 1000000);
 	}else{
-	    document.getElementById("JobsQueue").innerHTML += thisPayload[1]+' ('+parseInt(thisPayload[4] / 1000000)+' MB)';
+	    document.getElementById("JobsQueue").innerHTML += thisPayload[1]+' ('+parseInt(thisPayload[4] / 1000000)+' MB, requires '+parseFloat(parseInt(thisPayload[4] / 1000000)/dataStore.SortStatusAverageSortSpeed).toFixed(1)+' seconds to sort)';
 	}
     }
     if(totalQueueFileSize>0){
-    document.getElementById("JobsQueue").innerHTML += '<br>Time to sort entire queue is '+parseFloat(totalQueueFileSize/dataStore.SortStatusCurrentSortSpeed).toFixed(1)+' seconds';
+    document.getElementById("JobsQueue").innerHTML += '<br>Time to sort entire queue is '+parseFloat(totalQueueFileSize/dataStore.SortStatusAverageSortSpeed).toFixed(1)+' seconds';
     }
 }
+
+function calculateAverageSortSpeed(){
+    // Calling this function triggers saving the current calculated sorting speed
+    if(isFinite(dataStore.SortStatusCurrentSortSpeed) && dataStore.SortStatusCurrentSortSpeed>0){
+	dataStore.SortStatusSortSpeedHistory.push(dataStore.SortStatusCurrentSortSpeed);
+    }
+    
+    // Protect against this history getting too long (older than one minute), because the sorting speed may change over time
+    if(dataStore.SortStatusSortSpeedHistory.length>60){
+	var discard = dataStore.SortStatusSortSpeedHistory.shift();
+    }
+    
+    // Calculate the average
+    var arr = dataStore.SortStatusSortSpeedHistory;
+    var sum=0;
+    for(i=0; i<arr.length; i++){ sum += parseFloat(arr[i]); };
+    const avg = (sum / arr.length) || 0;
+
+    console.log('Average sum, length, avg: '+sum+', '+arr.length+', '+avg);
+    console.log(arr);
+    
+    // Save the average sorting speed from all saved values
+    dataStore.SortStatusAverageSortSpeed = avg.toFixed(1);
+}          
 
 function getMidasFileListFromServer(){
 

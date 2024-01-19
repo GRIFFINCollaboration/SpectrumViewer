@@ -863,7 +863,7 @@ function spectrumViewer(canvasID){
 		return width
 	}
 
-	//calucalte second derrivatives of spectrum; return as array
+	//calculate second derrivatives of spectrum; return as array
 	//note first and last entry will be null, can't caluclate derivatives on edges.
 	this.concavity = function(spectrum){
 		var i, concavity = [null], slope = []

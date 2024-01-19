@@ -642,3 +642,4 @@ function dotProductMatrix(a,b){
 function strncmp(a, b, n){
     return a.substring(0, n) == b.substring(0, n);
 }
+
