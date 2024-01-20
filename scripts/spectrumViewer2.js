@@ -93,8 +93,6 @@ function ErrorConnectingToAnalyzerServer(error){
 }
 
 function processSpectrumList(payload){
-
-    console.log(payload);
     var SpectrumList = JSON.parse(payload);
     
     //declare the holder for the top level groups
@@ -151,8 +149,6 @@ function processSpectrumList(payload){
 }
 
 function processHistoFileList(payload){
-    console.log(payload);
-
     // receive the payload and split into an array of strings
     var thisPayload = payload.split(" ]")[0].split("[ \n")[1];
     
@@ -165,8 +161,6 @@ function processHistoFileList(payload){
 
     // Set up the list of histo files
     setupHistoListSelect();
-
-    console.log(dataStore.histoFileList);
 
     // Get the Spectrum List from the server if a Histogram file has been specified in the URL
     if(dataStore.histoFileName.length>0){
@@ -207,19 +201,14 @@ function setupHistoListSelect(){
     // Get the spectrum list for whatever is selected on startup
     dataStore.histoFileName = document.getElementById('HistoListSelect').value;
     GetSpectrumListFromServer(dataStore.spectrumServer,processSpectrumList);
-    console.log('Ininital Histogram file selected is '+dataStore.histoFileName);
 }
 
 function constructNewSpectrumMenu(){
-    console.log('constructNewSpectrumMenu');
-    console.log(dataStore);
-    
     // Clear any previous menu content
     document.getElementById('bs-example-navbar-collapse-1').innerHTML = '';
     
     // build the menu based on these topGroups and subGroups
     dataStore._plotList = new plotList('bs-example-navbar-collapse-1');
     dataStore._plotList.setup();
-    
 }
 

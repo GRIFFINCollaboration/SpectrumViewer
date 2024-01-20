@@ -25,7 +25,8 @@ function processSortStatus(payload){
     //   return(0);
     // }
     //
-
+   // dataStore.SortStatusHistory.push(payload);
+  //  console.log(dataStore.SortStatusHistory);
     // Handle the Analyzer IDLE response
     // Set the progress bar to orange and write a status message
     if(strncmp(payload,'IDLE',4)){

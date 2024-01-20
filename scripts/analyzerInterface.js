@@ -39,6 +39,7 @@ function setupDataStore(callback){
 	"SortStatusPreviousMegaBytesSorted" : 10,
 	"SortStatusAverageSortSpeed" : 10000,
 	"SortStatusSortSpeedHistory" : [],
+	"SortStatusHistory": [],
 
 	
 	// Gating and Histogram variables
@@ -145,9 +146,7 @@ function fetchCallback(){
 }
 
 function setupEventListeners(){
-    console.log('Execute setupEventListeners...');
 
-    
 	window.addEventListener('HTMLImportsLoaded', function(e) {
 
 	///////////////
@@ -169,8 +168,6 @@ function setupEventListeners(){
 	    updateTime();
 	    
 	});
-    
-    console.log('Finished setupEventListeners');
 }
 
 function ErrorConnectingToAnalyzerServer(error){
