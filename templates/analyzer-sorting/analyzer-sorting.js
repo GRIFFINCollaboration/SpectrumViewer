@@ -53,11 +53,13 @@ function processSortStatus(payload){
     dataStore.SortStatusCurrentRunNumber = parseInt(thisPayload[2]);
     dataStore.SortStatusCurrentSubRunNumber = parseInt(thisPayload[3]);
     dataStore.SortStatusCurrentFileSize = parseInt(thisPayload[4] / 1000000);
+    dataStore.SortStatusCurrentBytesSorted = parseInt(thisPayload[5]);
     dataStore.SortStatusCurrentMegaBytesSorted = parseInt(thisPayload[5] / 1000000);
 
     // Skip the first update so that we can have valid sort speed values
     if(dataStore.SortStatusPreviousTimestamp<100){
 	dataStore.SortStatusPreviousTimestamp = dataStore.SortStatusCurrentTimestamp;
+	dataStore.SortStatusPreviousBytesSorted = dataStore.SortStatusCurrentBytesSorted;
 	dataStore.SortStatusPreviousMegaBytesSorted = dataStore.SortStatusCurrentMegaBytesSorted;
     }
 
@@ -86,6 +88,7 @@ function processSortStatus(payload){
     console.log('Run: '+dataStore.SortStatusCurrentRunNumber);
     console.log('Sub: '+dataStore.SortStatusCurrentSubRunNumber);
     console.log('Size: '+dataStore.SortStatusCurrentFileSize+' MB');
+    console.log('Sorted: '+dataStore.SortStatusCurrentBytesSorted+' Bytes');
     console.log('Sorted: '+dataStore.SortStatusCurrentMegaBytesSorted+' MB');
     console.log('Percent: '+dataStore.SortStatusCurrentPercentageComplete);
     console.log('Current Speed: '+dataStore.SortStatusCurrentSortSpeed);
@@ -117,20 +120,83 @@ function processSortStatus(payload){
 	console.log(thisPayloadArray[i]);
 	var thisPayload = thisPayloadArray[i].split(" ");
 	if(i>0){
-	    document.getElementById("JobsQueue").innerHTML += '<br>'+thisPayload[1]+' ('+parseInt(thisPayload[4] / 1000000)+' MB, requires '+parseFloat(parseInt(thisPayload[4] / 1000000)/dataStore.SortStatusAverageSortSpeed).toFixed(1)+' seconds to sort)';
+	    document.getElementById("JobsQueue").innerHTML += '<br>'+thisPayload[1]+' ('+parseInt(thisPayload[4] / 1000000)+' MB, requires '+prettyTimeString(parseInt(thisPayload[4] / 1000000)/dataStore.SortStatusAverageSortSpeed)+' to sort)';
 	totalQueueFileSize += parseInt(thisPayload[4] / 1000000);
 	}else{
-	    document.getElementById("JobsQueue").innerHTML += thisPayload[1]+' ('+parseInt(thisPayload[4] / 1000000)+' MB, requires '+parseFloat(parseInt(thisPayload[4] / 1000000)/dataStore.SortStatusAverageSortSpeed).toFixed(1)+' seconds to sort)';
+	    document.getElementById("JobsQueue").innerHTML += thisPayload[1]+' ('+parseInt(thisPayload[4] / 1000000)+' MB, requires '+prettyTimeString(parseInt(thisPayload[4] / 1000000)/dataStore.SortStatusAverageSortSpeed)+' to sort)';
 	}
     }
     if(totalQueueFileSize>0){
-    document.getElementById("JobsQueue").innerHTML += '<br>Time to sort entire queue is '+parseFloat(totalQueueFileSize/dataStore.SortStatusAverageSortSpeed).toFixed(1)+' seconds';
+   // document.getElementById("JobsQueue").innerHTML += '<br>Time to sort entire queue is '+parseFloat(totalQueueFileSize/dataStore.SortStatusAverageSortSpeed).toFixed(1)+' seconds';
+    document.getElementById("JobsQueue").innerHTML += '<br>Time to sort entire queue is '+prettyTimeString(totalQueueFileSize/dataStore.SortStatusAverageSortSpeed);
     }
+}
+
+function prettyFileSizeString(bytes){
+    // returns a string for filesize in bytes, kB, MB, GB or TBs
+    var string;
+    var sizeOfTB = 1000000000;
+    var sizeOfMB = 1000000;
+    var sizeOfkB = 1000;
+    var sizeOfB = 1;
+    if(bytes>sizeOfTB){
+	// Terrabytes
+	string = (bytes / sizeOfTB).toFixed(2) + ' TB';
+    }
+    else if(bytes>sizeOfMB){
+	// Megabytes
+	string = (bytes / sizeOfMB).toFixed(1) + ' MB';
+    }
+    else if(bytes>sizeOfkB){
+	// kilobytes
+	string = (bytes / sizeOfkB).toFixed(0) + ' kB';
+    }
+    else{
+	// bytes
+	string = bytes + ' bytes';
+    }
+    
+    return string;
+}
+
+function prettyTimeString(seconds){
+    // returns a string for filesize in bytes, kB, MB, GB or TBs
+    var string;
+    var sizeOfWeek = 604800;
+    var sizeOfDay = 86400;
+    var sizeOfHour = 3600;
+    var sizeOfMinute = 60;
+    var sizeOfSecond = 1;
+
+    seconds = seconds.toFixed(1);
+    
+    if(seconds>sizeOfWeek){
+	// Weeks
+	string = (seconds / sizeOfWeek).toFixed(2) + ' weeks';
+    }
+    else if(seconds>sizeOfDay*2){
+	// Days
+	string = (seconds / sizeOfDay).toFixed(2) + ' days';
+    }
+    else if(seconds>sizeOfHour*2){
+	// Hours
+	string = (seconds / sizeOfHour).toFixed(1) + ' hours';
+    }
+    else if(seconds>sizeOfMinute*2){
+	// Minutes
+	string = (seconds / sizeOfMinute).toFixed(0) + ' minutes';
+    }
+    else{
+	// Seconds
+	string = seconds + ' seconds';
+    }
+    
+    return string;
 }
 
 function calculateAverageSortSpeed(){
     // Calling this function triggers saving the current calculated sorting speed
-    if(isFinite(dataStore.SortStatusCurrentSortSpeed) && dataStore.SortStatusCurrentSortSpeed>0){
+    if(isFinite(dataStore.SortStatusCurrentSortSpeed) && dataStore.SortStatusCurrentSortSpeed>0 && dataStore.SortStatusCurrentSortSpeed<2000){
 	dataStore.SortStatusSortSpeedHistory.push(dataStore.SortStatusCurrentSortSpeed);
     }
     
