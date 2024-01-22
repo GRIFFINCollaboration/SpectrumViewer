@@ -135,13 +135,18 @@ function processSortStatus(payload){
 function prettyFileSizeString(bytes){
     // returns a string for filesize in bytes, kB, MB, GB or TBs
     var string;
-    var sizeOfTB = 1000000000;
+    var sizeOfTB = 1000000000000;
+    var sizeOfGB = 1000000000;
     var sizeOfMB = 1000000;
     var sizeOfkB = 1000;
     var sizeOfB = 1;
     if(bytes>sizeOfTB){
 	// Terrabytes
 	string = (bytes / sizeOfTB).toFixed(2) + ' TB';
+    }
+    if(bytes>sizeOfGB){
+	// Terrabytes
+	string = (bytes / sizeOfGB).toFixed(2) + ' GB';
     }
     else if(bytes>sizeOfMB){
 	// Megabytes
@@ -160,7 +165,7 @@ function prettyFileSizeString(bytes){
 }
 
 function prettyTimeString(seconds){
-    // returns a string for filesize in bytes, kB, MB, GB or TBs
+    // returns a string for Time in seconds, minutes, hours, days, weeks
     var string;
     var sizeOfWeek = 604800;
     var sizeOfDay = 86400;
@@ -216,6 +221,9 @@ function calculateAverageSortSpeed(){
     
     // Save the average sorting speed from all saved values
     dataStore.SortStatusAverageSortSpeed = avg.toFixed(1);
+
+    // Update the sorting times in the table
+    updateSortingTimesInTable();
 }          
 
 function getMidasFileListFromServer(){
@@ -358,25 +366,19 @@ function buildMidasFileTable(){
      var cell4 = row.insertCell(3);
      var cell5 = row.insertCell(4);
 
-	// Calculate the estimated Sorting time and make it easily human readable
-	thisRunSize = dataStore.midasRunList[num].RunSize/1000000; // in MB
-	if(thisRunSize<1000){
-	    thisRunSizeString = thisRunSize.toFixed(1)+' MB';
-	}else{
-	    thisRunSizeString = (thisRunSize/1000).toFixed(1)+' GB';
-	}
-	// Calculate the estimated Sorting time and make it easily human readable
-	thisSortTime = (thisRunSize/200).toFixed(1); // Sort speed defined here as 200MB/s - should be made dynamic
-	if(thisSortTime<60){
-	    thisSortTimeString = 'Requires '+thisSortTime+' seconds to sort';
-	}else{
-	    thisSortTimeString = 'Requires '+(thisSortTime/60.0).toFixed(1)+' minutes to sort';
-	}
+     // Calculate the estimated Sorting time and make it easily human readable
+     thisRunSizeString = prettyFileSizeString(dataStore.midasRunList[num].RunSize);
      
+     // Calculate the estimated Sorting time and make it easily human readable
+     thisSortTime = ((dataStore.midasRunList[num].RunSize/1000000)/400); // Sort speed defined here as 400MB/s - should be made dynamic
+     thisSortTimeString = 'Requires '+prettyTimeString(thisSortTime)+' to sort';
+     
+     // Update the information displayed in the cells
     cell1.innerHTML = dataStore.midasRunList[num].RunName;
     cell2.innerHTML = dataStore.midasRunList[num].NumSubruns+' subruns';
     cell2.id = 'MidasSubrunDiv-'+(num+1);
-    cell3.innerHTML = thisRunSizeString;
+     cell3.innerHTML = thisRunSizeString;
+     cell3.value = dataStore.midasRunList[num].RunSize; // Use this value in bytes when updating the sorting time.
     cell4.innerHTML = thisSortTimeString;
     cell5.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.midasRunList[num].RunName+'-checkbox'+'\" value=\"'+dataStore.midasRunList[num].RunName+'\" onclick=ToggleCheckboxOfThisMIDASFile(\"midasRunTableRow-'+(num+1)+'\")>';
 
@@ -392,6 +394,25 @@ function buildMidasFileTable(){
     }.bind(newButton);
     document.getElementById('MidasSubrunDiv-'+(num+1)).appendChild(newButton);
   }
+    
+}
+
+function updateSortingTimesInTable(){
+    var table = document.getElementById("MidFilesTable");
+    var SortSpeedNow = dataStore.SortStatusAverageSortSpeed;
+    
+    // Iterate through all rows of the MIDAS data file table
+    for (var i = 1, row; row = table.rows[i]; i++) {
+	// Get the file size from cell4
+	thisRunSize = row.cells[2].value;
+	
+	// Calculate the estimated Sorting time based on the latest Average sorting speed and make it easily human readable
+	thisSortTime = ((thisRunSize/1000000)/SortSpeedNow); // Sort speed defined here as 400MB/s - should be made dynamic
+	thisSortTimeString = 'Requires '+prettyTimeString(thisSortTime)+' to sort';
+	
+	// Update the sorting time displayed
+	row.cells[3].innerHTML = thisSortTimeString;
+    }
     
 }
 
