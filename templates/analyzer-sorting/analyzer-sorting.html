@@ -67,6 +67,7 @@
     newInput.value = dataStore.midasFileDataDirectoryPath; 
     newInput.onchange = function(){
     dataStore.midasFileDataDirectoryPath = this.value;
+    getMidasFileListFromServer();
     }.bind(newInput);
     document.getElementById('DataDirectoryInputDiv').appendChild(newInput);
     
