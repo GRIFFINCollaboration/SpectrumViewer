@@ -191,7 +191,7 @@ function prettyTimeString(seconds){
     }
     else if(seconds>sizeOfMinute*2){
 	// Minutes
-	string = (seconds / sizeOfMinute).toFixed(0) + ' minutes';
+	string = (seconds / sizeOfMinute).toFixed(1) + ' minutes';
     }
     else{
 	// Seconds
