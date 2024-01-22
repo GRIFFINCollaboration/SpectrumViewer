@@ -347,14 +347,11 @@ function getHistoFileListFromServer(){
 
     // use a one-off XHR request with callback for getting the list of Histo files
     url = dataStore.spectrumServer + '/?cmd=getHistofileList&dir='+dataStore.histoFileDirectoryPath;
-    console.log('getHistoFileListFromServer: '+url);
     XHR(url, "Problem getting list of Histogram files from analyzer server", processHistoFileList, function(error){ErrorConnectingToAnalyzerServer(error)});
 
 }
 
 function GetSpectrumListFromServer(ServerName, callback){
-    console.log('Execute GetSpectrumFromServer in helpers.js ...');
-    
     // Get the Spectrum List from the analyser server
     
     var errorMessage = 'Error receiving Spectrum List from server, '+ServerName;
@@ -372,7 +369,6 @@ function GetSpectrumListFromServer(ServerName, callback){
 	}
 	urlString += '&filename='+HistoFileDirectory+dataStore.histoFileName;
     }
-    console.log('GetSpectrumListFromServer: '+urlString);
     
     var req = new XMLHttpRequest();
     req.open('GET', urlString);

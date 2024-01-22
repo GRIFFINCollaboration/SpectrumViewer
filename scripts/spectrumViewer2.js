@@ -6,7 +6,6 @@
 var urlData = [];
 
 function setupDataStore(){
-    console.log('Execute setupDataStore...');
     
     // Create the dataStore object
   dataStore = {
@@ -193,8 +192,6 @@ function setupHistoListSelect(){
 
     // if a Histogram file has been specified in the URL, make it the selected option
     if(dataStore.histoFileName.length>0){
-	console.log(dataStore.histoFileName);
-	console.log(thisSelect);
 	thisSelect.value = dataStore.histoFileName;
     }
 
