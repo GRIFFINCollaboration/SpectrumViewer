@@ -160,11 +160,6 @@ function processHistoFileList(payload){
 
     // Set up the list of histo files
     setupHistoListSelect();
-
-    // Get the Spectrum List from the server if a Histogram file has been specified in the URL
-    if(dataStore.histoFileName.length>0){
-	GetSpectrumListFromServer(dataStore.spectrumServer,processSpectrumList);
-    }
 }
 
 function setupHistoListSelect(){
@@ -203,9 +198,16 @@ function setupHistoListSelect(){
 function constructNewSpectrumMenu(){
     // Clear any previous menu content
     document.getElementById('bs-example-navbar-collapse-1').innerHTML = '';
-    
+
     // build the menu based on these topGroups and subGroups
-    dataStore._plotList = new plotList('bs-example-navbar-collapse-1');
-    dataStore._plotList.setup();
+    // Need to ensure the constructore dataStore._plotList has been created.
+    // If not then we need to wait for the initialization
+    try{
+	dataStore._plotList = new plotList('bs-example-navbar-collapse-1');
+	dataStore._plotList.setup();
+    }
+    catch(err){
+	setTimeout(constructNewSpectrumMenu(), 250);
+    }
 }
 
