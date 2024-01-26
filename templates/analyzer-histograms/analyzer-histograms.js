@@ -459,7 +459,7 @@ function deleteGateBlock(gateNumber){
 	
 	// Add the first row for the first condition
         dataStore.histogramDefinition.nRows[histogramIndex] = 0;
-	addNewHistogramCondition(histogramIndex,arrayIndex);
+	addNewHistogramConditionRow(histogramIndex,arrayIndex);
 
 	// Populate the Histogram with the entry in dataStore.histogramDefinition.contents[arrayIndex] if an arrayIndex was provided
 	if(arrayIndex>=0){
@@ -656,7 +656,7 @@ function removeRangeInputs(gateNumber,gateConditionNumber){
     document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);    
 }
 
-function addNewHistogramCondition(histogramIndex,arrayIndex){
+function addNewHistogramConditionRow(histogramIndex,arrayIndex){
         // add a new histogramCondition row to the indexed histogram block
 	
     // The arrayIndex argument is only passed by the initial setup functions to populate the Gate with the values from the dataStore 

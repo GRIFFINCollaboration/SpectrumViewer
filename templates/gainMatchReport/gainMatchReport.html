@@ -82,7 +82,15 @@
 
         this.setup = function(){
             // build list of source titles
-            var listOfSourceTitles = [];
+    var listOfSourceTitles = [];
+    
+    if(dataStore.THESEdetectors[0].slice(0,3) == 'PAC'){
+     var thisObject = {
+                         "name" : dataStore.sourceInfoPACES[0].name,
+                         "title" : dataStore.sourceInfoPACES[0].title
+                      }
+       listOfSourceTitles.push(thisObject);
+    }else{
 	    for(var i=0; i<dataStore.sourceInfo.length; i++){
 	        var thisObject = {
 		                    "name" : dataStore.sourceInfo[i].name,
@@ -90,6 +98,7 @@
 	                         }
 	        listOfSourceTitles.push(thisObject);
 	    }
+    }
     
             //inject templates
             this.setupWrap.innerHTML = Mustache.to_html(

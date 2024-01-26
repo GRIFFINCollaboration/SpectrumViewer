@@ -30,6 +30,8 @@ function processSortStatus(payload){
     // Handle the Analyzer IDLE response
     // Set the progress bar to orange and write a status message
     if(strncmp(payload,'IDLE',4)){
+	// Set the heartbeat frequency
+	dataStore.heartbeatInterval = 5000;
 	
 	// Update the progress bar
 	document.getElementById('progress').className = 'progress-bar progress-bar-warning progress-bar-striped';
@@ -37,6 +39,9 @@ function processSortStatus(payload){
 	document.getElementById('progress').innerHTML = 'Analyzer is idle, ready for files to be submitted.';
 	document.getElementById("SortingStatus").innerHTML = 'Analyzer is idle, ready for files to be submitted.';
 	return;
+    }else{
+	// Set the heartbeat frequency
+	dataStore.heartbeatInterval = 1000;
     }
     
     // Handle the Analyzer running response

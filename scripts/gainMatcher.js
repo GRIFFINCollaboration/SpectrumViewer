@@ -70,6 +70,9 @@ function setupDataStore(){
 	{"name": "Bi-207", "title": "207Bi", "lowEnergy":  74.97, "midEnergy":  569.70, "highEnergy": 1063.66, "vhiEnergy": 1770.23, "maxXValue":2000 },
 	{"name": "Background", "title": "Background", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "maxXValue":2650 }
     ];
+    dataStore.sourceInfoPACES = [
+	{"name": "PACES",  "title": "PACES 207Bi", "lowEnergy":  74.97, "midEnergy":  481.69, "highEnergy":  975.65, "vhiEnergy": 1682.22, "maxXValue":2000 }
+    ];
 
     dataStore.THESEdetectors = [];                                    //10-char codes of all possible griffin/paces detectors. Contents based on detectorChoice
 
@@ -308,6 +311,25 @@ function setupMenusFromDetectorChoice(detectorType){
     document.getElementById('decisionBarAuto').classList.remove("hidden");
     document.getElementById('decisionBarManual').classList.remove("hidden");
 
+    // Delete the HPGe source buttons and generate only the PACES buttons
+    const thisNode = document.getElementById('decisionBarAuto');
+    while (thisNode.firstChild) {
+	thisNode.removeChild(thisNode.lastChild);
+    }
+    for(var i=0; i<dataStore.sourceInfoPACES.length; i++){
+	// Create Auto calibrate source Submit button
+	newButton = document.createElement('button'); 
+	newButton.setAttribute('id', 'automaticCalibration-'+dataStore.sourceInfoPACES[i].name); 
+	newButton.setAttribute('class', 'btn btn-default'); 
+	newButton.setAttribute('engaged', '0');
+	newButton.value = dataStore.sourceInfoPACES[i].name;
+	newButton.innerHTML = '<span id=\'autoCalibBadge-'+dataStore.sourceInfoPACES[i].name+'\' class=\'glyphicon glyphicon-equalizer\' aria-hidden=\'true\'></span><span id=\'autoText\'>Calibrate '+dataStore.sourceInfoPACES[i].title+'</span>';
+        newButton.onclick = function(){
+            setupAutomaticCalibration(this.value);
+	}.bind(newButton);
+        document.getElementById('decisionBarAuto').appendChild(newButton);
+    }          
+
     // setup the dataStore for this choice of detectorType
 
     var i, num=0, groups = [];
@@ -434,7 +456,7 @@ function loadData(DAQ){
     dataStore.PSCaddresses = DAQ[1].PSC;
     dataStore.RunNumber = DAQ[2][ 'Run number' ];
 
-    //Add the detector tyep and run number to the name of the Cal file
+    //Add the detector type and run number to the name of the Cal file
     if(dataStore.THESEdetectors[0].slice(0,3) == 'GRG'){
 	document.getElementById('saveCalname').value = 'GRIFFIN-Cal-File-Run'+dataStore.RunNumber+'.cal';
     }else if(dataStore.THESEdetectors[0].slice(0,3) == 'PAC'){
@@ -602,11 +624,13 @@ function setupAutomaticCalibration(sourceType){
     dataStore.mode = 'auto';
 
     // Hide the unnessary buttons
-    for(var i=0; i<dataStore.sourceInfo.length; i++){
-	if(dataStore.sourceInfo[i].name != sourceType){
-            document.getElementById('automaticCalibration-'+dataStore.sourceInfo[i].name).classList.add('hidden');
+    if(dataStore.THESEdetectors[0].slice(0,3) == 'GRG'){
+	for(var i=0; i<dataStore.sourceInfo.length; i++){
+	    if(dataStore.sourceInfo[i].name != sourceType){
+		document.getElementById('automaticCalibration-'+dataStore.sourceInfo[i].name).classList.add('hidden');
+	    }
 	}
-    }      
+    }
     document.getElementById('manualCalibration').classList.add('hidden');    
     
     // Set the decision button to engaged
@@ -647,15 +671,23 @@ function autoPeakSearchLimits(sourceType){
     // alternative to the shift-click on plot - set limits automatically then draw a horizontal line as the peak search region.
     // this == spectrumViewer object
 
-    // Find the index number for the source information for this sourceType
-    var index = dataStore.sourceInfo.map(function(e) { return e.name; }).indexOf(sourceType);
-
     // Set the peak energies for this source
-    var lowEnergy  = dataStore.sourceInfo[index].lowEnergy;
-    var midEnergy  = dataStore.sourceInfo[index].midEnergy;
-    var highEnergy = dataStore.sourceInfo[index].highEnergy;
-    var vhiEnergy  = dataStore.sourceInfo[index].vhiEnergy;
-
+    if(dataStore.THESEdetectors[0].slice(0,3) == 'PAC'){
+	// Find the index number for the source information for this sourceType
+	var index = dataStore.sourceInfoPACES.map(function(e) { return e.name; }).indexOf(sourceType);
+	var lowEnergy  = dataStore.sourceInfoPACES[index].lowEnergy;
+	var midEnergy  = dataStore.sourceInfoPACES[index].midEnergy;
+	var highEnergy = dataStore.sourceInfoPACES[index].highEnergy;
+	var vhiEnergy  = dataStore.sourceInfoPACES[index].vhiEnergy;
+    }else{
+	// Find the index number for the source information for this sourceType
+	var index = dataStore.sourceInfo.map(function(e) { return e.name; }).indexOf(sourceType);
+	var lowEnergy  = dataStore.sourceInfo[index].lowEnergy;
+	var midEnergy  = dataStore.sourceInfo[index].midEnergy;
+	var highEnergy = dataStore.sourceInfo[index].highEnergy;
+	var vhiEnergy  = dataStore.sourceInfo[index].vhiEnergy;
+    }
+    
     // Configure the axis settings
     document.getElementById('logY').onclick();
     document.getElementById('maxX').value = dataStore.sourceInfo[index].maxXValue; 
