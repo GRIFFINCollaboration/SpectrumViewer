@@ -337,7 +337,6 @@ function processHistoFileList(payload){
 function buildMidasFileTable(){
 // Create a row in the table for each midas file in the list provided by the server
     document.getElementById("MidFilesTable").innerHTML = '';
-    console.log(dataStore.histoFileList);
     
     // Add a title row to the table
     var row = document.getElementById("MidFilesTable").insertRow(document.getElementById("MidFilesTable").rows.length); 
@@ -383,7 +382,6 @@ function buildMidasFileTable(){
 
      // Check if there is a Histogram file aready sorted for this MIDAS file
      var HistoIndex = dataStore.histoFileList.findIndex(function f(histoName){ return histoName.includes(dataStore.midasRunList[num].RunName); });
-     console.log('HistoIndex='+HistoIndex+' for '+dataStore.midasRunList[num].RunName);
      
      // Update the information displayed in the cells
     cell1.innerHTML = dataStore.midasRunList[num].RunName;
