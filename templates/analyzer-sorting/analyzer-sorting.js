@@ -337,7 +337,8 @@ function processHistoFileList(payload){
 function buildMidasFileTable(){
 // Create a row in the table for each midas file in the list provided by the server
     document.getElementById("MidFilesTable").innerHTML = '';
-
+    console.log(dataStore.histoFileList);
+    
     // Add a title row to the table
     var row = document.getElementById("MidFilesTable").insertRow(document.getElementById("MidFilesTable").rows.length); 
     row.id = 'midasRunTableRow-'+(0);
@@ -346,11 +347,13 @@ function buildMidasFileTable(){
      var cell3 = row.insertCell(2);
      var cell4 = row.insertCell(3);
      var cell5 = row.insertCell(4);
+     var cell6 = row.insertCell(5);
     cell1.innerHTML = '';
     cell2.innerHTML = '';
     cell3.innerHTML = '';
     cell4.innerHTML = '';
-    cell5.innerHTML = '<input type=\"checkbox\" id=\"Primary-checkbox\">';
+    cell5.innerHTML = '';
+    cell6.innerHTML = '<input type=\"checkbox\" id=\"Primary-checkbox\">';
 
       document.getElementById("Primary-checkbox").onclick = function(e){
          ToggleCheckboxOfAllMIDASFiles(this.checked);
@@ -369,6 +372,7 @@ function buildMidasFileTable(){
      var cell3 = row.insertCell(2);
      var cell4 = row.insertCell(3);
      var cell5 = row.insertCell(4);
+     var cell6 = row.insertCell(5);
 
      // Calculate the estimated Sorting time and make it easily human readable
      thisRunSizeString = prettyFileSizeString(dataStore.midasRunList[num].RunSize);
@@ -376,15 +380,25 @@ function buildMidasFileTable(){
      // Calculate the estimated Sorting time and make it easily human readable
      thisSortTime = ((dataStore.midasRunList[num].RunSize/1000000)/400); // Sort speed defined here as 400MB/s - should be made dynamic
      thisSortTimeString = 'Requires '+prettyTimeString(thisSortTime)+' to sort';
+
+     // Check if there is a Histogram file aready sorted for this MIDAS file
+     var HistoIndex = dataStore.histoFileList.findIndex(function f(histoName){ return histoName.includes(dataStore.midasRunList[num].RunName); });
+     console.log('HistoIndex='+HistoIndex+' for '+dataStore.midasRunList[num].RunName);
      
      // Update the information displayed in the cells
     cell1.innerHTML = dataStore.midasRunList[num].RunName;
     cell2.innerHTML = dataStore.midasRunList[num].NumSubruns+' subruns';
     cell2.id = 'MidasSubrunDiv-'+(num+1);
      cell3.innerHTML = thisRunSizeString;
-     cell3.value = dataStore.midasRunList[num].RunSize; // Use this value in bytes when updating the sorting time.
-    cell4.innerHTML = thisSortTimeString;
-    cell5.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.midasRunList[num].RunName+'-checkbox'+'\" value=\"'+dataStore.midasRunList[num].RunName+'\" onclick=ToggleCheckboxOfThisMIDASFile(\"midasRunTableRow-'+(num+1)+'\")>';
+     cell3.value = dataStore.midasRunList[num].RunSize; // Use this hidden value in bytes when updating the sorting time.
+     if(HistoIndex>=0){
+	 // If there is a histogram file existing or this run, then put a link for it here
+	 var URLString = 'https://griffincollaboration.github.io/SpectrumViewer/spectrumViewer2.html?backend='+urlData.backend+'&port='+urlData.port+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[HistoIndex];
+	    
+	    cell4.innerHTML = '<a href=\"'+URLString+'\" target=\"_blank\">Open Histo file</a>';
+ }
+     cell5.innerHTML = thisSortTimeString;
+    cell6.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.midasRunList[num].RunName+'-checkbox'+'\" value=\"'+dataStore.midasRunList[num].RunName+'\" onclick=ToggleCheckboxOfThisMIDASFile(\"midasRunTableRow-'+(num+1)+'\")>';
 
     // Create button to expand list of subruns
     newButton = document.createElement('button'); 
@@ -449,6 +463,7 @@ function expandSubrunList(RowID){
      var cell3 = row.insertCell(2);
      var cell4 = row.insertCell(3);
      var cell5 = row.insertCell(4);
+     var cell6 = row.insertCell(5);
 
 	// Calculate the estimated Sorting time and make it easily human readable
 	thisRunSize = dataStore.midasRunList[indexID].SubRunList[num].Size/1000000; // in MB
@@ -468,8 +483,9 @@ function expandSubrunList(RowID){
     cell1.innerHTML = '';
     cell2.innerHTML = dataStore.midasRunList[indexID].SubRunList[num].Name;
     cell3.innerHTML = thisRunSizeString;
-    cell4.innerHTML = thisSortTimeString;
-    cell5.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.midasRunList[indexID].SubRunList[num].Name+'-checkbox'+'\" value=\"'+dataStore.midasRunList[indexID].SubRunList[num].Name+'\" onclick=ToggleCheckboxOfThisMIDASFile(\"midasSubRunTableRow-'+RowID+'-'+(num+1)+'\")>';
+    cell4.innerHTML = '';
+    cell5.innerHTML = thisSortTimeString;
+    cell6.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.midasRunList[indexID].SubRunList[num].Name+'-checkbox'+'\" value=\"'+dataStore.midasRunList[indexID].SubRunList[num].Name+'\" onclick=ToggleCheckboxOfThisMIDASFile(\"midasSubRunTableRow-'+RowID+'-'+(num+1)+'\")>';
     }
     
 }

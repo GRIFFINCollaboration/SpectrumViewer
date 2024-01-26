@@ -69,7 +69,6 @@ function buildHistosFileTable(){
 	    var cell5 = row.insertCell(4);
 	    
 	    	var URLString = 'https://griffincollaboration.github.io/SpectrumViewer/spectrumViewer2.html?backend='+urlData.backend+'&port='+urlData.port+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
-	  //  var URLString = 'http://localhost:1234'+'/spectrumViewer2.html?backend='+urlData.backend+'&port='+urlData.port+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num].trim();
 	    
 	    cell1.innerHTML = '<a href=\"'+URLString+'\" target=\"_blank\">'+dataStore.histoFileList[num]+'</a>';
 	    cell2.innerHTML = '';

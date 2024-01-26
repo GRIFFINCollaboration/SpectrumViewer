@@ -50,12 +50,6 @@
         document.getElementById(wrapperID).innerHTML = "";
         document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-sorting'], {});
 
-    // Get the initial list of MIDAS files
-    getMidasFileListFromServer();
-    
-    // initiate heartbeat for the Sort Status
-    initiateSortStatusHeartbeat();
-
     // Get the initial list of Histogram files
     getHistoFileListFromServer();
     
@@ -105,6 +99,11 @@
     }.bind(newButton);
     document.getElementById('submitDivTable').appendChild(newButton);
 
+    // Get the initial list of MIDAS files
+    getMidasFileListFromServer();
+    
+    // initiate heartbeat for the Sort Status
+    initiateSortStatusHeartbeat();
 }
 
 </script>
