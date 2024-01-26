@@ -419,7 +419,7 @@ function updateSortingTimesInTable(){
     
     // Iterate through all rows of the MIDAS data file table
     for (var i = 1, row; row = table.rows[i]; i++) {
-	// Get the file size from cell4
+	// Get the file size from cell3
 	thisRunSize = row.cells[2].value;
 	
 	// Calculate the estimated Sorting time based on the latest Average sorting speed and make it easily human readable
@@ -427,7 +427,7 @@ function updateSortingTimesInTable(){
 	thisSortTimeString = 'Requires '+prettyTimeString(thisSortTime)+' to sort';
 	
 	// Update the sorting time displayed
-	row.cells[3].innerHTML = thisSortTimeString;
+	row.cells[4].innerHTML = thisSortTimeString;
     }
     
 }
