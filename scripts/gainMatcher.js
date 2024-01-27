@@ -311,27 +311,28 @@ function setupMenusFromDetectorChoice(detectorType){
     document.getElementById('decisionBarAuto').classList.remove("hidden");
     document.getElementById('decisionBarManual').classList.remove("hidden");
 
-    // Delete the HPGe source buttons and generate only the PACES buttons
-    const thisNode = document.getElementById('decisionBarAuto');
-    while (thisNode.firstChild) {
-	thisNode.removeChild(thisNode.lastChild);
+    if(detectorType == 'PACES'){
+	// Delete the HPGe source buttons and generate only the PACES buttons
+	const thisNode = document.getElementById('decisionBarAuto');
+	while (thisNode.firstChild) {
+	    thisNode.removeChild(thisNode.lastChild);
+	}
+	for(var i=0; i<dataStore.sourceInfoPACES.length; i++){
+	    // Create Auto calibrate source Submit button
+	    newButton = document.createElement('button'); 
+	    newButton.setAttribute('id', 'automaticCalibration-'+dataStore.sourceInfoPACES[i].name); 
+	    newButton.setAttribute('class', 'btn btn-default'); 
+	    newButton.setAttribute('engaged', '0');
+	    newButton.value = dataStore.sourceInfoPACES[i].name;
+	    newButton.innerHTML = '<span id=\'autoCalibBadge-'+dataStore.sourceInfoPACES[i].name+'\' class=\'glyphicon glyphicon-equalizer\' aria-hidden=\'true\'></span><span id=\'autoText\'>Calibrate '+dataStore.sourceInfoPACES[i].title+'</span>';
+            newButton.onclick = function(){
+		setupAutomaticCalibration(this.value);
+	    }.bind(newButton);
+            document.getElementById('decisionBarAuto').appendChild(newButton);
+	}
     }
-    for(var i=0; i<dataStore.sourceInfoPACES.length; i++){
-	// Create Auto calibrate source Submit button
-	newButton = document.createElement('button'); 
-	newButton.setAttribute('id', 'automaticCalibration-'+dataStore.sourceInfoPACES[i].name); 
-	newButton.setAttribute('class', 'btn btn-default'); 
-	newButton.setAttribute('engaged', '0');
-	newButton.value = dataStore.sourceInfoPACES[i].name;
-	newButton.innerHTML = '<span id=\'autoCalibBadge-'+dataStore.sourceInfoPACES[i].name+'\' class=\'glyphicon glyphicon-equalizer\' aria-hidden=\'true\'></span><span id=\'autoText\'>Calibrate '+dataStore.sourceInfoPACES[i].title+'</span>';
-        newButton.onclick = function(){
-            setupAutomaticCalibration(this.value);
-	}.bind(newButton);
-        document.getElementById('decisionBarAuto').appendChild(newButton);
-    }          
-
+    
     // setup the dataStore for this choice of detectorType
-
     var i, num=0, groups = [];
     // Save the lists of spectrum names to the dataStore for this detectorType
     if(detectorType == 'HPGe'){
