@@ -153,10 +153,14 @@ function heatmap(width, height){
     this.chooseColor = function(z){
         // what color #123456 corresponds to a value of z, given the current parameters?
         var colorIndex, red, green, blue;
-
+	
         colorIndex = Math.floor((z - this.zmin) / (this.zmax - this.zmin) * this.colorscales[this.colorscale].length);
         if (colorIndex>this.colorscales[this.colorscale].length-1) colorIndex = this.colorscales[this.colorscale].length-1;
-        if (colorIndex<0) colorIndex = 0; 
+        if (colorIndex<0 || isNaN(colorIndex)) colorIndex = 0;
+	if (colorIndex == 0){ // Quickly return a white color for the lowest bin as it is likely empty
+	    return '#FFFFFF';
+	}
+	
         red = Math.floor(this.colorscales[this.colorscale][colorIndex][0]*255).toString(16);
         green = Math.floor(this.colorscales[this.colorscale][colorIndex][1]*255).toString(16);
         blue = Math.floor(this.colorscales[this.colorscale][colorIndex][2]*255).toString(16);
@@ -343,7 +347,7 @@ function heatmap(width, height){
         this.zoom_y_max = cell.y;
 
         // clicked without drag, abandon ship
-        if((this.zoom_x_min === this.zoom_x_max && this.zoom_y_min === this.zoom_y_max) || this.zoom_x_min==null || this.zoom_y_min==null){
+        if((this.zoom_x_min === this.zoom_x_max && this.zoom_y_min === this.zoom_y_max) || this.zoom_x_min==null || this.zoom_y_min==null || isNaN(this.zoom_x_min) || isNaN(this.zoom_y_min)){
             this.abandonZoom();
             this.render();
             return;

@@ -2,15 +2,16 @@ function setupDataStore(){
     //declare top level groups
     var topGroups = [
         {
-            "name": "Annikal",
-            "id": "annikal",
+            "name": "grifstore0",
+            "id": "grifstore0",
             "color": '#367FA9',
             "subGroups": [
                 {
-                    "subname": "Energy",
-                    "id": "energy",
+                    "subname": "Coinc",
+                    "id": "coinc",
                     "items": [
-                       '2D_dE_vs_E'
+			'GG',
+			'Addback_GG'
                    ]
                 }
             ]
@@ -20,8 +21,9 @@ function setupDataStore(){
     dataStore = {
         "topGroups": topGroups,                                     //groups in top nav row
         "cutVertices": [],                                          //[x,y] vertices of cut region polygon
-        "ODBhost": 'http://annikal.triumf.ca:8081',                 //host:port of ODB to write cut region vertices to
-        "spectrumServer": 'http://annikal.triumf.ca:9093',          //host:port to pull raw spectra from
+        "ODBhost": 'http://grifstore0.triumf.ca:8081',                 //host:port of ODB to write cut region vertices to
+        "spectrumServer": 'http://grifstore0.triumf.ca:9093',          //host:port to pull raw spectra from
+        "backendHost": 'grifstore0',                                   //host:port to pull raw spectra from
         "raw": [0],
         "closeMenuOnclick": true,                                   //don't keep the plot menu open onclick (can only plot one at a time anyway)
         "pageTitle": '2D Spectrum Viewer'
@@ -210,13 +212,30 @@ function packZ(raw){
     // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
     // heatmap wants it as [[x0y0, x1y0, ..., xmaxy0], [x0y1, x1y1, ..., xmaxy1], ...]
 
+    /*
+    // Original approach
     var repack = [],
         nRows = (raw.length-1)/raw[0],
         i;
-
+    console.log('packZ using row length of '+raw[0]+' and '+nRows+' rows');
+    console.log('Matrix has '+raw.length+' entries');
     for(i=0; i<nRows; i++){
         repack.push(raw.slice(1+raw[0]*i, 1+raw[0]*(i+1)));
     }
+    */
+
+    // Hardcode a 1024x1024 matrix
+    var repack = [],
+	rowLength = 1024,
+        nRows = 1024,
+        i;
+    
+    for(i=0; i<nRows; i++){
+        repack.push(raw.slice(rowLength*i, rowLength*(i+1)-1));
+    }
+
+    console.log('packZ using row length of '+rowLength+' and '+nRows+' rows');
+    console.log('Matrix has '+raw.length+' entries');
 
     return repack;
 }
