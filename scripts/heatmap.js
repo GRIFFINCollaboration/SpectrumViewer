@@ -103,9 +103,6 @@ function heatmap(width, height){
         this.ctx[1].clearRect(0,0,this.width,this.height);
         this.ctx[2].clearRect(0,0,this.width,this.height);
 
-	// Calculate number of cells to plot this time
-//	console.log('Number of cells to plot is '+((this.ymax-this.ymin)*(this.xmax-this.xmin)));
-
 	// Run this section of code following a timeout to create a pause so that the request for the user messages can be executed
         setTimeout(function(){
 	    // Schedule the CPU intensive aspect of drawing as multiple parts instead of a single task 
@@ -215,7 +212,7 @@ function heatmap(width, height){
         // paint whatever is in this._raw to the heatmap.
 	// Only handle the even x values here, to multi-thread the work
         var i, j, colorIndex, x0, y0;
-	
+
         for(i=this.ymin; i<this.ymax; i++){
             for(j=Math.ceil((this.xmax-this.xmin)/2)+1; j<this.xmax; j+=2){
                 //abort if nothing has changed
@@ -280,11 +277,14 @@ function heatmap(width, height){
     this.drawDataFillsOnly = function(){
         // paint whatever is in this._raw to the heatmap.
         var i, j, colorIndex, x0, y0;
+
+	// Skip filling the rectangles if there are more than 500,000 because you cannot see it anyway
+	if(((this.ymax-this.ymin)*(this.xmax-this.xmin))>500000) return;
 	
-        for(i=this.ymax-1; i<=this.ymin; i--){
-            for(j=this.xmax-1; j<=this.xmin; j--){
+        for(i=this.ymin; i<this.ymax; i++){
+            for(j=this.xmin; j<this.xmax; j++){
                 //abort if nothing has changed
-                if(this._oldraw && (this._oldraw[i][j] === this._raw[i][j]) ) continue;
+                if(this._oldraw && (this._oldraw[i][j] === this._raw[i][j]) ){ continue; }
 		
                 // what color should this cell be?
                 color = this.chooseColor(this._raw[i][j]);

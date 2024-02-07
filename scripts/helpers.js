@@ -555,7 +555,9 @@ function processSpectrumList(payload){
 
 function constructNewSpectrumMenu(){
     // Clear any previous menu content
-    document.getElementById('bs-example-navbar-collapse-1').innerHTML = '';
+    if(document.getElementById('bs-example-navbar-collapse-1').innerHTML){
+	document.getElementById('bs-example-navbar-collapse-1').innerHTML = '';
+    }
 
     // build the menu based on these topGroups and subGroups
     // Need to ensure the constructore dataStore._plotList has been created.
@@ -565,7 +567,7 @@ function constructNewSpectrumMenu(){
 	dataStore._plotList.setup();
     }
     catch(err){
-	setTimeout(constructNewSpectrumMenu(), 250);
+	setTimeout(constructNewSpectrumMenu(), 400);
     }
 }
 
