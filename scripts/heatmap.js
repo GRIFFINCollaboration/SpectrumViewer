@@ -59,6 +59,7 @@ function heatmap(width, height){
     //user-defined helper functions
     this.preRender = function(){return 0};      // runs first in this.render()
     this.slowDataWarning = function(state){return 0}; //user feedback when data drawing is taking a long time; state == 'on' or 'off'
+    this.DataDownloading = function(state){return 0}; //user feedback when data downloading is taking a long time; state == 'on' or 'off'
 
     // special setter behavior
     Object.defineProperty(this, 'raw', 
@@ -88,21 +89,45 @@ function heatmap(width, height){
     // member functions
     ////////////////////////
     this.drawData = function(){
-        // paint whatever is in this._raw to the heatmap.
-        var i, j, index,
-            colorIndex, red, green, blue, color,
-            x0, y0, poly, cell;
-
+	
+	// Display message to users
+	// Download and unpacking complete so turn off the user message. (switched on in refreshData)
+	this.DataDownloading('off');
+        this.slowDataWarning('on');
+	
         // rescale cells
         this.chooseCellSize();
-
+	
         // drop old cells & overlays
-        //this.ctx[0].clearRect(0,0,this.width,this.height);
+        this.ctx[0].clearRect(0,0,this.width,this.height);
+        this.ctx[1].clearRect(0,0,this.width,this.height);
         this.ctx[2].clearRect(0,0,this.width,this.height);
 
-        this.slowDataWarning('on');
+	// Calculate number of cells to plot this time
+	console.log('Number of cells to plot is '+((this.ymax-this.ymin)*(this.xmax-this.xmin)));
 
+	// Run this section of code following a timeout to create a pause so that the request for the user messages can be executed
         setTimeout(function(){
+	    // Schedule the CPU intensive aspect of drawing as multiple parts instead of a single task 
+            Promise.all([
+		this.drawDataStrokesEvenOnlyUpperValues(),
+		this.drawDataFillsOnly(),
+		this.drawDataStrokesEvenOnlyLowerValues(),
+		this.drawDataStrokesOddOnlyUpperValues(),
+		this.drawDataStrokesOddOnlyLowerValues()
+	    ]
+                       ).then(() => {
+			   this.render();
+			   this.slowDataWarning('off');
+		       })
+        }.bind(this), 1)
+	
+    }
+    
+    this.drawDataStrokesOnly = function(){
+        // paint whatever is in this._raw to the heatmap.
+        var i, j, colorIndex, x0, y0;
+	    
             for(i=this.ymin; i<this.ymax; i++){
                 for(j=this.xmin; j<this.xmax; j++){
                     //abort if nothing has changed
@@ -112,20 +137,165 @@ function heatmap(width, height){
                     color = this.chooseColor(this._raw[i][j]);
 
                     // make and add the cell
-                    this.ctx[0].fillStyle = color;
                     this.ctx[0].strokeStyle = color;
                     x0 = this.leftGutter + (j-this.xmin)*this.cellWidth;
                     y0 = this.height-this.bottomGutter - (i-this.ymin + 1)*this.cellHeight;
-                    this.ctx[0].fillRect(x0,y0,this.cellWidth,this.cellHeight);
                     this.ctx[0].strokeRect(x0,y0,this.cellWidth,this.cellHeight);
                 }   
             }
-            this.render();
-            this.slowDataWarning('off');
+    }
 
-        }.bind(this), 1)
+    this.drawDataStrokesEvenOnly = function(){
+        // paint whatever is in this._raw to the heatmap.
+	// Only handle the even x values here, to multi-thread the work
+        var i, j, colorIndex, x0, y0;
+	    
+            for(i=this.ymin; i<this.ymax; i++){
+                for(j=this.xmin; j<this.xmax; j+=2){
+                    //abort if nothing has changed
+                    if(this._oldraw && (this._oldraw[i][j] === this._raw[i][j]) ) continue;
 
-        
+                    // what color should this cell be?
+                    color = this.chooseColor(this._raw[i][j]);
+
+                    // make and add the cell
+                    this.ctx[0].strokeStyle = color;
+                    x0 = this.leftGutter + (j-this.xmin)*this.cellWidth;
+                    y0 = this.height-this.bottomGutter - (i-this.ymin + 1)*this.cellHeight;
+                    this.ctx[0].strokeRect(x0,y0,this.cellWidth,this.cellHeight);
+                }   
+            }
+    }
+
+    this.drawDataStrokesEvenOnlyUpperValues = function(){
+        // paint whatever is in this._raw to the heatmap.
+	// Only handle the even x values here, to multi-thread the work
+        var i, j, colorIndex, x0, y0;
+	
+        for(i=this.ymin; i<this.ymax; i++){
+            for(j=Math.ceil((this.xmax-this.xmin)/2); j<this.xmax; j+=2){
+                //abort if nothing has changed
+                if(this._oldraw && (this._oldraw[i][j] === this._raw[i][j]) ) continue;
+		
+                // what color should this cell be?
+                color = this.chooseColor(this._raw[i][j]);
+		
+                // make and add the cell
+                this.ctx[0].strokeStyle = color;
+                x0 = this.leftGutter + (j-this.xmin)*this.cellWidth;
+                y0 = this.height-this.bottomGutter - (i-this.ymin + 1)*this.cellHeight;
+                this.ctx[0].strokeRect(x0,y0,this.cellWidth,this.cellHeight);
+            }   
+        }
+    }
+    
+    this.drawDataStrokesEvenOnlyLowerValues = function(){
+        // paint whatever is in this._raw to the heatmap.
+	// Only handle the even x values here, to multi-thread the work
+        var i, j, colorIndex, x0, y0;
+
+            for(i=this.ymin; i<this.ymax; i++){
+                for(j=this.xmin; j<Math.ceil((this.xmax-this.xmin)/2); j+=2){
+                    //abort if nothing has changed
+                    if(this._oldraw && (this._oldraw[i][j] === this._raw[i][j]) ) continue;
+
+                    // what color should this cell be?
+                    color = this.chooseColor(this._raw[i][j]);
+
+                    // make and add the cell
+                    this.ctx[0].strokeStyle = color;
+                    x0 = this.leftGutter + (j-this.xmin)*this.cellWidth;
+                    y0 = this.height-this.bottomGutter - (i-this.ymin + 1)*this.cellHeight;
+                    this.ctx[0].strokeRect(x0,y0,this.cellWidth,this.cellHeight);
+                }   
+            }
+    }
+
+    this.drawDataStrokesOddOnlyUpperValues = function(){
+        // paint whatever is in this._raw to the heatmap.
+	// Only handle the even x values here, to multi-thread the work
+        var i, j, colorIndex, x0, y0;
+	
+        for(i=this.ymin; i<this.ymax; i++){
+            for(j=Math.ceil((this.xmax-this.xmin)/2)+1; j<this.xmax; j+=2){
+                //abort if nothing has changed
+                if(this._oldraw && (this._oldraw[i][j] === this._raw[i][j]) ) continue;
+		
+                // what color should this cell be?
+                color = this.chooseColor(this._raw[i][j]);
+		
+                // make and add the cell
+                this.ctx[0].strokeStyle = color;
+                x0 = this.leftGutter + (j-this.xmin)*this.cellWidth;
+                y0 = this.height-this.bottomGutter - (i-this.ymin + 1)*this.cellHeight;
+                this.ctx[0].strokeRect(x0,y0,this.cellWidth,this.cellHeight);
+            }   
+        }
+    }
+
+    this.drawDataStrokesOddOnlyLowerValues = function(){
+        // paint whatever is in this._raw to the heatmap.
+	// Only handle the even x values here, to multi-thread the work
+        var i, j, colorIndex, x0, y0;
+	
+        for(i=this.ymin; i<this.ymax; i++){
+            for(j=this.xmin+1; j<Math.ceil((this.xmax-this.xmin)/2); j+=2){
+                //abort if nothing has changed
+                if(this._oldraw && (this._oldraw[i][j] === this._raw[i][j]) ) continue;
+		
+                // what color should this cell be?
+                color = this.chooseColor(this._raw[i][j]);
+		
+                // make and add the cell
+                this.ctx[0].strokeStyle = color;
+                x0 = this.leftGutter + (j-this.xmin)*this.cellWidth;
+                y0 = this.height-this.bottomGutter - (i-this.ymin + 1)*this.cellHeight;
+                this.ctx[0].strokeRect(x0,y0,this.cellWidth,this.cellHeight);
+            }   
+        }
+    }
+
+    this.drawDataStrokesOddOnly = function(){
+        // paint whatever is in this._raw to the heatmap.
+	// Only handle the odd x values here, to multi-thread the work
+        var i, j, colorIndex, x0, y0;
+	
+        for(i=this.ymin; i<this.ymax; i++){
+            for(j=this.xmin+1; j<this.xmax; j+=2){
+                //abort if nothing has changed
+                if(this._oldraw && (this._oldraw[i][j] === this._raw[i][j]) ) continue;
+		
+                // what color should this cell be?
+                color = this.chooseColor(this._raw[i][j]);
+		
+                // make and add the cell
+                this.ctx[0].strokeStyle = color;
+                x0 = this.leftGutter + (j-this.xmin)*this.cellWidth;
+                y0 = this.height-this.bottomGutter - (i-this.ymin + 1)*this.cellHeight;
+                this.ctx[0].strokeRect(x0,y0,this.cellWidth,this.cellHeight);
+            }   
+        }
+    }
+
+    this.drawDataFillsOnly = function(){
+        // paint whatever is in this._raw to the heatmap.
+        var i, j, colorIndex, x0, y0;
+	
+        for(i=this.ymax-1; i<=this.ymin; i--){
+            for(j=this.xmax-1; j<=this.xmin; j--){
+                //abort if nothing has changed
+                if(this._oldraw && (this._oldraw[i][j] === this._raw[i][j]) ) continue;
+		
+                // what color should this cell be?
+                color = this.chooseColor(this._raw[i][j]);
+		
+                // make and add the cell
+                this.ctx[0].fillStyle = color;
+                x0 = this.leftGutter + (j-this.xmin)*this.cellWidth;
+                y0 = this.height-this.bottomGutter - (i-this.ymin + 1)*this.cellHeight;
+                this.ctx[0].fillRect(x0,y0,this.cellWidth,this.cellHeight);
+            }   
+        }
     }
 
     this.render = function(){

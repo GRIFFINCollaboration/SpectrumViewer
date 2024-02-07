@@ -73,13 +73,11 @@
 	dataStore.templates = prepareTemplates(['plotListHeader', 'plotList', 'plotGrid', 'plotControl', 'auxPlotControl', 'auxPlotControlTable', 'fitRow', 'footer']);
 	
 	dataStore._plotListHeader = new plotListHeader('navbar-header-div');
-	// dataStore._plotList = new plotList('bs-example-navbar-collapse-1');
         dataStore._plotGrid = new plotGrid('plottingGrid');
         dataStore._plotControl = new plotControl('plotCtrl', 'vertical');
         dataStore._auxCtrl = new auxPlotControl('auxCtrl');
 	
         dataStore._plotListHeader.setup();
-     //   dataStore._plotList.setup();
         dataStore._plotGrid.setup();
         dataStore._plotControl.setup();
         dataStore._auxCtrl.setup();

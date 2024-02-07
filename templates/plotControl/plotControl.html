@@ -276,13 +276,27 @@
             //this: plotControl object
             var i, evt;
 
+	console.log('Event caught in plotControl'); 
+        console.log(event);
+
+            // Any requests for 2d objects must be rejected here, they are handled elsewhere
+            try{ // use try because the dataStore.2dSpectra array may not exist
+                 if(dataStore.twoDimensionalSpectra.includes(event.detail.plotName)){
+                     // The plot requested is a 2d matrix but this viewer can only handle 1d
+                     console.log('Rejected by 1d');
+                   return;
+                  }
+            }
+            catch(err){
+             // Nothing to do if there are no 2d spectra
+            }
             //update list of spectra to poll
             if(this.activeSpectra.indexOf(event.detail.plotName) == -1)
                 this.activeSpectra.push(event.detail.plotName);
 
             for(i=0; i<this.targets.length; i++){
 
-                //if new, send an event to the auxilary control table so it can update iteself
+                //if new, send an event to the auxilary control table so it can update itself
                 if(!dataStore.viewers[this.targets[i]].plotBuffer[event.detail.plotName]){
 
                     //add data now so row adder can find its color assignment
@@ -310,12 +324,23 @@
             //refresh all spectra & odb parameters
             //this: plotControl object
 
-            var queries = constructQueries(this.activeSpectra),
-                spectraFetched = Promise.all(queries.map(promiseJSONURL)).then(
+	      // activeSpectra can now include 1D Projections of 2D matrices which are created locally in the server.
+	      // So these need to be stripped from the requests that go to the server for updates.
+	      var activeSpectraForQueries = this.activeSpectra;
+	      for(let key in dataStore.createdSpectra) {
+	        const index = activeSpectraForQueries.indexOf(key);
+	        if (index > -1) {
+	          activeSpectraForQueries.splice(index, 1);
+	        }
+	      }
+	      var queries = constructQueries(activeSpectraForQueries);
+	      
+	      var spectraFetched = Promise.all(queries.map(promiseJSONURL)).then(
                     function(spectra){
                         var i, j, key, viewerKey;
                         dataStore.rawData = {};
 
+	                // distribute the spectra data received from the analyzer to the appropriate places
                         for(i=0; i<spectra.length; i++){
                             for(key in spectra[i]){
                                 //keep the raw results around
@@ -328,6 +353,17 @@
                                 }
                             }
                         }
+
+                        // Add in the data from any created spectra (projections of 2d objects)
+                            for(key in dataStore.createdSpectra){
+                                //repopulate all spectra that use this spectrum
+                                for(viewerKey in dataStore.viewers){
+                                    if(dataStore.viewers[viewerKey].plotBuffer[key]){
+                                        dataStore.viewers[viewerKey].addData(key, dataStore.createdSpectra[key]);
+                                    }
+                                }
+                            }
+                        
                     }
                 );
 

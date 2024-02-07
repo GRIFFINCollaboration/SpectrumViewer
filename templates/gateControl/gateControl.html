@@ -1,0 +1,127 @@
+<link rel="stylesheet" href="gateControl.css"/>
+
+<template id='gateControl'>
+        <button class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" title="Some advise about gating 2d matrices will go here." data-placement="auto left" data-container="body">Gating Help</button>
+
+        <div id="gateControlForm">
+
+            <div class='ui-group-vertical'>
+            
+                <div class="input-group">
+                    <div class='btn-group btn-group-sm' roll='group'>
+                        <button class="btn btn-default" id="showXproj" type="button">Total X projection</button>
+                        <button class="btn btn-default" id="showYproj" type="button">Total Y projection</button>
+                    </div>
+		</div>
+            </div>
+
+	    <div class='ui-group-vertical'>
+                <h4>Gate definition:</h4> 
+
+                <div class="input-group">
+                    <span class='input-group-addon'>Project onto</span>
+		  <select id="axisSelect" value="x" type="select">
+		     <option value="x">X axis</option>
+		     <option value="y">Y axis</option>
+		  </select>
+		</div>
+		
+                <div class="input-group">
+                    <span class='input-group-addon'>Gate min</span>
+                    <input id="gateMinInput" value="0" type="number" class='black-text'></input>
+                </div>
+
+                <div class="input-group">
+                    <span class='input-group-addon'>Gate max</span>
+                    <input id="gateMaxInput" value="2048" type="number" class='black-text'></input>
+                </div>
+
+		<div class='btn-group btn-group-sm' roll='group'>
+		  <button class="btn btn-default" id="submitGateButton" type="button">Gate</button>
+		</div>            
+            </div>
+
+        </div>
+</template>
+
+
+<script>
+    function gateControl(wrapID){
+
+        this.wrapID = wrapID;
+        this.wrap = document.getElementById(wrapID);
+
+        this.setup = function(){
+
+            var i, j, linY, logY;
+            //inject template
+            this.wrap.innerHTML = Mustache.to_html(
+                dataStore.templates.gateControl, 
+                {
+                    'id': this.wrapID
+                }
+            )
+
+            //UI callbacks:
+
+	// Set up the X and Y total projection buttons
+	document.getElementById('showXproj').onclick = this.selectPlot.bind(this, 'x');
+	document.getElementById('showYproj').onclick = this.selectPlot.bind(this, 'y');
+
+	// Set up the submit Gate button
+	document.getElementById('submitGateButton').onclick = this.submitGate.bind();
+
+	}
+	
+        this.selectPlot = function(axis, e){
+            //dispatch an event carrying the requested plot name on click of a button, or on Gate generation.
+            //<plotName>: string; name of plot requested from analyzer
+            //<e>: event; onclick. 
+	    // this: gateControl object
+
+	    plotName = dataStore.activeMatrix+axis;
+	
+            dispatcher({ 'plotName': plotName }, 'requestPlot');
+        }
+
+        this.submitGate = function(){
+            //dispatch an event carrying the requested gate limits on click of a button.
+	    // this: gateControl object
+	
+	gateAxis = document.getElementById('axisSelect').value; 
+	gateMin = document.getElementById('gateMinInput').value; 
+	gateMax = document.getElementById('gateMaxInput').value;
+	
+            dispatcher({ 'gateAxis': gateAxis, 'gateMin': gateMin, 'gateMax': gateMax, 'plotNow': true }, 'requestGate');
+        }
+
+        /////////////////////////////
+        // x-range management
+        /////////////////////////////
+
+        this.manageXvalidity = function(){
+            //check that x min < x max, and complain otherwise.
+            //this: gateControl object
+
+            var xMin = document.getElementById('minX'),
+                xMax = document.getElementById('maxX');
+
+            var x0 = parseInt(xMin.value,10);
+            var x1 = parseInt(xMax.value,10);
+
+            if(x1 <= x0){
+                xMin.setCustomValidity("minimum value of x must be less than maximum value of x.");
+                xMax.setCustomValidity("minimum value of x must be less than maximum value of x.");
+                return false
+            }
+
+            xMin.setCustomValidity("");
+            xMax.setCustomValidity("");
+
+            return true
+        }
+
+
+        
+}
+</script>
