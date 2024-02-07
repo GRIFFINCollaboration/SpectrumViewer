@@ -276,14 +276,10 @@
             //this: plotControl object
             var i, evt;
 
-	console.log('Event caught in plotControl'); 
-        console.log(event);
-
             // Any requests for 2d objects must be rejected here, they are handled elsewhere
             try{ // use try because the dataStore.2dSpectra array may not exist
                  if(dataStore.twoDimensionalSpectra.includes(event.detail.plotName)){
                      // The plot requested is a 2d matrix but this viewer can only handle 1d
-                     console.log('Rejected by 1d');
                    return;
                   }
             }

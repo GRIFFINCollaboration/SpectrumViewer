@@ -104,7 +104,7 @@ function heatmap(width, height){
         this.ctx[2].clearRect(0,0,this.width,this.height);
 
 	// Calculate number of cells to plot this time
-	console.log('Number of cells to plot is '+((this.ymax-this.ymin)*(this.xmax-this.xmin)));
+//	console.log('Number of cells to plot is '+((this.ymax-this.ymin)*(this.xmax-this.xmin)));
 
 	// Run this section of code following a timeout to create a pause so that the request for the user messages can be executed
         setTimeout(function(){

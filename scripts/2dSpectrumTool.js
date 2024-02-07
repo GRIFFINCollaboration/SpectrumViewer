@@ -1,4 +1,13 @@
+////////////////////////////////////////////
+// main setup
+////////////////////////////////////////////
+
+// a Global variable to pass around the information taken from the URL arguments
+var urlData = [];
+
 function setupDataStore(){
+
+    /*
     //declare top level groups
     var topGroups = [
         {
@@ -27,10 +36,12 @@ function setupDataStore(){
             ]
         }
     ]
+*/
 
     dataStore = {
 	// 2D viewer and common things
-        "topGroups": topGroups,                                     //groups in top nav row
+       // "topGroups": topGroups,                                     //groups in top nav row
+        "topGroups": [],                                            //groups in top nav row
         "cutVertices": [],                                          //[x,y] vertices of cut region polygon
         "ODBhost": 'http://grifstore0.triumf.ca:8081',                 //host:port of ODB to write cut region vertices to
         "spectrumServer": 'http://grifstore0.triumf.ca:9093',          //host:port to pull raw spectra from
@@ -56,7 +67,7 @@ function setupDataStore(){
     };
     
     // Unpack the URL data, then get the initial list of Histogram files available from the server
-   // GetURLArguments(getHistoFileListFromServer);
+    GetURLArguments(getHistoFileListFromServer);
 
     // Set the initial cell index value
     dataStore.cellIndex = dataStore.plots.length;
@@ -109,14 +120,10 @@ function plotControl2d(wrapID){
         //<event>: event; requestPlot custom event
         //this: plotControl2d object
         var i, evt;
-
-	console.log('Event caught in 2dSpectrumTool'); 
-	console.log(event);
 	
         // Any requests for 1d objects must be rejected here, they are handled elsewhere
 	if(!dataStore.twoDimensionalSpectra.includes(event.detail.plotName)){
             // The plot requested is a 1d matrix but this viewer can only handle 2d
-	    console.log('Rejected by 2d');
             return;
 	}
 	
@@ -181,16 +188,31 @@ function plotControl2d(wrapID){
 	    plotName = projectXaxis(min,max);
 	}
 
-	// Add this new specturm to the menu
-	console.log(dataStore.topGroups);
-	dataStore.topGroups[0].subGroups[1].items.push(plotName);
+	// Add this new specturm to the menu if it is not already there
+	let coincIndex = dataStore.topGroups.map(e => e.name).indexOf('Coinc');
+	let projIndex = dataStore.topGroups[coincIndex].subGroups.map(e => e.subname).indexOf('Projections');
+
+	// Check if this plotName already exists in the menu
+	let plotExistsInMenu = 0;
+	let nodesArray = document.getElementById('dropprojlist').childNodes;
+	for(i=0; i<nodesArray.length; i++){
+	    if(nodesArray[i].id == plotName){
+		plotExistsInMenu=1;
+	    }
+	}
+	
+	if(plotExistsInMenu == 0){
+	    // Need to add this Gate name to the menu and the topGroups object in the dataStore
+	dataStore.topGroups[coincIndex].subGroups[projIndex].items.push(plotName);
+	    
 	newMenuItem = document.createElement('li'); 
 	newMenuItem.setAttribute('id', plotName); 
 	newMenuItem.setAttribute('class', 'dd-item');
 	newMenuItem.innerHTML = '<div class=\'plotName\'>'+plotName+'</div><span id=\''+plotName+'badge\' class=\"badge transparent\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></span>';
         newMenuItem.onclick = function (){ dispatcher({ 'plotName': plotName }, 'requestPlot'); };
 	document.getElementById('dropprojlist').appendChild(newMenuItem);
-
+	}
+	
 	// Send a request to plot this now if requested
 	if(event.detail.plotNow === true){
             dispatcher({ 'plotName': plotName }, 'requestPlot');
@@ -215,7 +237,6 @@ function toggleHeatmapMode(){
     document.getElementById('modeBtn2d').classList.add('btn-success');
     document.getElementById('modeBtn1d').classList.remove('btn-success');
     document.getElementById('modeBtn1d').classList.add('btn-default');
-    console.log('Heatmap mode selected');
 }
 
 function toggleProjectionMode(){
@@ -240,7 +261,6 @@ function toggleProjectionMode(){
     document.getElementById('modeBtn1d').classList.add('btn-success');
     document.getElementById('modeBtn2d').classList.remove('btn-success');
     document.getElementById('modeBtn2d').classList.add('btn-default');
-    console.log('Projection mode selected');
 }
 
 
@@ -308,9 +328,9 @@ function fetchCallback(){
     dataStore.hm.render();
 
     // Create total projections for the two axes of the active matrix
-    let plotName = projectXaxis();
-    plotName = projectYaxis();
-
+    dispatcher({ 'gateAxis': 'x', 'gateMin': undefined, 'gateMax': undefined, 'plotNow': false }, 'requestGate');
+    dispatcher({ 'gateAxis': 'y', 'gateMin': undefined, 'gateMax': undefined, 'plotNow': false }, 'requestGate');
+    
     // Add the data from any created spectra (projections of 2d objects) to any viewers wanting it
     for(key in dataStore.createdSpectra){
         //repopulate all spectra that use this spectrum
@@ -320,8 +340,6 @@ function fetchCallback(){
             }
         }
     }
-    
-    console.log(dataStore.createdSpectra);
     
     // plug in the onclicks to the 2d heatmap
     dataStore.hm.canvas.addEventListener('heatmap_shiftclick', heatmapClick, false);
@@ -385,9 +403,6 @@ function packZ(raw){
         repack.push(raw.slice(rowLength*i, rowLength*(i+1)-1));
     }
 
-    console.log('packZ using row length of '+rowLength+' and '+nRows+' rows');
-    console.log('Matrix has '+raw.length+' entries');
-
     return repack;
 }
 
@@ -404,9 +419,6 @@ function packZmultiThreaded(raw){
     for(i=0; i<nRows; i++){
        repack.push(raw.slice(rowLength*i, rowLength*(i+1)-1));
     }
-
-    console.log('packZ using row length of '+rowLength+' and '+nRows+' rows');
-    console.log('Matrix has '+raw.length+' entries');
 
     return repack;
 }
@@ -448,8 +460,6 @@ function projectXaxis(gateMin,gateMax){
 
     // write the created spectrum to the storage object
     dataStore.createdSpectra[thisProjectionName] = thisProjection;
-    console.log('Created '+thisProjectionName);
-    console.log(dataStore.createdSpectra);
 
     return thisProjectionName;
 }
@@ -493,8 +503,6 @@ function projectYaxis(gateMin,gateMax){
     
     // write the created spectrum to the storage object
     dataStore.createdSpectra[thisProjectionName] = thisProjection;
-    console.log('Created '+thisProjectionName);
-    console.log(dataStore.createdSpectra);
     
     return thisProjectionName;
 }
