@@ -40,6 +40,7 @@ function heatmap(width, height){
     this.plotWidth = width - this.leftGutter - this.rightGutter;
     this.plotHeight = height - this.topGutter - this.bottomGutter;
     this.colorscale = 'viridis';
+    this.colorMap = [];
     this.dataArea = new Path2D();              // frame around data area, helper for masking annotation layer
     this.dataArea.moveTo(this.leftGutter, this.height-this.bottomGutter);
     this.dataArea.lineTo(this.width - this.rightGutter, this.height-this.bottomGutter);
@@ -69,9 +70,13 @@ function heatmap(width, height){
 
                     this._raw = setValue;
 
-                    if(this.ymax == null)
-                        this.dblclick() //'unzooms' to initialize ranges when data first loaded
-
+                    if(this.ymax == null){
+		      this.xmin = 0;
+		      this.ymin = 0;
+		      this.xmax = this._raw[0].length;
+		      this.ymax = this._raw.length;
+		    }
+		
                     this.drawScale();
                 }.bind(this)
     });
@@ -102,7 +107,53 @@ function heatmap(width, height){
         this.ctx[0].clearRect(0,0,this.width,this.height);
         this.ctx[1].clearRect(0,0,this.width,this.height);
         this.ctx[2].clearRect(0,0,this.width,this.height);
+	
+	// build color map
+            Promise.all([
+	    this.buildColorMap()
+	    ]
+                       ).then(() => {
 
+			   objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
+			   for(i=0; i<this.colorMap[objectIndex].data.length; i++){
+			      // this.ctx[0].strokeStyle = this.colorMap[objectIndex].data[i].color;
+			       this.ctx[0].fillStyle = this.colorMap[objectIndex].data[i].color;
+			       for(j=0; j<this.colorMap[objectIndex].data[i].xValues.length; j++){
+				   if((this.colorMap[objectIndex].data[i].xValues[j]>=this.xmin && this.colorMap[objectIndex].data[i].xValues[j]<this.xmax) &&
+				      (this.colorMap[objectIndex].data[i].yValues[j]>=this.ymin && this.colorMap[objectIndex].data[i].yValues[j]<this.ymax)){
+				       x0 = this.leftGutter + (this.colorMap[objectIndex].data[i].xValues[j]-this.xmin)*this.cellWidth;
+				       y0 = this.height-this.bottomGutter - (this.colorMap[objectIndex].data[i].yValues[j]-this.ymin + 1)*this.cellHeight;
+				      // this.ctx[0].strokeRect(x0,y0,this.cellWidth,this.cellHeight);
+				       this.ctx[0].fillRect(x0,y0,this.cellWidth,this.cellHeight);
+				   }
+			       }
+			   }
+			   this.render();
+			   this.slowDataWarning('off');
+			   return;
+		       })
+
+	/*
+	var cellCount = 0;
+	var zeroCount = 0;
+	var fillCount = 0;
+        for(i=this.ymin; i<this.ymax; i++){
+            for(j=this.xmin; j<this.xmax; j++){
+		cellCount++;
+		if(this._raw[i][j]>0){
+		    fillCount++;
+		}else{
+		    zeroCount++;
+		}
+		
+	    }
+	}
+	console.log('cellCount '+cellCount);
+	console.log('zeroCount '+zeroCount);
+	console.log('fillCount '+fillCount);
+        */
+
+	/*
 	// Run this section of code following a timeout to create a pause so that the request for the user messages can be executed
         setTimeout(function(){
 	    // Schedule the CPU intensive aspect of drawing as multiple parts instead of a single task 
@@ -119,6 +170,73 @@ function heatmap(width, height){
 		       })
         }.bind(this), 1)
 	
+	*/
+    }
+
+    this.buildColorMap = function(){
+
+    try{ objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
+	 console.log('A colorMap exists for this matrix.');
+       }
+	catch(err){ console.log('No colorMap for this matrix.'); objectIndex=-1; }
+	
+	if(objectIndex<0){
+	    // A colorMap for this matrix does not exist, so we need to create space for it
+	    let name = dataStore.activeMatrix;
+	    newMatrix = {
+		"matrix" : dataStore.activeMatrix,
+		"data" : []
+	    }
+	    this.colorMap.push(newMatrix);
+	}else if(this.colorMap[objectIndex].data.length>1){
+	    console.log('the color map is already built');
+	    return; // the colorMap is already built
+	}else{
+	console.log('build the color map');
+	}
+	
+	objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
+	
+        for(i=this.ymin; i<this.ymax; i++){
+            for(j=this.xmin; j<this.xmax; j++){
+		if(this._raw[i][j] == 0) continue; // skip zero z values
+		colorIndex = Math.floor((this._raw[i][j] - this.zmin) / (this.zmax - this.zmin) * this.colorscales[this.colorscale].length);
+		if(isNaN(colorIndex) || colorIndex<1) continue; // skip NaN and white values
+		try{	objectDataIndex = this.colorMap[objectIndex].data.map(e => e.colorIndex).indexOf(colorIndex);}
+		catch(err){ objectDataIndex=-1; }
+		if(objectDataIndex>-1){
+		    // This colorIndex already exists in the object, so add to it
+		    this.colorMap[objectIndex].data[objectDataIndex].xValues.push(j);
+		    this.colorMap[objectIndex].data[objectDataIndex].yValues.push(i);
+		}else{
+		    try{
+		    var newColorIndex ={
+			"colorIndex" : colorIndex,
+			"color" : this.chooseColor(this._raw[i][j]),
+			"xValues" : [j],
+			"yValues" : [i],
+		    };
+			this.colorMap[objectIndex].data.push(newColorIndex);
+		    }
+		    catch(err){
+
+			var newColorIndex ={
+			    "matrix" : dataStore.activeMatrix,
+			    "data" : [{
+				"colorIndex" : colorIndex,
+				"color" : this.chooseColor(this._raw[i][j]),
+				"xValues" : [j],
+				"yValues" : [i]
+			    }
+				     ]
+			};
+			this.colorMap.push(newColorIndex);
+			objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
+		    }
+		}
+	    }
+	}
+
     }
     
     this.drawDataStrokesOnly = function(){
@@ -280,7 +398,7 @@ function heatmap(width, height){
 
 	// Skip filling the rectangles if there are more than 500,000 because you cannot see it anyway
 	if(((this.ymax-this.ymin)*(this.xmax-this.xmin))>500000) return;
-	
+
         for(i=this.ymin; i<this.ymax; i++){
             for(j=this.xmin; j<this.xmax; j++){
                 //abort if nothing has changed

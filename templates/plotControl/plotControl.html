@@ -286,6 +286,12 @@
             catch(err){
              // Nothing to do if there are no 2d spectra
             }
+
+            if(typeof toggleProjectionMode === "function") { 
+               // if using the mixed 1d and 2d viewers, ensure we are using the 1d viewer for this 1d histogram
+               toggleProjectionMode();
+            }
+
             //update list of spectra to poll
             if(this.activeSpectra.indexOf(event.detail.plotName) == -1)
                 this.activeSpectra.push(event.detail.plotName);

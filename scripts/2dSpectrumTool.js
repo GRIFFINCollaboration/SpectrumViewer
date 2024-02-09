@@ -126,6 +126,10 @@ function plotControl2d(wrapID){
             // The plot requested is a 1d matrix but this viewer can only handle 2d
             return;
 	}
+	console.log('routeNewPlot 2d');
+
+	// Switch to the 2D viewer for displaying this 2d histogram
+	toggleHeatmapMode();
 	
         //what spectra has our attention?
         dataStore.activeSpectra = event.detail.plotName;
@@ -321,11 +325,15 @@ function fetchCallback(){
     //runs after every time the histogram is updated
     
     // unpack the raw 2d spectrum to the required format
+    try{ objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
+	 dataStore.hm.colorMap[objectIndex].data = [];
+	 console.log('Clear the colorMap');
+       }
+    catch(err){ console.log('No colorMap to clear') }
     dataStore.hm.raw = packZ(dataStore.raw);
 
     // make the 2d heatmap plot of this histogram 
-   // dataStore.hm.drawData();
-    dataStore.hm.render();
+    dataStore.hm.drawData();
 
     // Create total projections for the two axes of the active matrix
     dispatcher({ 'gateAxis': 'x', 'gateMin': undefined, 'gateMax': undefined, 'plotNow': false }, 'requestGate');
@@ -398,10 +406,14 @@ function packZ(raw){
 	rowLength = 1024,
         nRows = 1024,
         i;
-    
-    for(i=0; i<nRows; i++){
+
+  //  for(k=0; k<16; k++){
+//	for(i=0+(k*nRows); i<nRows+(k*nRows); i++){
+	    for(i=0; i<nRows; i++){
         repack.push(raw.slice(rowLength*i, rowLength*(i+1)-1));
     }
+//}
+//}
 
     return repack;
 }

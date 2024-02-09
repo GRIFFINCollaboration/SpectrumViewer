@@ -1,7 +1,21 @@
 <link rel="stylesheet" href="gateControl.css"/>
 
 <template id='gateControl'>
-        <button class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" title="Some advise about gating 2d matrices will go here." data-placement="auto left" data-container="body">Gating Help</button>
+        <button class="btn btn-info" data-trigger="hover"
+        data-html="true" data-toggle="tooltip" title="Some advise
+        about gating 2d matrices will go here.<br><br>Background
+        region 1 (Bkg1): A region of channels to the lower-energy side
+        of the main peak. This data will be subtracted from the main
+        gate spectrum after being multipled by the Bkg1 Scaling
+        Factor.<br><br>Background region 2 (Bkg2): A region of
+        channels to the higher-energy side of the main peak. This data
+        will be subtracted from the main gate spectrum after being
+        multipled by the Bkg2 Scaling Factor.<br><br>Background region
+        3 (Bkg3): A region of channels on both sides of the main peak
+        along the diagonal in the matrix (Removes the contribution of
+        events which are equal to the energy of the main
+        gate but belong to the Compton scattering of higher-energy
+        gamma rays.). This data will be subtracted from the main gate spectrum after being multipled by the Bkg3 Scaling Factor." data-placement="auto left" data-container="body">Gating Help</button>
 
         <div id="gateControlForm">
 
@@ -16,8 +30,12 @@
             </div>
 
 	    <div class='ui-group-vertical'>
+	      <button type="button" class="btn btn-default btn-lg" id='gateMode' engaged='0'>
+	       <span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> Set new Gate with mouse
+	      </button>
+	      
                 <h4>Gate definition:</h4> 
-
+	      
                 <div class="input-group">
                     <span class='input-group-addon'>Project onto</span>
 		  <select id="axisSelect" value="x" type="select">
@@ -27,15 +45,39 @@
 		</div>
 		
                 <div class="input-group">
-                    <span class='input-group-addon'>Gate min</span>
+                    <span class='input-group-addon'>Gate min/max</span>
                     <input id="gateMinInput" value="0" type="number" class='black-text'></input>
-                </div>
-
-                <div class="input-group">
-                    <span class='input-group-addon'>Gate max</span>
                     <input id="gateMaxInput" value="2048" type="number" class='black-text'></input>
                 </div>
 
+                <div class="input-group">
+		  <span class='input-group-addon'>Bkg1 min/max</span>
+                    <input id="bg1MinInput" value="0" type="number" class='black-text'></input>
+                    <input id="bg1MaxInput" value="2048" type="number" class='black-text'></input>
+		</div>
+                <div class="input-group">
+		  <span class='input-group-addon'>Bkg1 Scaling Factor</span>
+                    <input id="bg1SFInput" value="1.0" min="0.1" max="1000" step="0.1" type="number" class='black-text'></input>
+		    <input type="range" id="bg1SFslider" min="0.1" max="1000" step="0.1" value="1">
+		</div>
+
+                <div class="input-group">
+                    <span class='input-group-addon'>Bkg2 min/max</span>
+                    <input id="bg2MinInput" value="0" type="number" class='black-text'></input>
+                    <input id="bg2MaxInput" value="2048" type="number" class='black-text'></input>
+                </div>
+                <div class="input-group">
+		  <span class='input-group-addon'>Bkg2 Scaling Factor</span>
+                    <input id="bg2SFInput" value="1.0" min="0.1" max="1000" step="0.1" type="number" class='black-text'></input>
+		    <input type="range" id="bg2SFslider" min="0.1" max="1000" step="0.1" value="1">
+		</div>
+
+                <div class="input-group">
+		  <span class='input-group-addon'>Bkg3 Scaling Factor</span>
+                    <input id="bg3SFInput" value="1.0" min="0.1" max="1000" step="0.1" type="number" class='black-text'></input>
+		    <input type="range" id="bg3SFslider" min="0.1" max="1000" step="0.1" value="1">
+		</div>
+		
 		<div class='btn-group btn-group-sm' roll='group'>
 		  <button class="btn btn-default" id="submitGateButton" type="button">Gate</button>
 		</div>            
@@ -68,6 +110,23 @@
 	document.getElementById('showXproj').onclick = this.selectPlot.bind(this, 'x');
 	document.getElementById('showYproj').onclick = this.selectPlot.bind(this, 'y');
 
+	// Set up the background factor sliders
+	document.getElementById('bg1SFslider').oninput = function(){
+	     document.getElementById('bg1SFInput').value = this.value;
+	}; 
+	document.getElementById('bg2SFslider').oninput = function(){
+	     document.getElementById('bg2SFInput').value = this.value;
+	}; 
+	document.getElementById('bg3SFslider').oninput = function(){
+	     document.getElementById('bg3SFInput').value = this.value;
+	};
+	document.getElementById('bg1SFInput').oninput = function(){
+	     document.getElementById('bg1SFslider').value = this.value;
+	}; 
+	
+	//plug in gate mode toggle
+	document.getElementById('gateMode').onclick = this.toggleGateMode.bind(this);
+	
 	// Set up the submit Gate button
 	document.getElementById('submitGateButton').onclick = this.submitGate.bind();
 
@@ -78,6 +137,11 @@
             //<plotName>: string; name of plot requested from analyzer
             //<e>: event; onclick. 
 	    // this: gateControl object
+
+	    if(dataStore.activeMatrix.length<1){
+	      // Bail out if no 2d matrix is loaded
+	      return;
+	    }
 
 	    plotName = dataStore.activeMatrix+axis;
 	
@@ -93,6 +157,39 @@
 	gateMax = document.getElementById('gateMaxInput').value;
 	
             dispatcher({ 'gateAxis': gateAxis, 'gateMin': gateMin, 'gateMax': gateMax, 'plotNow': true }, 'requestGate');
+        }
+
+        this.toggleGateMode = function(){
+            //manage the state of the Gate Mode button, and the corresponding state of the viewer.
+            //this: gateControl object
+
+            console.log('Gate mode button clicked');
+            return;
+
+            //determine which canvas and spectrum we're currently pointing at
+            var radio = checkedRadio(this.wrapID+'fitTarget');
+            var target = radio.getAttribute('target');
+            var spectrum = radio.getAttribute('spectrum');
+
+            var fitModeSwitch = document.getElementById('fitMode')
+            var state = fitModeSwitch.getAttribute('engaged')
+
+            //make sure the fit callback is set up
+            dataStore.viewers[target].fitCallback = this.fitCallback.bind(this);
+
+            if(state == 0){
+                dataStore.viewers[target].setupFitMode();
+                fitModeSwitch.setAttribute('engaged', 1);
+                document.getElementById(this.wrapID+'fitBadge').classList.add('red-text')
+            }
+            else{
+                dataStore.viewers[target].leaveFitMode();
+                fitModeSwitch.setAttribute('engaged', 0);
+                document.getElementById(this.wrapID+'fitBadge').classList.remove('red-text')
+            }
+
+            //toggle state indicator
+            document.getElementById(this.wrapID+'fitInstructions').classList.toggle('hidden')
         }
 
         /////////////////////////////
