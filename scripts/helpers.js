@@ -415,8 +415,8 @@ function GetSpectrumListFromServer(ServerName, callback){
     // Once the response is received, convert the text response from the server to JSON Object
   req.onreadystatechange = () => {
       if (req.readyState === 4) {
-	  // Send the response to the callback function
-          callback(req.response);
+	  // Send the response to the callback function, and provide a callback function for it
+          callback(req.response,constructNewSpectrumMenu);
     }
   };
 
@@ -487,7 +487,7 @@ function ErrorConnectingToAnalyzerServer(error){
     document.getElementById('histo-list-menu-div').style.backgroundColor= 'red';
 }
 
-function processSpectrumList(payload){
+function processSpectrumList(payload,callback){
     var SpectrumList = JSON.parse(payload);
     
     //declare the holder for the top level groups
@@ -550,26 +550,33 @@ function processSpectrumList(payload){
     dataStore.topGroups = topGroups;
 
     // Now need to build the menu based on these topGroups and subGroups
-    constructNewSpectrumMenu();
+    // callback should be constructNewSpectrumMenu();
+    callback();
 }
 
 function constructNewSpectrumMenu(){
+
+    // Protect against an infinite loop being created by the timeout
     dataStore.counter++;
-    console.log(dataStore.counter);
+    if(dataStore.counter>5){
+	console.log('The spectrum menu failed to generate correctly after five attempts.');
+	return;
+    }
+    
     // Clear any previous menu content
-    if(document.getElementById('bs-example-navbar-collapse-1').innerHTML){
-	document.getElementById('bs-example-navbar-collapse-1').innerHTML = '';
+    if(document.getElementById('navbar-content-div').innerHTML){
+	document.getElementById('navbar-content-div').innerHTML = '';
     }
 
     // build the menu based on these topGroups and subGroups
     // Need to ensure the constructore dataStore._plotList has been created.
-    // If not then we need to wait for the initialization
+    // If we get here too quickly on initial page load then we need to wait for the initialization to be completed and try again
     try{
-	dataStore._plotList = new plotList('bs-example-navbar-collapse-1');
+	dataStore._plotList = new plotList('navbar-content-div');
 	dataStore._plotList.setup();
     }
     catch(err){
-	setTimeout(constructNewSpectrumMenu(), 400);
+	const thisTimeout = setTimeout(function() { constructNewSpectrumMenu(); }, 200);
     }
 }
 
