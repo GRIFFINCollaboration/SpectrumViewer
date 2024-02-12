@@ -63,7 +63,8 @@ function setupDataStore(){
 	"activeMatrix": "",                                                       //only one 2d spectrum (matrix) is active at any one time. This is the gate target
 
 	"histoFileDirectoryPath" : '',                                            // histogram directory taken from URL. Then can be changed from a select
-	"histoFileName" : ''                                                      // histogram filename taken from URL. Then can be changed from a select
+	"histoFileName" : '',                                                      // histogram filename taken from URL. Then can be changed from a select
+	"counter" : 0
     };
     
     // Unpack the URL data, then get the initial list of Histogram files available from the server

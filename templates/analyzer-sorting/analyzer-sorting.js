@@ -256,15 +256,18 @@ function processMidasFileList(payload){
 
     // Declare a local object to unpack the list and then sort it
     var thisMidasFileList = [
-   	                     { "Names" : 'name', "Sizes" : 5000000 }
+   	                     { "Names" : 'name', "Sizes" : 5000000 , "Titles" : '' }
                             ];
     
     for(var i=0; i<thisPayloadList.length; i++){
 	thisMidasFileList[i] = {
 	    "Names" : thisPayloadList[i].split(" , ")[0],
-	    "Sizes" : parseInt(thisPayloadList[i].split(" , ")[1])
+	    "Sizes" : parseInt(thisPayloadList[i].split(" , ")[1]),
+	    "Titles" : thisPayloadList[i].split(" , ")[2]
 	}
     }
+    console.log(thisPayloadList);
+    console.log(thisMidasFileList);
 
     // Sort the list in reverse numberical and alphabetical order so the newer files appear first
     thisMidasFileList.sort((a,b) => (a.Names < b.Names) ? 1 : ((b.Names < a.Names) ? -1 : 0));
@@ -275,6 +278,7 @@ function processMidasFileList(payload){
     // Declare this object structure
     var thisMidasRunList = [{
 	    "RunName" : '',
+	    "RunTitle" : '',
 	    "RunSize" : 0,
 	    "Expanded" : false,
 	"SubRunList" : [{
@@ -294,12 +298,14 @@ function processMidasFileList(payload){
 	    j=0;
 	    thisMidasRunList[num] = {
 	    "RunName" : '',
+	    "RunTitle" : '',
 	    "NumSubruns" : 0,
 	    "RunSize" : 0,
 	    "Expanded" : false,
 	"SubRunList" : []
           };
 	    thisMidasRunList[num].RunName = thisRunName;
+	    thisMidasRunList[num].RunTitle = thisMidasFileList[i].Titles;
 	    thisMidasRunList[num].RunSize = 0;
 	}
 	thisMidasRunList[num].RunSize = (thisMidasRunList[num].RunSize + thisMidasFileList[i].Sizes);
@@ -384,7 +390,9 @@ function buildMidasFileTable(){
      var HistoIndex = dataStore.histoFileList.findIndex(function f(histoName){ return histoName.includes(dataStore.midasRunList[num].RunName); });
      
      // Update the information displayed in the cells
-    cell1.innerHTML = dataStore.midasRunList[num].RunName;
+     let string = dataStore.midasRunList[num].RunName;
+     if(dataStore.midasRunList[num].RunTitle.length>0){ string += ', '+dataStore.midasRunList[num].RunTitle; }
+     cell1.innerHTML = string;
     cell2.innerHTML = dataStore.midasRunList[num].NumSubruns+' subruns';
     cell2.id = 'MidasSubrunDiv-'+(num+1);
      cell3.innerHTML = thisRunSizeString;

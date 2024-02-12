@@ -554,6 +554,8 @@ function processSpectrumList(payload){
 }
 
 function constructNewSpectrumMenu(){
+    dataStore.counter++;
+    console.log(dataStore.counter);
     // Clear any previous menu content
     if(document.getElementById('bs-example-navbar-collapse-1').innerHTML){
 	document.getElementById('bs-example-navbar-collapse-1').innerHTML = '';
