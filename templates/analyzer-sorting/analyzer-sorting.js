@@ -406,17 +406,19 @@ function buildMidasFileTable(){
      cell5.innerHTML = thisSortTimeString;
     cell6.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.midasRunList[num].RunName+'-checkbox'+'\" value=\"'+dataStore.midasRunList[num].RunName+'\" onclick=ToggleCheckboxOfThisMIDASFile(\"midasRunTableRow-'+(num+1)+'\")>';
 
-    // Create button to expand list of subruns
-    newButton = document.createElement('button'); 
-     newButton.setAttribute('id', 'expandSubrunListButton'+(num+1)); 
-    newButton.setAttribute('class', 'btn btn-default btn-xs'); 
-    newButton.innerHTML = "Show all";
-     newButton.style.padding = '4px';
-     newButton.value = (num+1);
-    newButton.onclick = function(){
-	expandSubrunList(this.value);
-    }.bind(newButton);
-    document.getElementById('MidasSubrunDiv-'+(num+1)).appendChild(newButton);
+     // Create button to expand list of subruns if there is more than 1 subrun
+     if(dataStore.midasRunList[num].NumSubruns>1){
+	 newButton = document.createElement('button');
+	 newButton.setAttribute('id', 'expandSubrunListButton'+(num+1)); 
+	 newButton.setAttribute('class', 'btn btn-default');
+	 newButton.innerHTML = "+";
+	 newButton.style.padding = '4px';
+	 newButton.value = (num+1);
+	 newButton.onclick = function(){
+	     expandSubrunList(this.value);
+	 }.bind(newButton);
+	 document.getElementById('MidasSubrunDiv-'+(num+1)).appendChild(newButton);
+     }
   }
     
 }
@@ -454,6 +456,18 @@ function expandSubrunList(RowID){
     // Remove the Expand button
     document.getElementById('expandSubrunListButton'+RowID).remove();
 
+    // Inject the collapse button
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'collapseSubrunListButton'+RowID); 
+    newButton.setAttribute('class', 'btn btn-default');
+    newButton.innerHTML = "-";
+    newButton.style.padding = '4px';
+    newButton.value = RowID;
+    newButton.onclick = function(){
+	collapseSubrunList(this.value);
+    }.bind(newButton);
+    document.getElementById('MidasSubrunDiv-'+RowID).appendChild(newButton);
+    
     // Uncheck the full run
     ToggleCheckboxOfThisMIDASFile('midasRunTableRow-'+RowID);
     
@@ -493,6 +507,40 @@ function expandSubrunList(RowID){
     cell5.innerHTML = thisSortTimeString;
     cell6.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.midasRunList[indexID].SubRunList[num].Name+'-checkbox'+'\" value=\"'+dataStore.midasRunList[indexID].SubRunList[num].Name+'\" onclick=ToggleCheckboxOfThisMIDASFile(\"midasSubRunTableRow-'+RowID+'-'+(num+1)+'\")>';
     }
+    
+}
+
+
+function collapseSubrunList(RowID){
+    // Define the index number and current position in the table from the RowID
+    // RowID is equal to the original rowIndex when the table was built, but rows may have been added or removed since then.
+    var indexID = (parseInt(RowID)-1);
+    var subRowID = document.getElementById('midasRunTableRow-'+RowID).rowIndex + 1;
+    
+    // Remove the collapse button
+    document.getElementById('collapseSubrunListButton'+RowID).remove();
+
+    // Create button to expand list of subruns if there is more than 1 subrun
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'expandSubrunListButton'+RowID); 
+    newButton.setAttribute('class', 'btn btn-default');
+    newButton.innerHTML = "+";
+    newButton.style.padding = '4px';
+    newButton.value = RowID;
+    newButton.onclick = function(){
+	expandSubrunList(this.value);
+    }.bind(newButton);
+    document.getElementById('MidasSubrunDiv-'+RowID).appendChild(newButton);
+    
+    // delete the subrun rows
+    for(var num=0; num<(dataStore.midasRunList[indexID].SubRunList.length); num++){
+	thisSubRowId = 'midasSubRunTableRow-'+RowID+'-'+(num+1);
+	let row = document.getElementById(thisSubRowId);
+	row.parentNode.removeChild(row);
+    }
+
+    // Uncheck the full run
+    ToggleCheckboxOfThisMIDASFile('midasRunTableRow-'+RowID);
     
 }
 
