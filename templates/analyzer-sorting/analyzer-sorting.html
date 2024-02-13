@@ -33,6 +33,8 @@
 	  <div class='container-fluid'>
 	      <div class='col-md-2'><h5>Histogram File Directory:</h5></div>
 	      <div class='col-md-4' id='HistoDirectoryInputDiv'></div>
+	      <div class='col-md-2'><h5>Source of calibration coefficients:</h5></div>
+	      <div class='col-md-4' id='CalibrationSourceInputDiv'></div>
 	    </div>
             <div id='submitDivTable'></div>
 	      <h4>Select the MIDAS files to sort, then press the button to submit them to the sort queue:</h4>
@@ -88,6 +90,17 @@
     }.bind(newInput);
     document.getElementById('HistoDirectoryInputDiv').appendChild(newInput);
     
+    // Create a select input for the source of calibration coefficients
+    var newSelect = document.createElement("select");
+    newSelect.id = 'CalibrationSourceSelect';
+    newSelect.name = 'CalibrationSourceSelect';
+    newSelect.onchange = function(){
+    dataStore.CalibrationSource = this.value;
+    }.bind(newSelect); 
+    newSelect.add( new Option('ODB values stored in midas file', 'midas') ); 
+    newSelect.add( new Option('New values in current config file', 'config') );
+    document.getElementById('CalibrationSourceInputDiv').appendChild(newSelect);
+
     // Create Submit button
     newButton = document.createElement('button'); 
     newButton.setAttribute('id', 'submitSortButtonTable'); 

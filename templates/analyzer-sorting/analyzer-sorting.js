@@ -554,6 +554,7 @@ function ToggleCheckboxOfThisMIDASFile(rowID){
 	//var DataFileDirectory = '/tig/grifstore1b/grifalt/schedule145/Dec2023/';
 	var DataFileDirectory = dataStore.midasFileDataDirectoryPath;
 	var HistoFileDirectory = dataStore.histoFileDirectoryPath;
+	var CalibrationSource = dataStore.CalibrationSource;
 
 	// Format check for the data file
 	
@@ -564,12 +565,12 @@ function ToggleCheckboxOfThisMIDASFile(rowID){
 	var urls = [];
 	for(var i=0; i<dataStore.midasRunList.length; i++){
 	    if(document.getElementById(dataStore.midasRunList[i].RunName+'-checkbox').checked == true){
-		urls[urls.length] = dataStore.spectrumServer + '?cmd=addDatafile&filename='+DataFileDirectory+dataStore.midasRunList[i].RunName+'&histodir=' + HistoFileDirectory;
+		urls[urls.length] = dataStore.spectrumServer + '?cmd=addDatafile&filename='+DataFileDirectory+dataStore.midasRunList[i].RunName+'&histodir=' + HistoFileDirectory + '&calibrationSource=' + CalibrationSource;
 	    }else if(dataStore.midasRunList[i].Expanded){
 		// If the list of subruns for this Run was expanded in the table then check if any are checked for sorting
 		for(var j=0; j<dataStore.midasRunList[i].SubRunList.length; j++){
 		    if(document.getElementById(dataStore.midasRunList[i].SubRunList[j].Name+'-checkbox').checked == true){
-			urls[urls.length] = dataStore.spectrumServer + '?cmd=addDatafile&filename='+DataFileDirectory+dataStore.midasRunList[i].SubRunList[j].Name+'&histodir=' + HistoFileDirectory;
+			urls[urls.length] = dataStore.spectrumServer + '?cmd=addDatafile&filename='+DataFileDirectory+dataStore.midasRunList[i].SubRunList[j].Name+'&histodir=' + HistoFileDirectory + '&calibrationSource=' + CalibrationSource;
 		    }
 		}
 	    }

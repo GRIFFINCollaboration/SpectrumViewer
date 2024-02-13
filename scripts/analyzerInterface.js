@@ -25,6 +25,7 @@ function setupDataStore(callback){
 	"midasFileDataDirectoryPath": "/tig/grifstore0b/griffin/schedule140/Calibrations-Aug2021",                // initial data directory path
 	"midasFileList": { "Names" : [], "Sizes" : [] },  // place to store the list of midas files available to sort which is provided by the server
 	"midasRunList": {},                               // place to store the list of midas runs available to sort which is provided by the server
+	"CalibrationSource": 'midas',              // selection the source of calibrations to be applied in the submitted sort job (either midas or config)
 
 	"SortStatusCurrentTimestamp" : 10,
 	"SortStatusCurrentFileName" : "",
@@ -65,7 +66,7 @@ function setupDataStore(callback){
 	"uniqueGateName" : '',          // place to save the unique gate namne entered in the modal     
 	"uniqueHistogramName" : '',     // place to save the unique histogram namne entered in the modal             
 
-        "sortCodeVariables" : [],          // List of sort Code Variables available for histograms, gates and conditions
+        "sortCodeVariables" : [],          // place to store the sort Code Variables available for histograms, gates and conditions
 
 	"logicOptions" : [                       // List of logic options used for building Gating conditions
 	    {
