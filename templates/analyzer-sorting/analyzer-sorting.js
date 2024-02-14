@@ -410,9 +410,8 @@ function buildMidasFileTable(){
      if(dataStore.midasRunList[num].NumSubruns>1){
 	 newButton = document.createElement('button');
 	 newButton.setAttribute('id', 'expandSubrunListButton'+(num+1)); 
-	 newButton.setAttribute('class', 'btn btn-default');
+	 newButton.setAttribute('class', 'btn-expand');
 	 newButton.innerHTML = "+";
-	 newButton.style.padding = '4px';
 	 newButton.value = (num+1);
 	 newButton.onclick = function(){
 	     expandSubrunList(this.value);
@@ -459,9 +458,8 @@ function expandSubrunList(RowID){
     // Inject the collapse button
     newButton = document.createElement('button');
     newButton.setAttribute('id', 'collapseSubrunListButton'+RowID); 
-    newButton.setAttribute('class', 'btn btn-default');
+    newButton.setAttribute('class', 'btn-expand');
     newButton.innerHTML = "-";
-    newButton.style.padding = '4px';
     newButton.value = RowID;
     newButton.onclick = function(){
 	collapseSubrunList(this.value);
@@ -485,20 +483,12 @@ function expandSubrunList(RowID){
      var cell5 = row.insertCell(4);
      var cell6 = row.insertCell(5);
 
-	// Calculate the estimated Sorting time and make it easily human readable
-	thisRunSize = dataStore.midasRunList[indexID].SubRunList[num].Size/1000000; // in MB
-	if(thisRunSize<1000){
-	    thisRunSizeString = thisRunSize.toFixed(1)+' MB';
-	}else{
-	    thisRunSizeString = (thisRunSize/1000).toFixed(1)+' GB';
-	}
-	// Calculate the estimated Sorting time and make it easily human readable
-	thisSortTime = (thisRunSize/200).toFixed(1); // Sort speed defined here as 200MB/s - should be made dynamic
-	if(thisSortTime<60){
-	    thisSortTimeString = 'Requires '+thisSortTime+' seconds to sort';
-	}else{
-	    thisSortTimeString = 'Requires '+(thisSortTime/60.0).toFixed(1)+' minutes to sort';
-	}
+     // Calculate the estimated Sorting time and make it easily human readable
+     thisRunSizeString = prettyFileSizeString(dataStore.midasRunList[indexID].SubRunList[num].Size);
+     
+     // Calculate the estimated Sorting time and make it easily human readable
+     thisSortTime = ((dataStore.midasRunList[indexID].SubRunList[num].Size/1000000)/400); // Sort speed defined here as 400MB/s - should be made dynamic
+     thisSortTimeString = 'Requires '+prettyTimeString(thisSortTime)+' to sort';
      
     cell1.innerHTML = '';
     cell2.innerHTML = dataStore.midasRunList[indexID].SubRunList[num].Name;
@@ -523,9 +513,8 @@ function collapseSubrunList(RowID){
     // Create button to expand list of subruns if there is more than 1 subrun
     newButton = document.createElement('button');
     newButton.setAttribute('id', 'expandSubrunListButton'+RowID); 
-    newButton.setAttribute('class', 'btn btn-default');
+    newButton.setAttribute('class', 'btn-expand');
     newButton.innerHTML = "+";
-    newButton.style.padding = '4px';
     newButton.value = RowID;
     newButton.onclick = function(){
 	expandSubrunList(this.value);
