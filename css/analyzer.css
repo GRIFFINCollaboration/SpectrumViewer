@@ -100,16 +100,24 @@ div.no-pad{
 .btn-expand{
  /* display:block; */
  /* line-height: 16px; */
-  height: 16px; 
-  width: 16px;
-  padding: 0 0;
-  border-radius: 50%;
+  height: 14px; 
+  width: 14px;
+  margin-left: 2px;
+  margin-right: 2px;
+  position: relative;
+  border-radius: 20%;
   border: 1px solid #DAA520;
   background-color: #DAA520;
+  vertical-align: middle;
+}
+.btn-expand p{
   color: #191C40;
   font-weight: bold;
-  text-align: center;
-  vertical-align: middle;
+  margin: 0;
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 #messageDiv{
@@ -171,9 +179,9 @@ div.headerContent{
     color: #DAA520; /* goldenrod*/
 }
 
-#MidFilesTable{
+.analyzer-table-selectable{
     width: 100%;
-    table-layout: fixed;
+    table-layout: auto;
 }
 
 .midasFileOptionFileSizeDiv{

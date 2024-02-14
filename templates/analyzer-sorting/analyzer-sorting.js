@@ -266,8 +266,6 @@ function processMidasFileList(payload){
 	    "Titles" : thisPayloadList[i].split(" , ")[2]
 	}
     }
-    console.log(thisPayloadList);
-    console.log(thisMidasFileList);
 
     // Sort the list in reverse numberical and alphabetical order so the newer files appear first
     thisMidasFileList.sort((a,b) => (a.Names < b.Names) ? 1 : ((b.Names < a.Names) ? -1 : 0));
@@ -291,7 +289,7 @@ function processMidasFileList(payload){
     j=0;
     num=-1;
     while(i<thisMidasFileList.length){
-        // Check if this is a newly encoutered Run number
+        // Check if this is a newly encoutered Run number and if it is, create space for it
 	thisRunName = thisMidasFileList[i].Names.split("_")[0];
 	if(i==0 || (thisRunName != thisMidasFileList[i-1].Names.split("_")[0])){
 	    num++;
@@ -305,11 +303,20 @@ function processMidasFileList(payload){
 	"SubRunList" : []
           };
 	    thisMidasRunList[num].RunName = thisRunName;
-	    thisMidasRunList[num].RunTitle = thisMidasFileList[i].Titles;
 	    thisMidasRunList[num].RunSize = 0;
 	}
+
+	// The list is sorted backwards so that the most recent runs appear at the top.
+	// Only subrun 000 has the title, so the first instance of this run we come across likely does not have the title.
+	// So here we find the title and add it for this run.
+	if(thisMidasFileList[i].Titles.length>1){
+	    thisMidasRunList[num].RunTitle = thisMidasFileList[i].Titles.trim();
+	}
+
+	// Keep track of the total run size from the size of each subrun, and the total number of subruns
 	thisMidasRunList[num].RunSize = (thisMidasRunList[num].RunSize + thisMidasFileList[i].Sizes);
 	thisMidasRunList[num].NumSubruns++;
+	// Store the name and size of each subrun
 	thisSubRunList = {
 	    "Name" : thisMidasFileList[i].Names,
 	    "Size" : thisMidasFileList[i].Sizes
@@ -411,7 +418,7 @@ function buildMidasFileTable(){
 	 newButton = document.createElement('button');
 	 newButton.setAttribute('id', 'expandSubrunListButton'+(num+1)); 
 	 newButton.setAttribute('class', 'btn-expand');
-	 newButton.innerHTML = "+";
+	 newButton.innerHTML = '<p>+</p>';
 	 newButton.value = (num+1);
 	 newButton.onclick = function(){
 	     expandSubrunList(this.value);
@@ -459,7 +466,7 @@ function expandSubrunList(RowID){
     newButton = document.createElement('button');
     newButton.setAttribute('id', 'collapseSubrunListButton'+RowID); 
     newButton.setAttribute('class', 'btn-expand');
-    newButton.innerHTML = "-";
+    newButton.innerHTML = '<p>-</p>';
     newButton.value = RowID;
     newButton.onclick = function(){
 	collapseSubrunList(this.value);
@@ -490,8 +497,8 @@ function expandSubrunList(RowID){
      thisSortTime = ((dataStore.midasRunList[indexID].SubRunList[num].Size/1000000)/400); // Sort speed defined here as 400MB/s - should be made dynamic
      thisSortTimeString = 'Requires '+prettyTimeString(thisSortTime)+' to sort';
      
-    cell1.innerHTML = '';
-    cell2.innerHTML = dataStore.midasRunList[indexID].SubRunList[num].Name;
+    cell1.innerHTML = dataStore.midasRunList[indexID].SubRunList[num].Name;
+	cell2.innerHTML = 'Subrun '+dataStore.midasRunList[indexID].SubRunList[num].Name.split('_')[1].split('.')[0];
     cell3.innerHTML = thisRunSizeString;
     cell4.innerHTML = '';
     cell5.innerHTML = thisSortTimeString;
@@ -514,7 +521,7 @@ function collapseSubrunList(RowID){
     newButton = document.createElement('button');
     newButton.setAttribute('id', 'expandSubrunListButton'+RowID); 
     newButton.setAttribute('class', 'btn-expand');
-    newButton.innerHTML = "+";
+    newButton.innerHTML = '<p>+</p>';
     newButton.value = RowID;
     newButton.onclick = function(){
 	expandSubrunList(this.value);
