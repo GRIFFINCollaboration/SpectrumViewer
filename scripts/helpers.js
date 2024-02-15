@@ -495,8 +495,10 @@ function processSpectrumList(payload,callback){
     catch(err){
 	console.log('Problem with format of the Spectrum list provided by the server for histogram file, '+dataStore.histoFileName);
 	console.log(err);
+	/*
 	const thisTimeout = setTimeout(function() {if(document.getElementById('navbar-content-div').innerHTML){
 	    document.getElementById('navbar-content-div').innerHTML = 'Problem with format of the Spectrum list provided by the server for histogram file, '+dataStore.histoFileName; }, 1000);
+	*/			       
 	return;
     }
     
