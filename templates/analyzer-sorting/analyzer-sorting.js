@@ -364,7 +364,8 @@ function buildMidasFileTable(){
     cell2.innerHTML = '';
     cell3.innerHTML = '';
     cell4.innerHTML = '';
-    cell5.innerHTML = '';
+    cell5.style.textAlign = 'right';
+    cell5.innerHTML = 'Select all runs:';
     cell6.innerHTML = '<input type=\"checkbox\" id=\"Primary-checkbox\">';
 
       document.getElementById("Primary-checkbox").onclick = function(e){

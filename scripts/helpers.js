@@ -488,7 +488,18 @@ function ErrorConnectingToAnalyzerServer(error){
 }
 
 function processSpectrumList(payload,callback){
-    var SpectrumList = JSON.parse(payload);
+    
+    try{
+	var SpectrumList = JSON.parse(payload);
+    }
+    catch(err){
+	console.log('Problem with format of the Spectrum list provided by the server for histogram file, '+dataStore.histoFileName);
+	console.log(err);
+	if(document.getElementById('navbar-content-div').innerHTML){
+	    document.getElementById('navbar-content-div').innerHTML = 'Problem with format of the Spectrum list provided by the server for histogram file, '+dataStore.histoFileName;
+	}
+	return;
+    }
     
     //declare the holder for the top level groups
     var topGroups = [];
