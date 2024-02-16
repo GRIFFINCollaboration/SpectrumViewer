@@ -89,10 +89,10 @@ function promiseJSONURL(url){
 
             if (req.status == 200) {
                 // Resolve the promise with the response text parsed as JSON
+	//	console.log(req.response);
                 mungedResponse = req.response.replace(/NULL/g,'[]');
                 mungedResponse = mungedResponse.replace(/\'/g, '\"');
                 resolve(JSON.parse(mungedResponse));
-                //resolve(JSON.parse(req.response.replace(/\'/g, '\"')));
             }
             else {
                 // Otherwise reject with the status text

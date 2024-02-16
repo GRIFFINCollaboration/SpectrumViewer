@@ -61,6 +61,9 @@ function setupDataStore(){
 	"createdSpectra": {},                                                     //initialize empty object for created spectra
 	"twoDimensionalSpectra": ['GG', 'Addback_GG'],                            //list of 2d spectra which need to be handled differently to 1d spectra
 	"activeMatrix": "",                                                       //only one 2d spectrum (matrix) is active at any one time. This is the gate target
+	"activeMatrixXaxisLength": 0,                                             //only one 2d spectrum (matrix) is active at any one time. This is the X axis length
+	"activeMatrixYaxisLength": 0,                                             //only one 2d spectrum (matrix) is active at any one time. This is the Y axis length
+	"activeMatrixSymmetrized": false,                                         //only one 2d spectrum (matrix) is active at any one time. This is if it is symmeterized.
 
 	"histoFileDirectoryPath" : '',                                            // histogram directory taken from URL. Then can be changed from a select
 	"histoFileName" : '',                                                      // histogram filename taken from URL. Then can be changed from a select
@@ -168,7 +171,15 @@ function plotControl2d(wrapID){
             Promise.all(queries.map(promiseJSONURL)
                 ).then(
                     function(spectra){
-                        dataStore.raw = spectra[0][dataStore.activeSpectra];
+			// This is for 1d spectra - Do we still need this here?
+			// dataStore.raw = spectra[0][dataStore.activeSpectra];
+
+			// This is for 2d spectra
+			// Need to change this away from [0] and find the correct index number to use
+			dataStore.raw = spectra[0].data;
+			dataStore.activeMatrixXaxisLength = spectra[0].XaxisLength;
+			dataStore.activeMatrixYaxisLength = spectra[0].YaxisLength;
+			dataStore.activeMatrixSymmetrized = spectra[0].symmetrized;
                         fetchCallback(); 
                     }
                 )
@@ -328,9 +339,11 @@ function fetchCallback(){
     // unpack the raw 2d spectrum to the required format
     try{ objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
 	 dataStore.hm.colorMap[objectIndex].data = [];
-	 console.log('Clear the colorMap');
+	 //console.log('Clear the colorMap');
        }
-    catch(err){ console.log('No colorMap to clear') }
+    catch(err){
+	//console.log('No colorMap to clear')
+    }
     dataStore.hm.raw = packZ(dataStore.raw);
 
     // make the 2d heatmap plot of this histogram 
@@ -389,48 +402,19 @@ function generateOverlay(){
 function packZ(raw){
     // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
     // heatmap wants it as [[x0y0, x1y0, ..., xmaxy0], [x0y1, x1y1, ..., xmaxy1], ...]
-
-    /*
-    // Original approach
-    var repack = [],
-        nRows = (raw.length-1)/raw[0],
-        i;
-    console.log('packZ using row length of '+raw[0]+' and '+nRows+' rows');
-    console.log('Matrix has '+raw.length+' entries');
-    for(i=0; i<nRows; i++){
-        repack.push(raw.slice(1+raw[0]*i, 1+raw[0]*(i+1)));
-    }
-    */
+    console.log('unpackZ');
+    console.log(raw);
 
     // Hardcode a 1024x1024 matrix
     var repack = [],
-	rowLength = 1024,
-        nRows = 1024,
+	rowLength = dataStore.activeMatrixXaxisLength,
+        nRows = dataStore.activeMatrixYaxisLength,
         i;
+    console.log(rowLength);
+    console.log(nRows);
 
-  //  for(k=0; k<16; k++){
-//	for(i=0+(k*nRows); i<nRows+(k*nRows); i++){
 	    for(i=0; i<nRows; i++){
         repack.push(raw.slice(rowLength*i, rowLength*(i+1)-1));
-    }
-//}
-//}
-
-    return repack;
-}
-
-function packZmultiThreaded(raw){
-    // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
-    // heatmap wants it as [[x0y0, x1y0, ..., xmaxy0], [x0y1, x1y1, ..., xmaxy1], ...]
-
-    // Hardcode a 1024x1024 matrix
-    var repack = [],
-	rowLength = 1024,
-        nRows = 1024,
-        i;
-    
-    for(i=0; i<nRows; i++){
-       repack.push(raw.slice(rowLength*i, rowLength*(i+1)-1));
     }
 
     return repack;
