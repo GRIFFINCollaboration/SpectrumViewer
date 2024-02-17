@@ -230,21 +230,6 @@ function calculateAverageSortSpeed(){
     updateSortingTimesInTable();
 }          
 
-function getMidasFileListFromServer(){
-
-    // use a one-off XHR request with callback for getting the list of MIDAS files
-    url = dataStore.spectrumServer + '/?cmd=getDatafileList&dir='+dataStore.midasFileDataDirectoryPath;
-    XHR(url, "Problem getting list of MIDAS files from analyzer server", processMidasFileList, function(error){ErrorConnectingToAnalyzerServer(error)});
-
-}
-
-function getHistoFileListFromServer(){
-
-    // use a one-off XHR request with callback for getting the list of Histo files
-    url = dataStore.spectrumServer + '/?cmd=getHistofileList&dir='+dataStore.histoFileDirectoryPath;
-    XHR(url, "Problem getting list of Histogram files from analyzer server", processHistoFileList, function(error){ErrorConnectingToAnalyzerServer(error)});
-
-}
 
 function processMidasFileList(payload){
 
@@ -331,6 +316,19 @@ function processMidasFileList(payload){
     
     // Build the selectable list of midas files for the user
     buildMidasFileTable();
+
+    // Here call the function to get the datafile titles and once they arrive add them to the table.
+    // The server potentially be slow at collecting all run titles if there are tens of thousands of files in the directory
+    // So abive here we have started to draw the table without the titles and then will inject them when they are ready
+    getMidasFileDetailsFromServer();
+}
+
+function processMidasFileDetails(payload){
+    console.log('processMidasFileDetails');
+    console.log(payload);
+
+    // Add these details to the table
+    addFileDetailsToMidasFileTable();
 }
 
 function processHistoFileList(payload){
@@ -359,11 +357,12 @@ function buildMidasFileTable(){
      var cell3 = row.insertCell(2);
      var cell4 = row.insertCell(3);
      var cell5 = row.insertCell(4);
-     var cell6 = row.insertCell(5);
-    cell1.innerHTML = '';
-    cell2.innerHTML = '';
-    cell3.innerHTML = '';
-    cell4.innerHTML = '';
+    var cell6 = row.insertCell(5);
+    // The following set the widths of the columns for the whole table
+    cell1.innerHTML = '                                                                                                          ';
+    cell2.innerHTML = '                       ';
+    cell3.innerHTML = '         ';
+    cell4.innerHTML = '                         ';
     cell5.style.textAlign = 'right';
     cell5.innerHTML = 'Select all runs:';
     cell6.innerHTML = '<input type=\"checkbox\" id=\"Primary-checkbox\">';
@@ -430,6 +429,10 @@ function buildMidasFileTable(){
     
 }
 
+function addFileDetailsToMidasFileTable(){
+    console.log('addFileDetailsToMidasFileTable');
+}
+
 function updateSortingTimesInTable(){
     var table = document.getElementById("MidFilesTable");
     var SortSpeedNow = dataStore.SortStatusAverageSortSpeed;
@@ -440,7 +443,7 @@ function updateSortingTimesInTable(){
 	thisRunSize = row.cells[2].value;
 	
 	// Calculate the estimated Sorting time based on the latest Average sorting speed and make it easily human readable
-	thisSortTime = ((thisRunSize/1000000)/SortSpeedNow); // Sort speed defined here as 400MB/s - should be made dynamic
+	thisSortTime = ((thisRunSize/1000000)/SortSpeedNow);
 	thisSortTimeString = 'Requires '+prettyTimeString(thisSortTime)+' to sort';
 	
 	// Update the sorting time displayed

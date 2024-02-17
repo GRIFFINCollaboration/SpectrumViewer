@@ -382,6 +382,22 @@ function GetURLArguments(callback){
     callback();
 }
 
+function getMidasFileListFromServer(){
+
+    // use a one-off XHR request with callback for getting the list of MIDAS files
+    url = dataStore.spectrumServer + '/?cmd=getDatafileList&dir='+dataStore.midasFileDataDirectoryPath;
+    XHR(url, "Problem getting list of MIDAS files from analyzer server", processMidasFileList, function(error){ErrorConnectingToAnalyzerServer(error)});
+
+}
+
+function getMidasFileDetailsFromServer(){
+
+    // use a one-off XHR request with callback for getting the list of MIDAS files
+    url = dataStore.spectrumServer + '/?cmd=getDatafileDetails&dir='+dataStore.midasFileDataDirectoryPath;
+    XHR(url, "Problem getting details of MIDAS files from analyzer server", processMidasFileDetails, function(error){ErrorConnectingToAnalyzerServer(error)});
+
+}
+
 function getHistoFileListFromServer(){
 
     // use a one-off XHR request with callback for getting the list of Histo files
