@@ -199,6 +199,16 @@ div.headerContent{
     margin-bottom: 6px;
 }
 
+.analyzer-input-select{
+    width: 100%;
+    background-color: #191C40;
+    border: 2px solid #FA8072; /* Salmon pink */
+    border-radius: 25px;
+    color: #DAA520; /* goldenrod*/
+    padding: 6px;
+    margin-bottom: 6px;
+}
+
 .histo-row{
     border-bottom: solid 1px #FA8072; /* Salmon pink */
     padding: 4px;

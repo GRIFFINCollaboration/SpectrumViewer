@@ -93,7 +93,8 @@
     // Create a select input for the source of calibration coefficients
     var newSelect = document.createElement("select");
     newSelect.id = 'CalibrationSourceSelect';
-    newSelect.name = 'CalibrationSourceSelect';
+    newSelect.name = 'CalibrationSourceSelect'; 
+    newSelect.className = 'analyzer-input-select'; 
     newSelect.onchange = function(){
     dataStore.CalibrationSource = this.value;
     }.bind(newSelect); 

@@ -459,15 +459,15 @@ function deleteGateBlock(gateNumber){
 	
 	// Add the first row for the first condition
         dataStore.histogramDefinition.nRows[histogramIndex] = 0;
-	addNewHistogramConditionRow(histogramIndex,arrayIndex);
+//	addNewHistogramConditionRow(histogramIndex,arrayIndex);
 
 	// Populate the Histogram with the entry in dataStore.histogramDefinition.contents[arrayIndex] if an arrayIndex was provided
 	if(arrayIndex>=0){
 	    for(var i=0; i<dataStore.histogramDefinition.contents[arrayIndex].histogramCondition.length; i++){
-		if(i>0){
+	//	if(i>0){
 		    // Create the additonal condition row for this dataStore entry
 		    addNewHistogramConditionRow(histogramIndex,arrayIndex);
-		}
+	//	}
 		document.getElementById('histogramCondition'+histogramIndex+'-'+i).value = dataStore.histogramDefinition.contents[arrayIndex].histogramCondition[i].Gate;
 	    }
 	}
