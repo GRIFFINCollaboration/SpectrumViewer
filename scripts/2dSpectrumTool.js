@@ -7,37 +7,7 @@ var urlData = [];
 
 function setupDataStore(){
 
-    /*
-    //declare top level groups
-    var topGroups = [
-        {
-            "name": "grifstore0",
-            "id": "grifstore0",
-            "color": '#367FA9',
-            "subGroups": [
-                {
-                    "subname": "Coinc",
-                    "id": "coinc",
-                    "items": [
-			'GG',
-			'Addback_GG'
-                   ]
-                },
-                {
-                    "subname": "Projections",
-                    "id": "proj",
-                    "items": [
-			'GGx',
-			'GGy',
-			'Addback_GGx',
-			'Addback_GGy'
-                   ]
-                }
-            ]
-        }
-    ]
-*/
-
+    // Declare the dataStore object
     dataStore = {
 	// 2D viewer and common things
        // "topGroups": topGroups,                                     //groups in top nav row
@@ -47,6 +17,7 @@ function setupDataStore(){
         "spectrumServer": 'http://grifstore0.triumf.ca:9093',          //host:port to pull raw spectra from
         "backendHost": 'grifstore0',                                   //host:port to pull raw spectra from
         "raw": [0],
+        "raw2": [0],
         "closeMenuOnclick": true,                                   //don't keep the plot menu open onclick (can only plot one at a time anyway)
         "pageTitle": '2D Spectrum Tool',
 
@@ -171,12 +142,11 @@ function plotControl2d(wrapID){
             Promise.all(queries.map(promiseJSONURL)
                 ).then(
                     function(spectra){
-			// This is for 1d spectra - Do we still need this here?
-			// dataStore.raw = spectra[0][dataStore.activeSpectra];
-
 			// This is for 2d spectra
 			// Need to change this away from [0] and find the correct index number to use
+			console.log(spectra);
 			dataStore.raw = spectra[0].data;
+			dataStore.raw2 = spectra[0].data2;
 			dataStore.activeMatrixXaxisLength = spectra[0].XaxisLength;
 			dataStore.activeMatrixYaxisLength = spectra[0].YaxisLength;
 			dataStore.activeMatrixSymmetrized = spectra[0].symmetrized;
@@ -344,7 +314,7 @@ function fetchCallback(){
     catch(err){
 	//console.log('No colorMap to clear')
     }
-    dataStore.hm.raw = packZ(dataStore.raw);
+    dataStore.hm.raw = packZ(dataStore.raw,dataStore.raw2);
 
     // make the 2d heatmap plot of this histogram 
     dataStore.hm.drawData();
@@ -399,25 +369,106 @@ function generateOverlay(){
     }
 }
 
-function packZ(raw){
+function packZ(raw,raw2){
     // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
     // heatmap wants it as [[x0y0, x1y0, ..., xmaxy0], [x0y1, x1y1, ..., xmaxy1], ...]
     console.log('unpackZ');
-    console.log(raw);
+   // console.log(raw);
+   // console.log(raw2);
 
-    // Hardcode a 1024x1024 matrix
-    var repack = [],
+    // Declare local variables
+    var repack = [],repack2 = [],
 	rowLength = dataStore.activeMatrixXaxisLength,
         nRows = dataStore.activeMatrixYaxisLength,
-        i;
+	subMatrixXlength = 16,
+	subMatrixYlength = 16,
+        i, j, type, row=[];
     console.log(rowLength);
     console.log(nRows);
 
-	    for(i=0; i<nRows; i++){
+    /*
+    // Unpack the matrix data as a list of data (slowest transfer from server)
+    for(i=0; i<nRows; i++){
         repack.push(raw.slice(rowLength*i, rowLength*(i+1)-1));
     }
+    */
+    
+    // Unpack the matrix data as a list of 16x16 submatrices (faster transfer from server)
+    // The values are given in the order of x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax, but split into the 16x16 submatrices
+    // Submatrix format is one of three:
+    // ["empty"],
+    // ["array", 0,1,2,3,4,5 ... 255 ],
+    // ["list", 23,55, ... ],
+    // these formats are as follows:
+    // "empty" means all 256 bins are zero
+    // "array" is just 256 values - contents (z value) of each x,y bin
+    // "list" is list of bin-number[0-255], bin-content pairs
 
-    return repack;
+    // Create the whole matrix full of zeros. This then allows us to access any element directly
+    repack2 = new Array(nRows);
+    for (let i = 0; i < repack2.length; i++) {
+	repack2[i] = new Array(rowLength-1).fill(0); // Creating an array of size rowLength and filled of 0
+    }
+
+    for(subMatrixIndex=0; subMatrixIndex<raw2.length; subMatrixIndex++){
+   // for(subMatrixIndex=0; subMatrixIndex<16; subMatrixIndex++){
+	// Step through the arrays one at a time.
+	//
+
+	// Calculate the subMatrix Coordinates
+	subMatrixX = (Math.floor(subMatrixIndex%Math.floor(rowLength/subMatrixXlength)));
+	subMatrixY = (Math.floor(subMatrixIndex/Math.floor(rowLength/subMatrixXlength)));
+	subMatrixXbaseCoordinate = subMatrixX*subMatrixXlength;
+	subMatrixYbaseCoordinate = subMatrixY*subMatrixYlength;
+//	console.log('SubMatrix'+subMatrixIndex+'['+subMatrixX+']['+subMatrixY+']');
+	
+	// Add the current 16*16=256 values
+	switch(raw2[subMatrixIndex][0]) {
+	case 'empty':
+	    // empty format, nothing to be done
+	    break;
+	case 'array':
+	    // array format
+	    // 256 z values are given in order.
+	    // The values are given in the order of x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax
+	  //  console.log(raw2[subMatrixIndex]);
+	    type = raw2[subMatrixIndex].shift();
+	    for(i=0; i<subMatrixYlength; i++){
+		for(j=0; j<subMatrixXlength; j++){
+		    thisXindex = subMatrixXbaseCoordinate+j;
+		    thisYindex = subMatrixYbaseCoordinate+i;
+		    thisValue = raw2[subMatrixIndex][i*subMatrixXlength+j];
+	//	    console.log('['+thisYindex+']['+thisXindex+']='+thisValue);
+		    repack2[thisYindex][thisXindex] = thisValue;
+		}
+	    }
+	    
+	    break;
+	case 'list':
+	    // list format
+	    // The values are in pairs of [bin number within this submatrix, 0-255], then [z value]
+	  //  console.log(raw2[subMatrixIndex]);
+	    type = raw2[subMatrixIndex].shift();
+	    for(j=0; j<raw2[subMatrixIndex].length; j+=2){
+		thisXindex = subMatrixXbaseCoordinate+Math.floor(raw2[subMatrixIndex][j]%subMatrixXlength);
+		thisYindex = subMatrixYbaseCoordinate+Math.floor(raw2[subMatrixIndex][j]/subMatrixXlength);
+		thisValue = raw2[subMatrixIndex][j+1];
+	//	console.log('['+thisYindex+']['+thisXindex+']='+thisValue);
+		repack2[thisYindex][thisXindex] = thisValue;
+	    }
+	    break;
+	default:
+	    // code block
+	    // Unrecognized format
+	    console.log('Unrecognized format!!!');
+	    console.log(raw2[subMatrixIndex]);
+	} // end of switch
+    } // end of submatrices for loop
+  //  console.log('Finshed unpacking');
+  //  console.log(repack);
+  //  console.log(repack2);
+
+    return repack2;
 }
 
 function projectXaxis(gateMin,gateMax){
