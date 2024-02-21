@@ -135,7 +135,7 @@ function processSortStatus(payload){
     }
     if(totalQueueFileSize>0){
    // document.getElementById("JobsQueue").innerHTML += '<br>Time to sort entire queue is '+parseFloat(totalQueueFileSize/dataStore.SortStatusAverageSortSpeed).toFixed(1)+' seconds';
-	document.getElementById("JobsQueue").innerHTML += '<br>Time to sort entire queue of ('+prettyFileSizeString(totalQueueFileSize)+') is '+prettyTimeString((totalQueueFileSize/1000000)/dataStore.SortStatusAverageSortSpeed);
+	document.getElementById("JobsQueue").innerHTML += '<br>Time to sort entire queue of '+(thisPayloadArray.length-1)+' runs ('+prettyFileSizeString(totalQueueFileSize)+') is '+prettyTimeString((totalQueueFileSize/1000000)/dataStore.SortStatusAverageSortSpeed);
     }
 }
 
@@ -329,6 +329,34 @@ function processMidasFileDetails(payload){
     console.log('processMidasFileDetails');
     console.log(payload);
 
+    // receive the payload and split into an array of strings
+    var thisPayload = payload.split("]")[0].split("[ \n")[1];
+    
+    // tidy up the strings to extract the list of midas files
+    var thisPayloadList = thisPayload.split(" , \n ");
+
+    // Declare a local object to unpack the list and then sort it
+    var thisMidasFileList = [
+   	                     { "Names" : 'name', "Sizes" : 5000000 , "Titles" : '' }
+                            ];
+    
+    for(var i=0; i<thisPayloadList.length; i++){
+	thisMidasFileList[i] = {
+	    "Names" : thisPayloadList[i].split(" , ")[0],
+	    "Sizes" : parseInt(thisPayloadList[i].split(" , ")[1]),
+	    "Titles" : thisPayloadList[i].split(" , ")[2]
+	}
+    }
+
+    // Sort the list in reverse numberical and alphabetical order so the newer files appear first
+    thisMidasFileList.sort((a,b) => (a.Names < b.Names) ? 1 : ((b.Names < a.Names) ? -1 : 0));
+
+    // Save this list of midas files to the dataStore
+    dataStore.midasFileList = thisMidasFileList;
+
+    // Go through the new list of titles and insert them into the midasRunList object
+    
+    
     // Add these details to the table
     addFileDetailsToMidasFileTable();
 }

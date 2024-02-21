@@ -271,35 +271,47 @@ function processHistoFileList(payload){
 }
 
 function setupHistoListSelect(){
+    // Remove the select if it already exists
+    try{
+	document.getElementById('HistoListSelect').remove();
+	document.getElementById('HistoListSelectLabel').remove();
+    }
+    catch(err){ }
+    
     // Add the title text
     var newLabel = document.createElement("label");
     newLabel.for = 'HistoListSelect';
+    newLabel.id = 'HistoListSelectLabel';
     newLabel.innerHTML = 'Histogram file: ';
     document.getElementById('modeChoiceBar').appendChild(newLabel);
-	
+    
     // Create a select input for the histo file list
     var newSelect = document.createElement("select");
     newSelect.id = 'HistoListSelect';
     newSelect.name = 'HistoListSelect';
     newSelect.onchange = function(){
-    dataStore.histoFileName = this.value;
+	dataStore.histoFileName = this.value;
 	console.log('Histogram selected is '+dataStore.histoFileName);
 	
 	//user guidance
-	deleteNode('histogramMessage');
+	if(document.getElementById('histogramMessage')){
+	    deleteNode('histogramMessage');
+	}
 	document.getElementById('detectorMessage').classList.remove('hidden');
 	
 	// Display the detector choice
 	document.getElementById('detectorChoiceBar').classList.remove("hidden");
     }.bind(newSelect);
     document.getElementById('modeChoiceBar').appendChild(newSelect);
-
+    
     // Add the list of histo files as the options
     thisSelect = document.getElementById('HistoListSelect');
     for(var i=0; i<dataStore.histoFileList.length; i++){
 	thisSelect.add( new Option(dataStore.histoFileList[i], dataStore.histoFileList[i]) );
     }
-
+    
+    // Fire the onchange event for the select with the default value
+    document.getElementById('HistoListSelect').onchange();
 }
 
 function setupMenusFromDetectorChoice(detectorType){
