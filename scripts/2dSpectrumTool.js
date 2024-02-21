@@ -489,7 +489,7 @@ function projectXaxis(gateMin,gateMax){
     
     var gateLength = gateMax-gateMin;
     var thisProjection = [];
-    let filledArray = new Array(1023).fill(0);
+    let filledArray = new Array(1023).fillN(0); // May need to be .fillN()
     for(let i=0; i<dataStore.hm._raw[0].length; i++){
 	thisProjection[i] = 0;
     }
@@ -532,7 +532,7 @@ function projectYaxis(gateMin,gateMax){
     
     var gateLength = gateMax-gateMin;
     var thisProjection = [];
-    let filledArray = new Array(1023).fill(0);
+    let filledArray = new Array(1023).fillN(0);
     for(let i=0; i<dataStore.hm._raw.length; i++){
 	thisProjection[i] = 0;
     }

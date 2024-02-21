@@ -294,9 +294,11 @@ function processMidasFileList(payload){
 	// The list is sorted backwards so that the most recent runs appear at the top.
 	// Only subrun 000 has the title, so the first instance of this run we come across likely does not have the title.
 	// So here we find the title and add it for this run.
-	if(thisMidasFileList[i].Titles.length>1){
-	    thisMidasRunList[num].RunTitle = thisMidasFileList[i].Titles.trim();
-	}
+	try{
+	    if(thisMidasFileList[i].Titles.length>1){
+		thisMidasRunList[num].RunTitle = thisMidasFileList[i].Titles.trim();
+	    }
+	}catch(err){ }
 
 	// Keep track of the total run size from the size of each subrun, and the total number of subruns
 	thisMidasRunList[num].RunSize = (thisMidasRunList[num].RunSize + thisMidasFileList[i].Sizes);

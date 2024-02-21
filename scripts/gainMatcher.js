@@ -42,13 +42,13 @@ function setupDataStore(){
 
     dataStore.resolutionData = [];                                      //dygraphs-sorted peak widths for both peaks, in same order as THESEdetectors: [[detectorIndex, low peak width, high peak width], ...]
     dataStore.lowPeakResolution = [];                                   //low energy peak resolutions, indexed per GRIFFINdetectors
-    dataStore.lowPeakResolution.fill(0,(dataStore.numberOfClovers*4*2));                             //start with zeroes
+    dataStore.lowPeakResolution.fillN(0,(dataStore.numberOfClovers*4*2));                             //start with zeroes
     dataStore.midPeakResolution = [];                                  //as midPeakResolution
-    dataStore.midPeakResolution.fill(0,(dataStore.numberOfClovers*4*2));                            //start with zeroes
+    dataStore.midPeakResolution.fillN(0,(dataStore.numberOfClovers*4*2));                            //start with zeroes
     dataStore.highPeakResolution = [];                                  //as highPeakResolution
-    dataStore.highPeakResolution.fill(0,(dataStore.numberOfClovers*4*2));                           //start with zeroes
+    dataStore.highPeakResolution.fillN(0,(dataStore.numberOfClovers*4*2));                           //start with zeroes
     dataStore.vhiPeakResolution = [];                                  //as highPeakResolution
-    dataStore.vhiPeakResolution.fill(0,(dataStore.numberOfClovers*4*2));                            //start with zeroes
+    dataStore.vhiPeakResolution.fillN(0,(dataStore.numberOfClovers*4*2));                            //start with zeroes
     dataStore.searchRegionP1 = [];                                         //[x_start, x_finish, y for peak search bar]
     dataStore.searchRegionP2 = [];                                         //[x_start, x_finish, y for peak search bar]
     dataStore.searchRegionP3 = [];                                         //[x_start, x_finish, y for peak search bar]

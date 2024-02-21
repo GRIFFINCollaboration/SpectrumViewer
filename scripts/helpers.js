@@ -320,13 +320,12 @@ Array.prototype.integrate = function(x0, x1){
 }
 
 //fill an array with n copies of value
-/*
-Array.prototype.fill = function(value, n){
+Array.prototype.fillN = function(value, n){
     var i;
     for(i=0; i<n; i++)
         this[i] = JSON.parse(JSON.stringify(value));
 }
-*/
+
 
 function parseQuery(){
 	//return an object with keys/values as per query string
