@@ -226,6 +226,9 @@ function buildConfigMenu(){
 
 	    // Close the modal
 	    $('#globalModal').modal('hide');
+	    
+	    // Reset the name in the modal text box ready for next time
+	    document.getElementById('globalModalInput').value = '';
 	}else{
 	    // The values for this instance are already stored in the dataStore
 	    // A unique name is required for this instance.
@@ -254,30 +257,40 @@ function buildConfigMenu(){
 	    document.getElementById('globalName'+globalIndex).value = thisGlobalName;
 	}
 	    
-	// Create the new condition in the dataStore and fill with generic initial values
-	// but only if there is not a definition there already
-	if(arrayIndex>=0){
+	// Increase the Global counters
+        dataStore.globalCondition.globalIndex++;
+
+	// If this is a new instance, create space for it in the dataStore and save it also to the server
+	if(arrayIndex<0){
+	    // Create the new condition in the dataStore and fill with generic initial values
 	    var newContents = {
 		"name" : 'new-global-condition',
 		"min" : -100,
 		"max" : 100
 	    };
 	    dataStore.globalCondition.contents[dataStore.globalCondition.globalIndex] = newContents;
-	}
-	
-	// Increase the Global counters
-        dataStore.globalCondition.globalIndex++;
 
-	// If this is a new instance, save it also to the server
-	if(arrayIndex<0){
+	    // save it also to the server
 	    saveGlobalChangeToAnalyzerODB(globalIndex);
 	}
     }
 
-    function deleteGlobalBlock(globalNumber){
+function deleteGlobalBlock(globalNumber){
+    // First use this globalNumber to get the name of this global from the html element id="globalName{{globalNumber}}"
+    // Search the dataStore.globalCondition.contents[] array for the one matching that name.
+    // Then you have the correct index number which might be different from globalNumber if some elements have been deleted.
+    // Need to find the correct array index of this html element
+    var thisName = document.getElementById('globalName'+globalNumber).value;
+    i = dataStore.globalCondition.contents.length-1;
+    while(dataStore.globalCondition.contents[i].name != thisName){
+	i--;
+	if(i<0){ break; }
+    }
+    let globalNumberIndex = i;
+	
     // delete the Global condition from the server version
     var url = dataStore.spectrumServer + '/?cmd=removeGlobal';
-    url += '&globalname='+dataStore.globalCondition.contents[globalNumber].name;
+    url += '&globalname='+dataStore.globalCondition.contents[globalNumberIndex].name;
     
     console.log('Remove Global, URL for analyzer server: '+url);
 
@@ -292,7 +305,7 @@ function buildConfigMenu(){
         deleteNode('globalCondition' + globalNumber);
 	
 	// delete the indexed Global contents from the dataStore
-	dataStore.globalCondition.contents.splice(globalNumber,1);
+	dataStore.globalCondition.contents.splice(globalNumberIndex,1);
 	
 	// decrease the Global counters
         dataStore.globalCondition.globalIndex--;
@@ -313,6 +326,9 @@ function buildConfigMenu(){
 
 	    // Close the modal
 	    $('#gateModal').modal('hide');
+	    
+	    // Reset the name in the modal text box ready for next time
+	    document.getElementById('gateModalInput').value = '';
 	}else{
 	    // The values for this instance are already stored in the dataStore
 	    // A unique name is required for this instance.
@@ -371,9 +387,21 @@ function buildConfigMenu(){
     }
 
 function deleteGateBlock(gateNumber){
+    // First use this gateNumber to get the name of this gate from the html element id="gateName{{gateNumber}}"
+    // Search the dataStore.gateCondition.contents[] array for the one matching that name.
+    // Then you have the correct index number which might be different from gateNumber if some elements have been deleted.
+    // Need to find the correct array index of this html element
+    var thisName = document.getElementById('gateName'+gateNumber).value;
+    i = dataStore.gateCondition.contents.length-1;
+    while(dataStore.gateCondition.contents[i].name != thisName){
+	i--;
+	if(i<0){ break; }
+    }
+    let gateNumberIndex = i;
+    
     // delete the Gate condition from the server version
     var url = dataStore.spectrumServer + '/?cmd=removeGate';
-    url += '&gatename='+dataStore.gateCondition.contents[gateNumber].name;
+    url += '&gatename='+dataStore.gateCondition.contents[gateNumberIndex].name;
     
     console.log('Remove Gate, URL for analyzer server: '+url);
 
@@ -388,10 +416,10 @@ function deleteGateBlock(gateNumber){
         deleteNode('gateCondition' + gateNumber);
 	
 	// delete the indexed Gate contents from the dataStore
-	dataStore.gateCondition.contents.splice(gateNumber,1);
+	dataStore.gateCondition.contents.splice(gateNumberIndex,1);
 	
 	// decrease the Gate counters
-	dataStore.gateCondition.nRows.splice(gateNumber,1);
+	dataStore.gateCondition.nRows.splice(gateNumberIndex,1);
         dataStore.gateCondition.gateIndex--;
     }
 
@@ -410,6 +438,9 @@ function deleteGateBlock(gateNumber){
 
 	    // Close the modal
 	    $('#histogramModal').modal('hide');
+	    
+	    // Reset the name in the modal text box ready for next time
+	    document.getElementById('histogramModalInput').value = '';
 	}else{
 	    // The values for this instance are already stored in the dataStore
 	    // A unique name is required for this instance.
@@ -481,10 +512,22 @@ function deleteGateBlock(gateNumber){
 	}
     }
 
-    function deleteHistogramBlock(histogramNumber){
+function deleteHistogramBlock(histogramNumber){
+    // First use this histogramNumber to get the name of this histogram from the html element id="histogramName{{histogramNumber}}"
+    // Search the dataStore.histogramDefinition.contents[] array for the one matching that name.
+    // Then you have the correct index number which might be different from histogramNumber if some elements have been deleted.
+    // Need to find the correct array index of this html element
+    var thisName = document.getElementById('histogramName'+histogramNumber).value;
+    i = dataStore.histogramDefinition.contents.length-1;
+    while(dataStore.histogramDefinition.contents[i].name != thisName){
+	i--;
+	if(i<0){ break; }
+    }
+    let histogramNumberIndex = i;
+    
     // delete the Histogram condition from the server version
     var url = dataStore.spectrumServer + '/?cmd=removeHistogram';
-    url += '&histoname='+dataStore.histogramDefinition.contents[histogramNumber].name;
+    url += '&histoname='+dataStore.histogramDefinition.contents[histogramNumberIndex].name;
     
     console.log('Remove Histogram, URL for analyzer server: '+url);
 
@@ -499,16 +542,14 @@ function deleteGateBlock(gateNumber){
         deleteNode('histogramCondition' + histogramNumber);
 	
 	// delete the indexed Histogram contents from the dataStore
-	dataStore.histogramDefinition.contents.splice(histogramNumber,1);
+	dataStore.histogramDefinition.contents.splice(histogramNumberIndex,1);
 	
 	// decrease the Histogram counters
-	dataStore.histogramDefinition.nRows.splice(histogramNumber,1);
+	dataStore.histogramDefinition.nRows.splice(histogramNumberIndex,1);
         dataStore.histogramDefinition.histogramIndex--;
     }
 
 function addNewGateConditionRow(gateIndex,arrayIndex){
-	console.log('addNewGateConditionRow');
-    console.log(dataStore.gateCondition);
     // The arrayIndex argument is only passed by the initial setup functions to populate the Gate with the values from the dataStore 
 	if(isNaN(arrayIndex)){
 	    var arrayIndex = -1;
@@ -570,8 +611,6 @@ function addNewGateConditionRow(gateIndex,arrayIndex){
     
     // Increase the Gate Condition Counter
     dataStore.gateCondition.nRows[gateIndex]++;
-
-    console.log(dataStore.gateCondition);
     }
 
     function deleteGateConditionRow(gateNumber, gateConditionNumber){
@@ -868,7 +907,7 @@ function saveGlobalChangeToAnalyzerODB(globalNumber){
     for(var i=0; i<specials.length; i++){
 	if(newContents.name.includes(specials[i])){
 	    // We have a problem character
-	    console.log('Bad chracter found in '+newContents.name);
+	    console.log('Bad character found in '+newContents.name);
 	    newContents.name = newContents.name.replace(specials[i], '-');
 	    console.log('Changed to '+newContents.name);
 	    document.getElementById('globalName'+globalNumber).value = newContents.name;
@@ -902,9 +941,6 @@ function saveGlobalChangeToAnalyzerODB(globalNumber){
 }
 
 function saveGateChangeToAnalyzerODB(gateNumber){
-    console.log('saveGateChangeToAnalyzerODB');
-    console.log(dataStore.gateCondition);
-    
     //when something changes in any of the definitions, save the change to the dataStore and send it to the analyzer ODB
 	var newContents = {
 	    "name" : document.getElementById('gateName'+gateNumber).value,
@@ -1015,17 +1051,20 @@ function saveHistogramChangeToAnalyzerODB(histogramNumber){
 
     // Some elements could have been deleted from the list so the index numbers of the Id input elements might not be continuous.
     // So we need to only get the values from the indexes which exist
-    for(var i=0; i<dataStore.histogramDefinition.contents[histogramNumber].histogramCondition.length; i++){
-	var indexID = dataStore.histogramDefinition.contents[histogramNumber].histogramCondition[i].indexID;
-	var newCondition ={
-                       "indexID" : indexID,
-	               "Gate" : document.getElementById('histogramCondition'+histogramNumber+'-'+indexID).value
+    try{
+	for(var i=0; i<dataStore.histogramDefinition.contents[histogramNumber].histogramCondition.length; i++){
+	    var indexID = dataStore.histogramDefinition.contents[histogramNumber].histogramCondition[i].indexID;
+	    var newCondition ={
+                "indexID" : indexID,
+	        "Gate" : document.getElementById('histogramCondition'+histogramNumber+'-'+indexID).value
+	    }
+	    newContents.histogramCondition.push(newCondition); // This is just a local variable
 	}
-	newContents.histogramCondition.push(newCondition); // This is just a local variable
     }
+    catch(err){ }
     // Update the dataStore with the latest values
 	dataStore.histogramDefinition.contents[histogramNumber] = newContents;
-
+    
 //    console.log(dataStore.histogramDefinition);
     // Submit this change to the analyzer server via a JSET URL command
     
