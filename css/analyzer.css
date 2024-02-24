@@ -23,6 +23,10 @@ div.item{
     overflow: auto;
 }
 
+.hidden{
+    display: none;
+}
+
 .transparent{
     opacity: 0;
 }
@@ -98,8 +102,6 @@ div.no-pad{
 }
 
 .btn-expand{
- /* display:block; */
- /* line-height: 16px; */
   height: 14px; 
   width: 14px;
   margin-left: 2px;
@@ -111,6 +113,27 @@ div.no-pad{
   vertical-align: middle;
 }
 .btn-expand p{
+  color: #191C40;
+  font-weight: bold;
+  margin: 0;
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.btn-expand-large{
+  height: 28px; 
+  width: 28px;
+  margin-left: 4px;
+  margin-right: 4px;
+  position: relative;
+  border-radius: 20%;
+  border: 1px solid #DAA520;
+  background-color: #DAA520;
+  vertical-align: middle;
+}
+.btn-expand-large p{
   color: #191C40;
   font-weight: bold;
   margin: 0;

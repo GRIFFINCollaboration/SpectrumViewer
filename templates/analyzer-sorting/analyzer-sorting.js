@@ -311,7 +311,7 @@ function processMidasFileList(payload){
 	thisMidasRunList[num].SubRunList.push(thisSubRunList);
 	i++;
 	j++;
-	}
+    }
 
     // Save this object to the dataStore
     dataStore.midasRunList = thisMidasRunList;
@@ -326,9 +326,6 @@ function processMidasFileList(payload){
 }
 
 function processMidasFileDetails(payload){
-    console.log('processMidasFileDetails');
-    console.log(payload);
-
     // receive the payload and split into an array of strings
     var thisPayload = payload.split("]")[0].split("[ \n")[1];
     
@@ -353,9 +350,27 @@ function processMidasFileDetails(payload){
 
     // Save this list of midas files to the dataStore
     dataStore.midasFileList = thisMidasFileList;
-
-    // Go through the new list of titles and insert them into the midasRunList object
     
+    // Go through the new list of titles and insert them into the midasRunList object
+    i=0;
+    while(i<dataStore.midasFileList.length){
+	
+	// The list is sorted backwards so that the most recent runs appear at the top.
+	// Only subrun 000 has the title, so the first instance of this run we come across likely does not have the title.
+	// So here we find the title and add it for this run.
+	try{
+	    if(dataStore.midasFileList[i].Titles.length>1){
+		
+		// Find the indexID of this run in the MidasRunList object
+		var indexID = dataStore.midasRunList.map(function(e) { return e.RunName; }).indexOf(dataStore.midasFileList[i].Names.split("_")[0]);
+		
+		dataStore.midasRunList[indexID].RunTitle = dataStore.midasFileList[i].Titles.trim();
+		
+	    }
+	}catch(err){ console.log('Caught this error in processMidasFileDetails, '+err); }
+
+	i++;
+    }
     
     // Add these details to the table
     addFileDetailsToMidasFileTable();
@@ -389,10 +404,18 @@ function buildMidasFileTable(){
      var cell5 = row.insertCell(4);
     var cell6 = row.insertCell(5);
     // The following set the widths of the columns for the whole table
-    cell1.innerHTML = '                                                                                                          ';
-    cell2.innerHTML = '                       ';
-    cell3.innerHTML = '         ';
-    cell4.innerHTML = '                         ';
+    cell1.style.width = "47.5%";
+    cell2.style.width = "10.5%";
+    cell3.style.width = "8.3%";
+    cell4.style.width = "10.7%";
+    cell5.style.width = "21.6%";
+    cell6.style.width = "1.4%";
+    
+    // Fill in the contents of the header row
+    cell1.innerHTML = '';
+    cell2.innerHTML = '';
+    cell3.innerHTML = '';
+    cell4.innerHTML = '';
     cell5.style.textAlign = 'right';
     cell5.innerHTML = 'Select all runs:';
     cell6.innerHTML = '<input type=\"checkbox\" id=\"Primary-checkbox\">';
@@ -460,7 +483,21 @@ function buildMidasFileTable(){
 }
 
 function addFileDetailsToMidasFileTable(){
-    console.log('addFileDetailsToMidasFileTable');
+    var table = document.getElementById("MidFilesTable");
+    
+    // Iterate through all rows of the MIDAS data file table
+    for (var i = 1, row; row = table.rows[i]; i++) {
+	// Get the run number from cell0
+	thisRunName = row.cells[0].innerHTML;
+	
+	// Find the details for this run
+	num = dataStore.midasRunList.map(function(e) { return e.RunName; }).indexOf(thisRunName);
+	
+	// Find the run title and update the contents of cell0
+	let string = thisRunName + ', ' + dataStore.midasRunList[num].RunTitle;
+	row.cells[0].innerHTML = string;
+    }
+    
 }
 
 function updateSortingTimesInTable(){

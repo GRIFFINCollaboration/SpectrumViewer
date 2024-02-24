@@ -23,7 +23,7 @@ function setupDataStore(callback){
 	// Sorting Status variables
 	"configFileDataDirectoryPath": "/home/grifstor/daq/analyzer/grif-replay",                                 // initial config file directory path
 	"midasFileDataDirectoryPath": "/tig/grifstore0b/griffin/schedule140/Calibrations-Aug2021",                // initial data directory path
-	"midasFileList": { "Names" : [], "Sizes" : [] },  // place to store the list of midas files available to sort which is provided by the server
+	"midasFileList": { "Names" : [], "Sizes" : [], "Titles" : []},  // place to store the list of midas files available to sort which is provided by the server
 	"midasRunList": {},                               // place to store the list of midas runs available to sort which is provided by the server
 	"CalibrationSource": 'midas',              // selection the source of calibrations to be applied in the submitted sort job (either midas or config)
 

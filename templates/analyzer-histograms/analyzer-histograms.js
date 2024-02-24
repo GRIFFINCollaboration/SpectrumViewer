@@ -7,134 +7,6 @@
     // setup
     ////////////////
 
-function buildExampleConfig(){
-
-	var newContents = {
-	    "name" : 'Gamma-BGO time difference',
-	    "min" : -60,
-	    "max" : 60
-	};
-	dataStore.globalCondition.contents[0] = newContents;
-
-	var newContents = {
-	    "name" : 'Gamma-Gamma time difference',
-	    "min" : -120,
-	    "max" : 120
-	};
-	dataStore.globalCondition.contents[1] = newContents;
-
-	var newContents = {
-	    "name" : 'Beta-Gamma time difference',
-	    "min" : -70,
-	    "max" : 70
-	};
-	dataStore.globalCondition.contents[2] = newContents;
-
-    // Gates
-	var newContents = {
-	    "name" : 'HPGe-energy',
-	    "gateCondition" : []
-	};
-	var newCondition ={
-                       "indexID" : 0,
-	               "Variable" : 'HPGeE',
-	               "Logic" : 'GT',
-	               "Value" : 5
-	};
-	newContents.gateCondition.push(newCondition); // This is just a local variable
-    
-    // Update the dataStore with the latest values
-    dataStore.gateCondition.contents[0] = newContents;
-	var newContents = {
-	    "name" : 'Beta-gamma',
-	    "gateCondition" : []
-	};
-	var newCondition ={
-                       "indexID" : 0,
-	               "Variable" : 'BetaE',
-	               "Logic" : 'GT',
-	               "Value" : 10
-	};
-	newContents.gateCondition.push(newCondition); // This is just a local variable
-	var newCondition ={
-                       "indexID" : 1,
-	               "Variable" : 'TD_HPGe_Beta',
-	               "Logic" : 'LT',
-	               "Value" : 100
-	};
-	newContents.gateCondition.push(newCondition); // This is just a local variable
-    
-    // Update the dataStore with the latest values
-    dataStore.gateCondition.contents[1] = newContents;
-
-
-    // Histogram example
-    
-	var newContents = {
-	    "name" : 'Beta-gated Singles',
-	    "path" : 'Matrices',
-	    "type" : 1,
-	    "Xvariable" : 'HPGeE',
-	    "Xmin" : 0,
-	    "Xmax" : 16384,
-	    "Xbins" : 16384,
-	    "Yvariable" : '',
-	    "Ymin" : 0,
-	    "Ymax" : 0,
-	    "Ybins" : 0,
-	    "histogramCondition" : []
-	};
-	var newCondition ={
-                       "indexID" : 0,
-	    "Gate" : 'Beta-gamma'
-	}
-	newContents.histogramCondition.push(newCondition); // This is just a local variable
-    // Update the dataStore with the latest values
-	dataStore.histogramDefinition.contents[0] = newContents;
-    
-	var newContents = {
-	    "name" : 'Gamma-Gamma',
-	    "path" : 'Matrices',
-	    "type" : 2,
-	    "Xvariable" : 'HPGeE',
-	    "Xmin" : 0,
-	    "Xmax" : 8192,
-	    "Xbins" : 8192,
-	    "Yvariable" : 'HPGeE',
-	    "Ymin" : 0,
-	    "Ymax" : 8192,
-	    "Ybins" : 8192,
-	    "histogramCondition" : []
-	};
-    // Update the dataStore with the latest values
-	dataStore.histogramDefinition.contents[1] = newContents;
-
-	var newContents = {
-	    "name" : 'Beta-gated Gamma-Gamma',
-	    "path" : 'Matrices',
-	    "type" : 2,
-	    "Xvariable" : 'HPGeE',
-	    "Xmin" : 0,
-	    "Xmax" : 8192,
-	    "Xbins" : 8192,
-	    "Yvariable" : 'HPGeE',
-	    "Ymin" : 0,
-	    "Ymax" : 8192,
-	    "Ybins" : 8192,
-	    "histogramCondition" : []
-	};
-	var newCondition ={
-                       "indexID" : 0,
-	    "Gate" : 'Beta-gamma'
-	}
-	newContents.histogramCondition.push(newCondition); // This is just a local variable
-    // Update the dataStore with the latest values
-    dataStore.histogramDefinition.contents[2] = newContents;
-
-    console.log(dataStore);
-  //  buildConfigMenu();
-}
-
     function processConfigFile(payload){
         // callback after getting the Config file containing the Global conditions, Gates conditions and Histogram definitions from the server/ODB
         // finish initial setup
@@ -188,6 +60,37 @@ function buildExampleConfig(){
     }
 
 function buildConfigMenu(){
+
+    
+    // Create the expand buttons for each section
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'expandGlobalListButton'); 
+    newButton.setAttribute('class', 'btn-expand-large');
+    newButton.innerHTML = '<p>+</p>';
+    newButton.onclick = function(){
+	expandGlobalList();
+    }.bind(newButton);
+    document.getElementById('globalHeader').appendChild(newButton);
+    
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'expandGateListButton'); 
+    newButton.setAttribute('class', 'btn-expand-large');
+    newButton.innerHTML = '<p>+</p>';
+    newButton.onclick = function(){
+	expandGateList();
+    }.bind(newButton);
+    document.getElementById('gateHeader').appendChild(newButton);
+    
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'expandHistogramListButton'); 
+    newButton.setAttribute('class', 'btn-expand-large');
+    newButton.innerHTML = '<p>+</p>';
+    newButton.onclick = function(){
+	expandHistogramList();
+    }.bind(newButton);
+    document.getElementById('histogramHeader').appendChild(newButton);
+    
+    
     // Create and populate the Global, Gate and Histogram blocks based on the Config file received from the server
 
     // Build Global content
@@ -204,12 +107,125 @@ function buildConfigMenu(){
     for(var i=0; i<dataStore.histogramDefinition.contents.length; i++){
 	addNewHistogram(i);
     }
-    
+
 }
 
     //////////////////////////
     // DOM manipulations
     //////////////////////////
+
+function expandGlobalList(){
+
+    // Change the visibility of the section
+    document.getElementById('GlobalConditions').classList.toggle('hidden');
+    
+    // delete the expand button
+    document.getElementById('expandGlobalListButton').remove();
+	
+    // Create the collapse button
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'collapseGlobalListButton'); 
+    newButton.setAttribute('class', 'btn-expand-large');
+    newButton.innerHTML = '<p>-</p>';
+    newButton.onclick = function(){
+	collapseGlobalList();
+    }.bind(newButton);
+    document.getElementById('globalHeader').appendChild(newButton);
+    
+}
+function expandGateList(){
+
+    // Change the visibility of the section
+    document.getElementById('GateConditions').classList.toggle('hidden');
+    
+    // delete the expand button
+    document.getElementById('expandGateListButton').remove();
+	
+    // Create the collapse button
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'collapseGateListButton'); 
+    newButton.setAttribute('class', 'btn-expand-large');
+    newButton.innerHTML = '<p>-</p>';
+    newButton.onclick = function(){
+	collapseGateList();
+    }.bind(newButton);
+    document.getElementById('gateHeader').appendChild(newButton);
+    
+}
+function expandHistogramList(){
+
+    // Change the visibility of the section
+    document.getElementById('HistogramDefinitions').classList.toggle('hidden');
+    
+    // delete the expand button
+    document.getElementById('expandHistogramListButton').remove();
+	
+    // Create the collapse button
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'collapseHistogramListButton'); 
+    newButton.setAttribute('class', 'btn-expand-large');
+    newButton.innerHTML = '<p>-</p>';
+    newButton.onclick = function(){
+	collapseHistogramList();
+    }.bind(newButton);
+    document.getElementById('histogramHeader').appendChild(newButton);
+    
+}
+function collapseGlobalList(){
+
+    // Change the visibility of the section
+    document.getElementById('GlobalConditions').classList.toggle('hidden');
+    
+    // delete the collapse button
+    document.getElementById('collapseGlobalListButton').remove();
+	
+    // Create the expand button
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'expandGlobalListButton'); 
+    newButton.setAttribute('class', 'btn-expand-large');
+    newButton.innerHTML = '<p>+</p>';
+    newButton.onclick = function(){
+	expandGlobalList();
+    }.bind(newButton);
+    document.getElementById('globalHeader').appendChild(newButton);
+    
+}
+function collapseGateList(){
+
+    // Change the visibility of the section
+    document.getElementById('GateConditions').classList.toggle('hidden');
+    
+    // delete the collapse button
+    document.getElementById('collapseGateListButton').remove();
+    
+    // Create the expand button
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'expandGateListButton'); 
+    newButton.setAttribute('class', 'btn-expand-large');
+    newButton.innerHTML = '<p>+</p>';
+    newButton.onclick = function(){
+	expandGateList();
+    }.bind(newButton);
+    document.getElementById('gateHeader').appendChild(newButton);
+}
+function collapseHistogramList(){
+
+    // Change the visibility of the section
+    document.getElementById('HistogramDefinitions').classList.toggle('hidden');
+    
+    // delete the collapse button
+    document.getElementById('collapseHistogramListButton').remove();
+    
+    // Create the expand button
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'expandHistogramListButton'); 
+    newButton.setAttribute('class', 'btn-expand-large');
+    newButton.innerHTML = '<p>+</p>';
+    newButton.onclick = function(){
+	expandHistogramList();
+    }.bind(newButton);
+    document.getElementById('histogramHeader').appendChild(newButton);
+}
 
     function addNewGlobal(arrayIndex){
         // add a new Global Condition block
