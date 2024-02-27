@@ -411,8 +411,7 @@ function packZ(raw,raw2){
     }
 
     for(subMatrixIndex=0; subMatrixIndex<raw2.length; subMatrixIndex++){
-   // for(subMatrixIndex=0; subMatrixIndex<16; subMatrixIndex++){
-	// Step through the arrays one at a time.
+	// Step through the subMatrix arrays one at a time.
 	//
 
 	// Calculate the subMatrix Coordinates
@@ -422,7 +421,7 @@ function packZ(raw,raw2){
 	subMatrixYbaseCoordinate = subMatrixY*subMatrixYlength;
 //	console.log('SubMatrix'+subMatrixIndex+'['+subMatrixX+']['+subMatrixY+']');
 	
-	// Add the current 16*16=256 values
+	// Process the current 16*16=256 values. Add them to the local matrix and the heatmap
 	switch(raw2[subMatrixIndex][0]) {
 	case 'empty':
 	    // empty format, nothing to be done
@@ -432,9 +431,10 @@ function packZ(raw,raw2){
 	    // 256 z values are given in order.
 	    // The values are given in the order of x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax
 	  //  console.log(raw2[subMatrixIndex]);
-	    type = raw2[subMatrixIndex].shift();
+	    // type = raw2[subMatrixIndex].shift();
+	    
 	    for(i=0; i<subMatrixYlength; i++){
-		for(j=0; j<subMatrixXlength; j++){
+		for(j=1; j<=subMatrixXlength; j++){ // j=0 entry is the subMatrix type
 		    thisXindex = subMatrixXbaseCoordinate+j;
 		    thisYindex = subMatrixYbaseCoordinate+i;
 		    thisValue = raw2[subMatrixIndex][i*subMatrixXlength+j];
@@ -448,8 +448,8 @@ function packZ(raw,raw2){
 	    // list format
 	    // The values are in pairs of [bin number within this submatrix, 0-255], then [z value]
 	  //  console.log(raw2[subMatrixIndex]);
-	    type = raw2[subMatrixIndex].shift();
-	    for(j=0; j<raw2[subMatrixIndex].length; j+=2){
+	   // type = raw2[subMatrixIndex].shift();
+	    for(j=1; j<raw2[subMatrixIndex].length; j+=2){
 		thisXindex = subMatrixXbaseCoordinate+Math.floor(raw2[subMatrixIndex][j]%subMatrixXlength);
 		thisYindex = subMatrixYbaseCoordinate+Math.floor(raw2[subMatrixIndex][j]/subMatrixXlength);
 		thisValue = raw2[subMatrixIndex][j+1];
