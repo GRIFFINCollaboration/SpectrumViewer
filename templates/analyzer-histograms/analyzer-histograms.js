@@ -481,7 +481,7 @@ function deleteGateBlock(gateNumber){
 	if(arrayIndex>=0){
 	    document.getElementById('histogramName'+histogramIndex).value = thisHistogramName;
 	    document.getElementById('histogramPath'+histogramIndex).value = dataStore.histogramDefinition.contents[arrayIndex].path;
-	    if(dataStore.histogramDefinition.contents[arrayIndex].type ==2){
+	    if(dataStore.histogramDefinition.contents[arrayIndex].Ybins>0){
 		document.getElementById('2dimension'+histogramIndex).checked = true;
 	    }else{
 		document.getElementById('1dimension'+histogramIndex).checked = true;
