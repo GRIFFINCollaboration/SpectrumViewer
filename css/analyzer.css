@@ -205,6 +205,12 @@ div.headerContent{
 .analyzer-table-selectable{
     width: 98%;
     table-layout: auto;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .midasFileOptionFileSizeDiv{

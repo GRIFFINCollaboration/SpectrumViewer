@@ -25,7 +25,8 @@ function setupDataStore(callback){
 	"midasFileDataDirectoryPath": "/tig/grifstore0b/griffin/schedule140/Calibrations-Aug2021",                // initial data directory path
 	"midasFileList": { "Names" : [], "Sizes" : [], "Titles" : []},  // place to store the list of midas files available to sort which is provided by the server
 	"midasRunList": {},                               // place to store the list of midas runs available to sort which is provided by the server
-	"CalibrationSource": 'midas',              // selection the source of calibrations to be applied in the submitted sort job (either midas or config)
+	"midasTableLastRowClicked": 1,                    // place to remember the last row number clicked with a single mouse click
+	"CalibrationSource": 'midas',                     // selection the source of calibrations to be applied in the submitted sort job (either midas or config)
 
 	"SortStatusCurrentTimestamp" : 10,
 	"SortStatusCurrentFileName" : "",
@@ -62,7 +63,7 @@ function setupDataStore(callback){
             "nRows" : [],            // array of monotonic counters for number of rows inserted into Histogram condition block; Histogram block # == array index. 
             "contents" : []            // place to save Histogram definition parameters
 	},
-	"uniqueGloablName" : '',        // place to save the unique global namne entered in the modal     
+	"uniqueGlobalName" : '',        // place to save the unique global name entered in the modal     
 	"uniqueGateName" : '',          // place to save the unique gate namne entered in the modal     
 	"uniqueHistogramName" : '',     // place to save the unique histogram namne entered in the modal             
 

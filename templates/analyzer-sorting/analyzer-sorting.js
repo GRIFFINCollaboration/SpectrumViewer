@@ -429,7 +429,8 @@ function buildMidasFileTable(){
     var row = document.getElementById("MidFilesTable").insertRow(document.getElementById("MidFilesTable").rows.length); 
      row.id = 'midasRunTableRow-'+(num+1);
      row.onclick = function(e){
-         ToggleCheckboxOfThisMIDASFile(this.id);
+	 if(e.shiftKey) { selectMultipleRows(this.id);
+	 }else{ ToggleCheckboxOfThisMIDASFile(this.id); }
      };
      
      var cell1 = row.insertCell(0); 
@@ -551,7 +552,8 @@ function expandSubrunList(RowID){
 	var row = document.getElementById("MidFilesTable").insertRow(subRowID); 
      row.id = 'midasSubRunTableRow-'+RowID+'-'+(num+1);
      row.onclick = function(e){
-         ToggleCheckboxOfThisMIDASFile(this.id);
+	 if(e.shiftKey) { selectMultipleRows(this.id);
+	 }else{ ToggleCheckboxOfThisMIDASFile(this.id); }
      };
      
      var cell1 = row.insertCell(0); 
@@ -635,9 +637,11 @@ function UncheckAllSubruns(){
 function ToggleCheckboxOfThisMIDASFile(rowID){
     // Toggle the status of the checkbox for this row in the list, and highlight it
     // Works for Runs or subrun files
+    // Called as the onclick event for rows or checkboxes in the midasFileTable
 
     var thisRowID = rowID;
     var RunID = parseInt(rowID.split('-')[1])-1;
+    dataStore.midasTableLastRowClicked = rowID;
     
     if(rowID.includes('Sub')){
 	subRunID = (rowID.split('-')[2])-1;
@@ -659,6 +663,40 @@ function ToggleCheckboxOfThisMIDASFile(rowID){
     // Toggle the state of the checkbox
     thisCheckbox.checked = state;
 
+}
+
+function selectMultipleRows(thisRowID){
+    // called on shiftclick of rows in the midas data file table
+
+    var firstRowID = dataStore.midasTableLastRowClicked;
+
+    if(parseInt(thisRowID.split('-')[1])<parseInt(firstRowID.split('-')[1])){ firstRowID = thisRowID; thisRowID = dataStore.midasTableLastRowClicked; }
+    console.log('Clicked rows are '+firstRowID.split('-')[1]+' and '+thisRowID.split('-')[1]);
+    console.log('Clicked rows are '+firstRowID+' and '+thisRowID);
+    
+    var table = document.getElementById("MidFilesTable");
+    
+    // Iterate through all rows of the MIDAS data file table and click those between the two identified rows
+    var toggleThis = false;
+    for (var i = 1, row; row = table.rows[i]; i++) {
+	// if toggling is active then toggle this row
+	if(toggleThis){
+	    console.log(row.id);
+	    ToggleCheckboxOfThisMIDASFile(row.id);
+	}
+	
+	// Find the first row id and then activate toggling
+	if(row.id == firstRowID){
+	    toggleThis = true;
+	}
+
+	// Find the last row id, deactivate toggling and exit
+	if(row.id == thisRowID){
+	    toggleThis = false;
+	    return;
+	}
+    }
+    
 }
 
     function SubmitSelectedFilesFromTableToSortQueue(){
