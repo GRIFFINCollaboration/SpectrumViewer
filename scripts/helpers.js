@@ -511,11 +511,7 @@ function processSpectrumList(payload,callback){
     }
     catch(err){
 	console.log('Problem with format of the Spectrum list provided by the server for histogram file, '+dataStore.histoFileName);
-	console.log(err);
-	/*
-	const thisTimeout = setTimeout(function() {if(document.getElementById('navbar-content-div').innerHTML){
-	    document.getElementById('navbar-content-div').innerHTML = 'Problem with format of the Spectrum list provided by the server for histogram file, '+dataStore.histoFileName; }, 1000);
-	*/			       
+	console.log(err);		       
 	return;
     }
     
@@ -591,14 +587,18 @@ function constructNewSpectrumMenu(){
 	console.log('The spectrum menu failed to generate correctly after five attempts.');
 	return;
     }
-    
+
+    console.log(dataStore);
     // Clear any previous menu content
     if(document.getElementById('navbar-content-div').innerHTML){
 	document.getElementById('navbar-content-div').innerHTML = '';
     }
+    // Clear any previous dataStore plotList object
+    if(dataStore._plotList != undefined){ delete dataStore._plotList; } 
+    if(dataStore.currentTopGroup != undefined){ delete dataStore.currentTopGroup; } 
 
     // build the menu based on these topGroups and subGroups
-    // Need to ensure the constructore dataStore._plotList has been created.
+    // Need to ensure the constructor dataStore._plotList has been created.
     // If we get here too quickly on initial page load then we need to wait for the initialization to be completed and try again
     try{
 	dataStore._plotList = new plotList('navbar-content-div');

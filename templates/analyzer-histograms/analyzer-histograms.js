@@ -54,12 +54,22 @@
     for(var i=0; i<dataStore.Configs.Analyzer[2].Histograms.length; i++){
 	dataStore.histogramDefinition.contents.push(dataStore.Configs.Analyzer[2].Histograms[i]);
     }
+
+	// Unpack the Calibrations content here
+	//dataStore.Configs.Analyzer[4].Calibrations
+	
+	// Unpack the Directories content here
+	if(dataStore.Configs.Analyzer[5].Directories[0].Path.length>0){ midasFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[0].Path; }
+	if(dataStore.Configs.Analyzer[5].Directories[1].Path.length>0){ histoFileDirectoryPath = dataStore.Configs.Analyzer[5].Directories[1].Path; }
+	if(dataStore.Configs.Analyzer[5].Directories[2].Path.length>0){ configFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[2].Path; }
     
         // populate the current configuration based on what was received from the server
         buildConfigMenu();
     }
 
 function buildConfigMenu(){
+
+    // Need to delete everything already existing here first
 
     
     // Create the expand buttons for each section

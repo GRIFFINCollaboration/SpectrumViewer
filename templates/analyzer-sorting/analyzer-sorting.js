@@ -25,8 +25,8 @@ function processSortStatus(payload){
     //   return(0);
     // }
     //
-   // dataStore.SortStatusHistory.push(payload);
-  //  console.log(dataStore.SortStatusHistory);
+    // dataStore.SortStatusHistory.push(payload);
+    // console.log(dataStore.SortStatusHistory);
     // Handle the Analyzer IDLE response
     // Set the progress bar to orange and write a status message
     if(strncmp(payload,'IDLE',4)){
@@ -106,7 +106,7 @@ function processSortStatus(payload){
 
     // Update the printed Sort Status information on screen
    // string = 'Sorting Run '+dataStore.SortStatusCurrentRunNumber+', subrun '+dataStore.SortStatusCurrentSubRunNumber+' at '+dataStore.SortStatusAverageSortSpeed+' MB/s. Sorted '+dataStore.SortStatusCurrentMegaBytesSorted+' of '+dataStore.SortStatusCurrentFileSize+' MBs ('+dataStore.SortStatusCurrentPercentageComplete+'% completed). Estimated time to complete = '+dataStore.SortStatusCurrentRemainingSortTime+' s.';
-    string = 'Sorting Run '+dataStore.SortStatusCurrentRunNumber+', subrun '+dataStore.SortStatusCurrentSubRunNumber+' at '+dataStore.SortStatusAverageSortSpeed+' MB/s. Sorted '+prettyFileSizeString(dataStore.SortStatusCurrentBytesSorted)+' of '+prettyFileSizeString(dataStore.SortStatusCurrentBytesFileSize)+'s ('+dataStore.SortStatusCurrentPercentageComplete+'% completed). Estimated time to complete = '+dataStore.SortStatusCurrentRemainingSortTime+' s.';
+    string = 'Sorting Run '+dataStore.SortStatusCurrentRunNumber+', subrun '+dataStore.SortStatusCurrentSubRunNumber+' at '+dataStore.SortStatusAverageSortSpeed+' MB/s. Sorted '+prettyFileSizeString(dataStore.SortStatusCurrentBytesSorted)+' of '+prettyFileSizeString(dataStore.SortStatusCurrentBytesFileSize)+'s ('+dataStore.SortStatusCurrentPercentageComplete+'% completed). Estimated time to complete = '+prettyTimeString(parseInt(dataStore.SortStatusCurrentRemainingSortTime));
     document.getElementById("SortingStatus").innerHTML = string;
 
     // Update the progress bar to show the current sort progress
