@@ -688,7 +688,7 @@ if(breakForLoop){ break; }
             if(Array.isArray(dataStore.fitResults[spectrum][3]))
                 document.getElementById(this.wrapID + spectrum.slice(0,10) + 'chan4').innerHTML = dataStore.fitResults[spectrum][3][1].toFixed(3);
 
-            if(Array.isArray(dataStore.fitResults[spectrum][0])  && Array.isArray(dataStore.fitResults[spectrum][1]) && Array.isArray(dataStore.fitResults[spectrum][2]) && Array.isArray(dataStore.fitResults[spectrum][3])){
+            if(Array.isArray(dataStore.fitResults[spectrum][0]) && Array.isArray(dataStore.fitResults[spectrum][1]) && Array.isArray(dataStore.fitResults[spectrum][2]) && Array.isArray(dataStore.fitResults[spectrum][3])){
                 calibration = this.calculateQuadratic(dataStore.fitResults[spectrum][0][1], dataStore.fitResults[spectrum][1][1], dataStore.fitResults[spectrum][2][1], dataStore.fitResults[spectrum][3][1]);
                 document.getElementById(this.wrapID + spectrum.slice(0,10) + 'offset').innerHTML = calibration[0].toFixed(8); 
                 document.getElementById(this.wrapID + spectrum.slice(0,10) + 'gain').innerHTML = calibration[1].toFixed(8); 
@@ -823,13 +823,13 @@ intercept = result.equation[2];
                     )
                 ){
                     document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', 'background-color: #FF0000;');
-                    document.getElementById(keys[i].slice(0,10) + 'write').checked = false;
+                    document.getElementById(keys[i].slice(0,10) + 'write').checked = false; 
                  } else if(isNaN(dataStore.fitResults[keys[i]][0][1])
                            || isNaN(dataStore.fitResults[keys[i]][1][1])
                            || isNaN(dataStore.fitResults[keys[i]][2][1])
                            || isNaN(dataStore.fitResults[keys[i]][3][1])  ){
                     document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', 'background-color: #F28C28;');
-                    document.getElementById(keys[i].slice(0,10) + 'write').checked = true; 
+                    document.getElementById(keys[i].slice(0,10) + 'write').checked = false; 
                 } else{
                     document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', '');
                     document.getElementById(keys[i].slice(0,10) + 'write').checked = true; 

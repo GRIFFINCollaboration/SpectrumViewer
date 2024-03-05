@@ -25,6 +25,7 @@ function setupDataStore(){
 
     dataStore.pageTitle = 'Gain Matcher';                                   //header title
     dataStore.DAQquery = dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/PSC/chan&odb1=/DAQ/PSC/PSC&odb2=/Runinfo/Run number&encoding=json-p-nokeys&callback=loadData';
+    dataStore.ViewConfigQuery = '';
     dataStore.ODBrequests = [                                               //request strings for odb parameters
         dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/PSC/chan&odb1=/DAQ/PSC/gain&odb2=/DAQ/PSC/offset&odb3=/DAQ/PSC/quadratic&encoding=json-p-nokeys&callback=updateODB'
     ];
@@ -54,6 +55,7 @@ function setupDataStore(){
     dataStore.searchRegionP3 = [];                                         //[x_start, x_finish, y for peak search bar]
     dataStore.searchRegionP4 = [];                                         //[x_start, x_finish, y for peak search bar]
 
+    dataStore.modeType = 'Online';                                         //mode of operation: Online or Histo. 
     dataStore.modeChoice = [                                               // Mode choice (online/histogram file) information to generate buttons
 	{"name": "Online", "text": "Use online data"},
 	{"name": "Histo", "text": "Use a histogram file"}
@@ -204,6 +206,9 @@ function setupMenusFromModeChoice(modeType){
     //user guidance
     deleteNode('modeMessage');
 
+    // Save the modeType to the dataStore for use later
+    dataStore.modeType = modeType;
+    
     // If histograms are required then inject the inputs for this
     if(modeType == 'Histo'){
 	//user guidance
@@ -462,13 +467,30 @@ function setupMenusFromDetectorChoice(detectorType){
 function loadData(DAQ){
     // given the list of channels plugged into the DAQ from the ODB, load the appropriate spectra.
 
-    var i,	
-        channels = DAQ[0].chan;
-    
+    var i, channels = [];
+    var Config = {};
+
+    if(dataStore.modeType == 'Online'){
+    // If the data is from the online ODB, unpack the data here
+    channels = DAQ[0].chan;
     dataStore.PSCchannels = DAQ[0].chan;
     dataStore.PSCaddresses = DAQ[1].PSC;
-    dataStore.RunNumber = DAQ[2][ 'Run number' ];
-
+	dataStore.RunNumber = DAQ[2][ 'Run number' ];
+    }else{
+	// modeType is Histo
+    // If the data is from a histogram file, unpack the data here
+	Config = JSON.parse(DAQ);
+	dataStore.PSCchannels = [];
+	dataStore.PSCaddresses = [];
+	for(i=0; i<Config.Analyzer[4].Calibrations.length; i++){
+	    channels.push(Config.Analyzer[4].Calibrations[i].name);
+	    dataStore.PSCchannels.push(Config.Analyzer[4].Calibrations[i].name);
+	    dataStore.PSCaddresses.push(Config.Analyzer[4].Calibrations[i].address);
+	}
+	// offset, gain and quad are also available in this Config.
+	dataStore.RunNumber = dataStore.histoFileName.split("_")[0];
+    }
+    
     //Add the detector type and run number to the name of the Cal file
     if(dataStore.THESEdetectors[0].slice(0,3) == 'GRG'){
 	document.getElementById('saveCalname').value = 'GRIFFIN-Cal-File-Run'+dataStore.RunNumber+'.cal';
@@ -491,11 +513,11 @@ function loadData(DAQ){
 function updateAnalyzer(){
 
     // For the ODB it first grabs the PSB table and then sets values only for the channels that are defined there.
-    // For the Analyzer we could get a similar list from the spectrum menu of the Histogram file that was selected.
+    // For the Analyzer we can get a similar list from the viewConfig command with the Histogram file as the argument.
     // That should probably be done for the building of the initial spectrum list for gain-matching if Histogram mode is selected.
     // Need to reformat the URLs generated here for the Analyzer
     
-    //bail out if there's no fit yet
+    // bail out if there's no fit yet
     if(Object.keys(dataStore.fitResults).length == 0)
         return;
 
@@ -626,7 +648,14 @@ function setupManualCalibration(){
     document.getElementById('waitMessage').classList.remove('hidden');
     
     //identify, register & fetch all spectra
-    promiseScript(dataStore.DAQquery)
+    if(dataStore.modeType == 'Histo'){
+	// Histogram mode: get odb data from the histo file via the spectrumServer
+	dataStore.ViewConfigQuery = dataStore.spectrumServer + '?cmd=viewConfig&filename=' + dataStore.histoFileDirectoryPath + '/' + dataStore.histoFileName;
+	XHR(dataStore.ViewConfigQuery, "Problem getting viewConfig from analyzer server", loadData, function(error){console.log(error)});
+    }else{
+	// Online mode: get odb data from ODBhost
+	promiseScript(dataStore.DAQquery)
+    }
 }
 
 function setupAutomaticCalibration(sourceType){
@@ -663,7 +692,14 @@ function setupAutomaticCalibration(sourceType){
     document.getElementById('waitMessage').classList.remove('hidden');
 
     //identify, register & fetch all spectra
-    promiseScript(dataStore.DAQquery)
+    if(dataStore.modeType == 'Histo'){
+	// Histogram mode: get odb data from the histo file via the spectrumServer
+	dataStore.ViewConfigQuery = dataStore.spectrumServer + '?cmd=viewConfig&filename=' + dataStore.histoFileDirectoryPath + '/' + dataStore.histoFileName;
+	XHR(dataStore.ViewConfigQuery, "Problem getting viewConfig from analyzer server", loadData, function(error){console.log(error)});
+    }else{
+	// Online mode: get odb data from ODBhost
+	promiseScript(dataStore.DAQquery)
+    }
     
     // Draw the search region
    dataStore.viewers[dataStore.plots[0]].plotData();
