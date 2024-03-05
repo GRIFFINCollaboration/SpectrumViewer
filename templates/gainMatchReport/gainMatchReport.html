@@ -650,6 +650,9 @@ if(breakForLoop){ break; }
                 dataStore.ROI[dataStore.currentPlot].ROItop[1] = dataStore.viewers[viewerName].FitLimitUpper;
             }
 
+// Calculate peak area here
+
+
             //update table
             this.updateTable(dataStore.currentPlot);
 
@@ -747,7 +750,9 @@ data = [[parseFloat(lowBin), parseFloat(lowEnergy)],[parseFloat(midBin), parseFl
 data = [[parseFloat(lowBin), parseFloat(lowEnergy)],[parseFloat(midBin), parseFloat(midEnergy)],[parseFloat(highBin), parseFloat(highEnergy)]];
 }else{ data = null;}
 
+// Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
 const result = regression.polynomial(data, { order: 2, precision: 20 }); 
+//console.log(result);
 
 quad = result.equation[0]; 
 slope = result.equation[1]; 

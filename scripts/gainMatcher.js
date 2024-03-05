@@ -70,6 +70,7 @@ function setupDataStore(){
 	{"name": "Cs-137", "title": "137Cs", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy":  661.66, "vhiEnergy": 1460.85, "maxXValue":2000 },
 	{"name": "Eu-152", "title": "152Eu", "lowEnergy":  39.91, "midEnergy":  121.78, "highEnergy":  344.28, "vhiEnergy": 1408.00, "maxXValue":2000 },
 	{"name": "Bi-207", "title": "207Bi", "lowEnergy":  74.97, "midEnergy":  569.70, "highEnergy": 1063.66, "vhiEnergy": 1770.23, "maxXValue":2000 },
+	{"name":  "Sr-90", "title":  "90Sr", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "maxXValue":2650 },
 	{"name": "Background", "title": "Background", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "maxXValue":2650 }
     ];
     dataStore.sourceInfoPACES = [
@@ -114,7 +115,7 @@ function setupDataStore(){
             },
 
             y : {
-		     valueRange: [0,5]
+		     valueRange: [0,10]
 		    }
         }
     }
@@ -488,7 +489,7 @@ function loadData(DAQ){
 	    dataStore.PSCaddresses.push(Config.Analyzer[4].Calibrations[i].address);
 	}
 	// offset, gain and quad are also available in this Config.
-	dataStore.RunNumber = dataStore.histoFileName.split("_")[0];
+	dataStore.RunNumber = dataStore.histoFileName.split("_")[0].replace(/^\D+/g, '').split(".")[0];
     }
     
     //Add the detector type and run number to the name of the Cal file
@@ -540,7 +541,6 @@ function updateAnalyzer(){
 
 	    // Write a separate URL for each clover
 	    if(i>0 && (dataStore.THESEdetectors[i].slice(0,3) == 'GRG') && ((i%4) == 0)){ num++; j=0; urls[num]= dataStore.spectrumServer + '?cmd=setCalibration';}
-	    console.log('i, num = '+i+', '+num+', '+dataStore.THESEdetectors[i]);
 	    urls[num] += '&channelName'+j+'='+dataStore.THESEdetectors[i]+'&quad'+j+'='+quad[i]+'&gain'+j+'='+gain[i]+'&offset'+j+'='+offset[i];
 	    j++;
 	    
