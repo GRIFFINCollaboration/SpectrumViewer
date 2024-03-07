@@ -11,6 +11,8 @@
         this.wrapID = wrapID;
     this.wrap = document.getElementById(wrapID);
     switch(wrapID){
+
+    // RateMonitor names and IDNums
     case "rates":
     this.IDNum = 0;
     break; 
@@ -32,7 +34,35 @@
     case "Otherrates":
     this.IDNum = 6;
     break;
+
+    
+    // GainMatcher names and IDNums
+    case "residualP1new":
+    this.IDNum = 0;
+    break; 
+    case "residualP2new":
+    this.IDNum = 1;
+    break;
+    case "residualP3new":
+    this.IDNum = 2;
+    break;
+    case "residualP4new":
+    this.IDNum = 3;
+    break; 
+    case "residualP1mid":
+    this.IDNum = 4;
+    break;
+    case "residualP2mid":
+    this.IDNum = 5;
+    break; 
+    case "residualP3mid":
+    this.IDNum = 6;
+    break; 
+    case "residualP4mid":
+    this.IDNum = 7;
+    break;
     }
+    
         this.setup = function(){
 
             // Set a value if this is undefined

@@ -634,8 +634,8 @@ function spectrumViewer(canvasID){
 			cent++;
 		}
 
-		width = this.estimateWidth(fitdata, cent, max);
-
+	        width = this.estimateWidth(fitdata, cent, max);
+	    
 		cent=cent+this.FitLimitLower+0.5;
 
 		//prefit straight bkg
@@ -662,17 +662,17 @@ function spectrumViewer(canvasID){
 			fitter.fitit();
 			max = fitter.param[0];
 			cent = fitter.param[1];
-			width = fitter.param[2];
+		        width = Math.abs(fitter.param[2]); // width must not be negative, but is deduced as sigma squared
 		}
 
 		//check if the fit failed, and redo with slightly nudged fit limits
-		if( (!max || !cent || !width) && retries<10){
-			this.FitLimitLower--;
+		if( (!max || !cent || !width || width<0) && retries<10){
+		    this.FitLimitLower--;
 			this.FitLimitUpper++;
 			this.fitData(fitKey, retries+1);
 			return
 		}
-
+	    
 		this.activeFitLines[fitKey + Math.round(cent)] = {
 			'min': this.FitLimitLower,
 			'nBins': fitdata.length,

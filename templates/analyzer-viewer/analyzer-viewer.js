@@ -74,6 +74,19 @@ function buildHistosFileTable(){
 	    cell2.innerHTML = '';
 	    cell3.innerHTML = '';
 	    cell4.innerHTML = '';
+	    
+    // Create button for View Config
+    newButton = document.createElement('button'); 
+	    newButton.setAttribute('id', 'viewConfigButton'+dataStore.histoFileList[num].split('.')[0]); 
+    newButton.setAttribute('class', 'btn btn-default btn-sm'); 
+    newButton.value = dataStore.histoFileList[num];
+    newButton.innerHTML = "View Config";
+    newButton.style.padding = '4px';
+    newButton.onclick = function(){
+	viewConfigOfHisto(this.value);
+    }.bind(newButton);
+    cell4.appendChild(newButton);
+
 	    cell5.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.histoFileList[num]+'-checkbox'+'\" value=\"'+dataStore.histoFileList[num].trim()+'\" onclick=ToggleCheckboxOfThisHistoFile(\"histoFileTableRow-'+(num+1)+'\")>';
 	    
 	}
@@ -160,4 +173,75 @@ function submitHistoFileSumRequestToServer(){
 	document.getElementById('alertSumModalButton').click();
     }
 
+}
+
+function viewConfigOfHisto(histo){
+    console.log('View config of Histogram '+histo);
+
+    // Format check for the data file
+    HistoFileDirectory = dataStore.histoFileDirectoryPath;
+    if(HistoFileDirectory[HistoFileDirectory.length]!='/'){
+	HistoFileDirectory += '/';
+    }
+    filename = HistoFileDirectory + histo;
+
+    // Change the title of the modal for displaying the content
+    document.getElementById('viewConfigModalTitle').innerHTML = 'Configuration of Histogram File, ' + filename;
+    
+    // get the config file from the server/ODB for this histogram
+    url = dataStore.spectrumServer + '/?cmd=viewConfig' + '&filename=' + filename;
+    XHR(url, "Problem getting Config file for "+ filename +" from analyzer server", processConfigFileForDisplay, function(error){ErrorConnectingToAnalyzerServer(error)});
+    
+}
+
+function processConfigFileForDisplay(payload){
+
+	// Unpack the response from the server into a local variable
+	console.log(payload);
+    var thisConfig = JSON.parse(payload);
+	console.log(thisConfig);
+
+    var content = '';
+
+    // Unpack Directories content
+    content += '<h4>Directories:</h4>';
+	for(var i=0; i<thisConfig.Analyzer[5].Directories.length; i++){
+	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[5].Directories[i]) + '</p>';
+	}
+	
+    // Unpack Global content
+    content += '<h4>Globals:</h4>';
+	for(var i=0; i<thisConfig.Analyzer[3].Globals.length; i++){
+	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[3].Globals[i]) + '</p>';   
+	}
+	
+    // Unpack Gate content
+    content += '<h4>Gates:</h4>';
+	for(var i=0; i<thisConfig.Analyzer[1].Gates.length; i++){
+	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[1].Gates[i]) + '</p>';   
+	}
+	
+    // Unpack Histogram content
+    content += '<h4>Histograms:</h4>';
+	for(var i=0; i<thisConfig.Analyzer[2].Histograms.length; i++){
+	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[2].Histograms[i]) + '</p>';
+	}
+	
+    // Unpack Calibrations content
+    content += '<h4>Calibrations:</h4>';
+	for(var i=0; i<thisConfig.Analyzer[4].Calibrations.length; i++){
+	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[4].Calibrations[i]) + '</p>';
+	}
+	
+    // Unpack Variables content
+    content += '<h4>Sort Variables:</h4>';
+	for(var i=0; i<thisConfig.Analyzer[0].Variables.length; i++){
+	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[0].Variables[i]) + '</p>';
+	}
+    
+    // Inject the content
+    document.getElementById('viewConfigModalContent').innerHTML = content;
+    
+    // Open the modal
+    document.getElementById('viewConfigModalButton').click();
 }

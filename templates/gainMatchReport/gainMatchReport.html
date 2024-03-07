@@ -336,7 +336,7 @@
                 highPeakIndex = parseInt(document.getElementById('peak3position').value,10), 
                 vhiPeakIndex = parseInt(document.getElementById('peak4position').value,10),
                 centers = [],
-                ROIwidth = 5,
+                ROIwidth = 4,
                 i,j;
 var sum=0; 
 var average=1; 
@@ -650,7 +650,22 @@ if(breakForLoop){ break; }
                 dataStore.ROI[dataStore.currentPlot].ROItop[1] = dataStore.viewers[viewerName].FitLimitUpper;
             }
 
-// Calculate peak area here
+
+            // Calculate peak area here 
+            console.log(dataStore.currentPlot + 'amplitude,center,width,intercept,slope: '+ amplitude +','+center+','+ width +','+ intercept +','+ slope);
+            var grossArea = 0,
+                netArea = 0,
+                integral = 0,
+                functionVals = [],
+                i, x, sigmas = 5, stepSize = 0.01;
+            //calculate peak area in excess of background, for <sigmas> up and down.
+            for(i=0; i<2*sigmas*width/stepSize; i++){
+                x = center - sigmas*width + i*stepSize
+                functionVals.push( gauss(amplitude, center, width, x)*stepSize )
+                integral = functionVals.integrate()
+            }
+            netArea = integral.toFixed(2);
+            console.log(dataStore.currentPlot + ', Peak '+dataStore.currentPeak+', Area = '+grossArea);
 
 
             //update table

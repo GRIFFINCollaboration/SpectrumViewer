@@ -48,7 +48,28 @@
   </div>
 </div>
   
+<div id="viewConfigModal" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title" id="viewConfigModalTitle">Configuration</h4>
+      </div>
+      <div class="modal-body">
+        <div id="viewConfigModalContent"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+  
 <button type='button' class='btn invisible' id='alertSumModalButton' data-toggle='modal' data-target='#alertSumModal'>Info</button>
+<button type='button' class='btn invisible' id='viewConfigModalButton' data-toggle='modal' data-target='#viewConfigModal'>View Config</button>
 
 </template>
 
