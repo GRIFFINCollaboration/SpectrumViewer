@@ -500,11 +500,16 @@ function setupHistoListSelect(){
 }
 
 function ErrorConnectingToAnalyzerServer(error){
-    var string = 'Problem connecting to analyzer server: '+thisSpectrumServer+'<br>'+error;
+    var string = 'Problem connecting to analyzer server: '+dataStore.spectrumServer+'<br>'+error;
     document.getElementById('histo-list-menu-div').innerHTML = string;
     document.getElementById('histo-list-menu-div').style.display= 'block';
     document.getElementById('histo-list-menu-div').style.width= '100%';
     document.getElementById('histo-list-menu-div').style.backgroundColor= 'red';
+}
+
+function ClearErrorConnectingToAnalyzerServer(error){
+    // Clear the error div and message
+    document.getElementById('histo-list-menu-div').style.display= 'none';
 }
 
 function processSpectrumList(payload,callback){
@@ -517,10 +522,13 @@ function processSpectrumList(payload,callback){
 	console.log(err);		       
 	return;
     }
+
+    // Clear the previous list of 2D histogram names
+    dataStore.twoDimensionalSpectra = [];
     
     //declare the holder for the top level groups
     var topGroups = [];
-
+    
     // Sort through the list from the server to find the folders, subfolders and histogram titles
     // Use this to set up the topGroups, subGroups and items for the menu generation
     for (i in SpectrumList) 
@@ -555,8 +563,16 @@ function processSpectrumList(payload,callback){
 		    }else{
 			thisHistoTitle = y;   // this is the items
 
+			// If this is a 2d histogram then ':2d' is attached to the end of the name as an identifier
+			// Save this histogram name into the dataStore.twoDimensionalSpectra list so it can be identified as 2d.
+			// Remove the ':2d' so only the filename part is requested from the server
+			if(thisHistoTitle.includes(':2d')){
+			    thisHistoTitle = thisHistoTitle.split(':')[0];
+			    dataStore.twoDimensionalSpectra.push(thisHistoTitle);
+			}
+			
 			// Add this histogram to the items list in this subGroup of the topGroup
-                        newGroup.subGroups[newGroup.subGroups.length-1].items.push(thisHistoTitle);			
+                        newGroup.subGroups[newGroup.subGroups.length-1].items.push(thisHistoTitle);
 		    }
 		}
 	    }
@@ -577,6 +593,9 @@ function processSpectrumList(payload,callback){
     
     dataStore.topGroups = topGroups;
 
+    console.log(dataStore.topGroups);
+    console.log(dataStore.twoDimensionalSpectra);
+    
     // Now need to build the menu based on these topGroups and subGroups
     // callback should be constructNewSpectrumMenu();
     callback();

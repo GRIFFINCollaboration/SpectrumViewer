@@ -30,7 +30,7 @@ function setupDataStore(){
         "ODBrequests": [],                                                        //array of odb requests to make on refresh
 	"zeroedPlots": {},                                                        //initialize empty object for zeroed plots
 	"createdSpectra": {},                                                     //initialize empty object for created spectra
-	"twoDimensionalSpectra": ['GG', 'Addback_GG', 'Energy_CrystalNumber'],     //list of 2d spectra which need to be handled differently to 1d spectra
+	"twoDimensionalSpectra": ['GG:2d', 'Addback_GG:2d', 'Energy_CrystalNumber:2d'],     //list of 2d spectra which need to be handled differently to 1d spectra
 	"activeMatrix": "",                                                       //only one 2d spectrum (matrix) is active at any one time. This is the gate target
 	"activeMatrixXaxisLength": 0,                                             //only one 2d spectrum (matrix) is active at any one time. This is the X axis length
 	"activeMatrixYaxisLength": 0,                                             //only one 2d spectrum (matrix) is active at any one time. This is the Y axis length

@@ -17,6 +17,7 @@ function setupDataStore(){
         "plots": [],                                                              //array of names for default plot cells
         "spectrumServer": '',                                                     //analyzer url + port number
         "ODBrequests": [],                                                        //array of odb requests to make on refresh
+	"twoDimensionalSpectra": [],                               //list of 2d spectra which need to be handled differently to 1d spectra
       "zeroedPlots": {},                                                          //initialize empty object for zeroed plots
 
       "histoFileDirectoryPath" : '',                                                      // histogram directory taken from URL. Then can be changed from a select
