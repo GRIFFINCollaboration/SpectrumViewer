@@ -16,6 +16,7 @@ function setupDataStore(){
     // Histogram directory and filename
     dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms';
     dataStore.histoFileName = '';
+    dataStore.histoAutoLoad = false;        // Flag set by the presence of a directory and filename in the URL to automatically load it. Default is off.
 
     // Get the analyzer Server and ODB host names from the URL
     GetURLArguments();
@@ -70,7 +71,7 @@ function setupDataStore(){
 	{"name": "Cs-137", "title": "137Cs", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy":  661.66, "vhiEnergy": 1460.85, "maxXValue":2000 },
 	{"name": "Eu-152", "title": "152Eu", "lowEnergy":  39.91, "midEnergy":  121.78, "highEnergy":  344.28, "vhiEnergy": 1408.00, "maxXValue":2000 },
 	{"name": "Bi-207", "title": "207Bi", "lowEnergy":  74.97, "midEnergy":  569.70, "highEnergy": 1063.66, "vhiEnergy": 1770.23, "maxXValue":2000 },
-	{"name":  "Sr-90", "title":  "90Sr", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "maxXValue":2650 },
+	{"name":  "Sr-90", "title":  "90Sr", "lowEnergy":  59.32, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "maxXValue":2650 },
 	{"name": "Background", "title": "Background", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "maxXValue":2650 }
     ];
     dataStore.sourceInfoPACES = [
@@ -200,6 +201,17 @@ function GetURLArguments(){
     // Save the hostname and port number for writing the ODB parameters
     dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+'.triumf.ca:'+urlData.ODBHostPort;
     
+    // Copy the histogram URL arguments to the dataStore
+    dataStore.histoFileDirectoryPath = urlData.histoDir;
+    if(dataStore.histoFileDirectoryPath==undefined){
+	// No directory for the histogram files has been provided in the URL, so we provide a default one
+	dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms';
+    }
+    if(urlData.histoFile){
+	dataStore.histoFileName = urlData.histoFile;
+	dataStore.histoAutoLoad = true;
+    }
+    
 }
 
 function setupMenusFromModeChoice(modeType){
@@ -230,7 +242,7 @@ function setupMenusFromModeChoice(modeType){
 	newInput.id = 'HistoDirectoryInput'; 
 	newInput.type = 'text';
 	newInput.style.width = '400px';
-	newInput.value = dataStore.histoFileDirectoryPath; 
+	newInput.value = dataStore.histoFileDirectoryPath;
 	newInput.onchange = function(){
 	    dataStore.histoFileDirectoryPath = this.value;
 	    getHistoFileListFromServer();
@@ -315,8 +327,13 @@ function setupHistoListSelect(){
     for(var i=0; i<dataStore.histoFileList.length; i++){
 	thisSelect.add( new Option(dataStore.histoFileList[i], dataStore.histoFileList[i]) );
     }
+
+    // If a filename was provided in the URL then set it as the value of the select
+    if(dataStore.histoAutoLoad){
+	thisSelect.value = dataStore.histoFileName;
+    }
     
-    // Fire the onchange event for the select with the default value
+    // Fire the onchange event for the select with the default value to set it
     document.getElementById('HistoListSelect').onchange();
 }
 

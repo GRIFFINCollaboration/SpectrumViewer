@@ -68,11 +68,12 @@ function buildHistosFileTable(){
 	    var cell4 = row.insertCell(3);
 	    var cell5 = row.insertCell(4);
 	    
-	    	var URLString = 'https://griffincollaboration.github.io/SpectrumViewer/spectrumViewer2.html?backend='+urlData.backend+'&port='+urlData.port+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
+	    	var URLStringViewer = 'https://griffincollaboration.github.io/SpectrumViewer/spectrumViewer2.html?backend='+urlData.backend+'&port='+urlData.port+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
+	    	var URLStringGainMatcher = 'https://griffincollaboration.github.io/SpectrumViewer/gainMatcher.html?analyzerBackend='+urlData.backend+'&analyzerPort='+urlData.port+'&ODBHostBackend='+urlData.backend+'&ODBHostPort='+urlData.port+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
 	    
-	    cell1.innerHTML = '<a href=\"'+URLString+'\" target=\"_blank\">'+dataStore.histoFileList[num]+'</a>';
+	    cell1.innerHTML = '<a href=\"'+URLStringViewer+'\" target=\"_blank\">'+dataStore.histoFileList[num]+'</a>';
 	    cell2.innerHTML = '';
-	    cell3.innerHTML = '';
+	    cell3.innerHTML = '<a href=\"'+URLStringGainMatcher+'\" target=\"_blank\">'+'Open in GainMatcher'+'</a>';
 	    cell4.innerHTML = '';
 	    
     // Create button for View Config

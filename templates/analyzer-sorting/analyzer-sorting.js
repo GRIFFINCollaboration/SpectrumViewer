@@ -375,7 +375,7 @@ function processMidasFileDetails(payload){
     // Add these details to the table
     addFileDetailsToMidasFileTable();
 }
-
+/*
 function processHistoFileList(payload){
     
     // receive the payload and split into an array of strings
@@ -389,7 +389,7 @@ function processHistoFileList(payload){
     dataStore.histoFileList.reverse();
 
 }
-
+*/
 function buildMidasFileTable(){
 // Create a row in the table for each midas file in the list provided by the server
     document.getElementById("MidFilesTable").innerHTML = '';

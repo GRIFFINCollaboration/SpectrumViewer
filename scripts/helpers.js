@@ -464,6 +464,9 @@ function processHistoFileList(payload){
 }
 
 function setupHistoListSelect(){
+    // Only proceed if this is needed.
+    if(!document.getElementById('histo-list-menu-div')){ return; }
+    
     // Clear the previous contents
     document.getElementById('histo-list-menu-div').innerHTML = 'Histogram file: ';
 	

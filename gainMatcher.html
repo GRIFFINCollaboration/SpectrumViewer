@@ -213,6 +213,12 @@
                 $(function () {
                     $('[data-toggle="tooltip"]').tooltip()
                 });
+
+                // If there was a directory and filename in the URL then automatically load it.
+                if(dataStore.histoAutoLoad){
+	          setupMenusFromModeChoice('Histo');
+                }
+
             });
         </script>
     </body>
