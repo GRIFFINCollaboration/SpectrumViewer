@@ -165,7 +165,7 @@ function setupEventListeners(){
        	    
             setupHeader('head', 'Analyzer Interface');
 	    setupAnalyzerMenu('menu');
-	    setupAnalyzerSorting('AnalyzerDisplay');
+	    setupAnalyzerSorting('AnalyzerDisplaySorting');
 	    setupFooter('foot');
 	    
 	    // Launch the current time counter which includes a timeout

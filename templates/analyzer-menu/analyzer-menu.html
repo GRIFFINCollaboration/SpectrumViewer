@@ -19,15 +19,20 @@ function menuButtonClick(thisID){
        document.getElementById(buttonIDs[i]).setAttribute('class', 'btn btn-default btn-lg');
     }
 
-    //set button active state
+    //set selected button active state
     document.getElementById(thisID).classList.add('btn-warning');
+
+    // Hide all pages
+    document.getElementById('AnalyzerDisplaySorting').classList.add('hidden');
+    document.getElementById('AnalyzerDisplayHistograms').classList.add('hidden');
+    document.getElementById('AnalyzerDisplayViewer').classList.add('hidden');
 
     // Stop the heartbeat as moving away from the sorting page
     clearTimeout(dataStore.heartbeatTimer);
 
-    if(thisID == "SortingButton"){ setupAnalyzerSorting('AnalyzerDisplay'); }
-    if(thisID == "HistogramsButton"){ setupAnalyzerHistograms('AnalyzerDisplay'); }
-    if(thisID == "ViewerButton"){ setupAnalyzerViewer('AnalyzerDisplay'); }
+    if(thisID == "SortingButton"){ document.getElementById('AnalyzerDisplaySorting').classList.remove('hidden'); setupAnalyzerSorting('AnalyzerDisplaySorting'); }
+    if(thisID == "HistogramsButton"){ document.getElementById('AnalyzerDisplayHistograms').classList.remove('hidden'); setupAnalyzerHistograms('AnalyzerDisplayHistograms'); }
+    if(thisID == "ViewerButton"){ document.getElementById('AnalyzerDisplayViewer').classList.remove('hidden'); setupAnalyzerViewer('AnalyzerDisplayViewer'); }
 }
 
 function injectMenuButtons(){
