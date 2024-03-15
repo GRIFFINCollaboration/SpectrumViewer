@@ -7,99 +7,20 @@
     // setup
     ////////////////
 
-    function processConfigFile(payload){
-        // callback after getting the Config file containing the Global conditions, Gates conditions and Histogram definitions from the server/ODB
-        // finish initial setup
-	
-	// Unpack the response and place the response from the server into the dataStore
-	console.log(payload);
-        dataStore.Configs = JSON.parse(payload);
-//	console.log(dataStore.Configs);
 
-	// Reset the dataStore of any old definitions
-	dataStore.sortCodeVariables = [];
-        dataStore.globalCondition = {                   // place to park Global condition info on the dataStore
-                "globalIndex" : 0,               // monotonically increasing counter to create unique IDs for new Glabal condition blocks
-	    "contents" : []             // array of structures holding the variables and values for each Global condition
-    	};
-        dataStore.gateCondition = {                  // place to park Gate condition info on the dataStore
-              "gateIndex" : 0,                 // monotonically increasing counter to create unique IDs for new Gate condition blocks
-            "nRows" : [],                 // array of monotonic counters for number of rows inserted into Gate condition block; Gate block # == array index. 
-	    "contents" : []             // array of structures holding the variables and values for each Gate condition
-	};
-        dataStore.histogramDefinition = {             // place to park Histogram definition info on the dataStore
-                   "histogramIndex" : 0,            // monotonically increasing counter to create unique IDs for new Histogram condition blocks
-            "nRows" : [],            // array of monotonic counters for number of rows inserted into Histogram condition block; Histogram block # == array index. 
-            "contents" : []            // place to save Histogram definition parameters
-	};
-	
-	// Unpack the Config file from the server into the dataStore layout
-
-    // Unpack Sort Variables content
-	for(var i=0; i<dataStore.Configs.Analyzer[0].Variables.length; i++){
-	    dataStore.sortCodeVariables.push(dataStore.Configs.Analyzer[0].Variables[i]);   
-	}
-	
-    // Unpack Global content
-	for(var i=0; i<dataStore.Configs.Analyzer[3].Globals.length; i++){
-	    dataStore.globalCondition.contents.push(dataStore.Configs.Analyzer[3].Globals[i]);   
-	}
-	
-    // Unpack Gate content
-    for(var i=0; i<dataStore.Configs.Analyzer[1].Gates.length; i++){
-	    dataStore.gateCondition.contents.push(dataStore.Configs.Analyzer[1].Gates[i]);   
-    }
+function setupHistogramsContent(){
+    // function to refresh the content of the Histograms subpage
+    // Called when there is new content available
     
-    // Unpack the Histogram content
-    for(var i=0; i<dataStore.Configs.Analyzer[2].Histograms.length; i++){
-	dataStore.histogramDefinition.contents.push(dataStore.Configs.Analyzer[2].Histograms[i]);
-    }
-
-	// Unpack the Calibrations content here
-	//dataStore.Configs.Analyzer[4].Calibrations
-	
-	// Unpack the Directories content here
-	if(dataStore.Configs.Analyzer[5].Directories[0].Path.length>0){ midasFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[0].Path; }
-	if(dataStore.Configs.Analyzer[5].Directories[1].Path.length>0){ histoFileDirectoryPath = dataStore.Configs.Analyzer[5].Directories[1].Path; }
-	if(dataStore.Configs.Analyzer[5].Directories[2].Path.length>0){ configFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[2].Path; }
-    
-        // populate the current configuration based on what was received from the server
-        buildConfigMenu();
-    }
+    buildConfigMenu();
+}
 
 function buildConfigMenu(){
 
     // Need to delete everything already existing here first
-
-    
-    // Create the expand buttons for each section
-    newButton = document.createElement('button');
-    newButton.setAttribute('id', 'expandGlobalListButton'); 
-    newButton.setAttribute('class', 'btn-expand-large');
-    newButton.innerHTML = '<p>+</p>';
-    newButton.onclick = function(){
-	expandGlobalList();
-    }.bind(newButton);
-    document.getElementById('globalHeader').appendChild(newButton);
-    
-    newButton = document.createElement('button');
-    newButton.setAttribute('id', 'expandGateListButton'); 
-    newButton.setAttribute('class', 'btn-expand-large');
-    newButton.innerHTML = '<p>+</p>';
-    newButton.onclick = function(){
-	expandGateList();
-    }.bind(newButton);
-    document.getElementById('gateHeader').appendChild(newButton);
-    
-    newButton = document.createElement('button');
-    newButton.setAttribute('id', 'expandHistogramListButton'); 
-    newButton.setAttribute('class', 'btn-expand-large');
-    newButton.innerHTML = '<p>+</p>';
-    newButton.onclick = function(){
-	expandHistogramList();
-    }.bind(newButton);
-    document.getElementById('histogramHeader').appendChild(newButton);
-    
+    document.getElementById('globals-wrap').innerHTML = '';
+    document.getElementById('gates-wrap').innerHTML = '';
+    document.getElementById('histograms-wrap').innerHTML = '';
     
     // Create and populate the Global, Gate and Histogram blocks based on the Config file received from the server
 
@@ -326,6 +247,9 @@ function deleteGlobalBlock(globalNumber){
             function(){return 0},
             function(error){console.log(error)}
            );
+    
+    // Record the timestamp of when this user sends an update to the config file on the server
+    dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
 
         // delete the indexed Global block
         deleteNode('globalCondition' + globalNumber);
@@ -437,6 +361,9 @@ function deleteGateBlock(gateNumber){
             function(){return 0},
             function(error){console.log(error)}
            );
+    
+    // Record the timestamp of when this user sends an update to the config file on the server
+    dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
     
         // delete the indexed Gate block
         deleteNode('gateCondition' + gateNumber);
@@ -563,6 +490,9 @@ function deleteHistogramBlock(histogramNumber){
             function(){return 0},
             function(error){console.log(error)}
            );
+    
+        // Record the timestamp of when this user sends an update to the config file on the server
+        dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
 
         // delete the indexed Histogram block
         deleteNode('histogramCondition' + histogramNumber);
@@ -964,6 +894,9 @@ function saveGlobalChangeToAnalyzerODB(globalNumber){
             function(error){console.log(error)}
            );
     
+    // Record the timestamp of when this user sends an update to the config file on the server
+    dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
+    
 }
 
 function saveGateChangeToAnalyzerODB(gateNumber){
@@ -1033,6 +966,9 @@ function saveGateChangeToAnalyzerODB(gateNumber){
             function(){return 0},
             function(error){console.log(error)}
            );
+    
+    // Record the timestamp of when this user sends an update to the config file on the server
+    dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
 }
 
 function saveHistogramChangeToAnalyzerODB(histogramNumber){
@@ -1122,5 +1058,8 @@ function saveHistogramChangeToAnalyzerODB(histogramNumber){
             function(){return 0},
             function(error){console.log(error)}
            );
+    
+    // Record the timestamp of when this user sends an update to the config file on the server
+    dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
     
 }

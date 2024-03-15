@@ -238,13 +238,13 @@ function XHR(url, errorMessage, callback, reject){
             callback(req.response);
         }
         else {
-            reject(Error(req.statusText));
+            reject(ErrorConnectingToAnalyzerServer(req.statusText));
         }
     };
 
     // Handle network errors
     req.onerror = function() {
-        reject(Error(errorMessage));
+        reject(ErrorConnectingToAnalyzerServer(errorMessage));
     };
 
     // Make the request
@@ -355,7 +355,8 @@ function GetURLArguments(callback){
 
 	var elts = {};
 	var queryString = window.location.search.substring(1)
-	var value, i;
+        var value, i;
+        var urlData = [];
 
 	queryString = queryString.split('&');
 	for(i=0; i<queryString.length; i++){
@@ -366,6 +367,8 @@ function GetURLArguments(callback){
     // Save the information to the dataStore
     // Save the hostname and port number
     dataStore.spectrumServer = 'http://'+urlData.backend+'.triumf.ca:'+urlData.port;
+    dataStore.spectrumServerBackend = urlData.backend;
+    dataStore.spectrumServerPort = urlData.port;
     
     // Copy the histogram URL arguments to the dataStore
     dataStore.histoFileDirectoryPath = urlData.histoDir;
@@ -383,8 +386,19 @@ function GetURLArguments(callback){
     callback();
 }
 
-function getMidasFileListFromServer(){
+function initiateSortStatusHeartbeat(){
+    // initiate heartbeat for the Sort Status
+    var url = dataStore.spectrumServer + '/?cmd=getSortStatus'
+    heartbeatXHR(url, "Problem getting Sort Status from analyzer server", processSortStatus, ErrorConnectingToAnalyzerServer);
+}
 
+function getConfigFileFromServer(){
+    // get the Global conditions, Gates conditions and Histogram definitions from the server/ODB
+    url = dataStore.spectrumServer + '/?cmd=viewConfig';
+    XHR(url, "Problem getting Config file from analyzer server", processConfigFile, function(error){ErrorConnectingToAnalyzerServer(error)});
+}
+
+function getMidasFileListFromServer(){
     // use a one-off XHR request with callback for getting the list of MIDAS files
     url = dataStore.spectrumServer + '/?cmd=getDatafileList&dir='+dataStore.midasFileDataDirectoryPath;
     XHR(url, "Problem getting list of MIDAS files from analyzer server", processMidasFileList, function(error){ErrorConnectingToAnalyzerServer(error)});
@@ -392,7 +406,6 @@ function getMidasFileListFromServer(){
 }
 
 function getMidasFileDetailsFromServer(){
-
     // use a one-off XHR request with callback for getting the list of MIDAS files
     url = dataStore.spectrumServer + '/?cmd=getDatafileDetails&dir='+dataStore.midasFileDataDirectoryPath;
     XHR(url, "Problem getting details of MIDAS files from analyzer server", processMidasFileDetails, function(error){ErrorConnectingToAnalyzerServer(error)});
@@ -400,7 +413,6 @@ function getMidasFileDetailsFromServer(){
 }
 
 function getHistoFileListFromServer(){
-
     // use a one-off XHR request with callback for getting the list of Histo files
     url = dataStore.spectrumServer + '/?cmd=getHistofileList&dir='+dataStore.histoFileDirectoryPath;
     XHR(url, "Problem getting list of Histogram files from analyzer server", processHistoFileList, function(error){ErrorConnectingToAnalyzerServer(error)});
@@ -439,7 +451,7 @@ function GetSpectrumListFromServer(ServerName, callback){
 
     // Handle network errors
     req.onerror = function() {
-        reject(Error(errorMessage));
+        reject(ErrorConnectingToAnalyzerServer(errorMessage));
     };
 
     // Make the request
@@ -448,17 +460,268 @@ function GetSpectrumListFromServer(ServerName, callback){
 }
 
 
-function processHistoFileList(payload){
+function processConfigFile(payload){
+    // callback after getting the Config file containing the Global conditions, Gates conditions and Histogram definitions from the server/ODB
+    // finish initial setup
+
+    // A response was received from the server, so ensure the connection error is not displayed
+    ClearErrorConnectingToAnalyzerServer();
+
+    // Record the timestamp of when this config file is received
+    dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
+    
+    // Unpack the response and place the response from the server into the dataStore
+    console.log(payload);
+    // Protect against an empty response
+    if(payload != undefined && payload.length>4){
+	dataStore.Configs = JSON.parse(payload);
+    }else{
+	// Need to do something better than return here.
+	// Should make the server request again but protect against a maximum call stack depth.
+	return;
+    }
+    //	console.log(dataStore.Configs);
+    
+    // Reset the dataStore of any old definitions
+    dataStore.sortCodeVariables = [];
+    dataStore.globalCondition = {                   // place to park Global condition info on the dataStore
+        "globalIndex" : 0,               // monotonically increasing counter to create unique IDs for new Glabal condition blocks
+	"contents" : []             // array of structures holding the variables and values for each Global condition
+    };
+    dataStore.gateCondition = {                  // place to park Gate condition info on the dataStore
+        "gateIndex" : 0,                 // monotonically increasing counter to create unique IDs for new Gate condition blocks
+        "nRows" : [],                 // array of monotonic counters for number of rows inserted into Gate condition block; Gate block # == array index. 
+	"contents" : []             // array of structures holding the variables and values for each Gate condition
+    };
+    dataStore.histogramDefinition = {             // place to park Histogram definition info on the dataStore
+        "histogramIndex" : 0,            // monotonically increasing counter to create unique IDs for new Histogram condition blocks
+        "nRows" : [],            // array of monotonic counters for number of rows inserted into Histogram condition block; Histogram block # == array index. 
+        "contents" : []            // place to save Histogram definition parameters
+    };
+    
+    // Unpack the Config file from the server into the dataStore layout
+    
+    // Unpack Sort Variables content
+    for(var i=0; i<dataStore.Configs.Analyzer[0].Variables.length; i++){
+	dataStore.sortCodeVariables.push(dataStore.Configs.Analyzer[0].Variables[i]);   
+    }
+    
+    // Unpack Global content
+    for(var i=0; i<dataStore.Configs.Analyzer[3].Globals.length; i++){
+	dataStore.globalCondition.contents.push(dataStore.Configs.Analyzer[3].Globals[i]);   
+    }
+    
+    // Unpack Gate content
+    for(var i=0; i<dataStore.Configs.Analyzer[1].Gates.length; i++){
+	dataStore.gateCondition.contents.push(dataStore.Configs.Analyzer[1].Gates[i]);   
+    }
+    
+    // Unpack the Histogram content
+    for(var i=0; i<dataStore.Configs.Analyzer[2].Histograms.length; i++){
+	dataStore.histogramDefinition.contents.push(dataStore.Configs.Analyzer[2].Histograms[i]);
+    }
+    
+    // Unpack the Calibrations content here
+    //dataStore.Configs.Analyzer[4].Calibrations
+	
+    // Unpack the Directories content here
+    // If the dataStore entry is empty then save this Config directory path if one is present
+    if(dataStore.Configs.Analyzer[5].Directories[0].Path.length>0 && dataStore.midasFileDataDirectoryPath.length<1){ dataStore.midasFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[0].Path; }
+    if(dataStore.Configs.Analyzer[5].Directories[1].Path.length>0 && dataStore.histoFileDirectoryPath.length<1){ dataStore.histoFileDirectoryPath = dataStore.Configs.Analyzer[5].Directories[1].Path; }
+    if(dataStore.Configs.Analyzer[5].Directories[2].Path.length>0 && dataStore.configFileDataDirectoryPath.length<1){ dataStore.configFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[2].Path; }
+
+    // If both the dataStore entry and the config entry were empty then supply a default here
+    if(dataStore.midasFileDataDirectoryPath.length<1){ dataStore.midasFileDataDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Calibrations-Aug2021'; }
+    if(dataStore.histoFileDirectoryPath.length<1){ dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms'; }
+    if(dataStore.configFileDataDirectoryPath.length<1){ dataStore.configFileDataDirectoryPath = '/home/grifstor/daq/analyzer/grif-replay'; }
+    
+    
+    // Update content that involves the config file
+    dispatcher({}, 'requestHistogramsRefresh');
+
+}
+
+function processMidasFileList(payload){
+
+    // A response was received from the server, so ensure the connection error is not displayed
+    ClearErrorConnectingToAnalyzerServer();
+
     // receive the payload and split into an array of strings
-    var thisPayload = payload.split(" ]")[0].split("[ \n")[1];
+    var thisPayload = payload.split("]")[0].split("[ \n")[1];
+    
+    // Protect against an empty response
+    if(thisPayload != undefined && thisPayload.length>4){
+	// tidy up the strings to extract the list of midas files
+	var thisPayloadList = thisPayload.split(" , \n ");
+    }else{
+	var thisPayloadList = [];
+    }
+
+    // Declare a local object to unpack the list and then sort it
+    var thisMidasFileList = [
+   	                     { "Names" : 'name', "Sizes" : 5000000 , "Titles" : '' }
+                            ];
+    
+    for(var i=0; i<thisPayloadList.length; i++){
+	thisMidasFileList[i] = {
+	    "Names" : thisPayloadList[i].split(" , ")[0],
+	    "Sizes" : parseInt(thisPayloadList[i].split(" , ")[1]),
+	    "Titles" : thisPayloadList[i].split(" , ")[2]
+	}
+    }
+
+    // Sort the list in reverse numberical and alphabetical order so the newer files appear first
+    thisMidasFileList.sort((a,b) => (a.Names < b.Names) ? 1 : ((b.Names < a.Names) ? -1 : 0));
+
+    // Save this list of midas files to the dataStore
+    dataStore.midasFileList = thisMidasFileList;
+
+    // Declare this object structure
+    var thisMidasRunList = [{
+	    "RunName" : '',
+	    "RunTitle" : '',
+	    "RunSize" : 0,
+	    "Expanded" : false,
+	"SubRunList" : [{
+	                "Name" : '',
+	                "Size" : 0,
+	               }]
+    }];
+
+    i=0;
+    j=0;
+    num=-1;
+    while(i<thisMidasFileList.length){
+        // Check if this is a newly encoutered Run number and if it is, create space for it
+	thisRunName = thisMidasFileList[i].Names.split("_")[0];
+	if(i==0 || (thisRunName != thisMidasFileList[i-1].Names.split("_")[0])){
+	    num++;
+	    j=0;
+	    thisMidasRunList[num] = {
+	    "RunName" : '',
+	    "RunTitle" : '',
+	    "NumSubruns" : 0,
+	    "RunSize" : 0,
+	    "Expanded" : false,
+	"SubRunList" : []
+          };
+	    thisMidasRunList[num].RunName = thisRunName;
+	    thisMidasRunList[num].RunSize = 0;
+	}
+
+	// The list is sorted backwards so that the most recent runs appear at the top.
+	// Only subrun 000 has the title, so the first instance of this run we come across likely does not have the title.
+	// So here we find the title and add it for this run.
+	try{
+	    if(thisMidasFileList[i].Titles.length>1){
+		thisMidasRunList[num].RunTitle = thisMidasFileList[i].Titles.trim();
+	    }
+	}catch(err){ }
+
+	// Keep track of the total run size from the size of each subrun, and the total number of subruns
+	thisMidasRunList[num].RunSize = (thisMidasRunList[num].RunSize + thisMidasFileList[i].Sizes);
+	thisMidasRunList[num].NumSubruns++;
+	// Store the name and size of each subrun
+	thisSubRunList = {
+	    "Name" : thisMidasFileList[i].Names,
+	    "Size" : thisMidasFileList[i].Sizes
+	}
+	thisMidasRunList[num].SubRunList.push(thisSubRunList);
+	i++;
+	j++;
+    }
+
+    // Save this object to the dataStore
+    dataStore.midasRunList = thisMidasRunList;
+
+    // update the content that includes the midas data files, then get the MIDAS file details from the server
+    const thisPromise = new Promise((resolve, reject) => {
+                                                           dispatcher({}, 'requestSortingRefresh')
+     }).then(
+         getMidasFileDetailsFromServer()
+       );
+    
+}
+
+function processMidasFileDetails(payload){
+
+    // A response was received from the server, so ensure the connection error is not displayed
+    ClearErrorConnectingToAnalyzerServer();
+    
+    // receive the payload and split into an array of strings
+    var thisPayload = payload.split("]")[0].split("[ \n")[1];
     
     // tidy up the strings to extract the list of midas files
-    dataStore.histoFileList = thisPayload.split(" , \n ");
+    var thisPayloadList = thisPayload.split(" , \n ");
+
+    // Declare a local object to unpack the list and then sort it
+    var thisMidasFileList = [
+   	                     { "Names" : 'name', "Sizes" : 5000000 , "Titles" : '' }
+                            ];
+    
+    for(var i=0; i<thisPayloadList.length; i++){
+	thisMidasFileList[i] = {
+	    "Names" : thisPayloadList[i].split(" , ")[0],
+	    "Sizes" : parseInt(thisPayloadList[i].split(" , ")[1]),
+	    "Titles" : thisPayloadList[i].split(" , ")[2]
+	}
+    }
+
+    // Sort the list in reverse numberical and alphabetical order so the newer files appear first
+    thisMidasFileList.sort((a,b) => (a.Names < b.Names) ? 1 : ((b.Names < a.Names) ? -1 : 0));
+
+    // Save this list of midas files to the dataStore
+    dataStore.midasFileList = thisMidasFileList;
+    
+    // Go through the new list of titles and insert them into the midasRunList object
+    i=0;
+    while(i<dataStore.midasFileList.length){
+	
+	// The list is sorted backwards so that the most recent runs appear at the top.
+	// Only subrun 000 has the title, so the first instance of this run we come across likely does not have the title.
+	// So here we find the title and add it for this run.
+	try{
+	    if(dataStore.midasFileList[i].Titles.length>1){
+		
+		// Find the indexID of this run in the MidasRunList object
+		var indexID = dataStore.midasRunList.map(function(e) { return e.RunName; }).indexOf(dataStore.midasFileList[i].Names.split("_")[0]);
+		
+		dataStore.midasRunList[indexID].RunTitle = dataStore.midasFileList[i].Titles.trim();
+		
+	    }
+	}catch(err){ console.log('Caught this error in processMidasFileDetails, '+err); }
+
+	i++;
+    }
+    
+    // Add these details to the table
+    addFileDetailsToMidasFileTable();
+}
+
+function processHistoFileList(payload){
+
+    // A response was received from the server, so ensure the connection error is not displayed
+    ClearErrorConnectingToAnalyzerServer();
+    
+    // receive the payload and split into an array of strings
+    var thisPayload = payload.split(" ]")[0].split("[ \n")[1];
+
+    // Protect against an empty response
+    if(thisPayload != undefined){
+    // tidy up the strings to extract the list of midas files
+	dataStore.histoFileList = thisPayload.split(" , \n ");
+    }else{
+	dataStore.histoFileList = [];
+    }
 
     // Sort the list in numberical and alphabetical order, then reverse the order so the newer files appear first (note this is not ideal for sub-runs)
     dataStore.histoFileList.sort();
     dataStore.histoFileList.reverse();
 
+    // Update content that involves the Histogram list
+    dispatcher({}, 'requestViewerRefresh'); 
+    dispatcher({}, 'requestSortingRefresh');
+    
     // Set up the list of histo files
     setupHistoListSelect();
 }
@@ -501,19 +764,21 @@ function setupHistoListSelect(){
 
 function ErrorConnectingToAnalyzerServer(error){
     var string = 'Problem connecting to analyzer server: '+dataStore.spectrumServer+'<br>'+error;
-    document.getElementById('histo-list-menu-div').innerHTML = string;
-    document.getElementById('histo-list-menu-div').style.display= 'block';
-    document.getElementById('histo-list-menu-div').style.width= '100%';
-    document.getElementById('histo-list-menu-div').style.backgroundColor= 'red';
+    document.getElementById('messageDiv').innerHTML = string;
+    document.getElementById('messageDiv').style.display= 'block';
 }
 
-function ClearErrorConnectingToAnalyzerServer(error){
+function ClearErrorConnectingToAnalyzerServer(){
     // Clear the error div and message
-    document.getElementById('histo-list-menu-div').style.display= 'none';
+    document.getElementById('messageDiv').style.display= 'none';
 }
 
 function processSpectrumList(payload,callback){
-    
+
+    // A response was received from the server, so ensure the connection error is not displayed
+    ClearErrorConnectingToAnalyzerServer();
+
+    // We have had problems with corruption in the spectrum list. So protect against errors here
     try{
 	var SpectrumList = JSON.parse(payload);
     }
@@ -687,9 +952,12 @@ function dispatcher(payload, eventName){
         cancelable: true
     });
 
-    dataStore[eventName+'Listeners'].map(function(id){
-        document.getElementById(id).dispatchEvent(evt);
-    });   
+    // Do not dispatch the event if the listener has not been created yet
+    if(dataStore[eventName+'Listeners'] != undefined){
+	dataStore[eventName+'Listeners'].map(function(id){
+            document.getElementById(id).dispatchEvent(evt);
+	});
+    }
 }
 
 

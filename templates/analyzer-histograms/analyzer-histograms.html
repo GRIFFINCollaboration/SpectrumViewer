@@ -1,5 +1,4 @@
 <link rel="stylesheet" href="analyzer-histograms.css">
-<script src='analyzer-histograms.js' type="text/javascript"></script>
 
 <template id='analyzer-histograms'>
 	
@@ -132,9 +131,39 @@
         document.getElementById(wrapperID).innerHTML = "";
         document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-histograms'], {});
 
-    // get the Global conditions, Gates conditions and Histogram definitions from the server/ODB
-    url = dataStore.spectrumServer + '/?cmd=viewConfig';
-    XHR(url, "Problem getting Config file from analyzer server", processConfigFile, function(error){ErrorConnectingToAnalyzerServer(error)});
+    // Create the expand buttons for each section
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'expandGlobalListButton'); 
+    newButton.setAttribute('class', 'btn-expand-large');
+    newButton.innerHTML = '<p>+</p>';
+    newButton.onclick = function(){
+	expandGlobalList();
+    }.bind(newButton);
+    document.getElementById('globalHeader').appendChild(newButton);
     
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'expandGateListButton'); 
+    newButton.setAttribute('class', 'btn-expand-large');
+    newButton.innerHTML = '<p>+</p>';
+    newButton.onclick = function(){
+	expandGateList();
+    }.bind(newButton);
+    document.getElementById('gateHeader').appendChild(newButton);
+    
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'expandHistogramListButton'); 
+    newButton.setAttribute('class', 'btn-expand-large');
+    newButton.innerHTML = '<p>+</p>';
+    newButton.onclick = function(){
+	expandHistogramList();
+    }.bind(newButton);
+    document.getElementById('histogramHeader').appendChild(newButton);
+    
+        // set up event listeners
+        listener(wrapperID, 'requestHistogramsRefresh', setupHistogramsContent);
+
+        // initial setup of the subpage
+        setupHistogramsContent();
+
     }
 </script>

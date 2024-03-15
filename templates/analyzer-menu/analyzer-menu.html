@@ -9,7 +9,6 @@
         // Variables for menu buttons
         var buttonNames = ["Sorting Control", "Histogram & Gate Definitions", "Spectrum Viewer & Analysis"];
         var buttonIDs = ["SortingButton", "HistogramsButton", "ViewerButton"];
-        var buttonLinks = ["setupAnalyzerSorting", "setupAnalyzerHistograms", "setupAnalyzerViewer"];
 
 
 function menuButtonClick(thisID){
@@ -27,12 +26,9 @@ function menuButtonClick(thisID){
     document.getElementById('AnalyzerDisplayHistograms').classList.add('hidden');
     document.getElementById('AnalyzerDisplayViewer').classList.add('hidden');
 
-    // Stop the heartbeat as moving away from the sorting page
-    clearTimeout(dataStore.heartbeatTimer);
-
-    if(thisID == "SortingButton"){ document.getElementById('AnalyzerDisplaySorting').classList.remove('hidden'); setupAnalyzerSorting('AnalyzerDisplaySorting'); }
-    if(thisID == "HistogramsButton"){ document.getElementById('AnalyzerDisplayHistograms').classList.remove('hidden'); setupAnalyzerHistograms('AnalyzerDisplayHistograms'); }
-    if(thisID == "ViewerButton"){ document.getElementById('AnalyzerDisplayViewer').classList.remove('hidden'); setupAnalyzerViewer('AnalyzerDisplayViewer'); }
+    if(thisID == "SortingButton"){ document.getElementById('AnalyzerDisplaySorting').classList.remove('hidden');       }
+    if(thisID == "HistogramsButton"){ document.getElementById('AnalyzerDisplayHistograms').classList.remove('hidden'); }
+    if(thisID == "ViewerButton"){     document.getElementById('AnalyzerDisplayViewer').classList.remove('hidden'); }
 }
 
 function injectMenuButtons(){

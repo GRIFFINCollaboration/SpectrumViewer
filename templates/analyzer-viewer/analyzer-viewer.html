@@ -1,5 +1,4 @@
 <link rel="stylesheet" href="analyzer-viewer.css">
-<script src='analyzer-viewer.js' type="text/javascript"></script>
 
 <template id='analyzer-viewer'>
 	
@@ -12,8 +11,7 @@
 	    <div class='container-fluid'>
 	      <div class='row'>
 	        <div class='col-md-2'><h5>Histogram File Directory:</h5></div>
-	        <div class='col-md-4'
-		  id='HistoDirectoryInputDiv'></div>
+	        <div class='col-md-4' id='HistoDirectoryInputDivViewer'></div>
 		  </div>
 	      <div class='row'>
 	        <div class='col-md-2'><h5>Filename for Summed Histogram file:</h5></div>
@@ -78,21 +76,20 @@
         document.getElementById(wrapperID).innerHTML = "";
         document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-viewer'], {});
 
-    // Refresh the list of histogram files from the server
-    getHistoFileListFromServer();
-
     // Create the text input for the Histogram file directory
     newInput = document.createElement('input'); 
-    newInput.id = 'HistoDirectoryInput'; 
+    newInput.id = 'HistoDirectoryInputViewer'; 
     newInput.type = 'text'; 
     newInput.className = 'analyzer-input-text'; 
     newInput.value = dataStore.histoFileDirectoryPath; 
     newInput.onchange = function(){
-    dataStore.histoFileDirectoryPath = this.value;
-    getHistoFileListFromServer();
-    thisTimeout = setTimeout(buildHistosFileTable, 200);
-    }.bind(newInput);
-    document.getElementById('HistoDirectoryInputDiv').appendChild(newInput);
+       dataStore.histoFileDirectoryPath = this.value; 
+       document.getElementById('HistoDirectoryInputSorting').value = this.value;
+       console.log(dataStore.histoFileDirectoryPath);
+       getHistoFileListFromServer();
+
+}.bind(newInput);
+    document.getElementById('HistoDirectoryInputDivViewer').appendChild(newInput);
     
     // Create the text input for the Histogram Sum filename
     newInput = document.createElement('input'); 
@@ -115,6 +112,9 @@
     submitHistoFileSumRequestToServer();
     }.bind(newButton);
     document.getElementById('submitDivSum').appendChild(newButton);
+
+    // set up event listeners
+    listener(wrapperID, 'requestViewerRefresh', setupViewerContent);
 
     // Set up the content of this sub page
     setupViewerContent();

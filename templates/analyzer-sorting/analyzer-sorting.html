@@ -1,5 +1,4 @@
 <link rel="stylesheet" href="analyzer-sorting.css">
-<script src='analyzer-sorting.js' type="text/javascript"></script>
 
 <template id='analyzer-sorting'>
 	
@@ -32,7 +31,7 @@
 	    </div>
 	  <div class='container-fluid'>
 	      <div class='col-md-2'><h5>Histogram File Directory:</h5></div>
-	      <div class='col-md-4' id='HistoDirectoryInputDiv'></div>
+	      <div class='col-md-4' id='HistoDirectoryInputDivSorting'></div>
 	      <div class='col-md-2'><h5>Source of calibration coefficients:</h5></div>
 	      <div class='col-md-4' id='CalibrationSourceInputDiv'></div>
 	    </div>
@@ -52,9 +51,6 @@
         document.getElementById(wrapperID).innerHTML = "";
         document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-sorting'], {});
 
-    // Get the initial list of Histogram files
-    getHistoFileListFromServer();
-    
     // Create the text input for the midas data file directory
     newInput = document.createElement('input'); 
     newInput.id = 'DataDirectoryInput'; 
@@ -62,8 +58,18 @@
     newInput.className = 'analyzer-input-text'; 
     newInput.value = dataStore.midasFileDataDirectoryPath; 
     newInput.onchange = function(){
-    dataStore.midasFileDataDirectoryPath = this.value;
+    dataStore.midasFileDataDirectoryPath = this.value; 
+
     getMidasFileListFromServer();
+    /*
+    const thisPromise = new Promise((resolve, reject) => {
+    getMidasFileListFromServer()
+}).then(
+ 	 dispatcher({}, 'requestSortingRefresh'), 
+         getMidasFileDetailsFromServer()
+                               );
+*/
+    
     }.bind(newInput);
     document.getElementById('DataDirectoryInputDiv').appendChild(newInput);
     
@@ -80,15 +86,26 @@
     
     // Create the text input for the Histogram file directory
     newInput = document.createElement('input'); 
-    newInput.id = 'HistoDirectoryInput'; 
+    newInput.id = 'HistoDirectoryInputSorting'; 
     newInput.type = 'text'; 
     newInput.className = 'analyzer-input-text'; 
     newInput.value = dataStore.histoFileDirectoryPath; 
     newInput.onchange = function(){
     dataStore.histoFileDirectoryPath = this.value;
+    document.getElementById('HistoDirectoryInputViewer').value = this.value;
+    
     getHistoFileListFromServer();
+    /*
+const thisPromise = new Promise((resolve, reject) => {
+    getHistoFileListFromServer()
+}).then(
+ 	 dispatcher({}, 'requestSortingRefresh'),
+ 	 dispatcher({}, 'requestViewerRefresh')
+                               );
+*/
+
     }.bind(newInput);
-    document.getElementById('HistoDirectoryInputDiv').appendChild(newInput);
+    document.getElementById('HistoDirectoryInputDivSorting').appendChild(newInput);
     
     // Create a select input for the source of calibration coefficients
     var newSelect = document.createElement("select");
@@ -111,13 +128,13 @@
     newButton.onclick = function(){
     SubmitSelectedFilesFromTableToSortQueue();
     }.bind(newButton);
-    document.getElementById('submitDivTable').appendChild(newButton);
+      document.getElementById('submitDivTable').appendChild(newButton);
 
-    // Get the initial list of MIDAS files
-    getMidasFileListFromServer();
-    
-    // initiate heartbeat for the Sort Status
-    initiateSortStatusHeartbeat();
+    // set up event listeners
+    listener(wrapperID, 'requestSortingRefresh', setupSortingContent);
+
+    // Set up the content of this sub page
+    setupSortingContent()
 }
 
 </script>
