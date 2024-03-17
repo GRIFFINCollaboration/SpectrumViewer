@@ -43,6 +43,12 @@ function setupDataStore(){
     dataStore.plots = ['Spectra'];                                          //names of plotGrid cells and spectrumViewer objects
 
     dataStore.resolutionData = [];                                      //dygraphs-sorted peak widths for both peaks, in same order as THESEdetectors: [[detectorIndex, low peak width, high peak width], ...]
+    dataStore.residualsData = [];                                     
+    dataStore.residualsData[0] = [];                                  
+    dataStore.residualsData[1] = [];        // peak1                          
+    dataStore.residualsData[2] = [];        //peak2                          
+    dataStore.residualsData[3] = [];        //peak3                          
+    dataStore.residualsData[4] = [];        //peak4                             
     dataStore.lowPeakResolution = [];                                   //low energy peak resolutions, indexed per GRIFFINdetectors
     dataStore.lowPeakResolution.fillN(0,(dataStore.numberOfClovers*4*2));                             //start with zeroes
     dataStore.midPeakResolution = [];                                  //as midPeakResolution
@@ -85,7 +91,16 @@ function setupDataStore(){
     //resolution plot
     dataStore.plotInitData = [];
     dataStore.plotInitData[0] = [[0,0,0,0,0], [1,0,0,0,0], [2,0,0,0,0], [3,0,0,0,0], [4,0,0,0,0]];      //initial dummy data
-    dataStore.plotInitData[1] = [[0,0,0,0,0], [1,0,0,0,0], [2,0,0,0,0], [3,0,0,0,0], [4,0,0,0,0]];      //initial dummy data
+    dataStore.plotInitData[1] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
+    dataStore.plotInitData[2] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
+    dataStore.plotInitData[3] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
+    dataStore.plotInitData[4] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
+    dataStore.dataplotData = [];                                       // place for dataplot data 
+    dataStore.dataplotData[0] = [];                                       // place for dataplot data 
+    dataStore.dataplotData[1] = [];                                       // place for dataplot data 
+    dataStore.dataplotData[2] = [];                                       // place for dataplot data 
+    dataStore.dataplotData[3] = [];                                       // place for dataplot data 
+    dataStore.dataplotData[4] = [];                                       // place for dataplot data 
     dataStore.plotStyle = [];
     dataStore.plotStyle[0] = {                                              //dygraphs style object
         labels: ["channel", "Peak1 Width", "Peak2 Width", "Peak3 Width", "Peak4 Width"],
@@ -121,11 +136,11 @@ function setupDataStore(){
         }
     }
     dataStore.plotStyle[1] = {                                              //dygraphs style object
-        labels: ["channel", "Peak1 Width", "Peak2 Width", "Peak3 Width", "Peak4 Width"],
-        title: 'Per-Crystal Resolution',
+        labels: ["channel", "Residual (keV)"],
+        title: 'Per-Crystal Residuals Peak1',
         axisLabelColor: '#FFFFFF',
-        colors: ["#AAE66A", "#EFB2F0", "#B2D1F0", "#F0DBB2"],
-        labelsDiv: 'resolutionLegend',
+        colors: ["#AAE66A"],
+        labelsDiv: 'residualP1newLegend',
         drawPoints: 'true',
         pointSize: '5',
 	strokeWidth: 0,
@@ -149,13 +164,109 @@ function setupDataStore(){
             },
 
             y : {
-		     valueRange: [0,15]
+		     valueRange: [-5,5]
 		    }
         }
     }
-    dataStore.YAxisMinValue = [[0,0], [0,0]];
-    dataStore.YAxisMaxValue = [[0,0], [0,0]];
+    dataStore.plotStyle[2] = {                                              //dygraphs style object
+        labels: ["channel", "Residual (keV)"],
+        title: 'Per-Crystal Residuals Peak2',
+        axisLabelColor: '#FFFFFF',
+        colors: ["#EFB2F0"],
+        labelsDiv: 'residualP2newLegend',
+        drawPoints: 'true',
+        pointSize: '5',
+	strokeWidth: 0,
+        legend: 'always',
+        valueFormatter: function(num, opts, seriesName, dygraph, row, col){
+
+            if(col == 0)
+                return dataStore.THESEdetectors[num]
+            else
+                return num.toFixed(3)
+        },
+        axes: {
+            x: {
+                axisLabelFormatter: function(number, granularity, opts, dygraph){
+                    if(number < dataStore.THESEdetectors.length)
+                        return dataStore.THESEdetectors[number].slice(3,6);
+                    else
+                        return number
+                    
+                }
+            },
+
+            y : {
+		     valueRange: [-5,5]
+		    }
+        }
+    }
+    dataStore.plotStyle[3] = {                                              //dygraphs style object
+        labels: ["channel", "Residual (keV)"],
+        title: 'Per-Crystal Residuals Peak3',
+        axisLabelColor: '#FFFFFF',
+        colors: ["#B2D1F0"],
+        labelsDiv: 'residualP3newLegend',
+        drawPoints: 'true',
+        pointSize: '5',
+	strokeWidth: 0,
+        legend: 'always',
+        valueFormatter: function(num, opts, seriesName, dygraph, row, col){
+
+            if(col == 0)
+                return dataStore.THESEdetectors[num]
+            else
+                return num.toFixed(3)
+        },
+        axes: {
+            x: {
+                axisLabelFormatter: function(number, granularity, opts, dygraph){
+                    if(number < dataStore.THESEdetectors.length)
+                        return dataStore.THESEdetectors[number].slice(3,6);
+                    else
+                        return number
+                    
+                }
+            },
+
+            y : {
+		     valueRange: [-5,5]
+		    }
+        }
+    }
+    dataStore.plotStyle[4] = {                                              //dygraphs style object
+        labels: ["channel", "Residual (keV)"],
+        title: 'Per-Crystal Residuals Peak4',
+        axisLabelColor: '#FFFFFF',
+        colors: ["#F0DBB2"],
+        labelsDiv: 'residualP4newLegend',
+        drawPoints: 'true',
+        pointSize: '5',
+	strokeWidth: 0,
+        legend: 'always',
+        valueFormatter: function(num, opts, seriesName, dygraph, row, col){
+
+            if(col == 0)
+                return dataStore.THESEdetectors[num]
+            else
+                return num.toFixed(3)
+        },
+        axes: {
+            x: {
+                axisLabelFormatter: function(number, granularity, opts, dygraph){
+                    if(number < dataStore.THESEdetectors.length)
+                        return dataStore.THESEdetectors[number].slice(3,6);
+                    else
+                        return number
+                    
+                }
+            }
+        }
+    }
+    dataStore.YAxisMinValue = [[0,0], [-0.1,-1], [-0.1,-1], [-0.1,-1], [-0.1,-1]];  // used in updateData function. First number is y axis, second value is y2 axis
+    dataStore.YAxisMaxValue = [[3,3], [0.1,1], [0.1,1], [0.1,1], [0.1,1]];          // used in updateData function. First number is y axis, second value is y2 axis
     dataStore.annotations = [0,0];
+    dataStore._dataplot = [];                 // Place for all dataplot objects to be created as an array. This makes them indexable and iteratable
 
 }
 setupDataStore();

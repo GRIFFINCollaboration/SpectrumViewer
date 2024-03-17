@@ -467,9 +467,6 @@ function processConfigFile(payload){
     // A response was received from the server, so ensure the connection error is not displayed
     ClearErrorConnectingToAnalyzerServer();
 
-    // Record the timestamp of when this config file is received
-    dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
-    
     // Unpack the response and place the response from the server into the dataStore
     console.log(payload);
     // Protect against an empty response
@@ -481,6 +478,25 @@ function processConfigFile(payload){
 	return;
     }
     //	console.log(dataStore.Configs);
+
+    // Only use the directories from the config file on the initial load
+    if(dataStore.configFileTimestamp == 0){
+	
+	// Unpack the Directories content here
+	// If the dataStore entry is empty then save this Config directory path if one is present
+	if(dataStore.Configs.Analyzer[5].Directories[0].Path.length>0){ dataStore.midasFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[0].Path; }
+	if(dataStore.Configs.Analyzer[5].Directories[1].Path.length>0){ dataStore.histoFileDirectoryPath = dataStore.Configs.Analyzer[5].Directories[1].Path; }
+	if(dataStore.Configs.Analyzer[5].Directories[2].Path.length>0){ dataStore.configFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[2].Path; }
+	
+	// If both the dataStore entry and the config entry were empty then supply a default here
+	if(dataStore.midasFileDataDirectoryPath.length<1){ dataStore.midasFileDataDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Calibrations-Aug2021'; }
+	if(dataStore.histoFileDirectoryPath.length<1){ dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms'; }
+	if(dataStore.configFileDataDirectoryPath.length<1){ dataStore.configFileDataDirectoryPath = '/home/grifstor/daq/analyzer/grif-replay'; }	
+    }
+    
+    // Record the timestamp of when this config file is received
+    dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
+    
     
     // Reset the dataStore of any old definitions
     dataStore.sortCodeVariables = [];
@@ -523,18 +539,6 @@ function processConfigFile(payload){
     
     // Unpack the Calibrations content here
     //dataStore.Configs.Analyzer[4].Calibrations
-	
-    // Unpack the Directories content here
-    // If the dataStore entry is empty then save this Config directory path if one is present
-    if(dataStore.Configs.Analyzer[5].Directories[0].Path.length>0 && dataStore.midasFileDataDirectoryPath.length<1){ dataStore.midasFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[0].Path; }
-    if(dataStore.Configs.Analyzer[5].Directories[1].Path.length>0 && dataStore.histoFileDirectoryPath.length<1){ dataStore.histoFileDirectoryPath = dataStore.Configs.Analyzer[5].Directories[1].Path; }
-    if(dataStore.Configs.Analyzer[5].Directories[2].Path.length>0 && dataStore.configFileDataDirectoryPath.length<1){ dataStore.configFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[2].Path; }
-
-    // If both the dataStore entry and the config entry were empty then supply a default here
-    if(dataStore.midasFileDataDirectoryPath.length<1){ dataStore.midasFileDataDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Calibrations-Aug2021'; }
-    if(dataStore.histoFileDirectoryPath.length<1){ dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms'; }
-    if(dataStore.configFileDataDirectoryPath.length<1){ dataStore.configFileDataDirectoryPath = '/home/grifstor/daq/analyzer/grif-replay'; }
-    
     
     // Update content that involves the config file
     dispatcher({}, 'requestHistogramsRefresh');

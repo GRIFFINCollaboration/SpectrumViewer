@@ -1,0 +1,68 @@
+<link rel="stylesheet" href="dataplot.css"/>
+
+<template id='dataplotSliders'>
+    <label for='{{id}}windowSlider'>Window Width:</label>
+    <input id='{{id}}windowSlider' class='slider' type='range' min=1 max=720 step=1 value=1></input>
+    <span id='{{id}}windowSliderValue' class="range-value">0h:1m</span>
+
+    <br>
+
+    <label for='{{id}}leadingEdgeSlider'>Window Leading Edge:</label>
+    <input id='{{id}}leadingEdgeSlider' class='slider' type='range' min=-1000 max=0 step=1 value=0></input>
+    <span id='{{id}}leadingEdgeSliderValue' class="range-value">now</span>
+</template>
+
+<script>
+    function dataplotSliders(wrapperID){
+
+        this.wrapID = wrapperID;
+        this.wrap = document.getElementById(wrapperID);
+
+        this.setup = function(){
+
+            //inject template
+            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.dataplotSliders, {'id': this.wrapID});
+
+            //listeners
+            document.getElementById(this.wrapID + 'windowSlider').oninput = this.windowSliderCallback;
+            document.getElementById(this.wrapID + 'leadingEdgeSlider').oninput = this.leadingEdgeSliderCallback.bind(document.getElementById(this.wrapID + 'leadingEdgeSlider'), this);
+        },
+
+        this.windowSliderCallback = function(){
+            //oninput behavior of the window width slider
+            //this: input range object
+
+            var hours = Math.floor(parseInt(this.value, 10) / 60);
+            var minutes = parseInt(this.value, 10) % 60;
+
+            document.getElementById(this.id+'Value').innerHTML = hours + 'h:' + minutes +'m'
+        },
+
+        this.leadingEdgeSliderCallback = function(parent){
+            //oninput behavior of the window leading edge slider
+            //parent: dataplotSliders object
+            //this: input[range] element for window's leading edge
+
+            var seconds = parent.windowLeadingEdgeTime();
+            var hours = Math.floor(seconds / (3600));
+            var minutes = Math.floor((seconds % 3600) / 60);
+
+            document.getElementById(this.id+'Value').innerHTML = hours + 'h:' + minutes +'m ago'
+            if(this.value == 0)
+                document.getElementById(this.id+'Value').innerHTML = 'now'
+        },
+
+        this.windowLeadingEdgeTime = function(){
+            //returns number of seconds in the past the currently requested window leading edge is
+            //this: dataplotSliders object
+
+            var leadingEdgeSlider = document.getElementById(this.wrapID + 'leadingEdgeSlider');
+            var first = dataStore.rateData[0][0][0];
+            var last = dataStore.rateData[0][dataStore.rateData[0].length - 1][0];
+            var history = -1 * parseInt(leadingEdgeSlider.value,10) / ( parseInt(leadingEdgeSlider.max,10) - parseInt(leadingEdgeSlider.min,10) );
+
+            return Math.floor((last-first)*history / 1000);
+        }
+
+    }
+</script>

@@ -26,7 +26,7 @@
         <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
         <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
         <link id='plotListLite' rel="import" href="templates/plotList/plotListLite.html">
-        <link id='striptool' rel="import" href="templates/striptool/striptool.html">
+        <link id='dataplot' rel="import" href="templates/dataplot/dataplot.html">
         <link id='footer' rel="import" href="templates/footer/footer.html">
     </head>
 
@@ -140,8 +140,20 @@
 
         <!--Resolution-->
         <div id='resolutionSection' class='sectionWrapper'>
-            <div id='resolutionWrap' class='col-md-6 item'>
-                <div id='resolution'></div>
+            <div id='resolutionWrap' class='col-md-12 item'>
+	    <div id='resolution' class='col-md-6'></div>
+	    <div class='col-md-12'>
+                <div id='residualP1new' class='col-md-6'></div>
+		<div id='residualP2new' class='col-md-6'></div>
+		</div>
+		<div class='col-md-12'>
+                <div id='residualP3new' class='col-md-6'></div>
+		<div id='residualP4new' class='col-md-6'></div>
+		</div>
+                <div id='residualP1mid'></div>
+                <div id='residualP2mid'></div>
+                <div id='residualP3mid'></div>
+                <div id='residualP4mid'></div>
             </div>
         </div>
 
@@ -151,17 +163,25 @@
             window.addEventListener('HTMLImportsLoaded', function(e) {
 
                 dataStore._plotGrid = new plotGrid('plottingGrid');
-                dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
-                dataStore._striptool = new striptool('resolution');
+                dataStore._plotControl = new plotControl('plotCtrl', 'horizontal'); 
+                dataStore._dataplot[0] = new dataplot('resolution',0); 
+                dataStore._dataplot[1] = new dataplot('residualP1new',1); 
+                dataStore._dataplot[2] = new dataplot('residualP2new',2);
+                dataStore._dataplot[3] = new dataplot('residualP3new',3);
+                dataStore._dataplot[4] = new dataplot('residualP4new',4);
 
-                dataStore.templates = prepareTemplates(['header', 'gainMatchReport', 'matchReportTable', 'gainMatchSetupBar', 'plotGrid', 'plotControl', 'plotListLite', 'striptool', 'footer']);
+                dataStore.templates = prepareTemplates(['header', 'gainMatchReport', 'matchReportTable', 'gainMatchSetupBar', 'plotGrid', 'plotControl', 'plotListLite', 'dataplot', 'footer']);
 
                 setupHeader('head', 'Gain Matcher');
                 dataStore._plotGrid.setup();
                 dataStore._plotControl.setup();
                 //set up spectrum cell
                 dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]); 
-                dataStore._striptool.setup(); 
+                dataStore._dataplot[0].setup(0); 
+                dataStore._dataplot[1].setup(1); 
+                dataStore._dataplot[2].setup(2); 
+                dataStore._dataplot[3].setup(3); 
+                dataStore._dataplot[4].setup(4); 
                 setupFooter('foot');
 
                 //don't want additional plots in this app

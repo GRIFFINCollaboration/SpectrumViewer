@@ -139,11 +139,9 @@
                 dataStore.templates = prepareTemplates(['plotListHeader', 'plotList', 'cutVertex', 'footer', 'plotGrid', 'plotControl', 'auxPlotControl', 'auxPlotControlTable', 'gateControl', 'fitRow']);
 
 	        dataStore._plotListHeader = new plotListHeader('navbar-header-div');
-               // _plotList = new plotList('analyzerPlots');
                 _plotControl2d = new plotControl2d('plotControl');
 
 	        dataStore._plotListHeader.setup();
-               // _plotList.setup();
                 _plotControl2d.setup();
                 setupFooter('foot');
 

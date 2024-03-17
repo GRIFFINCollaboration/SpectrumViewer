@@ -1,0 +1,98 @@
+<link rel="stylesheet" href="dataplot.css"/>
+
+<template id='dataplot'>
+    <div id='{{id}}Text'></div>
+    <div id='{{id}}Graph'></div>
+    <div id='{{id}}Legend'></div>
+</template>
+
+<script>
+    function dataplot(wrapID,IDNum){
+
+        this.wrapID = wrapID;
+    this.wrap = document.getElementById(wrapID);
+    this.IDNum = IDNum;
+    
+        this.setup = function(IDNum){
+
+            // Set a value if this is undefined
+            if(IDNum === undefined) {
+               this.IDNum = 0;
+            }else{
+               this.IDNum = IDNum;
+            }   
+            
+            //inject template
+            this.wrap.innerHTML = Mustache.to_html(dataStore.templates.dataplot, {'id': this.wrapID});
+
+            // custom event listeners
+            listener(this.wrapID, 'updateDyData'+this.IDNum, this.updateData.bind(this))
+            listener(
+                this.wrapID, 
+                'setDyVisible'+this.IDNum,                 
+                function(event){
+                    this.setVisible(event.detail.index, event.detail.isVisible)
+                }.bind(this)
+            )
+
+            this.initializePlot(dataStore.plotInitData[this.IDNum], dataStore.plotStyle[this.IDNum]);
+        },
+
+        this.initializePlot = function(data, style){
+            //set up a new plot.
+            //<data>: array; data for dygraph configured appropriately: [[x0, y00, y01, ..., y0n,], [x1, y10, y11, ..., y1n], ...]
+            //<style>: object; styling object for dygraphs
+            //this: dataplot object
+
+            this.dygraph = new Dygraph(
+                document.getElementById(this.wrapID + 'Graph'),
+                data,
+                style
+            );
+        },
+
+        this.updateData = function(event){
+            //catch an event carrying new data, and update.
+            //<event>: event; updateDyData custom event
+            //this: dataplot object
+    
+            var keys, i, annotations;
+
+            // Add the new data to the plot
+            this.dygraph.updateOptions( { 'file': event.detail.data } );
+
+            // Fix the Y axis range with latest numbers from the datastore
+            this.dygraph.updateOptions( { axes: { y : { valueRange: [dataStore.YAxisMinValue[this.IDNum][0],dataStore.YAxisMaxValue[this.IDNum][0]] } } } );
+            this.dygraph.updateOptions( { axes: { y2: { valueRange: [dataStore.YAxisMinValue[this.IDNum][1],dataStore.YAxisMaxValue[this.IDNum][1]] } } } ); 
+
+            //check for annotations to add
+            //update annotations
+            if(dataStore.annotations[this.IDNum]){
+            keys = Object.keys(dataStore.annotations[this.IDNum])
+                if(keys.length > 0 ){
+                    annotations = this.dygraph.annotations[this.IDNum]()
+                    for(i=0; i<keys.length; i++){
+                        //mark up annotation with the right time
+                        dataStore.annotations[this.IDNum][keys[i]].x = event.detail.data[event.detail.data.length-1][0].getTime();
+                        //add to list
+                        annotations.push(dataStore.annotations[this.IDNum][keys[i]]);
+                    }
+                    //set annotations on dygraph and dump the annotation buffer
+                    this.dygraph.setAnnotations(annotations)
+                    dataStore.annotations[this.IDNum] = {};
+                }
+            }
+
+        },
+
+        this.setVisible = function(index, isVisible){
+            //set visibility of series in this.dygraph
+            //<index>: number; index of series to set visibility on
+            //<isFisible>: bool; true -> data series at <index> is visible
+            //this: dataplot object
+
+            this.dygraph.setVisibility(index, isVisible);
+        }
+
+    }
+</script>
