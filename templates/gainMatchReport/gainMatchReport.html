@@ -906,10 +906,12 @@ intercept = result.equation[2];
 
                // Update the Y axis scale if needed
                if(dataStore.residualsData[peakIndex][currentDetNum] < (0.75 * dataStore.YAxisMinValue[peakIndex][0])){
-                 dataStore.YAxisMinValue[peakIndex][0] = dataStore.residualsData[peakIndex][currentDetNum] * 1.33;
+                 var newYAxisMinValue = dataStore.residualsData[peakIndex][currentDetNum] * 1.33; 
+                 dataStore.YAxisMinValue[1][0] = dataStore.YAxisMinValue[2][0] = dataStore.YAxisMinValue[3][0] = dataStore.YAxisMinValue[4][0] = newYAxisMinValue;
                }
                if(dataStore.residualsData[peakIndex][currentDetNum] > (0.75 * dataStore.YAxisMaxValue[peakIndex][0])){
-                 dataStore.YAxisMaxValue[peakIndex][0] = dataStore.residualsData[peakIndex][currentDetNum] * 1.33;
+                 var newYAxisMaxValue = dataStore.residualsData[peakIndex][currentDetNum] * 1.33; 
+                 dataStore.YAxisMaxValue[1][0] = dataStore.YAxisMaxValue[2][0] = dataStore.YAxisMaxValue[3][0] = dataStore.YAxisMaxValue[4][0] = newYAxisMaxValue;
                }
 
                dataStore.dataplotData[peakIndex] = arrangePoints(detectorIndex, [dataStore.residualsData[peakIndex]], flags );
