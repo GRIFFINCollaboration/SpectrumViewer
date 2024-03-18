@@ -85,7 +85,6 @@
     newInput.onchange = function(){
        dataStore.histoFileDirectoryPath = this.value; 
        document.getElementById('HistoDirectoryInputSorting').value = this.value;
-       console.log(dataStore.histoFileDirectoryPath);
        getHistoFileListFromServer();
 
 }.bind(newInput);

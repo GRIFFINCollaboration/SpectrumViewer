@@ -68,6 +68,7 @@ function setupDataStore(){
     dataStore.SortStatusAverageSortSpeed = 10000;
     dataStore.SortStatusSortSpeedHistory = [];
     dataStore.SortStatusHistory = [];
+    dataStore.SortStatusPreviousState = 'IDLE';              // Previous state to determine if a file has recently finished sorting. IDLE or BUSY
     
     
     // Gating and Histogram variables
@@ -322,6 +323,13 @@ function processSortStatus(payload){
 
 	// Check the timestamp of the most recent config file saved on the server
 	checkConfigTimestamps(payload.split(' ')[1]);
+
+	// Check if a file just finished sorting and if so, grab the latest list of histogram files
+	// Need to add somewhere a way to detect that one file in the queue has completed, while others are still sorting
+	if(dataStore.previousSortStatus != 'IDLE'){
+	    getHistoFileListFromServer();
+	}
+	dataStore.previousSortStatus = 'IDLE';
 	
 	// Set the heartbeat frequency
 	dataStore.heartbeatInterval = 5000;
@@ -335,6 +343,9 @@ function processSortStatus(payload){
     }else{
 	// Set the heartbeat frequency
 	dataStore.heartbeatInterval = 1000;
+
+	// Remember the sorting state
+	dataStore.previousSortStatus = 'BUSY';
     }
     
     // Handle the Analyzer running response
