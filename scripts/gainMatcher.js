@@ -32,6 +32,7 @@ function setupDataStore(){
     ];
     dataStore.PSCchannels = {};                                             //store the full list of channels in the PSC table for building a Cal file
     dataStore.PSCaddresses = {};                                            //store the full list of addresses in the PSC table for building a Cal file
+    dataStore.midasCalibration = [];                                        //store the full list of the existing calibration coefficients from the server
     dataStore.RunNumber = '';                                               //store the run number for naming the Cal file
     dataStore.rawData = {};                                                 //buffer for raw spectrum data
     //fitting
@@ -48,7 +49,11 @@ function setupDataStore(){
     dataStore.residualsData[1] = [];        // peak1                          
     dataStore.residualsData[2] = [];        //peak2                          
     dataStore.residualsData[3] = [];        //peak3                          
-    dataStore.residualsData[4] = [];        //peak4                             
+    dataStore.residualsData[4] = [];        //peak4                   
+    dataStore.residualsData[5] = [];        // peak1                          
+    dataStore.residualsData[6] = [];        //peak2                          
+    dataStore.residualsData[7] = [];        //peak3                          
+    dataStore.residualsData[8] = [];        //peak4                             
     dataStore.lowPeakResolution = [];                                   //low energy peak resolutions, indexed per GRIFFINdetectors
     dataStore.lowPeakResolution.fillN(0,(dataStore.numberOfClovers*4*2));                             //start with zeroes
     dataStore.midPeakResolution = [];                                  //as midPeakResolution
@@ -90,17 +95,25 @@ function setupDataStore(){
 
     //resolution plot
     dataStore.plotInitData = [];
-    dataStore.plotInitData[0] = [[0,0,0,0,0], [1,0,0,0,0], [2,0,0,0,0], [3,0,0,0,0], [4,0,0,0,0]];      //initial dummy data
+    dataStore.plotInitData[0] = [[0,0,0,0,0], [1,0,0,0,0], [2,0,0,0,0], [3,0,0,0,0], [4,0,0,0,0], [5,0,0,0,0], [6,0,0,0,0], [7,0,0,0,0], [8,0,0,0,0]];      //initial dummy data
     dataStore.plotInitData[1] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
     dataStore.plotInitData[2] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
     dataStore.plotInitData[3] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
     dataStore.plotInitData[4] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
+    dataStore.plotInitData[5] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
+    dataStore.plotInitData[6] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
+    dataStore.plotInitData[7] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
+    dataStore.plotInitData[8] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
     dataStore.dataplotData = [];                                       // place for dataplot data 
     dataStore.dataplotData[0] = [];                                       // place for dataplot data 
     dataStore.dataplotData[1] = [];                                       // place for dataplot data 
     dataStore.dataplotData[2] = [];                                       // place for dataplot data 
     dataStore.dataplotData[3] = [];                                       // place for dataplot data 
     dataStore.dataplotData[4] = [];                                       // place for dataplot data 
+    dataStore.dataplotData[5] = [];                                       // place for dataplot data 
+    dataStore.dataplotData[6] = [];                                       // place for dataplot data 
+    dataStore.dataplotData[7] = [];                                       // place for dataplot data 
+    dataStore.dataplotData[8] = [];                                       // place for dataplot data 
     dataStore.plotStyle = [];
     dataStore.plotStyle[0] = {                                              //dygraphs style object
         labels: ["channel", "Peak1 Width", "Peak2 Width", "Peak3 Width", "Peak4 Width"],
@@ -263,8 +276,136 @@ function setupDataStore(){
             }
         }
     }
-    dataStore.YAxisMinValue = [[0,0], [-0.1,-1], [-0.1,-1], [-0.1,-1], [-0.1,-1]];  // used in updateData function. First number is y axis, second value is y2 axis
-    dataStore.YAxisMaxValue = [[3,3], [0.1,1], [0.1,1], [0.1,1], [0.1,1]];          // used in updateData function. First number is y axis, second value is y2 axis
+    dataStore.plotStyle[5] = {                                              //dygraphs style object
+        labels: ["channel", "Residual (keV)"],
+        title: 'Per-Crystal Residuals Peak1',
+        axisLabelColor: '#FFFFFF',
+        colors: ["#AAE66A"],
+        labelsDiv: 'residualP1midLegend',
+        drawPoints: 'true',
+        pointSize: '5',
+	strokeWidth: 0,
+        legend: 'always',
+        valueFormatter: function(num, opts, seriesName, dygraph, row, col){
+
+            if(col == 0)
+                return dataStore.THESEdetectors[num]
+            else
+                return num.toFixed(3)
+        },
+        axes: {
+            x: {
+                axisLabelFormatter: function(number, granularity, opts, dygraph){
+                    if(number < dataStore.THESEdetectors.length)
+                        return dataStore.THESEdetectors[number].slice(3,6);
+                    else
+                        return number
+                    
+                }
+            },
+
+            y : {
+		     valueRange: [-5,5]
+		    }
+        }
+    }
+    dataStore.plotStyle[6] = {                                              //dygraphs style object
+        labels: ["channel", "Residual (keV)"],
+        title: 'Per-Crystal Residuals Peak2',
+        axisLabelColor: '#FFFFFF',
+        colors: ["#EFB2F0"],
+        labelsDiv: 'residualP2midLegend',
+        drawPoints: 'true',
+        pointSize: '5',
+	strokeWidth: 0,
+        legend: 'always',
+        valueFormatter: function(num, opts, seriesName, dygraph, row, col){
+
+            if(col == 0)
+                return dataStore.THESEdetectors[num]
+            else
+                return num.toFixed(3)
+        },
+        axes: {
+            x: {
+                axisLabelFormatter: function(number, granularity, opts, dygraph){
+                    if(number < dataStore.THESEdetectors.length)
+                        return dataStore.THESEdetectors[number].slice(3,6);
+                    else
+                        return number
+                    
+                }
+            },
+
+            y : {
+		     valueRange: [-5,5]
+		    }
+        }
+    }
+    dataStore.plotStyle[7] = {                                              //dygraphs style object
+        labels: ["channel", "Residual (keV)"],
+        title: 'Per-Crystal Residuals Peak3',
+        axisLabelColor: '#FFFFFF',
+        colors: ["#B2D1F0"],
+        labelsDiv: 'residualP3midLegend',
+        drawPoints: 'true',
+        pointSize: '5',
+	strokeWidth: 0,
+        legend: 'always',
+        valueFormatter: function(num, opts, seriesName, dygraph, row, col){
+
+            if(col == 0)
+                return dataStore.THESEdetectors[num]
+            else
+                return num.toFixed(3)
+        },
+        axes: {
+            x: {
+                axisLabelFormatter: function(number, granularity, opts, dygraph){
+                    if(number < dataStore.THESEdetectors.length)
+                        return dataStore.THESEdetectors[number].slice(3,6);
+                    else
+                        return number
+                    
+                }
+            },
+
+            y : {
+		     valueRange: [-5,5]
+		    }
+        }
+    }
+    dataStore.plotStyle[8] = {                                              //dygraphs style object
+        labels: ["channel", "Residual (keV)"],
+        title: 'Per-Crystal Residuals Peak4',
+        axisLabelColor: '#FFFFFF',
+        colors: ["#F0DBB2"],
+        labelsDiv: 'residualP4midLegend',
+        drawPoints: 'true',
+        pointSize: '5',
+	strokeWidth: 0,
+        legend: 'always',
+        valueFormatter: function(num, opts, seriesName, dygraph, row, col){
+
+            if(col == 0)
+                return dataStore.THESEdetectors[num]
+            else
+                return num.toFixed(3)
+        },
+        axes: {
+            x: {
+                axisLabelFormatter: function(number, granularity, opts, dygraph){
+                    if(number < dataStore.THESEdetectors.length)
+                        return dataStore.THESEdetectors[number].slice(3,6);
+                    else
+                        return number
+                    
+                }
+            }
+        }
+    }
+    dataStore.YAxisMinValue = [[0,0], [-0.1,-1], [-0.1,-1], [-0.1,-1], [-0.1,-1], [-0.1,-1], [-0.1,-1], [-0.1,-1], [-0.1,-1]];  // used in updateData function. First number is y axis, second value is y2 axis
+    dataStore.YAxisMaxValue = [[3,3], [0.1,1], [0.1,1], [0.1,1], [0.1,1], [0.1,1], [0.1,1], [0.1,1], [0.1,1]];          // used in updateData function. First number is y axis, second value is y2 axis
     dataStore.annotations = [0,0];
     dataStore._dataplot = [];                 // Place for all dataplot objects to be created as an array. This makes them indexable and iteratable
 
@@ -607,14 +748,20 @@ function loadData(DAQ){
 	dataStore.RunNumber = DAQ[2][ 'Run number' ];
     }else{
 	// modeType is Histo
-    // If the data is from a histogram file, unpack the data here
+	// If the data is from a histogram file, unpack the data here
 	Config = JSON.parse(DAQ);
 	dataStore.PSCchannels = [];
 	dataStore.PSCaddresses = [];
+	
 	for(i=0; i<Config.Analyzer[4].Calibrations.length; i++){
 	    channels.push(Config.Analyzer[4].Calibrations[i].name);
 	    dataStore.PSCchannels.push(Config.Analyzer[4].Calibrations[i].name);
 	    dataStore.PSCaddresses.push(Config.Analyzer[4].Calibrations[i].address);
+	    if(Config.Analyzer[4].Calibrations[i].name.slice(0,3) == 'GRG'){
+		keyString = Config.Analyzer[4].Calibrations[i].name + '_Pulse_Height';
+		if(!dataStore.midasCalibration[keyString]){ dataStore.midasCalibration[keyString] = []; }
+		dataStore.midasCalibration[keyString] = [Config.Analyzer[4].Calibrations[i].offset, Config.Analyzer[4].Calibrations[i].gain, Config.Analyzer[4].Calibrations[i].quad ];
+	    }
 	}
 	// offset, gain and quad are also available in this Config.
 	dataStore.RunNumber = dataStore.histoFileName.split("_")[0].replace(/^\D+/g, '').split(".")[0];
@@ -636,6 +783,7 @@ function loadData(DAQ){
             dataStore._plotControl.activeSpectra.push(channels[i] + '_Pulse_Height');
     }
 
+    
     dataStore._plotControl.refreshAll();
 }
 

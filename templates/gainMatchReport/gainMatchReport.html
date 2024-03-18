@@ -679,7 +679,8 @@ if(breakForLoop){ break; }
 
             //update residuals plots
             if(dataStore.currentPeak==3){
-              this.reconstructResidualsData(dataStore.currentPlot,dataStore.THESEdetectors.indexOf(dataStore.currentPlot.slice(0,10)));
+              this.reconstructResidualsData(dataStore.currentPlot,dataStore.THESEdetectors.indexOf(dataStore.currentPlot.slice(0,10))); 
+              this.reconstructMidasResidualsData(dataStore.currentPlot,dataStore.THESEdetectors.indexOf(dataStore.currentPlot.slice(0,10)));
              }
 
             //disengage fit mode buttons
@@ -923,6 +924,51 @@ intercept = result.equation[2];
             this.calculateResidualsSD();
         },
 
+        this.reconstructMidasResidualsData = function(currentSpectrum,currentDetNum){
+            // First determine the residuals by applying the calibration coefficients from the server to the fitted centroid, then comparing it to the literature energy.
+            // Save the residuals data to the dataStore, then
+            //arrange the latest residual info for representation in the dygraph.
+
+             var thisOffset = dataStore.midasCalibration[currentSpectrum][0]; 
+             var thisGain = dataStore.midasCalibration[currentSpectrum][1]; 
+             var thisQuadratic = dataStore.midasCalibration[currentSpectrum][2];
+
+             for(currentPeak=0; currentPeak<4; currentPeak++){
+               var peakIndex = currentPeak+1;
+               var literatureEnergy = document.getElementById('peak'+peakIndex).value; 
+               peakIndex +=4;
+
+               // Save the data for the residuals plots
+               thisCentroid = dataStore.fitResults[currentSpectrum][currentPeak][1];
+               dataStore.residualsData[peakIndex][currentDetNum] = literatureEnergy - ( thisOffset  + (thisGain*thisCentroid) + (thisQuadratic*thisCentroid*thisCentroid) );
+
+               var i, evt, detectorIndex = [],
+               flags = [];
+               flags.fillN(0, dataStore.THESEdetectors.length)
+
+               for(i=0; i<dataStore.THESEdetectors.length; i++){
+                  detectorIndex[i] = i;
+               }
+
+               // Update the Y axis scale if needed
+               if(dataStore.residualsData[peakIndex][currentDetNum] < (0.75 * dataStore.YAxisMinValue[peakIndex][0])){
+                 var newYAxisMinValue = dataStore.residualsData[peakIndex][currentDetNum] * 1.33; 
+                 dataStore.YAxisMinValue[5][0] = dataStore.YAxisMinValue[6][0] = dataStore.YAxisMinValue[7][0] = dataStore.YAxisMinValue[8][0] = newYAxisMinValue;
+               }
+               if(dataStore.residualsData[peakIndex][currentDetNum] > (0.75 * dataStore.YAxisMaxValue[peakIndex][0])){
+                 var newYAxisMaxValue = dataStore.residualsData[peakIndex][currentDetNum] * 1.33; 
+                 dataStore.YAxisMaxValue[5][0] = dataStore.YAxisMaxValue[6][0] = dataStore.YAxisMaxValue[7][0] = dataStore.YAxisMaxValue[8][0] = newYAxisMaxValue;
+               }
+
+               dataStore.dataplotData[peakIndex] = arrangePoints(detectorIndex, [dataStore.residualsData[peakIndex]], flags );
+               var eventString = 'updateDyData'+peakIndex;
+               dispatcher({ 'data': dataStore.dataplotData[peakIndex] }, eventString);
+            }
+
+            // Update the mean and standard deviation of the dataset
+            this.calculateMidasResidualsSD();
+        },
+
         this.calculateResidualsSD = function(){
             //identifies the mean and SD of the residuals across all detectors
 
@@ -975,6 +1021,60 @@ intercept = result.equation[2];
             document.getElementById('residualP2newText').innerHTML  = 'Peak2 residuals: Mean: '+meanP2.toFixed(3)+', Standard Deviation: '+sdMeanP2.toFixed(3)+' keV'; 
             document.getElementById('residualP3newText').innerHTML  = 'Peak3 residuals: Mean: '+meanP3.toFixed(3)+', Standard Deviation: '+sdMeanP3.toFixed(3)+' keV'; 
             document.getElementById('residualP4newText').innerHTML  = 'Peak4 residuals: Mean: '+meanP4.toFixed(3)+', Standard Deviation: '+sdMeanP4.toFixed(3)+' keV';
+        },
+
+        this.calculateMidasResidualsSD = function(){
+            //identifies the mean and SD of the residuals across all detectors
+
+            var i, meanP1 = 0, sqMeanP1 = 0, meanP2 = 0, sqMeanP2 = 0, meanP3 = 0, sqMeanP3 = 0, meanP4 = 0, sqMeanP4 = 0,
+                numP1 = 0, numP2 = 0, numP3 = 0, numP4 = 0;
+
+            for(i=0; i<dataStore.residualsData.length; i++){
+                if(dataStore.residualsData[5][i]){
+                    meanP1 += dataStore.residualsData[5][i]; 
+                    sqMeanP1 += Math.pow(dataStore.residualsData[5][i],2);
+                    numP1++;
+                }
+                if(dataStore.residualsData[6][i]){
+                    meanP2 += dataStore.residualsData[6][i]; 
+                    sqMeanP2 += Math.pow(dataStore.residualsData[6][i],2);
+                    numP2++;
+                }
+                if(dataStore.residualsData[7][i]){
+                    meanP3 += dataStore.residualsData[7][i]; 
+                    sqMeanP3 += Math.pow(dataStore.residualsData[7][i],2);
+                    numP3++;
+                }
+                if(dataStore.residualsData[8][i]){
+                    meanP4 += dataStore.residualsData[8][i]; 
+                    sqMeanP4 += Math.pow(dataStore.residualsData[8][i],2);
+                    numP4++;
+                }
+            }
+
+            meanP1 /= numP1; 
+            meanP2 /= numP2; 
+            meanP3 /= numP3; 
+            meanP4 /= numP4;
+
+            sqMeanP1 /= numP1; 
+            sqMeanP2 /= numP2; 
+            sqMeanP3 /= numP3; 
+            sqMeanP4 /= numP4;
+
+
+            sdMeanP1 = Math.sqrt(sqMeanP1 - Math.pow(meanP1,2)); 
+            sdMeanP2 = Math.sqrt(sqMeanP2 - Math.pow(meanP2,2)); 
+            sdMeanP3 = Math.sqrt(sqMeanP3 - Math.pow(meanP3,2)); 
+            sdMeanP4 = Math.sqrt(sqMeanP4 - Math.pow(meanP4,2)); 
+
+            dataStore.residualsDataMean = [0, meanP1, meanP2, meanP3, meanP4]; 
+            dataStore.residualsDataSD = [0, sqMeanP1, sqMeanP2, sqMeanP3, sqMeanP4];
+
+            document.getElementById('residualP1midText').innerHTML  = 'Peak1 residuals: Mean: '+meanP1.toFixed(3)+', Standard Deviation: '+sdMeanP1.toFixed(3)+' keV'; 
+            document.getElementById('residualP2midText').innerHTML  = 'Peak2 residuals: Mean: '+meanP2.toFixed(3)+', Standard Deviation: '+sdMeanP2.toFixed(3)+' keV'; 
+            document.getElementById('residualP3midText').innerHTML  = 'Peak3 residuals: Mean: '+meanP3.toFixed(3)+', Standard Deviation: '+sdMeanP3.toFixed(3)+' keV'; 
+            document.getElementById('residualP4midText').innerHTML  = 'Peak4 residuals: Mean: '+meanP4.toFixed(3)+', Standard Deviation: '+sdMeanP4.toFixed(3)+' keV';
         },
 
         this.updateEnergies = function(){

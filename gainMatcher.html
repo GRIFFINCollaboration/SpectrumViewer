@@ -143,17 +143,23 @@
             <div id='resolutionWrap' class='col-md-12 item'>
 	    <div id='resolution' class='col-md-6'></div>
 	    <div class='col-md-12'>
-                <div id='residualP1new' class='col-md-6'></div>
+	      <h3>These new calibration coefficients:</h3>
+	        <div id='residualP1new' class='col-md-6'></div>
 		<div id='residualP2new' class='col-md-6'></div>
 		</div>
 		<div class='col-md-12'>
                 <div id='residualP3new' class='col-md-6'></div>
 		<div id='residualP4new' class='col-md-6'></div>
 		</div>
-                <div id='residualP1mid'></div>
-                <div id='residualP2mid'></div>
-                <div id='residualP3mid'></div>
-                <div id='residualP4mid'></div>
+	    <div class='col-md-12'>
+	      <h3>Calibration coefficients from midas file/odb:</h3>
+                <div id='residualP1mid' class='col-md-6'></div>
+		<div id='residualP2mid' class='col-md-6'></div>
+		</div>
+		<div class='col-md-12'>
+                <div id='residualP3mid' class='col-md-6'></div>
+		<div id='residualP4mid' class='col-md-6'></div>
+		</div>
             </div>
         </div>
 
@@ -168,7 +174,11 @@
                 dataStore._dataplot[1] = new dataplot('residualP1new',1); 
                 dataStore._dataplot[2] = new dataplot('residualP2new',2);
                 dataStore._dataplot[3] = new dataplot('residualP3new',3);
-                dataStore._dataplot[4] = new dataplot('residualP4new',4);
+                dataStore._dataplot[4] = new dataplot('residualP4new',4); 
+                dataStore._dataplot[5] = new dataplot('residualP1mid',5); 
+                dataStore._dataplot[6] = new dataplot('residualP2mid',6);
+                dataStore._dataplot[7] = new dataplot('residualP3mid',7);
+                dataStore._dataplot[8] = new dataplot('residualP4mid',8);
 
                 dataStore.templates = prepareTemplates(['header', 'gainMatchReport', 'matchReportTable', 'gainMatchSetupBar', 'plotGrid', 'plotControl', 'plotListLite', 'dataplot', 'footer']);
 
@@ -182,6 +192,10 @@
                 dataStore._dataplot[2].setup(2); 
                 dataStore._dataplot[3].setup(3); 
                 dataStore._dataplot[4].setup(4); 
+                dataStore._dataplot[5].setup(5); 
+                dataStore._dataplot[6].setup(6); 
+                dataStore._dataplot[7].setup(7); 
+                dataStore._dataplot[8].setup(8); 
                 setupFooter('foot');
 
                 //don't want additional plots in this app
