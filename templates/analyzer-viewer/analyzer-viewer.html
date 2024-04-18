@@ -12,6 +12,7 @@
 	      <div class='row'>
 	        <div class='col-md-2'><h5>Histogram File Directory:</h5></div>
 	        <div class='col-md-4' id='HistoDirectoryInputDivViewer'></div>
+	        <div class='col-md-2' id='HistoDirectoryRefreshDivViewer'></div>
 		  </div>
 	      <div class='row'>
 	        <div class='col-md-2'><h5>Filename for Summed Histogram file:</h5></div>
@@ -111,6 +112,17 @@
     submitHistoFileSumRequestToServer();
     }.bind(newButton);
     document.getElementById('submitDivSum').appendChild(newButton);
+
+    // Create Refresh button for fetching histograms list
+    newButton = document.createElement('button'); 
+    newButton.setAttribute('id', 'refreshHistosListButton'); 
+    newButton.setAttribute('class', 'btn btn-default btn-lg'); 
+    newButton.innerHTML = "Refresh Histogram list";
+    newButton.style.padding = '4px';
+    newButton.onclick = function(){
+       getHistoFileListFromServer();
+    }.bind(newButton);
+    document.getElementById('HistoDirectoryRefreshDivViewer').appendChild(newButton);
 
     // set up event listeners
     listener(wrapperID, 'requestViewerRefresh', setupViewerContent);
