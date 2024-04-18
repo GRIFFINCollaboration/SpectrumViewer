@@ -1,0 +1,176 @@
+<html>
+    <head>
+        <title>GRIFFIN Efficiency Fitter</title>
+        <script src='scripts/HTMLImports.min.js' type="text/javascript"></script>
+        <script src='scripts/mustache.js' type="text/javascript"></script>
+        <script src='scripts/easeljs-0.7.0.min.js' type="text/javascript"></script>
+        <script src='scripts/dygraphs.1.1.1.min.js' type="text/javascript"></script>
+        <script src='scripts/regression.min.js' type="text/javascript"></script>
+        <script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
+        <script src='scripts/fitit.js' type="text/javascript"></script>
+        <script src="scripts/jquery1-11-3.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script src="scripts/bootstrap3-3-5.min.js"></script>
+
+        <script src='scripts/helpers.js' type="text/javascript"></script>
+        <script src='scripts/calibrationTools.js' type="text/javascript"></script>
+        <script src='scripts/efficiencyFitter.js' type="text/javascript"></script>
+        <link rel="stylesheet" type="text/css" href="css/custom.css"/>
+
+        <!--HTML imports-->
+        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+        <link id='header' rel="import" href="templates/header/header.html">
+        <link id='efficiencyFitterReport' rel="import" href="templates/efficiencyFitterReport/efficiencyFitterReport.html">
+        <link id='efficiencyFitterReportTable' rel="import" href="templates/efficiencyFitterReport/efficiencyFitterReportTable.html">
+        <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
+        <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
+        <link id='plotListLite' rel="import" href="templates/plotList/plotListLite.html">
+        <link id='dataplot' rel="import" href="templates/dataplot/dataplot.html">
+        <link id='footer' rel="import" href="templates/footer/footer.html">
+    </head>
+
+    <body>
+        <div id='head'></div>
+
+
+         <div id='progressDiv' class="progress hidden" width=100%>
+           <div id='progress' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+	 </div>
+	   
+        <!--helpful hints-->
+        <div class='col-md-6'>
+            <div id='histogramMessage' class="alert alert-warning" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Select which histogram files contain the gain-matched source data for determining the efficiency.
+            </div>
+
+            <div id='waitMessage' class="alert alert-warning hidden" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Spectra downloading, please wait...
+            </div>
+
+            <div id='reviewMessage' class="alert alert-warning hidden" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Review the results in the table below, and refit any troublesome peaks one at a time.
+            </div>
+        </div>
+	
+        <!--User input for initial setup-->
+	<div id='histoChoiceBar' class='col-md-12'>
+	   <div id='histoChoiceDir' class='col-md-8'></div>
+
+	   <div class='col-md-12'>
+	     <div id='histoChoice133Ba' class='col-md-6'></div>
+             <div id='histoChoice152Eu' class='col-md-6'></div>
+           </div>
+           <div class='col-md-12'>
+             <div id='histoChoice56Co' class='col-md-6'></div>
+             <div id='histoChoice60Co' class='col-md-6'></div>
+           </div>
+	   <div id='histoChoiceSubmit' class='col-md-12'></div>
+
+	   </div>
+
+      
+        <!--Spectrum Plotting-->
+        <div id='plotRegion' class='sectionWrapper'>
+            <div id='plotWrap' class='col-md-9 plotRegion item'>
+                <div id='plottingGrid'></div>
+                <div class='col-md-8' id='plotCtrl'></div>
+                <div class='sectionWrapper refitButtons'>
+                    <div class='col-md-12'>
+                        <button type="button" class="btn btn-default btn-lg" id='fitLow' engaged='0'>
+                            <span id='refitLoBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> 
+                            <span id='loText'>Refit a Peak</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class='col-md-2 item'>
+                <div id='plotList' style='overflow-y:scroll; height:400px;'></div>
+            </div>
+        </div>
+
+        <!--Table of calculations and results-->
+        <div id='efficiencyFitter'></div>
+
+        <!--Efficiency curve Plotting-->
+        <div id='graphSection' class='sectionWrapper'>
+            <div id='efficiencyPlotWrap' class='col-md-12'>
+	    <div class='col-md-12'>
+	      <h3>Efficiency curves:</h3>
+	        <div id='efficiencyPlotAbs' class='col-md-6'></div>
+		<div id='efficiencyPlotRel' class='col-md-6'></div>
+		</div>
+	    <div class='col-md-12'>
+	      <h3>Efficiency curves of the individual sources:</h3>
+                <div id='efficiencyPlot133Ba' class='col-md-6'></div>
+		<div id='efficiencyPlot152Eu' class='col-md-6'></div>
+		</div>
+		<div class='col-md-12'>
+                <div id='efficiencyPlot56Co' class='col-md-6'></div>
+		<div id='efficiencyPlot60Co' class='col-md-6'></div>
+		</div>
+            </div>
+            </div>
+        </div>
+
+        <div id='foot'></div>
+
+        <script>
+            window.addEventListener('HTMLImportsLoaded', function(e) {
+
+                dataStore._plotGrid = new plotGrid('plottingGrid');
+                dataStore._plotControl = new plotControl('plotCtrl', 'horizontal'); 
+                dataStore._dataplot[0] = new dataplot('efficiencyPlotAbs',0); 
+                dataStore._dataplot[1] = new dataplot('efficiencyPlotRel',1); 
+                dataStore._dataplot[2] = new dataplot('efficiencyPlot133Ba',2); 
+                dataStore._dataplot[3] = new dataplot('efficiencyPlot152Eu',3); 
+                dataStore._dataplot[4] = new dataplot('efficiencyPlot56Co',4); 
+                dataStore._dataplot[5] = new dataplot('efficiencyPlot60Co',5); 
+
+                dataStore.templates = prepareTemplates(['header', 'efficiencyFitterReport', 'efficiencyFitterReportTable', 'plotGrid', 'plotControl', 'plotListLite', 'dataplot', 'footer']);
+
+                setupHeader('head', 'Efficiency Fitter');
+                dataStore._plotGrid.setup();
+                dataStore._plotControl.setup();
+                //set up spectrum cell
+                dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]); 
+                dataStore._dataplot[0].setup(0); 
+                dataStore._dataplot[1].setup(1); 
+                dataStore._dataplot[2].setup(2); 
+                dataStore._dataplot[3].setup(3); 
+                dataStore._dataplot[4].setup(4); 
+                dataStore._dataplot[5].setup(5); 
+                setupFooter('foot');
+
+                //don't want additional plots in this app
+	        deleteNode('plottingGridnewPlotButton');
+
+	// Create the text input for the Histogram file directory and file inputs
+	var newLabel = document.createElement("label");
+	newLabel.for = 'HistoDirectoryInput';
+	newLabel.innerHTML = 'Directory of Histogram files: ';
+	document.getElementById('histoChoiceDir').appendChild(newLabel);
+	
+	newInput = document.createElement('input'); 
+	newInput.id = 'HistoDirectoryInput'; 
+	newInput.type = 'text';
+	newInput.style.width = '400px';
+	newInput.value = dataStore.histoFileDirectoryPath; 
+	newInput.onchange = function(){
+	dataStore.histoFileDirectoryPath = this.value;
+	getHistoFileListFromServer();
+	}.bind(newInput);
+	document.getElementById('histoChoiceDir').appendChild(newInput);
+	
+	// Grab the histogram list for the default directory
+	getHistoFileListFromServer();
+	
+	        $(function () {
+                    $('[data-toggle="tooltip"]').tooltip()
+                });
+            });
+        </script>
+    </body>
+</html>

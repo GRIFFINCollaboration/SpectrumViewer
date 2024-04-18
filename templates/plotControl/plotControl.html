@@ -326,6 +326,8 @@
             //refresh all spectra & odb parameters
             //this: plotControl object
 
+	      var thisRawData = {};
+
 	      // activeSpectra can now include 1D Projections of 2D matrices which are created locally in the server.
 	      // So these need to be stripped from the requests that go to the server for updates.
 	      var activeSpectraForQueries = this.activeSpectra;
@@ -335,26 +337,65 @@
 	          activeSpectraForQueries.splice(index, 1);
 	        }
 	      }
+	      // the spectrum names of activeSpectra can now include histogram names if they were received from a histogram file. These need to be stripped before requests go to the server
+	      for(var i=0; i<activeSpectraForQueries.length; i++){
+	        if(activeSpectraForQueries[i].includes(':')){
+	          activeSpectraForQueries[i] = activeSpectraForQueries[i].split(':')[1];
+	        }
+	      }
+	      
 	      var queries = constructQueries(activeSpectraForQueries);
 	      
 	      var spectraFetched = Promise.all(queries.map(promiseJSONURL)).then(
                     function(spectra){
-                        var i, j, key, viewerKey;
-                        dataStore.rawData = {};
+                        var i, j, key, viewerKey, newKey, this2dKey;
+
+                        // Clear all previous saved spectra
+                       // dataStore.rawData = {};
 
 	                // distribute the spectra data received from the analyzer to the appropriate places
                         for(i=0; i<spectra.length; i++){
+
+                          if(Object.keys(spectra[i])[0] == 'name'){
+                            // Treatment for 2d spectra - append the histoFileName to the beginning of the 'name' key only 
+                                // modify the spectrum name that were received from a histogram file to include it at the start
+                                if(dataStore.histoFileName.length>0){
+                                   this2dKey = dataStore.histoFileName.split('.')[0] + ':' + JSON.parse(JSON.stringify(spectra[i]['name']));
+                                  spectra[i].name = dataStore.histoFileName.split('.')[0] + ':' + spectra[i].name;
+                                  }else{
+                                   this2dKey = JSON.parse(JSON.stringify(spectra[i]['name']));
+                                  }
+
+                               //keep the raw results around
+                                dataStore.rawData[this2dKey] = JSON.parse(JSON.stringify(spectra[i]));
+                               // thisRawData = JSON.parse(JSON.stringify(spectra[i][key]));
+                                
+                                // repopulate all viewers that use this spectrum
+                                // needs to be done differently for 2d
+
+                          }else{
+                            // Treatment for 1d spectra - append the histoFileName to the beginning of the specturm name
                             for(key in spectra[i]){
+
                                 //keep the raw results around
                                 dataStore.rawData[key] = JSON.parse(JSON.stringify(spectra[i][key]));
+                               // thisRawData = JSON.parse(JSON.stringify(spectra[i][key]));
+
+                                // modify any spectrum names that were received from a histogram file to include it at the start
+                                if(dataStore.histoFileName.length>0 && !key.includes(':')){
+                                  newKey = dataStore.histoFileName.split('.')[0] + ':' + key;
+                                  delete Object.assign(dataStore.rawData, {[newKey]: dataStore.rawData[key] })[key]; 
+                                }else{ newKey = key; }
+
                                 //repopulate all spectra that use this spectrum
                                 for(viewerKey in dataStore.viewers){
-                                    if(dataStore.viewers[viewerKey].plotBuffer[key]){
-                                        dataStore.viewers[viewerKey].addData(key, spectra[i][key]);
+                                   if(dataStore.viewers[viewerKey].plotBuffer[newKey]){
+                                     dataStore.viewers[viewerKey].addData(newKey, dataStore.rawData[newKey]);
                                     }
                                 }
                             }
-                        }
+                         }
+                      }
 
                         // Add in the data from any created spectra (projections of 2d objects)
                             for(key in dataStore.createdSpectra){
@@ -365,7 +406,6 @@
                                     }
                                 }
                             }
-                        
                     }
                 );
 

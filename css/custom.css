@@ -26,6 +26,10 @@ div.item{
     text-align: center;
 }
 
+.hidden{
+    display: none;
+}
+
 div.ui-group-vertical{
     border-bottom: 1px solid #999999;
     padding-bottom: 1em;

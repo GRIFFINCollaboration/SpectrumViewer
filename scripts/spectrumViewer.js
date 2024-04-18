@@ -478,11 +478,13 @@ function setupDataStore(){
     dataStore = {
         "pageTitle": 'Spectrum Viewer',                             //header title
         "topGroups": topGroups,                                     //groups in top nav row
+	"rawData" : {},                                             //buffer for raw spectrum data
+        "histoFileName" : '',                                       //histogram filename needs to be defined
         "waveformSnap": true,                                       //do we want the snap to waveform functionality?
         "doUpdates": true,                                          //do we want the data update button and loop?
         "scaling": false,                                           //do we want to expose x-axis rescaling UI?
         "plots": [],                                                //array of names for default plot cells
-        "spectrumServer": 'http://grifstore1.triumf.ca:9093',       //analyzer url + port number
+        "spectrumServer": 'http://grsmid00.triumf.ca:9093',         //analyzer url + port number
         "ODBrequests": [],                                          //array of odb requests to make on refresh
         "zeroedPlots": {}                                           //initialize empty object for zeroed plots
     }

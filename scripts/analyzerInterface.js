@@ -343,7 +343,7 @@ function processSortStatus(payload){
     }else{
 	// Set the heartbeat frequency
 	dataStore.heartbeatInterval = 1000;
-
+	
 	// Remember the sorting state
 	dataStore.previousSortStatus = 'BUSY';
     }
@@ -357,6 +357,7 @@ function processSortStatus(payload){
 
     // Unpack the Sort Status response from the server
     var thisPayload = payload.split(" ");
+  //  console.log(thisPayload);
     dataStore.midasFileDataDirectoryPath = thisPayload[0];
     dataStore.SortStatusCurrentFileName = thisPayload[1];
     dataStore.SortStatusCurrentRunNumber = parseInt(thisPayload[2]);
@@ -412,7 +413,6 @@ function processSortStatus(payload){
     */
 
     // Update the printed Sort Status information on screen
-   // string = 'Sorting Run '+dataStore.SortStatusCurrentRunNumber+', subrun '+dataStore.SortStatusCurrentSubRunNumber+' at '+dataStore.SortStatusAverageSortSpeed+' MB/s. Sorted '+dataStore.SortStatusCurrentMegaBytesSorted+' of '+dataStore.SortStatusCurrentFileSize+' MBs ('+dataStore.SortStatusCurrentPercentageComplete+'% completed). Estimated time to complete = '+dataStore.SortStatusCurrentRemainingSortTime+' s.';
     string = 'Sorting Run '+dataStore.SortStatusCurrentRunNumber+', subrun '+dataStore.SortStatusCurrentSubRunNumber+' at '+dataStore.SortStatusAverageSortSpeed+' MB/s. Sorted '+prettyFileSizeString(dataStore.SortStatusCurrentBytesSorted)+' of '+prettyFileSizeString(dataStore.SortStatusCurrentBytesFileSize)+'s ('+dataStore.SortStatusCurrentPercentageComplete+'% completed). Estimated time to complete = '+prettyTimeString(parseInt(dataStore.SortStatusCurrentRemainingSortTime));
     document.getElementById("SortingStatus").innerHTML = string;
 

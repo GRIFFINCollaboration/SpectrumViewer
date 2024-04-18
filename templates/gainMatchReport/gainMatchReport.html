@@ -84,7 +84,7 @@
             // build list of source titles
     var listOfSourceTitles = [];
     
-    if(dataStore.THESEdetectors[0].slice(0,3) == 'PAC'){
+    if(dataStore.THESEdetectors[0].includes('PAC')){
      var thisObject = {
                          "name" : dataStore.sourceInfoPACES[0].name,
                          "title" : dataStore.sourceInfoPACES[0].title
@@ -264,7 +264,8 @@
             dataStore.viewers[viewerName].FitLimitUpper = dataStore.ROI[spectrum].ROItop[1]
             dataStore.viewers[viewerName].fitData(spectrum, 0);
             
-            //dump data so it doesn't stack up 
+            //dump data so it doesn't stack up
+console.log(dataStore);
             dataStore.viewers[viewerName].removeData(spectrum);        
         },
 
@@ -373,8 +374,10 @@ var thisSearchRegion = [];
            foundP1id=3;
           }
          }else{
-               foundP1peaks[2]=foundP1peaks[1]=foundP1peaks[0];  foundP1id=3; }
+               foundP1peaks[2]=foundP1peaks[1]=foundP1peaks[0];  foundP1id=3;
+               
          }
+    }
  centers[0]=foundP1peaks[0];
 
  // identify the peak center of the three highest peaks within the search region for Peak 2
@@ -404,8 +407,10 @@ var thisSearchRegion = [];
            foundP2id=3;
           }
          }else{
-               foundP2peaks[2]=foundP2peaks[1]=foundP2peaks[0];  foundP2id=3; }
+               foundP2peaks[2]=foundP2peaks[1]=foundP2peaks[0];  foundP2id=3;
+               
          }
+ }
  centers[1]=foundP2peaks[0];
 
  // identify the peak center of the three highest peaks within the search region for Peak 3
@@ -415,16 +420,32 @@ var thisSearchRegion = [];
  thisSearchRegion[1] = dataStore.searchRegionP3[1];
  if(thisSearchRegion[0]<(centers[1]+5)){ thisSearchRegion[0] = (centers[1]+10); }
  while(foundP3id<3){
-      thisPeak=thisSearchRegion[0]; 
-      for(i=thisSearchRegion[0]; i<(thisSearchRegion[1]); i++){
-         if((i > (centers[0]-5) && i < (centers[0]+5)) || (i >  (centers[1]-5) && i < (centers[1]+5))){ continue; }
-         if(foundP3id>0 && i > (foundP3peaks[0]-5) && i < (foundP3peaks[0]+5)){ continue; }
-         if(foundP3id>1 && i > (foundP3peaks[1]-5) && i < (foundP3peaks[1]+5)){ continue; }
-         localPBG = (data[i-4]+data[i-3]+data[i-2]+data[i-1]+data[i]+data[i+1]+data[i+2]+data[i+3]) / (data[i-8]+data[i-7]+data[i-6]+data[i-5]+data[i+5]+data[i+6]+data[i+7]+data[i+8]);
-         if(data[i] > data[thisPeak] && localPBG>0.5){
-           thisPeak=i;
-         }
-      }
+      thisPeak=thisSearchRegion[0];
+
+/*
+      if(document.getElementById("automaticCalibration-Sr-90").value == "Sr-90"){
+      // 90Sr has significant background from Bremsstrahliung so search this region backwards.
+
+        for(i=thisSearchRegion[1]; i<(thisSearchRegion[0]); i--){
+           if((i > (centers[0]-5) && i < (centers[0]+5)) || (i >  (centers[1]-5) && i < (centers[1]+5))){ continue; }
+           if(foundP3id>0 && i > (foundP3peaks[0]-5) && i < (foundP3peaks[0]+5)){ continue; }
+           if(foundP3id>1 && i > (foundP3peaks[1]-5) && i < (foundP3peaks[1]+5)){ continue; }
+           localPBG = (data[i-4]+data[i-3]+data[i-2]+data[i-1]+data[i]+data[i+1]+data[i+2]+data[i+3]) / (data[i-8]+data[i-7]+data[i-6]+data[i-5]+data[i+5]+data[i+6]+data[i+7]+data[i+8]);
+           if(data[i] > data[thisPeak] && localPBG>0.5){ thisPeak=i; }
+        }
+
+      }else{
+*/
+       for(i=thisSearchRegion[0]; i<(thisSearchRegion[1]); i++){
+           if((i > (centers[0]-5) && i < (centers[0]+5)) || (i >  (centers[1]-5) && i < (centers[1]+5))){ continue; }
+           if(foundP3id>0 && i > (foundP3peaks[0]-5) && i < (foundP3peaks[0]+5)){ continue; }
+           if(foundP3id>1 && i > (foundP3peaks[1]-5) && i < (foundP3peaks[1]+5)){ continue; }
+           localPBG = (data[i-4]+data[i-3]+data[i-2]+data[i-1]+data[i]+data[i+1]+data[i+2]+data[i+3]) / (data[i-8]+data[i-7]+data[i-6]+data[i-5]+data[i+5]+data[i+6]+data[i+7]+data[i+8]);
+           if(data[i] > data[thisPeak] && localPBG>0.5){ thisPeak=i; }
+        }
+/*
+     }
+  */
 
  if(thisPeak>thisSearchRegion[0]){
    foundP3peaks[foundP3id]=thisPeak;
@@ -435,8 +456,10 @@ var thisSearchRegion = [];
            foundP3id=3;
           }
          }else{
-               foundP3peaks[2]=foundP3peaks[1]=foundP3peaks[0];  foundP3id=3; }
+               foundP3peaks[2]=foundP3peaks[1]=foundP3peaks[0];  foundP3id=3;
+               
          }
+    }
  centers[2]=foundP3peaks[0];
 
  // identify the peak center of the three highest peaks within the search region for Peak 4
@@ -701,22 +724,22 @@ if(breakForLoop){ break; }
             //<spectrumName>: string; name of spectrum, per names from analyzer
             //this: gainMatchReport object
 
-            var calibration
+            var calibration;
 
             if(Array.isArray(dataStore.fitResults[spectrum][0]))
-                document.getElementById(this.wrapID + spectrum.slice(0,10) + 'chan1').innerHTML = dataStore.fitResults[spectrum][0][1].toFixed(3); 
+                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'chan1').innerHTML = dataStore.fitResults[spectrum][0][1].toFixed(3);
             if(Array.isArray(dataStore.fitResults[spectrum][1]))
-                document.getElementById(this.wrapID + spectrum.slice(0,10) + 'chan2').innerHTML = dataStore.fitResults[spectrum][1][1].toFixed(3); 
+                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'chan2').innerHTML = dataStore.fitResults[spectrum][1][1].toFixed(3);
             if(Array.isArray(dataStore.fitResults[spectrum][2]))
-                document.getElementById(this.wrapID + spectrum.slice(0,10) + 'chan3').innerHTML = dataStore.fitResults[spectrum][2][1].toFixed(3); 
+                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'chan3').innerHTML = dataStore.fitResults[spectrum][2][1].toFixed(3);
             if(Array.isArray(dataStore.fitResults[spectrum][3]))
-                document.getElementById(this.wrapID + spectrum.slice(0,10) + 'chan4').innerHTML = dataStore.fitResults[spectrum][3][1].toFixed(3);
+                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'chan4').innerHTML = dataStore.fitResults[spectrum][3][1].toFixed(3);
 
             if(Array.isArray(dataStore.fitResults[spectrum][0]) && Array.isArray(dataStore.fitResults[spectrum][1]) && Array.isArray(dataStore.fitResults[spectrum][2]) && Array.isArray(dataStore.fitResults[spectrum][3])){
                 calibration = this.calculateQuadratic(dataStore.fitResults[spectrum][0][1], dataStore.fitResults[spectrum][1][1], dataStore.fitResults[spectrum][2][1], dataStore.fitResults[spectrum][3][1]);
-                document.getElementById(this.wrapID + spectrum.slice(0,10) + 'offset').innerHTML = calibration[0].toFixed(8); 
-                document.getElementById(this.wrapID + spectrum.slice(0,10) + 'gain').innerHTML = calibration[1].toFixed(8); 
-                document.getElementById(this.wrapID + spectrum.slice(0,10) + 'quad').innerHTML = calibration[2].toFixed(8);
+                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'offset').innerHTML = calibration[0].toFixed(8);
+                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'gain').innerHTML = calibration[1].toFixed(8);
+                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'quad').innerHTML = calibration[2].toFixed(8);
                 dataStore.fitResults[spectrum][4] = calibration
             }
 
@@ -849,17 +872,17 @@ intercept = result.equation[2];
                         || Math.abs(dataStore.fitResults[keys[i]][4][2]) > 0.00001
                     )
                 ){
-                    document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', 'background-color: #FF0000;');
-                    document.getElementById(keys[i].slice(0,10) + 'write').checked = false; 
+                    document.getElementById(this.wrapID + keys[i].split(':')[1].slice(0,10) + 'row').setAttribute('style', 'background-color: #FF0000;');
+                    document.getElementById(keys[i].split(':')[1].slice(0,10) + 'write').checked = false;
                  } else if(isNaN(dataStore.fitResults[keys[i]][0][1])
                            || isNaN(dataStore.fitResults[keys[i]][1][1])
                            || isNaN(dataStore.fitResults[keys[i]][2][1])
                            || isNaN(dataStore.fitResults[keys[i]][3][1])  ){
-                    document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', 'background-color: #F28C28;');
-                    document.getElementById(keys[i].slice(0,10) + 'write').checked = false; 
+                    document.getElementById(this.wrapID + keys[i].split(':')[1].slice(0,10) + 'row').setAttribute('style', 'background-color: #F28C28;');
+                    document.getElementById(keys[i].split(':')[1].slice(0,10) + 'write').checked = false;
                 } else{
-                    document.getElementById(this.wrapID + keys[i].slice(0,10) + 'row').setAttribute('style', '');
-                    document.getElementById(keys[i].slice(0,10) + 'write').checked = true; 
+                    document.getElementById(this.wrapID + keys[i].split(':')[1].slice(0,10) + 'row').setAttribute('style', '');
+                    document.getElementById(keys[i].split(':')[1].slice(0,10) + 'write').checked = true;
                 }
             }
         },
@@ -928,10 +951,10 @@ intercept = result.equation[2];
             // First determine the residuals by applying the calibration coefficients from the server to the fitted centroid, then comparing it to the literature energy.
             // Save the residuals data to the dataStore, then
             //arrange the latest residual info for representation in the dygraph.
-
-             var thisOffset = dataStore.midasCalibration[currentSpectrum][0]; 
-             var thisGain = dataStore.midasCalibration[currentSpectrum][1]; 
-             var thisQuadratic = dataStore.midasCalibration[currentSpectrum][2];
+            
+             var thisOffset = dataStore.midasCalibration[currentSpectrum.split(':')[1]][0];
+             var thisGain = dataStore.midasCalibration[currentSpectrum.split(':')[1]][1];
+             var thisQuadratic = dataStore.midasCalibration[currentSpectrum.split(':')[1]][2];
 
              for(currentPeak=0; currentPeak<4; currentPeak++){
                var peakIndex = currentPeak+1;

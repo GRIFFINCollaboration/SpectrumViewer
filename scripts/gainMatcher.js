@@ -1,6 +1,21 @@
 ////////////////////////////////////////////
 // main setup
 ////////////////////////////////////////////
+// Workflow for gainMatcher:
+// Initial setup through a series of user inputs.
+// At setupAutomaticCalibration or setupManualCalibration, the list of channels (psc) are requested through XHR(dataStore.ViewConfigQuery, "Problem getting viewConfig from analyzer server", loadData, function(error){console.log(error)});
+// the callback loadData build the list of histogram names to request from the server (this.activeSpectra where this is plotControl object). Then calls this.refreshAll where this is plotControl object.
+// the refreshAll function in plotControl.html issues promises to receive all spectra from the server. The callback is fetchCallback in gainMatcher.js.
+// If manual then the peak regions are defined here by user mouse inputs. If automatic then the guesses are loaded.
+// Click the fitAll ('Gainmatch all') button to call this.fitAll were this is the gainMatchReport object.
+// this.fitAll uses a releaser to execute an operation for each key of dataStore.rawData.
+//      in the releaser: calls this.fitSpectra(keys[i]) with each key of dataStore.rawData. 
+//             this.fitSpectra calls this.guessPeaks to identify the peaks, plots the spectrum and fits the peaks by calling fitData which is a viewer function, then dumps the specturm data.
+//             fitData is in gammaSpectrum.js. It uses a [guassian + linear background] fit from a maximum-likihood approach. It calls this.fitCallback.
+//                    fitCallback is defined in gainMatchReport.html. after fitting, log the fit results (dataStore.fitResults), log the resolution, update any modification made to the ROI by the fitting algortihm,
+//                                                                                   update the table. Update the resolution and residuals plots.
+//                                in updateTable, this.calculateQuadratic is called to fit the actual energy calibration. Calibration results logged in dataStore.fitResults[spectrum][4]. whatsNormal and highlightOutliers.
+//      in the releaser: After all spectra have been looped, then once executes; draw the fit lines, change the message div, plot the first spectrum again, whatsNormal and highlightOutliers.
 
 function setupDataStore(){
     //sets up global variable datastore
@@ -429,43 +444,6 @@ function fetchCallback(){
     }
 }
 
-function GetURLArguments(){
-	//return an object with keys/values as per query string
-	//note all values will be strings.
-
-	var elts = {};
-	var queryString = window.location.search.substring(1)
-	var value, i;
-        var urlData = [];
-
-
-	queryString = queryString.split('&');
-	for(i=0; i<queryString.length; i++){
-		value = queryString[i].split('=');
-		urlData[value[0]] = value[1];
-	}
-
-    // Save the information to the dataStore
-    // Save the hostname and port number for getting spectrum data and writing to the config file
-    dataStore.spectrumServer = 'http://'+urlData.analyzerBackend+'.triumf.ca:'+urlData.analyzerPort;
-    
-    // Save the information to the dataStore
-    // Save the hostname and port number for writing the ODB parameters
-    dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+'.triumf.ca:'+urlData.ODBHostPort;
-    
-    // Copy the histogram URL arguments to the dataStore
-    dataStore.histoFileDirectoryPath = urlData.histoDir;
-    if(dataStore.histoFileDirectoryPath==undefined){
-	// No directory for the histogram files has been provided in the URL, so we provide a default one
-	dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms';
-    }
-    if(urlData.histoFile){
-	dataStore.histoFileName = urlData.histoFile;
-	dataStore.histoAutoLoad = true;
-    }
-    
-}
-
 function setupMenusFromModeChoice(modeType){
     
     //user guidance
@@ -518,26 +496,6 @@ function setupMenusFromModeChoice(modeType){
 	document.getElementById('detectorChoiceBar').classList.remove("hidden");
     }
     
-}
-
-function processHistoFileList(payload){
-    console.log(payload);
-
-    // receive the payload and split into an array of strings
-    var thisPayload = payload.split(" ]")[0].split("[ \n")[1];
-    
-    // tidy up the strings to extract the list of midas files
-    dataStore.histoFileList = thisPayload.split(" , \n ");
-
-    // Sort the list in numberical and alphabetical order, then reverse the order so the newer files appear first (note this is not ideal for sub-runs)
-    dataStore.histoFileList.sort();
-    dataStore.histoFileList.reverse();
-
-    // Set up the list of histo files
-    setupHistoListSelect();
-
-    console.log(dataStore.histoFileList);
-
 }
 
 function setupHistoListSelect(){
@@ -636,42 +594,43 @@ function setupMenusFromDetectorChoice(detectorType){
 	}
     }
     
-    //generate groups for plot selector
+	//generate groups for plot selector
+	var histoName = dataStore.histoFileName.split('.')[0];
     for(i=1; i<(dataStore.numberOfClovers+1); i++){
         groups.push({
             "groupID": 'GRG' + alwaysThisLong(i, 2),
             "groupTitle": 'GRIFFIN ' + alwaysThisLong(i, 2),
             "plots": [
                 {
-                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'BN00A', 
+                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'BN00A_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'BN00A'
                 },
                 {
-                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'GN00A', 
+                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'GN00A_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'GN00A'
                 },
                 {
-                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'RN00A', 
+                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'RN00A_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'RN00A'
                 },
                 {
-                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'WN00A', 
+                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'WN00A_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'WN00A'
                 },
                 {
-                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'BN00B', 
+                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'BN00B_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'BN00B'
                 },
                 {
-                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'GN00B', 
+                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'GN00B_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'GN00B'
                 },
                 {
-                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'RN00B', 
+                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'RN00B_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'RN00B'
                 },
                 {
-                    "plotID": 'GRG' + alwaysThisLong(i, 2) + 'WN00B', 
+                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'WN00B_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'WN00B'
                 }
             ]
@@ -689,28 +648,29 @@ function setupMenusFromDetectorChoice(detectorType){
 
 
     //generate groups for plot selector
+	var histoName = dataStore.histoFileName.split('.')[0];
         groups.push({
             "groupID": 'PAC',
             "groupTitle": 'PACES',
             "plots": [
                 {
-                    "plotID": 'PAC01XN00A', 
+                    "plotID": histoName+':'+'PAC01XN00A_Pulse_Height', 
                     "title": 'PAC01XN00A'
                 },
                 {
-                    "plotID": 'PAC02XN00A', 
+                    "plotID": histoName+':'+'PAC02XN00A_Pulse_Height', 
                     "title": 'PAC02XN00A'
                 },
                 {
-                    "plotID": 'PAC03XN00A', 
+                    "plotID": histoName+':'+'PAC03XN00A_Pulse_Height', 
                     "title": 'PAC03XN00A'
                 },
                 {
-                    "plotID": 'PAC04XN00A', 
+                    "plotID": histoName+':'+'PAC04XN00A_Pulse_Height', 
                     "title": 'PAC04XN00A'
                 },
                 {
-                    "plotID": 'PAC05XN00A', 
+                    "plotID": histoName+':'+'PAC05XN00A_Pulse_Height', 
                     "title": 'PAC05XN00A'
                 }
             ]
@@ -757,7 +717,7 @@ function loadData(DAQ){
 	    channels.push(Config.Analyzer[4].Calibrations[i].name);
 	    dataStore.PSCchannels.push(Config.Analyzer[4].Calibrations[i].name);
 	    dataStore.PSCaddresses.push(Config.Analyzer[4].Calibrations[i].address);
-	    if(Config.Analyzer[4].Calibrations[i].name.slice(0,3) == 'GRG'){
+	    if(Config.Analyzer[4].Calibrations[i].name.includes('GRG')){
 		keyString = Config.Analyzer[4].Calibrations[i].name + '_Pulse_Height';
 		if(!dataStore.midasCalibration[keyString]){ dataStore.midasCalibration[keyString] = []; }
 		dataStore.midasCalibration[keyString] = [Config.Analyzer[4].Calibrations[i].offset, Config.Analyzer[4].Calibrations[i].gain, Config.Analyzer[4].Calibrations[i].quad ];
@@ -768,9 +728,9 @@ function loadData(DAQ){
     }
     
     //Add the detector type and run number to the name of the Cal file
-    if(dataStore.THESEdetectors[0].slice(0,3) == 'GRG'){
+    if(dataStore.THESEdetectors[0].includes('GRG')){
 	document.getElementById('saveCalname').value = 'GRIFFIN-Cal-File-Run'+dataStore.RunNumber+'.cal';
-    }else if(dataStore.THESEdetectors[0].slice(0,3) == 'PAC'){
+    }else if(dataStore.THESEdetectors[0].includes('PAC')){
 	document.getElementById('saveCalname').value = 'PACES-Cal-File-Run'+dataStore.RunNumber+'.cal';
     }
 
@@ -782,7 +742,6 @@ function loadData(DAQ){
         if(channels[i].slice(0,3) == dataStore.THESEdetectors[0].slice(0,3))
             dataStore._plotControl.activeSpectra.push(channels[i] + '_Pulse_Height');
     }
-
     
     dataStore._plotControl.refreshAll();
 }
@@ -816,7 +775,7 @@ function updateAnalyzer(){
             offset[i] = o;
 
 	    // Write a separate URL for each clover
-	    if(i>0 && (dataStore.THESEdetectors[i].slice(0,3) == 'GRG') && ((i%4) == 0)){ num++; j=0; urls[num]= dataStore.spectrumServer + '?cmd=setCalibration';}
+	    if(i>0 && (dataStore.THESEdetectors[i].includes('GRG')) && ((i%4) == 0)){ num++; j=0; urls[num]= dataStore.spectrumServer + '?cmd=setCalibration';}
 	    urls[num] += '&channelName'+j+'='+dataStore.THESEdetectors[i]+'&quad'+j+'='+quad[i]+'&gain'+j+'='+gain[i]+'&offset'+j+'='+offset[i];
 	    j++;
 	    
@@ -942,7 +901,7 @@ function setupAutomaticCalibration(sourceType){
     dataStore.mode = 'auto';
 
     // Hide the unnessary buttons
-    if(dataStore.THESEdetectors[0].slice(0,3) == 'GRG'){
+    if(dataStore.THESEdetectors[0].includes('GRG')){
 	for(var i=0; i<dataStore.sourceInfo.length; i++){
 	    if(dataStore.sourceInfo[i].name != sourceType){
 		document.getElementById('automaticCalibration-'+dataStore.sourceInfo[i].name).classList.add('hidden');
@@ -997,7 +956,7 @@ function autoPeakSearchLimits(sourceType){
     // this == spectrumViewer object
 
     // Set the peak energies for this source
-    if(dataStore.THESEdetectors[0].slice(0,3) == 'PAC'){
+    if(dataStore.THESEdetectors[0].includes('PAC')){
 	// Find the index number for the source information for this sourceType
 	var index = dataStore.sourceInfoPACES.map(function(e) { return e.name; }).indexOf(sourceType);
 	var lowEnergy  = dataStore.sourceInfoPACES[index].lowEnergy;
@@ -1044,52 +1003,6 @@ function autoPeakSearchLimits(sourceType){
     
 }
 
-function shiftclick(clickCoords){
-    // callback for shift-click on plot - draw a horizontal line as the peak search region.
-    // this == spectrumViewer object
-
-    var buffer;
-
-    // Use each shiftclick to define a small search region around a specific peak
-    
-    if(dataStore.searchRegionP1.length == 0){
-        dataStore.searchRegionP1[0] =  Math.floor(clickCoords.x *0.80);
-        dataStore.searchRegionP1[1] =  Math.floor(clickCoords.x *1.20);
-        dataStore.searchRegionP1[2] = clickCoords.y;
-        this.addLine('searchRegion', dataStore.searchRegionP1[0], dataStore.searchRegionP1[2], dataStore.searchRegionP1[1], dataStore.searchRegionP1[2], '#00FFFF');
-        this.plotData();
-    } else if (dataStore.searchRegionP2.length == 0){
-        dataStore.searchRegionP2[0] =  Math.floor(clickCoords.x *0.80);
-        dataStore.searchRegionP2[1] =  Math.floor(clickCoords.x *1.20);
-        dataStore.searchRegionP2[2] = clickCoords.y;
-        this.addLine('searchRegion', dataStore.searchRegionP2[0], dataStore.searchRegionP2[2], dataStore.searchRegionP2[1], dataStore.searchRegionP2[2], '#00FFFF');
-        this.plotData();
-    } else if (dataStore.searchRegionP3.length == 0){
-        dataStore.searchRegionP3[0] =  Math.floor(clickCoords.x *0.80);
-        dataStore.searchRegionP3[1] =  Math.floor(clickCoords.x *1.20);
-        dataStore.searchRegionP3[2] = clickCoords.y;
-        this.addLine('searchRegion', dataStore.searchRegionP3[0], dataStore.searchRegionP3[2], dataStore.searchRegionP3[1], dataStore.searchRegionP3[2], '#00FFFF');
-        this.plotData();
-    } else{
-        dataStore.searchRegionP4[0] =  Math.floor(clickCoords.x *0.80);
-        dataStore.searchRegionP4[1] =  Math.floor(clickCoords.x *1.20);
-        dataStore.searchRegionP4[2] = clickCoords.y;
-        this.addLine('searchRegion', dataStore.searchRegionP4[0], dataStore.searchRegionP4[2], dataStore.searchRegionP4[1], dataStore.searchRegionP4[2], '#00FFFF');
-        this.plotData();
-
-        //user guidance
-        deleteNode('regionMessage');
-        document.getElementById('pickerMessage').classList.remove('hidden');
-
-	//only release the fitAll button once we have a search region defined
-        document.getElementById('fitAll').classList.remove('disabled');
-    }
-
-
-// Need to check the ordering of the energy regions and reorder if necessary.
-
-    
-}
 
 function buildCalfile(){
     console.log('Download initiated');
@@ -1127,6 +1040,4 @@ function buildCalfile(){
     // Trigger the download
     document.body.appendChild(downloadLink);
     downloadLink.click();
-
-    
 }

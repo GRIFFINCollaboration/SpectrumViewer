@@ -26,9 +26,9 @@
                                 <a id="drop{{id}}" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{subname}} <span class="caret"></span></a>
                                 <ul id="drop{{id}}list" class="dropdown-menu dd-limited">
                                     {{# items}}
-                                        <li class='dd-item' id='{{.}}'>
-                                            <div class='plotName'>{{.}}</div>
-                                            <span id='{{.}}badge' class="badge transparent">
+                                        <li class='dd-item' id='{{plotID}}'>
+                                            <div class='plotName'>{{plotTitle}}</div>
+                                            <span id='{{plotID}}badge' class="badge transparent">
                                                 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                                             </span>
                                         </li>

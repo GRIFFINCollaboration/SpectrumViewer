@@ -832,16 +832,28 @@ function processSpectrumList(payload,callback){
 		    }else{
 			thisHistoTitle = y;   // this is the items
 
+			// If this spectrum is from a histogram file then attach that histogram name to the beginning of this spectrum name.
+			// if a Histogram file has been specified, then the histograms will have been requested from there
+			if(dataStore.histoFileName.length>0){
+			    thisHistoTitle = dataStore.histoFileName.split('.')[0]+ ':' + thisHistoTitle;
+			}
+			
 			// If this is a 2d histogram then ':2d' is attached to the end of the name as an identifier
 			// Save this histogram name into the dataStore.twoDimensionalSpectra list so it can be identified as 2d.
 			// Remove the ':2d' so only the filename part is requested from the server
 			if(thisHistoTitle.includes(':2d')){
-			    thisHistoTitle = thisHistoTitle.split(':')[0];
+			    thisHistoTitle = thisHistoTitle.split(':2d')[0];
 			    dataStore.twoDimensionalSpectra.push(thisHistoTitle);
 			}
+
+			// Build the object
+			var thisObject = {
+			    'plotID' : thisHistoTitle,
+			    'plotTitle' : y
+			};
 			
 			// Add this histogram to the items list in this subGroup of the topGroup
-                        newGroup.subGroups[newGroup.subGroups.length-1].items.push(thisHistoTitle);
+                        newGroup.subGroups[newGroup.subGroups.length-1].items.push(thisObject);
 		    }
 		}
 	    }
@@ -861,9 +873,6 @@ function processSpectrumList(payload,callback){
     newGroup.subGroups.push(newSubgroup);
     
     dataStore.topGroups = topGroups;
-
-    console.log(dataStore.topGroups);
-    console.log(dataStore.twoDimensionalSpectra);
     
     // Now need to build the menu based on these topGroups and subGroups
     // callback should be constructNewSpectrumMenu();
@@ -879,7 +888,6 @@ function constructNewSpectrumMenu(){
 	return;
     }
 
-    console.log(dataStore);
     // Clear any previous menu content
     if(document.getElementById('navbar-content-div').innerHTML){
 	document.getElementById('navbar-content-div').innerHTML = '';
@@ -998,7 +1006,6 @@ function constructQueries(keys){
         }
         queries.push(queryString);
     }
-
     return queries
 }
 
@@ -1152,3 +1159,35 @@ function strncmp(a, b, n){
     return a.substring(0, n) == b.substring(0, n);
 }
 
+function compareX( a, b ) {
+  if ( a.X < b.X ){
+    return -1;
+  }
+  if ( a.X > b.X ){
+    return 1;
+  }
+  return 0;
+}
+
+// Taken from https://github.com/GRIFFINCollaboration/efficiencyCalculator/blob/gh-pages/scripts/efficiencyCalculator.js
+// Modified to remove the upper and lower uncertainty values
+// logEn expected for MeV units
+function HPGeEfficiency(param, logEn){
+    var i,
+        logEff = 0,
+        eff;
+
+    // Do not calculate below 5keV
+    if(logEn < Math.log(0.005)) return '0';
+
+    // Build the efficiency value from the 8th order polynomial
+    for(i=0; i<9; i++){
+	console.log('param '+param[i]+' to '+i+'th order for logEn = '+logEn);
+	console.log((parseFloat(param[i])*Math.pow(logEn,i)));
+        logEff += parseFloat(param[i])*Math.pow(logEn,i);
+    }
+
+    // Convert back from logarithmic
+    eff = Math.exp(logEff);
+    return eff;
+}

@@ -16,6 +16,7 @@ function setupDataStore(){
         "ODBhost": 'http://grifstore0.triumf.ca:8081',                 //host:port of ODB to write cut region vertices to
         "spectrumServer": 'http://grifstore0.triumf.ca:9093',          //host:port to pull raw spectra from
         "backendHost": 'grifstore0',                                   //host:port to pull raw spectra from
+	"rawData" : {},                                               //buffer for raw spectrum data
         "raw": [0],
         "raw2": [0],
         "closeMenuOnclick": true,                                   //don't keep the plot menu open onclick (can only plot one at a time anyway)
@@ -129,7 +130,7 @@ function plotControl2d(wrapID){
 	
 	// activeSpectra can now include 1D Projections of 2D matrices which are created locally in the server.
 	// So these need to be stripped from the requests that go to the server for updates.
-	var activeSpectraForQueries = this.activeSpectra;
+	var activeSpectraForQueries = this.activeSpectra.map((x) => x.split(':')[1]);
 	for(let key in dataStore.createdSpectra) {
 	    const index = activeSpectraForQueries.indexOf(key);
 	    if (index > -1) {
@@ -144,12 +145,27 @@ function plotControl2d(wrapID){
                     function(spectra){
 			// This is for 2d spectra
 			// Need to change this away from [0] and find the correct index number to use
+			console.log('fetched the 2d Spectra');
+
+                                // modify the spectrum name that were received from a histogram file to include it at the start
+                                if(dataStore.histoFileName.length>0){
+                                   var this2dKey = dataStore.histoFileName.split('.')[0] + ':' + JSON.parse(JSON.stringify(spectra[0]['name']));
+                                  spectra[0].name = dataStore.histoFileName.split('.')[0] + ':' + spectra[0].name;
+                                  }else{
+                                   this2dKey = JSON.parse(JSON.stringify(spectra[0]['name']));
+                                  }
+                          console.log(this2dKey);
+                                //keep the raw results around
+                                dataStore.rawData[this2dKey] = JSON.parse(JSON.stringify(spectra[0]));
+                               // thisRawData = JSON.parse(JSON.stringify(spectra[i][key]));
+
+                                  console.log(dataStore.rawData);
+
 			console.log(spectra);
-			dataStore.raw = spectra[0].data;
-			dataStore.raw2 = spectra[0].data2;
-			dataStore.activeMatrixXaxisLength = spectra[0].XaxisLength;
-			dataStore.activeMatrixYaxisLength = spectra[0].YaxisLength;
-			dataStore.activeMatrixSymmetrized = spectra[0].symmetrized;
+			dataStore.raw2 = dataStore.rawData[dataStore.activeMatrix].data2;
+			dataStore.activeMatrixXaxisLength = dataStore.rawData[dataStore.activeMatrix].XaxisLength;
+			dataStore.activeMatrixYaxisLength = dataStore.rawData[dataStore.activeMatrix].YaxisLength;
+			dataStore.activeMatrixSymmetrized = dataStore.rawData[dataStore.activeMatrix].symmetrized;
                         fetchCallback(); 
                     }
                 )
@@ -305,6 +321,27 @@ function extractCutVertices(){
 
 function fetchCallback(){
     //runs after every time the histogram is updated
+    console.log(dataStore);
+    
+    // replot everything for the 1d viewer
+    for(viewerKey in dataStore.viewers){
+        dataStore.viewers[viewerKey].plotData(null, true);
+    }
+
+    // The rest of this fetchCallback is only for 2d spectra, so if there are not any active then we can bail out here
+    console.log('Check if any 2d spectra active in fetchCallback');
+    console.log(dataStore.twoDimensionalSpectra);
+    console.log(dataStore._plotControl.activeSpectra);
+    console.log(dataStore.activeMatrix);
+    var numOf2dActive=0;
+	for(let key in dataStore.twoDimensionalSpectra) {
+	    const index = dataStore._plotControl.activeSpectra.indexOf(key);
+	    if (index > -1) {
+	        numOf2dActive++;
+	    }
+	}
+    if(numOf2dActive == 0 && dataStore.activeMatrix.length<1){ console.log('Quit fetchCallback'); return; } 
+    console.log('Continue in fetchCallback');
     
     // unpack the raw 2d spectrum to the required format
     try{ objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
@@ -314,7 +351,9 @@ function fetchCallback(){
     catch(err){
 	//console.log('No colorMap to clear')
     }
-    dataStore.hm.raw = packZ(dataStore.raw,dataStore.raw2);
+    console.log('Call packZ here');
+    console.log(dataStore);
+    dataStore.hm.raw = packZ(dataStore.rawData[dataStore.activeMatrix].data2);
 
     // make the 2d heatmap plot of this histogram 
     dataStore.hm.drawData();
@@ -335,11 +374,6 @@ function fetchCallback(){
     
     // plug in the onclicks to the 2d heatmap
     dataStore.hm.canvas.addEventListener('heatmap_shiftclick', heatmapClick, false);
-
-    // replot everything for the 1d viewer
-    for(viewerKey in dataStore.viewers){
-        dataStore.viewers[viewerKey].plotData(null, true);
-    }
     
 }
 
@@ -369,7 +403,7 @@ function generateOverlay(){
     }
 }
 
-function packZ(raw,raw2){
+function packZ(raw2){
     // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
     // heatmap wants it as [[x0y0, x1y0, ..., xmaxy0], [x0y1, x1y1, ..., xmaxy1], ...]
     console.log('unpackZ');

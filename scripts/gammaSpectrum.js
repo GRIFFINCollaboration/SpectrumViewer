@@ -67,8 +67,8 @@ function spectrumViewer(canvasID){
 	this.fakeData = {};
 	this.fakeData.energydata0 = [200,48,42,48,58,57,59,72,85,68,61,60,72,147,263,367,512,499,431,314,147,78,35,22,13,9,16,7,10,13,5,5,3,1,2,4,0,1,1,1,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,111,200,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,80,120,70,20,20,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,300,650,200,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 	this.entries = {}; //number of entries in each displayed spectrum
-	this.dataColor = ["#FFFFFF", "#FF0000", "#00FFFF", "#FFFF00", "#FF9900", "#0066FF", "#44FF44", "#FF00CC", "#00CC00", "#994499"]; //colors to draw each plot line with
-	this.colorAssignment = [null, null, null, null, null, null, null, null, null, null]; //holds the data series key in the array position corresponding to the color to draw it with from this.dataColor
+	this.dataColor = ["#FFFFFF", "#FF0000", "#00FFFF", "#FFFF00", "#FF9900", "#0066FF", "#44FF44", "#FF00CC", "#CF9FFF", "#FFDEAD", "#00CC00", "#994499"]; //colors to draw each plot line with
+	this.colorAssignment = [null, null, null, null, null, null, null, null, null, null, null, null]; //holds the data series key in the array position corresponding to the color to draw it with from this.dataColor
 	this.hideSpectrum = {}; //any spectrum name used as a key holding a truthy value here will be skipped during plotting
 
 	//fitting
@@ -911,8 +911,8 @@ function spectrumViewer(canvasID){
 
 	//add a data series to the list to be plotted with key name and content [data]
 	//if such a series already exists, just update its data.
-	this.addData = function(name, data){
-		var nSeries, i;
+    this.addData = function(name, data){
+	        var nSeries, i;
 		//data = this.fakeData.energydata0 //fake for testing
 		//dump fits
 		this.clearFits();
@@ -939,7 +939,7 @@ function spectrumViewer(canvasID){
 
 		//append the data to the data buffer
 		this.plotBuffer[name] = data;
-	};
+        };
 
 	//remove a data series from the buffer
 	this.removeData = function(name){

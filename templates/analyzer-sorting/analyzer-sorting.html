@@ -119,7 +119,7 @@ const thisPromise = new Promise((resolve, reject) => {
     newSelect.add( new Option('New values in current config file', 'config') );
     document.getElementById('CalibrationSourceInputDiv').appendChild(newSelect);
 
-    // Create Submit button
+    // Create Submit files button
     newButton = document.createElement('button'); 
     newButton.setAttribute('id', 'submitSortButtonTable'); 
     newButton.setAttribute('class', 'btn btn-default btn-lg'); 
@@ -127,6 +127,17 @@ const thisPromise = new Promise((resolve, reject) => {
     newButton.style.padding = '4px';
     newButton.onclick = function(){
     SubmitSelectedFilesFromTableToSortQueue();
+    }.bind(newButton);
+      document.getElementById('submitDivTable').appendChild(newButton);
+
+    // Create Connect to Online button
+    newButton = document.createElement('button'); 
+    newButton.setAttribute('id', 'submitConnectOnlineButton'); 
+    newButton.setAttribute('class', 'btn btn-default btn-lg'); 
+    newButton.innerHTML = "Connect to online MIDAS experiment";
+    newButton.style.padding = '4px';
+    newButton.onclick = function(){
+    SubmitConnectToOnline();
     }.bind(newButton);
       document.getElementById('submitDivTable').appendChild(newButton);
 

@@ -24,10 +24,20 @@ function GetURLArguments(){
     // Save the hostname and port number for writing the ODB parameters
     dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+'.triumf.ca:'+urlData.ODBHostPort;
     
+    // Copy the histogram URL arguments to the dataStore
+    dataStore.histoFileDirectoryPath = urlData.histoDir;
+    if(dataStore.histoFileDirectoryPath==undefined){
+	// No directory for the histogram files has been provided in the URL, so we provide a default one
+	dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms';
+    }
+    if(urlData.histoFile){
+	dataStore.histoFileName = urlData.histoFile;
+	dataStore.histoAutoLoad = true;
+    }
+    
 }
 
 function processHistoFileList(payload){
-    console.log(payload);
 
     // receive the payload and split into an array of strings
     var thisPayload = payload.split(" ]")[0].split("[ \n")[1];
@@ -42,37 +52,6 @@ function processHistoFileList(payload){
     // Set up the list of histo files
     setupHistoListSelect();
 
-    console.log(dataStore.histoFileList);
-
-}
-
-function loadData(DAQ){
-    // given the list of channels plugged into the DAQ from the ODB, load the appropriate spectra.
-
-    var i,	
-        channels = DAQ[0].chan;
-    
-    dataStore.PSCchannels = DAQ[0].chan;
-    dataStore.PSCaddresses = DAQ[1].PSC;
-    dataStore.RunNumber = DAQ[2][ 'Run number' ];
-
-    //Add the detector type and run number to the name of the Cal file
-    if(dataStore.THESEdetectors[0].slice(0,3) == 'GRG'){
-	document.getElementById('saveCalname').value = 'GRIFFIN-Cal-File-Run'+dataStore.RunNumber+'.cal';
-    }else if(dataStore.THESEdetectors[0].slice(0,3) == 'PAC'){
-	document.getElementById('saveCalname').value = 'PACES-Cal-File-Run'+dataStore.RunNumber+'.cal';
-    }
-
-    // Trigger the saving of this new filename
-    document.getElementById('saveCalname').onchange();
-
-    // Plug in the active spectra names    
-    for(i=0; i<channels.length; i++){
-        if(channels[i].slice(0,3) == dataStore.THESEdetectors[0].slice(0,3))
-            dataStore._plotControl.activeSpectra.push(channels[i] + '_Pulse_Height');
-    }
-
-    dataStore._plotControl.refreshAll();
 }
 
 function shiftclick(clickCoords){

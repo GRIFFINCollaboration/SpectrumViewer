@@ -1,0 +1,35 @@
+<template id='efficiencyFitterSetupBar'>
+
+	    <label for='efficiencyFittercalibrationSource'>Source:</label>
+	    <select id='efficiencyFittercalibrationSource'>
+      {{#sourceTitle}}
+      <option value="{{name}}">{{title}}</option>
+	{{/sourceTitle}}
+		</select>
+		<br>
+    <label for='peak1'>First Peak (position):</label>
+    <input type='number' id='peak1position' class='rowElement' value=1></input>
+    <label for='peak1'>First Peak (keV):</label>
+    <input type='number' id='peak1' class='rowElement' value=74.97></input>
+    <label for='peak2'>Second Peak (position):</label>
+    <input type='number' id='peak2position' class='rowElement' value=2></input>
+    <label for='peak2'>Second Peak (keV):</label>
+    <input type='number' id='peak2' class='rowElement' value=1173.23></input>
+<br>
+    <label for='peak3'>Third Peak (position):</label>
+    <input type='number' id='peak3position' class='rowElement' value=3></input>
+    <label for='peak3'>Third Peak (keV):</label>
+    <input type='number' id='peak3' class='rowElement' value=1332.49></input>
+    <label for='peak4'>Fourth Peak (position):</label>
+    <input type='number' id='peak4position' class='rowElement' value=4></input>
+    <label for='peak4'>Fourth Peak (keV):</label>
+    <input type='number' id='peak4' class='rowElement' value=2614.52></input>
+<br>
+    <button type="button" class="btn btn-primary disabled" id='fitAll'>
+        <span id='snapPin' class="glyphicon glyphicon-flash" aria-hidden="true"></span> Gain Match all
+    </button>
+
+    <div class="progress">
+      <div id='progress' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+    </div>
+</template>

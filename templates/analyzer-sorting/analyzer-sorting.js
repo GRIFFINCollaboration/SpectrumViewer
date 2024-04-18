@@ -413,6 +413,16 @@ function selectMultipleRows(thisRowID){
     
 }
 
+function SubmitConnectToOnline(){
+    // Issue URL to connect to online
+    var url = dataStore.spectrumServer + '?cmd=addDatafile&filename=ONLINE';
+        XHR(url, 
+            'connecting to ONLINE was rejected.', 
+            function(){return 0},
+            function(error){console.log(error)}
+        )
+}
+
     function SubmitSelectedFilesFromTableToSortQueue(){
     // First build the list of selected files to sort
     // Then submit the files to the server as a series of XHR URL requests
