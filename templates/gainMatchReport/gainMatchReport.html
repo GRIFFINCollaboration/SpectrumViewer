@@ -650,13 +650,13 @@ if(breakForLoop){ break; }
 
             //convenient to arrange resolution data here
             if(dataStore.currentPeak == 0)
-                dataStore.lowPeakResolution[dataStore.THESEdetectors.indexOf(dataStore.currentPlot.slice(0,10))] = width; 
+                dataStore.lowPeakResolution[dataStore.THESEdetectors.indexOf(dataStore.currentPlot.split(':')[1].slice(0,10))] = width; 
             else if(dataStore.currentPeak == 1)
-                dataStore.midPeakResolution[dataStore.THESEdetectors.indexOf(dataStore.currentPlot.slice(0,10))] = width; 
+                dataStore.midPeakResolution[dataStore.THESEdetectors.indexOf(dataStore.currentPlot.split(':')[1].slice(0,10))] = width; 
             else if(dataStore.currentPeak == 2)
-                dataStore.highPeakResolution[dataStore.THESEdetectors.indexOf(dataStore.currentPlot.slice(0,10))] = width; 
+                dataStore.highPeakResolution[dataStore.THESEdetectors.indexOf(dataStore.currentPlot.split(':')[1].slice(0,10))] = width; 
             else if(dataStore.currentPeak == 3)
-                dataStore.vhiPeakResolution[dataStore.THESEdetectors.indexOf(dataStore.currentPlot.slice(0,10))] = width;
+                dataStore.vhiPeakResolution[dataStore.THESEdetectors.indexOf(dataStore.currentPlot.split(':')[1].slice(0,10))] = width;
 
             if(dataStore.currentPeak == 0){
                 dataStore.ROI[dataStore.currentPlot].ROIlower[0] = dataStore.viewers[viewerName].FitLimitLower;
@@ -701,8 +701,8 @@ if(breakForLoop){ break; }
 
             //update residuals plots
             if(dataStore.currentPeak==3){
-              this.reconstructResidualsData(dataStore.currentPlot,dataStore.THESEdetectors.indexOf(dataStore.currentPlot.slice(0,10))); 
-              this.reconstructMidasResidualsData(dataStore.currentPlot,dataStore.THESEdetectors.indexOf(dataStore.currentPlot.slice(0,10)));
+              this.reconstructResidualsData(dataStore.currentPlot,dataStore.THESEdetectors.indexOf(dataStore.currentPlot.split(':')[1].slice(0,10))); 
+              this.reconstructMidasResidualsData(dataStore.currentPlot,dataStore.THESEdetectors.indexOf(dataStore.currentPlot.split(':')[1].slice(0,10)));
              }
 
             //disengage fit mode buttons
@@ -939,6 +939,7 @@ intercept = result.equation[2];
 
                dataStore.dataplotData[peakIndex] = arrangePoints(detectorIndex, [dataStore.residualsData[peakIndex]], flags );
                var eventString = 'updateDyData'+peakIndex;
+
                dispatcher({ 'data': dataStore.dataplotData[peakIndex] }, eventString);
             }
 

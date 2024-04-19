@@ -417,7 +417,7 @@ function SubmitConnectToOnline(){
     // Issue URL to connect to online
     var url = dataStore.spectrumServer + '?cmd=addDatafile&filename=ONLINE';
         XHR(url, 
-            'connecting to ONLINE was rejected.', 
+            'connecting to ONLINE failed.', 
             function(){return 0},
             function(error){console.log(error)}
         )

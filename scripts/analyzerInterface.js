@@ -152,6 +152,8 @@ function setupDataStore(){
 	"errorMessage": ''
     }; 
     dataStore.heartbeatInterval = 1000;                   // ms between data updates
+    dataStore.heartbeatIntervalBUSYvalue = 3000;          // default Busy inteval
+    dataStore.heartbeatIntervalBUSYvalue = 5000;          // default IDLE inteval
     dataStore.heartbeatTimer = '';                        // the TimeOut object so that it can be terminated with a clearTimeout call
     dataStore.waitCounter = 0;
     
@@ -332,7 +334,7 @@ function processSortStatus(payload){
 	dataStore.previousSortStatus = 'IDLE';
 	
 	// Set the heartbeat frequency
-	dataStore.heartbeatInterval = 5000;
+	dataStore.heartbeatInterval = dataStore.heartbeatIntervalIDLEvalue;
 	
 	// Update the progress bar
 	document.getElementById('progress').className = 'progress-bar progress-bar-warning progress-bar-striped';
@@ -342,7 +344,7 @@ function processSortStatus(payload){
 	return;
     }else{
 	// Set the heartbeat frequency
-	dataStore.heartbeatInterval = 1000;
+	dataStore.heartbeatInterval = dataStore.heartbeatIntervalBUSYvalue;
 	
 	// Remember the sorting state
 	dataStore.previousSortStatus = 'BUSY';
@@ -366,6 +368,18 @@ function processSortStatus(payload){
     dataStore.SortStatusCurrentFileSize = parseInt(thisPayload[4] / 1000000);
     dataStore.SortStatusCurrentBytesSorted = parseInt(thisPayload[5]);
     dataStore.SortStatusCurrentMegaBytesSorted = parseInt(thisPayload[5] / 1000000);
+    
+    console.log('===================================');
+    console.log('Dir, File, Run, Subrun:');
+    console.log(dataStore.midasFileDataDirectoryPath);
+    console.log(dataStore.SortStatusCurrentFileName);
+    console.log(dataStore.SortStatusCurrentRunNumber);
+    console.log(dataStore.SortStatusCurrentSubRunNumber);
+    console.log('Filesize, bytes sorted, Config timestamp:');
+    console.log(dataStore.SortStatusCurrentBytesFileSize);
+    console.log(dataStore.SortStatusCurrentBytesSorted);
+    console.log(thisPayload[6]);
+    
     
     // Check the timestamp of the most recent config file saved on the server
     checkConfigTimestamps(thisPayload[6].split(',')[0]);
@@ -398,7 +412,7 @@ function processSortStatus(payload){
     if(dataStore.SortStatusCurrentRemainingSortTime<0){ dataStore.SortStatusCurrentRemainingSortTime=0.1; }
 
     // Check the values in the console
-    /*
+    
     console.log('Dir: '+dataStore.midasFileDataDirectoryPath);
     console.log('File: '+dataStore.SortStatusCurrentFileName);
     console.log('Run: '+dataStore.SortStatusCurrentRunNumber);
@@ -410,7 +424,7 @@ function processSortStatus(payload){
     console.log('Current Speed: '+dataStore.SortStatusCurrentSortSpeed);
     console.log('Average Speed: '+dataStore.SortStatusAverageSortSpeed);
     console.log('Remaining: '+dataStore.SortStatusCurrentRemainingSortTime);
-    */
+    
 
     // Update the printed Sort Status information on screen
     string = 'Sorting Run '+dataStore.SortStatusCurrentRunNumber+', subrun '+dataStore.SortStatusCurrentSubRunNumber+' at '+dataStore.SortStatusAverageSortSpeed+' MB/s. Sorted '+prettyFileSizeString(dataStore.SortStatusCurrentBytesSorted)+' of '+prettyFileSizeString(dataStore.SortStatusCurrentBytesFileSize)+'s ('+dataStore.SortStatusCurrentPercentageComplete+'% completed). Estimated time to complete = '+prettyTimeString(parseInt(dataStore.SortStatusCurrentRemainingSortTime));
