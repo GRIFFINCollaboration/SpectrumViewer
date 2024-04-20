@@ -41,7 +41,7 @@
                 //plug in plot requests
 	        for(j=0; j<dataStore.plotGroups[i].plots.length; j++){
 	            let specName = dataStore.plotGroups[i].plots[j].plotID; 
-                    if((dataStore.plotGroups[i].plots[j].plotID.slice(0,3) == 'GRG') || (dataStore.plotGroups[i].plots[j].plotID.slice(0,3) == 'PAC')){
+	            if(((dataStore.plotGroups[i].plots[j].plotID.slice(0,3) == 'GRG') || (dataStore.plotGroups[i].plots[j].plotID.slice(0,3) == 'PAC')) && (!dataStore.plotGroups[i].plots[j].plotID.includes('_Pulse_Height')) ){
                       specName += '_Pulse_Height'; 
 	            }
 	         document.getElementById(this.wrapID + dataStore.plotGroups[i].plots[j].plotID).onclick = this.exclusivePlot.bind(this, specName, dataStore.viewers[dataStore.plots[0]]);
@@ -96,21 +96,27 @@
             //dump old data
             if(dataStore.currentPlot){
                 target.removeData(dataStore.currentPlot); 
+/*
                     if((dataStore.currentPlot.slice(0,3) == 'GRG') || (dataStore.currentPlot.slice(0,3) == 'PAC')){
                       specName = dataStore.currentPlot.slice(0,10); 
                     }else{
                       specName = dataStore.currentPlot;
                     } 
-                document.getElementById(this.wrapID + 'badge' + specName).classList.add('hidden');
+*/
+specName = dataStore.currentPlot;
+              document.getElementById(this.wrapID + 'badge' + specName).classList.add('hidden');
             }
 
             //add new data
             target.addData(plot, JSON.parse(JSON.stringify(dataStore.rawData[plot])) );
+/*
                     if((plot.slice(0,3) == 'GRG') || (plot.slice(0,3) == 'PAC')){
                       specName = plot.slice(0,10); 
                     }else{
                       specName = plot;
                     } 
+*/
+specName = plot;
             document.getElementById(this.wrapID + 'badge' + specName).classList.remove('hidden');
             target.fitTarget = plot;
             dataStore.currentPlot = plot;

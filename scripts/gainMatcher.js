@@ -40,7 +40,7 @@ function setupDataStore(){
     // shouldn't need to change anything below this line -----------------------------------------------------------------------
 
     dataStore.pageTitle = 'Gain Matcher';                                   //header title
-    dataStore.DAQquery = dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/PSC/chan&odb1=/DAQ/PSC/PSC&odb2=/Runinfo/Run number&encoding=json-p-nokeys&callback=loadData';
+    dataStore.DAQquery = dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/PSC/chan&odb1=/DAQ/PSC/PSC&odb2=/Runinfo/Run number&odb3=/DAQ/PSC/offset&odb4=/DAQ/PSC/gain&odb5=/DAQ/PSC/quadratic&encoding=json-p-nokeys&callback=loadData';
     dataStore.ViewConfigQuery = '';
     dataStore.ODBrequests = [                                               //request strings for odb parameters
         dataStore.ODBhost + '?cmd=jcopy&odb0=/DAQ/PSC/chan&odb1=/DAQ/PSC/gain&odb2=/DAQ/PSC/offset&odb3=/DAQ/PSC/quadratic&encoding=json-p-nokeys&callback=updateODB'
@@ -579,6 +579,13 @@ function setupMenusFromDetectorChoice(detectorType){
     
     // setup the dataStore for this choice of detectorType
     var i, num=0, groups = [];
+    var histoName = '';
+
+    //generate the histoFileName for the spectrum names groups for plot selector
+    if(dataStore.histoFileName.length>0){
+	histoName = dataStore.histoFileName.split('.')[0]+':';
+    }
+    
     // Save the lists of spectrum names to the dataStore for this detectorType
     if(detectorType == 'HPGe'){
 	// Set up GRIFFIN detectors
@@ -593,44 +600,43 @@ function setupMenusFromDetectorChoice(detectorType){
 	    }
 	}
     }
-    
-	//generate groups for plot selector
-	var histoName = dataStore.histoFileName.split('.')[0];
+	
+    //generate the groups for plot selector
     for(i=1; i<(dataStore.numberOfClovers+1); i++){
         groups.push({
             "groupID": 'GRG' + alwaysThisLong(i, 2),
             "groupTitle": 'GRIFFIN ' + alwaysThisLong(i, 2),
             "plots": [
                 {
-                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'BN00A_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'BN00A_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'BN00A'
                 },
                 {
-                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'GN00A_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'GN00A_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'GN00A'
                 },
                 {
-                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'RN00A_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'RN00A_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'RN00A'
                 },
                 {
-                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'WN00A_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'WN00A_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'WN00A'
                 },
                 {
-                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'BN00B_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'BN00B_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'BN00B'
                 },
                 {
-                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'GN00B_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'GN00B_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'GN00B'
                 },
                 {
-                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'RN00B_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'RN00B_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'RN00B'
                 },
                 {
-                    "plotID": histoName+':'+'GRG' + alwaysThisLong(i, 2) + 'WN00B_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'WN00B_Pulse_Height', 
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'WN00B'
                 }
             ]
@@ -648,29 +654,28 @@ function setupMenusFromDetectorChoice(detectorType){
 
 
     //generate groups for plot selector
-	var histoName = dataStore.histoFileName.split('.')[0];
         groups.push({
             "groupID": 'PAC',
             "groupTitle": 'PACES',
             "plots": [
                 {
-                    "plotID": histoName+':'+'PAC01XN00A_Pulse_Height', 
+                    "plotID": histoName+'PAC01XN00A_Pulse_Height', 
                     "title": 'PAC01XN00A'
                 },
                 {
-                    "plotID": histoName+':'+'PAC02XN00A_Pulse_Height', 
+                    "plotID": histoName+'PAC02XN00A_Pulse_Height', 
                     "title": 'PAC02XN00A'
                 },
                 {
-                    "plotID": histoName+':'+'PAC03XN00A_Pulse_Height', 
+                    "plotID": histoName+'PAC03XN00A_Pulse_Height', 
                     "title": 'PAC03XN00A'
                 },
                 {
-                    "plotID": histoName+':'+'PAC04XN00A_Pulse_Height', 
+                    "plotID": histoName+'PAC04XN00A_Pulse_Height', 
                     "title": 'PAC04XN00A'
                 },
                 {
-                    "plotID": histoName+':'+'PAC05XN00A_Pulse_Height', 
+                    "plotID": histoName+'PAC05XN00A_Pulse_Height', 
                     "title": 'PAC05XN00A'
                 }
             ]
@@ -701,11 +706,20 @@ function loadData(DAQ){
     var Config = {};
 
     if(dataStore.modeType == 'Online'){
-    // If the data is from the online ODB, unpack the data here
-    channels = DAQ[0].chan;
-    dataStore.PSCchannels = DAQ[0].chan;
-    dataStore.PSCaddresses = DAQ[1].PSC;
+	// If the data is from the online ODB, unpack the data here
+	channels = DAQ[0].chan;
+	dataStore.PSCchannels = DAQ[0].chan;
+	dataStore.PSCaddresses = DAQ[1].PSC;
 	dataStore.RunNumber = DAQ[2][ 'Run number' ];
+	// need to extract the offset, gain and quadratic numbers here
+	for(i=0; i<dataStore.PSCchannels.length; i++){
+	    if(dataStore.PSCchannels[i].includes('GRG')){
+		keyString = dataStore.PSCchannels[i] + '_Pulse_Height';
+		if(!dataStore.midasCalibration[keyString]){ dataStore.midasCalibration[keyString] = []; }
+		dataStore.midasCalibration[keyString] = [DAQ[3].offset[i], DAQ[4].gain[i], DAQ[5].quadratic[i] ];
+	    }
+	}
+	
     }else{
 	// modeType is Histo
 	// If the data is from a histogram file, unpack the data here
@@ -723,7 +737,6 @@ function loadData(DAQ){
 		dataStore.midasCalibration[keyString] = [Config.Analyzer[4].Calibrations[i].offset, Config.Analyzer[4].Calibrations[i].gain, Config.Analyzer[4].Calibrations[i].quad ];
 	    }
 	}
-	// offset, gain and quad are also available in this Config.
 	dataStore.RunNumber = dataStore.histoFileName.split("_")[0].replace(/^\D+/g, '').split(".")[0];
     }
     

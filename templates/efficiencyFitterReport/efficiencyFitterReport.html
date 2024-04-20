@@ -170,13 +170,13 @@ console.log('Inject the Table');
             console.log(dataStore);
 
             // Change rawData to another list that is just the Sum_Energy_ spectrum
-            var i, keys = Object.keys(dataStore.rawData),
+            var i, keys = Object.keys(dataStore.spectrumListSingles),
                 buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
 
             releaser(
                 function(i){
                     // Change rawData to another list that is just the Sum_Energy_ spectrum
-                    var keys = Object.keys(dataStore.rawData);
+                    var keys = Object.keys(dataStore.spectrumListSingles);
                     this.fitSpectra(keys[i])
                 }.bind(this),
 

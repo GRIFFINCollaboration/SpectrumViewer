@@ -16,7 +16,7 @@
             <button type="button" class="btn btn-primary btn-lg"  id='saveCal'>
                 <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Save Cal file
             </button>
-	    <input id='saveCalname' type='text' value='GRIFFIN-Cal-File.cal' width='500px'></input>
+	    <input id='saveCalname' type='text' value='GRIFFIN-Cal-File.cal' size='48'></input>
 
         </div>
     </div>
@@ -640,7 +640,12 @@ if(breakForLoop){ break; }
             var highPeak = document.getElementById('fitHigh'); 
             var vhiPeak = document.getElementById('fitvHi');
             var viewerName = dataStore.plots[0];
-
+            var thisPlotName = dataStore.currentPlot;
+            if(thisPlotName.includes(':')){
+               thisPlotName = thisPlotName.split(':')[1].slice(0,10);
+            }else{
+               thisPlotName = thisPlotName.slice(0,10);
+            }
 
             if(!dataStore.fitResults[dataStore.currentPlot])
                 dataStore.fitResults[dataStore.currentPlot] = [];
@@ -650,13 +655,13 @@ if(breakForLoop){ break; }
 
             //convenient to arrange resolution data here
             if(dataStore.currentPeak == 0)
-                dataStore.lowPeakResolution[dataStore.THESEdetectors.indexOf(dataStore.currentPlot.split(':')[1].slice(0,10))] = width; 
+                dataStore.lowPeakResolution[dataStore.THESEdetectors.indexOf(thisPlotName)] = width; 
             else if(dataStore.currentPeak == 1)
-                dataStore.midPeakResolution[dataStore.THESEdetectors.indexOf(dataStore.currentPlot.split(':')[1].slice(0,10))] = width; 
+                dataStore.midPeakResolution[dataStore.THESEdetectors.indexOf(thisPlotName)] = width; 
             else if(dataStore.currentPeak == 2)
-                dataStore.highPeakResolution[dataStore.THESEdetectors.indexOf(dataStore.currentPlot.split(':')[1].slice(0,10))] = width; 
+                dataStore.highPeakResolution[dataStore.THESEdetectors.indexOf(thisPlotName)] = width; 
             else if(dataStore.currentPeak == 3)
-                dataStore.vhiPeakResolution[dataStore.THESEdetectors.indexOf(dataStore.currentPlot.split(':')[1].slice(0,10))] = width;
+                dataStore.vhiPeakResolution[dataStore.THESEdetectors.indexOf(thisPlotName)] = width;
 
             if(dataStore.currentPeak == 0){
                 dataStore.ROI[dataStore.currentPlot].ROIlower[0] = dataStore.viewers[viewerName].FitLimitLower;
@@ -701,8 +706,8 @@ if(breakForLoop){ break; }
 
             //update residuals plots
             if(dataStore.currentPeak==3){
-              this.reconstructResidualsData(dataStore.currentPlot,dataStore.THESEdetectors.indexOf(dataStore.currentPlot.split(':')[1].slice(0,10))); 
-              this.reconstructMidasResidualsData(dataStore.currentPlot,dataStore.THESEdetectors.indexOf(dataStore.currentPlot.split(':')[1].slice(0,10)));
+              this.reconstructResidualsData(dataStore.currentPlot,dataStore.THESEdetectors.indexOf(thisPlotName)); 
+              this.reconstructMidasResidualsData(dataStore.currentPlot,dataStore.THESEdetectors.indexOf(thisPlotName));
              }
 
             //disengage fit mode buttons
@@ -723,22 +728,28 @@ if(breakForLoop){ break; }
             //<spectrumName>: string; name of spectrum, per names from analyzer
             //this: gainMatchReport object
 
-            var calibration;
+            var calibration; 
+            var thisPlotName = spectrum;
+            if(thisPlotName.includes(':')){
+               thisPlotName = thisPlotName.split(':')[1].slice(0,10);
+            }else{
+               thisPlotName = thisPlotName.slice(0,10);
+            }
 
             if(Array.isArray(dataStore.fitResults[spectrum][0]))
-                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'chan1').innerHTML = dataStore.fitResults[spectrum][0][1].toFixed(3);
+                document.getElementById(this.wrapID + thisPlotName + 'chan1').innerHTML = dataStore.fitResults[spectrum][0][1].toFixed(3);
             if(Array.isArray(dataStore.fitResults[spectrum][1]))
-                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'chan2').innerHTML = dataStore.fitResults[spectrum][1][1].toFixed(3);
+                document.getElementById(this.wrapID + thisPlotName + 'chan2').innerHTML = dataStore.fitResults[spectrum][1][1].toFixed(3);
             if(Array.isArray(dataStore.fitResults[spectrum][2]))
-                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'chan3').innerHTML = dataStore.fitResults[spectrum][2][1].toFixed(3);
+                document.getElementById(this.wrapID + thisPlotName + 'chan3').innerHTML = dataStore.fitResults[spectrum][2][1].toFixed(3);
             if(Array.isArray(dataStore.fitResults[spectrum][3]))
-                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'chan4').innerHTML = dataStore.fitResults[spectrum][3][1].toFixed(3);
+                document.getElementById(this.wrapID + thisPlotName + 'chan4').innerHTML = dataStore.fitResults[spectrum][3][1].toFixed(3);
 
             if(Array.isArray(dataStore.fitResults[spectrum][0]) && Array.isArray(dataStore.fitResults[spectrum][1]) && Array.isArray(dataStore.fitResults[spectrum][2]) && Array.isArray(dataStore.fitResults[spectrum][3])){
                 calibration = this.calculateQuadratic(dataStore.fitResults[spectrum][0][1], dataStore.fitResults[spectrum][1][1], dataStore.fitResults[spectrum][2][1], dataStore.fitResults[spectrum][3][1]);
-                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'offset').innerHTML = calibration[0].toFixed(8);
-                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'gain').innerHTML = calibration[1].toFixed(8);
-                document.getElementById(this.wrapID + spectrum.split(':')[1].slice(0,10) + 'quad').innerHTML = calibration[2].toFixed(8);
+                document.getElementById(this.wrapID + thisPlotName + 'offset').innerHTML = calibration[0].toFixed(8);
+                document.getElementById(this.wrapID + thisPlotName + 'gain').innerHTML = calibration[1].toFixed(8);
+                document.getElementById(this.wrapID + thisPlotName + 'quad').innerHTML = calibration[2].toFixed(8);
                 dataStore.fitResults[spectrum][4] = calibration
             }
 
@@ -856,9 +867,18 @@ intercept = result.equation[2];
 
             var i;
             var keys = Object.keys(dataStore.fitResults);
+            var thisKey;
 
             for(i=0; i<keys.length; i++){
                  if(!dataStore.fitResults[keys[i]][4]){ continue; }
+
+                 thisKey = keys[i];
+                 if(thisKey.includes(':')){
+                   thisKey = thisKey.split(':')[1].slice(0,10);
+                 }else{
+                   thisKey = thisKey.slice(0,10);
+                 }
+
 
                      if( dataStore.fitResults[keys[i]][0] && dataStore.fitResults[keys[i]][1] && dataStore.fitResults[keys[i]][2] && (
                         dataStore.fitResults[keys[i]][4][0] > dataStore.meanCalib[0] + dataStore.sdCalib[0]*3
@@ -871,17 +891,17 @@ intercept = result.equation[2];
                         || Math.abs(dataStore.fitResults[keys[i]][4][2]) > 0.00001
                     )
                 ){
-                    document.getElementById(this.wrapID + keys[i].split(':')[1].slice(0,10) + 'row').setAttribute('style', 'background-color: #FF0000;');
-                    document.getElementById(keys[i].split(':')[1].slice(0,10) + 'write').checked = false;
+                    document.getElementById(this.wrapID + thisKey + 'row').setAttribute('style', 'background-color: #FF0000;');
+                    document.getElementById(thisKey + 'write').checked = false;
                  } else if(isNaN(dataStore.fitResults[keys[i]][0][1])
                            || isNaN(dataStore.fitResults[keys[i]][1][1])
                            || isNaN(dataStore.fitResults[keys[i]][2][1])
                            || isNaN(dataStore.fitResults[keys[i]][3][1])  ){
-                    document.getElementById(this.wrapID + keys[i].split(':')[1].slice(0,10) + 'row').setAttribute('style', 'background-color: #F28C28;');
-                    document.getElementById(keys[i].split(':')[1].slice(0,10) + 'write').checked = false;
+                    document.getElementById(this.wrapID + thisKey + 'row').setAttribute('style', 'background-color: #F28C28;');
+                    document.getElementById(thisKey + 'write').checked = false;
                 } else{
-                    document.getElementById(this.wrapID + keys[i].split(':')[1].slice(0,10) + 'row').setAttribute('style', '');
-                    document.getElementById(keys[i].split(':')[1].slice(0,10) + 'write').checked = true;
+                    document.getElementById(this.wrapID + thisKey + 'row').setAttribute('style', '');
+                    document.getElementById(thisKey + 'write').checked = true;
                 }
             }
         },
@@ -952,9 +972,14 @@ intercept = result.equation[2];
             // Save the residuals data to the dataStore, then
             //arrange the latest residual info for representation in the dygraph.
             
-             var thisOffset = dataStore.midasCalibration[currentSpectrum.split(':')[1]][0];
-             var thisGain = dataStore.midasCalibration[currentSpectrum.split(':')[1]][1];
-             var thisQuadratic = dataStore.midasCalibration[currentSpectrum.split(':')[1]][2];
+            var thisPlotName = currentSpectrum;
+            if(thisPlotName.includes(':')){
+               thisPlotName = thisPlotName.split(':')[1];
+            }
+
+             var thisOffset = dataStore.midasCalibration[thisPlotName][0];
+             var thisGain = dataStore.midasCalibration[thisPlotName][1];
+             var thisQuadratic = dataStore.midasCalibration[thisPlotName][2];
 
              for(currentPeak=0; currentPeak<4; currentPeak++){
                var peakIndex = currentPeak+1;

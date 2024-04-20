@@ -209,6 +209,9 @@ function setupDataStore(){
     ];
 
     dataStore.THESEdetectors = [];                                    //10-char codes of all possible griffin/paces detectors. Contents based on detectorChoice
+    dataStore.spectrumListSingles = {};                               // List of all the Singles Sum spectra
+    dataStore.spectrumListHits = {};                                  // List of all the Hitpattern spectra
+    dataStore.spectrumListOpp = {};                                   // List of all the 180degree coincidence matrices
     dataStore.progressBarNumberPeaks = 0;                             // Total count of peaks to fit for use with the progress bar
     dataStore.progressBarPeaksFitted =0;                              // Number of peaks fitted so far for use with the progress bar
     
@@ -413,14 +416,38 @@ function fetchCallback(){
     // Now we have all the spectra received...
 
     // Revise the spectrum list to include the histogram names.
+    dataStore.THESEdetectors =   [
+	'Ge_Sum_Energy'
+    ];
 
+    var spectrumKeys = Object.keys(dataStore.rawData);
+    for(i=0; i<spectrumKeys.length; i++){
+	if(spectrumKeys[i].includes('Sum')){
+	    // List of all singles spectra to be fitted
+	    dataStore.spectrumListSingles[spectrumKeys[i]] = dataStore.rawData[spectrumKeys[i]];
+	}
 	
+	if(spectrumKeys[i].includes('Hit')){
+    // List of all Hitpattern spectra to be fitted
+	    dataStore.spectrumListHits[spectrumKeys[i]] = dataStore.rawData[spectrumKeys[i]];
+	}
+	
+	if(spectrumKeys[i].includes('oppo')){
+    // List of all Hitpattern spectra to be fitted
+	    dataStore.spectrumListOpp[spectrumKeys[i]] = dataStore.rawData[spectrumKeys[i]];
+	}
+    }
+
+    console.log(spectrumKeys);
+    console.log(dataStore.spectrumListSingles);
+    console.log(dataStore.spectrumListHits);
+    
     //show first plot for the first source
     dataStore.currentSource = keys[0];
     
     console.log('Ready to fit all spectra');
     
-    // Start the whole fitting routine
+    // Start the whole fitting routine for singles peaks
     dataStore._efficiencyFitterReport.fitAllSinglesPeaks();
 }
 
@@ -513,7 +540,9 @@ function submitHistoFilenameChoices(){
 	
 	//10-char codes of all possible griffin detectors.
 	    dataStore.THESEdetectors =   [
-	    'Ge_Sum_Energy'
+		'Ge_Sum_Energy',
+		'Hitpattern_Energy',
+		'GGoppo'
     ];
 	
 	for(i=0; i<keys.length; i++){
