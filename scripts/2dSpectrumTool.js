@@ -102,7 +102,6 @@ function plotControl2d(wrapID){
             // The plot requested is a 1d matrix but this viewer can only handle 2d
             return;
 	}
-	console.log('routeNewPlot 2d');
 
 	// Switch to the 2D viewer for displaying this 2d histogram
 	toggleHeatmapMode();
@@ -145,7 +144,6 @@ function plotControl2d(wrapID){
                     function(spectra){
 			// This is for 2d spectra
 			// Need to change this away from [0] and find the correct index number to use
-			console.log('fetched the 2d Spectra');
 
                                 // modify the spectrum name that were received from a histogram file to include it at the start
                                 if(dataStore.histoFileName.length>0){
@@ -154,14 +152,10 @@ function plotControl2d(wrapID){
                                   }else{
                                    this2dKey = JSON.parse(JSON.stringify(spectra[0]['name']));
                                   }
-                          console.log(this2dKey);
+			
                                 //keep the raw results around
                                 dataStore.rawData[this2dKey] = JSON.parse(JSON.stringify(spectra[0]));
-                               // thisRawData = JSON.parse(JSON.stringify(spectra[i][key]));
 
-                                  console.log(dataStore.rawData);
-
-			console.log(spectra);
 			dataStore.raw2 = dataStore.rawData[dataStore.activeMatrix].data2;
 			dataStore.activeMatrixXaxisLength = dataStore.rawData[dataStore.activeMatrix].XaxisLength;
 			dataStore.activeMatrixYaxisLength = dataStore.rawData[dataStore.activeMatrix].YaxisLength;
@@ -177,7 +171,7 @@ function plotControl2d(wrapID){
         //<event>: event; requestPlot custom event
         //this: plotControl2d object
         var i, evt, axis, plotName;
-
+	
 	// unpack the values from the event
 	axis = event.detail.gateAxis;
 	min = event.detail.gateMin;
@@ -189,7 +183,7 @@ function plotControl2d(wrapID){
 	}else{
 	    plotName = projectXaxis(min,max);
 	}
-
+	
 	// Add this new specturm to the menu if it is not already there
 	let coincIndex = dataStore.topGroups.map(e => e.name).indexOf('Coinc');
 	let projIndex = dataStore.topGroups[coincIndex].subGroups.map(e => e.subname).indexOf('Projections');
@@ -321,7 +315,6 @@ function extractCutVertices(){
 
 function fetchCallback(){
     //runs after every time the histogram is updated
-    console.log(dataStore);
     
     // replot everything for the 1d viewer
     for(viewerKey in dataStore.viewers){
@@ -329,10 +322,7 @@ function fetchCallback(){
     }
 
     // The rest of this fetchCallback is only for 2d spectra, so if there are not any active then we can bail out here
-    console.log('Check if any 2d spectra active in fetchCallback');
-    console.log(dataStore.twoDimensionalSpectra);
-    console.log(dataStore._plotControl.activeSpectra);
-    console.log(dataStore.activeMatrix);
+    
     var numOf2dActive=0;
 	for(let key in dataStore.twoDimensionalSpectra) {
 	    const index = dataStore._plotControl.activeSpectra.indexOf(key);
@@ -340,8 +330,7 @@ function fetchCallback(){
 	        numOf2dActive++;
 	    }
 	}
-    if(numOf2dActive == 0 && dataStore.activeMatrix.length<1){ console.log('Quit fetchCallback'); return; } 
-    console.log('Continue in fetchCallback');
+    if(numOf2dActive == 0 && dataStore.activeMatrix.length<1){ return; } 
     
     // unpack the raw 2d spectrum to the required format
     try{ objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
@@ -351,8 +340,7 @@ function fetchCallback(){
     catch(err){
 	//console.log('No colorMap to clear')
     }
-    console.log('Call packZ here');
-    console.log(dataStore);
+    
     dataStore.hm.raw = packZ(dataStore.rawData[dataStore.activeMatrix].data2);
 
     // make the 2d heatmap plot of this histogram 

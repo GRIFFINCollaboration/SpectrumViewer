@@ -482,12 +482,12 @@ function processConfigFile(payload){
     if(dataStore.configFileTimestamp == 0){
 	
 	// Unpack the Directories content here
-	// If the dataStore entry is empty then save this Config directory path if one is present
+	// If the dataStore entry is empty then save the directory path from this Config if one is present
 	if(dataStore.Configs.Analyzer[5].Directories[0].Path.length>0){ dataStore.midasFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[0].Path; }
 	if(dataStore.Configs.Analyzer[5].Directories[1].Path.length>0){ dataStore.histoFileDirectoryPath = dataStore.Configs.Analyzer[5].Directories[1].Path; }
 	if(dataStore.Configs.Analyzer[5].Directories[2].Path.length>0){ dataStore.configFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[2].Path; }
 	
-	// If both the dataStore entry and the config entry were empty then supply a default here
+	// If both the dataStore entry and the config entry were empty then supply a default value here
 	if(dataStore.midasFileDataDirectoryPath.length<1){ dataStore.midasFileDataDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Calibrations-Aug2021'; }
 	if(dataStore.histoFileDirectoryPath.length<1){ dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms'; }
 	if(dataStore.configFileDataDirectoryPath.length<1){ dataStore.configFileDataDirectoryPath = '/home/grifstor/daq/analyzer/grif-replay'; }	
@@ -1013,7 +1013,10 @@ function constructQueries(keys){
 //////////////////////////
 
 function projectXaxis(gateMin,gateMax){
-    // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
+    // 2d histogram data is stored as an array of arrays.
+    // An x axis bin is accessed as data[x] = array of all y bins.
+    // A y axis bin is accessed as data[0->Xlength][y] = a speciifc element of a series of arrays.
+    // Individual elements can be accessed as data[x][y].
     // this function projects all y rows down to a single array by summing the elements
 
     // If no limits for the gate/projection are provided then make a total projection
@@ -1023,7 +1026,6 @@ function projectXaxis(gateMin,gateMax){
     // Set name for total projection
 	thisProjectionName = dataStore.activeMatrix+'x';
     }else{
-
     // Set a unique name based on gate limits
 	thisProjectionName = dataStore.activeMatrix+'x-'+gateMin+'-'+gateMax;
     }
@@ -1035,6 +1037,7 @@ function projectXaxis(gateMin,gateMax){
 	thisProjection[i] = 0;
     }
 
+    // build the projection from the sum of the arrays between the gate min and max values.
     for(let i=gateMin; i<=gateMax; i++){
 	thisRow = dataStore.hm._raw[i];
 	thisProjection = thisProjection.map(function (num, index) {
@@ -1046,7 +1049,7 @@ function projectXaxis(gateMin,gateMax){
     for(i=0; i<thisProjection.length; i++){
 	if(isNaN(thisProjection[i])){ thisProjection[i]=0; } 
     }
-
+    
     // write the created spectrum to the storage object
     dataStore.createdSpectra[thisProjectionName] = thisProjection;
 
@@ -1054,8 +1057,11 @@ function projectXaxis(gateMin,gateMax){
 }
 
 function projectYaxis(gateMin,gateMax){
-    // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
-    // this function projects all y rows down to a single array by summing the elements
+    // 2d histogram data is stored as an array of arrays; data[y][x]
+    // An x axis slice is accessed as data[0->Ylength][x] = a speciifc element of a series of arrays.
+    // A y axis bin is accessed as data[y][0->Xlengthy] = array of all x bins.
+    // Individual elements can be accessed as data[y][x].
+    // this function projects all x elements across to a single array by summing the elements between gateMin and gateMax extracted from all y rows.
     
     // If no limits for the gate/projection are provided then make a total projection
     if(gateMin == undefined || gateMin<1) gateMin = 0;
@@ -1067,22 +1073,16 @@ function projectYaxis(gateMin,gateMax){
     // Set a unique name based on gate limits
 	thisProjectionName = dataStore.activeMatrix+'y-'+gateMin+'-'+gateMax;
     }
-
-    // Set a unique name
-    thisProjectionName = dataStore.activeMatrix+'y';
     
     var gateLength = gateMax-gateMin;
     var thisProjection = [];
-    let filledArray = new Array(1023).fillN(0);
     for(let i=0; i<dataStore.hm._raw.length; i++){
 	thisProjection[i] = 0;
     }
 
+    // build the projection from the sum of the elements between the gate min and max values of all arrays.
     for(let i=0; i<dataStore.hm._raw.length; i++){
-	thisRow = dataStore.hm._raw[i];
-	thisProjection = thisProjection.map(function (num, index) {
-	    return num + thisRow[gateMin+index];
-	});
+	thisProjection[i] = dataStore.hm._raw[i].slice(gateMin,gateMax).reduce((a, b) => a + b, 0);
     }
     
     // Ensure there are no NaN entries
