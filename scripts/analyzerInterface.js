@@ -152,8 +152,8 @@ function setupDataStore(){
 	"errorMessage": ''
     }; 
     dataStore.heartbeatInterval = 1000;                   // ms between data updates
-    dataStore.heartbeatIntervalBUSYvalue = 3000;          // default Busy inteval
-    dataStore.heartbeatIntervalBUSYvalue = 5000;          // default IDLE inteval
+    dataStore.heartbeatIntervalBUSYvalue = 1000;          // default Busy inteval
+    dataStore.heartbeatIntervalIDLEvalue = 5000;          // default IDLE inteval
     dataStore.heartbeatTimer = '';                        // the TimeOut object so that it can be terminated with a clearTimeout call
     dataStore.waitCounter = 0;
     
@@ -185,45 +185,6 @@ Promise.all([
 )
     
 }
-/*
-const waitForDirectoriesPromise = new Promise((resolve, reject) => {
-    console.log('waitForDirectories');
-    let dummy = 1;
-
-    while(dummy){
-	try{
-	    while(dataStore.waitCounter<6){
-		
-		if(testForDirectoryPaths() == true){
-		    resolve();
-		}
-		
-		// Protect against an infinite loop being created by the timeout
-		dataStore.waitCounter++;
-	    }
-	    console.log('waitForDirectories failed after five attempts.');
-	    reject('waitForDirectories failed after five attempts.');
-	    
-	}
-	catch{
-	    setTimeout(function() { console.log('Catch Timeout'); testForDirectoryPaths(); }, 1000);
-	}
-	finally{
-	    setTimeout(function() { console.log('Finally Timeout'); testForDirectoryPaths(); }, 1000);
-	}
-    }
-    
-});
-
-function testForDirectoryPaths(){
-
-    if(dataStore.midasFileDataDirectoryPath.length>0 && dataStore.histoFileDirectoryPath.length>0 && dataStore.configFileDataDirectoryPath.length>0){
-	return true;
-    }else{
-	return false;
-    }
-}
-*/
 
 // Top level promise to control the initial load workflow
 Promise.all([
@@ -368,7 +329,8 @@ function processSortStatus(payload){
     dataStore.SortStatusCurrentFileSize = parseInt(thisPayload[4] / 1000000);
     dataStore.SortStatusCurrentBytesSorted = parseInt(thisPayload[5]);
     dataStore.SortStatusCurrentMegaBytesSorted = parseInt(thisPayload[5] / 1000000);
-    
+
+    /*
     console.log('===================================');
     console.log('Dir, File, Run, Subrun:');
     console.log(dataStore.midasFileDataDirectoryPath);
@@ -379,7 +341,7 @@ function processSortStatus(payload){
     console.log(dataStore.SortStatusCurrentBytesFileSize);
     console.log(dataStore.SortStatusCurrentBytesSorted);
     console.log(thisPayload[6]);
-    
+    */
     
     // Check the timestamp of the most recent config file saved on the server
     checkConfigTimestamps(thisPayload[6].split(',')[0]);
@@ -412,7 +374,7 @@ function processSortStatus(payload){
     if(dataStore.SortStatusCurrentRemainingSortTime<0){ dataStore.SortStatusCurrentRemainingSortTime=0.1; }
 
     // Check the values in the console
-    
+    /*
     console.log('Dir: '+dataStore.midasFileDataDirectoryPath);
     console.log('File: '+dataStore.SortStatusCurrentFileName);
     console.log('Run: '+dataStore.SortStatusCurrentRunNumber);
@@ -424,7 +386,7 @@ function processSortStatus(payload){
     console.log('Current Speed: '+dataStore.SortStatusCurrentSortSpeed);
     console.log('Average Speed: '+dataStore.SortStatusAverageSortSpeed);
     console.log('Remaining: '+dataStore.SortStatusCurrentRemainingSortTime);
-    
+    */
 
     // Update the printed Sort Status information on screen
     string = 'Sorting Run '+dataStore.SortStatusCurrentRunNumber+', subrun '+dataStore.SortStatusCurrentSubRunNumber+' at '+dataStore.SortStatusAverageSortSpeed+' MB/s. Sorted '+prettyFileSizeString(dataStore.SortStatusCurrentBytesSorted)+' of '+prettyFileSizeString(dataStore.SortStatusCurrentBytesFileSize)+'s ('+dataStore.SortStatusCurrentPercentageComplete+'% completed). Estimated time to complete = '+prettyTimeString(parseInt(dataStore.SortStatusCurrentRemainingSortTime));

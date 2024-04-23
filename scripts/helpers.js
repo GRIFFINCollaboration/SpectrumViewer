@@ -468,7 +468,6 @@ function processConfigFile(payload){
     ClearErrorConnectingToAnalyzerServer();
 
     // Unpack the response and place the response from the server into the dataStore
-    console.log(payload);
     // Protect against an empty response
     if(payload != undefined && payload.length>4){
 	dataStore.Configs = JSON.parse(payload);
@@ -1012,6 +1011,192 @@ function constructQueries(keys){
 //////////////////////////
 // 2D spectrum viewer
 //////////////////////////
+
+function projectXaxis(gateMin,gateMax){
+    // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
+    // this function projects all y rows down to a single array by summing the elements
+
+    // If no limits for the gate/projection are provided then make a total projection
+    if(gateMin == undefined || gateMin<1) gateMin = 0;
+    if(gateMax == undefined){
+	gateMax = dataStore.hm._raw.length-1;
+    // Set name for total projection
+	thisProjectionName = dataStore.activeMatrix+'x';
+    }else{
+
+    // Set a unique name based on gate limits
+	thisProjectionName = dataStore.activeMatrix+'x-'+gateMin+'-'+gateMax;
+    }
+    
+    var gateLength = gateMax-gateMin;
+    var thisProjection = [];
+    let filledArray = new Array(1023).fillN(0); // May need to be .fillN()
+    for(let i=0; i<dataStore.hm._raw[0].length; i++){
+	thisProjection[i] = 0;
+    }
+
+    for(let i=gateMin; i<=gateMax; i++){
+	thisRow = dataStore.hm._raw[i];
+	thisProjection = thisProjection.map(function (num, index) {
+	    return num + thisRow[index];
+	});
+    }
+
+    // Ensure there are no NaN entries
+    for(i=0; i<thisProjection.length; i++){
+	if(isNaN(thisProjection[i])){ thisProjection[i]=0; } 
+    }
+
+    // write the created spectrum to the storage object
+    dataStore.createdSpectra[thisProjectionName] = thisProjection;
+
+    return thisProjectionName;
+}
+
+function projectYaxis(gateMin,gateMax){
+    // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
+    // this function projects all y rows down to a single array by summing the elements
+    
+    // If no limits for the gate/projection are provided then make a total projection
+    if(gateMin == undefined || gateMin<1) gateMin = 0;
+    if(gateMax == undefined){
+	gateMax = dataStore.hm._raw[0].length-1;
+    // Set name for total projection
+	thisProjectionName = dataStore.activeMatrix+'y';
+    }else{
+    // Set a unique name based on gate limits
+	thisProjectionName = dataStore.activeMatrix+'y-'+gateMin+'-'+gateMax;
+    }
+
+    // Set a unique name
+    thisProjectionName = dataStore.activeMatrix+'y';
+    
+    var gateLength = gateMax-gateMin;
+    var thisProjection = [];
+    let filledArray = new Array(1023).fillN(0);
+    for(let i=0; i<dataStore.hm._raw.length; i++){
+	thisProjection[i] = 0;
+    }
+
+    for(let i=0; i<dataStore.hm._raw.length; i++){
+	thisRow = dataStore.hm._raw[i];
+	thisProjection = thisProjection.map(function (num, index) {
+	    return num + thisRow[gateMin+index];
+	});
+    }
+    
+    // Ensure there are no NaN entries
+    for(i=0; i<thisProjection.length; i++){
+	if(isNaN(thisProjection[i])){ thisProjection[i]=0; } 
+    }
+    
+    // write the created spectrum to the storage object
+    dataStore.createdSpectra[thisProjectionName] = thisProjection;
+    
+    return thisProjectionName;
+}
+
+function packZ(raw2){
+    // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
+    // heatmap wants it as [[x0y0, x1y0, ..., xmaxy0], [x0y1, x1y1, ..., xmaxy1], ...]
+    console.log('unpackZ');
+   // console.log(raw);
+   // console.log(raw2);
+
+    // Declare local variables
+    var repack = [],repack2 = [],
+	rowLength = dataStore.activeMatrixXaxisLength,
+        nRows = dataStore.activeMatrixYaxisLength,
+	subMatrixXlength = 16,
+	subMatrixYlength = 16,
+        i, j, type, row=[];
+    console.log(rowLength);
+    console.log(nRows);
+
+    /*
+    // Unpack the matrix data as a list of data (slowest transfer from server)
+    for(i=0; i<nRows; i++){
+        repack.push(raw.slice(rowLength*i, rowLength*(i+1)-1));
+    }
+    */
+    
+    // Unpack the matrix data as a list of 16x16 submatrices (faster transfer from server)
+    // The values are given in the order of x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax, but split into the 16x16 submatrices
+    // Submatrix format is one of three:
+    // ["empty"],
+    // ["array", 0,1,2,3,4,5 ... 255 ],
+    // ["list", 23,55, ... ],
+    // these formats are as follows:
+    // "empty" means all 256 bins are zero
+    // "array" is just 256 values - contents (z value) of each x,y bin
+    // "list" is list of bin-number[0-255], bin-content pairs
+
+    // Create the whole matrix full of zeros. This then allows us to access any element directly
+    repack2 = new Array(nRows);
+    for (let i = 0; i < repack2.length; i++) {
+	repack2[i] = new Array(rowLength-1).fill(0); // Creating an array of size rowLength and filled of 0
+    }
+
+    for(subMatrixIndex=0; subMatrixIndex<raw2.length; subMatrixIndex++){
+	// Step through the subMatrix arrays one at a time.
+	//
+
+	// Calculate the subMatrix Coordinates
+	subMatrixX = (Math.floor(subMatrixIndex%Math.floor(rowLength/subMatrixXlength)));
+	subMatrixY = (Math.floor(subMatrixIndex/Math.floor(rowLength/subMatrixXlength)));
+	subMatrixXbaseCoordinate = subMatrixX*subMatrixXlength;
+	subMatrixYbaseCoordinate = subMatrixY*subMatrixYlength;
+//	console.log('SubMatrix'+subMatrixIndex+'['+subMatrixX+']['+subMatrixY+']');
+	
+	// Process the current 16*16=256 values. Add them to the local matrix and the heatmap
+	switch(raw2[subMatrixIndex][0]) {
+	case 'empty':
+	    // empty format, nothing to be done
+	    break;
+	case 'array':
+	    // array format
+	    // 256 z values are given in order.
+	    // The values are given in the order of x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax
+	  //  console.log(raw2[subMatrixIndex]);
+	    // type = raw2[subMatrixIndex].shift();
+	    
+	    for(i=0; i<subMatrixYlength; i++){
+		for(j=1; j<=subMatrixXlength; j++){ // j=0 entry is the subMatrix type
+		    thisXindex = subMatrixXbaseCoordinate+j;
+		    thisYindex = subMatrixYbaseCoordinate+i;
+		    thisValue = raw2[subMatrixIndex][i*subMatrixXlength+j];
+	//	    console.log('['+thisYindex+']['+thisXindex+']='+thisValue);
+		    repack2[thisYindex][thisXindex] = thisValue;
+		}
+	    }
+	    
+	    break;
+	case 'list':
+	    // list format
+	    // The values are in pairs of [bin number within this submatrix, 0-255], then [z value]
+	  //  console.log(raw2[subMatrixIndex]);
+	   // type = raw2[subMatrixIndex].shift();
+	    for(j=1; j<raw2[subMatrixIndex].length; j+=2){
+		thisXindex = subMatrixXbaseCoordinate+Math.floor(raw2[subMatrixIndex][j]%subMatrixXlength);
+		thisYindex = subMatrixYbaseCoordinate+Math.floor(raw2[subMatrixIndex][j]/subMatrixXlength);
+		thisValue = raw2[subMatrixIndex][j+1];
+	//	console.log('['+thisYindex+']['+thisXindex+']='+thisValue);
+		repack2[thisYindex][thisXindex] = thisValue;
+	    }
+	    break;
+	default:
+	    // code block
+	    // Unrecognized format
+	    console.log('Unrecognized format!!!');
+	    console.log(raw2[subMatrixIndex]);
+	} // end of switch
+    } // end of submatrices for loop
+  //  console.log('Finshed unpacking');
+  //  console.log(repack);
+  //  console.log(repack2);
+
+    return repack2;
+}
 
 function CRUDarrays(path, value, type){
     // delete the arrays at [path] from the odb, recreate them, and populate them with [value]

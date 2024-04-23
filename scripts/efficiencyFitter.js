@@ -52,6 +52,10 @@ function setupDataStore(){
     dataStore.PSCaddresses = {};                                            //store the full list of addresses in the PSC table for building a Cal file
     dataStore.RunNumber = '';                                               //store the run number for naming the Cal file
     dataStore.rawData = {};                                                 //buffer for raw spectrum data
+    dataStore.raw = [0];                                                 //buffer for raw matrix data
+    dataStore.hm = {};                                                 //object for 2d matrix stuff
+    dataStore.hm._raw = [0];                                                 //buffer for raw matrix data
+    dataStore.createdSpectra = {};                                       //initialize empty object for created spectra
     //fitting
     dataStore.mode = 'auto';                                              //mode of operation: manual (user defined search regions) or auto (predefined search regions). 
     dataStore.ROI = {};                                                     //regions of interest to look for peaks in: 'plotname': {'ROIupper':[low bin, high bin], 'ROIlower': [low bin, high bin]}
@@ -97,19 +101,20 @@ function setupDataStore(){
 		    
 	           "literatureIntensity":    [ /*0.02141,*/ 0.32949, 0.07161, 0.18336, 0.62050, 0.08941 ], // Peak intensities from this source. Literature values taken from ENSDF (gamma rays per 100 decays of the parent).
 	           "literatureIntensityUnc": [ /*0.00032,*/ 0.00326, 0.00049, 0.00125, 0.00190, 0.00062 ], // Peak intensities from this source. Literature values taken from ENSDF (gamma rays per 100 decays of the parent).
-	          "uncalibratedCentroids": [],
+		   "peakWidth": 4,                     // integer number of channels used for gating. [centroid-peakWidth ... centroid+peakWidth]
+	           "uncalibratedCentroids": [],
 	          "calibratedCentroids": [],
 		  "uncorrectedArea": [],
 		  "correctedArea": [],
 		  "FWHM": [],
-		  "F-correction-Factor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
-		   "summing-In-correction-Peaks": [ //[[]],
+		  "FCorrectionFactor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
+		   "summingInCorrectionPeaks": [ //[[]],
 						    [[]],
 						  //   [[53.16,223]],      // 79 and 80keV are hard to fit. Omit to start with. Would be helpful for detemrining the turn-over point.
 						   //  [[223,79.61]],      // 79 and 80keV are hard to fit. Omit to start with. Would be helpful for detemrining the turn-over point.
 						     [[276.4,79.61],[53.16,302.85]], [[302.85,80],[223,160]] ],   // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
- 		  "summing-In-correction-Counts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
- 		  "summing-Out-correction-Counts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
+ 		  "summingInCorrectionCounts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
+ 		  "summingOutCorrectionCounts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
 		  "relativeEfficiency": [],            // Relative efficiency calculated for this peak energy
 		  "rawEfficiency": [],                 // Relative efficiency calculated for this peak energy before summing corrections
 		  "normalizedEfficiency": [],          // Relative efficiency calculated for this peak energy before summing corrections, normalized to 152Eu
@@ -127,13 +132,14 @@ function setupDataStore(){
 					 1408.0 ],     // Peak energies from this source. Literature values taken from ENSDF.
 	           "literatureIntensity":    [ 0.28531, 0.07549, 0.26590, 0.02237, 0.12928, 0.04228, 0.14510, 0.13667, 0.20868 ], // Peak intensities from this source. Literature values taken from ENSDF (gamma rays per 100 decays of the parent).
 	           "literatureIntensityUnc": [ 0.00159, 0.00041, 0.00120, 0.00012, 0.00083, 0.00030, 0.00069, 0.00083, 0.00093 ], // Peak intensities from this source. Literature values taken from ENSDF (gamma rays per 100 decays of the parent).
+		   "peakWidth": 4,                     // integer number of channels used for gating. [centroid-peakWidth ... centroid+peakWidth]
 	          "uncalibratedCentroids": [],
 	          "calibratedCentroids": [],
 		  "uncorrectedArea": [],
 		  "correctedArea": [],
 		  "FWHM": [],
-		  "F-correction-Factor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
-		  "summing-In-correction-Peaks": [ [[]],  [[]],  [[]],  [[]], // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
+		  "FCorrectionFactor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
+		  "summingInCorrectionPeaks": [ [[]],  [[]],  [[]],  [[]], // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
 						   [[367,411.1],[192,586]], // for 778.9 keV
 						   [[210,656],[148,719],[423,444]], // for 867.4 keV
 						   [[719,244],[401,562],[275,689]], // for 964.0 keV
@@ -144,8 +150,8 @@ function setupDataStore(){
 						 //  [[712,586],[534,764],[520,778],[328,970],[324,974],[209,1089]], // for 1299.1 keV. low statistics, omit for now.
 						   [[719,688],[566,841],[488,919],[443,964],[295,1112],[237,1170]] // for 1408.0 keV
 						 ],   
- 	          "summing-In-correction-Counts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
- 		  "summing-Out-correction-Counts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
+ 	          "summingInCorrectionCounts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
+ 		  "summingOutCorrectionCounts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
 		  "relativeEfficiency": [],            // Relative efficiency calculated for this peak energy
 		  "rawEfficiency": [],                 // Relative efficiency calculated for this peak energy before summing corrections
 		  "normalizedEfficiency": [],          // Relative efficiency calculated for this peak energy before summing corrections, normalized to 152Eu
@@ -157,13 +163,14 @@ function setupDataStore(){
 	          "literaturePeaks": [ 846.76, 1037.84, 1175.1, 1238.29, 1360.21, 1771.35, 2015.18, 2034.76, 2598.46, 3201.95, 3253.42, 3272.99, 3451.15, 3548.27 ],     // Peak energies from this source. Literature values taken from ENSDF.
 	          "literatureIntensity":    [ 0.99940, 0.14052, 0.02252, 0.66460, 0.04283, 0.15411, 0.03016, 0.07769, 0.16970, 0.03209, 0.07923, 0.01876, 0.00949, 0.00196 ], // Peak intensities from this source. Literature values taken from ENSDF (gamma rays per 100 decays of the parent).
 	          "literatureIntensityUnc": [ 0.00002, 0.00040, 0.00006, 0.00120, 0.00012, 0.00060, 0.00012, 0.00028, 0.00040, 0.00012, 0.00021, 0.00002, 0.00005, 0.00002 ], // Peak intensities from this source. Literature values taken from ENSDF (gamma rays per 100 decays of the parent).
+		  "peakWidth": 4,                     // integer number of channels used for gating. [centroid-peakWidth ... centroid+peakWidth]
 	          "uncalibratedCentroids": [],
 	          "calibratedCentroids": [],
 		  "uncorrectedArea": [],
 		  "correctedArea": [],
 		  "FWHM": [],
-		  "F-correction-Factor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
-		  "summing-In-correction-Peaks": [ [[]],  [[]],  [[]],  [[]],  [[]], // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
+		  "FCorrectionFactor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
+		  "summingInCorrectionPeaks": [ [[]],  [[]],  [[]],  [[]],  [[]], // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
 						   [[733,1037],[411,1360]], // for 1771.35 keV
 						   [[977,1037],[655,1360]], // for 2015.18 keV
 						   [[996,1037],[674,1360],[263,1771]], // for 2034.76 keV
@@ -174,8 +181,8 @@ function setupDataStore(){
 						   [[2212,1238],[1640,1810],[1175,2276],[852,2598]], // for 3451.15 keV
 						   [[1271,2276]] // for 3548.27 keV
 						 ],   
- 		  "summing-In-correction-Counts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
- 		  "summing-Out-correction-Counts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
+ 		  "summingInCorrectionCounts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
+ 		  "summingOutCorrectionCounts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
 		  "rawEfficiency": [],                 // Relative efficiency calculated for this peak energy before summing corrections
 		  "relativeEfficiency": [],            // Relative efficiency calculated for this peak energy
 		  "normalizedEfficiency": [],          // Relative efficiency calculated for this peak energy before summing corrections, normalized to 152Eu
@@ -187,15 +194,16 @@ function setupDataStore(){
 	          "literaturePeaks": [ 1173.23, 1332.49],     // Peak energies from this source. Literature values taken from ENSDF.
 	           "literatureIntensity": [ 0.9985, 0.999826 ], // Peak intensities from this source. Literature values taken from ENSDF (gamma rays per 100 decays of the parent).
 	           "literatureIntensityUnc": [ 0.0003, 0.000006 ], // Peak intensities from this source. Literature values taken from ENSDF (gamma rays per 100 decays of the parent).
+		  "peakWidth": 4,                     // integer number of channels used for gating. [centroid-peakWidth ... centroid+peakWidth]
 	          "uncalibratedCentroids": [],
 	          "calibratedCentroids": [],
 		  "uncorrectedArea": [],
 		  "correctedArea": [],
 		  "FWHM": [],
-		  "F-correction-Factor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
-		  "summing-In-correction-Peaks": [ [[]], [[]] ],   // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
- 		  "summing-In-correction-Counts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
- 		  "summing-Out-correction-Counts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
+		  "FCorrectionFactor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
+		  "summingInCorrectionPeaks": [ [[]], [[]] ],   // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
+ 		  "summingInCorrectionCounts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
+ 		  "summingOutCorrectionCounts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
 		  "rawEfficiency": [],                 // Relative efficiency calculated for this peak energy before summing corrections
 		  "relativeEfficiency": [],            // Relative efficiency calculated for this peak energy after summing corrections
 		  "normalizedEfficiency": [],          // Relative efficiency calculated for this peak energy before summing corrections, normalized to 152Eu
@@ -212,6 +220,7 @@ function setupDataStore(){
     dataStore.spectrumListSingles = {};                               // List of all the Singles Sum spectra
     dataStore.spectrumListHits = {};                                  // List of all the Hitpattern spectra
     dataStore.spectrumListOpp = {};                                   // List of all the 180degree coincidence matrices
+    dataStore.spectrumListProjections = {};                           // List of all projections from the 180degree coincidence matrices
     dataStore.progressBarNumberPeaks = 0;                             // Total count of peaks to fit for use with the progress bar
     dataStore.progressBarPeaksFitted =0;                              // Number of peaks fitted so far for use with the progress bar
     
@@ -445,6 +454,14 @@ function fetchCallback(){
     //show first plot for the first source
     dataStore.currentSource = keys[0];
     
+    // Make the projections needed from each matrix
+    projectAllMatrices();
+}
+
+function projectionsCallback(){
+    console.log('projectionsCallback');
+
+    console.log('Projections have been made so all spectra are ready for fitting.');
     console.log('Ready to fit all spectra');
     
     // Start the whole fitting routine for singles peaks
@@ -519,25 +536,6 @@ function submitHistoFilenameChoices(){
     if(dataStore.detectorType == 'HPGe'){
 	// Set up GRIFFIN detectors
 	
-	//generate groups for plot selector
-	/*
-        groups.push({
-            "groupID": 'Histograms',
-            "groupTitle": 'Histograms',
-            "plots": [
-                {
-                    "plotID": dataStore.sourceInfo[keys[i]].histoFileName+ ':' +'Ge_Sum_Energy', 
-                    "title": 'Ge_Sum_Energy'
-                }//,
-               // {
-               //     "plotID": 'Hitpattern_Energy', 
-              //      "title": 'Hitpattern_Energy'
-              //  }
-            ]
-})
-	*/
-
-	
 	//10-char codes of all possible griffin detectors.
 	    dataStore.THESEdetectors =   [
 		'Ge_Sum_Energy',
@@ -546,13 +544,6 @@ function submitHistoFilenameChoices(){
     ];
 	
 	for(i=0; i<keys.length; i++){
-
-	    /*
-	//10-char codes of all possible griffin detectors.
-	    dataStore.THESEdetectors.push(  
-		dataStore.sourceInfo[keys[i]].histoFileName+ ':' +'Ge_Sum_Energy'
-	    );
-	    */
 	    
 	//generate groups for plot selector
         groups.push({
@@ -619,37 +610,17 @@ function submitHistoFilenameChoices(){
 	}
     }
     console.log(dataStore.ROI);
-
-    // Need to start a loop here.
-    // Loop over each source/histogram name.
-    // First set dataStore.histoFileName from dataStore.sourceInfo[thisKey].histoFileName
-    // Request spectra
-    // Launch the fitting routine for this source.
-    // Back to here then loop again.
-    // Question: How to store the spectra from other histogram files for subsequent plotting.
-    // Question: Where to trigger the table updates, graph updates.
-
-    // Just these two lines here works. It ends in fetchCallback().
-    /*
-    dataStore.currentSource = '152Eu';
-    dataStore.histoFileName = dataStore.sourceInfo['152Eu'].histoFileName;
-    dataStore._plotControl.refreshAll();
-    */
     
     // Issue the request for the spectra of the first source.
     // The request for additional sources will be issued in the fetchCallback
-	console.log('First source in submitHistoFilenameChoices(): '+dataStore.sourceInfo[keys[0]].title);
-	
-	// Set the dataStore.histoFileName to this source so that constructQueries requests the correct spectrum
-	dataStore.currentSource = keys[0];
-	dataStore.histoFileName = dataStore.sourceInfo[keys[0]].histoFileName;
-	
-	// Request spectra from the server
-	dataStore._plotControl.refreshAll();
-	// Need to append the histogram name to the start of all plot IDs.
-	// This is a big change that affects all apps.
-  
-   
+    console.log('First source in submitHistoFilenameChoices(): '+dataStore.sourceInfo[keys[0]].title);
+    
+    // Set the dataStore.histoFileName to this source so that constructQueries requests the correct spectrum
+    dataStore.currentSource = keys[0];
+    dataStore.histoFileName = dataStore.sourceInfo[keys[0]].histoFileName;
+    
+    // Request spectra from the server. This launches a series of promises. Once complete we end with fetchCallback.
+    dataStore._plotControl.refreshAll();
 }
 
 function updateAnalyzer(){
@@ -796,3 +767,59 @@ function buildCalfile(){
     document.body.appendChild(downloadLink);
     downloadLink.click();
 }
+
+function projectAllMatrices(){
+            //make the projections for the matrix of each source based on the peaks defined.
+            console.log(dataStore);
+
+            // Change rawData to another list that is just the Opp spectrum
+                var i,j, plotName, oppKeys = Object.keys(dataStore.spectrumListOpp),
+                buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
+
+            releaser(
+                function(i){
+                    // Change rawData to another list that is just the Sum_Energy_ spectrum
+                    var oppKeys = Object.keys(dataStore.spectrumListOpp);
+
+		    // Identify the source from the histogram name in the spectrum title
+		    dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === oppKeys[i].split(':')[0])
+		    
+		    dataStore.activeMatrix = oppKeys[i];
+			dataStore.raw2 = dataStore.rawData[oppKeys[i]].data2;
+			dataStore.activeMatrixXaxisLength = dataStore.rawData[oppKeys[i]].XaxisLength;
+			dataStore.activeMatrixYaxisLength = dataStore.rawData[oppKeys[i]].YaxisLength;
+			dataStore.activeMatrixSymmetrized = dataStore.rawData[oppKeys[i]].symmetrized;
+		    dataStore.hm._raw = packZ(dataStore.rawData[oppKeys[i]].data2);
+
+		    for(j=0; j<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; j++){
+			console.log('Make projection for '+dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]);
+			min = Math.floor((dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth)) / 2.0);
+			max = min + parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth);
+
+			// HACK until we get a 180 degree matrix bigger than 1024 channels.
+			if(min>1024 || max>1024){ min=509; max=513; } 
+			
+			plotName = projectYaxis(min,max);
+			console.log('Created '+plotName);
+			// Add this projection spectrum to the list which need to be fitted
+			dataStore.spectrumListProjections[plotName] = dataStore.createdSpectra[plotName];
+
+			// The summing-out correction is the total number of counts in this 180 degree coincidence multiplied by the F factor.
+			// The F factor is determined from the number of active crystals which contributed to this 180degree coincidence matrix.
+			// F factor will be deduced from the Hittpattern for this source histrogram file.
+			dataStore.sourceInfo[dataStore.currentSource].summingOutCorrectionCounts[j] = dataStore.createdSpectra[plotName].reduce((partialSum, a) => parseFloat(partialSum) + parseFloat(a), 0);
+
+		    }
+                }.bind(this),
+
+                function(){
+                    //leave the viewer pointing at the first spectrum for fitting
+                    dispatcher({target: buffer}, 'fitAllComplete')
+		    console.log('Completed all projections for all sources.');
+		    
+		    projectionsCallback();
+                }.bind(this),
+
+                oppKeys.length-1
+            )
+        };

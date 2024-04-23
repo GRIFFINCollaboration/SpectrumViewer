@@ -337,7 +337,9 @@
 	          activeSpectraForQueries.splice(index, 1);
 	        }
 	      }
-	      // the spectrum names of activeSpectra can now include histogram names if they were received from a histogram file. These need to be stripped before requests go to the server
+	      
+	      // the spectrum names of activeSpectra can now include histogram names if they were received from a histogram file.
+	      // These need to be stripped before requests go to the server.
 	      for(var i=0; i<activeSpectraForQueries.length; i++){
 	        if(activeSpectraForQueries[i].includes(':')){
 	          activeSpectraForQueries[i] = activeSpectraForQueries[i].split(':')[1];
@@ -349,16 +351,22 @@
 	      var spectraFetched = Promise.all(queries.map(promiseJSONURL)).then(
                     function(spectra){
                         var i, j, key, viewerKey, newKey, this2dKey;
-
+console.log(spectra);
                         // Clear all previous saved spectra
                        // dataStore.rawData = {};
 
 	                // distribute the spectra data received from the analyzer to the appropriate places
+                        // loop through spectra where each element can be up to 16 histograms
                         for(i=0; i<spectra.length; i++){
 
-                          if(Object.keys(spectra[i])[0] == 'name'){
+                        // Loop through the keys of this spectrum element where each key is a histogram (or components of a 2d matrix)
+                            for(key in spectra[i]){
+
+                          if(key == 'XaxisLength' || key == 'YaxisLength' || key == 'symmetrized' || key == 'data2'){ continue; }
+                          if(key == 'name'){
                             // Treatment for 2d spectra - append the histoFileName to the beginning of the 'name' key only 
-                                // modify the spectrum name that were received from a histogram file to include it at the start
+                            // 'name' is the first component of the matrix element
+                            // modify the spectrum name that were received from a histogram file to include it at the start
                                 if(dataStore.histoFileName.length>0){
                                    this2dKey = dataStore.histoFileName.split('.')[0] + ':' + JSON.parse(JSON.stringify(spectra[i]['name']));
                                   spectra[i].name = dataStore.histoFileName.split('.')[0] + ':' + spectra[i].name;
@@ -366,18 +374,21 @@
                                    this2dKey = JSON.parse(JSON.stringify(spectra[i]['name']));
                                   }
 
+                                  // Reconstruct the 2d histogram object
+                                   var thisMatrix = {
+                                       "name" : JSON.parse(JSON.stringify(spectra[i]['name'])), 
+                                       "XaxisLength" : JSON.parse(JSON.stringify(spectra[i]['XaxisLength'])), 
+                                       "YaxisLength" : JSON.parse(JSON.stringify(spectra[i]['YaxisLength'])), 
+                                       "symmetrized" : JSON.parse(JSON.stringify(spectra[i]['symmetrized'])), 
+                                       "data2" : JSON.parse(JSON.stringify(spectra[i]['data2']))
+                                   };
                                //keep the raw results around
-                                dataStore.rawData[this2dKey] = JSON.parse(JSON.stringify(spectra[i]));
-                               // thisRawData = JSON.parse(JSON.stringify(spectra[i][key]));
-                                
-                                // repopulate all viewers that use this spectrum
-                                // needs to be done differently for 2d
+                                dataStore.rawData[this2dKey] = thisMatrix;
 
                           }else{
                             // Treatment for 1d spectra - append the histoFileName to the beginning of the specturm name
-                            for(key in spectra[i]){
 
-                                //keep the raw results around
+                               //keep the raw results around
                                 dataStore.rawData[key] = JSON.parse(JSON.stringify(spectra[i][key]));
                                // thisRawData = JSON.parse(JSON.stringify(spectra[i][key]));
 

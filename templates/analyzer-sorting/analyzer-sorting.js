@@ -52,10 +52,14 @@ function prettyTimeString(seconds){
     var sizeOfHour = 3600;
     var sizeOfMinute = 60;
     var sizeOfSecond = 1;
-
+    
     seconds = seconds.toFixed(1);
     
-    if(seconds>sizeOfWeek){
+    if(!isFinite(seconds)){
+	// NaN or Infinity
+	string = ' unknown time';
+    }
+    else if(seconds>sizeOfWeek){
 	// Weeks
 	string = (seconds / sizeOfWeek).toFixed(2) + ' weeks';
     }

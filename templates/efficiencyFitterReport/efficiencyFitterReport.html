@@ -195,6 +195,10 @@ console.log('Inject the Table');
                     // Message to console
                     console.log('fitAllSinglesPeaks releaser has finished its work. Now have all peaks fitted for singles spectra.'); 
 
+                    // Fitted all singles peaks, now make all projections from the matrices
+                    this.fitAllSummingCorrections();
+
+// THE FOLLOWING SHOULD MOVE TO THE FINAL FUNCTION OF this.fitAllSummingCorrections
                     dataStore.sourceInfo['133Ba'].normalizationFactor = this.normalizeSourceData('133Ba','152Eu'); 
                     dataStore.sourceInfo['56Co'].normalizationFactor = this.normalizeSourceData('56Co','152Eu');
 
@@ -262,14 +266,15 @@ return [normalizationFactor];
             //this: efficiencyFitterReport object
             console.log(dataStore);
 
-            var i, keys = Object.keys(dataStore.rawData),
+            // Change rawData to another list that is just the Opp spectrum
+            var i, keys = Object.keys(dataStore.spectrumListOpp),
                 buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
 
             releaser(
                 function(i){
-                   var keys = Object.keys(dataStore.rawData);
+                    // Change rawData to another list that is just the Sum_Energy_ spectrum
+                    var keys = Object.keys(dataStore.spectrumListOpp);
                     this.fitSpectra(keys[i])
-                 //   document.getElementById('progress').setAttribute('style', 'width:' + (100*(keys.length - i) / keys.length) + '%' )   
                 }.bind(this),
 
                 function(){
@@ -333,7 +338,7 @@ console.log('addFitLines in efficiencyFitterReport');
             dataStore.viewers[viewerName].containerFit.removeAllChildren();
 
             // Set the current Source for this spectrum
-            dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName === dataStore.currentPlot.split(':')[0])
+            dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === dataStore.currentPlot.split(':')[0])
             console.log('fitSpectra for '+dataStore.currentPlot+', identify key '+dataStore.currentSource);
 
             for(i=0; i<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; i++){
@@ -448,6 +453,9 @@ console.log('updateTable for '+thisID);
             if(dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak]){
                 document.getElementById(thisID+'uncorrectedArea').innerHTML =
 dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak]+'('+Math.sqrt(dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak]).toFixed(0)+')';
+
+// Add the summing-out counts to the table
+document.getElementById(thisID+'summingOut').innerHTML = dataStore.sourceInfo[dataStore.currentSource].summingOutCorrectionCounts[dataStore.currentPeak];
 
 // Calculate the raw efficiency here
 dataStore.sourceInfo[dataStore.currentSource].rawEfficiency[dataStore.currentPeak] = (dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak]/dataStore.sourceInfo[dataStore.currentSource].literatureIntensity[dataStore.currentPeak]).toFixed(2);
