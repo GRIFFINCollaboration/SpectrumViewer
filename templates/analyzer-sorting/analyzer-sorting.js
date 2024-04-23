@@ -319,6 +319,10 @@ function collapseSubrunList(RowID){
     }.bind(newButton);
     document.getElementById('MidasSubrunDiv-'+RowID).appendChild(newButton);
     
+    // Indicate that this list of subruns is no longer expanded
+    // This is used to know to check these subruns when the submit button is pressed
+    dataStore.midasRunList[indexID].Expanded = false;
+
     // delete the subrun rows
     for(var num=0; num<(dataStore.midasRunList[indexID].SubRunList.length); num++){
 	thisSubRowId = 'midasSubRunTableRow-'+RowID+'-'+(num+1);
