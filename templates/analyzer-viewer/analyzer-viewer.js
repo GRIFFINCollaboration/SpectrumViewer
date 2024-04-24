@@ -205,6 +205,12 @@ function processConfigFileForDisplay(payload){
 	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[5].Directories[i]) + '</p>';
 	}
 	
+    // Unpack Midas content
+    content += '<h4>Midas:</h4>';
+	for(var i=0; i<thisConfig.Analyzer[6].Midas.length; i++){
+	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[6].Midas[i]) + '</p>';
+	}
+	
     // Unpack Global content
     content += '<h4>Globals:</h4>';
 	for(var i=0; i<thisConfig.Analyzer[3].Globals.length; i++){
