@@ -178,7 +178,7 @@ function buildMidasFileTable(){
      cell3.value = dataStore.midasRunList[num].RunSize; // Use this hidden value in bytes when updating the sorting time.
      if(HistoIndex>=0){
 	 // If there is a histogram file existing or this run, then put a link for it here
-	 var URLString = 'https://griffincollaboration.github.io/SpectrumViewer/spectrumViewer2.html?backend='+dataStore.spectrumServerBackend+'&port='+dataStore.spectrumServerPort+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[HistoIndex];
+	 var URLString = 'https://griffincollaboration.github.io/SpectrumViewer/2dspectrumTool.html?backend='+dataStore.spectrumServerBackend+'&port='+dataStore.spectrumServerPort+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[HistoIndex];
 	    
 	    cell4.innerHTML = '<a href=\"'+URLString+'\" target=\"_blank\">Open Histo file</a>';
  }

@@ -66,7 +66,7 @@ function buildHistosFileTable(){
 	    var URLString2DViewer = 'https://griffincollaboration.github.io/SpectrumViewer/2dSpectrumTool.html?backend='+dataStore.spectrumServerBackend+'&port='+dataStore.spectrumServerPort+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
 	    	var URLStringGainMatcher = 'https://griffincollaboration.github.io/SpectrumViewer/gainMatcher.html?analyzerBackend='+dataStore.spectrumServerBackend+'&analyzerPort='+dataStore.spectrumServerPort+'&ODBHostBackend='+dataStore.spectrumServerBackend+'&ODBHostPort='+dataStore.spectrumServerPort+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
 	    
-	    cell1.innerHTML = '<a href=\"'+URLStringViewer+'\" target=\"_blank\">'+dataStore.histoFileList[num]+'</a>';
+	    cell1.innerHTML = '<a href=\"'+URLString2DViewer+'\" target=\"_blank\">'+dataStore.histoFileList[num]+'</a>';
 	    cell2.innerHTML = '<a href=\"'+URLString2DViewer+'\" target=\"_blank\">'+'Open in 2D Viewer'+'</a>';
 	    cell3.innerHTML = '<a href=\"'+URLStringGainMatcher+'\" target=\"_blank\">'+'Open in GainMatcher'+'</a>';
 	    cell4.innerHTML = '';

@@ -163,26 +163,19 @@ function setupDataStore(){
 function onloadInitialSetup(){
 
 // Set up the data store. Once that is done then the event listeners can be added.
-//setupDataStore(setupEventListeners);
-Promise.all([
-    setupDataStore(),
-    GetURLArguments(setupEventListeners)
+    //setupDataStore(setupEventListeners);
+    Promise.all([
+	setupDataStore(),
+	GetURLArguments(setupEventListeners)
     ]
-).then(
-    getConfigFileFromServer()
-)
-    
-}
-
-function onloadInitialServerCalls(){
-
-Promise.all([
-    getMidasFileListFromServer(),
-    getHistoFileListFromServer()
-    ]
-).then(
-  //  getMidasFileDetailsFromServer()
-)
+	       ).then(
+		   function(){
+		       // Do the work of getConfigFileFromServer() but with a resolved promise
+		       // get the Global conditions, Gates conditions and Histogram definitions from the server/ODB
+		       url = dataStore.spectrumServer + '/?cmd=viewConfig';
+		       promiseXHR(url, "Problem getting Config file from analyzer server", processConfigFile, function(error){ErrorConnectingToAnalyzerServer(error)});
+		   }
+	       )
     
 }
 
@@ -389,7 +382,7 @@ function processSortStatus(payload){
     */
 
     // Update the printed Sort Status information on screen
-    string = 'Sorting Run '+dataStore.SortStatusCurrentRunNumber+', subrun '+dataStore.SortStatusCurrentSubRunNumber+' at '+dataStore.SortStatusAverageSortSpeed+' MB/s. Sorted '+prettyFileSizeString(dataStore.SortStatusCurrentBytesSorted)+' of '+prettyFileSizeString(dataStore.SortStatusCurrentBytesFileSize)+'s ('+dataStore.SortStatusCurrentPercentageComplete+'% completed). Estimated time to complete = '+prettyTimeString(parseInt(dataStore.SortStatusCurrentRemainingSortTime));
+    string = 'Run '+dataStore.SortStatusCurrentRunNumber+', subrun '+dataStore.SortStatusCurrentSubRunNumber+' at '+dataStore.SortStatusAverageSortSpeed+' MB/s. Sorted '+prettyFileSizeString(dataStore.SortStatusCurrentBytesSorted)+' of '+prettyFileSizeString(dataStore.SortStatusCurrentBytesFileSize)+'s ('+dataStore.SortStatusCurrentPercentageComplete+'% completed).<br>Estimated '+prettyTimeString(parseInt(dataStore.SortStatusCurrentRemainingSortTime))+' remaining.';
     document.getElementById("SortingStatus").innerHTML = string;
 
     // Update the progress bar to show the current sort progress

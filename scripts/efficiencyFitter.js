@@ -88,6 +88,11 @@ function setupDataStore(){
     dataStore.detectorType = 'HPGe';                                       // The selected Detector choice
 
     dataStore.currentSource = '133Ba';                                           // index for the dataStore.sourceInfo while looping through sources.
+    dataStore.sourceCalibration = {                                              // NIST-certification of 60Co sources. Used for calculating absolute efficiency.
+	'R-0793': {"date": 1180724400,  "activity": 38480, "halflife": 1.66372e+8},
+	'R-0850': {"date": 1221505200,  "activity": 35350, "halflife": 1.66372e+8},
+	'R-1105': {"date": 1462129200,  "activity": 38180, "halflife": 1.66372e+8}
+    };
     dataStore.sourceInfo = {                                                  // Source information and settings
 	'133Ba' : {"name": "Ba-133", "title": "133Ba", 'histoFileName' : '', "maxXValue": 2000,       // General source details
 	            "literaturePeaks": [ //53.16,
@@ -209,8 +214,9 @@ function setupDataStore(){
 		  "normalizedEfficiency": [],          // Relative efficiency calculated for this peak energy before summing corrections, normalized to 152Eu
 		  "normalizationFactorParameter": [],  // paremeters of the fitting used to determine the Normalization factor
 		  "normalizationFactor": 0,            // Normalization factor for the relative efficiency curve of this source
-		  "absoluteEfficiency": []             // Absolute efficiency calculated for this peak energy after summing corrections
-	          }
+		  "absoluteEfficiency": [],             // Absolute efficiency calculated for this peak energy after summing corrections
+		  "sourceCalibration": {}
+	         }
     };
     dataStore.sourceInfoPACES = [
 	{"name": "PACES",  "title": "PACES 207Bi", "lowEnergy":  74.97, "midEnergy":  481.69, "highEnergy":  975.65, "vhiEnergy": 1682.22, "maxXValue":2000 }
@@ -509,6 +515,34 @@ function setupHistoListSelect(){
 	document.getElementById('HistoListSelect'+thisTitle).onchange();
     }
 
+    // Create the input and select for the 60Co which defines the activity
+	// Add the title text
+	var newLabel = document.createElement("label");
+	newLabel.for = 'SourceChoiceSelect60Co';
+	newLabel.id = 'SourceChoiceSelect60CoLabel';
+	newLabel.innerHTML = '60Co source: ';
+	document.getElementById('sourceChoice60Co').appendChild(newLabel);
+	
+	// Create a select input for the 60Co source list
+	var newSelect = document.createElement("select");
+	newSelect.id = 'SourceChoiceSelect60Co';
+	newSelect.name = 'SourceChoiceSelect60Co';
+	newSelect.onchange = function(){
+	   dataStore.sourceInfo['60Co'].sourceCalibration = dataStore.sourceCalibration[this.name];
+	}.bind(newSelect);
+	document.getElementById('sourceChoice60Co').appendChild(newSelect);
+	
+	// Add the list of histo files as the options
+	thisSelect = document.getElementById('SourceChoiceSelect60Co');
+        var keys = Object.keys(dataStore.sourceCalibration);
+        for(i=0; i<keys.length; i++){
+	    thisSelect.add( new Option(keys[i], keys[i]) );
+	}
+	
+    // Fire the onchange event for the select with the default value to set it
+    document.getElementById('SourceChoiceSelect60Co').onchange();
+
+    
     // Create the Submit button
     newButton = document.createElement('button'); 
     newButton.setAttribute('id', 'submitHistoFilenameChoicesButton'); 
@@ -525,6 +559,20 @@ function setupHistoListSelect(){
 
 function submitHistoFilenameChoices(){
     // this is the main setup and start of the automatic process.
+
+// TRIGGERING THIS FUNCTION SHOULD DISABLE CHANGING THE SELECTS
+
+
+    // Get the config file for the 60Co histogram file in order to get the details for absolute efficiency
+    // Format check for the data file
+    var filename = dataStore.histoFileDirectoryPath;
+    if(filename[filename.length]!='/'){
+	filename += '/';
+    }
+    filename += dataStore.sourceInfo['60Co'].histoFileName;
+    url = dataStore.spectrumServer + '/?cmd=viewConfig' + '&filename=' + filename;
+    XHR(url, "Problem getting Config file for "+ filename +" from analyzer server", processConfigFileForRuntime, function(error){ErrorConnectingToAnalyzerServer(error)});
+    
     
     // setup the dataStore for this choice of detectorType
     var i, num=0, groups = [];
@@ -823,3 +871,17 @@ function projectAllMatrices(){
                 oppKeys.length-1
             )
         };
+
+
+function processConfigFileForRuntime(payload){
+
+	// Unpack the response from the server into a local variable
+	console.log(payload);
+    var thisConfig = JSON.parse(payload);
+	console.log(thisConfig.Analyzer[6].Midas);
+	
+    // Unpack Midas content
+    dataStore.sourceInfo['60Co'].sourceCalibration = thisConfig.Analyzer[6].Midas;
+	
+    console.log(dataStore);
+}
