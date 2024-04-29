@@ -191,7 +191,7 @@ function promiseXHR(url, errorMessage, callback, reject){
 		// Call the callback function
 		callback(req.response);
                 // Resolve the promise with the response text
-                resolve(req.response);
+                resolve('Success!');
             }
             else {
 		reject(ErrorConnectingToAnalyzerServer(req.statusText));
@@ -211,14 +211,40 @@ function promiseXHR(url, errorMessage, callback, reject){
 function heartbeatXHR(url, errorMessage, callback, reject){
     //start the data fetching heartbeat that uses a XHR request
     //note the dataStore.heartbeat object needs to be defined first.
+    /*
+    console.log('heartbeatXHR called with lock='+dataStore.sortStatusRequestLock+' and count of '+dataStore.sortStatusRequestBlockCount);
+
+    if(dataStore.sortStatusRequestLock == true){
+	// Do not issue new requests if there is a request pending
+	dataStore.sortStatusRequestBlockCount++;
+	if(dataStore.sortStatusRequestBlockCount>10){
+	    // Only block up to ten requests, then issue a new one
+	    console.log('sort status request lock reset after '+dataStore.sortStatusRequestBlockCount+' blocked requests');
+	    dataStore.SortStatusRequestLock = false;
+	    dataStore.sortStatusRequestBlockCount=0;
+	}else{
+	    // Block this new request being sent but still set the timeout for the next one
+	    console.log('sort status request blocked '+dataStore.sortStatusRequestBlockCount+' times');
+	    window.clearTimeout(dataStore.heartbeatTimer)
+	    dataStore.heartbeatTimer = window.setTimeout(heartbeatXHR, dataStore.heartbeatInterval);
+	    
+	    console.log('heartbeatXHR values at return: lock='+dataStore.sortStatusRequestLock+' and count of '+dataStore.sortStatusRequestBlockCount);
+	    return;
+	}
+    }
+*/    
 
     url = dataStore.spectrumServer + '/?cmd=getSortStatus';
     errorMessage = "Problem getting Sort Status from analyzer server";
     callback = processSortStatus;
     XHR(url, errorMessage, callback, function(error){ErrorConnectingToAnalyzerServer(error)});
-    
+    dataStore.sortStatusRequestLock = true;
+   // console.log('sort status request sent and Lock='+dataStore.sortStatusRequestLock);
+
+    // Set timeout for the next sortStatus heartbeat
     window.clearTimeout(dataStore.heartbeatTimer)
     dataStore.heartbeatTimer = window.setTimeout(heartbeatXHR, dataStore.heartbeatInterval);
+   // console.log('heartbeatXHR values at end: lock='+dataStore.sortStatusRequestLock+' and count of '+dataStore.sortStatusRequestBlockCount);
    
 }
 

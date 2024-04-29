@@ -89,9 +89,9 @@ function setupDataStore(){
 
     dataStore.currentSource = '133Ba';                                           // index for the dataStore.sourceInfo while looping through sources.
     dataStore.sourceCalibration = {                                              // NIST-certification of 60Co sources. Used for calculating absolute efficiency.
-	'R-0793': {"date": 1180724400,  "activity": 38480, "halflife": 1.66372e+8},
-	'R-0850': {"date": 1221505200,  "activity": 35350, "halflife": 1.66372e+8},
-	'R-1105': {"date": 1462129200,  "activity": 38180, "halflife": 1.66372e+8}
+	'R-0793': {"date": 1180724400,  "activity": 38480, "halflife": 1.66372e+8, "lambda": 4.1653e-9},
+	'R-0850': {"date": 1221505200,  "activity": 35350, "halflife": 1.66372e+8, "lambda": 4.1653e-9},
+	'R-1105': {"date": 1462129200,  "activity": 38180, "halflife": 1.66372e+8, "lambda": 4.1653e-9}
     };
     dataStore.sourceInfo = {                                                  // Source information and settings
 	'133Ba' : {"name": "Ba-133", "title": "133Ba", 'histoFileName' : '', "maxXValue": 2000,       // General source details
@@ -113,11 +113,12 @@ function setupDataStore(){
 		  "correctedArea": [],
 		  "FWHM": [],
 		  "FCorrectionFactor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
-		   "summingInCorrectionPeaks": [ //[[]],
-						    [[]],
-						  //   [[53.16,223]],      // 79 and 80keV are hard to fit. Omit to start with. Would be helpful for detemrining the turn-over point.
-						   //  [[223,79.61]],      // 79 and 80keV are hard to fit. Omit to start with. Would be helpful for detemrining the turn-over point.
-						     [[276.4,79.61],[53.16,302.85]], [[302.85,80],[223,160]] ],   // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
+		   "summingInCorrectionPeaks": [ //[[]],// An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
+						    [[]], // for 80keV
+					          [[53.16,223]],      // for 276keV. 79 and 80keV are hard to fit. 
+						  [[223,79.61]],      // for 302keV. 79 and 80keV are hard to fit.
+		                                  [[276.4,79.61],[53.16,302.85]], // for 356keV
+		                                  [[302.85,80],[223,160]] ],   // for 383keV 
  		  "summingInCorrectionCounts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
  		  "summingOutCorrectionCounts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
 		  "relativeEfficiency": [],            // Relative efficiency calculated for this peak energy
@@ -214,8 +215,12 @@ function setupDataStore(){
 		  "normalizedEfficiency": [],          // Relative efficiency calculated for this peak energy before summing corrections, normalized to 152Eu
 		  "normalizationFactorParameter": [],  // paremeters of the fitting used to determine the Normalization factor
 		  "normalizationFactor": 0,            // Normalization factor for the relative efficiency curve of this source
-		  "absoluteEfficiency": [],             // Absolute efficiency calculated for this peak energy after summing corrections
-		  "sourceCalibration": {}
+		  "absoluteEfficiency": [],            // Absolute efficiency calculated for this peak energy after summing corrections
+		  "sourceCalibration": {},             // NIST-certified calibration details for this source
+		  "Midas": {},                          // Midas info of this historgram file; Title, StartTime, Duration
+		  "timeSinceCertification": 0,         // time in seconds between the certification of the source activity and the start of the run
+		  "sourceActivity": 0,                // source Activity in becquerels at the start of the run
+		  "sourceTotalDecaysDuringThisRun": 0 // Total number of decays of this source during this run
 	         }
     };
     dataStore.sourceInfoPACES = [
@@ -227,6 +232,7 @@ function setupDataStore(){
     dataStore.spectrumListHits = {};                                  // List of all the Hitpattern spectra
     dataStore.spectrumListOpp = {};                                   // List of all the 180degree coincidence matrices
     dataStore.spectrumListProjections = {};                           // List of all projections from the 180degree coincidence matrices
+    dataStore.spectrumListProjectionsPeaks = {};                      // List of peaks to fit for each projection from the 180degree coincidence matrix
     dataStore.progressBarNumberPeaks = 0;                             // Total count of peaks to fit for use with the progress bar
     dataStore.progressBarPeaksFitted =0;                              // Number of peaks fitted so far for use with the progress bar
     
@@ -528,7 +534,8 @@ function setupHistoListSelect(){
 	newSelect.id = 'SourceChoiceSelect60Co';
 	newSelect.name = 'SourceChoiceSelect60Co';
 	newSelect.onchange = function(){
-	   dataStore.sourceInfo['60Co'].sourceCalibration = dataStore.sourceCalibration[this.name];
+	    console.log('onchange of sourceSelect: '+this.value);
+	    dataStore.sourceInfo['60Co'].sourceCalibration = dataStore.sourceCalibration[this.value];
 	}.bind(newSelect);
 	document.getElementById('sourceChoice60Co').appendChild(newSelect);
 	
@@ -821,7 +828,7 @@ function projectAllMatrices(){
             console.log(dataStore);
 
             // Change rawData to another list that is just the Opp spectrum
-                var i,j, plotName, oppKeys = Object.keys(dataStore.spectrumListOpp),
+    var i,j,k, plotName, oppKeys = Object.keys(dataStore.spectrumListOpp),
                 buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
 
             releaser(
@@ -851,7 +858,13 @@ function projectAllMatrices(){
 			console.log('Created '+plotName);
 			// Add this projection spectrum to the list which need to be fitted
 			dataStore.spectrumListProjections[plotName] = dataStore.createdSpectra[plotName];
-
+			dataStore.spectrumListProjectionsPeaks[plotName] = [];
+			// Build the list of peaks to be fitted for this projection spectrum - these contribute to the summing-in corrections.
+			for(k=0; k<dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j].length; k++){
+			    dataStore.spectrumListProjectionsPeaks[plotName].push(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k]);
+			}
+			console.log(dataStore.spectrumListProjectionsPeaks[plotName]);
+			
 			// The summing-out correction is the total number of counts in this 180 degree coincidence multiplied by the F factor.
 			// The F factor is determined from the number of active crystals which contributed to this 180degree coincidence matrix.
 			// F factor will be deduced from the Hittpattern for this source histrogram file.
@@ -881,7 +894,26 @@ function processConfigFileForRuntime(payload){
 	console.log(thisConfig.Analyzer[6].Midas);
 	
     // Unpack Midas content
-    dataStore.sourceInfo['60Co'].sourceCalibration = thisConfig.Analyzer[6].Midas;
-	
+    dataStore.sourceInfo['60Co'].Midas = {
+	'Title': thisConfig.Analyzer[6].Midas[0].Value,
+	'StartTime': thisConfig.Analyzer[6].Midas[1].Value,
+	'Duration': thisConfig.Analyzer[6].Midas[2].Value,
+    };
+
+    // Calculate the time in seconds between the certification of the source activity and the run start
+    dataStore.sourceInfo['60Co'].timeSinceCertification = dataStore.sourceInfo['60Co'].Midas.StartTime - dataStore.sourceInfo['60Co'].sourceCalibration.date;
+
+    // Calculate the source activity at the time of the run start
+    dataStore.sourceInfo['60Co'].sourceActivity = dataStore.sourceInfo['60Co'].sourceCalibration.activity * Math.exp(-1.0*dataStore.sourceInfo['60Co'].sourceCalibration.lambda*dataStore.sourceInfo['60Co'].timeSinceCertification);
+
+    // Calculate the number of decays of this source during the full run duration
+    dataStore.sourceInfo['60Co'].sourceTotalDecaysDuringThisRun = dataStore.sourceInfo['60Co'].sourceActivity * dataStore.sourceInfo['60Co'].Midas.Duration;
+    dataStore.sourceInfo['60Co'].normalizationFactor = 1.0/dataStore.sourceInfo['60Co'].sourceTotalDecaysDuringThisRun;
+    
+    console.log('Source activity at Run start:');
+    console.log(dataStore.sourceInfo['60Co'].timeSinceCertification);
+    console.log(dataStore.sourceInfo['60Co'].sourceActivity);
+    console.log(dataStore.sourceInfo['60Co'].sourceTotalDecaysDuringThisRun);
+    console.log(dataStore.sourceInfo['60Co'].normalizationFactor);
     console.log(dataStore);
 }

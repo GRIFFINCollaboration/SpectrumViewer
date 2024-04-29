@@ -606,7 +606,8 @@ function spectrumViewer(canvasID){
 	//stick a gaussian on top of the spectrum fitKey between the fit limits
 	this.fitData = function(fitKey, retries){
 		var cent, fitdata, i, max, width, x, y, height, bkg, bins, estimate;
-		var fitLine, fitter;
+	        var fitLine, fitter;
+ 	    var maxBinContentsLimit=500000, normalizationFactor=0, originalFitdata;
 
 		if(!retries)
 			retries = 0;
@@ -621,13 +622,34 @@ function spectrumViewer(canvasID){
 		max=1;
 
 		fitdata=this.plotBuffer[fitKey];
-		fitdata=fitdata.slice(this.FitLimitLower, this.FitLimitUpper+1);
+	        fitdata=fitdata.slice(this.FitLimitLower, this.FitLimitUpper+1);
+	    
 
 		// Find maximum Y value in the fit data
 		if(Math.max.apply(Math, fitdata)>max){
 			max=Math.max.apply(Math, fitdata);
 		}
 
+ 	    // Fitting high-statistics data is very slow with these functions. Here normalize down to small bin contents for the fitting
+	    // Performance comparison of the normalization factor:
+	    // No normalization = 6.2 seconds to fit a peak with max bin content 2.5M counts.
+	    // maxBinContentsLimit=1,000,000, fit took 3060 ms.
+	    // maxBinContentsLimit=  500,000, fit took 1510 ms.
+	    // maxBinContentsLimit=  250,000, fit took  632 ms.
+	    // maxBinContentsLimit=  200,000, fit took  492 ms.
+	    // maxBinContentsLimit=  150,000, fit took  373 ms. <- Optimal chosen for speed and fit accuracy.
+	    // maxBinContentsLimit=  100,000, fit took  248 ms. <- fitted width is too narrow
+	    // maxBinContentsLimit=   10,000, fit took   36 ms. <- fitted width is too narrow.
+	        if(max>maxBinContentsLimit){
+		    normalizationFactor = maxBinContentsLimit/max;
+		    originalFitdata = fitdata;
+		    for(i=0; i<fitdata.length; i++){
+			fitdata[i] = fitdata[i]*normalizationFactor;
+		    }
+		    max = max*normalizationFactor;
+	        }
+
+	    
 		// Find the bin with the maximum Y value
 		cent=0;
 		while(fitdata[cent]<max){
@@ -660,11 +682,11 @@ function spectrumViewer(canvasID){
 			fitter.fxn = function(intercept, slope, x, par){return intercept + slope*x + par[0]*Math.exp(-1*(((x-par[1])*(x-par[1]))/(2*par[2]*par[2])))}.bind(null, estimate[0], estimate[1]);
 			fitter.guess = [max, cent, width];
 			fitter.fitit();
-			max = fitter.param[0];
+		        max = fitter.param[0];
 			cent = fitter.param[1];
 		        width = Math.abs(fitter.param[2]); // width must not be negative, but is deduced as sigma squared
 		}
-
+            	    
 		//check if the fit failed, and redo with slightly nudged fit limits
 		if( (!max || !cent || !width || width<0) && retries<10){
 		    this.FitLimitLower--;
@@ -673,17 +695,33 @@ function spectrumViewer(canvasID){
 			return
 		}
 	    
+	    // Apply the normalization factor again if it is a high-statistics dataset
+	    if(normalizationFactor>0){
+		max = (fitter.param[0]/normalizationFactor).toFixed(2);
+	    }
+	    
 		this.activeFitLines[fitKey + Math.round(cent)] = {
 			'min': this.FitLimitLower,
 			'nBins': fitdata.length,
-			'amplitude': max,
+		        'amplitude': max,
 			'center': cent,
 			'width': width,
 			'intercept': estimate[0],
 			'slope': estimate[1]
 		}
 		fitLine = this.addFitLine(this.FitLimitLower, fitdata.length, max, cent, width, estimate[0], estimate[1])
-
+	    console.log('ML fitter: (this.FitLimitLower, fitdata.length, max, cent, width, estimate[0], estimate[1])');
+	    console.log(originalFitdata);
+	    console.log(fitdata);
+	    console.log(this.FitLimitLower);
+	    console.log(fitdata.length);
+	    console.log(max);
+	    console.log(cent);
+	    console.log(width);
+	    console.log(estimate[0]);
+	    console.log(estimate[1]);
+	    console.log(normalizationFactor);
+	    
 		this.containerPersistentOverlay.removeAllChildren();
 		this.containerFit.addChild(fitLine);
 		this.stage.update();

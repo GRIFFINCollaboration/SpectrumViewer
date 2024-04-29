@@ -34,6 +34,8 @@ var dataStore = {};     // Global object to pass variables around
 
 function setupDataStore(){
 
+    // Return a new promise.
+    return new Promise(function(resolve, reject) {
     // The dataStore object is declared as a global variable.
     // Here we fill the dataStore object with most values
     // Some initial values are filled elsewhere, like getURLArguments() and getConfigFileFromServer()
@@ -51,7 +53,10 @@ function setupDataStore(){
     dataStore.midasRunList = {};                               // place to store the list of midas runs available to sort which is provided by the server
     dataStore.midasTableLastRowClicked = 1;                    // place to remember the last row number clicked with a single mouse click
     dataStore.CalibrationSource = 'midas';                     // selection the source of calibrations to be applied in the submitted sort job (either midas or config)
+
     
+    dataStore.SortStatusRequestLock = false;                   // A request lock to prevent new requests if a request is still pending. true = block new requests, false = allow new request
+    dataStore.sortStatusRequestBlockCount=0;                   // Count how many requests are blocked
     dataStore.SortStatusCurrentTimestamp = 10;
     dataStore.SortStatusCurrentFileName = "";
     dataStore.SortStatusCurrentRunNumber = 10001;
@@ -156,14 +161,21 @@ function setupDataStore(){
     dataStore.heartbeatIntervalIDLEvalue = 5000;          // default IDLE inteval
     dataStore.heartbeatTimer = '';                        // the TimeOut object so that it can be terminated with a clearTimeout call
     dataStore.waitCounter = 0;
+
+    // resolve the promise
+    resolve('Success!');
+    });
     
 }
 
 // Control the initial load workflow
 function onloadInitialSetup(){
 
+
+    // Return a new promise.
+    return new Promise(function(resolve, reject) {
+
 // Set up the data store. Once that is done then the event listeners can be added.
-    //setupDataStore(setupEventListeners);
     Promise.all([
 	setupDataStore(),
 	GetURLArguments(setupEventListeners)
@@ -173,9 +185,12 @@ function onloadInitialSetup(){
 		       // Do the work of getConfigFileFromServer() but with a resolved promise
 		       // get the Global conditions, Gates conditions and Histogram definitions from the server/ODB
 		       url = dataStore.spectrumServer + '/?cmd=viewConfig';
-		       promiseXHR(url, "Problem getting Config file from analyzer server", processConfigFile, function(error){ErrorConnectingToAnalyzerServer(error)});
+		       resolve(promiseXHR(url, "Problem getting Config file from analyzer server", processConfigFile, function(error){ErrorConnectingToAnalyzerServer(error)}));
 		   }
 	       )
+
+    });
+    
     
 }
 
@@ -228,6 +243,7 @@ function setupEventListeners(){
 	    updateTime();
 
 	    // Launch the heartbeat for regularly grabbing the sort status
+	    console.log('initiateSortStatusHeartbeat');
 	    initiateSortStatusHeartbeat();
 	    
 	});
@@ -260,6 +276,13 @@ function processSortStatus(payload){
 
     // A response was received from the server, so ensure the connection error is not displayed
     ClearErrorConnectingToAnalyzerServer();
+
+    /*
+    // Clear the Sort Status request lock because a response has been received
+    dataStore.SortStatusRequestLock = false;
+    dataStore.sortStatusRequestBlockCount=0;
+    console.log('sort status request lock reset. Lock='+dataStore.SortStatusRequestLock+', count='+dataStore.sortStatusRequestBlockCount);
+    */
     
     //
     // The function in the analyzer server (c syntax)  
@@ -295,6 +318,7 @@ function processSortStatus(payload){
 	document.getElementById('progress').setAttribute('style', 'width:' + 100 + '%' );
 	document.getElementById('progress').innerHTML = 'Analyzer is idle, ready for files to be submitted.';
 	document.getElementById("SortingStatus").innerHTML = 'Analyzer is idle, ready for files to be submitted.';
+	//console.log('End of processSortStatus: Lock='+dataStore.SortStatusRequestLock+', count='+dataStore.sortStatusRequestBlockCount);
 	return;
     }else{
 	// Set the heartbeat frequency
@@ -413,6 +437,8 @@ function processSortStatus(payload){
    // document.getElementById("JobsQueue").innerHTML += '<br>Time to sort entire queue is '+parseFloat(totalQueueFileSize/dataStore.SortStatusAverageSortSpeed).toFixed(1)+' seconds';
 	document.getElementById("JobsQueue").innerHTML += '<br>Time to sort entire queue of '+(thisPayloadArray.length-1)+' runs ('+prettyFileSizeString(totalQueueFileSize)+') is '+prettyTimeString((totalQueueFileSize/1000000)/dataStore.SortStatusAverageSortSpeed);
     }
+
+   // console.log('End of processSortStatus: Lock='+dataStore.SortStatusRequestLock+', count='+dataStore.sortStatusRequestBlockCount);
 }
 
 function checkConfigTimestamps(serverTimestamp){

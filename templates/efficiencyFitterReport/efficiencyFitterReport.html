@@ -177,13 +177,13 @@ console.log('Inject the Table');
                 function(i){
                     // Change rawData to another list that is just the Sum_Energy_ spectrum
                     var keys = Object.keys(dataStore.spectrumListSingles);
-                    this.fitSpectra(keys[i])
+                    this.fitSinglesSpectra(keys[i])
                 }.bind(this),
 
                 function(){
                     var evt;
                     //set up fit line re-drawing
-                    dataStore.viewers[dataStore.plots[0]].drawCallback = this.addFitLines;
+                    dataStore.viewers[dataStore.plots[0]].drawCallback = this.addFitLinesSingles;
 
                     //comunicate with the user
                     if(document.getElementById('pickerMessage')){ deleteNode('pickerMessage') }
@@ -195,8 +195,8 @@ console.log('Inject the Table');
                     // Message to console
                     console.log('fitAllSinglesPeaks releaser has finished its work. Now have all peaks fitted for singles spectra.'); 
 
-                    // Fitted all singles peaks, now make all projections from the matrices
-                    this.fitAllSummingCorrections();
+                    // Fitted all singles peaks, now fit all spectra in the projections of the matrices to determine summing corrections
+                  //  this.fitAllSummingCorrections();
 
 // THE FOLLOWING SHOULD MOVE TO THE FINAL FUNCTION OF this.fitAllSummingCorrections
                     dataStore.sourceInfo['133Ba'].normalizationFactor = this.normalizeSourceData('133Ba','152Eu'); 
@@ -215,6 +215,14 @@ console.log(dataStore.sourceInfo['56Co'].normalizedEfficiency);
 
             //update the relative efficiency data plot which includes all sources
             this.reconstructRelativeEfficiencyData();
+
+// Now calculate the absolute efficiency 
+for(i=0; i<dataStore.sourceInfo['60Co'].rawEfficiency.length; i++){
+dataStore.sourceInfo['60Co'].absoluteEfficiency.push((dataStore.sourceInfo['60Co'].rawEfficiency[i]*dataStore.sourceInfo['60Co'].normalizationFactor)); 
+} 
+console.log(dataStore.sourceInfo['60Co'].normalizationFactor);
+console.log(dataStore.sourceInfo['60Co'].rawEfficiency);
+console.log(dataStore.sourceInfo['60Co'].absoluteEfficiency); 
 
 console.log(dataStore);
 
@@ -267,20 +275,20 @@ return [normalizationFactor];
             console.log(dataStore);
 
             // Change rawData to another list that is just the Opp spectrum
-            var i, keys = Object.keys(dataStore.spectrumListOpp),
+            var i, keys = Object.keys(dataStore.spectrumListProjections),
                 buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
 
             releaser(
                 function(i){
                     // Change rawData to another list that is just the Sum_Energy_ spectrum
-                    var keys = Object.keys(dataStore.spectrumListOpp);
-                    this.fitSpectra(keys[i])
+                    var keys = Object.keys(dataStore.spectrumListProjections);
+                    this.fitSummingSpectra(keys[i])
                 }.bind(this),
 
                 function(){
                     var evt;
                     //set up fit line re-drawing
-                    dataStore.viewers[dataStore.plots[0]].drawCallback = this.addFitLines;
+                    dataStore.viewers[dataStore.plots[0]].drawCallback = this.addFitLinesSumming;
 
                     //comunicate with the user
                     if(document.getElementById('pickerMessage')){ deleteNode('pickerMessage') }
@@ -295,7 +303,7 @@ return [normalizationFactor];
             )
         },
 
-        this.fitSpectra = function(spectrum){
+        this.fitSinglesSpectra = function(spectrum){
             //redo the fits for the named spectrum.
             //<spectrum>: string; name of spectrum, per names from analyzer
             //this: efficiencyFitterReport object
@@ -304,7 +312,7 @@ return [normalizationFactor];
 
             // Set the current Source for this spectrum
             dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === spectrum.split(':')[0])
-            console.log('fitSpectra for '+spectrum+', identify key '+dataStore.currentSource);
+            console.log('fitSinglesSpectra for '+spectrum+', identify key '+dataStore.currentSource);
 
             //set up fitting for this spectrum/source
             dataStore.viewers[viewerName].addData(spectrum, JSON.parse(JSON.stringify(dataStore.rawData[spectrum])) );
@@ -327,7 +335,7 @@ return [normalizationFactor];
             dataStore.viewers[viewerName].removeData(spectrum); 
         },
 
-        this.addFitLines = function(){
+        this.addFitLinesSingles = function(){
             //add current fits to the plot
 console.log('addFitLines in efficiencyFitterReport');
 
@@ -339,9 +347,73 @@ console.log('addFitLines in efficiencyFitterReport');
 
             // Set the current Source for this spectrum
             dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === dataStore.currentPlot.split(':')[0])
-            console.log('fitSpectra for '+dataStore.currentPlot+', identify key '+dataStore.currentSource);
+            console.log('addFitLines for '+dataStore.currentPlot+', identify key '+dataStore.currentSource);
 
             for(i=0; i<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; i++){
+            //add fit lines
+            fitLines[i] = dataStore.viewers[viewerName].addFitLine(
+                        dataStore.ROI[dataStore.currentSource][i][0], 
+                        dataStore.ROI[dataStore.currentSource][i][1] - dataStore.ROI[dataStore.currentSource][i][0], 
+                        dataStore.fitResults[dataStore.currentPlot][i][0], 
+                        dataStore.fitResults[dataStore.currentPlot][i][1], 
+                        dataStore.fitResults[dataStore.currentPlot][i][2], 
+                        dataStore.fitResults[dataStore.currentPlot][i][3], 
+                        dataStore.fitResults[dataStore.currentPlot][i][4]
+                    );
+
+             dataStore.viewers[viewerName].containerFit.addChild(fitLines[i]);
+            }
+
+            dataStore.viewers[viewerName].stage.update();
+        },
+
+        this.fitSummingSpectra = function(spectrum){
+            //redo the fits for the named spectrum.
+            //<spectrum>: string; name of spectrum, per names from analyzer
+            //this: efficiencyFitterReport object
+
+            var viewerName = dataStore.plots[0];
+
+            // Set the current Source for this spectrum
+            dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === spectrum.split(':')[0])
+            console.log('fitSummingSpectra for '+spectrum+', identify key '+dataStore.currentSource);
+
+            //set up fitting for this spectrum/source
+            dataStore.viewers[viewerName].addData(spectrum, JSON.parse(JSON.stringify(dataStore.createdSpectra[spectrum])) );
+            dataStore.currentPlot = spectrum;
+            dataStore.viewers[viewerName].plotData() //kludge to update limits, could be nicer
+            dataStore.viewers[viewerName].fitTarget = spectrum;
+            dataStore._plotListLite.exclusivePlot(spectrum, dataStore.viewers[dataStore.plots[0]]);
+
+            // Loop through all peaks for this Projection
+            for(i=0; i<dataStore.spectrumListProjectionsPeaks[spectrum].length; i++){
+
+            //set up peak fit
+            dataStore.currentPeak = i;
+            dataStore.viewers[viewerName].FitLimitLower = dataStore.spectrumListProjectionsPeaks[spectrum][i]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth);
+            dataStore.viewers[viewerName].FitLimitUpper = dataStore.spectrumListProjectionsPeaks[spectrum][i]+parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth);
+            dataStore.viewers[viewerName].fitData(spectrum, 0);
+            }
+
+            //dump data so it doesn't stack up 
+            dataStore.viewers[viewerName].removeData(spectrum); 
+        },
+
+        this.addFitLinesSumming = function(){
+            //add current fits to the plot
+console.log('addFitLinesSumming in efficiencyFitterReport');
+
+            var fitLines = [];
+            var lower, upper, middle
+                viewerName = dataStore.plots[0];
+
+            dataStore.viewers[viewerName].containerFit.removeAllChildren();
+
+            // Set the current Source for this spectrum
+            dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === dataStore.currentPlot.split(':')[0])
+            console.log('addFitLinesSumming for '+dataStore.currentPlot+', identify key '+dataStore.currentSource);
+
+            for(i=0; i<dataStore.spectrumListProjectionsPeaks[dataStore.currentPlot].length; i++){
             //add fit lines
             fitLines[i] = dataStore.viewers[viewerName].addFitLine(
                         dataStore.ROI[dataStore.currentSource][i][0], 
@@ -386,9 +458,6 @@ console.log('addFitLines in efficiencyFitterReport');
             //keep track of fit results
             dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, center, width, intercept, slope]
 
-            //convenient to arrange resolution data here
-            dataStore.sourceInfo[dataStore.currentSource].FWHM[dataStore.currentPeak] = (width*2.35).toFixed(2);
-
             // Update the ROI in case they were modified by the fitting routine
             dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][0] = dataStore.viewers[viewerName].FitLimitLower;
             dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][1] = dataStore.viewers[viewerName].FitLimitUpper;  
@@ -405,7 +474,14 @@ console.log('addFitLines in efficiencyFitterReport');
                 x = center - sigmas*width + i*stepSize
                 functionVals.push( gauss(amplitude, center, width, x)*stepSize )
                 integral = functionVals.integrate()
-            }
+}
+
+            // Bail out if this is not singles spectrum fitting
+
+
+            //convenient to arrange resolution data here
+            dataStore.sourceInfo[dataStore.currentSource].FWHM[dataStore.currentPeak] = (width*2.35).toFixed(2);
+
             dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak] = integral.toFixed(0);
             console.log(dataStore.currentPlot + ', '+dataStore.currentSource + ', Peak '+dataStore.currentPeak+', centroid='+center.toFixed(2)+', height='+amplitude.toFixed(2)+', FWHM='+(width*2.35).toFixed(2)+', Net Area = '+dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak]);
 

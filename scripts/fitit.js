@@ -20,12 +20,12 @@ function histofit(){
 	///////////////////////////////////////////
 
 	//log probability of n counts in a bin where lambda were expected:
-	this.logPoisson = function(n, lambda){
+    this.logPoisson = function(n, lambda, logLambda){
 		var i, N=0;
 		for(i=1; i<=n; i++)
 			N += i;
 //console.log([n, lambda, N])
-		return n*Math.log(lambda) - lambda - N;
+		return n*logLambda - lambda - N;
 	}
 
 	//negative log likelihood of seeing the observed spectrum given the theory function and <param> array
@@ -36,7 +36,7 @@ function histofit(){
 		for(i=0; i<this.x.length; i++){
 			lambda = this.fxn.bind(this, this.x[i], param)();
 //console.log(param)
-			nll -= this.logPoisson(this.y[i], lambda);
+		    nll -= this.logPoisson(this.y[i], lambda, Math.log(lambda));
 		}
 //console.log(nll)
 		return nll;
