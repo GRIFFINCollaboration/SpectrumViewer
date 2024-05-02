@@ -177,17 +177,17 @@ console.log('Inject the Table');
                 function(i){
                     // Change rawData to another list that is just the Sum_Energy_ spectrum
                     var keys = Object.keys(dataStore.spectrumListSingles);
-                    this.fitSinglesSpectra(keys[i])
+                    this.fitSpectra(keys[i])
                 }.bind(this),
 
                 function(){
                     var evt;
                     //set up fit line re-drawing
-                    dataStore.viewers[dataStore.plots[0]].drawCallback = this.addFitLinesSingles;
+                    dataStore.viewers[dataStore.plots[0]].drawCallback = this.addFitLines;
 
                     //comunicate with the user
-                    if(document.getElementById('pickerMessage')){ deleteNode('pickerMessage') }
-                    document.getElementById('reviewMessage').classList.remove('hidden');
+                    deleteNode('fittingSinglesMessage');
+                    document.getElementById('fittingSummingMessage').classList.remove('hidden');
 
                     //leave the viewer pointing at the first spectrum for fitting
                     dispatcher({target: buffer}, 'fitAllComplete')
@@ -195,10 +195,300 @@ console.log('Inject the Table');
                     // Message to console
                     console.log('fitAllSinglesPeaks releaser has finished its work. Now have all peaks fitted for singles spectra.'); 
 
-                    // Fitted all singles peaks, now fit all spectra in the projections of the matrices to determine summing corrections
-                  //  this.fitAllSummingCorrections();
+                    // Set the current task to keep track of our progress
+                    dataStore.currentTask = 'SummingFitting';
 
-// THE FOLLOWING SHOULD MOVE TO THE FINAL FUNCTION OF this.fitAllSummingCorrections
+                    // Fitted all singles peaks, now fit all spectra in the projections of the matrices to determine summing corrections
+                   this.fitAllSummingCorrections();
+
+console.log(dataStore);
+
+                }.bind(this),
+
+                keys.length-1
+            )
+        },
+
+this.normalizeSourceData = function(thisSourceKey,referenceSourceKey){
+// The data for thisSourceKey will be normalized to the data of the referenceSourceKey
+// returns the best-fit normalization factor
+
+if(thisSourceKey == '133Ba' && referenceSourceKey == '152Eu'){
+
+// take only some of the points
+var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].rawEfficiency.slice(1,3);
+var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].rawEfficiency.slice(1,4);
+}
+
+if(thisSourceKey == '56Co' && referenceSourceKey == '152Eu'){
+
+// take only some of the points
+var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].rawEfficiency.slice(6,8);
+var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].rawEfficiency.slice(0,4);
+}
+
+var referenceSourceKeyAverage = (referenceSourceKeyData.reduce((a, b) => parseFloat(a) + parseFloat(b), 0))/referenceSourceKeyData.length; 
+var thisSourceKeyAverage = (thisSourceKeyData.reduce((a, b) => parseFloat(a) + parseFloat(b), 0))/thisSourceKeyData.length;
+
+normalizationFactor = referenceSourceKeyAverage / thisSourceKeyAverage;
+
+return [normalizationFactor];
+}
+
+        this.fitAllSummingCorrections = function(){
+            //fit all spectra to the peaks defined.
+            //this: efficiencyFitterReport object
+            console.log(dataStore);
+
+            // Change rawData to another list that is just the Opp spectrum
+            var i, keys = Object.keys(dataStore.spectrumListProjections),
+                buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
+
+            releaser(
+                function(i){
+                    // Change rawData to another list that is just the Sum_Energy_ spectrum
+                    var keys = Object.keys(dataStore.spectrumListProjections);
+                    if(dataStore.spectrumListProjectionsPeaks[keys[i]].length>0){
+                      this.fitSpectra(keys[i])
+                    }
+                }.bind(this),
+
+                function(){
+                    var evt;
+                    //set up fit line re-drawing
+                    dataStore.viewers[dataStore.plots[0]].drawCallback = this.addFitLines;
+
+                    //comunicate with the user
+                    deleteNode('fittingSummingMessage');
+                    document.getElementById('efficiencyMessage').classList.remove('hidden');
+
+                    //leave the viewer pointing at the first spectrum for fitting
+                    dispatcher({target: buffer}, 'fitAllComplete')
+
+                    // The actual summing corrections should be done or called in the fit callback of the summing corrections.
+
+                    // Now we have all peaks fitted for singles and summing corrections
+                    this.performNormalizations();
+
+                }.bind(this),
+
+                keys.length-1
+            )
+        },
+
+        this.fitSpectra = function(spectrum){
+            //redo the fits for the named spectrum.
+            //<spectrum>: string; name of spectrum, per names from analyzer
+            //this: efficiencyFitterReport object
+
+            var viewerName = dataStore.plots[0];
+
+            // Set the current Source for this spectrum
+            dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === spectrum.split(':')[0])
+            console.log('fitSpectra for '+spectrum+', identify key '+dataStore.currentSource);
+
+            //set up fitting for this spectrum/source
+            dataStore.currentPlot = spectrum;
+            dataStore.viewers[viewerName].plotData() //kludge to update limits, could be nicer
+            dataStore.viewers[viewerName].fitTarget = spectrum;
+            dataStore._plotListLite.exclusivePlot(spectrum, dataStore.viewers[dataStore.plots[0]]);
+
+if(dataStore.currentTask == 'SinglesFitting'){
+// fitting singles
+
+            //set up the spectrum data for fitting
+            dataStore.viewers[viewerName].addData(spectrum, JSON.parse(JSON.stringify(dataStore.rawData[spectrum])) );
+
+            // Loop through all literature peaks for this source
+            for(i=0; i<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; i++){
+
+            //set up peak fit
+            dataStore.currentPeak = i;
+            dataStore.viewers[viewerName].FitLimitLower = dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][0];
+            dataStore.viewers[viewerName].FitLimitUpper = dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][1];
+            dataStore.viewers[viewerName].fitData(spectrum, 0);
+            }
+}else{
+// fitting projections for summing corrections
+
+            //set up the spectrum data for fitting
+            dataStore.viewers[viewerName].addData(spectrum, JSON.parse(JSON.stringify(dataStore.createdSpectra[spectrum])) );
+
+         // Loop through the peaks to fit for this projection
+         for(i=0; i<dataStore.spectrumListProjectionsPeaks[spectrum].length; i++){
+
+            //set up peak fit
+            dataStore.currentPeak = i;
+            dataStore.viewers[viewerName].FitLimitLower = dataStore.ROIprojections[spectrum][dataStore.currentPeak][0];
+            dataStore.viewers[viewerName].FitLimitUpper = dataStore.ROIprojections[spectrum][dataStore.currentPeak][1];
+            dataStore.viewers[viewerName].fitData(spectrum, 0);
+
+           }
+}
+            //dump data so it doesn't stack up 
+            dataStore.viewers[viewerName].removeData(spectrum); 
+        },
+
+        this.addFitLines = function(){
+            //add current fits to the plot
+console.log('addFitLines in efficiencyFitterReport');
+
+            var fitLines = [];
+            var lower, upper, middle
+                viewerName = dataStore.plots[0];
+
+            dataStore.viewers[viewerName].containerFit.removeAllChildren();
+
+            // Set the current Source for this spectrum
+            dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === dataStore.currentPlot.split(':')[0])
+            console.log('addFitLines for '+dataStore.currentPlot+', identify key '+dataStore.currentSource+' during '+dataStore.currentTask);
+
+if(dataStore.currentTask == 'SinglesFitting'){
+// fitting singles
+
+            for(i=0; i<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; i++){
+            //add fit lines
+            fitLines[i] = dataStore.viewers[viewerName].addFitLine(
+                        dataStore.ROI[dataStore.currentSource][i][0], 
+                        dataStore.ROI[dataStore.currentSource][i][1] - dataStore.ROI[dataStore.currentSource][i][0], 
+                        dataStore.fitResults[dataStore.currentPlot][i][0], 
+                        dataStore.fitResults[dataStore.currentPlot][i][1], 
+                        dataStore.fitResults[dataStore.currentPlot][i][2], 
+                        dataStore.fitResults[dataStore.currentPlot][i][3], 
+                        dataStore.fitResults[dataStore.currentPlot][i][4]
+                    );
+
+             dataStore.viewers[viewerName].containerFit.addChild(fitLines[i]);
+            }
+}else{
+// fitting projections for summing corrections
+console.log(dataStore); 
+console.log(dataStore.ROIprojections); 
+console.log(dataStore.fitResultsProjections); 
+console.log(dataStore.currentSource);  
+console.log(dataStore.currentPlot);
+
+            // Bail out of no fitResults yet
+            if(!dataStore.fitResultsProjections[dataStore.currentPlot]){
+console.log('No fitResults yet for '+dataStore.currentPlot+' in addFitLines so bailing out');
+return;
+            }
+
+            // Loop through the peaks for this spectrum
+            for(i=0; i<dataStore.spectrumListProjectionsPeaks[dataStore.currentPlot].length; i++){
+            //add fit lines
+console.log('Add fit lines for '+dataStore.currentPlot+', peak '+i);
+            fitLines[i] = dataStore.viewers[viewerName].addFitLine(
+                        dataStore.ROIprojections[dataStore.currentPlot][i][0], 
+                        dataStore.ROIprojections[dataStore.currentPlot][i][1] - dataStore.ROIprojections[dataStore.currentPlot][i][0], 
+                        dataStore.fitResultsProjections[dataStore.currentPlot][i][0], 
+                        dataStore.fitResultsProjections[dataStore.currentPlot][i][1], 
+                        dataStore.fitResultsProjections[dataStore.currentPlot][i][2], 
+                        dataStore.fitResultsProjections[dataStore.currentPlot][i][3], 
+                        dataStore.fitResultsProjections[dataStore.currentPlot][i][4]
+                    );
+
+             dataStore.viewers[viewerName].containerFit.addChild(fitLines[i]);
+            }
+
+}
+
+            dataStore.viewers[viewerName].stage.update();
+        },
+
+        this.fitCallback = function(center, width, amplitude, intercept, slope){
+            //after fitting, log the fit results, as well as any modification made to the ROI by the fitting algortihm
+            //also update table
+            //<center>: number; center of gaussian peak
+            //<width>: number; width of peak
+            //<amplitude>: number; amplitude of peak
+            //<intercept>: number; intercept of linear background beneath peak
+            //<slope>: number; slope of linear background
+            //this: gainMatchReport object
+
+            var lowPeak = document.getElementById('fitLow'); 
+            var midPeak = document.getElementById('fitMid'); 
+            var highPeak = document.getElementById('fitHigh'); 
+            var vhiPeak = document.getElementById('fitvHi');
+            var viewerName = dataStore.plots[0];
+
+            // update the progress bar
+            dataStore.progressBarPeaksFitted++;
+         console.log('Fitted '+dataStore.progressBarPeaksFitted+' of '+dataStore.progressBarNumberPeaks+' peaks.');
+            document.getElementById('progress').setAttribute('style', 'width:' + (100*(dataStore.progressBarPeaksFitted / dataStore.progressBarNumberPeaks)) + '%' );
+
+            // Calculate peak area here
+            var grossArea = 0,
+                netArea = 0,
+                integral = 0,
+                functionVals = [],
+                i, x, sigmas = 5, stepSize = 0.01;
+            //calculate peak area in excess of background, for <sigmas> up and down.
+            for(i=0; i<2*sigmas*width/stepSize; i++){
+                x = center - sigmas*width + i*stepSize
+                functionVals.push( gauss(amplitude, center, width, x)*stepSize )
+                integral = functionVals.integrate()
+}
+
+            // Bail out if this is not singles spectrum fitting
+if(dataStore.currentTask == 'SinglesFitting'){
+// fitting singles
+
+            //keep track of fit results 
+            if(!dataStore.fitResults[dataStore.currentPlot]) dataStore.fitResults[dataStore.currentPlot] = [];
+            dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, center, width, intercept, slope];
+
+            // Update the ROI in case they were modified by the fitting routine
+            dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][0] = dataStore.viewers[viewerName].FitLimitLower;
+            dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][1] = dataStore.viewers[viewerName].FitLimitUpper;  
+
+            //convenient to arrange resolution data here
+            dataStore.sourceInfo[dataStore.currentSource].FWHM[dataStore.currentPeak] = (width*2.35).toFixed(2);
+
+            dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak] = integral.toFixed(0);
+            console.log(dataStore.currentPlot + ', '+dataStore.currentSource + ', Peak '+dataStore.currentPeak+', centroid='+center.toFixed(2)+', height='+amplitude.toFixed(2)+', FWHM='+(width*2.35).toFixed(2)+', Net Area = '+dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak]);
+
+            //update table
+            this.updateTable(dataStore.currentPlot);
+
+            //update data plots for the individual sources
+            this.reconstructSourceEfficiencyData();
+
+}else{
+// Fitting projections
+console.log('Save these Projection fit Results');
+console.log(dataStore.currentPlot);
+console.log(dataStore.currentPeak);
+console.log(dataStore.ROIprojections);
+
+
+            //keep track of fit results 
+            if(!dataStore.fitResultsProjections[dataStore.currentPlot]) dataStore.fitResultsProjections[dataStore.currentPlot] = [];
+            dataStore.fitResultsProjections[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, center, width, intercept, slope];
+
+            // Save the ROI for projections so it can be used for drawing the fitlines 
+            if(!dataStore.ROIprojections[dataStore.currentPlot]) dataStore.ROIProjections[dataStore.currentPlot] = [];
+            dataStore.ROIprojections[dataStore.currentPlot][dataStore.currentPeak][0] = dataStore.viewers[viewerName].FitLimitLower;
+            dataStore.ROIprojections[dataStore.currentPlot][dataStore.currentPeak][1] = dataStore.viewers[viewerName].FitLimitUpper;  
+
+console.log('fitCallback during Summing corrections but anything else to do here?');
+}
+
+return;
+
+            //disengage fit mode buttons
+            if( parseInt(lowPeak.getAttribute('engaged'),10) == 1)
+                lowPeak.onclick(); 
+            if( parseInt(midPeak.getAttribute('engaged'),10) == 1)
+                midPeak.onclick(); 
+            if( parseInt(highPeak.getAttribute('engaged'),10) == 1)
+                highPeak.onclick(); 
+            if( parseInt(vhiPeak.getAttribute('engaged'),10) == 1)
+                vhiPeak.onclick();
+
+        },
+
+        this.performNormalizations = function(){
                     dataStore.sourceInfo['133Ba'].normalizationFactor = this.normalizeSourceData('133Ba','152Eu'); 
                     dataStore.sourceInfo['56Co'].normalizationFactor = this.normalizeSourceData('56Co','152Eu');
 
@@ -223,288 +513,7 @@ dataStore.sourceInfo['60Co'].absoluteEfficiency.push((dataStore.sourceInfo['60Co
 console.log(dataStore.sourceInfo['60Co'].normalizationFactor);
 console.log(dataStore.sourceInfo['60Co'].rawEfficiency);
 console.log(dataStore.sourceInfo['60Co'].absoluteEfficiency); 
-
-console.log(dataStore);
-
-                }.bind(this),
-
-                keys.length-1
-            )
-        },
-
-this.normalizeSourceData = function(thisSourceKey,referenceSourceKey){
-// The data for thisSourceKey will be normalized to the data of the referenceSourceKey
-// returns the best-fit normalization factor
-
-if(thisSourceKey == '133Ba' && referenceSourceKey == '152Eu'){
-console.log('normalizing 133Ba to 152Eu:');
-
-// take only some of the points
-var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].rawEfficiency.slice(1,3);
-var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].rawEfficiency.slice(1,4);
-}
-
-if(thisSourceKey == '56Co' && referenceSourceKey == '152Eu'){
-console.log('normalizing 56Co to 152Eu:');
-
-// take only some of the points
-var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].rawEfficiency.slice(6,8);
-var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].rawEfficiency.slice(0,4);
-}
-
-var referenceSourceKeyAverage = (referenceSourceKeyData.reduce((a, b) => parseFloat(a) + parseFloat(b), 0))/referenceSourceKeyData.length; 
-var thisSourceKeyAverage = (thisSourceKeyData.reduce((a, b) => parseFloat(a) + parseFloat(b), 0))/thisSourceKeyData.length;
-
-console.log(referenceSourceKeyData); 
-console.log(thisSourceKeyData); 
-console.log(referenceSourceKeyData.length); 
-console.log(thisSourceKeyData.length); 
-console.log(referenceSourceKeyAverage); 
-console.log(thisSourceKeyAverage);
-
-normalizationFactor = referenceSourceKeyAverage / thisSourceKeyAverage;
-
-console.log(normalizationFactor);
-
-return [normalizationFactor];
-}
-
-        this.fitAllSummingCorrections = function(){
-            //fit all spectra to the peaks defined.
-            //this: efficiencyFitterReport object
-            console.log(dataStore);
-
-            // Change rawData to another list that is just the Opp spectrum
-            var i, keys = Object.keys(dataStore.spectrumListProjections),
-                buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
-
-            releaser(
-                function(i){
-                    // Change rawData to another list that is just the Sum_Energy_ spectrum
-                    var keys = Object.keys(dataStore.spectrumListProjections);
-                    this.fitSummingSpectra(keys[i])
-                }.bind(this),
-
-                function(){
-                    var evt;
-                    //set up fit line re-drawing
-                    dataStore.viewers[dataStore.plots[0]].drawCallback = this.addFitLinesSumming;
-
-                    //comunicate with the user
-                    if(document.getElementById('pickerMessage')){ deleteNode('pickerMessage') }
-                    document.getElementById('reviewMessage').classList.remove('hidden');
-
-                    //leave the viewer pointing at the first spectrum for fitting
-                    dispatcher({target: buffer}, 'fitAllComplete')
-
-                }.bind(this),
-
-                keys.length-1
-            )
-        },
-
-        this.fitSinglesSpectra = function(spectrum){
-            //redo the fits for the named spectrum.
-            //<spectrum>: string; name of spectrum, per names from analyzer
-            //this: efficiencyFitterReport object
-
-            var viewerName = dataStore.plots[0];
-
-            // Set the current Source for this spectrum
-            dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === spectrum.split(':')[0])
-            console.log('fitSinglesSpectra for '+spectrum+', identify key '+dataStore.currentSource);
-
-            //set up fitting for this spectrum/source
-            dataStore.viewers[viewerName].addData(spectrum, JSON.parse(JSON.stringify(dataStore.rawData[spectrum])) );
-            dataStore.currentPlot = spectrum;
-            dataStore.viewers[viewerName].plotData() //kludge to update limits, could be nicer
-            dataStore.viewers[viewerName].fitTarget = spectrum;
-            dataStore._plotListLite.exclusivePlot(spectrum, dataStore.viewers[dataStore.plots[0]]);
-
-            // Loop through all literature peaks for this source
-            for(i=0; i<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; i++){
-
-            //set up peak fit
-            dataStore.currentPeak = i;
-            dataStore.viewers[viewerName].FitLimitLower = dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][0];
-            dataStore.viewers[viewerName].FitLimitUpper = dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][1];
-            dataStore.viewers[viewerName].fitData(spectrum, 0);
-            }
-
-            //dump data so it doesn't stack up 
-            dataStore.viewers[viewerName].removeData(spectrum); 
-        },
-
-        this.addFitLinesSingles = function(){
-            //add current fits to the plot
-console.log('addFitLines in efficiencyFitterReport');
-
-            var fitLines = [];
-            var lower, upper, middle
-                viewerName = dataStore.plots[0];
-
-            dataStore.viewers[viewerName].containerFit.removeAllChildren();
-
-            // Set the current Source for this spectrum
-            dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === dataStore.currentPlot.split(':')[0])
-            console.log('addFitLines for '+dataStore.currentPlot+', identify key '+dataStore.currentSource);
-
-            for(i=0; i<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; i++){
-            //add fit lines
-            fitLines[i] = dataStore.viewers[viewerName].addFitLine(
-                        dataStore.ROI[dataStore.currentSource][i][0], 
-                        dataStore.ROI[dataStore.currentSource][i][1] - dataStore.ROI[dataStore.currentSource][i][0], 
-                        dataStore.fitResults[dataStore.currentPlot][i][0], 
-                        dataStore.fitResults[dataStore.currentPlot][i][1], 
-                        dataStore.fitResults[dataStore.currentPlot][i][2], 
-                        dataStore.fitResults[dataStore.currentPlot][i][3], 
-                        dataStore.fitResults[dataStore.currentPlot][i][4]
-                    );
-
-             dataStore.viewers[viewerName].containerFit.addChild(fitLines[i]);
-            }
-
-            dataStore.viewers[viewerName].stage.update();
-        },
-
-        this.fitSummingSpectra = function(spectrum){
-            //redo the fits for the named spectrum.
-            //<spectrum>: string; name of spectrum, per names from analyzer
-            //this: efficiencyFitterReport object
-
-            var viewerName = dataStore.plots[0];
-
-            // Set the current Source for this spectrum
-            dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === spectrum.split(':')[0])
-            console.log('fitSummingSpectra for '+spectrum+', identify key '+dataStore.currentSource);
-
-            //set up fitting for this spectrum/source
-            dataStore.viewers[viewerName].addData(spectrum, JSON.parse(JSON.stringify(dataStore.createdSpectra[spectrum])) );
-            dataStore.currentPlot = spectrum;
-            dataStore.viewers[viewerName].plotData() //kludge to update limits, could be nicer
-            dataStore.viewers[viewerName].fitTarget = spectrum;
-            dataStore._plotListLite.exclusivePlot(spectrum, dataStore.viewers[dataStore.plots[0]]);
-
-            // Loop through all peaks for this Projection
-            for(i=0; i<dataStore.spectrumListProjectionsPeaks[spectrum].length; i++){
-
-            //set up peak fit
-            dataStore.currentPeak = i;
-            dataStore.viewers[viewerName].FitLimitLower = dataStore.spectrumListProjectionsPeaks[spectrum][i]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth);
-            dataStore.viewers[viewerName].FitLimitUpper = dataStore.spectrumListProjectionsPeaks[spectrum][i]+parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth);
-            dataStore.viewers[viewerName].fitData(spectrum, 0);
-            }
-
-            //dump data so it doesn't stack up 
-            dataStore.viewers[viewerName].removeData(spectrum); 
-        },
-
-        this.addFitLinesSumming = function(){
-            //add current fits to the plot
-console.log('addFitLinesSumming in efficiencyFitterReport');
-
-            var fitLines = [];
-            var lower, upper, middle
-                viewerName = dataStore.plots[0];
-
-            dataStore.viewers[viewerName].containerFit.removeAllChildren();
-
-            // Set the current Source for this spectrum
-            dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === dataStore.currentPlot.split(':')[0])
-            console.log('addFitLinesSumming for '+dataStore.currentPlot+', identify key '+dataStore.currentSource);
-
-            for(i=0; i<dataStore.spectrumListProjectionsPeaks[dataStore.currentPlot].length; i++){
-            //add fit lines
-            fitLines[i] = dataStore.viewers[viewerName].addFitLine(
-                        dataStore.ROI[dataStore.currentSource][i][0], 
-                        dataStore.ROI[dataStore.currentSource][i][1] - dataStore.ROI[dataStore.currentSource][i][0], 
-                        dataStore.fitResults[dataStore.currentPlot][i][0], 
-                        dataStore.fitResults[dataStore.currentPlot][i][1], 
-                        dataStore.fitResults[dataStore.currentPlot][i][2], 
-                        dataStore.fitResults[dataStore.currentPlot][i][3], 
-                        dataStore.fitResults[dataStore.currentPlot][i][4]
-                    );
-
-             dataStore.viewers[viewerName].containerFit.addChild(fitLines[i]);
-            }
-
-            dataStore.viewers[viewerName].stage.update();
-        },
-
-        this.fitCallback = function(center, width, amplitude, intercept, slope){
-            //after fitting, log the fit results, as well as any modification made to the ROI by the fitting algortihm
-            //also update table
-            //<center>: number; center of gaussian peak
-            //<width>: number; width of peak
-            //<amplitude>: number; amplitude of peak
-            //<intercept>: number; intercept of linear background beneath peak
-            //<slope>: number; slope of linear background
-            //this: gainMatchReport object
-
-            var lowPeak = document.getElementById('fitLow'); 
-            var midPeak = document.getElementById('fitMid'); 
-            var highPeak = document.getElementById('fitHigh'); 
-            var vhiPeak = document.getElementById('fitvHi');
-            var viewerName = dataStore.plots[0];
-
-            // update the progress bar
-            dataStore.progressBarPeaksFitted++;
-         console.log('Fitted '+dataStore.progressBarPeaksFitted+' of '+dataStore.progressBarNumberPeaks+' peaks.');
-            document.getElementById('progress').setAttribute('style', 'width:' + (100*(dataStore.progressBarPeaksFitted / dataStore.progressBarNumberPeaks)) + '%' );   
-
-            if(!dataStore.fitResults[dataStore.currentPlot])
-                dataStore.fitResults[dataStore.currentPlot] = [];
-
-            //keep track of fit results
-            dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, center, width, intercept, slope]
-
-            // Update the ROI in case they were modified by the fitting routine
-            dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][0] = dataStore.viewers[viewerName].FitLimitLower;
-            dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][1] = dataStore.viewers[viewerName].FitLimitUpper;  
-
-
-            // Calculate peak area here
-            var grossArea = 0,
-                netArea = 0,
-                integral = 0,
-                functionVals = [],
-                i, x, sigmas = 5, stepSize = 0.01;
-            //calculate peak area in excess of background, for <sigmas> up and down.
-            for(i=0; i<2*sigmas*width/stepSize; i++){
-                x = center - sigmas*width + i*stepSize
-                functionVals.push( gauss(amplitude, center, width, x)*stepSize )
-                integral = functionVals.integrate()
-}
-
-            // Bail out if this is not singles spectrum fitting
-
-
-            //convenient to arrange resolution data here
-            dataStore.sourceInfo[dataStore.currentSource].FWHM[dataStore.currentPeak] = (width*2.35).toFixed(2);
-
-            dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak] = integral.toFixed(0);
-            console.log(dataStore.currentPlot + ', '+dataStore.currentSource + ', Peak '+dataStore.currentPeak+', centroid='+center.toFixed(2)+', height='+amplitude.toFixed(2)+', FWHM='+(width*2.35).toFixed(2)+', Net Area = '+dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak]);
-
-            //update table
-            this.updateTable(dataStore.currentPlot);
-
-            //update data plots for the individual sources
-            this.reconstructSourceEfficiencyData();
-
-return;
-
-            //disengage fit mode buttons
-            if( parseInt(lowPeak.getAttribute('engaged'),10) == 1)
-                lowPeak.onclick(); 
-            if( parseInt(midPeak.getAttribute('engaged'),10) == 1)
-                midPeak.onclick(); 
-            if( parseInt(highPeak.getAttribute('engaged'),10) == 1)
-                highPeak.onclick(); 
-            if( parseInt(vhiPeak.getAttribute('engaged'),10) == 1)
-                vhiPeak.onclick();
-
-        },
-
+},
         this.updateTable = function(spectrum){
             //update the report table with whatever is currently in the dataStore
             //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
@@ -612,7 +621,8 @@ flags.fillN(0, dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.len
                  dataStore.YAxisMaxValue[thisPlotID][0] = dataStore.efficiencyPlotData[thisPlotID][dataStore.currentPeak] * 1.33; 
                }
 
-               dataStore.dataplotData[thisPlotID] = arrangePoints(dataStore.sourceInfo[dataStore.currentSource].literaturePeaks, [dataStore.efficiencyPlotData[thisPlotID]], flags );
+               dataStore.dataplotData[thisPlotID] =
+               arrangePoints(dataStore.sourceInfo[dataStore.currentSource].literaturePeaks, [ dataStore.efficiencyPlotData[thisPlotID] ], flags );
                var eventString = 'updateDyData'+thisPlotID;
                dispatcher({ 'data': dataStore.dataplotData[thisPlotID] }, eventString);
             

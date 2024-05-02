@@ -421,30 +421,21 @@ var thisSearchRegion = [];
  while(foundP3id<3){
       thisPeak=thisSearchRegion[0];
 
-/*
+
       if(document.getElementById("automaticCalibration-Sr-90").value == "Sr-90"){
       // 90Sr has significant background from Bremsstrahliung so search this region backwards.
-
-        for(i=thisSearchRegion[1]; i<(thisSearchRegion[0]); i--){
-           if((i > (centers[0]-5) && i < (centers[0]+5)) || (i >  (centers[1]-5) && i < (centers[1]+5))){ continue; }
-           if(foundP3id>0 && i > (foundP3peaks[0]-5) && i < (foundP3peaks[0]+5)){ continue; }
-           if(foundP3id>1 && i > (foundP3peaks[1]-5) && i < (foundP3peaks[1]+5)){ continue; }
-           localPBG = (data[i-4]+data[i-3]+data[i-2]+data[i-1]+data[i]+data[i+1]+data[i+2]+data[i+3]) / (data[i-8]+data[i-7]+data[i-6]+data[i-5]+data[i+5]+data[i+6]+data[i+7]+data[i+8]);
-           if(data[i] > data[thisPeak] && localPBG>0.5){ thisPeak=i; }
-        }
-
-      }else{
-*/
+        localPBGSetting = 1.25;
+      }
+      else{
+        localPBGSetting = 0.5;
+      }
        for(i=thisSearchRegion[0]; i<(thisSearchRegion[1]); i++){
            if((i > (centers[0]-5) && i < (centers[0]+5)) || (i >  (centers[1]-5) && i < (centers[1]+5))){ continue; }
            if(foundP3id>0 && i > (foundP3peaks[0]-5) && i < (foundP3peaks[0]+5)){ continue; }
            if(foundP3id>1 && i > (foundP3peaks[1]-5) && i < (foundP3peaks[1]+5)){ continue; }
            localPBG = (data[i-4]+data[i-3]+data[i-2]+data[i-1]+data[i]+data[i+1]+data[i+2]+data[i+3]) / (data[i-8]+data[i-7]+data[i-6]+data[i-5]+data[i+5]+data[i+6]+data[i+7]+data[i+8]);
-           if(data[i] > data[thisPeak] && localPBG>0.5){ thisPeak=i; }
+           if(data[i] > data[thisPeak] && localPBG>localPBGSetting){ thisPeak=i; }
         }
-/*
-     }
-  */
 
  if(thisPeak>thisSearchRegion[0]){
    foundP3peaks[foundP3id]=thisPeak;

@@ -40,13 +40,33 @@
         <!--helpful hints-->
         <div class='col-md-6'>
             <div id='histogramMessage' class="alert alert-warning" role="alert">
-                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                <span class="glyphicon glyphicon-check" aria-hidden="false"></span>
                 Select which histogram files contain the gain-matched source data for determining the efficiency.
             </div>
 
-            <div id='waitMessage' class="alert alert-warning hidden" role="alert">
+            <div id='downloadMessage' class="alert alert-warning hidden" role="alert">
                 <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
                 Spectra downloading, please wait...
+            </div>
+
+            <div id='projectionsMessage' class="alert alert-warning hidden" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Projecting the 180-degree coincidence matrices for summing corrections.
+            </div>
+
+            <div id='fittingSinglesMessage' class="alert alert-warning hidden" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Fitting the peaks in the singles spectra for each source.
+            </div>
+
+            <div id='fittingSummingMessage' class="alert alert-warning hidden" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Fitting the peaks in the projected spectra for summing corrections.
+            </div>
+
+            <div id='efficiencyMessage' class="alert alert-warning hidden" role="alert">
+                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                Performing normalizations and building efficiency curves.
             </div>
 
             <div id='reviewMessage' class="alert alert-warning hidden" role="alert">

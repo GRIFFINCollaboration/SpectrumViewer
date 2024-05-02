@@ -697,7 +697,7 @@ function spectrumViewer(canvasID){
 	    
 	    // Apply the normalization factor again if it is a high-statistics dataset
 	    if(normalizationFactor>0){
-		max = (fitter.param[0]/normalizationFactor).toFixed(2);
+		max = (fitter.param[0]/normalizationFactor);
 	    }
 	    
 		this.activeFitLines[fitKey + Math.round(cent)] = {
@@ -710,6 +710,7 @@ function spectrumViewer(canvasID){
 			'slope': estimate[1]
 		}
 		fitLine = this.addFitLine(this.FitLimitLower, fitdata.length, max, cent, width, estimate[0], estimate[1])
+/*
 	    console.log('ML fitter: (this.FitLimitLower, fitdata.length, max, cent, width, estimate[0], estimate[1])');
 	    console.log(originalFitdata);
 	    console.log(fitdata);
@@ -721,6 +722,7 @@ function spectrumViewer(canvasID){
 	    console.log(estimate[0]);
 	    console.log(estimate[1]);
 	    console.log(normalizationFactor);
+*/
 	    
 		this.containerPersistentOverlay.removeAllChildren();
 		this.containerFit.addChild(fitLine);

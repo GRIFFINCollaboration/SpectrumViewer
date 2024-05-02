@@ -58,8 +58,10 @@ function setupDataStore(){
     dataStore.createdSpectra = {};                                       //initialize empty object for created spectra
     //fitting
     dataStore.mode = 'auto';                                              //mode of operation: manual (user defined search regions) or auto (predefined search regions). 
-    dataStore.ROI = {};                                                     //regions of interest to look for peaks in: 'plotname': {'ROIupper':[low bin, high bin], 'ROIlower': [low bin, high bin]}
-    dataStore.fitResults = {};                                              //fit results: 'plotname': [[amplitude, center, width, intercept, slope], [amplitude, center, width, intercept, slope]]
+    dataStore.ROI = {};                                                     //regions of interest (singles) to look for peaks in: 'plotname': {'ROIupper':[low bin, high bin], 'ROIlower': [low bin, high bin]}
+    dataStore.ROIprojections = {};                                        //regions of interest (projections) to look for peaks in: 'plotname': {'ROIupper':[low bin, high bin], 'ROIlower': [low bin, high bin]}
+    dataStore.fitResults = {};                                            //fit results of singles: 'plotname': [[amplitude, center, width, intercept, slope], [amplitude, center, width, intercept, slope]]
+    dataStore.fitResultsProjections = {};                                 //fit results of Projections: 'plotname': [[amplitude, center, width, intercept, slope], [amplitude, center, width, intercept, slope]]
     
     //custom element config
     dataStore.plots = ['Spectra'];                                          //names of plotGrid cells and spectrumViewer objects
@@ -87,6 +89,7 @@ function setupDataStore(){
     dataStore.detectorChoice = [{"name": "HPGe"},{"name": "PACES"}];       // Detector choice information to generate buttons
     dataStore.detectorType = 'HPGe';                                       // The selected Detector choice
 
+    dataStore.currentTask = 'Setup';               // keep track of which task we are on to determine the behaviour of certain function. Mostly used to decide where to write fit results. Singles, Summing
     dataStore.currentSource = '133Ba';                                           // index for the dataStore.sourceInfo while looping through sources.
     dataStore.sourceCalibration = {                                              // NIST-certification of 60Co sources. Used for calculating absolute efficiency.
 	'R-0793': {"date": 1180724400,  "activity": 38480, "halflife": 1.66372e+8, "lambda": 4.1653e-9},
@@ -148,13 +151,13 @@ function setupDataStore(){
 		  "summingInCorrectionPeaks": [ [[]],  [[]],  [[]],  [[]], // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
 						   [[367,411.1],[192,586]], // for 778.9 keV
 						   [[210,656],[148,719],[423,444]], // for 867.4 keV
-						   [[719,244],[401,562],[275,689]], // for 964.0 keV
+						   [[719,244.7],[401,562],[275,689]], // for 964.0 keV
 						  // [[964,121],[275,810]],           // for 1085.8 keV. Doublet is hard to fit, omit for now.
 						 //  [[678,411],[503,586],[324,764]], // for 1089.7 keV. Doublet is hard to fit, omit for now.
-						   [[867,244],[688,423],[210,901],[148,964]], // for 1112.1 keV
+						   [[867.4,244.7],[688,423],[210,901],[148,964.0]], // for 1112.1 keV
 						 //  [[768,444],[556,656],[538,674],[493,719],[345,867],[286,926],[207,1005]], // for 1212.9 keV. low statistics, omit for now.
 						 //  [[712,586],[534,764],[520,778],[328,970],[324,974],[209,1089]], // for 1299.1 keV. low statistics, omit for now.
-						   [[719,688],[566,841],[488,919],[443,964],[295,1112],[237,1170]] // for 1408.0 keV
+						   [[719,688],[566,841],[488,919],[443,964.0],[295,1112.1],[237,1170]] // for 1408.0 keV
 						 ],   
  	          "summingInCorrectionCounts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
  		  "summingOutCorrectionCounts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
@@ -177,14 +180,14 @@ function setupDataStore(){
 		  "FWHM": [],
 		  "FCorrectionFactor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
 		  "summingInCorrectionPeaks": [ [[]],  [[]],  [[]],  [[]],  [[]], // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
-						   [[733,1037],[411,1360]], // for 1771.35 keV
-						   [[977,1037],[655,1360]], // for 2015.18 keV
-						   [[996,1037],[674,1360],[263,1771]], // for 2034.76 keV
+						   [[733,1037.84],[411,1360]], // for 1771.35 keV
+						   [[977,1037.84],[655,1360]], // for 2015.18 keV
+						   [[996,1037.84],[674,1360],[263,1771]], // for 2034.76 keV
 						   [[1360,1238],[787,1810]], // for 2598.46 keV
 						   [[1963,1238],[1088,2113]], // for 3201.95 keV
-						   [[2015,1238],[1442,1810],[1140,2113],[977,2276],[655,2598]], // for 3253.42 keV
-						   [[2034,1238],[1462,1810],[1159,2113],[996,2276],[674,2598],[263,3009]], // for 3272 keV
-						   [[2212,1238],[1640,1810],[1175,2276],[852,2598]], // for 3451.15 keV
+						   [[2015.18,1238],[1442,1810],[1140,2113],[977,2276],[655,2598.46]], // for 3253.42 keV
+						   [[2034,1238],[1462,1810],[1159,2113],[996,2276],[674,2598.46],[263,3009]], // for 3272 keV
+						   [[2212,1238],[1640,1810],[1175.1,2276],[852,2598.46]], // for 3451.15 keV
 						   [[1271,2276]] // for 3548.27 keV
 						 ],   
  		  "summingInCorrectionCounts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
@@ -432,7 +435,11 @@ function fetchCallback(){
     console.log(dataStore.THESEdetectors);
     
     // change messages
-    deleteNode('waitMessage');
+    deleteNode('downloadMessage');
+    document.getElementById('projectionsMessage').classList.remove('hidden');
+    
+    // Set the current task to keep track of our progress
+    dataStore.currentTask = 'Projections';
     
     // Now we have all the spectra received...
 
@@ -475,6 +482,13 @@ function projectionsCallback(){
 
     console.log('Projections have been made so all spectra are ready for fitting.');
     console.log('Ready to fit all spectra');
+    
+    // change messages
+    deleteNode('projectionsMessage');
+    document.getElementById('fittingSinglesMessage').classList.remove('hidden');
+    
+    // Set the current task to keep track of our progress
+    dataStore.currentTask = 'SinglesFitting';
     
     // Start the whole fitting routine for singles peaks
     dataStore._efficiencyFitterReport.fitAllSinglesPeaks();
@@ -633,7 +647,7 @@ function submitHistoFilenameChoices(){
 
     //user guidance
     deleteNode('histogramMessage');
-    document.getElementById('waitMessage').classList.remove('hidden');
+    document.getElementById('downloadMessage').classList.remove('hidden');
 
     // Draw the search region
     dataStore.viewers[dataStore.plots[0]].plotData();
@@ -673,6 +687,9 @@ function submitHistoFilenameChoices(){
     // Set the dataStore.histoFileName to this source so that constructQueries requests the correct spectrum
     dataStore.currentSource = keys[0];
     dataStore.histoFileName = dataStore.sourceInfo[keys[0]].histoFileName;
+
+    // Set the current task to keep track of our progress
+    dataStore.currentTask = 'Fetching';
     
     // Request spectra from the server. This launches a series of promises. Once complete we end with fetchCallback.
     dataStore._plotControl.refreshAll();
@@ -828,7 +845,7 @@ function projectAllMatrices(){
             console.log(dataStore);
 
             // Change rawData to another list that is just the Opp spectrum
-    var i,j,k, plotName, oppKeys = Object.keys(dataStore.spectrumListOpp),
+    var i,j,k, plotName, thisKey, oppKeys = Object.keys(dataStore.spectrumListOpp),
                 buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
 
             releaser(
@@ -838,7 +855,8 @@ function projectAllMatrices(){
 
 		    // Identify the source from the histogram name in the spectrum title
 		    dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === oppKeys[i].split(':')[0])
-		    
+
+		    // Set the details for this matrix and then unpack it
 		    dataStore.activeMatrix = oppKeys[i];
 			dataStore.raw2 = dataStore.rawData[oppKeys[i]].data2;
 			dataStore.activeMatrixXaxisLength = dataStore.rawData[oppKeys[i]].XaxisLength;
@@ -846,30 +864,83 @@ function projectAllMatrices(){
 			dataStore.activeMatrixSymmetrized = dataStore.rawData[oppKeys[i]].symmetrized;
 		    dataStore.hm._raw = packZ(dataStore.rawData[oppKeys[i]].data2);
 
+		    // Loop through the making all the projections required for this source
 		    for(j=0; j<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; j++){
 			console.log('Make projection for '+dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]);
 			min = Math.floor((dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth)) / 2.0);
 			max = min + parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth);
-
-			// HACK until we get a 180 degree matrix bigger than 1024 channels.
-			if(min>1024 || max>1024){ min=509; max=513; } 
 			
 			plotName = projectYaxis(min,max);
 			console.log('Created '+plotName);
+			// Add this projection to the rawData storage for plotting
 			// Add this projection spectrum to the list which need to be fitted
+			dataStore.rawData[plotName] = dataStore.createdSpectra[plotName];
 			dataStore.spectrumListProjections[plotName] = dataStore.createdSpectra[plotName];
 			dataStore.spectrumListProjectionsPeaks[plotName] = [];
-			// Build the list of peaks to be fitted for this projection spectrum - these contribute to the summing-in corrections.
-			for(k=0; k<dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j].length; k++){
-			    dataStore.spectrumListProjectionsPeaks[plotName].push(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k]);
-			}
-			console.log(dataStore.spectrumListProjectionsPeaks[plotName]);
+
+			// Add this projection to the spectrum menu
+			newMenuItem = document.createElement('li'); 
+			newMenuItem.setAttribute('id', 'plotList'+plotName); 
+			newMenuItem.setAttribute('class', 'list-group-item toggle');
+			newMenuItem.innerHTML = '<div class=\'plotName\'>'+plotName.split(':')[1].trim()+'</div><span id=\'plotListbadge'+plotName+'\' class=\"badge plotPresence\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></span>';
+			newMenuItem.onclick = function (){ dispatcher({ 'plotName': plotName }, 'requestPlot'); };
+			document.getElementById('plotListplots'+dataStore.currentSource).appendChild(newMenuItem);
 			
 			// The summing-out correction is the total number of counts in this 180 degree coincidence multiplied by the F factor.
 			// The F factor is determined from the number of active crystals which contributed to this 180degree coincidence matrix.
 			// F factor will be deduced from the Hittpattern for this source histrogram file.
 			dataStore.sourceInfo[dataStore.currentSource].summingOutCorrectionCounts[j] = dataStore.createdSpectra[plotName].reduce((partialSum, a) => parseFloat(partialSum) + parseFloat(a), 0);
 
+			// Build the list of peaks to be fitted for this projection spectrum - these contribute to the summing-in corrections.
+			for(k=0; k<dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j].length; k++){
+			    // This is an array of two peak energies. The first will be the peak energy to fit in the projection of the second energy.
+			    // Check if this projection has been made yet and if not make it.
+			    // Make a list of the peaks to fit for this projection name.
+			    console.log('Process summingInCorrectionPeaks:');
+			    console.log(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j]);
+			    console.log(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][0].length);
+			    if(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][0].length==0){ continue; }
+			    
+			    if(dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.indexOf(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1])<0){
+				// This peak is not a peak we are fitting as a single, so it does not have a projection specturm yet.
+				// Make it now, unless it has already been created
+				
+			console.log('Projections: This peak is not a literature peak, '+dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1]);
+			min = Math.floor((dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth)) / 2.0);
+			max = min + parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth);
+
+			thisKey = dataStore.activeMatrix+'y-'+min+'-'+max;
+				if(!(thisKey in dataStore.createdSpectra)){
+				    console.log('This projection is not in createdSpectra so make it now');
+				
+			plotName = projectYaxis(min,max);
+			console.log('Created '+plotName);
+			// Add this projection spectrum to the list which need to be fitted
+			dataStore.spectrumListProjections[plotName] = dataStore.createdSpectra[plotName];
+			dataStore.spectrumListProjectionsPeaks[plotName] = [];
+
+			// Add this projection to the spectrum menu
+			newMenuItem = document.createElement('li'); 
+			newMenuItem.setAttribute('id', 'plotList'+plotName); 
+			newMenuItem.setAttribute('class', 'list-group-item toggle');
+			newMenuItem.innerHTML = '<div class=\'plotName\'>'+plotName.split(':')[1].trim()+'</div><span id=\'plotListbadge'+plotName+'\' class=\"badge plotPresence\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></span>';
+			newMenuItem.onclick = function (){ dispatcher({ 'plotName': plotName }, 'requestPlot'); };
+			document.getElementById('plotListplots'+dataStore.currentSource).appendChild(newMenuItem);
+			    }
+			    }
+			    // Add the peak to the list to fit in this projection spectrum
+			    dataStore.spectrumListProjectionsPeaks[plotName].push(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]);
+			    console.log('Save this peak '+dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]+' for the projection '+plotName);
+			    
+			    // Count the total number of peaks to fit for use in the progress bar
+			    dataStore.progressBarNumberPeaks++;
+			    
+			    // Save the ROI for projections so it can be used for drawing the fitlines 
+			    if(!dataStore.ROIprojections[plotName]) dataStore.ROIprojections[plotName] = [];
+			    dataStore.ROIprojections[plotName].push([((dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth))/2),((dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]+parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth))/2)]);
+			}
+			console.log(dataStore.spectrumListProjectionsPeaks[plotName]);
+			
 		    }
                 }.bind(this),
 

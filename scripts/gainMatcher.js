@@ -1031,7 +1031,14 @@ function buildCalfile(){
 	CAL += 'Address:	0x'+dataStore.PSCaddresses[i].toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+'\n';
        CAL += 'Digitizer:	GRF16\n';
         if(dataStore.PSCchannels[i].slice(0,3) == dataStore.THESEdetectors[0].slice(0,3)){
-	CAL += 'EngCoeff:	'+dataStore.fitResults[dataStore.PSCchannels[i]+'_Pulse_Height'][4][0]+' '+dataStore.fitResults[dataStore.PSCchannels[i]+'_Pulse_Height'][4][1]+' '+dataStore.fitResults[dataStore.PSCchannels[i]+'_Pulse_Height'][4][2]+'\n';
+
+	    if(dataStore.histoFileName.length>0){
+		// offline mode has the histogram file name appended to the start
+		CAL += 'EngCoeff:	'+dataStore.fitResults[dataStore.histoFileName.split('.')[0]+':'+dataStore.PSCchannels[i]+'_Pulse_Height'][4][0]+' '+dataStore.fitResults[dataStore.histoFileName.split('.')[0]+':'+dataStore.PSCchannels[i]+'_Pulse_Height'][4][1]+' '+dataStore.fitResults[dataStore.histoFileName.split('.')[0]+':'+dataStore.PSCchannels[i]+'_Pulse_Height'][4][2]+'\n';
+	    }else{
+		// online mode with no histrogram file name
+		CAL += 'EngCoeff:	'+dataStore.fitResults[dataStore.PSCchannels[i]+'_Pulse_Height'][4][0]+' '+dataStore.fitResults[dataStore.PSCchannels[i]+'_Pulse_Height'][4][1]+' '+dataStore.fitResults[dataStore.PSCchannels[i]+'_Pulse_Height'][4][2]+'\n';
+	    }
 	}else{
        CAL += 'EngCoeff:	0 1 0\n';
 	}

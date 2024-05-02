@@ -1235,7 +1235,7 @@ function packZ(raw2){
 	    // The values are in pairs of [bin number within this submatrix, 0-255], then [z value]
 	  //  console.log(raw2[subMatrixIndex]);
 	   // type = raw2[subMatrixIndex].shift();
-	    for(j=1; j<raw2[subMatrixIndex].length; j+=2){
+	    for(j=1; j<raw2[subMatrixIndex].length; j+=2){ // j=0 entry is the subMatrix type
 		thisXindex = subMatrixXbaseCoordinate+Math.floor(raw2[subMatrixIndex][j]%subMatrixXlength);
 		thisYindex = subMatrixYbaseCoordinate+Math.floor(raw2[subMatrixIndex][j]/subMatrixXlength);
 		thisValue = raw2[subMatrixIndex][j+1];
