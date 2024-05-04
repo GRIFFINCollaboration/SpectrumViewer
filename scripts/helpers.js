@@ -1413,6 +1413,25 @@ function compareX( a, b ) {
   return 0;
 }
 
+function formatNumberAndUncertaintyString(number,uncertainty){
+    // Given a number and its uncertainty, return a string of the number with its uncertainty given in brackets where the value in brackets is the uncertainty in the final digits
+    var requiredPrecision = 2;
+
+    var uncertValue = Number.parseFloat(uncertainty).toExponential().replace(/^([0-9]+)\.?([0-9]+)?e[\+\-0-9]*$/g, "$1$2");
+    var uncertNSigFigs = uncertValue.length;
+    
+    var string = number + '(' + Number.parseFloat(uncertainty).toPrecision(requiredPrecision) + ')';
+
+    console.log(number);
+    console.log(uncertainty);
+    console.log(uncertValue);
+    console.log(uncertNSigFigs);
+    console.log(Number.parseFloat(uncertainty).toPrecision(requiredPrecision));
+    
+    //    return string;
+    return;
+}
+
 // Taken from https://github.com/GRIFFINCollaboration/efficiencyCalculator/blob/gh-pages/scripts/efficiencyCalculator.js
 // Modified to remove the upper and lower uncertainty values
 // logEn expected for MeV units
@@ -1426,8 +1445,8 @@ function HPGeEfficiency(param, logEn){
 
     // Build the efficiency value from the 8th order polynomial
     for(i=0; i<9; i++){
-	console.log('param '+param[i]+' to '+i+'th order for logEn = '+logEn);
-	console.log((parseFloat(param[i])*Math.pow(logEn,i)));
+//	console.log('param '+param[i]+' to '+i+'th order for logEn = '+logEn);
+//	console.log((parseFloat(param[i])*Math.pow(logEn,i)));
         logEff += parseFloat(param[i])*Math.pow(logEn,i);
     }
 

@@ -236,8 +236,8 @@ function setupDataStore(){
     dataStore.spectrumListOpp = {};                                   // List of all the 180degree coincidence matrices
     dataStore.spectrumListProjections = {};                           // List of all projections from the 180degree coincidence matrices
     dataStore.spectrumListProjectionsPeaks = {};                      // List of peaks to fit for each projection from the 180degree coincidence matrix
-    dataStore.progressBarNumberPeaks = 0;                             // Total count of peaks to fit for use with the progress bar
-    dataStore.progressBarPeaksFitted =0;                              // Number of peaks fitted so far for use with the progress bar
+    dataStore.progressBarNumberTasks = 0;                             // Total count of tasks (spectra to fetch, projections to make, peaks to fit) for use with the progress bar
+    dataStore.progressBarTasksCompleted =0;                           // Number of tasks completed so far for use with the progress bar
     
     dataStore.cellIndex = dataStore.plots.length;
 
@@ -675,7 +675,7 @@ function submitHistoFilenameChoices(){
 	    dataStore.ROI[keys[i]][j] = [Math.floor(dataStore.sourceInfo[keys[i]].literaturePeaks[j]) - ROIwidth, Math.floor(dataStore.sourceInfo[keys[i]].literaturePeaks[j]) + ROIwidth];
 
 	    // Count the total number of peaks to fit for use in the progress bar
-	    dataStore.progressBarNumberPeaks++;
+	    dataStore.progressBarNumberTasks++;
 	}
     }
     console.log(dataStore.ROI);
@@ -870,7 +870,7 @@ function projectAllMatrices(){
 			min = Math.floor((dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth)) / 2.0);
 			max = min + parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth);
 			
-			plotName = projectYaxis(min,max);
+			plotName = projectXaxis(min,max);
 			console.log('Created '+plotName);
 			// Add this projection to the rawData storage for plotting
 			// Add this projection spectrum to the list which need to be fitted
@@ -881,10 +881,11 @@ function projectAllMatrices(){
 			// Add this projection to the spectrum menu
 			newMenuItem = document.createElement('li'); 
 			newMenuItem.setAttribute('id', 'plotList'+plotName); 
+			newMenuItem.setAttribute('value', plotName); 
 			newMenuItem.setAttribute('class', 'list-group-item toggle');
-			newMenuItem.innerHTML = '<div class=\'plotName\'>'+plotName.split(':')[1].trim()+'</div><span id=\'plotListbadge'+plotName+'\' class=\"badge plotPresence\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></span>';
-			newMenuItem.onclick = function (){ dispatcher({ 'plotName': plotName }, 'requestPlot'); };
+			newMenuItem.innerHTML = plotName.split(':')[1].trim()+'<span id=\'plotListbadge'+plotName+'\' class=\"badge plotPresence hidden\">&#x2713;</span>';
 			document.getElementById('plotListplots'+dataStore.currentSource).appendChild(newMenuItem);
+			document.getElementById('plotList'+plotName).onclick = function(){ dataStore._plotListLite.exclusivePlot(this.id.split('plotList')[1], dataStore.viewers[dataStore.plots[0]]); }
 			
 			// The summing-out correction is the total number of counts in this 180 degree coincidence multiplied by the F factor.
 			// The F factor is determined from the number of active crystals which contributed to this 180degree coincidence matrix.
@@ -913,19 +914,22 @@ function projectAllMatrices(){
 				if(!(thisKey in dataStore.createdSpectra)){
 				    console.log('This projection is not in createdSpectra so make it now');
 				
-			plotName = projectYaxis(min,max);
+			plotName = projectXaxis(min,max);
 			console.log('Created '+plotName);
+			// Add this projection to the rawData storage for plotting
 			// Add this projection spectrum to the list which need to be fitted
+			dataStore.rawData[plotName] = dataStore.createdSpectra[plotName];
 			dataStore.spectrumListProjections[plotName] = dataStore.createdSpectra[plotName];
 			dataStore.spectrumListProjectionsPeaks[plotName] = [];
 
 			// Add this projection to the spectrum menu
 			newMenuItem = document.createElement('li'); 
 			newMenuItem.setAttribute('id', 'plotList'+plotName); 
+			newMenuItem.setAttribute('value', plotName); 
 			newMenuItem.setAttribute('class', 'list-group-item toggle');
-			newMenuItem.innerHTML = '<div class=\'plotName\'>'+plotName.split(':')[1].trim()+'</div><span id=\'plotListbadge'+plotName+'\' class=\"badge plotPresence\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></span>';
-			newMenuItem.onclick = function (){ dispatcher({ 'plotName': plotName }, 'requestPlot'); };
+			newMenuItem.innerHTML = plotName.split(':')[1].trim()+'<span id=\'plotListbadge'+plotName+'\' class=\"badge plotPresence hidden\">&#x2713;</span>';
 			document.getElementById('plotListplots'+dataStore.currentSource).appendChild(newMenuItem);
+			document.getElementById('plotList'+plotName).onclick = function(){ dataStore._plotListLite.exclusivePlot(this.id.split('plotList')[1], dataStore.viewers[dataStore.plots[0]]); }
 			    }
 			    }
 			    // Add the peak to the list to fit in this projection spectrum
@@ -933,7 +937,7 @@ function projectAllMatrices(){
 			    console.log('Save this peak '+dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]+' for the projection '+plotName);
 			    
 			    // Count the total number of peaks to fit for use in the progress bar
-			    dataStore.progressBarNumberPeaks++;
+			    dataStore.progressBarNumberTasks++;
 			    
 			    // Save the ROI for projections so it can be used for drawing the fitlines 
 			    if(!dataStore.ROIprojections[plotName]) dataStore.ROIprojections[plotName] = [];

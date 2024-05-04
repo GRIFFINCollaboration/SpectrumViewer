@@ -15,6 +15,7 @@ function setupDataStore(){
     var tacCodes = []
     var descantCodes = []
     var ogsCodes = []
+    var rcmpCodes = []
 
     //generate GRIFFFIN detector nomenclature codes
     for(i=1; i<17; i++){
@@ -83,6 +84,18 @@ function setupDataStore(){
     }
     for(i=1; i<9; i++){
         ogsCodes.push('OGS' + alwaysThisLong(i,2) + 'XN00X');
+    }
+
+    //generate RCMP detector nomenclature codes
+    for(i=1; i<=6; i++){
+	for(j=0; j<32; j++){
+            rcmpCodes.push('RCS' + alwaysThisLong(i,2) + 'XP'+ alwaysThisLong(j,2) +'X');
+	}
+    }
+    for(i=1; i<=6; i++){
+	for(j=0; j<32; j++){
+            rcmpCodes.push('RCS' + alwaysThisLong(i,2) + 'XN'+ alwaysThisLong(j,2) +'X');
+	}
     }
 
     //declare top level groups
@@ -472,7 +485,36 @@ function setupDataStore(){
                     "items": ogsCodes.map(function(c){return c + '_Short_Integration'})
                 }
             ]
+        },
+	
+        {
+            "name": "RCMP",
+            "id": "RCMP",
+            "color": '#367FA9',
+            "subGroups": [
+                {
+                    "subname": "Energy",
+                    "id": "RCSenergy",
+                    "items": rcmpCodes.map(function(c){return c + '_Energy'})
+                },
+                {
+                    "subname": "Time",
+                    "id": "RCStime",
+                    "items": rcmpCodes.map(function(c){return c + '_Time'})
+                },
+                {
+                    "subname": "Pulse Height",
+                    "id": "RCSpulseHeight",
+                    "items": rcmpCodes.map(function(c){return c + '_Pulse_Height'})
+                },
+                {
+                    "subname": "Waveform",
+                    "id": "RCSwaveform",
+                    "items": rcmpCodes.map(function(c){return c + '_Waveform'})
+                }
+            ]
         }
+
     ]
 
     dataStore = {

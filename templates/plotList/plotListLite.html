@@ -89,34 +89,21 @@
 
             // did we find this plot?
             if(!dataStore.rawData[plot]){
-              console.log('Error: exclusivePlot in PlotListLite could not find '+plot+' in '+dataStore.rawData);
+              console.log('Error: exclusivePlot in PlotListLite could not find '+plot+' in dataStore.rawData');
+              console.log(dataStore.rawData);
               return;
             }
 
             //dump old data
             if(dataStore.currentPlot){
                 target.removeData(dataStore.currentPlot); 
-/*
-                    if((dataStore.currentPlot.slice(0,3) == 'GRG') || (dataStore.currentPlot.slice(0,3) == 'PAC')){
-                      specName = dataStore.currentPlot.slice(0,10); 
-                    }else{
-                      specName = dataStore.currentPlot;
-                    } 
-*/
-specName = dataStore.currentPlot;
-              document.getElementById(this.wrapID + 'badge' + specName).classList.add('hidden');
+                specName = dataStore.currentPlot;
+                document.getElementById(this.wrapID + 'badge' + specName).classList.add('hidden');
             }
 
             //add new data
             target.addData(plot, JSON.parse(JSON.stringify(dataStore.rawData[plot])) );
-/*
-                    if((plot.slice(0,3) == 'GRG') || (plot.slice(0,3) == 'PAC')){
-                      specName = plot.slice(0,10); 
-                    }else{
-                      specName = plot;
-                    } 
-*/
-specName = plot;
+            specName = plot;
             document.getElementById(this.wrapID + 'badge' + specName).classList.remove('hidden');
             target.fitTarget = plot;
             dataStore.currentPlot = plot;
