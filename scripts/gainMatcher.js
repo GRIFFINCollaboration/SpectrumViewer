@@ -88,6 +88,7 @@ function setupDataStore(){
 	{"name": "Histo", "text": "Use a histogram file"}
     ];
     
+    dataStore.detectorType = 'HPGe';                                       //Detector choice that has been selected; HPGe or PACES
     dataStore.detectorChoice = [{"name": "HPGe"},{"name": "PACES"}];       // Detector choice information to generate buttons
     
     dataStore.sourceInfo = [                                            // Source information and settings
@@ -556,6 +557,9 @@ function setupMenusFromDetectorChoice(detectorType){
     document.getElementById('decisionBarAuto').classList.remove("hidden");
     document.getElementById('decisionBarManual').classList.remove("hidden");
 
+    // Remember this choice
+    dataStore.detectorType = detectorType;
+    
     if(detectorType == 'PACES'){
 	// Delete the HPGe source buttons and generate only the PACES buttons
 	const thisNode = document.getElementById('decisionBarAuto');
@@ -592,7 +596,7 @@ function setupMenusFromDetectorChoice(detectorType){
 
     var crystals = ["B","G","R","W"];
     var letter = ["A","B"];
-    for(j=0; j<2; j++){
+    for(j=0; j<letter.length; j++){
 	for(i=1; i<(dataStore.numberOfClovers+1); i++){
 	    for(k=0; k<4; k++){
 		dataStore.THESEdetectors[num] = 'GRG'+alwaysThisLong(i, 2)+crystals[k]+'N00'+letter[j];
@@ -713,7 +717,7 @@ function loadData(DAQ){
 	dataStore.RunNumber = DAQ[2][ 'Run number' ];
 	// need to extract the offset, gain and quadratic numbers here
 	for(i=0; i<dataStore.PSCchannels.length; i++){
-	    if(dataStore.PSCchannels[i].includes('GRG')){
+	    if((dataStore.detectorType == 'HPGe' && dataStore.PSCchannels[i].includes('GRG')) || (dataStore.detectorType == 'PACES' && dataStore.PSCchannels[i].includes('PAC'))){
 		keyString = dataStore.PSCchannels[i] + '_Pulse_Height';
 		if(!dataStore.midasCalibration[keyString]){ dataStore.midasCalibration[keyString] = []; }
 		dataStore.midasCalibration[keyString] = [DAQ[3].offset[i], DAQ[4].gain[i], DAQ[5].quadratic[i] ];
@@ -731,7 +735,7 @@ function loadData(DAQ){
 	    channels.push(Config.Analyzer[4].Calibrations[i].name);
 	    dataStore.PSCchannels.push(Config.Analyzer[4].Calibrations[i].name);
 	    dataStore.PSCaddresses.push(Config.Analyzer[4].Calibrations[i].address);
-	    if(Config.Analyzer[4].Calibrations[i].name.includes('GRG')){
+	    if((dataStore.detectorType == 'HPGe' && Config.Analyzer[4].Calibrations[i].name.includes('GRG')) || (dataStore.detectorType == 'PACES' && Config.Analyzer[4].Calibrations[i].name.includes('PAC'))){
 		keyString = Config.Analyzer[4].Calibrations[i].name + '_Pulse_Height';
 		if(!dataStore.midasCalibration[keyString]){ dataStore.midasCalibration[keyString] = []; }
 		dataStore.midasCalibration[keyString] = [Config.Analyzer[4].Calibrations[i].offset, Config.Analyzer[4].Calibrations[i].gain, Config.Analyzer[4].Calibrations[i].quad ];
@@ -868,7 +872,7 @@ function updateODB(obj){
 function setupManualCalibration(){
     // alternative to the shift-click on plot - set limits automatically then draw a horizontal line as the peak search region.
     // this == spectrumViewer object
-
+    
     // Set the mode of operation
     dataStore.mode = 'manual';
     
@@ -942,10 +946,12 @@ function setupAutomaticCalibration(sourceType){
     //identify, register & fetch all spectra
     if(dataStore.modeType == 'Histo'){
 	// Histogram mode: get odb data from the histo file via the spectrumServer
+	
 	dataStore.ViewConfigQuery = dataStore.spectrumServer + '?cmd=viewConfig&filename=' + dataStore.histoFileDirectoryPath + '/' + dataStore.histoFileName;
 	XHR(dataStore.ViewConfigQuery, "Problem getting viewConfig from analyzer server", loadData, function(error){console.log(error)});
     }else{
 	// Online mode: get odb data from ODBhost
+	
 	promiseScript(dataStore.DAQquery)
     }
     
@@ -1025,6 +1031,7 @@ function buildCalfile(){
     
     for(i=0; i<dataStore.PSCchannels.length; i++){
         if(dataStore.PSCchannels[i].slice(0,3) == 'XXX'){ continue; }
+        if(dataStore.PSCaddresses[i]<0){ continue; }
        CAL += dataStore.PSCchannels[i]+' { \n';
        CAL += 'Name:	'+dataStore.PSCchannels[i]+'\n';
        CAL += 'Number:	'+i+'\n';

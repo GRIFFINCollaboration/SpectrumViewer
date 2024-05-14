@@ -80,7 +80,8 @@
         this.wrap = document.getElementById(wrapID);
         this.setupWrap = document.getElementById(setupWrapID)
 
-        this.setup = function(){
+    this.setup = function(){
+    
             // build list of source titles
     var listOfSourceTitles = [];
     
@@ -141,6 +142,10 @@
             for(var i=0; i<dataStore.THESEdetectors.length; i++){
               thisSpectrum = dataStore.THESEdetectors[i] + '_Pulse_Height';
               document.getElementById(this.wrapID + dataStore.THESEdetectors[i] + 'name').onclick = function(){
+              var plot = this.innerHTML + '_Pulse_Height';
+              if(dataStore.histoFileName.length>0){
+                plot = dataStore.histoFileName + ':' + plot; 
+              }
               dataStore._plotListLite.exclusivePlot(this.innerHTML, dataStore.viewers[dataStore.plots[0]]);
               document.body.scrollTop = document.documentElement.scrollTop = 0;
              }
@@ -190,7 +195,7 @@
 
         this.fitAll = function(){
             //fit all spectra to the peaks defined.
-            //this: gainMatchReport object
+//this: gainMatchReport object
 
             var i, keys = Object.keys(dataStore.rawData),
                 buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
@@ -422,13 +427,13 @@ var thisSearchRegion = [];
       thisPeak=thisSearchRegion[0];
 
 
+        localPBGSetting = 0.5;
+    if(dataStore.modeType == 'Histo'){
       if(document.getElementById("automaticCalibration-Sr-90").value == "Sr-90"){
       // 90Sr has significant background from Bremsstrahliung so search this region backwards.
         localPBGSetting = 1.25;
       }
-      else{
-        localPBGSetting = 0.5;
-      }
+}
        for(i=thisSearchRegion[0]; i<(thisSearchRegion[1]); i++){
            if((i > (centers[0]-5) && i < (centers[0]+5)) || (i >  (centers[1]-5) && i < (centers[1]+5))){ continue; }
            if(foundP3id>0 && i > (foundP3peaks[0]-5) && i < (foundP3peaks[0]+5)){ continue; }
@@ -786,13 +791,13 @@ if(breakForLoop){ break; }
 if(lowBin>0 && midBin>0 && highBin>0 && vhiBin>0){
 
 data = [[parseFloat(lowBin), parseFloat(lowEnergy)],[parseFloat(midBin), parseFloat(midEnergy)],[parseFloat(highBin), parseFloat(highEnergy)],[parseFloat(vhiBin), parseFloat(vhiEnergy)]];
-}else if(isNaN(lowBin)){
+}else if(isNaN(lowBin) || lowBin<=0){
 data = [[parseFloat(midBin), parseFloat(midEnergy)],[parseFloat(highBin), parseFloat(highEnergy)],[parseFloat(vhiBin), parseFloat(vhiEnergy)]];
-}else if(isNaN(midBin)){
+}else if(isNaN(midBin) || midBin<=0){
 data = [[parseFloat(lowBin), parseFloat(lowEnergy)],[parseFloat(highBin), parseFloat(highEnergy)],[parseFloat(vhiBin), parseFloat(vhiEnergy)]];
-}else if(isNaN(highBin)){
+}else if(isNaN(highBin) || highBin<=0){
 data = [[parseFloat(lowBin), parseFloat(lowEnergy)],[parseFloat(midBin), parseFloat(midEnergy)],[parseFloat(vhiBin), parseFloat(vhiEnergy)]];
-}else if(isNaN(vhiBin)){
+}else if(isNaN(vhiBin) || vhiBin<=0){
 data = [[parseFloat(lowBin), parseFloat(lowEnergy)],[parseFloat(midBin), parseFloat(midEnergy)],[parseFloat(highBin), parseFloat(highEnergy)]];
 }else{ data = null;}
 
