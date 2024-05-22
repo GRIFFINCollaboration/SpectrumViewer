@@ -423,7 +423,7 @@ function selectMultipleRows(thisRowID){
 
 function SubmitConnectToOnline(){
     // Issue URL to connect to online
-    var url = dataStore.spectrumServer + '?cmd=addDatafile&filename=ONLINE';
+    var url = dataStore.spectrumServer + '?cmd=addDatafile&filename=ONLINE&host=grsmid00';
         XHR(url, 
             'connecting to ONLINE failed.', 
             function(){return 0},

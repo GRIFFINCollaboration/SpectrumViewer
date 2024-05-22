@@ -205,8 +205,16 @@
 
             dataStore.viewers[target].fitTarget = spectrum;
 
-            // also set the gateTarget which is the spectrum used to set gate limits for a projection
-            dataStore.viewers[target].gateTarget = spectrum;
+            // also set the gateTarget if this is a projection.
+            // the gateTarget is the spectrum used to set gate limits for making projections
+            if(typeof dataStore.createdSpectra !== 'undefined'){
+    	      for(let key in dataStore.createdSpectra) {
+    	        const index = activeSpectraForQueries.indexOf(key);
+    	        if (index > -1) {
+                dataStore.viewers[target].gateTarget = spectrum;
+    	        }
+    	      }
+          }
         }
 
         this.fitCallback = function(center, width, amplitude, intercept, slope){
