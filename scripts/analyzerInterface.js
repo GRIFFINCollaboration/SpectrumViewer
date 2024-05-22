@@ -298,7 +298,30 @@ function processSortStatus(payload){
     // console.log(dataStore.SortStatusHistory);
     // Handle the Analyzer IDLE response
     // Set the progress bar to orange and write a status message
-    if(strncmp(payload,'IDLE',4)){
+    if(strncmp(payload,'ONLINE',6)){
+
+	// Check the timestamp of the most recent config file saved on the server
+	checkConfigTimestamps(payload.split(' ')[2]);
+
+	// Remember this status
+	dataStore.previousSortStatus = 'ONLINE';
+	
+	// Set the heartbeat frequency
+	dataStore.heartbeatInterval = dataStore.heartbeatIntervalIDLEvalue;
+
+	var string = 'Analyzer is connected to MIDAS and is sorting online data.';
+	if(payload.split(' ')[1] == 'Stopped'){
+	    string = 'Analyzer is connected to MIDAS but the run is stopped.';
+	}
+	    
+	// Update the progress bar
+	document.getElementById('progress').className = 'progress-bar bg-info';
+	document.getElementById('progress').setAttribute('style', 'width:' + 100 + '%' );
+	document.getElementById('progress').innerHTML = string;
+	document.getElementById("SortingStatus").innerHTML = string;
+	//console.log('End of processSortStatus: Lock='+dataStore.SortStatusRequestLock+', count='+dataStore.sortStatusRequestBlockCount);
+	return;
+    }else if(strncmp(payload,'IDLE',4)){
 
 	// Check the timestamp of the most recent config file saved on the server
 	checkConfigTimestamps(payload.split(' ')[1]);

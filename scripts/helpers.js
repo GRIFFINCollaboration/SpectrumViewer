@@ -20,7 +20,7 @@ function releaser(operation, terminate, num) {
     //loop that releases control at each iteration
     //operation: function of num to perform at each loop
     //terminate: function to perform at end of loop
-    //num: number of times to loop. 
+    //num: number of times to loop.
     if (num < 0){
         terminate()
         return
@@ -35,7 +35,7 @@ function releaser(operation, terminate, num) {
 function getSelected(id){
     //return the current value selected by the select element with id.
     //thx http://stackoverflow.com/questions/1085801/get-selected-value-in-dropdown-list-using-javascript
-    
+
     var e = document.getElementById(id);
     return e.options[e.selectedIndex].value;
 }
@@ -72,7 +72,7 @@ function alwaysThisLong(number, minLength){
 }
 
 function promiseJSONURL(url){
-    // promise to get response from <url> 
+    // promise to get response from <url>
     //thanks http://www.html5rocks.com/en/tutorials/es6/promises/
 
     // Return a new promise.
@@ -122,7 +122,7 @@ function promiseScript(url){
         script.setAttribute('src', url);
         script.onload = function(){
             deleteNode('promiseScript');
-            resolve(null); 
+            resolve(null);
         }
         script.id = 'promiseScript';
         try{
@@ -183,7 +183,7 @@ function promiseXHR(url, errorMessage, callback, reject){
         // Do the usual XHR stuff
 	var req = new XMLHttpRequest();
 	req.open('GET', url);
-	
+
 	req.onload = function() {
             // This is called even on 404 etc
             // so check the status
@@ -197,12 +197,12 @@ function promiseXHR(url, errorMessage, callback, reject){
 		reject(ErrorConnectingToAnalyzerServer(req.statusText));
             }
 	};
-	
+
 	// Handle network errors
 	req.onerror = function() {
             reject(ErrorConnectingToAnalyzerServer(errorMessage));
 	};
-	
+
 	// Make the request
 	req.send();
     });
@@ -227,12 +227,12 @@ function heartbeatXHR(url, errorMessage, callback, reject){
 	    console.log('sort status request blocked '+dataStore.sortStatusRequestBlockCount+' times');
 	    window.clearTimeout(dataStore.heartbeatTimer)
 	    dataStore.heartbeatTimer = window.setTimeout(heartbeatXHR, dataStore.heartbeatInterval);
-	    
+
 	    console.log('heartbeatXHR values at return: lock='+dataStore.sortStatusRequestLock+' and count of '+dataStore.sortStatusRequestBlockCount);
 	    return;
 	}
     }
-*/    
+*/
 
     url = dataStore.spectrumServer + '/?cmd=getSortStatus';
     errorMessage = "Problem getting Sort Status from analyzer server";
@@ -245,12 +245,12 @@ function heartbeatXHR(url, errorMessage, callback, reject){
     window.clearTimeout(dataStore.heartbeatTimer)
     dataStore.heartbeatTimer = window.setTimeout(heartbeatXHR, dataStore.heartbeatInterval);
    // console.log('heartbeatXHR values at end: lock='+dataStore.sortStatusRequestLock+' and count of '+dataStore.sortStatusRequestBlockCount);
-   
+
 }
 
 function prepareTemplates(templates){
     //take an array of template names, and load their inner html into a simmilarly keyed object.
-    
+
     var i, guts = {};
 
     for(i=0; i<templates.length; i++){
@@ -335,7 +335,7 @@ Array.prototype.equals = function (array) {
     if (!array)
         return false;
 
-    // compare lengths - can save a lot of time 
+    // compare lengths - can save a lot of time
     if (this.length != array.length)
         return false;
 
@@ -344,15 +344,15 @@ Array.prototype.equals = function (array) {
         if (this[i] instanceof Array && array[i] instanceof Array) {
             // recurse into the nested arrays
             if (!this[i].equals(array[i]))
-                return false;       
-        }           
-        else if (this[i] != array[i]) { 
+                return false;
+        }
+        else if (this[i] != array[i]) {
             // Warning - two different object instances will never be equal: {x:20} != {x:20}
-            return false;   
-        }           
-    }       
+            return false;
+        }
+    }
     return true;
-}   
+}
 
 //replace every element in an array with 0
 Array.prototype.zero = function(){
@@ -399,7 +399,7 @@ function parseQuery(){
 		value = queryString[i].split('=');
 		elts[value[0]] = value[1];
 	}
-    
+
     return elts;
 }
 
@@ -428,11 +428,11 @@ function GetURLArguments(callback){
     dataStore.spectrumServer = 'http://'+urlData.backend+'.triumf.ca:'+urlData.port;
     dataStore.spectrumServerBackend = urlData.backend;
     dataStore.spectrumServerPort = urlData.port;
-    
+
     // Copy the histogram URL arguments to the dataStore
     dataStore.histoFileDirectoryPath = urlData.histoDir;
     dataStore.histoFileName = urlData.histoFile;
-    
+
     if(dataStore.histoFileDirectoryPath==undefined){
 	// No directory for the histogram files has been provided in the URL, so we provide a default one
 	dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms';
@@ -480,7 +480,7 @@ function getHistoFileListFromServer(){
 
 function GetSpectrumListFromServer(ServerName, callback){
     // Get the Spectrum List from the analyser server
-    
+
     var errorMessage = 'Error receiving Spectrum List from server, '+ServerName;
 
     // url is just /?cmd=getSpectrumList for online data.
@@ -496,7 +496,7 @@ function GetSpectrumListFromServer(ServerName, callback){
 	}
 	urlString += '&filename='+HistoFileDirectory+dataStore.histoFileName;
     }
-    
+
     var req = new XMLHttpRequest();
     req.open('GET', urlString);
 
@@ -539,23 +539,23 @@ function processConfigFile(payload){
 
     // Only use the directories from the config file on the initial load
     if(dataStore.configFileTimestamp == 0){
-	
+
 	// Unpack the Directories content here
 	// If the dataStore entry is empty then save the directory path from this Config if one is present
 	if(dataStore.Configs.Analyzer[5].Directories[0].Path.length>0){ dataStore.midasFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[0].Path; }
 	if(dataStore.Configs.Analyzer[5].Directories[1].Path.length>0){ dataStore.histoFileDirectoryPath = dataStore.Configs.Analyzer[5].Directories[1].Path; }
 	if(dataStore.Configs.Analyzer[5].Directories[2].Path.length>0){ dataStore.configFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[2].Path; }
-	
+
 	// If both the dataStore entry and the config entry were empty then supply a default value here
 	if(dataStore.midasFileDataDirectoryPath.length<1){ dataStore.midasFileDataDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Calibrations-Aug2021'; }
 	if(dataStore.histoFileDirectoryPath.length<1){ dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms'; }
-	if(dataStore.configFileDataDirectoryPath.length<1){ dataStore.configFileDataDirectoryPath = '/home/grifstor/daq/analyzer/grif-replay'; }	
+	if(dataStore.configFileDataDirectoryPath.length<1){ dataStore.configFileDataDirectoryPath = '/home/grifstor/daq/analyzer/grif-replay'; }
     }
-    
+
     // Record the timestamp of when this config file is received
     dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
-    
-    
+
+
     // Reset the dataStore of any old definitions
     dataStore.sortCodeVariables = [];
     dataStore.globalCondition = {                   // place to park Global condition info on the dataStore
@@ -564,40 +564,40 @@ function processConfigFile(payload){
     };
     dataStore.gateCondition = {                  // place to park Gate condition info on the dataStore
         "gateIndex" : 0,                 // monotonically increasing counter to create unique IDs for new Gate condition blocks
-        "nRows" : [],                 // array of monotonic counters for number of rows inserted into Gate condition block; Gate block # == array index. 
+        "nRows" : [],                 // array of monotonic counters for number of rows inserted into Gate condition block; Gate block # == array index.
 	"contents" : []             // array of structures holding the variables and values for each Gate condition
     };
     dataStore.histogramDefinition = {             // place to park Histogram definition info on the dataStore
         "histogramIndex" : 0,            // monotonically increasing counter to create unique IDs for new Histogram condition blocks
-        "nRows" : [],            // array of monotonic counters for number of rows inserted into Histogram condition block; Histogram block # == array index. 
+        "nRows" : [],            // array of monotonic counters for number of rows inserted into Histogram condition block; Histogram block # == array index.
         "contents" : []            // place to save Histogram definition parameters
     };
-    
+
     // Unpack the Config file from the server into the dataStore layout
-    
+
     // Unpack Sort Variables content
     for(var i=0; i<dataStore.Configs.Analyzer[0].Variables.length; i++){
-	dataStore.sortCodeVariables.push(dataStore.Configs.Analyzer[0].Variables[i]);   
+	dataStore.sortCodeVariables.push(dataStore.Configs.Analyzer[0].Variables[i]);
     }
-    
+
     // Unpack Global content
     for(var i=0; i<dataStore.Configs.Analyzer[3].Globals.length; i++){
-	dataStore.globalCondition.contents.push(dataStore.Configs.Analyzer[3].Globals[i]);   
+	dataStore.globalCondition.contents.push(dataStore.Configs.Analyzer[3].Globals[i]);
     }
-    
+
     // Unpack Gate content
     for(var i=0; i<dataStore.Configs.Analyzer[1].Gates.length; i++){
-	dataStore.gateCondition.contents.push(dataStore.Configs.Analyzer[1].Gates[i]);   
+	dataStore.gateCondition.contents.push(dataStore.Configs.Analyzer[1].Gates[i]);
     }
-    
+
     // Unpack the Histogram content
     for(var i=0; i<dataStore.Configs.Analyzer[2].Histograms.length; i++){
 	dataStore.histogramDefinition.contents.push(dataStore.Configs.Analyzer[2].Histograms[i]);
     }
-    
+
     // Unpack the Calibrations content here
     //dataStore.Configs.Analyzer[4].Calibrations
-    
+
     // Update content that involves the config file
     dispatcher({}, 'requestHistogramsRefresh');
 
@@ -610,7 +610,7 @@ function processMidasFileList(payload){
 
     // receive the payload and split into an array of strings
     var thisPayload = payload.split("]")[0].split("[ \n")[1];
-    
+
     // Protect against an empty response
     if(thisPayload != undefined && thisPayload.length>4){
 	// tidy up the strings to extract the list of midas files
@@ -623,7 +623,7 @@ function processMidasFileList(payload){
     var thisMidasFileList = [
    	                     { "Names" : 'name', "Sizes" : 5000000 , "Titles" : '' }
                             ];
-    
+
     for(var i=0; i<thisPayloadList.length; i++){
 	thisMidasFileList[i] = {
 	    "Names" : thisPayloadList[i].split(" , ")[0],
@@ -702,17 +702,17 @@ function processMidasFileList(payload){
      }).then(
          getMidasFileDetailsFromServer()
        );
-    
+
 }
 
 function processMidasFileDetails(payload){
 
     // A response was received from the server, so ensure the connection error is not displayed
     ClearErrorConnectingToAnalyzerServer();
-    
+
     // receive the payload and split into an array of strings
     var thisPayload = payload.split("]")[0].split("[ \n")[1];
-    
+
     // tidy up the strings to extract the list of midas files
     var thisPayloadList = thisPayload.split(" , \n ");
 
@@ -720,7 +720,7 @@ function processMidasFileDetails(payload){
     var thisMidasFileList = [
    	                     { "Names" : 'name', "Sizes" : 5000000 , "Titles" : '' }
                             ];
-    
+
     for(var i=0; i<thisPayloadList.length; i++){
 	thisMidasFileList[i] = {
 	    "Names" : thisPayloadList[i].split(" , ")[0],
@@ -734,28 +734,28 @@ function processMidasFileDetails(payload){
 
     // Save this list of midas files to the dataStore
     dataStore.midasFileList = thisMidasFileList;
-    
+
     // Go through the new list of titles and insert them into the midasRunList object
     i=0;
     while(i<dataStore.midasFileList.length){
-	
+
 	// The list is sorted backwards so that the most recent runs appear at the top.
 	// Only subrun 000 has the title, so the first instance of this run we come across likely does not have the title.
 	// So here we find the title and add it for this run.
 	try{
 	    if(dataStore.midasFileList[i].Titles.length>1){
-		
+
 		// Find the indexID of this run in the MidasRunList object
 		var indexID = dataStore.midasRunList.map(function(e) { return e.RunName; }).indexOf(dataStore.midasFileList[i].Names.split("_")[0]);
-		
+
 		dataStore.midasRunList[indexID].RunTitle = dataStore.midasFileList[i].Titles.trim();
-		
+
 	    }
 	}catch(err){ console.log('Caught this error in processMidasFileDetails, '+err); }
 
 	i++;
     }
-    
+
     // Add these details to the table
     addFileDetailsToMidasFileTable();
 }
@@ -764,7 +764,7 @@ function processHistoFileList(payload){
 
     // A response was received from the server, so ensure the connection error is not displayed
     ClearErrorConnectingToAnalyzerServer();
-    
+
     // receive the payload and split into an array of strings
     var thisPayload = payload.split(" ]")[0].split("[ \n")[1];
 
@@ -781,9 +781,9 @@ function processHistoFileList(payload){
     dataStore.histoFileList.reverse();
 
     // Update content that involves the Histogram list
-    dispatcher({}, 'requestViewerRefresh'); 
+    dispatcher({}, 'requestViewerRefresh');
     dispatcher({}, 'requestSortingRefresh');
-    
+
     // Set up the list of histo files
     setupHistoListSelect();
 }
@@ -791,10 +791,10 @@ function processHistoFileList(payload){
 function setupHistoListSelect(){
     // Only proceed if this is needed.
     if(!document.getElementById('histo-list-menu-div')){ return; }
-    
+
     // Clear the previous contents
     document.getElementById('histo-list-menu-div').innerHTML = 'Histogram file: ';
-	
+
     // Create a select input for the histo file list
     var newSelect = document.createElement("select");
     newSelect.id = 'HistoListSelect';
@@ -804,7 +804,7 @@ function setupHistoListSelect(){
 	GetSpectrumListFromServer(dataStore.spectrumServer,processSpectrumList);
 	console.log('Histogram selected is '+dataStore.histoFileName);
     }.bind(newSelect);
-    
+
     document.getElementById('histo-list-menu-div').appendChild(newSelect);
 
     // Add the list of histo files as the options
@@ -846,20 +846,20 @@ function processSpectrumList(payload,callback){
     }
     catch(err){
 	console.log('Problem with format of the Spectrum list provided by the server for histogram file, '+dataStore.histoFileName);
-	console.log(err);		       
+	console.log(err);
 	return;
     }
 
     // Clear the previous list of 2D histogram names
     dataStore.twoDimensionalSpectra = [];
-    
+
     //declare the holder for the top level groups
     var topGroups = [];
-    
+
     // Sort through the list from the server to find the folders, subfolders and histogram titles
     // Use this to set up the topGroups, subGroups and items for the menu generation
-    for (i in SpectrumList) 
-    { 
+    for (i in SpectrumList)
+    {
 	thisFolderTitle = i; // this is the topGroup
 
 	// Create a new topGroup for this folder
@@ -869,10 +869,10 @@ function processSpectrumList(payload,callback){
                      "color": '#367FA9',
                      "subGroups": []
 	           }
-	
-	for (j in SpectrumList[i]) 
+
+	for (j in SpectrumList[i])
 	{
-	    for (k in SpectrumList[i][j]) 
+	    for (k in SpectrumList[i][j])
 	    {
 		y = SpectrumList[i][j][k]
 		if (typeof y === 'string' || y instanceof String){
@@ -895,7 +895,7 @@ function processSpectrumList(payload,callback){
 			if(dataStore.histoFileName.length>0){
 			    thisHistoTitle = dataStore.histoFileName.split('.')[0]+ ':' + thisHistoTitle;
 			}
-			
+
 			// If this is a 2d histogram then ':2d' is attached to the end of the name as an identifier
 			// Save this histogram name into the dataStore.twoDimensionalSpectra list so it can be identified as 2d.
 			// Remove the ':2d' so only the filename part is requested from the server
@@ -909,7 +909,7 @@ function processSpectrumList(payload,callback){
 			    'plotID' : thisHistoTitle,
 			    'plotTitle' : y
 			};
-			
+
 			// Add this histogram to the items list in this subGroup of the topGroup
                         newGroup.subGroups[newGroup.subGroups.length-1].items.push(thisObject);
 		    }
@@ -929,9 +929,9 @@ function processSpectrumList(payload,callback){
     }
     // Add this subGroup to the topGroup
     newGroup.subGroups.push(newSubgroup);
-    
+
     dataStore.topGroups = topGroups;
-    
+
     // Now need to build the menu based on these topGroups and subGroups
     // callback should be constructNewSpectrumMenu();
     callback();
@@ -951,8 +951,8 @@ function constructNewSpectrumMenu(){
 	document.getElementById('navbar-content-div').innerHTML = '';
     }
     // Clear any previous dataStore plotList object
-    if(dataStore._plotList != undefined){ delete dataStore._plotList; } 
-    if(dataStore.currentTopGroup != undefined){ delete dataStore.currentTopGroup; } 
+    if(dataStore._plotList != undefined){ delete dataStore._plotList; }
+    if(dataStore.currentTopGroup != undefined){ delete dataStore.currentTopGroup; }
 
     // build the menu based on these topGroups and subGroups
     // Need to ensure the constructor dataStore._plotList has been created.
@@ -1058,7 +1058,7 @@ function constructQueries(keys){
 		queryString += '&filename='+HistoFileDirectory+dataStore.histoFileName;
 	    }
 	}
-	
+
         for(j=i*16; j<Math.min( (i+1)*16, keys.length ); j++){
             queryString += '&spectrum' + j + '=' + keys[j];
         }
@@ -1070,6 +1070,8 @@ function constructQueries(keys){
 //////////////////////////
 // 2D spectrum viewer
 //////////////////////////
+
+
 
 function projectXaxis(gateMin,gateMax){
     // 2d histogram data is stored as an array of arrays.
@@ -1088,7 +1090,7 @@ function projectXaxis(gateMin,gateMax){
     // Set a unique name based on gate limits
 	thisProjectionName = dataStore.activeMatrix+'x-'+gateMin+'-'+gateMax;
     }
-    
+
     var gateLength = gateMax-gateMin;
     var thisProjection = [];
     let filledArray = new Array(1023).fillN(0); // May need to be .fillN()
@@ -1106,9 +1108,9 @@ function projectXaxis(gateMin,gateMax){
 
     // Ensure there are no NaN entries
     for(i=0; i<thisProjection.length; i++){
-	if(isNaN(thisProjection[i])){ thisProjection[i]=0; } 
+	if(isNaN(thisProjection[i])){ thisProjection[i]=0; }
     }
-    
+
     // write the created spectrum to the storage object
     dataStore.createdSpectra[thisProjectionName] = thisProjection;
 
@@ -1121,7 +1123,7 @@ function projectYaxis(gateMin,gateMax){
     // A y axis bin is accessed as data[y][0->Xlengthy] = array of all x bins.
     // Individual elements can be accessed as data[y][x].
     // this function projects all x elements across to a single array by summing the elements between gateMin and gateMax extracted from all y rows.
-    
+
     // If no limits for the gate/projection are provided then make a total projection
     if(gateMin == undefined || gateMin<1) gateMin = 0;
     if(gateMax == undefined){
@@ -1132,7 +1134,7 @@ function projectYaxis(gateMin,gateMax){
     // Set a unique name based on gate limits
 	thisProjectionName = dataStore.activeMatrix+'y-'+gateMin+'-'+gateMax;
     }
-    
+
     var gateLength = gateMax-gateMin;
     var thisProjection = [];
     for(let i=0; i<dataStore.hm._raw.length; i++){
@@ -1143,15 +1145,15 @@ function projectYaxis(gateMin,gateMax){
     for(let i=0; i<dataStore.hm._raw.length; i++){
 	thisProjection[i] = dataStore.hm._raw[i].slice(gateMin,gateMax).reduce((a, b) => a + b, 0);
     }
-    
+
     // Ensure there are no NaN entries
     for(i=0; i<thisProjection.length; i++){
-	if(isNaN(thisProjection[i])){ thisProjection[i]=0; } 
+	if(isNaN(thisProjection[i])){ thisProjection[i]=0; }
     }
-    
+
     // write the created spectrum to the storage object
     dataStore.createdSpectra[thisProjectionName] = thisProjection;
-    
+
     return thisProjectionName;
 }
 
@@ -1178,7 +1180,7 @@ function packZ(raw2){
         repack.push(raw.slice(rowLength*i, rowLength*(i+1)-1));
     }
     */
-    
+
     // Unpack the matrix data as a list of 16x16 submatrices (faster transfer from server)
     // The values are given in the order of x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax, but split into the 16x16 submatrices
     // Submatrix format is one of three:
@@ -1206,7 +1208,7 @@ function packZ(raw2){
 	subMatrixXbaseCoordinate = subMatrixX*subMatrixXlength;
 	subMatrixYbaseCoordinate = subMatrixY*subMatrixYlength;
 //	console.log('SubMatrix'+subMatrixIndex+'['+subMatrixX+']['+subMatrixY+']');
-	
+
 	// Process the current 16*16=256 values. Add them to the local matrix and the heatmap
 	switch(raw2[subMatrixIndex][0]) {
 	case 'empty':
@@ -1218,7 +1220,7 @@ function packZ(raw2){
 	    // The values are given in the order of x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax
 	  //  console.log(raw2[subMatrixIndex]);
 	    // type = raw2[subMatrixIndex].shift();
-	    
+
 	    for(i=0; i<subMatrixYlength; i++){
 		for(j=1; j<=subMatrixXlength; j++){ // j=0 entry is the subMatrix type
 		    thisXindex = subMatrixXbaseCoordinate+j;
@@ -1228,7 +1230,7 @@ function packZ(raw2){
 		    repack2[thisYindex][thisXindex] = thisValue;
 		}
 	    }
-	    
+
 	    break;
 	case 'list':
 	    // list format
@@ -1322,30 +1324,30 @@ function inverseMatrix(_A) {
     var temp,
     N = _A.length,
     E = [];
-   
+
     for (var i = 0; i < N; i++)
       E[i] = [];
-   
+
     for (i = 0; i < N; i++)
       for (var j = 0; j < N; j++) {
         E[i][j] = 0;
         if (i == j)
           E[i][j] = 1;
       }
-   
+
     for (var k = 0; k < N; k++) {
       temp = _A[k][k];
-   
+
       for (var j = 0; j < N; j++)
       {
         _A[k][j] /= temp;
         E[k][j] /= temp;
       }
-   
+
       for (var i = k + 1; i < N; i++)
       {
         temp = _A[i][k];
-   
+
         for (var j = 0; j < N; j++)
         {
           _A[i][j] -= _A[k][j] * temp;
@@ -1353,13 +1355,13 @@ function inverseMatrix(_A) {
         }
       }
     }
-   
+
     for (var k = N - 1; k > 0; k--)
     {
       for (var i = k - 1; i >= 0; i--)
       {
         temp = _A[i][k];
-   
+
         for (var j = 0; j < N; j++)
         {
           _A[i][j] -= _A[k][j] * temp;
@@ -1367,7 +1369,7 @@ function inverseMatrix(_A) {
         }
       }
     }
-   
+
     for (var i = 0; i < N; i++)
       for (var j = 0; j < N; j++)
         _A[i][j] = E[i][j];
@@ -1419,7 +1421,7 @@ function formatNumberAndUncertaintyString(number,uncertainty){
 
     var uncertValue = Number.parseFloat(uncertainty).toExponential().replace(/^([0-9]+)\.?([0-9]+)?e[\+\-0-9]*$/g, "$1$2");
     var uncertNSigFigs = uncertValue.length;
-    
+
     var string = number + '(' + Number.parseFloat(uncertainty).toPrecision(requiredPrecision) + ')';
 
     console.log(number);
@@ -1427,7 +1429,7 @@ function formatNumberAndUncertaintyString(number,uncertainty){
     console.log(uncertValue);
     console.log(uncertNSigFigs);
     console.log(Number.parseFloat(uncertainty).toPrecision(requiredPrecision));
-    
+
     //    return string;
     return;
 }

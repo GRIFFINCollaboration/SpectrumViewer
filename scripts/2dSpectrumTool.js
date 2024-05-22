@@ -31,23 +31,24 @@ function setupDataStore(){
         "ODBrequests": [],                                                        //array of odb requests to make on refresh
 	"zeroedPlots": {},                                                        //initialize empty object for zeroed plots
 	"createdSpectra": {},                                                     //initialize empty object for created spectra
-	"twoDimensionalSpectra": ['GG:2d', 'Addback_GG:2d', 'Energy_CrystalNumber:2d'],     //list of 2d spectra which need to be handled differently to 1d spectra
+	"twoDimensionalSpectra": [],                                              //list of 2d spectra which need to be handled differently to 1d spectra
 	"activeMatrix": "",                                                       //only one 2d spectrum (matrix) is active at any one time. This is the gate target
 	"activeMatrixXaxisLength": 0,                                             //only one 2d spectrum (matrix) is active at any one time. This is the X axis length
 	"activeMatrixYaxisLength": 0,                                             //only one 2d spectrum (matrix) is active at any one time. This is the Y axis length
 	"activeMatrixSymmetrized": false,                                         //only one 2d spectrum (matrix) is active at any one time. This is if it is symmeterized.
+  "gateTarget": '',                                                         // make this matrix the target for gating
 
 	"histoFileDirectoryPath" : '',                                            // histogram directory taken from URL. Then can be changed from a select
 	"histoFileName" : '',                                                      // histogram filename taken from URL. Then can be changed from a select
 	"counter" : 0
     };
-    
+
     // Unpack the URL data, then get the initial list of Histogram files available from the server
     GetURLArguments(getHistoFileListFromServer);
 
     // Set the initial cell index value
     dataStore.cellIndex = dataStore.plots.length;
-    
+
 }
 setupDataStore();
 
@@ -96,7 +97,7 @@ function plotControl2d(wrapID){
         //<event>: event; requestPlot custom event
         //this: plotControl2d object
         var i, evt;
-	
+
         // Any requests for 1d objects must be rejected here, they are handled elsewhere
 	if(!dataStore.twoDimensionalSpectra.includes(event.detail.plotName)){
             // The plot requested is a 1d matrix but this viewer can only handle 2d
@@ -105,7 +106,7 @@ function plotControl2d(wrapID){
 
 	// Switch to the 2D viewer for displaying this 2d histogram
 	toggleHeatmapMode();
-	
+
         //what spectra has our attention?
         dataStore.activeSpectra = event.detail.plotName;
         dataStore.activeMatrix = event.detail.plotName;
@@ -126,7 +127,7 @@ function plotControl2d(wrapID){
 
 	// Display info to user that the data is downloading (switched off in fetchCallback)
         dataStore.hm.DataDownloading('on');
-	
+
 	// activeSpectra can now include 1D Projections of 2D matrices which are created locally in the server.
 	// So these need to be stripped from the requests that go to the server for updates.
 	var activeSpectraForQueries = this.activeSpectra.map((x) => x.split(':')[1]);
@@ -137,7 +138,7 @@ function plotControl2d(wrapID){
 	    }
 	}
 	var queries = constructQueries(activeSpectraForQueries);
-	
+
         if(dataStore.activeSpectra){
             Promise.all(queries.map(promiseJSONURL)
                 ).then(
@@ -152,7 +153,7 @@ function plotControl2d(wrapID){
                                   }else{
                                    this2dKey = JSON.parse(JSON.stringify(spectra[0]['name']));
                                   }
-			
+
                                 //keep the raw results around
                                 dataStore.rawData[this2dKey] = JSON.parse(JSON.stringify(spectra[0]));
 
@@ -160,18 +161,18 @@ function plotControl2d(wrapID){
 			dataStore.activeMatrixXaxisLength = dataStore.rawData[dataStore.activeMatrix].XaxisLength;
 			dataStore.activeMatrixYaxisLength = dataStore.rawData[dataStore.activeMatrix].YaxisLength;
 			dataStore.activeMatrixSymmetrized = dataStore.rawData[dataStore.activeMatrix].symmetrized;
-                        fetchCallback(); 
+                        fetchCallback();
                     }
                 )
         }
     }
-    
+
     this.routeNewGate = function(event){
         //catch a requestGate event, do appropriate things with it.
         //<event>: event; requestPlot custom event
         //this: plotControl2d object
         var i, evt, axis, plotName;
-	
+
 	// unpack the values from the event
 	axis = event.detail.gateAxis;
 	min = event.detail.gateMin;
@@ -183,7 +184,7 @@ function plotControl2d(wrapID){
 	}else{
 	    plotName = projectXaxis(min,max);
 	}
-	
+
 	// Add this new specturm to the menu if it is not already there
 	let coincIndex = dataStore.topGroups.map(e => e.name).indexOf('Coinc');
 	let projIndex = dataStore.topGroups[coincIndex].subGroups.map(e => e.subname).indexOf('Projections');
@@ -196,24 +197,24 @@ function plotControl2d(wrapID){
 		plotExistsInMenu=1;
 	    }
 	}
-	
+
 	if(plotExistsInMenu == 0){
 	    // Need to add this Gate name to the menu and the topGroups object in the dataStore
 	dataStore.topGroups[coincIndex].subGroups[projIndex].items.push(plotName);
-	    
-	newMenuItem = document.createElement('li'); 
-	newMenuItem.setAttribute('id', plotName); 
+
+	newMenuItem = document.createElement('li');
+	newMenuItem.setAttribute('id', plotName);
 	newMenuItem.setAttribute('class', 'dd-item');
 	newMenuItem.innerHTML = '<div class=\'plotName\'>'+plotName+'</div><span id=\''+plotName+'badge\' class=\"badge transparent\"><span class=\"glyphicon glyphicon-ok\" aria-hidden=\"true\"></span></span>';
         newMenuItem.onclick = function (){ dispatcher({ 'plotName': plotName }, 'requestPlot'); };
 	document.getElementById('dropprojlist').appendChild(newMenuItem);
 	}
-	
+
 	// Send a request to plot this now if requested
 	if(event.detail.plotNow === true){
             dispatcher({ 'plotName': plotName }, 'requestPlot');
 	}
-	
+
     }
 }
 
@@ -223,11 +224,11 @@ function toggleHeatmapMode(){
     document.getElementById('plotCtrl1D').style.display = "none";
     document.getElementById('gateCtrl1D').style.display = "none";
     document.getElementById('auxCtrlWrap').style.display = "none";
-    
+
     // display spectra as a 2D heatmap and show controls
     document.getElementById('plotWrap2D').style.display = "block";
     document.getElementById('cutBounds').style.display = "block";
-    
+
     // Toggle the mode buttons
     document.getElementById('modeBtn2d').classList.remove('btn-default');
     document.getElementById('modeBtn2d').classList.add('btn-success');
@@ -239,19 +240,19 @@ function toggleProjectionMode(){
     // hide all 2D heatmap viewers and controls
     document.getElementById('plotWrap2D').style.display = "none";
     document.getElementById('cutBounds').style.display = "none";
-    
+
     // display spectra as 1D projections and show the controls for gating etc.
     document.getElementById('plotWrap1D').style.display = "block";
     document.getElementById('plotCtrl1D').style.display = "block";
     document.getElementById('gateCtrl1D').style.display = "block";
     document.getElementById('auxCtrlWrap').style.display = "block";
 
-    // If this is the first time to show the 1D projections, 
+    // If this is the first time to show the 1D projections,
     // create the first plot cell
     if(typeof dataStore.viewers === 'undefined'){
 	document.getElementById('plottingGridnewPlotButton').click();
     }
-    
+
     // Toggle the mode buttons
     document.getElementById('modeBtn1d').classList.remove('btn-default');
     document.getElementById('modeBtn1d').classList.add('btn-success');
@@ -279,7 +280,7 @@ function heatmapClick(evt){
 
     // expand UI
     li.innerHTML = Mustache.to_html(
-        dataStore.templates.cutVertex, 
+        dataStore.templates.cutVertex,
         {
             'initialX': data.cell.x,
             'initialY': data.cell.y
@@ -315,14 +316,14 @@ function extractCutVertices(){
 
 function fetchCallback(){
     //runs after every time the histogram is updated
-    
+
     // replot everything for the 1d viewer
     for(viewerKey in dataStore.viewers){
         dataStore.viewers[viewerKey].plotData(null, true);
     }
 
     // The rest of this fetchCallback is only for 2d spectra, so if there are not any active then we can bail out here
-    
+
     var numOf2dActive=0;
 	for(let key in dataStore.twoDimensionalSpectra) {
 	    const index = dataStore._plotControl.activeSpectra.indexOf(key);
@@ -330,8 +331,8 @@ function fetchCallback(){
 	        numOf2dActive++;
 	    }
 	}
-    if(numOf2dActive == 0 && dataStore.activeMatrix.length<1){ return; } 
-    
+    if(numOf2dActive == 0 && dataStore.activeMatrix.length<1){ return; }
+
     // unpack the raw 2d spectrum to the required format
     try{ objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
 	 dataStore.hm.colorMap[objectIndex].data = [];
@@ -340,16 +341,16 @@ function fetchCallback(){
     catch(err){
 	//console.log('No colorMap to clear')
     }
-    
+
     dataStore.hm.raw = packZ(dataStore.rawData[dataStore.activeMatrix].data2);
 
-    // make the 2d heatmap plot of this histogram 
+    // make the 2d heatmap plot of this histogram
     dataStore.hm.drawData();
 
     // Create total projections for the two axes of the active matrix
     dispatcher({ 'gateAxis': 'x', 'gateMin': undefined, 'gateMax': undefined, 'plotNow': false }, 'requestGate');
     dispatcher({ 'gateAxis': 'y', 'gateMin': undefined, 'gateMax': undefined, 'plotNow': false }, 'requestGate');
-    
+
     // Add the data from any created spectra (projections of 2d objects) to any viewers wanting it
     for(key in dataStore.createdSpectra){
         //repopulate all spectra that use this spectrum
@@ -359,10 +360,10 @@ function fetchCallback(){
             }
         }
     }
-    
+
     // plug in the onclicks to the 2d heatmap
     dataStore.hm.canvas.addEventListener('heatmap_shiftclick', heatmapClick, false);
-    
+
 }
 
 function generateOverlay(){
@@ -424,8 +425,8 @@ function saveCutToODB(){
     }
 
     CRUDarrays(
-        ['/DAQ/analyzerGates/x', '/DAQ/analyzerGates/y'], 
-        [xVals, yVals], 
+        ['/DAQ/analyzerGates/x', '/DAQ/analyzerGates/y'],
+        [xVals, yVals],
         [7,7]
     )
 }
@@ -443,4 +444,3 @@ function moveVertex(direction){
     extractCutVertices();
     dataStore.hm.render();
 }
-

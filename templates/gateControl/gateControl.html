@@ -20,7 +20,7 @@
         <div id="gateControlForm">
 
             <div class='ui-group-vertical'>
-            
+
                 <div class="input-group">
                     <div class='btn-group btn-group-sm' roll='group'>
                         <button class="btn btn-default" id="showXproj" type="button">Total X projection</button>
@@ -33,9 +33,9 @@
 	      <button type="button" class="btn btn-default btn-lg" id='gateMode' engaged='0'>
 	       <span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> Set new Gate with mouse
 	      </button>
-	      
-                <h4>Gate definition:</h4> 
-	      
+
+                <h4>Gate definition:</h4>
+
                 <div class="input-group">
                     <span class='input-group-addon'>Project onto</span>
 		  <select id="axisSelect" value="x" type="select">
@@ -43,7 +43,7 @@
 		     <option value="y">Y axis</option>
 		  </select>
 		</div>
-		
+
                 <div class="input-group">
                     <span class='input-group-addon'>Gate min/max</span>
                     <input id="gateMinInput" value="0" type="number" class='black-text'></input>
@@ -77,10 +77,10 @@
                     <input id="bg3SFInput" value="1.0" min="0.1" max="1000" step="0.1" type="number" class='black-text'></input>
 		    <input type="range" id="bg3SFslider" min="0.1" max="1000" step="0.1" value="1">
 		</div>
-		
+
 		<div class='btn-group btn-group-sm' roll='group'>
 		  <button class="btn btn-default" id="submitGateButton" type="button">Gate</button>
-		</div>            
+		</div>
             </div>
 
         </div>
@@ -98,7 +98,7 @@
             var i, j, linY, logY;
             //inject template
             this.wrap.innerHTML = Mustache.to_html(
-                dataStore.templates.gateControl, 
+                dataStore.templates.gateControl,
                 {
                     'id': this.wrapID
                 }
@@ -113,29 +113,29 @@
 	// Set up the background factor sliders
 	document.getElementById('bg1SFslider').oninput = function(){
 	     document.getElementById('bg1SFInput').value = this.value;
-	}; 
+	};
 	document.getElementById('bg2SFslider').oninput = function(){
 	     document.getElementById('bg2SFInput').value = this.value;
-	}; 
+	};
 	document.getElementById('bg3SFslider').oninput = function(){
 	     document.getElementById('bg3SFInput').value = this.value;
 	};
 	document.getElementById('bg1SFInput').oninput = function(){
 	     document.getElementById('bg1SFslider').value = this.value;
-	}; 
-	
+	};
+
 	//plug in gate mode toggle
 	document.getElementById('gateMode').onclick = this.toggleGateMode.bind(this);
-	
+
 	// Set up the submit Gate button
 	document.getElementById('submitGateButton').onclick = this.submitGate.bind();
 
 	}
-	
+
         this.selectPlot = function(axis, e){
             //dispatch an event carrying the requested plot name on click of a button, or on Gate generation.
             //<plotName>: string; name of plot requested from analyzer
-            //<e>: event; onclick. 
+            //<e>: event; onclick.
 	    // this: gateControl object
 
 	    if(dataStore.activeMatrix.length<1){
@@ -144,16 +144,16 @@
 	    }
 
 	    plotName = dataStore.activeMatrix+axis;
-	
+
             dispatcher({ 'plotName': plotName }, 'requestPlot');
         }
 
         this.submitGate = function(){
             //dispatch an event carrying the requested gate limits on click of a button.
 	    // this: gateControl object
-	
-	gateAxis = document.getElementById('axisSelect').value; 
-	gateMin = document.getElementById('gateMinInput').value; 
+
+	gateAxis = document.getElementById('axisSelect').value;
+	gateMin = document.getElementById('gateMinInput').value;
 	gateMax = document.getElementById('gateMaxInput').value;
 
             dispatcher({ 'gateAxis': gateAxis, 'gateMin': gateMin, 'gateMax': gateMax, 'plotNow': true }, 'requestGate');
@@ -163,33 +163,36 @@
             //manage the state of the Gate Mode button, and the corresponding state of the viewer.
             //this: gateControl object
 
+            console.log(dataStore);
             console.log('Gate mode button clicked');
-            return;
+            if(dataStore.activeMatrix.length<1){
+              // Bail out if we dont have a matric to project
+              return;
+            }
 
             //determine which canvas and spectrum we're currently pointing at
-            var radio = checkedRadio(this.wrapID+'fitTarget');
-            var target = radio.getAttribute('target');
-            var spectrum = radio.getAttribute('spectrum');
+            var target = dataStore.plots[0];
+            var spectrum = dataStore.viewers[target].fitTarget;
 
-            var fitModeSwitch = document.getElementById('fitMode')
-            var state = fitModeSwitch.getAttribute('engaged')
+            var gateModeSwitch = document.getElementById('gateMode')
+            var state = gateModeSwitch.getAttribute('engaged')
 
-            //make sure the fit callback is set up
-            dataStore.viewers[target].fitCallback = this.fitCallback.bind(this);
+            //make sure the gate callback is set up
+            dataStore.viewers[target].gateCallback = this.gateCallback.bind(this);
 
             if(state == 0){
-                dataStore.viewers[target].setupFitMode();
-                fitModeSwitch.setAttribute('engaged', 1);
-                document.getElementById(this.wrapID+'fitBadge').classList.add('red-text')
+                dataStore.viewers[target].setupGateMode();
+                gateModeSwitch.setAttribute('engaged', 1);
+                document.getElementById('gateBadge').classList.add('red-text')
             }
             else{
-                dataStore.viewers[target].leaveFitMode();
-                fitModeSwitch.setAttribute('engaged', 0);
-                document.getElementById(this.wrapID+'fitBadge').classList.remove('red-text')
+                dataStore.viewers[target].leaveGateMode();
+                gateModeSwitch.setAttribute('engaged', 0);
+                document.getElementById('gateBadge').classList.remove('red-text')
             }
 
             //toggle state indicator
-            document.getElementById(this.wrapID+'fitInstructions').classList.toggle('hidden')
+          //  document.getElementById('gateInstructions').classList.toggle('hidden')
         }
 
         /////////////////////////////
@@ -216,9 +219,26 @@
             xMax.setCustomValidity("");
 
             return true
+        };
+
+        // Callback function for when the gate parameters have been set.
+        this.gateCallback = function(){
+            //route the gate limits to the DOM elements, request the projection, and gracefully exit gate mode.
+            //this: gateControl object
+        console.log('gateCallback in gateControl.html');
+        console.log(dataStore);
+
+           //determine which canvas and spectrum we're currently pointing at
+           var target = dataStore.plots[0];
+           var spectrum = dataStore.viewers[target].fitTarget;
+
+          // Exit Gate mode
+                    this.toggleGateMode()
+                    dataStore.viewers[target].leaveGateMode();
         }
 
 
-        
+
+
 }
 </script>

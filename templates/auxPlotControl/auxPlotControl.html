@@ -28,7 +28,7 @@
 
         this.setup = function(){
             this.wrap.innerHTML = Mustache.to_html(
-                dataStore.templates.auxPlotControl, 
+                dataStore.templates.auxPlotControl,
                 {
                     'id': wrapID,
                     'plots': dataStore.plots
@@ -65,8 +65,8 @@
             row.setAttribute('class', 'plotControlTable')
             var color = dataStore.viewers[event.detail.target].dataColor[dataStore.viewers[event.detail.target].colorAssignment.indexOf(event.detail.plotName)]
             var html = Mustache.to_html(dataStore.templates.fitRow, {
-                'spectrum': event.detail.plotName, 
-                'target': event.detail.target, 
+                'spectrum': event.detail.plotName,
+                'target': event.detail.target,
                 'color': color,
                 'id': this.wrapID
             });
@@ -75,9 +75,9 @@
             document.getElementById(this.wrapID + event.detail.target + 'Table').appendChild(row);
 
             //plug in buttons
-            document.getElementById('delete' + event.detail.target + event.detail.plotName).onclick = this.deleteSpectrum; 
-            document.getElementById('zero' + event.detail.target + event.detail.plotName).onclick = this.zeroSpectrum; 
-            document.getElementById('dropFit' + event.detail.target + event.detail.plotName).onclick = this.dropFit; 
+            document.getElementById('delete' + event.detail.target + event.detail.plotName).onclick = this.deleteSpectrum;
+            document.getElementById('zero' + event.detail.target + event.detail.plotName).onclick = this.zeroSpectrum;
+            document.getElementById('dropFit' + event.detail.target + event.detail.plotName).onclick = this.dropFit;
 
             //plug in fit target radio, emulate its click behavior
             radio = document.getElementById(event.detail.target + event.detail.plotName + 'Radio')
@@ -92,7 +92,7 @@
 
             var buffer = document.createElement('div');
             var html = Mustache.to_html(
-                dataStore.templates.auxPlotControlTable, 
+                dataStore.templates.auxPlotControlTable,
                 {
                     'id': this.wrapID,
                     'plots': [event.detail.cellName]
@@ -168,7 +168,7 @@
             //determine which canvas and spectrum we're currently pointing at
             var radio = checkedRadio(this.wrapID+'fitTarget');
             var target = radio.getAttribute('target');
-            var spectrum = radio.getAttribute('spectrum');            
+            var spectrum = radio.getAttribute('spectrum');
 
             var fitModeSwitch = document.getElementById(this.wrapID + 'fitMode')
             var state = fitModeSwitch.getAttribute('engaged')
@@ -204,6 +204,9 @@
             var spectrum = this.getAttribute('spectrum')
 
             dataStore.viewers[target].fitTarget = spectrum;
+
+            // also set the gateTarget which is the spectrum used to set gate limits for a projection
+            dataStore.viewers[target].gateTarget = spectrum;
         }
 
         this.fitCallback = function(center, width, amplitude, intercept, slope){
@@ -217,7 +220,7 @@
 
             var radio = checkedRadio(this.wrapID + 'fitTarget');
             var target = radio.getAttribute('target');
-            var spectrum = radio.getAttribute('spectrum'); 
+            var spectrum = radio.getAttribute('spectrum');
 
             var spectrum = dataStore.viewers[target].fitTarget,
                 reportDiv = document.getElementById(target+spectrum+'FitResult'),

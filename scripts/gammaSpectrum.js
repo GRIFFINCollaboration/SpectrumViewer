@@ -14,11 +14,13 @@ function spectrumViewer(canvasID){
 	this.containerPersistentOverlay = new createjs.Container(); //layer for persistent overlay features
 	this.containerAnnotations = new createjs.Container(); //layer for annotations
 	this.containerFit = new createjs.Container(); //layer for fit curves
+	this.containerGate = new createjs.Container(); //layer for gate curves, lines and shading
 	this.stage.addChild(this.containerMain);
 	this.stage.addChild(this.containerOverlay);
 	this.stage.addChild(this.containerPersistentOverlay);
 	this.stage.addChild(this.containerAnnotations);
 	this.stage.addChild(this.containerFit);
+	this.stage.addChild(this.containerGate);
 
 	//axes & drawing
 	this.fontScale = Math.min(Math.max(this.canvas.width / 50, 10), 16); // 10 < fontScale < 16
@@ -71,19 +73,33 @@ function spectrumViewer(canvasID){
 	this.colorAssignment = [null, null, null, null, null, null, null, null, null, null, null, null]; //holds the data series key in the array position corresponding to the color to draw it with from this.dataColor
 	this.hideSpectrum = {}; //any spectrum name used as a key holding a truthy value here will be skipped during plotting
 
-	//fitting
-	this.fitTarget = null //id of the spectrum to fit to
-	this.fitted = false; //has the spectrum been fit since the last repaint?
-	this.fitModeEngage = false; //are we currently fitting the spectrum?
-	this.FitLimitLower = -1; //fitting limits
-	this.FitLimitUpper = -1;
-	this.fitCallback = function(){}; //callback to run after fitting, arguments are (center, width, amplitude, linear background intercept, slope)
-	this.MLfit = true; //do a maximum likelihood fit for putting gaussians on peaks; otherwise fit just estimates gaussian form mode and half-max
-	// mask so fits only appear in plot area (ie don't overflow the axes)
-	this.fitMask = new createjs.Shape();
-	this.fitMask.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin).lt(this.leftMargin, this.topMargin).lt(this.canvas.width - this.rightMargin, this.topMargin).lt(this.canvas.width-this.rightMargin, this.canvas.height - this.bottomMargin).closePath();
-	this.containerFit.mask = this.fitMask;
-	this.activeFitLines = {} //object containing fit lines to repaint
+		//fitting
+		this.fitTarget = null //id of the spectrum to fit to
+		this.fitted = false; //has the spectrum been fit since the last repaint?
+		this.fitModeEngage = false; //are we currently fitting the spectrum?
+		this.FitLimitLower = -1; //fitting limits
+		this.FitLimitUpper = -1;
+		this.fitCallback = function(){}; //callback to run after fitting, arguments are (center, width, amplitude, linear background intercept, slope)
+		this.MLfit = true; //do a maximum likelihood fit for putting gaussians on peaks; otherwise fit just estimates gaussian form mode and half-max
+		// mask so fits only appear in plot area (ie don't overflow the axes)
+		this.fitMask = new createjs.Shape();
+		this.fitMask.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin).lt(this.leftMargin, this.topMargin).lt(this.canvas.width - this.rightMargin, this.topMargin).lt(this.canvas.width-this.rightMargin, this.canvas.height - this.bottomMargin).closePath();
+		this.containerFit.mask = this.fitMask;
+		this.activeFitLines = {} //object containing fit lines to repaint
+
+			//Gating for 2D matrices
+			this.gateTarget = null //id of the spectrum to set gate limits with
+			this.gated = false; //has the spectrum been gate since the last repaint?
+			this.gateModeEngage = false; //are we currently setting gate limits for this spectrum?
+			this.GateLimitLower = -1; //gating limits
+			this.GateLimitUpper = -1;
+			this.gateColor = '#28B463';
+			this.gateCallback = function(){}; //callback to run after gating
+			// mask so gates only appear in plot area (ie don't overflow the axes)
+			this.gateMask = new createjs.Shape();
+			this.gateMask.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin).lt(this.leftMargin, this.topMargin).lt(this.canvas.width - this.rightMargin, this.topMargin).lt(this.canvas.width-this.rightMargin, this.canvas.height - this.bottomMargin).closePath();
+			this.containerGate.mask = this.gateMask;
+			this.activeGateLines = {} //object containing gate lines to repaint
 
     //cursors
     this.cursorX = 0; //x-bin of cursor
@@ -234,7 +250,7 @@ function spectrumViewer(canvasID){
 				text.textBaseline = 'middle';
 				text.x = this.leftMargin - this.tickLength - this.yLabelOffset - this.context.measureText('10'+label).width;
 				text.y = this.canvas.height - this.bottomMargin - i*countsPerTick*this.countHeight;
-				this.containerMain.addChild(text);				
+				this.containerMain.addChild(text);
 			}
 		}
 
@@ -252,7 +268,7 @@ function spectrumViewer(canvasID){
 		text.rotation = -90;
 		text.x = this.leftMargin*0.25;
 		text.y = this.context.measureText(this.yAxisTitle).width + this.topMargin;
-		this.containerMain.addChild(text);		
+		this.containerMain.addChild(text);
 
 	};
 
@@ -264,7 +280,7 @@ function spectrumViewer(canvasID){
 		var text, histLine;
 
 		//get the axes right
-		this.chooseLimits();	
+		this.chooseLimits();
 
 		this.drawFrame(suppressHistoryRecord);
 
@@ -272,7 +288,7 @@ function spectrumViewer(canvasID){
 		j = 0; //j counts plots in the drawing loop
 		for(thisSpec in this.plotBuffer){
 			//skip hidden spectra
-			if(this.hideSpectrum[thisSpec]) continue;			
+			if(this.hideSpectrum[thisSpec]) continue;
 
 			color = this.dataColor[this.colorAssignment.indexOf(thisSpec)];
 			text = new createjs.Text(thisSpec + ': '+this.entries[thisSpec] + ' entries', this.context.font, color);
@@ -298,7 +314,7 @@ function spectrumViewer(canvasID){
 				// Protection in Overlay mode for spectra which are shorter (in x) than the longest spectrum overlayed.
 				if(i==this.plotBuffer[thisSpec].length){
 					//left side of bar
-					histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );				
+					histLine.graphics.lt( this.leftMargin + (i-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin );
 				} else if(i<this.plotBuffer[thisSpec].length){
 
 					if(this.AxisType==0){
@@ -336,7 +352,7 @@ function spectrumViewer(canvasID){
 				} else continue;
 			}
 			//finish the canvas path:
-			//if(this.plotBuffer[thisSpec].length == this.XaxisLimitMax) 
+			//if(this.plotBuffer[thisSpec].length == this.XaxisLimitMax)
 			//	histLine.graphics.lt(this.canvas.width - this.rightMargin, this.canvas.height - this.bottomMargin );
 			this.containerMain.addChild(histLine);
 			j++;
@@ -346,6 +362,8 @@ function spectrumViewer(canvasID){
 		this.redrawAnnotation();
 		//redraw fit lines
 		this.redrawFitLines();
+		//redraw gate lines
+		this.redrawGateLines();
 		//shade bins
 		this.shadeBins();
 
@@ -355,7 +373,7 @@ function spectrumViewer(canvasID){
 		this.drawCallback();
 
 		// Pause for some time and then recall this function to refresh the data display
-		//if(this.RefreshTime>0 && RefreshNow==1) this.refreshHandler = setTimeout(function(){plotData(1, 'true')},this.RefreshTime*1000); 	
+		//if(this.RefreshTime>0 && RefreshNow==1) this.refreshHandler = setTimeout(function(){plotData(1, 'true')},this.RefreshTime*1000);
 	};
 
 	//handle drag-to-zoom on the plot
@@ -400,7 +418,7 @@ function spectrumViewer(canvasID){
 
 		if(bin<0) return
 
-		//decide what to do with the clicked limits - zoom or fit?
+		//decide what to do with the clicked limits - zoom or fit or gate?
 		if(this.clickBounds.length == 0){
 			this.clickBounds[0] = bin;
 			redline = new createjs.Shape();
@@ -408,7 +426,7 @@ function spectrumViewer(canvasID){
 			redline.graphics.mt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.canvas.height - this.bottomMargin);
 			redline.graphics.lt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.topMargin);
 			this.containerPersistentOverlay.addChild(redline);
-		} else if(this.clickBounds[0] == 'abort' && !this.fitModeEngage){
+		} else if(this.clickBounds[0] == 'abort' && !this.fitModeEngage && !this.gateModeEngage){
 			this.clickBounds = [];
 		} else if(this.clickBounds.length == 2 ){
 			this.clickBounds = [];
@@ -420,6 +438,13 @@ function spectrumViewer(canvasID){
 				this.FitLimitLower = Math.min(this.clickBounds[0], this.clickBounds[1]);
 				this.FitLimitUpper = Math.max(this.clickBounds[0], this.clickBounds[1]);
 				this.fitData(this.fitTarget);
+				this.clickBounds = [];
+			}
+			//gate mode
+			if(this.gateModeEngage){
+				this.GateLimitLower = Math.min(this.clickBounds[0], this.clickBounds[1]);
+				this.GateLimitUpper = Math.max(this.clickBounds[0], this.clickBounds[1]);
+				this.gateData(dataStore.gateTarget);
 				this.clickBounds = [];
 			} else {  //zoom mode
 				//use the mouse drag function to achieve the same effect for clicking:
@@ -474,19 +499,19 @@ function spectrumViewer(canvasID){
 			//Find the maximum X value from the size of the data
 			this.XaxisLimitAbsMax = Math.max(this.XaxisLimitAbsMax, this.plotBuffer[thisSpec].length);
 		}
-		this.XaxisLimitMax = this.XaxisLimitAbsMax;	
-		this.chooseLimitsCallback();	
+		this.XaxisLimitMax = this.XaxisLimitAbsMax;
+		this.chooseLimitsCallback();
 	}
 
 	//choose appropriate axis limits: default will fill the plot area, but can be overridden with this.demandXmin etc.
 	this.chooseLimits = function(){
-		var thisSpec, minYvalue, maxYvalue, 
+		var thisSpec, minYvalue, maxYvalue,
 			originalMinX = this.XaxisLimitMin,
 			originalMaxX = this.XaxisLimitMax;
 
 		this.YaxisLimitMax=5;
 		this.XaxisLength = this.XaxisLimitMax - this.XaxisLimitMin;
-		
+
 		minYvalue = 1000000;
 		this.XaxisLimitAbsMax = 2048;
 		maxYvalue=this.YaxisLimitMax;
@@ -588,20 +613,35 @@ function spectrumViewer(canvasID){
 		this.plotData();
 	};
 
-	//set up for fit mode, replaces old requestfitlimits
-	this.setupFitMode = function(){
+		//set up for fit mode, replaces old requestfitlimits
+		this.setupFitMode = function(){
 
-		this.fitModeEngage = 1;
-		this.FitLimitLower=-1;
-		this.FitLimitUpper=-1;		
-	};
+			this.fitModeEngage = 1;
+			this.FitLimitLower=-1;
+			this.FitLimitUpper=-1;
+		};
 
-	//abandon fit mode without fitting
-	this.leaveFitMode = function(){
-		this.fitModeEngage = 0;
-		this.FitLimitLower=-1;
-		this.FitLimitUpper=-1;	
-	}
+		//abandon fit mode without fitting
+		this.leaveFitMode = function(){
+			this.fitModeEngage = 0;
+			this.FitLimitLower=-1;
+			this.FitLimitUpper=-1;
+		};
+
+			//set up for gate mode
+			this.setupGateMode = function(){
+
+				this.gateModeEngage = 1;
+				this.GateLimitLower=-1;
+				this.GateLimitUpper=-1;
+			};
+
+			//abandon gate mode without gating
+			this.leaveGateMode = function(){
+				this.gateModeEngage = 0;
+				this.GateLimitLower=-1;
+				this.GateLimitUpper=-1;
+			};
 
 	//stick a gaussian on top of the spectrum fitKey between the fit limits
 	this.fitData = function(fitKey, retries){
@@ -623,7 +663,7 @@ function spectrumViewer(canvasID){
 
 		fitdata=this.plotBuffer[fitKey];
 	        fitdata=fitdata.slice(this.FitLimitLower, this.FitLimitUpper+1);
-	    
+
 
 		// Find maximum Y value in the fit data
 		if(Math.max.apply(Math, fitdata)>max){
@@ -649,7 +689,7 @@ function spectrumViewer(canvasID){
 		    max = max*normalizationFactor;
 	        }
 
-	    
+
 		// Find the bin with the maximum Y value
 		cent=0;
 		while(fitdata[cent]<max){
@@ -657,7 +697,7 @@ function spectrumViewer(canvasID){
 		}
 
 	        width = this.estimateWidth(fitdata, cent, max);
-	    
+
 		cent=cent+this.FitLimitLower+0.5;
 
 		//prefit straight bkg
@@ -665,11 +705,11 @@ function spectrumViewer(canvasID){
 		y = []
 		for(i=this.FitLimitLower-5; i<this.FitLimitLower; i++){
 			x.push(i)
-			y.push(this.plotBuffer[fitKey][i]) 
+			y.push(this.plotBuffer[fitKey][i])
 		}
 		for(i=this.FitLimitUpper; i<this.FitLimitUpper+5; i++){
 			x.push(i)
-			y.push(this.plotBuffer[fitKey][i]) 
+			y.push(this.plotBuffer[fitKey][i])
 		}
 		estimate = this.linearBKG(x,y)
 
@@ -686,7 +726,7 @@ function spectrumViewer(canvasID){
 			cent = fitter.param[1];
 		        width = Math.abs(fitter.param[2]); // width must not be negative, but is deduced as sigma squared
 		}
-            	    
+
 		//check if the fit failed, and redo with slightly nudged fit limits
 		if( (!max || !cent || !width || width<0) && retries<10){
 		    this.FitLimitLower--;
@@ -694,12 +734,12 @@ function spectrumViewer(canvasID){
 			this.fitData(fitKey, retries+1);
 			return
 		}
-	    
+
 	    // Apply the normalization factor again if it is a high-statistics dataset
 	    if(normalizationFactor>0){
 		max = (fitter.param[0]/normalizationFactor);
 	    }
-	    
+
 		this.activeFitLines[fitKey + Math.round(cent)] = {
 			'min': this.FitLimitLower,
 			'nBins': fitdata.length,
@@ -723,7 +763,7 @@ function spectrumViewer(canvasID){
 	    console.log(estimate[1]);
 	    console.log(normalizationFactor);
 */
-	    
+
 		this.containerPersistentOverlay.removeAllChildren();
 		this.containerFit.addChild(fitLine);
 		this.stage.update();
@@ -734,17 +774,48 @@ function spectrumViewer(canvasID){
 		this.fitCallback(cent, width, max, estimate[0], estimate[1]);
 	};
 
+		//initiate a projection of a 2D matrix based on the limits set in spectrum fitKey
+		this.gateData = function(gateKey){
+      console.log('gateData for '+gateKey);
+
+					//suspend the refresh
+					window.clearTimeout(this.refreshHandler);
+
+          // ensure limits are sensible
+					if(this.GateLimitLower<0) this.GateLimitLower=0;
+					if(this.GateLimitUpper>this.XaxisLimitAbsMax) this.GateLimitUpper = this.XaxisLimitAbsMax;
+
+					// Update the gate limit input boxes
+					document.getElementById('gateMinInput').value = this.GateLimitLower;
+          document.getElementById('gateMaxInput').value = this.GateLimitUpper;
+
+					// Draw the gate limits on the spectrum
+				  this.containerPersistentOverlay.removeAllChildren();
+					this.shadeGateBins(this.gateColor,this.GateLimitLower,this.GateLimitUpper,this.gateTarget);
+					this.stage.update();
+
+          // Request the projection be made
+        	document.getElementById('submitGateButton').click();
+
+					// prepare to exit Gate mode
+					this.gated=1;
+					this.gateModeEngage = 0;
+
+          // callback
+					this.gateCallback();
+		};
+
 	this.addFitLine = function(lowerLimit, nPoints, amplitude, center, width, intercept, slope){
 		//returns a createjs.Shape representing a background fit with the given parameters
 
 		var i, x, y, height, fitLine = new createjs.Shape();
 		fitLine.graphics.ss(3).s('#FF0000');
 		fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - this.bkgShape(lowerLimit, amplitude, center, width, intercept, slope)*this.countHeight);
-		
+
 		for(i=0;i<nPoints;i+=0.2){
 			//draw fit line on canvas:
 			x = i+lowerLimit;
-			y = this.bkgShape(x, amplitude, center, width, intercept, slope) 
+			y = this.bkgShape(x, amplitude, center, width, intercept, slope)
 
 			if(i!=0){
 				if(this.AxisType == 0){
@@ -763,24 +834,35 @@ function spectrumViewer(canvasID){
 					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
 					if(height<0) height = 0;
 					fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
-				}				
+				}
 			}
 		}
 
 		return fitLine;
 	}
 
-	//redraw all the fit lines in their appropriate places
-	this.redrawFitLines = function(){
-		var key, fitLine;
+		//redraw all the fit lines in their appropriate places
+		this.redrawFitLines = function(){
+			var key, fitLine;
 
-		this.containerFit.removeAllChildren();
+			this.containerFit.removeAllChildren();
 
-		for(key in this.activeFitLines){
-			fitLine = this.addFitLine(this.activeFitLines[key].min, this.activeFitLines[key].nBins, this.activeFitLines[key].amplitude, this.activeFitLines[key].center, this.activeFitLines[key].width, this.activeFitLines[key].intercept, this.activeFitLines[key].slope );
-			this.containerFit.addChild(fitLine);
+			for(key in this.activeFitLines){
+				fitLine = this.addFitLine(this.activeFitLines[key].min, this.activeFitLines[key].nBins, this.activeFitLines[key].amplitude, this.activeFitLines[key].center, this.activeFitLines[key].width, this.activeFitLines[key].intercept, this.activeFitLines[key].slope );
+				this.containerFit.addChild(fitLine);
+			}
 		}
-	}
+
+			//redraw all the gate lines in their appropriate places
+			this.redrawGateLines = function(){
+				var key, gateLine;
+
+				this.containerGate.removeAllChildren();
+
+        if(this.GateLimitLower>-1 && this.GateLimitUpper>-1){
+				  this.shadeGateBins(this.gateColor,this.GateLimitLower,this.GateLimitUpper,this.gateTarget);
+		  	}
+			}
 
 	this.bkgShape = function(x, amplitude, center, width, intercept, slope){
 		//evaluate a gaussian + linear background at x
@@ -788,23 +870,34 @@ function spectrumViewer(canvasID){
 		return intercept + slope*x + amplitude*Math.exp(-1*(x-center)*(x-center)/2/width/width);
 	}
 
-	//dump the fit results
-	this.clearFits = function(callback){
-		this.containerFit.removeAllChildren();
-		this.activeFitLines = {};
-		this.fitted = false;
-		this.stage.update();
+		//dump the fit results
+		this.clearFits = function(callback){
+			this.containerFit.removeAllChildren();
+			this.activeFitLines = {};
+			this.fitted = false;
+			this.stage.update();
 
-		if(callback)
-			callback();
-	}
+			if(callback)
+				callback();
+		}
+
+			//dump the gate results
+			this.clearGates = function(callback){
+				this.containerGate.removeAllChildren();
+				this.activeGateLines = {};
+				this.gated = false;
+				this.stage.update();
+
+				if(callback)
+					callback();
+			}
 
 	//detect all peaks in spectrum between min and max
 	//fit them with gaussians on top of a linear background
 	//return background parameters as [intercept, slope]
-	//note: gets really slow, too many spurious peaks identified blows up the parameter space 
+	//note: gets really slow, too many spurious peaks identified blows up the parameter space
 	this.bkgFit = function(spectrum, min, max){
-		var i, concavity, width, 
+		var i, concavity, width,
 			parameterGuesses = [1000,-1],  //<-- background guess is poor
 			fitter = new histofit(),
 			nPeaks = 0,
@@ -845,13 +938,13 @@ function spectrumViewer(canvasID){
 		return result
 	}
 
-	//given two arrays of bin numbers (bins) and counts in the corresponding bin (bkg), 
+	//given two arrays of bin numbers (bins) and counts in the corresponding bin (bkg),
 	//detects peaks, masks them out, and return the resulting bins.
 	this.scrubPeaks = function(bins, bkg){
 		var concavity, spikePosition,
 			bkgBins = bins,
 			bkgCandidate = bkg
-			
+
 
 		//detect spikes and throw away until not too spiky
 		concavity = this.asymmetricConcavity(bkgBins, bkgCandidate)
@@ -861,7 +954,7 @@ function spectrumViewer(canvasID){
 			bkgBins.splice(spikePosition, 1);
 			concavity = this.asymmetricConcavity(bkgBins, bkgCandidate);
 		}
-		
+
 		return [bkgBins, bkgCandidate];
 	}
 
@@ -884,18 +977,18 @@ function spectrumViewer(canvasID){
 		if(!fitter.param[0] || !fitter.param[1])
 			return fitter.simpleLine(x,y)
 
-		return fitter.param		
+		return fitter.param
 	}
 
-	//given the position of a peak in a spectrum, estimate its width 
+	//given the position of a peak in a spectrum, estimate its width
 	this.estimateWidth = function(spectrum, peakCenter, peakHeight){
 		var x, width;
 
 		x=peakCenter;
-		while(spectrum[x]>(peakHeight/2.0)) x--; 
+		while(spectrum[x]>(peakHeight/2.0)) x--;
 		width=x;
 		x=peakCenter;
-		while(spectrum[x]>(peakHeight/2.0)) x++; 
+		while(spectrum[x]>(peakHeight/2.0)) x++;
 		width=x-width;
 		if(width<1) width=1;
 		width/=2.35;
@@ -956,6 +1049,8 @@ function spectrumViewer(canvasID){
 		//data = this.fakeData.energydata0 //fake for testing
 		//dump fits
 		this.clearFits();
+		//dump gates
+		this.clearGates();
 
 		//if a series with this name already exists, just update the data
 		if(this.plotBuffer[name]){
@@ -1056,7 +1151,7 @@ function spectrumViewer(canvasID){
 	this.removeLine = function(name){
 		if(this.lines.hasOwnProperty(name))
 			delete this.lines[name];
-	}	
+	}
 
 	//suppress a persistent annotation without deleting it
 	this.suppressAnnotation = function(id){
@@ -1087,10 +1182,28 @@ function spectrumViewer(canvasID){
 		}
 	}
 
+		//highlight the bins indicating the gate limits for a projection
+		this.shadeGateBins = function(shadeColor,xMin,xMax,target){
+			var i, bin, x0, y0;
+			var specData=this.plotBuffer[target];
+
+			for(i=xMin; i<xMax+1; i++){
+				if(specData[i]){
+					x0 = this.leftMargin + this.binWidth*(i-this.XaxisLimitMin)
+					y0 = this.canvas.height - this.bottomMargin - specData[i]*this.countHeight;
+
+					bin = new createjs.Shape();
+	 				bin.graphics.beginFill(shadeColor).drawRect(x0, y0, this.binWidth, specData[i]*this.countHeight);
+	 				bin.graphics.beginStroke(shadeColor).drawRect(x0, y0, this.binWidth, specData[i]*this.countHeight);
+					this.containerGate.addChild(bin);
+				}
+			}
+		}
+
 	//how long is the longest histogam?
 	this.longestHist = function(){
 		var i, longest = 0;
-		var keys = Object.keys(this.plotBuffer) 
+		var keys = Object.keys(this.plotBuffer)
 
 		for(i=0; i<keys.length; i++){
 			longest = Math.max(longest, this.plotBuffer[keys[i]].length)
@@ -1114,7 +1227,7 @@ function spectrumViewer(canvasID){
 
         if(x > this.leftMargin && x < this.canvas.width - this.rightMargin && y > this.topMargin){
 	        xBin = Math.floor((x-this.leftMargin)/this.binWidth) + this.XaxisLimitMin;
-    	    
+
     	    if(this.AxisType == 1){
     	    	yBin = (this.canvas.height-this.bottomMargin - y) / this.countHeight;
     	    	yBin = Math.floor(Math.pow(10,yBin)/10);
@@ -1128,13 +1241,13 @@ function spectrumViewer(canvasID){
         this.mouseMoveCallback(xBin, Math.max(yBin,0) );
 
         //change cursor to indicate draggable region:
-        if(this.fitModeEngage){
+        if(this.fitModeEngage || this.gateModeEngage){
         	if( y < (this.canvas.height - this.bottomMargin) )
 	        	document.body.style.cursor = 's-resize';
-	        else 
+	        else
 	        	document.body.style.cursor = 'n-resize';
 	    }
-        else if(y>this.canvas.height-this.bottomMargin) 
+        else if(y>this.canvas.height-this.bottomMargin)
         	document.body.style.cursor = 'pointer';
         else
         	document.body.style.cursor = 'default';
@@ -1159,7 +1272,7 @@ function spectrumViewer(canvasID){
 				crosshairs.graphics.ss(this.axisLineWidth).s('#FF0000');
 				crosshairs.graphics.mt(x, this.canvas.height-this.bottomMargin);
 				crosshairs.graphics.lt(x, this.topMargin);
-				this.containerOverlay.addChild(crosshairs);				
+				this.containerOverlay.addChild(crosshairs);
 			}
 		}
 		//highlight region on drag
@@ -1195,7 +1308,7 @@ function spectrumViewer(canvasID){
 	this.canvas.onmouseup = function(event){
 			if(event.button == 0 && !event.shiftKey){
 				this.highlightStart = -1;
-				this.XMouseLimitxMax = this.xpix2bin(this.canvas.relMouseCoords(event).x); 
+				this.XMouseLimitxMax = this.xpix2bin(this.canvas.relMouseCoords(event).x);
 				this.DragWindow();
 			}
 	}.bind(this);
