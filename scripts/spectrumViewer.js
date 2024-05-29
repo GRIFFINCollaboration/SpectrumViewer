@@ -37,7 +37,7 @@ function setupDataStore(){
 	    }
         }
     }
-    
+
     //generate ARIES detector nomenclature codes
     for(i=1; i<71; i++){
         ariesCodes.push('ART' + alwaysThisLong(i,2) + 'XS00X');
@@ -443,7 +443,7 @@ function setupDataStore(){
                 }
             ]
         },
-	    
+
         {
             "name": "OGS",
             "id": "OGS",
@@ -486,7 +486,7 @@ function setupDataStore(){
                 }
             ]
         },
-	
+
         {
             "name": "RCMP",
             "id": "RCMP",
@@ -526,7 +526,7 @@ function setupDataStore(){
         "doUpdates": true,                                          //do we want the data update button and loop?
         "scaling": false,                                           //do we want to expose x-axis rescaling UI?
         "plots": [],                                                //array of names for default plot cells
-        "spectrumServer": 'http://grsmid00.triumf.ca:9093',         //analyzer url + port number
+        "spectrumServer": 'http://grifstore1.triumf.ca:9093',         //analyzer url + port number
         "ODBrequests": [],                                          //array of odb requests to make on refresh
         "zeroedPlots": {}                                           //initialize empty object for zeroed plots
     }
@@ -543,7 +543,7 @@ setupDataStore();
 function fetchCallback(){
     //fires after all data has been updated
 
-    var i, 
+    var i,
         keys = Object.keys(dataStore.viewers);
 
     for(i=0; i<keys.length; i++){
