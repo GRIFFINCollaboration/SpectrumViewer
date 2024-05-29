@@ -533,6 +533,7 @@ function processConfigFile(payload){
     }else{
 	// Need to do something better than return here.
 	// Should make the server request again but protect against a maximum call stack depth.
+  console.log('Empty response from viewConfig');
 	return;
     }
     //	console.log(dataStore.Configs);
@@ -554,7 +555,7 @@ function processConfigFile(payload){
 
     // Record the timestamp of when this config file is received
     dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
-
+console.log('Save timestamp as '+dataStore.configFileTimestamp);
 
     // Reset the dataStore of any old definitions
     dataStore.sortCodeVariables = [];

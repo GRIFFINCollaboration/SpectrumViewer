@@ -40,7 +40,7 @@ function prettyFileSizeString(bytes){
 	// bytes
 	string = bytes + ' bytes';
     }
-    
+
     return string;
 }
 
@@ -52,9 +52,9 @@ function prettyTimeString(seconds){
     var sizeOfHour = 3600;
     var sizeOfMinute = 60;
     var sizeOfSecond = 1;
-    
+
     seconds = seconds.toFixed(1);
-    
+
     if(!isFinite(seconds)){
 	// NaN or Infinity
 	string = ' unknown time';
@@ -79,7 +79,7 @@ function prettyTimeString(seconds){
 	// Seconds
 	string = seconds + ' seconds';
     }
-    
+
     return string;
 }
 
@@ -88,34 +88,34 @@ function calculateAverageSortSpeed(){
     if(isFinite(dataStore.SortStatusCurrentSortSpeed) && dataStore.SortStatusCurrentSortSpeed>0 && dataStore.SortStatusCurrentSortSpeed<2000){
 	dataStore.SortStatusSortSpeedHistory.push(dataStore.SortStatusCurrentSortSpeed);
     }
-    
+
     // Protect against this history getting too long (older than one minute), because the sorting speed may change over time
     if(dataStore.SortStatusSortSpeedHistory.length>60){
 	var discard = dataStore.SortStatusSortSpeedHistory.shift();
     }
-    
+
     // Calculate the average
     var arr = dataStore.SortStatusSortSpeedHistory;
     var sum=0;
     for(i=0; i<arr.length; i++){ sum += parseFloat(arr[i]); };
     const avg = (sum / arr.length) || 0;
-    
+
     // Save the average sorting speed from all saved values
     dataStore.SortStatusAverageSortSpeed = avg.toFixed(1);
 
     // Update the sorting times in the table
     updateSortingTimesInTable();
-}          
+}
 
 
 function buildMidasFileTable(){
 // Create a row in the table for each midas file in the list provided by the server
     document.getElementById("MidFilesTable").innerHTML = '';
-    
+
     // Add a title row to the table
-    var row = document.getElementById("MidFilesTable").insertRow(document.getElementById("MidFilesTable").rows.length); 
+    var row = document.getElementById("MidFilesTable").insertRow(document.getElementById("MidFilesTable").rows.length);
     row.id = 'midasRunTableRow-'+(0);
-     var cell1 = row.insertCell(0); 
+     var cell1 = row.insertCell(0);
      var cell2 = row.insertCell(1);
      var cell3 = row.insertCell(2);
      var cell4 = row.insertCell(3);
@@ -128,7 +128,7 @@ function buildMidasFileTable(){
     cell4.style.width = "10.7%";
     cell5.style.width = "21.6%";
     cell6.style.width = "1.4%";
-    
+
     // Fill in the contents of the header row
     cell1.innerHTML = '';
     cell2.innerHTML = '';
@@ -141,17 +141,17 @@ function buildMidasFileTable(){
       document.getElementById("Primary-checkbox").onclick = function(e){
          ToggleCheckboxOfAllMIDASFiles(this.checked);
       };
-    
+
     // Add a row for each MIDAS file in the list received from the server
  for(var num=0; num<dataStore.midasRunList.length; num++){
-    var row = document.getElementById("MidFilesTable").insertRow(document.getElementById("MidFilesTable").rows.length); 
+    var row = document.getElementById("MidFilesTable").insertRow(document.getElementById("MidFilesTable").rows.length);
      row.id = 'midasRunTableRow-'+(num+1);
      row.onclick = function(e){
 	 if(e.shiftKey) { selectMultipleRows(this.id);
 	 }else{ ToggleCheckboxOfThisMIDASFile(this.id); }
      };
-     
-     var cell1 = row.insertCell(0); 
+
+     var cell1 = row.insertCell(0);
      var cell2 = row.insertCell(1);
      var cell3 = row.insertCell(2);
      var cell4 = row.insertCell(3);
@@ -160,14 +160,14 @@ function buildMidasFileTable(){
 
      // Calculate the estimated Sorting time and make it easily human readable
      thisRunSizeString = prettyFileSizeString(dataStore.midasRunList[num].RunSize);
-     
+
      // Calculate the estimated Sorting time and make it easily human readable
      thisSortTime = ((dataStore.midasRunList[num].RunSize/1000000)/400); // Sort speed defined here as 400MB/s - should be made dynamic
      thisSortTimeString = 'Requires '+prettyTimeString(thisSortTime)+' to sort';
 
      // Check if there is a Histogram file aready sorted for this MIDAS file
      var HistoIndex = dataStore.histoFileList.findIndex(function f(histoName){ return histoName.includes(dataStore.midasRunList[num].RunName); });
-     
+
      // Update the information displayed in the cells
      let string = dataStore.midasRunList[num].RunName;
      if(dataStore.midasRunList[num].RunTitle.length>0){ string += ', '+dataStore.midasRunList[num].RunTitle; }
@@ -179,7 +179,7 @@ function buildMidasFileTable(){
      if(HistoIndex>=0){
 	 // If there is a histogram file existing or this run, then put a link for it here
 	 var URLString = 'https://griffincollaboration.github.io/SpectrumViewer/2dSpectrumTool.html?backend='+dataStore.spectrumServerBackend+'&port='+dataStore.spectrumServerPort+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[HistoIndex];
-	    
+
 	    cell4.innerHTML = '<a href=\"'+URLString+'\" target=\"_blank\">Open Histo file</a>';
  }
      cell5.innerHTML = thisSortTimeString;
@@ -188,7 +188,7 @@ function buildMidasFileTable(){
      // Create button to expand list of subruns if there is more than 1 subrun
      if(dataStore.midasRunList[num].NumSubruns>1){
 	 newButton = document.createElement('button');
-	 newButton.setAttribute('id', 'expandSubrunListButton'+(num+1)); 
+	 newButton.setAttribute('id', 'expandSubrunListButton'+(num+1));
 	 newButton.setAttribute('class', 'btn-expand');
 	 newButton.innerHTML = '<p>+</p>';
 	 newButton.value = (num+1);
@@ -198,44 +198,44 @@ function buildMidasFileTable(){
 	 document.getElementById('MidasSubrunDiv-'+(num+1)).appendChild(newButton);
      }
   }
-    
+
 }
 
 function addFileDetailsToMidasFileTable(){
     var table = document.getElementById("MidFilesTable");
-    
+
     // Iterate through all rows of the MIDAS data file table
     for (var i = 1, row; row = table.rows[i]; i++) {
 	// Get the run number from cell0
 	thisRunName = row.cells[0].innerHTML;
-	
+
 	// Find the details for this run
 	num = dataStore.midasRunList.map(function(e) { return e.RunName; }).indexOf(thisRunName);
-	
+
 	// Find the run title and update the contents of cell0
 	let string = thisRunName + ', ' + dataStore.midasRunList[num].RunTitle;
 	row.cells[0].innerHTML = string;
     }
-    
+
 }
 
 function updateSortingTimesInTable(){
     var table = document.getElementById("MidFilesTable");
     var SortSpeedNow = dataStore.SortStatusAverageSortSpeed;
-    
+
     // Iterate through all rows of the MIDAS data file table
     for (var i = 1, row; row = table.rows[i]; i++) {
 	// Get the file size from cell3
 	thisRunSize = row.cells[2].value;
-	
+
 	// Calculate the estimated Sorting time based on the latest Average sorting speed and make it easily human readable
 	thisSortTime = ((thisRunSize/1000000)/SortSpeedNow);
 	thisSortTimeString = 'Requires '+prettyTimeString(thisSortTime)+' to sort';
-	
+
 	// Update the sorting time displayed
 	row.cells[4].innerHTML = thisSortTimeString;
     }
-    
+
 }
 
 function expandSubrunList(RowID){
@@ -254,7 +254,7 @@ function expandSubrunList(RowID){
 
     // Inject the collapse button
     newButton = document.createElement('button');
-    newButton.setAttribute('id', 'collapseSubrunListButton'+RowID); 
+    newButton.setAttribute('id', 'collapseSubrunListButton'+RowID);
     newButton.setAttribute('class', 'btn-expand');
     newButton.innerHTML = '<p>-</p>';
     newButton.value = RowID;
@@ -262,19 +262,19 @@ function expandSubrunList(RowID){
 	collapseSubrunList(this.value);
     }.bind(newButton);
     document.getElementById('MidasSubrunDiv-'+RowID).appendChild(newButton);
-    
+
     // Uncheck the full run
     ToggleCheckboxOfThisMIDASFile('midasRunTableRow-'+RowID);
-    
+
     for(var num=0; num<(dataStore.midasRunList[indexID].SubRunList.length); num++){
-	var row = document.getElementById("MidFilesTable").insertRow(subRowID); 
+	var row = document.getElementById("MidFilesTable").insertRow(subRowID);
      row.id = 'midasSubRunTableRow-'+RowID+'-'+(num+1);
      row.onclick = function(e){
 	 if(e.shiftKey) { selectMultipleRows(this.id);
 	 }else{ ToggleCheckboxOfThisMIDASFile(this.id); }
      };
-     
-     var cell1 = row.insertCell(0); 
+
+     var cell1 = row.insertCell(0);
      var cell2 = row.insertCell(1);
      var cell3 = row.insertCell(2);
      var cell4 = row.insertCell(3);
@@ -283,11 +283,11 @@ function expandSubrunList(RowID){
 
      // Calculate the estimated Sorting time and make it easily human readable
      thisRunSizeString = prettyFileSizeString(dataStore.midasRunList[indexID].SubRunList[num].Size);
-     
+
      // Calculate the estimated Sorting time and make it easily human readable
      thisSortTime = ((dataStore.midasRunList[indexID].SubRunList[num].Size/1000000)/400); // Sort speed defined here as 400MB/s - should be made dynamic
      thisSortTimeString = 'Requires '+prettyTimeString(thisSortTime)+' to sort';
-     
+
     cell1.innerHTML = dataStore.midasRunList[indexID].SubRunList[num].Name;
 	cell2.innerHTML = 'Subrun '+dataStore.midasRunList[indexID].SubRunList[num].Name.split('_')[1].split('.')[0];
     cell3.innerHTML = thisRunSizeString;
@@ -295,7 +295,7 @@ function expandSubrunList(RowID){
     cell5.innerHTML = thisSortTimeString;
     cell6.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.midasRunList[indexID].SubRunList[num].Name+'-checkbox'+'\" value=\"'+dataStore.midasRunList[indexID].SubRunList[num].Name+'\" onclick=ToggleCheckboxOfThisMIDASFile(\"midasSubRunTableRow-'+RowID+'-'+(num+1)+'\")>';
     }
-    
+
 }
 
 
@@ -304,13 +304,13 @@ function collapseSubrunList(RowID){
     // RowID is equal to the original rowIndex when the table was built, but rows may have been added or removed since then.
     var indexID = (parseInt(RowID)-1);
     var subRowID = document.getElementById('midasRunTableRow-'+RowID).rowIndex + 1;
-    
+
     // Remove the collapse button
     document.getElementById('collapseSubrunListButton'+RowID).remove();
 
     // Create button to expand list of subruns if there is more than 1 subrun
     newButton = document.createElement('button');
-    newButton.setAttribute('id', 'expandSubrunListButton'+RowID); 
+    newButton.setAttribute('id', 'expandSubrunListButton'+RowID);
     newButton.setAttribute('class', 'btn-expand');
     newButton.innerHTML = '<p>+</p>';
     newButton.value = RowID;
@@ -318,7 +318,7 @@ function collapseSubrunList(RowID){
 	expandSubrunList(this.value);
     }.bind(newButton);
     document.getElementById('MidasSubrunDiv-'+RowID).appendChild(newButton);
-    
+
     // Indicate that this list of subruns is no longer expanded
     // This is used to know to check these subruns when the submit button is pressed
     dataStore.midasRunList[indexID].Expanded = false;
@@ -332,7 +332,7 @@ function collapseSubrunList(RowID){
 
     // Uncheck the full run
     ToggleCheckboxOfThisMIDASFile('midasRunTableRow-'+RowID);
-    
+
 }
 
 function ToggleCheckboxOfAllMIDASFiles(state){
@@ -364,12 +364,12 @@ function ToggleCheckboxOfThisMIDASFile(rowID){
     var thisRowID = rowID;
     var RunID = parseInt(rowID.split('-')[1])-1;
     dataStore.midasTableLastRowClicked = rowID;
-    
+
     if(rowID.includes('Sub')){
 	subRunID = (rowID.split('-')[2])-1;
 	// Find the current state of the checkbox and then toggle it
 	thisCheckbox = document.getElementById(dataStore.midasRunList[RunID].SubRunList[subRunID].Name+'-checkbox');
-	
+
     }else{
 	// Find the current state of the checkbox so we can toggle it
 	thisCheckbox = document.getElementById(dataStore.midasRunList[RunID].RunName+'-checkbox');
@@ -378,7 +378,7 @@ function ToggleCheckboxOfThisMIDASFile(rowID){
     // Find the state of the checkbox and toggle the state
     state = thisCheckbox.checked;
     if(state){ state=false; color = '#191C40'; }else{ state=true; color='#2e3477'; }
-    
+
     // Toggle the color of the row
     document.getElementById(thisRowID).style.backgroundColor = color;
 
@@ -395,9 +395,9 @@ function selectMultipleRows(thisRowID){
     if(parseInt(thisRowID.split('-')[1])<parseInt(firstRowID.split('-')[1])){ firstRowID = thisRowID; thisRowID = dataStore.midasTableLastRowClicked; }
     console.log('Clicked rows are '+firstRowID.split('-')[1]+' and '+thisRowID.split('-')[1]);
     console.log('Clicked rows are '+firstRowID+' and '+thisRowID);
-    
+
     var table = document.getElementById("MidFilesTable");
-    
+
     // Iterate through all rows of the MIDAS data file table and click those between the two identified rows
     var toggleThis = false;
     for (var i = 1, row; row = table.rows[i]; i++) {
@@ -406,7 +406,7 @@ function selectMultipleRows(thisRowID){
 	    console.log(row.id);
 	    ToggleCheckboxOfThisMIDASFile(row.id);
 	}
-	
+
 	// Find the first row id and then activate toggling
 	if(row.id == firstRowID){
 	    toggleThis = true;
@@ -418,14 +418,22 @@ function selectMultipleRows(thisRowID){
 	    return;
 	}
     }
-    
+
 }
 
-function SubmitConnectToOnline(){
+function SubmitConnectToOnline(host){
+  if(host=='grsmid00'){
+    var hostString = '&host=grsmid00&expt=griffin';
+  }else if(host=='grifstore1'){
+    var hostString = '&host=grifstore1&expt=grifalt';
+  }else{
+    console.log('Host not recognised in trying to connect to MIDAS: '+host);
+  }
+
     // Issue URL to connect to online
-    var url = dataStore.spectrumServer + '?cmd=addDatafile&filename=ONLINE&host=grsmid00&expt=griffin';
-        XHR(url, 
-            'connecting to ONLINE failed.', 
+    var url = dataStore.spectrumServer + '?cmd=addDatafile&filename=ONLINE' + hostString;
+        XHR(url,
+            'connecting to ONLINE failed.',
             function(){return 0},
             function(error){console.log(error)}
         )
@@ -442,7 +450,7 @@ function SubmitConnectToOnline(){
 	var CalibrationSource = dataStore.CalibrationSource;
 
 	// Format check for the data file
-	
+
 	if(DataFileDirectory[DataFileDirectory.length]!='/'){
 	    DataFileDirectory += '/';
 	}
@@ -460,12 +468,12 @@ function SubmitConnectToOnline(){
 		}
 	    }
 	}
-	
+
     // Submit a sort job to the analyzer server for each selected file
     //urls[0] = dataStore.spectrumServer + '?cmd=addDatafile&filename=/tig/grifstore1b/grifalt/schedule145/Dec2023/run21758_000.mid';
 	for(i=0; i<urls.length; i++){
-        XHR(urls[i], 
-            'check ODB - file submit rejected.', 
+        XHR(urls[i],
+            'check ODB - file submit rejected.',
             function(){return 0},
             function(error){console.log(error)}
         )
@@ -474,5 +482,5 @@ function SubmitConnectToOnline(){
 	// Uncheck all the files
 	ToggleCheckboxOfAllMIDASFiles(false);
 	UncheckAllSubruns();
-	
+
     }

@@ -1,7 +1,7 @@
 <link rel="stylesheet" href="analyzer-sorting.css">
 
 <template id='analyzer-sorting'>
-	
+
     <div class='section-wrapper'>
       <div class='col-md-12 pan' id='Sorting-Status'>
 	<h2>Sorting Status</h2>
@@ -53,48 +53,48 @@
         document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-sorting'], {});
 
     // Create the text input for the midas data file directory
-    newInput = document.createElement('input'); 
-    newInput.id = 'DataDirectoryInput'; 
-    newInput.type = 'text'; 
-    newInput.className = 'analyzer-input-text'; 
-    newInput.value = dataStore.midasFileDataDirectoryPath; 
+    newInput = document.createElement('input');
+    newInput.id = 'DataDirectoryInput';
+    newInput.type = 'text';
+    newInput.className = 'analyzer-input-text';
+    newInput.value = dataStore.midasFileDataDirectoryPath;
     newInput.onchange = function(){
-    dataStore.midasFileDataDirectoryPath = this.value; 
+    dataStore.midasFileDataDirectoryPath = this.value;
 
     getMidasFileListFromServer();
     /*
     const thisPromise = new Promise((resolve, reject) => {
     getMidasFileListFromServer()
 }).then(
- 	 dispatcher({}, 'requestSortingRefresh'), 
+ 	 dispatcher({}, 'requestSortingRefresh'),
          getMidasFileDetailsFromServer()
                                );
 */
-    
+
     }.bind(newInput);
     document.getElementById('DataDirectoryInputDiv').appendChild(newInput);
-    
+
     // Create the text input for the Config file directory
-    newInput = document.createElement('input'); 
-    newInput.id = 'ConfigDirectoryInput'; 
+    newInput = document.createElement('input');
+    newInput.id = 'ConfigDirectoryInput';
     newInput.type = 'text';
-    newInput.className = 'analyzer-input-text'; 
-    newInput.value = dataStore.configFileDataDirectoryPath; 
+    newInput.className = 'analyzer-input-text';
+    newInput.value = dataStore.configFileDataDirectoryPath;
     newInput.onchange = function(){
     dataStore.configFileDataDirectoryPath = this.value;
     }.bind(newInput);
     document.getElementById('ConfigDirectoryInputDiv').appendChild(newInput);
-    
+
     // Create the text input for the Histogram file directory
-    newInput = document.createElement('input'); 
-    newInput.id = 'HistoDirectoryInputSorting'; 
-    newInput.type = 'text'; 
-    newInput.className = 'analyzer-input-text'; 
-    newInput.value = dataStore.histoFileDirectoryPath; 
+    newInput = document.createElement('input');
+    newInput.id = 'HistoDirectoryInputSorting';
+    newInput.type = 'text';
+    newInput.className = 'analyzer-input-text';
+    newInput.value = dataStore.histoFileDirectoryPath;
     newInput.onchange = function(){
     dataStore.histoFileDirectoryPath = this.value;
     document.getElementById('HistoDirectoryInputViewer').value = this.value;
-    
+
     getHistoFileListFromServer();
     /*
 const thisPromise = new Promise((resolve, reject) => {
@@ -107,23 +107,23 @@ const thisPromise = new Promise((resolve, reject) => {
 
     }.bind(newInput);
     document.getElementById('HistoDirectoryInputDivSorting').appendChild(newInput);
-    
+
     // Create a select input for the source of calibration coefficients
     var newSelect = document.createElement("select");
     newSelect.id = 'CalibrationSourceSelect';
-    newSelect.name = 'CalibrationSourceSelect'; 
-    newSelect.className = 'analyzer-input-select'; 
+    newSelect.name = 'CalibrationSourceSelect';
+    newSelect.className = 'analyzer-input-select';
     newSelect.onchange = function(){
     dataStore.CalibrationSource = this.value;
-    }.bind(newSelect); 
-    newSelect.add( new Option('ODB values stored in midas file', 'midas') ); 
+    }.bind(newSelect);
+    newSelect.add( new Option('ODB values stored in midas file', 'midas') );
     newSelect.add( new Option('New values in current config file', 'config') );
     document.getElementById('CalibrationSourceInputDiv').appendChild(newSelect);
 
     // Create Submit files button
-    newButton = document.createElement('button'); 
-    newButton.setAttribute('id', 'submitSortButtonTable'); 
-    newButton.setAttribute('class', 'btn btn-default btn-lg'); 
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'submitSortButtonTable');
+    newButton.setAttribute('class', 'btn btn-default btn-lg');
     newButton.innerHTML = "Submit selected files to the sorting queue";
     newButton.style.padding = '4px';
     newButton.onclick = function(){
@@ -131,16 +131,27 @@ const thisPromise = new Promise((resolve, reject) => {
     }.bind(newButton);
       document.getElementById('submitDivTable').appendChild(newButton);
 
-    // Create Connect to Online button
-    newButton = document.createElement('button'); 
-    newButton.setAttribute('id', 'submitConnectOnlineButton'); 
-    newButton.setAttribute('class', 'btn btn-default btn-lg'); 
-    newButton.innerHTML = "Connect to online MIDAS experiment";
-    newButton.style.padding = '4px';
-    newButton.onclick = function(){
-    SubmitConnectToOnline();
-    }.bind(newButton);
-      document.getElementById('submitDivTable').appendChild(newButton);
+			    // Create Connect to Online button
+			    newButton = document.createElement('button');
+			    newButton.setAttribute('id', 'submitConnectOnlineButtonGrsmid00');
+			    newButton.setAttribute('class', 'btn btn-default btn-lg');
+			    newButton.innerHTML = "Connect to online MIDAS grsmid00";
+			    newButton.style.padding = '4px';
+			    newButton.onclick = function(){
+			    SubmitConnectToOnline('grsmid00');
+			    }.bind(newButton);
+			      document.getElementById('submitDivTable').appendChild(newButton);
+
+						    // Create Connect to Online button
+						    newButton = document.createElement('button');
+						    newButton.setAttribute('id', 'submitConnectOnlineButtonGrifstore1');
+						    newButton.setAttribute('class', 'btn btn-default btn-lg');
+						    newButton.innerHTML = "Connect to online MIDAS grifstore1";
+						    newButton.style.padding = '4px';
+						    newButton.onclick = function(){
+						    SubmitConnectToOnline('grifstore1');
+						    }.bind(newButton);
+						      document.getElementById('submitDivTable').appendChild(newButton);
 
     // set up event listeners
     listener(wrapperID, 'requestSortingRefresh', setupSortingContent);

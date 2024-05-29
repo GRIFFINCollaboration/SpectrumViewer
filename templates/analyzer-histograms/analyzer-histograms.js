@@ -11,7 +11,7 @@
 function setupHistogramsContent(){
     // function to refresh the content of the Histograms subpage
     // Called when there is new content available
-    
+
     buildConfigMenu();
 }
 
@@ -21,19 +21,19 @@ function buildConfigMenu(){
     document.getElementById('globals-wrap').innerHTML = '';
     document.getElementById('gates-wrap').innerHTML = '';
     document.getElementById('histograms-wrap').innerHTML = '';
-    
+
     // Create and populate the Global, Gate and Histogram blocks based on the Config file received from the server
 
     // Build Global content
     for(var i=0; i<dataStore.globalCondition.contents.length; i++){
 	addNewGlobal(i);
     }
-    
+
     // Build Gate content
     for(var i=0; i<dataStore.gateCondition.contents.length; i++){
 	addNewGate(i);
     }
-    
+
     // Build the Histogram content
     for(var i=0; i<dataStore.histogramDefinition.contents.length; i++){
 	addNewHistogram(i);
@@ -49,89 +49,89 @@ function expandGlobalList(){
 
     // Change the visibility of the section
     document.getElementById('GlobalConditions').classList.toggle('hidden');
-    
+
     // delete the expand button
     document.getElementById('expandGlobalListButton').remove();
-	
+
     // Create the collapse button
     newButton = document.createElement('button');
-    newButton.setAttribute('id', 'collapseGlobalListButton'); 
+    newButton.setAttribute('id', 'collapseGlobalListButton');
     newButton.setAttribute('class', 'btn-expand-large');
     newButton.innerHTML = '<p>-</p>';
     newButton.onclick = function(){
 	collapseGlobalList();
     }.bind(newButton);
     document.getElementById('globalHeader').appendChild(newButton);
-    
+
 }
 function expandGateList(){
 
     // Change the visibility of the section
     document.getElementById('GateConditions').classList.toggle('hidden');
-    
+
     // delete the expand button
     document.getElementById('expandGateListButton').remove();
-	
+
     // Create the collapse button
     newButton = document.createElement('button');
-    newButton.setAttribute('id', 'collapseGateListButton'); 
+    newButton.setAttribute('id', 'collapseGateListButton');
     newButton.setAttribute('class', 'btn-expand-large');
     newButton.innerHTML = '<p>-</p>';
     newButton.onclick = function(){
 	collapseGateList();
     }.bind(newButton);
     document.getElementById('gateHeader').appendChild(newButton);
-    
+
 }
 function expandHistogramList(){
 
     // Change the visibility of the section
     document.getElementById('HistogramDefinitions').classList.toggle('hidden');
-    
+
     // delete the expand button
     document.getElementById('expandHistogramListButton').remove();
-	
+
     // Create the collapse button
     newButton = document.createElement('button');
-    newButton.setAttribute('id', 'collapseHistogramListButton'); 
+    newButton.setAttribute('id', 'collapseHistogramListButton');
     newButton.setAttribute('class', 'btn-expand-large');
     newButton.innerHTML = '<p>-</p>';
     newButton.onclick = function(){
 	collapseHistogramList();
     }.bind(newButton);
     document.getElementById('histogramHeader').appendChild(newButton);
-    
+
 }
 function collapseGlobalList(){
 
     // Change the visibility of the section
     document.getElementById('GlobalConditions').classList.toggle('hidden');
-    
+
     // delete the collapse button
     document.getElementById('collapseGlobalListButton').remove();
-	
+
     // Create the expand button
     newButton = document.createElement('button');
-    newButton.setAttribute('id', 'expandGlobalListButton'); 
+    newButton.setAttribute('id', 'expandGlobalListButton');
     newButton.setAttribute('class', 'btn-expand-large');
     newButton.innerHTML = '<p>+</p>';
     newButton.onclick = function(){
 	expandGlobalList();
     }.bind(newButton);
     document.getElementById('globalHeader').appendChild(newButton);
-    
+
 }
 function collapseGateList(){
 
     // Change the visibility of the section
     document.getElementById('GateConditions').classList.toggle('hidden');
-    
+
     // delete the collapse button
     document.getElementById('collapseGateListButton').remove();
-    
+
     // Create the expand button
     newButton = document.createElement('button');
-    newButton.setAttribute('id', 'expandGateListButton'); 
+    newButton.setAttribute('id', 'expandGateListButton');
     newButton.setAttribute('class', 'btn-expand-large');
     newButton.innerHTML = '<p>+</p>';
     newButton.onclick = function(){
@@ -143,13 +143,13 @@ function collapseHistogramList(){
 
     // Change the visibility of the section
     document.getElementById('HistogramDefinitions').classList.toggle('hidden');
-    
+
     // delete the collapse button
     document.getElementById('collapseHistogramListButton').remove();
-    
+
     // Create the expand button
     newButton = document.createElement('button');
-    newButton.setAttribute('id', 'expandHistogramListButton'); 
+    newButton.setAttribute('id', 'expandHistogramListButton');
     newButton.setAttribute('class', 'btn-expand-large');
     newButton.innerHTML = '<p>+</p>';
     newButton.onclick = function(){
@@ -160,7 +160,7 @@ function collapseHistogramList(){
 
     function addNewGlobal(arrayIndex){
         // add a new Global Condition block
-	
+
 	// The argument arrayIndex is used for populating initial values of the html with those from a specific set in the dataStore.
 	// Set arrayIndex to -1 to create a new instance and create the new space for it in the dataStore
 	// Every instance requires a unique name
@@ -173,7 +173,7 @@ function collapseHistogramList(){
 
 	    // Close the modal
 	    $('#globalModal').modal('hide');
-	    
+
 	    // Reset the name in the modal text box ready for next time
 	    document.getElementById('globalModalInput').value = '';
 	}else{
@@ -188,8 +188,8 @@ function collapseHistogramList(){
         wrap.setAttribute('class', 'condition-block');
         wrap.setAttribute('id', 'globalCondition' + globalIndex);
         wrap.innerHTML = Mustache.to_html(
-            dataStore.templates['globalBlock'], 
-            {  
+            dataStore.templates['globalBlock'],
+            {
                 "globalNumber": globalIndex
             }
         );
@@ -203,7 +203,7 @@ function collapseHistogramList(){
 	}else{
 	    document.getElementById('globalName'+globalIndex).value = thisGlobalName;
 	}
-	    
+
 	// Increase the Global counters
         dataStore.globalCondition.globalIndex++;
 
@@ -234,36 +234,36 @@ function deleteGlobalBlock(globalNumber){
 	if(i<0){ break; }
     }
     let globalNumberIndex = i;
-	
+
     // delete the Global condition from the server version
     var url = dataStore.spectrumServer + '/?cmd=removeGlobal';
     url += '&globalname='+dataStore.globalCondition.contents[globalNumberIndex].name;
-    
+
     console.log('Remove Global, URL for analyzer server: '+url);
 
     // Send the request
-        XHR(url, 
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+        XHR(url,
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
             function(){return 0},
             function(error){console.log(error)}
            );
-    
+
     // Record the timestamp of when this user sends an update to the config file on the server
     dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
 
         // delete the indexed Global block
         deleteNode('globalCondition' + globalNumber);
-	
+
 	// delete the indexed Global contents from the dataStore
 	dataStore.globalCondition.contents.splice(globalNumberIndex,1);
-	
+
 	// decrease the Global counters
         dataStore.globalCondition.globalIndex--;
     }
 
     function addNewGate(arrayIndex){
         // add a new Gate Condition block
-	
+
 	// The argument arrayIndex is used for populating initial values of the html with those from a specific set in the dataStore.
 	// Set arrayIndex to -1 to create a new instance and create the new space for it in the dataStore
 	// Every instance requires a unique name
@@ -276,7 +276,7 @@ function deleteGlobalBlock(globalNumber){
 
 	    // Close the modal
 	    $('#gateModal').modal('hide');
-	    
+
 	    // Reset the name in the modal text box ready for next time
 	    document.getElementById('gateModalInput').value = '';
 	}else{
@@ -291,19 +291,19 @@ function deleteGlobalBlock(globalNumber){
         wrap.setAttribute('class', 'condition-block');
         wrap.setAttribute('id', 'gateCondition' + gateIndex);
         wrap.innerHTML = Mustache.to_html(
-            dataStore.templates['gateBlock'], 
-            {  
+            dataStore.templates['gateBlock'],
+            {
                 "gateNumber": gateIndex,
                 "sortCodeVariables": dataStore.sortCodeVariables,
                 "logicOptions": dataStore.logicOptions
             }
         );
         document.getElementById('gates-wrap').appendChild(wrap);
-	
+
 	// Populate the Gate with the entry in dataStore.gateCondition.contents[arrayIndex] if an arrayIndex was provided
 	document.getElementById('gateName'+gateIndex).value = thisGateName;
-	
-	    
+
+
 	// Add the first row for the first condition
         dataStore.gateCondition.nRows[gateIndex] = 0;
 	addNewGateConditionRow(gateIndex,arrayIndex);
@@ -326,7 +326,7 @@ function deleteGlobalBlock(globalNumber){
 		}
 	    }
 	}
-	
+
 	// Increase the Gate counter
         dataStore.gateCondition.gateIndex++;
 
@@ -348,29 +348,29 @@ function deleteGateBlock(gateNumber){
 	if(i<0){ break; }
     }
     let gateNumberIndex = i;
-    
+
     // delete the Gate condition from the server version
     var url = dataStore.spectrumServer + '/?cmd=removeGate';
     url += '&gatename='+dataStore.gateCondition.contents[gateNumberIndex].name;
-    
+
     console.log('Remove Gate, URL for analyzer server: '+url);
 
     // Send the request
-        XHR(url, 
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+        XHR(url,
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
             function(){return 0},
             function(error){console.log(error)}
            );
-    
+
     // Record the timestamp of when this user sends an update to the config file on the server
     dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
-    
+
         // delete the indexed Gate block
         deleteNode('gateCondition' + gateNumber);
-	
+
 	// delete the indexed Gate contents from the dataStore
 	dataStore.gateCondition.contents.splice(gateNumberIndex,1);
-	
+
 	// decrease the Gate counters
 	dataStore.gateCondition.nRows.splice(gateNumberIndex,1);
         dataStore.gateCondition.gateIndex--;
@@ -391,7 +391,7 @@ function deleteGateBlock(gateNumber){
 
 	    // Close the modal
 	    $('#histogramModal').modal('hide');
-	    
+
 	    // Reset the name in the modal text box ready for next time
 	    document.getElementById('histogramModalInput').value = '';
 	}else{
@@ -399,21 +399,21 @@ function deleteGateBlock(gateNumber){
 	    // A unique name is required for this instance.
 	    var thisHistogramName = dataStore.histogramDefinition.contents[arrayIndex].name;
 	}
-	
+
 	// Create the new html block
         var wrap = document.createElement('div');
 	var histogramIndex = dataStore.histogramDefinition.histogramIndex;
         wrap.setAttribute('class', 'condition-block');
         wrap.setAttribute('id', 'histogramCondition' + histogramIndex);
         wrap.innerHTML = Mustache.to_html(
-            dataStore.templates['histogramBlock'], 
-            {  
+            dataStore.templates['histogramBlock'],
+            {
                 "histogramNumber": histogramIndex,
                 "sortCodeVariables": dataStore.sortCodeVariables
             }
         );
         document.getElementById('histograms-wrap').appendChild(wrap);
-	
+
 	// Populate the Histogram with the entry in dataStore.histogramDefinition.contents[arrayIndex] if an arrayIndex was provided
 	if(arrayIndex>=0){
 	    document.getElementById('histogramName'+histogramIndex).value = thisHistogramName;
@@ -435,12 +435,12 @@ function deleteGateBlock(gateNumber){
 	}else{
 	    document.getElementById('histogramName'+histogramIndex).value = thisHistogramName;
 	}
-	
+
 	// Default to 1D for new definitions
 	if(arrayIndex<0){
 	    toggleHistogramDimensions(histogramIndex, 1)
 	}
-	
+
 	// Add the first row for the first condition
         dataStore.histogramDefinition.nRows[histogramIndex] = 0;
 //	addNewHistogramConditionRow(histogramIndex,arrayIndex);
@@ -455,7 +455,7 @@ function deleteGateBlock(gateNumber){
 		document.getElementById('histogramCondition'+histogramIndex+'-'+i).value = dataStore.histogramDefinition.contents[arrayIndex].histogramCondition[i].Gate;
 	    }
 	}
-	
+
 	// Increase the Histogram counter
         dataStore.histogramDefinition.histogramIndex++;
 
@@ -477,41 +477,41 @@ function deleteHistogramBlock(histogramNumber){
 	if(i<0){ break; }
     }
     let histogramNumberIndex = i;
-    
+
     // delete the Histogram condition from the server version
     var url = dataStore.spectrumServer + '/?cmd=removeHistogram';
     url += '&histoname='+dataStore.histogramDefinition.contents[histogramNumberIndex].name;
-    
+
     console.log('Remove Histogram, URL for analyzer server: '+url);
 
     // Send the request
-        XHR(url, 
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+        XHR(url,
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
             function(){return 0},
             function(error){console.log(error)}
            );
-    
+
         // Record the timestamp of when this user sends an update to the config file on the server
         dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
 
         // delete the indexed Histogram block
         deleteNode('histogramCondition' + histogramNumber);
-	
+
 	// delete the indexed Histogram contents from the dataStore
 	dataStore.histogramDefinition.contents.splice(histogramNumberIndex,1);
-	
+
 	// decrease the Histogram counters
 	dataStore.histogramDefinition.nRows.splice(histogramNumberIndex,1);
         dataStore.histogramDefinition.histogramIndex--;
     }
 
 function addNewGateConditionRow(gateIndex,arrayIndex){
-    // The arrayIndex argument is only passed by the initial setup functions to populate the Gate with the values from the dataStore 
+    // The arrayIndex argument is only passed by the initial setup functions to populate the Gate with the values from the dataStore
 	if(isNaN(arrayIndex)){
 	    var arrayIndex = -1;
 	}
     var gateConditionIndex = dataStore.gateCondition.nRows[gateIndex];
-    
+
     // If this is the first condition row, create the space in the datastore for it
     if (gateConditionIndex == 0 && arrayIndex<0) {
 	// This is the first condition row for this gateIndex and the space in the dataStore must be created for it
@@ -535,15 +535,15 @@ function addNewGateConditionRow(gateIndex,arrayIndex){
     }else{
 	thisIndexID = 0;
     }
-    
+
         // add a new GateCondition row to the indexed gate block
         var table = document.getElementById('gateContentConditionTable'+gateIndex),
             row = document.createElement('div');
             row.setAttribute('class', 'col-md-12 and-row');
             row.setAttribute('id', 'gateCondition' + gateIndex + thisIndexID)
             row.innerHTML = Mustache.to_html(
-            dataStore.templates['gateConditionRow'], 
-            {  
+            dataStore.templates['gateConditionRow'],
+            {
                 "gateNumber": gateIndex,
                 "gateConditionNumber": thisIndexID,
                 "sortCodeVariables": dataStore.sortCodeVariables,
@@ -564,7 +564,7 @@ function addNewGateConditionRow(gateIndex,arrayIndex){
 	// Update the dataStore with the latest values
 	dataStore.gateCondition.contents[gateIndex].gateCondition[gateConditionIndex] = newCondition;
     }
-    
+
     // Increase the Gate Condition Counter
     dataStore.gateCondition.nRows[gateIndex]++;
     }
@@ -572,7 +572,7 @@ function addNewGateConditionRow(gateIndex,arrayIndex){
     function deleteGateConditionRow(gateNumber, gateConditionNumber){
         // delete the indexed gateCondition row in the indexed gate block
         deleteNode('gateCondition' + gateNumber + gateConditionNumber);
-	    
+
 	// Need to find the correct array index of this html element indexID
 	i = dataStore.gateCondition.contents[gateNumber].gateCondition.length - 1;
 	while(dataStore.gateCondition.contents[gateNumber].gateCondition[i].indexID != gateConditionNumber){
@@ -581,7 +581,7 @@ function addNewGateConditionRow(gateIndex,arrayIndex){
 	}
 	// delete the indexed Gate condition contents from the dataStore
 	dataStore.gateCondition.contents[gateNumber].gateCondition.splice(i,1);
-	    
+
 	// Decrease the Gate Condition Counter
 	dataStore.gateCondition.nRows[gateNumber]--;
 
@@ -600,7 +600,7 @@ function onLogicSelectChange(gateNumber, gateConditionNumber){
     }else{
 	// The Range option was not selected this time, or the previous time. So just save whatever change was made to the dataStore and server version
     }
-    
+
     // Update the dataStore and server version
     saveGateChangeToAnalyzerODB(gateNumber);
 }
@@ -608,7 +608,7 @@ function onLogicSelectChange(gateNumber, gateConditionNumber){
 function insertRangeInputs(gateNumber,gateConditionNumber){
     // Remove the Value input box
     document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).innerHTML = '';
-    
+
     // Insert the Min input box
     var newInput = document.createElement("input");
     newInput.type = 'number';
@@ -620,7 +620,7 @@ function insertRangeInputs(gateNumber,gateConditionNumber){
 	saveGateChangeToAnalyzerODB(gateNumber);
     }.bind(newInput);
     document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);
-    
+
     // Insert the Max input box
     var newInput = document.createElement("input");
     newInput.type = 'number';
@@ -631,13 +631,13 @@ function insertRangeInputs(gateNumber,gateConditionNumber){
     newInput.onchange = function(){
 	saveGateChangeToAnalyzerODB(gateNumber);
     }.bind(newInput);
-    document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);	
+    document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);
 }
 
 function removeRangeInputs(gateNumber,gateConditionNumber){
     // Remove the Min and Max input boxes
     document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).innerHTML = '';
-    
+
     // Insert the Value input box
     var newInput = document.createElement("input");
     newInput.type = 'number';
@@ -648,19 +648,19 @@ function removeRangeInputs(gateNumber,gateConditionNumber){
     newInput.onchange = function(){
 	saveGateChangeToAnalyzerODB(gateNumber);
     }.bind(newInput);
-    document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);    
+    document.getElementById('gateConditionValueDiv'+gateNumber+'-'+gateConditionNumber).appendChild(newInput);
 }
 
 function addNewHistogramConditionRow(histogramIndex,arrayIndex){
         // add a new histogramCondition row to the indexed histogram block
-	
-    // The arrayIndex argument is only passed by the initial setup functions to populate the Gate with the values from the dataStore 
+
+    // The arrayIndex argument is only passed by the initial setup functions to populate the Gate with the values from the dataStore
 	if(isNaN(arrayIndex)){
 	    var arrayIndex = -1;
 	}
-    
+
     var histogramConditionIndex = dataStore.histogramDefinition.nRows[histogramIndex];
-    
+
     // If this is the first condition row, create the space in the datastore for it
     if (histogramConditionIndex == 0  && arrayIndex<0) {
 	// This is the first condition row for this histogramIndex and the space in the dataStore must be created for it
@@ -700,15 +700,15 @@ function addNewHistogramConditionRow(histogramIndex,arrayIndex){
         row.setAttribute('class', 'col-md-12 and-row');
         row.setAttribute('id', 'histogramCondition' + histogramIndex + thisIndexID)
         row.innerHTML = Mustache.to_html(
-            dataStore.templates['histogramConditionRow'], 
-            {  
+            dataStore.templates['histogramConditionRow'],
+            {
                 "histogramNumber": histogramIndex,
                 "histogramConditionNumber": thisIndexID,
                 "gateCondition": listOfGateConditions
             }
         );
         table.appendChild(row);
-    
+
     // Add the space for this new condition to the dataStore
     // but only if there is not a definition there already
     if(arrayIndex<0){
@@ -719,7 +719,7 @@ function addNewHistogramConditionRow(histogramIndex,arrayIndex){
 	// Update the dataStore with the latest values
 	dataStore.histogramDefinition.contents[histogramIndex].histogramCondition[histogramConditionIndex] = newCondition;
     }
-    
+
     // Increase the Histogram Condition Counter
     dataStore.histogramDefinition.nRows[histogramIndex]++;
 }
@@ -727,7 +727,7 @@ function addNewHistogramConditionRow(histogramIndex,arrayIndex){
     function deleteHistogramConditionRow(histogramNumber, histogramConditionNumber){
         // delete the indexed histogramCondition row in the indexed histogram block
         deleteNode('histogramCondition' + histogramNumber + histogramConditionNumber);
-	    
+
 	// Need to find the correct array index of this html element indexID
 	i = dataStore.histogramDefinition.contents[histogramNumber].histogramCondition.length - 1;
 	while(dataStore.histogramDefinition.contents[histogramNumber].histogramCondition[i].indexID != histogramConditionNumber){
@@ -736,7 +736,7 @@ function addNewHistogramConditionRow(histogramIndex,arrayIndex){
 	}
 	// delete the indexed Histogram condition contents from the dataStore
 	dataStore.histogramDefinition.contents[histogramNumber].histogramCondition.splice(i,1);
-	    
+
 	// Decrease the Histogram Condition Counter
 	dataStore.histogramDefinition.nRows[histogramNumber]--;
 
@@ -755,7 +755,7 @@ function toggleHistogramDimensions(histogramNumber, dimension){
 	document.getElementById('YvariableRow'+histogramNumber).style.display = 'block';
 	document.getElementById('YinputRow'+histogramNumber).style.display = 'block';
     }
-    
+
 }
 
     /////////////////////
@@ -795,7 +795,7 @@ function enterUniqueGlobalName(){
 	dataStore.uniqueGlobalName = thisName;
 	document.getElementById('globalModalButton').disabled = false;
     }
-    
+
 }
 
 function enterUniqueGateName(){
@@ -821,7 +821,7 @@ function enterUniqueGateName(){
 	dataStore.uniqueGateName = thisName;
 	document.getElementById('gateModalButton').disabled = false;
     }
-    
+
 }
 
 function enterUniqueHistogramName(){
@@ -847,7 +847,7 @@ function enterUniqueHistogramName(){
 	dataStore.uniqueHistogramName = thisName;
 	document.getElementById('histogramModalButton').disabled = false;
     }
-    
+
 }
 
 function saveGlobalChangeToAnalyzerODB(globalNumber){
@@ -867,15 +867,15 @@ function saveGlobalChangeToAnalyzerODB(globalNumber){
 	    newContents.name = newContents.name.replace(specials[i], '-');
 	    console.log('Changed to '+newContents.name);
 	    document.getElementById('globalName'+globalNumber).value = newContents.name;
-	    
+
 	    document.getElementById('alertModalButton').click();
 	}
     }
-    
+
     // save the change to the dataStore
 	dataStore.globalCondition.contents[globalNumber] = newContents;
 
-    
+
     // Submit this change to the analyzer server via a JSET URL command
 
     // The following is for the analyzer server
@@ -884,19 +884,19 @@ function saveGlobalChangeToAnalyzerODB(globalNumber){
     url += '&globalname='+dataStore.globalCondition.contents[globalNumber].name;
     url += '&globalmin='+dataStore.globalCondition.contents[globalNumber].min;
     url += '&globalmax='+dataStore.globalCondition.contents[globalNumber].max;
-    
+
     console.log('Save Global, URL for analyzer server: '+url);
 
     // Send the request
-        XHR(url, 
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+        XHR(url,
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
             function(){return 0},
             function(error){console.log(error)}
            );
-    
+
     // Record the timestamp of when this user sends an update to the config file on the server
     dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
-    
+
 }
 
 function saveGateChangeToAnalyzerODB(gateNumber){
@@ -905,7 +905,7 @@ function saveGateChangeToAnalyzerODB(gateNumber){
 	    "name" : document.getElementById('gateName'+gateNumber).value,
 	    "gateCondition" : []
 	};
-    
+
     // Check for special characters that are not allowed
     var specials = ['&','=','{','}','?','!'];
     for(var i=0; i<specials.length; i++){
@@ -915,7 +915,7 @@ function saveGateChangeToAnalyzerODB(gateNumber){
 	    newContents.name = newContents.name.replace(specials[i], '-');
 	    console.log('Changed to '+newContents.name);
 	    document.getElementById('gateName'+gateNumber).value = newContents.name;
-	    
+
 	    document.getElementById('alertModalButton').click();
 	}
     }
@@ -957,16 +957,16 @@ function saveGateChangeToAnalyzerODB(gateNumber){
 	url += '&op'+i+'='+dataStore.gateCondition.contents[gateNumber].gateCondition[i].Logic;
 	url += '&value'+i+'='+dataStore.gateCondition.contents[gateNumber].gateCondition[i].Value;
     }
-    
+
     console.log('Save Gate, URL for analyzer server: '+url);
 
     // Send the request
-        XHR(url, 
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+        XHR(url,
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
             function(){return 0},
             function(error){console.log(error)}
            );
-    
+
     // Record the timestamp of when this user sends an update to the config file on the server
     dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
 }
@@ -987,7 +987,7 @@ function saveHistogramChangeToAnalyzerODB(histogramNumber){
 	    "Ybins" : document.getElementById('Ybins'+histogramNumber).value,
 	    "histogramCondition" : []
 	};
-    
+
     // Check for special characters that are not allowed
     var specials = ['&','=','{','}','?','!'];
     for(var i=0; i<specials.length; i++){
@@ -997,7 +997,7 @@ function saveHistogramChangeToAnalyzerODB(histogramNumber){
 	    newContents.name = newContents.name.replace(specials[i], '-');
 	    console.log('Changed to '+newContents.name);
 	    document.getElementById('histogramName'+histogramNumber).value = newContents.name;
-	    
+
 	    document.getElementById('alertModalButton').click();
 	}
 	if(newContents.path.includes(specials[i])){
@@ -1006,7 +1006,7 @@ function saveHistogramChangeToAnalyzerODB(histogramNumber){
 	    newContents.path = newContents.path.replace(specials[i], '-');
 	    console.log('Changed to '+newContents.path);
 	    document.getElementById('histogramPath'+histogramNumber).value = newContents.path;
-	    
+
 	    document.getElementById('alertModalButton').click();
 	}
     }
@@ -1026,10 +1026,10 @@ function saveHistogramChangeToAnalyzerODB(histogramNumber){
     catch(err){ }
     // Update the dataStore with the latest values
 	dataStore.histogramDefinition.contents[histogramNumber] = newContents;
-    
+
 //    console.log(dataStore.histogramDefinition);
     // Submit this change to the analyzer server via a JSET URL command
-    
+
     // The following is for the analyzer server
     // cmd=addHistogram&name=XXXX&title=XXX&path=XXXX&op=XXX&xbins=XXX&xvarname=XXX[optional... &ybins=XXX&yvarname=XXXX]&gate1=XXX&gate2=XXX....
     var url = dataStore.spectrumServer + '/?cmd=addHistogram';
@@ -1049,17 +1049,17 @@ function saveHistogramChangeToAnalyzerODB(histogramNumber){
     for(var i=0; i<dataStore.histogramDefinition.contents[histogramNumber].histogramCondition.length; i++){
 	url += '&gate'+i+'='+dataStore.histogramDefinition.contents[histogramNumber].histogramCondition[i].Gate;
     }
-    
+
     console.log('Save Histogram, URL for analyzer server: '+url);
 
     // Send the request
-        XHR(url, 
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+        XHR(url,
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
             function(){return 0},
             function(error){console.log(error)}
            );
-    
+
     // Record the timestamp of when this user sends an update to the config file on the server
     dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
-    
+
 }

@@ -39,22 +39,22 @@ function setupDataStore(){
     // The dataStore object is declared as a global variable.
     // Here we fill the dataStore object with most values
     // Some initial values are filled elsewhere, like getURLArguments() and getConfigFileFromServer()
-    
+
     // General variables
     dataStore.pageTitle = 'Analyzer Interface';               //header title
     //dataStore.spectrumServer = '';                            // [added in GetURLArguments()] analyzer url + port number
-    dataStore.ODBhost = 'http://grifstore0.triumf.ca:8081';   // mhttpd server 
-    
+    dataStore.ODBhost = 'http://grifstore0.triumf.ca:8081';   // mhttpd server
+
     // Sorting Status variables
    // dataStore.midasFileDataDirectoryPath = '';                // [added in processConfigFile()] initial data directory path
     dataStore.midasFileDataDirectoryPath = "/tig/grifstore0b/griffin/schedule140/Calibrations-Aug2021";                // [added in processConfigFile()] initial data directory path
-    
+
     dataStore.midasFileList = { "Names" : [], "Sizes" : [], "Titles" : []};  // place to store the list of midas files available to sort which is provided by the server
     dataStore.midasRunList = {};                               // place to store the list of midas runs available to sort which is provided by the server
     dataStore.midasTableLastRowClicked = 1;                    // place to remember the last row number clicked with a single mouse click
     dataStore.CalibrationSource = 'midas';                     // selection the source of calibrations to be applied in the submitted sort job (either midas or config)
 
-    
+
     dataStore.SortStatusRequestLock = false;                   // A request lock to prevent new requests if a request is still pending. true = block new requests, false = allow new request
     dataStore.sortStatusRequestBlockCount=0;                   // Count how many requests are blocked
     dataStore.SortStatusCurrentTimestamp = 10;
@@ -74,8 +74,8 @@ function setupDataStore(){
     dataStore.SortStatusSortSpeedHistory = [];
     dataStore.SortStatusHistory = [];
     dataStore.SortStatusPreviousState = 'IDLE';              // Previous state to determine if a file has recently finished sorting. IDLE or BUSY
-    
-    
+
+
     // Gating and Histogram variables
     dataStore.configFileDataDirectoryPath = "/home/grifstor/daq/analyzer/grif-replay";                                 // [added in processConfigFile()] initial config file directory path
  //   dataStore.configFileDataDirectoryPath = '';                                 // [added in processConfigFile()] initial config file directory path
@@ -85,23 +85,23 @@ function setupDataStore(){
         "globalIndex" : 0,               // monotonically increasing counter to create unique IDs for new Glabal condition blocks
 	"contents" : []             // array of structures holding the variables and values for each Global condition
     };
-    
+
     dataStore.gateCondition = {                  // place to park Gate condition info on the dataStore
         "gateIndex" : 0,                 // monotonically increasing counter to create unique IDs for new Gate condition blocks
-        "nRows" : [],                 // array of monotonic counters for number of rows inserted into Gate condition block; Gate block # == array index. 
+        "nRows" : [],                 // array of monotonic counters for number of rows inserted into Gate condition block; Gate block # == array index.
 	"contents" : []             // array of structures holding the variables and values for each Gate condition
 	};
     dataStore.histogramDefinition = {             // place to park Histogram definition info on the dataStore
         "histogramIndex" : 0,            // monotonically increasing counter to create unique IDs for new Histogram condition blocks
-        "nRows" : [],            // array of monotonic counters for number of rows inserted into Histogram condition block; Histogram block # == array index. 
+        "nRows" : [],            // array of monotonic counters for number of rows inserted into Histogram condition block; Histogram block # == array index.
         "contents" : []            // place to save Histogram definition parameters
     };
-    dataStore.uniqueGlobalName = '';        // place to save the unique global name entered in the modal     
-    dataStore.uniqueGateName = '';          // place to save the unique gate namne entered in the modal     
-    dataStore.uniqueHistogramName = '';     // place to save the unique histogram namne entered in the modal             
-    
+    dataStore.uniqueGlobalName = '';        // place to save the unique global name entered in the modal
+    dataStore.uniqueGateName = '';          // place to save the unique gate namne entered in the modal
+    dataStore.uniqueHistogramName = '';     // place to save the unique histogram namne entered in the modal
+
     dataStore.sortCodeVariables = [];          // place to store the sort Code Variables available for histograms, gates and conditions
-    
+
     dataStore.logicOptions = [                       // List of logic options used for building Gating conditions
 	{
             "short": 'EQ',
@@ -132,7 +132,7 @@ function setupDataStore(){
             "description": 'Range[Min-Max]'
 	}
     ];
-    
+
     // Spectrum viewer variables
     dataStore.histoFileDirectoryPath = "/tig/grifstore0b/griffin/schedule140/Histograms";    // [added in processConfigFile()] initial histogram file directory path
    // dataStore.histoFileDirectoryPath = '';    // [added in processConfigFile()] initial histogram file directory path
@@ -148,14 +148,14 @@ function setupDataStore(){
     dataStore.plots = [];                                                //array of names for default plot cells
     dataStore.ODBrequests = [];                                          //array of odb requests to make on refresh
     dataStore.zeroedPlots = {};                                          //initialize empty object for zeroed plots
-    
+
     // Heartbeat variables
     dataStore.heartbeat = {                               // queries and callbacks for the periodic data poll
         "URLqueries": [],                        // elements == ['url string', 'response type string', callback]; response type can be 'arraybuffer' or 'json'
         "scriptQueries": [],
         "ADCrequest": [],                         // same format as URL queries.
 	"errorMessage": ''
-    }; 
+    };
     dataStore.heartbeatInterval = 1000;                   // ms between data updates
     dataStore.heartbeatIntervalBUSYvalue = 1000;          // default Busy inteval
     dataStore.heartbeatIntervalIDLEvalue = 5000;          // default IDLE inteval
@@ -165,7 +165,7 @@ function setupDataStore(){
     // resolve the promise
     resolve('Success!');
     });
-    
+
 }
 
 // Control the initial load workflow
@@ -190,15 +190,15 @@ function onloadInitialSetup(){
 	       )
 
     });
-    
-    
+
+
 }
 
 // Top level promise to control the initial load workflow
 Promise.all([
     onloadInitialSetup()
 ]).then(
- 	                              
+
     getMidasFileListFromServer(),
     getHistoFileListFromServer()
 );
@@ -210,7 +210,7 @@ Promise.all([
 function fetchCallback(){
     //fires after all data has been updated
 
-    var i, 
+    var i,
         keys = Object.keys(dataStore.viewers);
 
     for(i=0; i<keys.length; i++){
@@ -226,26 +226,26 @@ function setupEventListeners(){
 	// initial setup
 	///////////////
 
-	
+
 	///////////////////////////
 	//handle templates
 	///////////////////////////
 	    dataStore.templates = prepareTemplates(['header', 'analyzer-menu', 'analyzer-sorting', 'analyzer-histograms', 'analyzer-viewer', 'globalBlock', 'gateBlock', 'histogramBlock', 'histogramConditionRow', 'gateConditionRow', 'plotList', 'plotGrid', 'plotControl', 'auxPlotControl', 'auxPlotControlTable', 'fitRow', 'footer']);
-       	    
+
             setupHeader('head', 'Analyzer Interface');
 	    setupAnalyzerMenu('menu');
 	    setupAnalyzerSorting('AnalyzerDisplaySorting');
 	    setupAnalyzerHistograms('AnalyzerDisplayHistograms');
 	    setupAnalyzerViewer('AnalyzerDisplayViewer');
 	    setupFooter('foot');
-	    
+
 	    // Launch the current time counter which includes a timeout
 	    updateTime();
 
 	    // Launch the heartbeat for regularly grabbing the sort status
 	    console.log('initiateSortStatusHeartbeat');
 	    initiateSortStatusHeartbeat();
-	    
+
 	});
 }
 
@@ -261,13 +261,13 @@ function ErrorConnectingToAnalyzerServer(error){
 function updateTime(){
 
    // var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    
+
     var today = new Date();
   //  var dateNow = today.getFullYear() + '-' + months[today.getMonth()] + '-' + today.getDate();
   //  var timeNow = today.getHours() + ':' + today.getMinutes().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) + ':' + today.getSeconds().toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false});
     document.getElementById('currentDateTimeDisplay').innerHTML = today.toString();
     // console.log(timeNow);
-    
+
     window.clearTimeout(currentTime)
     currentTime = window.setTimeout(updateTime, 1000);
 }
@@ -283,9 +283,9 @@ function processSortStatus(payload){
     dataStore.sortStatusRequestBlockCount=0;
     console.log('sort status request lock reset. Lock='+dataStore.SortStatusRequestLock+', count='+dataStore.sortStatusRequestBlockCount);
     */
-    
+
     //
-    // The function in the analyzer server (c syntax)  
+    // The function in the analyzer server (c syntax)
     //int send_sort_status(int fd)
     //{
     //   char tmp[256];
@@ -305,7 +305,7 @@ function processSortStatus(payload){
 
 	// Remember this status
 	dataStore.previousSortStatus = 'ONLINE';
-	
+
 	// Set the heartbeat frequency
 	dataStore.heartbeatInterval = dataStore.heartbeatIntervalIDLEvalue;
 
@@ -313,7 +313,7 @@ function processSortStatus(payload){
 	if(payload.split(' ')[1] == 'Stopped'){
 	    string = 'Analyzer is connected to MIDAS but the run is stopped.';
 	}
-	    
+
 	// Update the progress bar
 	document.getElementById('progress').className = 'progress-bar bg-info';
 	document.getElementById('progress').setAttribute('style', 'width:' + 100 + '%' );
@@ -332,10 +332,10 @@ function processSortStatus(payload){
 	    getHistoFileListFromServer();
 	}
 	dataStore.previousSortStatus = 'IDLE';
-	
+
 	// Set the heartbeat frequency
 	dataStore.heartbeatInterval = dataStore.heartbeatIntervalIDLEvalue;
-	
+
 	// Update the progress bar
 	document.getElementById('progress').className = 'progress-bar progress-bar-warning progress-bar-striped';
 	document.getElementById('progress').setAttribute('style', 'width:' + 100 + '%' );
@@ -346,11 +346,11 @@ function processSortStatus(payload){
     }else{
 	// Set the heartbeat frequency
 	dataStore.heartbeatInterval = dataStore.heartbeatIntervalBUSYvalue;
-	
+
 	// Remember the sorting state
 	dataStore.previousSortStatus = 'BUSY';
     }
-    
+
     // Handle the Analyzer running response
     // [Data Directory] [Filename] [Run number] [Subrun number] [File size in bytes] [bytes sorted]
     // The above line repeats for all files in the current queue
@@ -382,7 +382,7 @@ function processSortStatus(payload){
     console.log(dataStore.SortStatusCurrentBytesSorted);
     console.log(thisPayload[6]);
     */
-    
+
     // Check the timestamp of the most recent config file saved on the server
     checkConfigTimestamps(thisPayload[6].split(',')[0]);
 
@@ -406,7 +406,7 @@ function processSortStatus(payload){
     console.log(dataStore.SortStatusCurrentSortSpeed);
     console.log(dataStore.SortStatusAverageSortSpeed);
     */
-    
+
     // Protect against nonsense values, but also against divide by zero errors
     if(dataStore.SortStatusCurrentSortSpeed<0){ dataStore.SortStatusCurrentSortSpeed=0.1; }
     if(!dataStore.SortStatusCurrentSortSpeed){ dataStore.SortStatusCurrentSortSpeed=0.1; }
@@ -468,7 +468,9 @@ function checkConfigTimestamps(serverTimestamp){
 
     // Compare this lastest Config timestamp received from the sever with the timestamp saved the last time we received a Config file
     // If our local version is out-of-date then request the lastest version from the server
+    console.log(serverTimestamp);
     if(serverTimestamp > dataStore.configFileTimestamp){
-	getConfigFileFromServer();
+    console.log('Fetch config because server '+serverTimestamp+' > '+dataStore.configFileTimestamp);
+	  getConfigFileFromServer();
     }
 }
