@@ -318,7 +318,7 @@ function processSortStatus(payload){
 	document.getElementById('progress').className = 'progress-bar bg-info';
 	document.getElementById('progress').setAttribute('style', 'width:' + 100 + '%' );
 	document.getElementById('progress').innerHTML = string;
-	document.getElementById("SortingStatus").innerHTML = string;
+	document.getElementById("sortStatusDisplay").innerHTML = string;
 	//console.log('End of processSortStatus: Lock='+dataStore.SortStatusRequestLock+', count='+dataStore.sortStatusRequestBlockCount);
 	return;
     }else if(strncmp(payload,'IDLE',4)){
@@ -340,7 +340,7 @@ function processSortStatus(payload){
 	document.getElementById('progress').className = 'progress-bar progress-bar-warning progress-bar-striped';
 	document.getElementById('progress').setAttribute('style', 'width:' + 100 + '%' );
 	document.getElementById('progress').innerHTML = 'Analyzer is idle, ready for files to be submitted.';
-	document.getElementById("SortingStatus").innerHTML = 'Analyzer is idle, ready for files to be submitted.';
+	document.getElementById("sortStatusDisplay").innerHTML = 'Analyzer is idle, ready for files to be submitted.';
 	//console.log('End of processSortStatus: Lock='+dataStore.SortStatusRequestLock+', count='+dataStore.sortStatusRequestBlockCount);
 	return;
     }else{
@@ -430,7 +430,7 @@ function processSortStatus(payload){
 
     // Update the printed Sort Status information on screen
     string = 'Run '+dataStore.SortStatusCurrentRunNumber+', subrun '+dataStore.SortStatusCurrentSubRunNumber+' at '+dataStore.SortStatusAverageSortSpeed+' MB/s. Sorted '+prettyFileSizeString(dataStore.SortStatusCurrentBytesSorted)+' of '+prettyFileSizeString(dataStore.SortStatusCurrentBytesFileSize)+'s ('+dataStore.SortStatusCurrentPercentageComplete+'% completed).<br>Estimated '+prettyTimeString(parseInt(dataStore.SortStatusCurrentRemainingSortTime))+' remaining.';
-    document.getElementById("SortingStatus").innerHTML = string;
+  	document.getElementById("sortStatusDisplay").innerHTML = string;
 
     // Update the progress bar to show the current sort progress
     if(document.getElementById('progress').className == 'progress-bar progress-bar-warning progress-bar-striped'){

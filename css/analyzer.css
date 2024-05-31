@@ -102,7 +102,7 @@ div.no-pad{
 }
 
 .btn-expand{
-  height: 14px; 
+  height: 14px;
   width: 14px;
   margin-left: 2px;
   margin-right: 2px;
@@ -123,7 +123,7 @@ div.no-pad{
 }
 
 .btn-expand-large{
-  height: 28px; 
+  height: 28px;
   width: 28px;
   margin-left: 4px;
   margin-right: 4px;
@@ -172,6 +172,15 @@ div.histogramContent{
   border: 2px solid #FA8072; /* Salmon pink */
   padding: 20px;
   margin-bottom: 6px;
+}
+
+div.sortStatusContent{
+  height: 100px;
+  background-color: #191C40;
+  border-radius: 15px;
+  border: 2px solid #FA8072; /* Salmon pink */
+  padding: 10px;
+  margin-bottom: 2px;
 }
 
 div.headerContent{

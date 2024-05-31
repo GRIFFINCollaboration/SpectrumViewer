@@ -3,14 +3,9 @@
 <template id='analyzer-sorting'>
 
     <div class='section-wrapper'>
-      <div class='col-md-12 pan' id='Sorting-Status'>
-	<h2>Sorting Status</h2>
-        <div class='col-md-6'>
-    <div class="progress">
-      <div id='progress' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">Analyzer is idle, ready for files to be submitted.</div>
-    </div>
-    </div>
-	<div class='col-md-6' id='SortingStatus'></div>
+      <div class='col-md-12 pan' id='Sorting-Online'>
+	      <h2>Connect to a MIDAS DAQ</h2>
+        <div id='submitDivOnline'></div>
     </div>
 
     <div class='section-wrapper'>
@@ -22,7 +17,7 @@
 
     <div class='section-wrapper'>
         <div class='col-md-12 pan' id='Sorting-Job-Submit'>
-            <h2>Sorting Job Submission</h2>
+            <h2>Sort MIDAS files</h2>
 	<div id='JobSubmit'>
 	  <div class='container-fluid'>
 	      <div class='col-md-2'><h5>MIDAS Data File Directory:</h5></div>
@@ -140,7 +135,7 @@ const thisPromise = new Promise((resolve, reject) => {
 			    newButton.onclick = function(){
 			    SubmitConnectToOnline('grsmid00');
 			    }.bind(newButton);
-			      document.getElementById('submitDivTable').appendChild(newButton);
+			      document.getElementById('submitDivOnline').appendChild(newButton);
 
 						    // Create Connect to Online button
 						    newButton = document.createElement('button');
@@ -151,7 +146,7 @@ const thisPromise = new Promise((resolve, reject) => {
 						    newButton.onclick = function(){
 						    SubmitConnectToOnline('grifstore1');
 						    }.bind(newButton);
-						      document.getElementById('submitDivTable').appendChild(newButton);
+						      document.getElementById('submitDivOnline').appendChild(newButton);
 
     // set up event listeners
     listener(wrapperID, 'requestSortingRefresh', setupSortingContent);
