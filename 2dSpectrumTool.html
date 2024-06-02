@@ -15,8 +15,8 @@
         <link rel="stylesheet" type="text/css" href="css/custom.css"/>
 
         <!--scripts-->
-        <script src="scripts/helpers.js" type="text/javascript"></script> 
-        <script src="scripts/2dSpectrumTool.js" type="text/javascript"></script> 
+        <script src="scripts/helpers.js" type="text/javascript"></script>
+        <script src="scripts/2dSpectrumTool.js" type="text/javascript"></script>
 
         <!--templates-->
         <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
@@ -28,8 +28,8 @@
         <link id='auxPlotControlTable' rel="import" href="templates/auxPlotControl/auxPlotControlTable.html">
         <link id='fitRow' rel="import" href="templates/auxPlotControl/fitRow.html">
         <link id='gateControl' rel="import" href="templates/gateControl/gateControl.html">
-        <link id='cutVertex' rel="import" href="templates/2dSpectrumViewer/cutVertex.html"> 
-        <link id='footer' rel="import" href="templates/footer/footer.html"> 
+        <link id='cutVertex' rel="import" href="templates/2dSpectrumViewer/cutVertex.html">
+        <link id='footer' rel="import" href="templates/footer/footer.html">
 
     </head>
 
@@ -41,12 +41,12 @@
         </div>
         <div id='messageDiv' class='col-md-12'></div>
 	<div id='analyzerPlots'>
-	  
+
 	  <nav class="navbar navbar-default">
 	     <div class="container-fluid">
 	        <!-- Brand and toggle get grouped for better mobile display -->
  	        <div class="navbar-header" id='navbar-header-div'></div>
-		 
+
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse" id="navbar-content-div"></div>
 	     </div><!-- /.container-fluid -->
@@ -60,6 +60,8 @@
                         <h4>Viewing Mode</h4>
                         <button id='modeBtn1d' class='btn btn-default btn-sm' onclick='toggleProjectionMode()'>1D Histogram</button>
                         <button id='modeBtn2d' class='btn btn-success btn-sm' onclick='toggleHeatmapMode()'>2D Heatmap</button>
+                        <button id="showXproj" class="btn btn-default btn-sm" type="button">Total X projection</button>
+                        <button id="showYproj" class="btn btn-default btn-sm" type="button">Total Y projection</button>
 		    </div>
 
                     <div id='updateWrapPeriodic' class='col-md-3'>
@@ -71,8 +73,8 @@
                                 <option value="5000">5 s</option>
                                 <option value="10000">10 s</option>
                                 <option value="-1" selected="selected">never</option>
-                            </select>   
-                        <button id="upNow" class="btn btn-default btn-sm" type="button">Update Now</button>     
+                            </select>
+                        <button id="upNow" class="btn btn-default btn-sm" type="button">Update Now</button>
                         </div>
 		     </div>
 	</div>
@@ -100,15 +102,15 @@
                         <ul id='cutPolyVertices' class='list-unstyled'></ul>
                         <button class='btn btn-success btn-sm' onclick='saveCutToODB()'>Save 2D Gate Region to ODB</button>
                     </div>
-                
+
 		    <div id='plotCtrl1D' style='display: none'></div>
 		    <div id='gateCtrl1D' style='display: none'></div>
-		    
+
                     <div id='info-slow-data' class="alert alert-info hidden" role="alert">
                         <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
                         Painting your histogram...
 		    </div>
-		    
+
                     <div id='info-downloading' class="alert alert-info hidden" role="alert">
                         <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
                         Downloading your histogram...
@@ -125,7 +127,7 @@
                 <div id='auxCtrl'></div>
             </div>
        </div>
-	    
+
         <div id='foot'></div>
 
         <script>
@@ -151,7 +153,7 @@
                 dim = Math.min(document.getElementById('heatmapTarget').offsetWidth, window.innerHeight)
                 dataStore.hm = new heatmap(dim,dim);
                 document.getElementById('heatmapTarget').appendChild(dataStore.hm.canvas);
-                dataStore.hm.preRender = generateOverlay; 
+                dataStore.hm.preRender = generateOverlay;
                 dataStore.hm.slowDataWarning = function(state){
                     if(state === 'on')
                         document.getElementById('info-slow-data').classList.remove('hidden');
@@ -166,16 +168,16 @@
 	       };
 
 	// 1D viewer setup
-	dataStore._plotGrid = new plotGrid('plottingGrid'); 
-	dataStore._plotControl = new plotControl('plotCtrl1D', 'vertical'); 
-	dataStore._gateControl = new gateControl('gateCtrl1D'); 
+	dataStore._plotGrid = new plotGrid('plottingGrid');
+	dataStore._plotControl = new plotControl('plotCtrl1D', 'vertical');
+	dataStore._gateControl = new gateControl('gateCtrl1D');
 	dataStore._auxCtrl = new auxPlotControl('auxCtrl');
-	
-        dataStore._plotGrid.setup(); 
-	dataStore._plotControl.setup(); 
-	dataStore._gateControl.setup(); 
+
+        dataStore._plotGrid.setup();
+	dataStore._plotControl.setup();
+	dataStore._gateControl.setup();
 	dataStore._auxCtrl.setup();
-    
+
         $(function () {
             $('[data-toggle="tooltip"]').tooltip()
 	})
@@ -184,19 +186,19 @@
         document.getElementById('histo-list-server-div').innerHTML = dataStore.spectrumServer;
 
         // Create the text input for the Histogram file directory
-        newInput = document.createElement('input'); 
-        newInput.id = 'HistoDirectoryInput'; 
+        newInput = document.createElement('input');
+        newInput.id = 'HistoDirectoryInput';
         newInput.type = 'text';
         newInput.style.width = '300px';
-        newInput.value = dataStore.histoFileDirectoryPath; 
+        newInput.value = dataStore.histoFileDirectoryPath;
         newInput.onchange = function(){
         dataStore.histoFileDirectoryPath = this.value;
         getHistoFileListFromServer();
         }.bind(newInput);
         document.getElementById('histo-list-directory-div').appendChild(newInput);
-	
+
             });
         </script>
-        
+
     </body>
 </html>

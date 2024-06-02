@@ -1161,7 +1161,7 @@ function projectYaxis(gateMin,gateMax){
 function packZ(raw2){
     // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
     // heatmap wants it as [[x0y0, x1y0, ..., xmaxy0], [x0y1, x1y1, ..., xmaxy1], ...]
-    console.log('unpackZ');
+  //  console.log('unpackZ');
    // console.log(raw);
    // console.log(raw2);
 
@@ -1172,8 +1172,8 @@ function packZ(raw2){
 	subMatrixXlength = 16,
 	subMatrixYlength = 16,
         i, j, type, row=[];
-    console.log(rowLength);
-    console.log(nRows);
+//    console.log(rowLength);
+//    console.log(nRows);
 
     /*
     // Unpack the matrix data as a list of data (slowest transfer from server)
@@ -1257,6 +1257,15 @@ function packZ(raw2){
   //  console.log(repack);
   //  console.log(repack2);
 
+  // Remove channel zero noise and junk
+  for(i=0; i<nRows; i++){
+		repack2[i][0] = 0;
+  }
+  for(i=0; i<rowLength-1; i++){
+		repack2[0][i] = 0;
+  }
+
+    // return the correctly formatted data
     return repack2;
 }
 

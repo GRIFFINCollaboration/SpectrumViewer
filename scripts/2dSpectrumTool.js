@@ -99,33 +99,39 @@ function plotControl2d(wrapID){
         var i, evt;
 
         // Any requests for 1d objects must be rejected here, they are handled elsewhere
-	if(!dataStore.twoDimensionalSpectra.includes(event.detail.plotName)){
-            // The plot requested is a 1d matrix but this viewer can only handle 2d
+	      if(!dataStore.twoDimensionalSpectra.includes(event.detail.plotName)){
+            // The plot requested is a 1d spectrum but this viewer can only handle 2d
             return;
-	}
+	      }
 
-	// Switch to the 2D viewer for displaying this 2d histogram
-	toggleHeatmapMode();
-
-        //what spectra has our attention?
-        dataStore.activeSpectra = event.detail.plotName;
-        dataStore.activeMatrix = event.detail.plotName;
-        this.activeSpectra = [event.detail.plotName];
-        dataStore.hm.plotTitle = event.detail.plotName;
+	      // Switch to the 2D viewer for displaying this 2d histogram
+     	  toggleHeatmapMode();
 
         //don't need plot help anymore; swap in roi help
         document.getElementById('intro-plot-picker').classList.add('hidden');
         document.getElementById('intro-shift-click').classList.remove('hidden');
 
-        //demand refresh
+        // We only want to fetch the data from the server if it is a newly opened matrix, otherwise just replot
+        if(event.detail.plotName != dataStore.activeSpectra){
+        //what spectra has our attention? Register the details
+        dataStore.activeSpectra = event.detail.plotName;
+        dataStore.activeMatrix = event.detail.plotName;
+        this.activeSpectra = [event.detail.plotName];
+        dataStore.hm.plotTitle = event.detail.plotName;
+
+        //demand refresh to fetch the spectrum data from the server
         this.refreshData()
+        }else{
+          // skip the fetch and go straight to the callback
+        fetchCallback();
+        }
     }
 
     this.refreshData = function(){
         //refresh the current histogram data, then call fetchCallback()
         //this: plotControl2d object
 
-	// Display info to user that the data is downloading (switched off in fetchCallback)
+	      // Display info to user that the data is downloading (switched off in fetchCallback)
         dataStore.hm.DataDownloading('on');
 
 	// activeSpectra can now include 1D Projections of 2D matrices which are created locally in the server.
@@ -333,7 +339,7 @@ function fetchCallback(){
 	}
     if(numOf2dActive == 0 && dataStore.activeMatrix.length<1){ return; }
 
-    // unpack the raw 2d spectrum to the required format
+    // clear a previous color map if necessary
     try{ objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
 	 dataStore.hm.colorMap[objectIndex].data = [];
 	 //console.log('Clear the colorMap');
@@ -342,7 +348,16 @@ function fetchCallback(){
 	//console.log('No colorMap to clear')
     }
 
+    // unpack the raw 2d spectrum to the required format
     dataStore.hm.raw = packZ(dataStore.rawData[dataStore.activeMatrix].data2);
+
+    // set the axis lengths for this histograms and redraw the scale
+    dataStore.hm.xmin = 0;
+    dataStore.hm.ymin = 0;
+    dataStore.hm.xmax = dataStore.activeMatrixXaxisLength;
+    dataStore.hm.ymax = dataStore.activeMatrixYaxisLength;
+    dataStore.hm.drawScale();
+    dataStore.hm._oldraw = null; //force complete redraw
 
     // make the 2d heatmap plot of this histogram
     dataStore.hm.drawData();
