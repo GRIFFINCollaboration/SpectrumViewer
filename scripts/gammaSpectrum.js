@@ -776,7 +776,7 @@ function spectrumViewer(canvasID){
 
 		//initiate a projection of a 2D matrix based on the limits set in spectrum fitKey
 		this.gateData = function(gateKey){
-      console.log('gateData for '+gateKey);
+    //  console.log('gateData for '+gateKey);
 
 					//suspend the refresh
 					window.clearTimeout(this.refreshHandler);

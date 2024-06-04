@@ -209,12 +209,17 @@
             // the gateTarget is the spectrum used to set gate limits for making projections
             if(typeof dataStore.createdSpectra !== 'undefined'){
     	      for(let key in dataStore.createdSpectra) {
-    	        const index = activeSpectraForQueries.indexOf(key);
+    	        const index = dataStore._plotControl.activeSpectra.indexOf(key);
     	        if (index > -1) {
                 dataStore.viewers[target].gateTarget = spectrum;
+                if(typeof dataStore.gateTarget !== 'undefined'){
+                  dataStore.gateTarget = spectrum;
+                }
     	        }
     	      }
           }
+        //  console.log('fitTarget  = '+dataStore.viewers[target].fitTarget);
+        //  console.log('gateTarget = '+dataStore.viewers[target].gateTarget);
         }
 
         this.fitCallback = function(center, width, amplitude, intercept, slope){

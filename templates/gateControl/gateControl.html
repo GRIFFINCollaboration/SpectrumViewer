@@ -39,7 +39,7 @@
                     <input id="gateMinInput" value="0" type="number" class='black-text'></input>
                     <input id="gateMaxInput" value="2048" type="number" class='black-text'></input>
                 </div>
-
+<!--
                 <div class="input-group">
 		  <span class='input-group-addon'>Bkg1 min/max</span>
                     <input id="bg1MinInput" value="0" type="number" class='black-text'></input>
@@ -67,7 +67,7 @@
                     <input id="bg3SFInput" value="1.0" min="0.1" max="1000" step="0.1" type="number" class='black-text'></input>
 		    <input type="range" id="bg3SFslider" min="0.1" max="1000" step="0.1" value="1">
 		</div>
-
+-->
 		<div class='btn-group btn-group-sm' roll='group'>
 		  <button class="btn btn-default" id="submitGateButton" type="button">Gate</button>
 		</div>
@@ -100,6 +100,7 @@
 	document.getElementById('showXproj').onclick = this.selectPlot.bind(this, 'x');
 	document.getElementById('showYproj').onclick = this.selectPlot.bind(this, 'y');
 
+/*
 	// Set up the background factor sliders
 	document.getElementById('bg1SFslider').oninput = function(){
 	     document.getElementById('bg1SFInput').value = this.value;
@@ -113,6 +114,7 @@
 	document.getElementById('bg1SFInput').oninput = function(){
 	     document.getElementById('bg1SFslider').value = this.value;
 	};
+  */
 
 	//plug in gate mode toggle
 	document.getElementById('gateMode').onclick = this.toggleGateMode.bind(this);
@@ -153,8 +155,8 @@
             //manage the state of the Gate Mode button, and the corresponding state of the viewer.
             //this: gateControl object
 
-            console.log(dataStore);
-            console.log('Gate mode button clicked');
+          //  console.log(dataStore);
+          //  console.log('Gate mode button clicked');
             if(dataStore.activeMatrix.length<1){
               // Bail out if we dont have a matric to project
               return;
@@ -215,8 +217,8 @@
         this.gateCallback = function(){
             //route the gate limits to the DOM elements, request the projection, and gracefully exit gate mode.
             //this: gateControl object
-        console.log('gateCallback in gateControl.html');
-        console.log(dataStore);
+      //  console.log('gateCallback in gateControl.html');
+      //  console.log(dataStore);
 
            //determine which canvas and spectrum we're currently pointing at
            var target = dataStore.plots[0];

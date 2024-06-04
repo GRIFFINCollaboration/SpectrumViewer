@@ -36,7 +36,7 @@ function setupDataStore(){
 	"activeMatrixXaxisLength": 0,                                             //only one 2d spectrum (matrix) is active at any one time. This is the X axis length
 	"activeMatrixYaxisLength": 0,                                             //only one 2d spectrum (matrix) is active at any one time. This is the Y axis length
 	"activeMatrixSymmetrized": false,                                         //only one 2d spectrum (matrix) is active at any one time. This is if it is symmeterized.
-  "gateTarget": '',                                                         // make this matrix the target for gating
+  "gateTarget": '',                                                         // the gateTarget is the 1D spectrum used to set gate limits for making projections in the 2D activeMatrix
 
 	"histoFileDirectoryPath" : '',                                            // histogram directory taken from URL. Then can be changed from a select
 	"histoFileName" : '',                                                      // histogram filename taken from URL. Then can be changed from a select
@@ -106,6 +106,10 @@ function plotControl2d(wrapID){
 
 	      // Switch to the 2D viewer for displaying this 2d histogram
      	  toggleHeatmapMode();
+
+        // Display the X and Y projection buttons
+        document.getElementById('showXproj').classList.remove('hidden');
+        document.getElementById('showYproj').classList.remove('hidden');
 
         //don't need plot help anymore; swap in roi help
         document.getElementById('intro-plot-picker').classList.add('hidden');
@@ -250,7 +254,10 @@ function toggleProjectionMode(){
     // display spectra as 1D projections and show the controls for gating etc.
     document.getElementById('plotWrap1D').style.display = "block";
     document.getElementById('plotCtrl1D').style.display = "block";
-    document.getElementById('gateCtrl1D').style.display = "block";
+    if(dataStore.activeMatrix.length>1){
+      // only show the gate controls if we have an activeMatrix
+          document.getElementById('gateCtrl1D').style.display = "block";
+        }
     document.getElementById('auxCtrlWrap').style.display = "block";
 
     // If this is the first time to show the 1D projections,

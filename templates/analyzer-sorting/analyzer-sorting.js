@@ -162,7 +162,7 @@ function buildMidasFileTable(){
      thisRunSizeString = prettyFileSizeString(dataStore.midasRunList[num].RunSize);
 
      // Calculate the estimated Sorting time and make it easily human readable
-     thisSortTime = ((dataStore.midasRunList[num].RunSize/1000000)/400); // Sort speed defined here as 400MB/s - should be made dynamic
+     thisSortTime = ((dataStore.midasRunList[num].RunSize/1000000)/50); // Sort speed defined here as conservative 50MB/s - should be made dynamic
      thisSortTimeString = 'Requires '+prettyTimeString(thisSortTime)+' to sort';
 
      // Check if there is a Histogram file aready sorted for this MIDAS file
