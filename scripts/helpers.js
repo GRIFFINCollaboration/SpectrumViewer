@@ -548,8 +548,8 @@ function processConfigFile(payload){
 	if(dataStore.Configs.Analyzer[5].Directories[2].Path.length>0){ dataStore.configFileDataDirectoryPath = dataStore.Configs.Analyzer[5].Directories[2].Path; }
 
 	// If both the dataStore entry and the config entry were empty then supply a default value here
-	if(dataStore.midasFileDataDirectoryPath.length<1){ dataStore.midasFileDataDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Calibrations-Aug2021'; }
-	if(dataStore.histoFileDirectoryPath.length<1){ dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms'; }
+	if(dataStore.midasFileDataDirectoryPath.length<1){ dataStore.midasFileDataDirectoryPath = '/tig/grifstore1/grifalt/schedule146/Calibrations_June2024'; }
+	if(dataStore.histoFileDirectoryPath.length<1){ dataStore.histoFileDirectoryPath = '/tig/grifstore1/grifalt/schedule146/Calibrations_June2024'; }
 	if(dataStore.configFileDataDirectoryPath.length<1){ dataStore.configFileDataDirectoryPath = '/home/grifstor/daq/analyzer/grif-replay'; }
     }
 

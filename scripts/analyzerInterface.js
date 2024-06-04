@@ -47,7 +47,7 @@ function setupDataStore(){
 
     // Sorting Status variables
    // dataStore.midasFileDataDirectoryPath = '';                // [added in processConfigFile()] initial data directory path
-    dataStore.midasFileDataDirectoryPath = "/tig/grifstore0b/griffin/schedule140/Calibrations-Aug2021";                // [added in processConfigFile()] initial data directory path
+    dataStore.midasFileDataDirectoryPath = "/tig/grifstore1/grifalt/schedule146/Calibrations_June2024";                // [added in processConfigFile()] initial data directory path
 
     dataStore.midasFileList = { "Names" : [], "Sizes" : [], "Titles" : []};  // place to store the list of midas files available to sort which is provided by the server
     dataStore.midasRunList = {};                               // place to store the list of midas runs available to sort which is provided by the server
@@ -134,7 +134,7 @@ function setupDataStore(){
     ];
 
     // Spectrum viewer variables
-    dataStore.histoFileDirectoryPath = "/tig/grifstore0b/griffin/schedule140/Histograms";    // [added in processConfigFile()] initial histogram file directory path
+    dataStore.histoFileDirectoryPath = "/tig/grifstore1/grifalt/schedule146/Calibrations_June2024";    // [added in processConfigFile()] initial histogram file directory path
    // dataStore.histoFileDirectoryPath = '';    // [added in processConfigFile()] initial histogram file directory path
     dataStore.histoFileList = [];                                                            // place to store the list of histogram files available to be opened
     dataStore.histoFileName = "run21850_000.tar";                        // place to store the name of the histogram file to be opened
