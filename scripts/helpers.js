@@ -598,10 +598,10 @@ function processConfigFile(payload){
     }
 
     // Update the HTML elements with these values
-    document.getElementById('DataDirectoryInput').value = dataStore.midasFileDataDirectoryPath;
-    document.getElementById('HistoDirectoryInputSorting').value = dataStore.histoFileDirectoryPath;
-    document.getElementById('HistoDirectoryInputViewer').value = dataStore.histoFileDirectoryPath;
-    document.getElementById('ConfigDirectoryInput').value = dataStore.configFileDataDirectoryPath;
+    if(document.getElementById('DataDirectoryInput')){ document.getElementById('DataDirectoryInput').value = dataStore.midasFileDataDirectoryPath; }
+    if(document.getElementById('HistoDirectoryInputSorting')){ document.getElementById('HistoDirectoryInputSorting').value = dataStore.histoFileDirectoryPath; }
+    if(document.getElementById('HistoDirectoryInputViewer')){ document.getElementById('HistoDirectoryInputViewer').value = dataStore.histoFileDirectoryPath; }
+    if(document.getElementById('ConfigDirectoryInput')){ document.getElementById('ConfigDirectoryInput').value = dataStore.configFileDataDirectoryPath; }
 
     // Record the timestamp of when this config file is received
     dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
