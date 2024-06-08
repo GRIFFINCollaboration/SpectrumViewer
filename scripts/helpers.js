@@ -597,6 +597,12 @@ function processConfigFile(payload){
 	if(dataStore.configFileDataDirectoryPath.length<1){ dataStore.configFileDataDirectoryPath = '/home/grifstor/daq/analyzer/grif-replay'; }
     }
 
+    // Update the HTML elements with these values
+    document.getElementById('DataDirectoryInput').value = dataStore.midasFileDataDirectoryPath;
+    document.getElementById('HistoDirectoryInputSorting').value = dataStore.histoFileDirectoryPath;
+    document.getElementById('HistoDirectoryInputViewer').value = dataStore.histoFileDirectoryPath;
+    document.getElementById('ConfigDirectoryInput').value = dataStore.configFileDataDirectoryPath;
+
     // Record the timestamp of when this config file is received
     dataStore.configFileTimestamp = Math.floor(Date.now() / 1000);
 console.log('Save timestamp as '+dataStore.configFileTimestamp);

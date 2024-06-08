@@ -55,17 +55,7 @@
     newInput.value = dataStore.midasFileDataDirectoryPath;
     newInput.onchange = function(){
     dataStore.midasFileDataDirectoryPath = this.value;
-
     getMidasFileListFromServer();
-    /*
-    const thisPromise = new Promise((resolve, reject) => {
-    getMidasFileListFromServer()
-}).then(
- 	 dispatcher({}, 'requestSortingRefresh'),
-         getMidasFileDetailsFromServer()
-                               );
-*/
-
     }.bind(newInput);
     document.getElementById('DataDirectoryInputDiv').appendChild(newInput);
 
