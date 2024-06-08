@@ -46,8 +46,8 @@ function setupDataStore(){
     dataStore.ODBhost = 'http://grifstore0.triumf.ca:8081';   // mhttpd server
 
     // Sorting Status variables
-   // dataStore.midasFileDataDirectoryPath = '';                // [added in processConfigFile()] initial data directory path
-    dataStore.midasFileDataDirectoryPath = "/tig/grifstore1/grifalt/schedule146/Calibrations_June2024";                // [added in processConfigFile()] initial data directory path
+    dataStore.midasFileDataDirectoryPath = '';                // [added in processConfigFile()] initial data directory path
+  //  dataStore.midasFileDataDirectoryPath = "/tig/grifstore1/grifalt/schedule146/Calibrations_June2024";                // [added in processConfigFile()] initial data directory path
 
     dataStore.midasFileList = { "Names" : [], "Sizes" : [], "Titles" : []};  // place to store the list of midas files available to sort which is provided by the server
     dataStore.midasRunList = {};                               // place to store the list of midas runs available to sort which is provided by the server
@@ -77,8 +77,8 @@ function setupDataStore(){
 
 
     // Gating and Histogram variables
-    dataStore.configFileDataDirectoryPath = "/home/grifstor/daq/analyzer/grif-replay";                                 // [added in processConfigFile()] initial config file directory path
- //   dataStore.configFileDataDirectoryPath = '';                                 // [added in processConfigFile()] initial config file directory path
+  //  dataStore.configFileDataDirectoryPath = "/home/grifstor/daq/analyzer/grif-replay";                                 // [added in processConfigFile()] initial config file directory path
+    dataStore.configFileDataDirectoryPath = '';                                 // [added in processConfigFile()] initial config file directory path
     dataStore.configFileTimestamp = 0;               // Timestamp recorded at the most recent request for the config file (viewConfig)
     dataStore.Configs = {};                          // plase to park Config file information
     dataStore.globalCondition = {                   // place to park Global condition info on the dataStore
@@ -134,8 +134,8 @@ function setupDataStore(){
     ];
 
     // Spectrum viewer variables
-    dataStore.histoFileDirectoryPath = "/tig/grifstore1/grifalt/schedule146/Calibrations_June2024";    // [added in processConfigFile()] initial histogram file directory path
-   // dataStore.histoFileDirectoryPath = '';    // [added in processConfigFile()] initial histogram file directory path
+  //  dataStore.histoFileDirectoryPath = "/tig/grifstore1/grifalt/schedule146/Calibrations_June2024";    // [added in processConfigFile()] initial histogram file directory path
+    dataStore.histoFileDirectoryPath = '';    // [added in processConfigFile()] initial histogram file directory path
     dataStore.histoFileList = [];                                                            // place to store the list of histogram files available to be opened
     dataStore.histoFileName = "run21850_000.tar";                        // place to store the name of the histogram file to be opened
     dataStore.histoFileSpectrumList = [],                                // place to store the current list of spectra available from the current histogram file
@@ -171,36 +171,40 @@ function setupDataStore(){
 // Control the initial load workflow
 function onloadInitialSetup(){
 
-
     // Return a new promise.
     return new Promise(function(resolve, reject) {
 
 // Set up the data store. Once that is done then the event listeners can be added.
     Promise.all([
 	setupDataStore(),
-	GetURLArguments(setupEventListeners)
+	promiseURLArguments()
     ]
 	       ).then(
 		   function(){
-		       // Do the work of getConfigFileFromServer() but with a resolved promise
-		       // get the Global conditions, Gates conditions and Histogram definitions from the server/ODB
-		       url = dataStore.spectrumServer + '/?cmd=viewConfig';
-		       resolve(promiseXHR(url, "Problem getting Config file from analyzer server", processConfigFile, function(error){ErrorConnectingToAnalyzerServer(error)}));
-		   }
+             // setupEventListeners is usually the callback of GetURLArguments. Here we used a promise, so trigger that callback now.
+             setupEventListeners();
+
+               // Do the work of getConfigFileFromServer() but with a resolved promise
+               // get the Global conditions, Gates conditions and Histogram definitions from the server/ODB
+               url = dataStore.spectrumServer + '/?cmd=viewConfig';
+               resolve(promiseXHR(url, "Problem getting Config file from analyzer server", processConfigFile, function(error){ErrorConnectingToAnalyzerServer(error)}));
+
+       		   }
 	       )
 
     });
-
 
 }
 
 // Top level promise to control the initial load workflow
 Promise.all([
-    onloadInitialSetup()
+  onloadInitialSetup()
 ]).then(
-
+  function(){
+    // This then is executed after the top level promise then is executed.
     getMidasFileListFromServer(),
     getHistoFileListFromServer()
+  }
 );
 
 /////////////////
@@ -232,7 +236,7 @@ function setupEventListeners(){
 	///////////////////////////
 	    dataStore.templates = prepareTemplates(['header', 'analyzer-menu', 'analyzer-sorting', 'analyzer-histograms', 'analyzer-viewer', 'globalBlock', 'gateBlock', 'histogramBlock', 'histogramConditionRow', 'gateConditionRow', 'plotList', 'plotGrid', 'plotControl', 'auxPlotControl', 'auxPlotControlTable', 'fitRow', 'footer']);
 
-            setupHeader('head', 'Analyzer Interface');
+      setupHeader('head', 'Analyzer Interface');
 	    setupAnalyzerMenu('menu');
 	    setupAnalyzerSorting('AnalyzerDisplaySorting');
 	    setupAnalyzerHistograms('AnalyzerDisplayHistograms');

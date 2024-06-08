@@ -435,7 +435,8 @@ function GetURLArguments(callback){
 
     if(dataStore.histoFileDirectoryPath==undefined){
 	// No directory for the histogram files has been provided in the URL, so we provide a default one
-	dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms';
+	//dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms';
+	dataStore.histoFileDirectoryPath = '';
     }
     if(dataStore.histoFileName==undefined){
 	// No histogram filename has been provided in the URL, so we set the string back to nothing
@@ -443,6 +444,49 @@ function GetURLArguments(callback){
     }
 
     callback();
+}
+
+function promiseURLArguments(){
+  //return an object with keys/values as per query string
+  //note all values will be strings.
+
+  // Return a new promise.
+  return new Promise(function(resolve, reject) {
+
+    var elts = {};
+    var queryString = window.location.search.substring(1)
+    var value, i;
+    var urlData = [];
+
+    queryString = queryString.split('&');
+    for(i=0; i<queryString.length; i++){
+      value = queryString[i].split('=');
+      urlData[value[0]] = value[1];
+    }
+
+    // Save the information to the dataStore
+    // Save the hostname and port number
+    dataStore.spectrumServer = 'http://'+urlData.backend+'.triumf.ca:'+urlData.port;
+    dataStore.spectrumServerBackend = urlData.backend;
+    dataStore.spectrumServerPort = urlData.port;
+
+    // Copy the histogram URL arguments to the dataStore
+    dataStore.histoFileDirectoryPath = urlData.histoDir;
+    dataStore.histoFileName = urlData.histoFile;
+
+    if(dataStore.histoFileDirectoryPath==undefined){
+      // No directory for the histogram files has been provided in the URL, so we provide a default one
+      //dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms';
+      dataStore.histoFileDirectoryPath = '';
+    }
+    if(dataStore.histoFileName==undefined){
+      // No histogram filename has been provided in the URL, so we set the string back to nothing
+      dataStore.histoFileName = '';
+    }
+
+    // resolve the promise
+    resolve('Success!');
+  });
 }
 
 function initiateSortStatusHeartbeat(){

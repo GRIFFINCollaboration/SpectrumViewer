@@ -108,6 +108,7 @@ function plotControl2d(wrapID){
      	  toggleHeatmapMode();
 
         // Display the X and Y projection buttons
+        document.getElementById('projectionsTitleDiv').classList.remove('hidden');
         document.getElementById('showXproj').classList.remove('hidden');
         document.getElementById('showYproj').classList.remove('hidden');
 

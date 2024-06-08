@@ -34,13 +34,13 @@ function setupDataStore(){
     dataStore.ODBhost = 'http://grsmid00.triumf.ca:8081/';                  //MIDAS / ODB host + port
 
     // Histogram directory and filename
-    dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms';
+    dataStore.histoFileDirectoryPath = '/data3/S5020/Histograms';
     dataStore.histoFileName = '';
     dataStore.histoAutoLoad = false;        // Flag set by the presence of a directory and filename in the URL to automatically load it. Default is off.
 
     // Get the analyzer Server and ODB host names from the URL
     GetURLArguments();
-    
+
     dataStore.numberOfClovers = 16;                                     // Default number of clovers is all of the array
     // shouldn't need to change anything below this line -----------------------------------------------------------------------
 
@@ -57,12 +57,12 @@ function setupDataStore(){
     dataStore.hm._raw = [0];                                                 //buffer for raw matrix data
     dataStore.createdSpectra = {};                                       //initialize empty object for created spectra
     //fitting
-    dataStore.mode = 'auto';                                              //mode of operation: manual (user defined search regions) or auto (predefined search regions). 
+    dataStore.mode = 'auto';                                              //mode of operation: manual (user defined search regions) or auto (predefined search regions).
     dataStore.ROI = {};                                                     //regions of interest (singles) to look for peaks in: 'plotname': {'ROIupper':[low bin, high bin], 'ROIlower': [low bin, high bin]}
     dataStore.ROIprojections = {};                                        //regions of interest (projections) to look for peaks in: 'plotname': {'ROIupper':[low bin, high bin], 'ROIlower': [low bin, high bin]}
     dataStore.fitResults = {};                                            //fit results of singles: 'plotname': [[amplitude, center, width, intercept, slope], [amplitude, center, width, intercept, slope]]
     dataStore.fitResultsProjections = {};                                 //fit results of Projections: 'plotname': [[amplitude, center, width, intercept, slope], [amplitude, center, width, intercept, slope]]
-    
+
     //custom element config
     dataStore.plots = ['Spectra'];                                          //names of plotGrid cells and spectrumViewer objects
 
@@ -80,12 +80,12 @@ function setupDataStore(){
     dataStore.searchRegionP3 = [];                                         //[x_start, x_finish, y for peak search bar]
     dataStore.searchRegionP4 = [];                                         //[x_start, x_finish, y for peak search bar]
 
-    dataStore.modeType = 'Histo';                                         //mode of operation: Online or Histo. 
+    dataStore.modeType = 'Histo';                                         //mode of operation: Online or Histo.
     dataStore.modeChoice = [                                               // Mode choice (online/histogram file) information to generate buttons
 	{"name": "Online", "text": "Use online data"},
 	{"name": "Histo", "text": "Use a histogram file"}
     ];
-    
+
     dataStore.detectorChoice = [{"name": "HPGe"},{"name": "PACES"}];       // Detector choice information to generate buttons
     dataStore.detectorType = 'HPGe';                                       // The selected Detector choice
 
@@ -105,8 +105,8 @@ function setupDataStore(){
 					 302.85,
 					 356.01,
 					 383.85 ],     // Peak energies from this source. Literature values taken from ENSDF.
-		   
-		    
+
+
 	           "literatureIntensity":    [ /*0.02141,*/ 0.32949, 0.07161, 0.18336, 0.62050, 0.08941 ], // Peak intensities from this source. Literature values taken from ENSDF (gamma rays per 100 decays of the parent).
 	           "literatureIntensityUnc": [ /*0.00032,*/ 0.00326, 0.00049, 0.00125, 0.00190, 0.00062 ], // Peak intensities from this source. Literature values taken from ENSDF (gamma rays per 100 decays of the parent).
 		   "peakWidth": 4,                     // integer number of channels used for gating. [centroid-peakWidth ... centroid+peakWidth]
@@ -118,10 +118,10 @@ function setupDataStore(){
 		  "FCorrectionFactor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
 		   "summingInCorrectionPeaks": [ //[[]],// An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
 						    [[]], // for 80keV
-					          [[53.16,223]],      // for 276keV. 79 and 80keV are hard to fit. 
+					          [[53.16,223]],      // for 276keV. 79 and 80keV are hard to fit.
 						  [[223,79.61]],      // for 302keV. 79 and 80keV are hard to fit.
 		                                  [[276.4,79.61],[53.16,302.85]], // for 356keV
-		                                  [[302.85,80],[223,160]] ],   // for 383keV 
+		                                  [[302.85,80],[223,160]] ],   // for 383keV
  		  "summingInCorrectionCounts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
  		  "summingOutCorrectionCounts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
 		  "relativeEfficiency": [],            // Relative efficiency calculated for this peak energy
@@ -158,7 +158,7 @@ function setupDataStore(){
 						 //  [[768,444],[556,656],[538,674],[493,719],[345,867],[286,926],[207,1005]], // for 1212.9 keV. low statistics, omit for now.
 						 //  [[712,586],[534,764],[520,778],[328,970],[324,974],[209,1089]], // for 1299.1 keV. low statistics, omit for now.
 						   [[719,688],[566,841],[488,919],[443,964.0],[295,1112.1],[237,1170]] // for 1408.0 keV
-						 ],   
+						 ],
  	          "summingInCorrectionCounts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
  		  "summingOutCorrectionCounts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
 		  "relativeEfficiency": [],            // Relative efficiency calculated for this peak energy
@@ -189,7 +189,7 @@ function setupDataStore(){
 						   [[2034,1238],[1462,1810],[1159,2113],[996,2276],[674,2598.46],[263,3009]], // for 3272 keV
 						   [[2212,1238],[1640,1810],[1175.1,2276],[852,2598.46]], // for 3451.15 keV
 						   [[1271,2276]] // for 3548.27 keV
-						 ],   
+						 ],
  		  "summingInCorrectionCounts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
  		  "summingOutCorrectionCounts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
 		  "rawEfficiency": [],                 // Relative efficiency calculated for this peak energy before summing corrections
@@ -238,29 +238,29 @@ function setupDataStore(){
     dataStore.spectrumListProjectionsPeaks = {};                      // List of peaks to fit for each projection from the 180degree coincidence matrix
     dataStore.progressBarNumberTasks = 0;                             // Total count of tasks (spectra to fetch, projections to make, peaks to fit) for use with the progress bar
     dataStore.progressBarTasksCompleted =0;                           // Number of tasks completed so far for use with the progress bar
-    
+
     dataStore.cellIndex = dataStore.plots.length;
 
     //resolution plot
     dataStore._dataplot = [];                 // Place for all dataplot objects to be created as an array. This makes them indexable and iteratable
-    dataStore.dataplotData = [];                                       // place for dataplot data 
-    dataStore.efficiencyPlotDataKeyMap = ['Abs', 'Rel', '133Ba', '152Eu', '56Co', '60Co'];                                     
-    dataStore.efficiencyPlotEquationParameters = [];                                                                    
+    dataStore.dataplotData = [];                                       // place for dataplot data
+    dataStore.efficiencyPlotDataKeyMap = ['Abs', 'Rel', '133Ba', '152Eu', '56Co', '60Co'];
+    dataStore.efficiencyPlotEquationParameters = [];
     dataStore.efficiencyPlotEquationParameters[0] = [];
     dataStore.efficiencyPlotEquationParameters[1] = [];
-    dataStore.efficiencyPlotData = [];                                     
-    dataStore.efficiencyPlotY2Data = [];                                   
-    dataStore.efficiencyPlotY2Data[0] = [];                                    
-    dataStore.efficiencyPlotY2Data[1] = [];                                      
-    dataStore.efficiencyPlotXData = [];                                                                    
-    dataStore.efficiencyPlotXData[0] = [];                                                                 
-    dataStore.efficiencyPlotXData[1] = [];                                     
-    dataStore.efficiencyPlotData[0] = [];    // Absolute efficiency                              
-    dataStore.efficiencyPlotData[1] = [];    // Relative efficiency                              
-    dataStore.efficiencyPlotData[2] = [];    // 133Ba only                              
-    dataStore.efficiencyPlotData[3] = [];    // 152Eu only                              
-    dataStore.efficiencyPlotData[4] = [];    // 56Co only                              
-    dataStore.efficiencyPlotData[5] = [];    // 60Co only                              
+    dataStore.efficiencyPlotData = [];
+    dataStore.efficiencyPlotY2Data = [];
+    dataStore.efficiencyPlotY2Data[0] = [];
+    dataStore.efficiencyPlotY2Data[1] = [];
+    dataStore.efficiencyPlotXData = [];
+    dataStore.efficiencyPlotXData[0] = [];
+    dataStore.efficiencyPlotXData[1] = [];
+    dataStore.efficiencyPlotData[0] = [];    // Absolute efficiency
+    dataStore.efficiencyPlotData[1] = [];    // Relative efficiency
+    dataStore.efficiencyPlotData[2] = [];    // 133Ba only
+    dataStore.efficiencyPlotData[3] = [];    // 152Eu only
+    dataStore.efficiencyPlotData[4] = [];    // 56Co only
+    dataStore.efficiencyPlotData[5] = [];    // 60Co only
     dataStore.plotInitData = [];
     dataStore.plotInitData[0] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
     dataStore.plotInitData[1] = [[0,0,0], [1,0,0], [2,0,0], [3,0,0], [4,0,0]];      //initial dummy data
@@ -421,11 +421,11 @@ function fetchCallback(){
 	while(keys[j] != dataStore.currentSource){ j++; }
 	j++;
 	console.log('Next source in fetchCallback(): '+dataStore.sourceInfo[keys[j]].title);
-	
+
 	// Set the dataStore.histoFileName to this source so that constructQueries requests the correct spectrum
 	dataStore.currentSource = keys[j];
 	dataStore.histoFileName = dataStore.sourceInfo[keys[j]].histoFileName;
-	
+
 	// Request spectra from the server
 	dataStore._plotControl.refreshAll();
 	return;
@@ -433,14 +433,14 @@ function fetchCallback(){
     console.log('I think I have all the spectra from all histogram files!');
     console.log(dataStore.rawData);
     console.log(dataStore.THESEdetectors);
-    
+
     // change messages
     deleteNode('downloadMessage');
     document.getElementById('projectionsMessage').classList.remove('hidden');
-    
+
     // Set the current task to keep track of our progress
     dataStore.currentTask = 'Projections';
-    
+
     // Now we have all the spectra received...
 
     // Revise the spectrum list to include the histogram names.
@@ -454,12 +454,12 @@ function fetchCallback(){
 	    // List of all singles spectra to be fitted
 	    dataStore.spectrumListSingles[spectrumKeys[i]] = dataStore.rawData[spectrumKeys[i]];
 	}
-	
+
 	if(spectrumKeys[i].includes('Hit')){
     // List of all Hitpattern spectra to be fitted
 	    dataStore.spectrumListHits[spectrumKeys[i]] = dataStore.rawData[spectrumKeys[i]];
 	}
-	
+
 	if(spectrumKeys[i].includes('oppo')){
     // List of all Hitpattern spectra to be fitted
 	    dataStore.spectrumListOpp[spectrumKeys[i]] = dataStore.rawData[spectrumKeys[i]];
@@ -469,10 +469,10 @@ function fetchCallback(){
     console.log(spectrumKeys);
     console.log(dataStore.spectrumListSingles);
     console.log(dataStore.spectrumListHits);
-    
+
     //show first plot for the first source
     dataStore.currentSource = keys[0];
-    
+
     // Make the projections needed from each matrix
     projectAllMatrices();
 }
@@ -482,14 +482,14 @@ function projectionsCallback(){
 
     console.log('Projections have been made so all spectra are ready for fitting.');
     console.log('Ready to fit all spectra');
-    
+
     // change messages
     deleteNode('projectionsMessage');
     document.getElementById('fittingSinglesMessage').classList.remove('hidden');
-    
+
     // Set the current task to keep track of our progress
     dataStore.currentTask = 'SinglesFitting';
-    
+
     // Start the whole fitting routine for singles peaks
     dataStore._efficiencyFitterReport.fitAllSinglesPeaks();
 }
@@ -501,20 +501,20 @@ function setupHistoListSelect(){
 	document.getElementById('HistoListSelectLabel').remove();
     }
     catch(err){ }
-    
+
     var keys = Object.keys(dataStore.sourceInfo);
 
     // loop over all sources
     for(i=0; i<keys.length; i++){
 	thisTitle = dataStore.sourceInfo[keys[i]].title;
-	
+
 	// Add the title text
 	var newLabel = document.createElement("label");
 	newLabel.for = 'HistoListSelect'+thisTitle;
 	newLabel.id = 'HistoListSelectLabel'+thisTitle;
 	newLabel.innerHTML = thisTitle+' Histogram file: ';
 	document.getElementById('histoChoice'+thisTitle).appendChild(newLabel);
-	
+
 	// Create a select input for the histo file list
 	var newSelect = document.createElement("select");
 	newSelect.id = 'HistoListSelect'+thisTitle;
@@ -524,13 +524,13 @@ function setupHistoListSelect(){
 	   dataStore.sourceInfo[thisKey].histoFileName = this.value;
 	}.bind(newSelect);
 	document.getElementById('histoChoice'+thisTitle).appendChild(newSelect);
-	
+
 	// Add the list of histo files as the options
 	thisSelect = document.getElementById('HistoListSelect'+thisTitle);
 	for(var j=0; j<dataStore.histoFileList.length; j++){
 	    thisSelect.add( new Option(dataStore.histoFileList[j], dataStore.histoFileList[j]) );
 	}
-	
+
 	// Fire the onchange event for the select with the default value to set it
 	document.getElementById('HistoListSelect'+thisTitle).onchange();
     }
@@ -542,7 +542,7 @@ function setupHistoListSelect(){
 	newLabel.id = 'SourceChoiceSelect60CoLabel';
 	newLabel.innerHTML = '60Co source: ';
 	document.getElementById('sourceChoice60Co').appendChild(newLabel);
-	
+
 	// Create a select input for the 60Co source list
 	var newSelect = document.createElement("select");
 	newSelect.id = 'SourceChoiceSelect60Co';
@@ -552,22 +552,22 @@ function setupHistoListSelect(){
 	    dataStore.sourceInfo['60Co'].sourceCalibration = dataStore.sourceCalibration[this.value];
 	}.bind(newSelect);
 	document.getElementById('sourceChoice60Co').appendChild(newSelect);
-	
+
 	// Add the list of histo files as the options
 	thisSelect = document.getElementById('SourceChoiceSelect60Co');
         var keys = Object.keys(dataStore.sourceCalibration);
         for(i=0; i<keys.length; i++){
 	    thisSelect.add( new Option(keys[i], keys[i]) );
 	}
-	
+
     // Fire the onchange event for the select with the default value to set it
     document.getElementById('SourceChoiceSelect60Co').onchange();
 
-    
+
     // Create the Submit button
-    newButton = document.createElement('button'); 
-    newButton.setAttribute('id', 'submitHistoFilenameChoicesButton'); 
-    newButton.setAttribute('class', 'btn btn-default btn-lg'); 
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'submitHistoFilenameChoicesButton');
+    newButton.setAttribute('class', 'btn btn-default btn-lg');
     newButton.innerHTML = "Build efficiency curve";
     newButton.style.padding = '4px';
     newButton.onclick = function(){
@@ -575,14 +575,20 @@ function setupHistoListSelect(){
 	submitHistoFilenameChoices();
     }.bind(newButton);
       document.getElementById('histoChoiceSubmit').appendChild(newButton);
-    
+
 }
 
 function submitHistoFilenameChoices(){
     // this is the main setup and start of the automatic process.
 
 // TRIGGERING THIS FUNCTION SHOULD DISABLE CHANGING THE SELECTS
-
+document.getElementById('HistoListSelect133Ba').disabled = true;
+document.getElementById('HistoListSelect152Eu').disabled = true;
+document.getElementById('HistoListSelect56Co').disabled = true;
+document.getElementById('HistoListSelect60Co').disabled = true;
+document.getElementById('SourceChoiceSelect60Co').disabled = true;
+document.getElementById('HistoDirectoryInput').disabled = true;
+document.getElementById('submitHistoFilenameChoicesButton').disabled = true;
 
     // Get the config file for the 60Co histogram file in order to get the details for absolute efficiency
     // Format check for the data file
@@ -593,56 +599,56 @@ function submitHistoFilenameChoices(){
     filename += dataStore.sourceInfo['60Co'].histoFileName;
     url = dataStore.spectrumServer + '/?cmd=viewConfig' + '&filename=' + filename;
     XHR(url, "Problem getting Config file for "+ filename +" from analyzer server", processConfigFileForRuntime, function(error){ErrorConnectingToAnalyzerServer(error)});
-    
-    
+
+
     // setup the dataStore for this choice of detectorType
     var i, num=0, groups = [];
 
     // Get the keys of the different sources
     var keys = Object.keys(dataStore.sourceInfo);
-    
+
     // Save the lists of spectrum names to the dataStore for this detectorType
     if(dataStore.detectorType == 'HPGe'){
 	// Set up GRIFFIN detectors
-	
+
 	//10-char codes of all possible griffin detectors.
 	    dataStore.THESEdetectors =   [
 		'Ge_Sum_Energy',
 		'Hitpattern_Energy',
 		'GGoppo'
     ];
-	
+
 	for(i=0; i<keys.length; i++){
-	    
+
 	//generate groups for plot selector
         groups.push({
             "groupID": dataStore.sourceInfo[keys[i]].title,
             "groupTitle": dataStore.sourceInfo[keys[i]].title+':'+dataStore.sourceInfo[keys[i]].histoFileName.split('.')[0],
             "plots": [
                 {
-                    "plotID": dataStore.sourceInfo[keys[i]].histoFileName.split('.')[0]+':'+'Ge_Sum_Energy', 
+                    "plotID": dataStore.sourceInfo[keys[i]].histoFileName.split('.')[0]+':'+'Ge_Sum_Energy',
                     "title": 'Ge_Sum_Energy'
                 }//,
                // {
-               //     "plotID": dataStore.sourceInfo[keys[i]].histoFileName+':'+'Hitpattern_Energy', 
+               //     "plotID": dataStore.sourceInfo[keys[i]].histoFileName+':'+'Hitpattern_Energy',
               //      "title": 'Hitpattern_Energy'
               //  }
             ]
         })
     }
-	
+
     }else if(dataStore.detectorType == 'PACES'){
 
 }
 
     dataStore.plotGroups = groups;     //groups to arrange detectors into for dropdowns
-    
+
     // Generate the spectrum lists based on the list of detectors
     dataStore._plotListLite = new plotListLite('plotList');
     dataStore._plotListLite.setup();
 
     // Generate the Efficiency Fitter report table
-    dataStore._efficiencyFitterReport = new efficiencyFitterReport('efficiencyFitter'); 
+    dataStore._efficiencyFitterReport = new efficiencyFitterReport('efficiencyFitter');
     dataStore._efficiencyFitterReport.setup();
 
     //user guidance
@@ -651,7 +657,7 @@ function submitHistoFilenameChoices(){
 
     // Draw the search region
     dataStore.viewers[dataStore.plots[0]].plotData();
-    
+
     //plug in special fit controls
     // MIGHT not need refit buttons when using energy spectra??
     /*
@@ -660,7 +666,7 @@ function submitHistoFilenameChoices(){
     document.getElementById('fitHigh').onclick = dataStore._efficiencyFitterReport.toggleFitMode;
     document.getElementById('fitvHi').onclick = dataStore._efficiencyFitterReport.toggleFitMode;
     */
-    
+
     // Plug in the active spectra names
     for(i=0; i<dataStore.THESEdetectors.length; i++){
             dataStore._plotControl.activeSpectra.push(dataStore.THESEdetectors[i]);
@@ -679,18 +685,18 @@ function submitHistoFilenameChoices(){
 	}
     }
     console.log(dataStore.ROI);
-    
+
     // Issue the request for the spectra of the first source.
     // The request for additional sources will be issued in the fetchCallback
     console.log('First source in submitHistoFilenameChoices(): '+dataStore.sourceInfo[keys[0]].title);
-    
+
     // Set the dataStore.histoFileName to this source so that constructQueries requests the correct spectrum
     dataStore.currentSource = keys[0];
     dataStore.histoFileName = dataStore.sourceInfo[keys[0]].histoFileName;
 
     // Set the current task to keep track of our progress
     dataStore.currentTask = 'Fetching';
-    
+
     // Request spectra from the server. This launches a series of promises. Once complete we end with fetchCallback.
     dataStore._plotControl.refreshAll();
 }
@@ -701,7 +707,7 @@ function updateAnalyzer(){
     // For the Analyzer we can get a similar list from the viewConfig command with the Histogram file as the argument.
     // That should probably be done for the building of the initial spectrum list for gain-matching if Histogram mode is selected.
     // Need to reformat the URLs generated here for the Analyzer
-    
+
     // bail out if there's no fit yet
     if(Object.keys(dataStore.fitResults).length == 0)
         return;
@@ -727,7 +733,7 @@ function updateAnalyzer(){
 	    if(i>0 && (dataStore.THESEdetectors[i].includes('GRG')) && ((i%4) == 0)){ num++; j=0; urls[num]= dataStore.spectrumServer + '?cmd=setCalibration';}
 	    urls[num] += '&channelName'+j+'='+dataStore.THESEdetectors[i]+'&quad'+j+'='+quad[i]+'&gain'+j+'='+gain[i]+'&offset'+j+'='+offset[i];
 	    j++;
-	    
+
         }else{
 	    // Set some values rather than have these entries undefined for unchecked channels
 	    // Channels that did not produce good coefficients are not included in the URLs
@@ -736,11 +742,11 @@ function updateAnalyzer(){
             offset[i] = 0;
 	}
     }
-    
+
     //send requests
     for(i=0; i<urls.length; i++){
-        XHR(urls[i], 
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+        XHR(urls[i],
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
             function(){return 0},
             function(error){console.log(error)}
         )
@@ -779,19 +785,19 @@ function updateODB(obj){
     }
 
     //turn gain and offset arrays into csv strings
-    quad = JSON.stringify(quad).slice(1,-1) 
-    gain = JSON.stringify(gain).slice(1,-1) 
-    offset = JSON.stringify(offset).slice(1,-1) 
+    quad = JSON.stringify(quad).slice(1,-1)
+    gain = JSON.stringify(gain).slice(1,-1)
+    offset = JSON.stringify(offset).slice(1,-1)
 
     //construct urls to post to
     urls[0] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/PSC/quadratic[*]&value='+quad;
     urls[1] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/PSC/gain[*]&value='+gain;
     urls[2] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/PSC/offset[*]&value='+offset;
-    
+
     //send requests
     for(i=0; i<urls.length; i++){
-        XHR(urls[i], 
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+        XHR(urls[i],
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
             function(){return 0},
             function(error){console.log(error)}
         )
@@ -807,7 +813,7 @@ function buildCalfile(){
 
     // Write the Cal file content based on the list in the ODB and the fitted results
     CAL = '';
-    
+
     for(i=0; i<dataStore.PSCchannels.length; i++){
         if(dataStore.PSCchannels[i].slice(0,3) == 'XXX'){ continue; }
        CAL += dataStore.PSCchannels[i]+' { \n';
@@ -869,7 +875,7 @@ function projectAllMatrices(){
 			console.log('Make projection for '+dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]);
 			min = Math.floor((dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth)) / 2.0);
 			max = min + parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth);
-			
+
 			plotName = projectXaxis(min,max);
 			console.log('Created '+plotName);
 			// Add this projection to the rawData storage for plotting
@@ -879,14 +885,14 @@ function projectAllMatrices(){
 			dataStore.spectrumListProjectionsPeaks[plotName] = [];
 
 			// Add this projection to the spectrum menu
-			newMenuItem = document.createElement('li'); 
-			newMenuItem.setAttribute('id', 'plotList'+plotName); 
-			newMenuItem.setAttribute('value', plotName); 
+			newMenuItem = document.createElement('li');
+			newMenuItem.setAttribute('id', 'plotList'+plotName);
+			newMenuItem.setAttribute('value', plotName);
 			newMenuItem.setAttribute('class', 'list-group-item toggle');
 			newMenuItem.innerHTML = plotName.split(':')[1].trim()+'<span id=\'plotListbadge'+plotName+'\' class=\"badge plotPresence hidden\">&#x2713;</span>';
 			document.getElementById('plotListplots'+dataStore.currentSource).appendChild(newMenuItem);
 			document.getElementById('plotList'+plotName).onclick = function(){ dataStore._plotListLite.exclusivePlot(this.id.split('plotList')[1], dataStore.viewers[dataStore.plots[0]]); }
-			
+
 			// The summing-out correction is the total number of counts in this 180 degree coincidence multiplied by the F factor.
 			// The F factor is determined from the number of active crystals which contributed to this 180degree coincidence matrix.
 			// F factor will be deduced from the Hittpattern for this source histrogram file.
@@ -901,11 +907,11 @@ function projectAllMatrices(){
 			    console.log(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j]);
 			    console.log(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][0].length);
 			    if(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][0].length==0){ continue; }
-			    
+
 			    if(dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.indexOf(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1])<0){
 				// This peak is not a peak we are fitting as a single, so it does not have a projection specturm yet.
 				// Make it now, unless it has already been created
-				
+
 			console.log('Projections: This peak is not a literature peak, '+dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1]);
 			min = Math.floor((dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth)) / 2.0);
 			max = min + parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth);
@@ -913,7 +919,7 @@ function projectAllMatrices(){
 			thisKey = dataStore.activeMatrix+'y-'+min+'-'+max;
 				if(!(thisKey in dataStore.createdSpectra)){
 				    console.log('This projection is not in createdSpectra so make it now');
-				
+
 			plotName = projectXaxis(min,max);
 			console.log('Created '+plotName);
 			// Add this projection to the rawData storage for plotting
@@ -923,9 +929,9 @@ function projectAllMatrices(){
 			dataStore.spectrumListProjectionsPeaks[plotName] = [];
 
 			// Add this projection to the spectrum menu
-			newMenuItem = document.createElement('li'); 
-			newMenuItem.setAttribute('id', 'plotList'+plotName); 
-			newMenuItem.setAttribute('value', plotName); 
+			newMenuItem = document.createElement('li');
+			newMenuItem.setAttribute('id', 'plotList'+plotName);
+			newMenuItem.setAttribute('value', plotName);
 			newMenuItem.setAttribute('class', 'list-group-item toggle');
 			newMenuItem.innerHTML = plotName.split(':')[1].trim()+'<span id=\'plotListbadge'+plotName+'\' class=\"badge plotPresence hidden\">&#x2713;</span>';
 			document.getElementById('plotListplots'+dataStore.currentSource).appendChild(newMenuItem);
@@ -935,16 +941,16 @@ function projectAllMatrices(){
 			    // Add the peak to the list to fit in this projection spectrum
 			    dataStore.spectrumListProjectionsPeaks[plotName].push(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]);
 			    console.log('Save this peak '+dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]+' for the projection '+plotName);
-			    
+
 			    // Count the total number of peaks to fit for use in the progress bar
 			    dataStore.progressBarNumberTasks++;
-			    
-			    // Save the ROI for projections so it can be used for drawing the fitlines 
+
+			    // Save the ROI for projections so it can be used for drawing the fitlines
 			    if(!dataStore.ROIprojections[plotName]) dataStore.ROIprojections[plotName] = [];
 			    dataStore.ROIprojections[plotName].push([((dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth))/2),((dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]+parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth))/2)]);
 			}
 			console.log(dataStore.spectrumListProjectionsPeaks[plotName]);
-			
+
 		    }
                 }.bind(this),
 
@@ -952,7 +958,7 @@ function projectAllMatrices(){
                     //leave the viewer pointing at the first spectrum for fitting
                     dispatcher({target: buffer}, 'fitAllComplete')
 		    console.log('Completed all projections for all sources.');
-		    
+
 		    projectionsCallback();
                 }.bind(this),
 
@@ -967,7 +973,7 @@ function processConfigFileForRuntime(payload){
 	console.log(payload);
     var thisConfig = JSON.parse(payload);
 	console.log(thisConfig.Analyzer[6].Midas);
-	
+
     // Unpack Midas content
     dataStore.sourceInfo['60Co'].Midas = {
 	'Title': thisConfig.Analyzer[6].Midas[0].Value,
@@ -984,7 +990,7 @@ function processConfigFileForRuntime(payload){
     // Calculate the number of decays of this source during the full run duration
     dataStore.sourceInfo['60Co'].sourceTotalDecaysDuringThisRun = dataStore.sourceInfo['60Co'].sourceActivity * dataStore.sourceInfo['60Co'].Midas.Duration;
     dataStore.sourceInfo['60Co'].normalizationFactor = 1.0/dataStore.sourceInfo['60Co'].sourceTotalDecaysDuringThisRun;
-    
+
     console.log('Source activity at Run start:');
     console.log(dataStore.sourceInfo['60Co'].timeSinceCertification);
     console.log(dataStore.sourceInfo['60Co'].sourceActivity);

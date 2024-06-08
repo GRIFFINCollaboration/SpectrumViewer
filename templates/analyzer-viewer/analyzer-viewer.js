@@ -145,7 +145,7 @@ function submitHistoFileSumRequestToServer(){
     url += '&outputfilename='+HistoFileDirectory+dataStore.histoSumFilename;
 
     var num=0;
-	for(var i=0; i<dataStore.histoFileList.length; i++){
+	for(var i=(dataStore.histoFileList.length-1); i>=0; i--){
 	    if(document.getElementById(dataStore.histoFileList[i]+'-checkbox').checked == true){
 		url += '&filename'+num+'='+HistoFileDirectory+dataStore.histoFileList[i].trim();
 		num++;

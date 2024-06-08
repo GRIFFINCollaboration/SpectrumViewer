@@ -1,204 +1,207 @@
 <html>
-    <head>
-        <!--libraries-->
-        <script src='scripts/HTMLImports.min.js' type="text/javascript"></script>
-        <script type='text/javascript' src='scripts/heatmap.js'></script>
-        <script src="scripts/jquery1-11-3.min.js" type="text/javascript"></script>
-        <script src="scripts/bootstrap3-3-5.min.js" type="text/javascript"></script>
-        <script src="scripts/mustache.js" type="text/javascript"></script>
-        <script src='scripts/easeljs-1.0.0.min.js' type="text/javascript"></script>
-        <script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
-        <script src='scripts/fitit.js' type="text/javascript"></script>
+<head>
+  <!--libraries-->
+  <script src='scripts/HTMLImports.min.js' type="text/javascript"></script>
+  <script type='text/javascript' src='scripts/heatmap.js'></script>
+  <script src="scripts/jquery1-11-3.min.js" type="text/javascript"></script>
+  <script src="scripts/bootstrap3-3-5.min.js" type="text/javascript"></script>
+  <script src="scripts/mustache.js" type="text/javascript"></script>
+  <script src='scripts/easeljs-1.0.0.min.js' type="text/javascript"></script>
+  <script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
+  <script src='scripts/fitit.js' type="text/javascript"></script>
 
-        <!--stylesheets-->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-        <link rel="stylesheet" type="text/css" href="css/custom.css"/>
+  <!--stylesheets-->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="css/custom.css"/>
 
-        <!--scripts-->
-        <script src="scripts/helpers.js" type="text/javascript"></script>
-        <script src="scripts/2dSpectrumTool.js" type="text/javascript"></script>
+  <!--scripts-->
+  <script src="scripts/helpers.js" type="text/javascript"></script>
+  <script src="scripts/2dSpectrumTool.js" type="text/javascript"></script>
 
-        <!--templates-->
-        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-        <link id='plotListHeader' rel="import" href="templates/plotList/plotListDynamic.html">
-        <link id='plotList' rel="import" href="templates/plotList/plotListDynamic.html">
-        <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
-        <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
-        <link id='auxPlotControl' rel="import" href="templates/auxPlotControl/auxPlotControl.html">
-        <link id='auxPlotControlTable' rel="import" href="templates/auxPlotControl/auxPlotControlTable.html">
-        <link id='fitRow' rel="import" href="templates/auxPlotControl/fitRow.html">
-        <link id='gateControl' rel="import" href="templates/gateControl/gateControl.html">
-        <link id='cutVertex' rel="import" href="templates/2dSpectrumViewer/cutVertex.html">
-        <link id='footer' rel="import" href="templates/footer/footer.html">
+  <!--templates-->
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <link id='plotListHeader' rel="import" href="templates/plotList/plotListDynamic.html">
+  <link id='plotList' rel="import" href="templates/plotList/plotListDynamic.html">
+  <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
+  <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
+  <link id='auxPlotControl' rel="import" href="templates/auxPlotControl/auxPlotControl.html">
+  <link id='auxPlotControlTable' rel="import" href="templates/auxPlotControl/auxPlotControlTable.html">
+  <link id='fitRow' rel="import" href="templates/auxPlotControl/fitRow.html">
+  <link id='gateControl' rel="import" href="templates/gateControl/gateControl.html">
+  <link id='cutVertex' rel="import" href="templates/2dSpectrumViewer/cutVertex.html">
+  <link id='footer' rel="import" href="templates/footer/footer.html">
 
-    </head>
+</head>
 
-    <body>
-         <div id='histo-list-container' class='container-fluid'>
-            <div id='histo-list-server-div' class='col-md-3'></div>
-	    <div id='histo-list-directory-div' class='col-md-6'>Histogram Directory: </div>
-	    <div id='histo-list-menu-div' class='col-md-3'></div>
+<body>
+  <div id='histo-list-container' class='container-fluid'>
+    <div id='histo-list-server-div' class='col-md-3'></div>
+    <div id='histo-list-directory-div' class='col-md-6'>Histogram Directory: </div>
+    <div id='histo-list-menu-div' class='col-md-3'></div>
+  </div>
+  <div id='messageDiv' class='col-md-12'></div>
+  <div id='analyzerPlots'>
+
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header" id='navbar-header-div'></div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="navbar-content-div"></div>
+      </div><!-- /.container-fluid -->
+    </nav>
+
+  </div>
+
+  <!--Plotting-->
+  <div id='topControls' class='col-md-12'>
+    <div id='functionalityWrap' class='col-md-3'>
+        <h4>Viewing Mode</h4>
+        <button id='modeBtn1d' class='btn btn-default btn-sm' onclick='toggleProjectionMode()'>1D Histogram</button>
+        <button id='modeBtn2d' class='btn btn-success btn-sm' onclick='toggleHeatmapMode()'>2D Heatmap</button>
+      </div>
+      <div id='functionalityWrap2' class='col-md-3'>
+        <h4 id='projectionsTitleDiv' class="hidden">Projections</h4>
+        <button id="showXproj" class="btn btn-default btn-sm hidden" type="button">Total X projection</button>
+        <button id="showYproj" class="btn btn-default btn-sm hidden" type="button">Total Y projection</button>
+      </div>
+
+    <div id='updateWrapPeriodic' class='col-md-6'>
+      <h4>Data Fetching</h4>
+      <div class="input-group input-group-sm">
+        <span class="input-group-addon">Update Every:</span>
+        <select id="upOptions" class='form-control' style='max-width:7em' autocomplete='off'>
+          <option value="3000">3 s</option>
+          <option value="5000">5 s</option>
+          <option value="10000">10 s</option>
+          <option value="-1" selected="selected">never</option>
+        </select>
+        <button id="upNow" class="btn btn-default btn-sm" type="button">Update Now</button>
+      </div>
+    </div>
+  </div>
+  <div id='plotRegion' class='sectionWrapper item'>
+    <div id='plotWrap2D' class='col-md-6 col-md-offset-1 plotRegion'>
+      <div id='heatmapTarget' class='well no-pad'>
+        <div id='intro-plot-picker' class="alert alert-warning" role="alert">
+          <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+          Choose a plot from the menu at the top to get started.
         </div>
-        <div id='messageDiv' class='col-md-12'></div>
-	<div id='analyzerPlots'>
+      </div>
+    </div>
+    <div id='plotWrap1D' class='col-md-9 plotRegion' style='display: none'>
+      <div id='plottingGrid'></div>
+    </div>
+    <div class='col-md-3 no-pad'>
+      <div id='plotControl'>
 
-	  <nav class="navbar navbar-default">
-	     <div class="container-fluid">
-	        <!-- Brand and toggle get grouped for better mobile display -->
- 	        <div class="navbar-header" id='navbar-header-div'></div>
-
-                <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse" id="navbar-content-div"></div>
-	     </div><!-- /.container-fluid -->
-	  </nav>
-
-	</div>
-
-        <!--Plotting-->
-	<div id='topControls' class='col-md-12'>
-		    <div id='functionalityWrap' class='col-md-6'>
-                        <h4>Viewing Mode</h4>
-                        <button id='modeBtn1d' class='btn btn-default btn-sm' onclick='toggleProjectionMode()'>1D Histogram</button>
-                        <button id='modeBtn2d' class='btn btn-success btn-sm' onclick='toggleHeatmapMode()'>2D Heatmap</button>
-                        <button id="showXproj" class="btn btn-default btn-sm hidden" type="button">Total X projection</button>
-                        <button id="showYproj" class="btn btn-default btn-sm hidden" type="button">Total Y projection</button>
-		    </div>
-
-                    <div id='updateWrapPeriodic' class='col-md-3'>
-                        <h4>Data Fetching</h4>
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-addon">Update Every:</span>
-                            <select id="upOptions" class='form-control' style='max-width:7em' autocomplete='off'>
-                                <option value="3000">3 s</option>
-                                <option value="5000">5 s</option>
-                                <option value="10000">10 s</option>
-                                <option value="-1" selected="selected">never</option>
-                            </select>
-                        <button id="upNow" class="btn btn-default btn-sm" type="button">Update Now</button>
-                        </div>
-		     </div>
-	</div>
-	<div id='plotRegion' class='sectionWrapper item'>
-            <div id='plotWrap2D' class='col-md-6 col-md-offset-1 plotRegion'>
-                <div id='heatmapTarget' class='well no-pad'>
-                    <div id='intro-plot-picker' class="alert alert-warning" role="alert">
-                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-                        Choose a plot from the menu at the top to get started.
-                    </div>
-                </div>
-            </div>
-            <div id='plotWrap1D' class='col-md-9 plotRegion' style='display: none'>
-                <div id='plottingGrid'></div>
-		</div>
-            <div class='col-md-3 no-pad'>
-                <div id='plotControl'>
-
-                    <div id='cutBounds' class='ui-group-vertical'>
-                        <h4>Cut Bounds</h4>
-                        <div id='intro-shift-click' class="alert alert-warning hidden" role="alert">
-                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-                            Shift-click several points on the plot to mark a region of interest.
-                        </div>
-                        <ul id='cutPolyVertices' class='list-unstyled'></ul>
-                        <button class='btn btn-success btn-sm' onclick='saveCutToODB()'>Save 2D Gate Region to ODB</button>
-                    </div>
-
-		    <div id='plotCtrl1D' style='display: none'></div>
-		    <div id='gateCtrl1D' style='display: none'></div>
-
-                    <div id='info-slow-data' class="alert alert-info hidden" role="alert">
-                        <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
-                        Painting your histogram...
-		    </div>
-
-                    <div id='info-downloading' class="alert alert-info hidden" role="alert">
-                        <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
-                        Downloading your histogram...
-                    </div>
-
-                </div>
-            </div>
+        <div id='cutBounds' class='ui-group-vertical'>
+          <h4>Cut Bounds</h4>
+          <div id='intro-shift-click' class="alert alert-warning hidden" role="alert">
+            <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+            Shift-click several points on the plot to mark a region of interest.
+          </div>
+          <ul id='cutPolyVertices' class='list-unstyled'></ul>
+          <button class='btn btn-success btn-sm' onclick='saveCutToODB()'>Save 2D Gate Region to ODB</button>
         </div>
 
-        <!-- Extra control features and fitting results table -->
-        <div id='auxCtrlWrap' class='sectionWrapper' style='display: none'>
-        <hr style='width:60%; border-top: 1px solid #999'></hr>
-            <div class='col-md-12'>
-                <div id='auxCtrl'></div>
-            </div>
-       </div>
+        <div id='plotCtrl1D' style='display: none'></div>
+        <div id='gateCtrl1D' style='display: none'></div>
 
-        <div id='foot'></div>
+        <div id='info-slow-data' class="alert alert-info hidden" role="alert">
+          <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+          Painting your histogram...
+        </div>
 
-        <script>
-            window.addEventListener('HTMLImportsLoaded', function(e) {
+        <div id='info-downloading' class="alert alert-info hidden" role="alert">
+          <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+          Downloading your histogram...
+        </div>
 
- 	        // 2D viewer and shared object setup
-                var _plotList, dim;
+      </div>
+    </div>
+  </div>
 
-                //generic asset setup
-                dataStore.templates = prepareTemplates(['plotListHeader', 'plotList', 'cutVertex', 'footer', 'plotGrid', 'plotControl', 'auxPlotControl', 'auxPlotControlTable', 'gateControl', 'fitRow']);
+  <!-- Extra control features and fitting results table -->
+  <div id='auxCtrlWrap' class='sectionWrapper' style='display: none'>
+    <hr style='width:60%; border-top: 1px solid #999'></hr>
+    <div class='col-md-12'>
+      <div id='auxCtrl'></div>
+    </div>
+  </div>
 
-	        dataStore._plotListHeader = new plotListHeader('navbar-header-div');
-                _plotControl2d = new plotControl2d('plotControl');
+  <div id='foot'></div>
 
-	        dataStore._plotListHeader.setup();
-                _plotControl2d.setup();
-                setupFooter('foot');
+  <script>
+  window.addEventListener('HTMLImportsLoaded', function(e) {
 
-                //start with Coincidence matrix menu displayed
-               // document.getElementById(dataStore.backendHost).onclick();
+    // 2D viewer and shared object setup
+    var _plotList, dim;
 
-                //empty plot
-                dim = Math.min(document.getElementById('heatmapTarget').offsetWidth, window.innerHeight)
-                dataStore.hm = new heatmap(dim,dim);
-                document.getElementById('heatmapTarget').appendChild(dataStore.hm.canvas);
-                dataStore.hm.preRender = generateOverlay;
-                dataStore.hm.slowDataWarning = function(state){
-                    if(state === 'on')
-                        document.getElementById('info-slow-data').classList.remove('hidden');
-                    else
-                        document.getElementById('info-slow-data').classList.add('hidden');
-	       };
-                dataStore.hm.DataDownloading = function(state){
-                    if(state === 'on')
-                        document.getElementById('info-downloading').classList.remove('hidden');
-                    else
-                        document.getElementById('info-downloading').classList.add('hidden');
-	       };
+    //generic asset setup
+    dataStore.templates = prepareTemplates(['plotListHeader', 'plotList', 'cutVertex', 'footer', 'plotGrid', 'plotControl', 'auxPlotControl', 'auxPlotControlTable', 'gateControl', 'fitRow']);
 
-	// 1D viewer setup
-	dataStore._plotGrid = new plotGrid('plottingGrid');
-	dataStore._plotControl = new plotControl('plotCtrl1D', 'vertical');
-	dataStore._gateControl = new gateControl('gateCtrl1D');
-	dataStore._auxCtrl = new auxPlotControl('auxCtrl');
+    dataStore._plotListHeader = new plotListHeader('navbar-header-div');
+    _plotControl2d = new plotControl2d('plotControl');
 
-        dataStore._plotGrid.setup();
-	dataStore._plotControl.setup();
-	dataStore._gateControl.setup();
-	dataStore._auxCtrl.setup();
+    dataStore._plotListHeader.setup();
+    _plotControl2d.setup();
+    setupFooter('foot');
 
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
-	})
+    //start with Coincidence matrix menu displayed
+    // document.getElementById(dataStore.backendHost).onclick();
 
-        // Display the analyzer server name
-        document.getElementById('histo-list-server-div').innerHTML = dataStore.spectrumServer;
+    //empty plot
+    dim = Math.min(document.getElementById('heatmapTarget').offsetWidth, window.innerHeight)
+    dataStore.hm = new heatmap(dim,dim);
+    document.getElementById('heatmapTarget').appendChild(dataStore.hm.canvas);
+    dataStore.hm.preRender = generateOverlay;
+    dataStore.hm.slowDataWarning = function(state){
+      if(state === 'on')
+      document.getElementById('info-slow-data').classList.remove('hidden');
+      else
+      document.getElementById('info-slow-data').classList.add('hidden');
+    };
+    dataStore.hm.DataDownloading = function(state){
+      if(state === 'on')
+      document.getElementById('info-downloading').classList.remove('hidden');
+      else
+      document.getElementById('info-downloading').classList.add('hidden');
+    };
 
-        // Create the text input for the Histogram file directory
-        newInput = document.createElement('input');
-        newInput.id = 'HistoDirectoryInput';
-        newInput.type = 'text';
-        newInput.style.width = '300px';
-        newInput.value = dataStore.histoFileDirectoryPath;
-        newInput.onchange = function(){
-        dataStore.histoFileDirectoryPath = this.value;
-        getHistoFileListFromServer();
-        }.bind(newInput);
-        document.getElementById('histo-list-directory-div').appendChild(newInput);
+    // 1D viewer setup
+    dataStore._plotGrid = new plotGrid('plottingGrid');
+    dataStore._plotControl = new plotControl('plotCtrl1D', 'vertical');
+    dataStore._gateControl = new gateControl('gateCtrl1D');
+    dataStore._auxCtrl = new auxPlotControl('auxCtrl');
 
-            });
-        </script>
+    dataStore._plotGrid.setup();
+    dataStore._plotControl.setup();
+    dataStore._gateControl.setup();
+    dataStore._auxCtrl.setup();
 
-    </body>
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
+
+    // Display the analyzer server name
+    document.getElementById('histo-list-server-div').innerHTML = dataStore.spectrumServer;
+
+    // Create the text input for the Histogram file directory
+    newInput = document.createElement('input');
+    newInput.id = 'HistoDirectoryInput';
+    newInput.type = 'text';
+    newInput.style.width = '300px';
+    newInput.value = dataStore.histoFileDirectoryPath;
+    newInput.onchange = function(){
+      dataStore.histoFileDirectoryPath = this.value;
+      getHistoFileListFromServer();
+    }.bind(newInput);
+    document.getElementById('histo-list-directory-div').appendChild(newInput);
+
+  });
+  </script>
+
+</body>
 </html>
