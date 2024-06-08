@@ -73,7 +73,7 @@ function setupDataStore(){
     dataStore.SortStatusAverageSortSpeed = 10000;
     dataStore.SortStatusSortSpeedHistory = [];
     dataStore.SortStatusHistory = [];
-    dataStore.SortStatusPreviousState = 'IDLE';              // Previous state to determine if a file has recently finished sorting. IDLE or BUSY
+    dataStore.SortStatusPreviousState = 'IDLE';              // Previous state to determine if a file has recently finished sorting. IDLE or BUSY or ONLINE-IDLE or ONLINE-BUSY
 
 
     // Gating and Histogram variables
@@ -307,16 +307,25 @@ function processSortStatus(payload){
 	// Check the timestamp of the most recent config file saved on the server
 	checkConfigTimestamps(payload.split(' ')[2]);
 
-	// Remember this status
-	dataStore.previousSortStatus = 'ONLINE';
-
 	// Set the heartbeat frequency
 	dataStore.heartbeatInterval = dataStore.heartbeatIntervalIDLEvalue;
 
-	var string = 'Analyzer is connected to MIDAS and is sorting online data.';
 	if(payload.split(' ')[1] == 'Stopped'){
-	    string = 'Analyzer is connected to MIDAS but the run is stopped.';
-	}
+	    var string = 'Analyzer is connected to MIDAS but the run is stopped.';
+
+      // If the run has just stopped then refresh the histogram list
+      if(dataStore.previousSortStatus != 'ONLINE-IDLE'){
+          getHistoFileListFromServer();
+      }
+      // Remember this status
+      dataStore.previousSortStatus = 'ONLINE-IDLE';
+	}else{
+      // Status is Sorting online
+    	var string = 'Analyzer is connected to MIDAS and is sorting online data.';
+
+      	// Remember this status
+      	dataStore.previousSortStatus = 'ONLINE-BUSY';
+  }
 
 	// Update the progress bar
 	document.getElementById('progress').className = 'progress-bar bg-info';
