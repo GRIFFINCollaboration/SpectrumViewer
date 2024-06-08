@@ -108,8 +108,8 @@ function heatmap(width, height){
         this.ctx[1].clearRect(0,0,this.width,this.height);
         this.ctx[2].clearRect(0,0,this.width,this.height);
 
-        // Paint the whole canvas with the zero color so that we can quickly skip zero values in the colorMap and drawing
-        this.ctx[0].fillStyle = this.chooseColor(0);
+        // Paint the whole canvas white so that we can quickly skip zero values in the colorMap and drawing process
+        this.ctx[0].fillStyle = '#FFFFFF';
         this.ctx[0].fillRect(this.leftGutter,this.bottomGutter-this.topGutter,this.plotWidth,this.plotHeight);
 
         // build color map
