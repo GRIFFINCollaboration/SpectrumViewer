@@ -420,9 +420,15 @@ function heatmap(width, height){
         this.zmax = Math.max.apply(null, max.slice(this.ymin, this.ymax));
         this.zmin = Math.min.apply(null, min.slice(this.ymin, this.ymax));
 
-        if(this.zmin === this.zmax)
-            this.zmax = this.zmin+1;
-    }
+        // Set a minimum value for zmax to force a reasonable length
+        if(this.zmax < 16){
+         this.zmax = 16;
+        }
+        // Protect against zmax being zero
+        if(this.zmin === this.zmax){
+         this.zmax = this.zmin+1;
+        }
+      }
 
     ////////////////////////
     // event listeners
