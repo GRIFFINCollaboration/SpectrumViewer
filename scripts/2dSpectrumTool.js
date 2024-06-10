@@ -238,6 +238,7 @@ function toggleHeatmapMode(){
 
     // display spectra as a 2D heatmap and show controls
     document.getElementById('plotWrap2D').style.display = "block";
+    document.getElementById('colorPalette').style.display = "block";
     document.getElementById('cutBounds').style.display = "block";
 
     // Toggle the mode buttons
@@ -250,6 +251,7 @@ function toggleHeatmapMode(){
 function toggleProjectionMode(){
     // hide all 2D heatmap viewers and controls
     document.getElementById('plotWrap2D').style.display = "none";
+    document.getElementById('colorPalette').style.display = "none";
     document.getElementById('cutBounds').style.display = "none";
 
     // display spectra as 1D projections and show the controls for gating etc.

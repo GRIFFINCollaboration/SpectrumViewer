@@ -96,6 +96,11 @@
     <div class='col-md-3 no-pad'>
       <div id='plotControl'>
 
+        <div id='colorPalette' class='ui-group-vertical'>
+          <h4>Color Palette</h4>
+          <div id='colorPaletteSelectDiv'></div>
+        </div>
+
         <div id='cutBounds' class='ui-group-vertical'>
           <h4>Cut Bounds</h4>
           <div id='intro-shift-click' class="alert alert-warning hidden" role="alert">
@@ -199,6 +204,28 @@
       getHistoFileListFromServer();
     }.bind(newInput);
     document.getElementById('histo-list-directory-div').appendChild(newInput);
+
+        // Create a select input for the color palette
+        var newSelect = document.createElement("select");
+        newSelect.id = 'colorPaletteSelect';
+        newSelect.name = 'colorPaletteSelect';
+        newSelect.onchange = function(){
+          dataStore.hm.colorscale = this.value;
+          if(dataStore.hm._raw != null){
+          // trigger a redraw with the new colorScale
+          dataStore.hm.zoom(dataStore.hm.xmin,dataStore.hm.ymin,dataStore.hm.xmax,dataStore.hm.ymax);
+          }
+        }.bind(newSelect);
+        document.getElementById('colorPaletteSelectDiv').appendChild(newSelect);
+
+        // Add the list of colorScales available as the options
+        thisSelect = document.getElementById('colorPaletteSelect');
+        var keys = Object.keys(dataStore.hm.colorscales)
+        for(i=0; i<keys.length; i++){
+    	    thisSelect.add( new Option(keys[i], keys[i]) );
+        }
+        // Set the default
+    	  thisSelect.value = 'turbo';
 
   });
   </script>
