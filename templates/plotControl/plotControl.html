@@ -11,7 +11,7 @@
             </div>
 
             <div class='ui-group-vertical'>
-                <h4>X-axis Control for spectrum</h4> 
+                <h4>X-axis Control for spectrum</h4>
 
                 <div class="input-group">
                     <span class='input-group-addon'>min x</span>
@@ -30,7 +30,7 @@
                         <button class="btn btn-default" id="littleLeft" type="button">←</button>
                         <button class="btn btn-default" id="littleRight" type="button">→</button>
                         <button class="btn btn-default" id="bigRight" type="button">⇉</button>
-                    </div>                
+                    </div>
                 </div>
 
                 <div class="input-group">
@@ -38,7 +38,7 @@
                     <div class='btn-group btn-group-sm' roll='group'>
                         <button class="btn btn-default" id="prev" type="button">Previous</button>
                         <button class="btn btn-default" id="next" type="button">Next</button>
-                    </div>            
+                    </div>
                 </div>
 
                 {{#scaling}}
@@ -55,7 +55,7 @@
                     <div class="input-group">
                         <span class='input-group-addon'>x title</span>
                         <input id="xTitle" value="Channel" type="text" class='black-text'></input>
-                    </div>                    
+                    </div>
                 {{/scaling}}
 
                 <div class="btn-group" role="group" aria-label="...">
@@ -64,17 +64,17 @@
                         <button class="btn btn-default btn-sm" id="snapWaveform" type="button">Snap To Wvfrm.</button>
                     {{/ waveformSnap}}
                 </div>
-                
+
             </div>
 
             <div class='ui-group-vertical'>
-                <h4>Y-axis Control for spectrum</h4> 
+                <h4>Y-axis Control for spectrum</h4>
 
                 <div id="logToggleWrap"  class='UIchunk btn-group btn-group-sm' roll='group'>
                     <button id='linearY'class="btn btn-default scale-y active" type="button" value='linear'>Linear</button>
                     <button id='logY'class="btn btn-default scale-y" type="button" value='log'>Log</button>
                 </div>
-            </div>    
+            </div>
 
             {{# doUpdates}}
                 <div id='updateWrap' class='ui-group-vertical'>
@@ -88,7 +88,7 @@
                             <option value="5000">5 s</option>
                             <option value="10000">10 s</option>
                             <option value="-1">never</option>
-                        </select>        
+                        </select>
                     </div>
 
                     <button id="upNow" class="btn btn-default" type="button">Update Now</button>
@@ -102,14 +102,14 @@
         <span id='cursorReport'>Cursor x: - y: -</span>
         <div id="plotControlForm" class='horizontal'>
             <div class='col-md-3 ui-group-horizontal'>
-                <h4>Y-axis Control</h4> 
+                <h4>Y-axis Control</h4>
 
                 <div id="logToggleWrap"  class='UIchunk btn-group btn-group-sm' roll='group'>
                     <button id='linearY'class="btn btn-default scale-y active" type="button" value='linear'>Linear</button>
                     <button id='logY'class="btn btn-default scale-y" type="button" value='log'>Log</button>
                 </div>
 
-                <button style='margin-top:1em;' class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" title="Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. <br><br> Axis control and new data will affect any plot with its 'Active Window' checkbox set; hold shift while clicking checkbox to activate multiple windows simultaneously. <br><br> Add a new plot: click the '+' below the existing plots." data-placement="auto left" data-container="body">Plotting Help</button>         
+                <button style='margin-top:1em;' class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" title="Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. <br><br> Axis control and new data will affect any plot with its 'Active Window' checkbox set; hold shift while clicking checkbox to activate multiple windows simultaneously. <br><br> Add a new plot: click the '+' below the existing plots." data-placement="auto left" data-container="body">Plotting Help</button>
 
                 {{# doUpdates}}
                     <div id='updateWrap' class='ui-group-horizontal'>
@@ -123,7 +123,7 @@
                                 <option value="5000">5 s</option>
                                 <option value="10000">10 s</option>
                                 <option value="-1">never</option>
-                            </select>        
+                            </select>
                         </div>
 
                         <button id="upNow" class="btn btn-default" type="button">Update Now</button>
@@ -132,7 +132,7 @@
             </div>
 
             <div class='col-md-9 ui-group-horizontal'>
-                <h4>X-axis Control</h4> 
+                <h4>X-axis Control</h4>
 
                 <div class='col-md-4'>
                     <div class="input-group">
@@ -154,7 +154,7 @@
                             <button class="btn btn-default" id="littleLeft" type="button">←</button>
                             <button class="btn btn-default" id="littleRight" type="button">→</button>
                             <button class="btn btn-default" id="bigRight" type="button">⇉</button>
-                        </div>                
+                        </div>
                     </div>
 
                     <div class="input-group">
@@ -162,7 +162,7 @@
                         <div class='btn-group btn-group-sm' roll='group'>
                             <button class="btn btn-default" id="prev" type="button">Previous</button>
                             <button class="btn btn-default" id="next" type="button">Next</button>
-                        </div>            
+                        </div>
                     </div>
                 </div>
 
@@ -194,7 +194,7 @@
             var i, j, linY, logY;
             //inject template
             this.wrap.innerHTML = Mustache.to_html(
-                dataStore.templates.plotControl, 
+                dataStore.templates.plotControl,
                 {
                     'id': this.wrapID,
                     'waveformSnap': dataStore.waveformSnap,
@@ -274,6 +274,7 @@
             //catch a requestPlot event, do appropriate things with it.
             //<event>: event; requestPlot custom event
             //this: plotControl object
+
             var i, evt;
 
             // Any requests for 2d objects must be rejected here, they are handled elsewhere
@@ -287,15 +288,61 @@
              // Nothing to do if there are no 2d spectra
             }
 
-            if(typeof toggleProjectionMode === "function") { 
+            // Decide which viewer and target to use
+            if(event.detail.target == 'UpperViewer' || event.detail.target == 'LowerViewer'){
+            if(typeof toggleGatingMode === "function") {
+               toggleGatingMode();
+               document.getElementById('modeBtnGate').classList.remove('hidden');
+             }
+
+               // Activate the Gating viewer requested
+               if(event.detail.target == 'UpperViewer'){
+               document.getElementById('gatingGridUpperUpperViewer' + 'attachAxis').checked = true;
+             }
+             if(event.detail.target == 'LowerViewer'){
+               document.getElementById('gatingGridLowerLowerViewer' + 'attachAxis').checked = true;
+             }
+
+            }else{
+            if(typeof toggle1DMode === "function") {
                // if using the mixed 1d and 2d viewers, ensure we are using the 1d viewer for this 1d histogram
-               toggleProjectionMode();
+               toggle1DMode();
             }
+          }
 
             //update list of spectra to poll
             if(this.activeSpectra.indexOf(event.detail.plotName) == -1)
                 this.activeSpectra.push(event.detail.plotName);
 
+            // Set the appropriate Viewer and targets
+            if(typeof(event.detail.target) != 'undefined'){
+                              // direct this plot exclusively to the specified viewer and target
+
+                              // remove any other spectra if its the UpperViewer
+                              if(event.detail.target == 'UpperViewer'){
+                                dataStore.viewers[event.detail.target].plotBuffer = {};
+                              }
+
+                              //if new, send an event to the auxilary control table so it can update itself
+                              if(typeof(dataStore.viewers[event.detail.target].plotBuffer[event.detail.plotName]) == 'undefined'){
+
+                                  //add data now so row adder can find its color assignment
+                                  dataStore.viewers[event.detail.target].addData(event.detail.plotName, [0]);
+
+                                  dispatcher(
+                                      {
+                                          'plotName': event.detail.plotName,
+                                          'target': event.detail.target
+                                      },
+                                      'addPlotRow'
+                                  )
+
+                              } else {
+                                  //add a dummy spectrum
+                                  dataStore.viewers[event.detail.target].addData(event.detail.plotName, [0]);
+                              }
+            }else{
+              // pass this plot to all active viewers and targets
             for(i=0; i<this.targets.length; i++){
 
                 //if new, send an event to the auxilary control table so it can update itself
@@ -305,18 +352,19 @@
                     dataStore.viewers[this.targets[i]].addData(event.detail.plotName, [0]);
 
                     dispatcher(
-                        { 
+                        {
                             'plotName': event.detail.plotName,
-                            'target': this.targets[i] 
-                        },  
+                            'target': this.targets[i]
+                        },
                         'addPlotRow'
                     )
-                  
+
                 } else {
                     //add a dummy spectrum to all active plots
                     dataStore.viewers[this.targets[i]].addData(event.detail.plotName, [0]);
                 }
             }
+          }
 
             //demand refresh
             this.refreshAll()
@@ -337,7 +385,7 @@
 	          activeSpectraForQueries.splice(index, 1);
 	        }
 	      }
-	      
+
 	      // the spectrum names of activeSpectra can now include histogram names if they were received from a histogram file.
 	      // These need to be stripped before requests go to the server.
 	      for(var i=0; i<activeSpectraForQueries.length; i++){
@@ -345,9 +393,9 @@
 	          activeSpectraForQueries[i] = activeSpectraForQueries[i].split(':')[1];
 	        }
 	      }
-	      
+
 	      var queries = constructQueries(activeSpectraForQueries);
-	      
+
 	      var spectraFetched = Promise.all(queries.map(promiseJSONURL)).then(
                     function(spectra){
                         var i, j, key, viewerKey, newKey, this2dKey;
@@ -364,7 +412,7 @@
 
                           if(key == 'XaxisLength' || key == 'YaxisLength' || key == 'symmetrized' || key == 'data2'){ continue; }
                           if(key == 'name'){
-                            // Treatment for 2d spectra - append the histoFileName to the beginning of the 'name' key only 
+                            // Treatment for 2d spectra - append the histoFileName to the beginning of the 'name' key only
                             // 'name' is the first component of the matrix element
                             // modify the spectrum name that were received from a histogram file to include it at the start
                                 if(dataStore.histoFileName.length>0){
@@ -376,10 +424,10 @@
 
                                   // Reconstruct the 2d histogram object
                                    var thisMatrix = {
-                                       "name" : JSON.parse(JSON.stringify(spectra[i]['name'])), 
-                                       "XaxisLength" : JSON.parse(JSON.stringify(spectra[i]['XaxisLength'])), 
-                                       "YaxisLength" : JSON.parse(JSON.stringify(spectra[i]['YaxisLength'])), 
-                                       "symmetrized" : JSON.parse(JSON.stringify(spectra[i]['symmetrized'])), 
+                                       "name" : JSON.parse(JSON.stringify(spectra[i]['name'])),
+                                       "XaxisLength" : JSON.parse(JSON.stringify(spectra[i]['XaxisLength'])),
+                                       "YaxisLength" : JSON.parse(JSON.stringify(spectra[i]['YaxisLength'])),
+                                       "symmetrized" : JSON.parse(JSON.stringify(spectra[i]['symmetrized'])),
                                        "data2" : JSON.parse(JSON.stringify(spectra[i]['data2']))
                                    };
                                //keep the raw results around
@@ -395,7 +443,7 @@
                                 // modify any spectrum names that were received from a histogram file to include it at the start
                                 if(dataStore.histoFileName.length>0 && !key.includes(':')){
                                   newKey = dataStore.histoFileName.split('.')[0] + ':' + key;
-                                  delete Object.assign(dataStore.rawData, {[newKey]: dataStore.rawData[key] })[key]; 
+                                  delete Object.assign(dataStore.rawData, {[newKey]: dataStore.rawData[key] })[key];
                                 }else{ newKey = key; }
 
                                 //repopulate all spectra that use this spectrum
@@ -472,7 +520,7 @@
             //<event>: event; attachCell custom event
             //this: plotControl object
 
-            var i, 
+            var i,
                 activeToggles = document.getElementsByClassName('activeWindowFlag'),
                 state;
 
@@ -558,7 +606,7 @@
 
             for(i=0; i<this.targets.length; i++){
                 this.updatePlotScale(this.targets[i]);
-            } 
+            }
         }
 
         this.updatePlotScale = function(plot){
@@ -574,7 +622,7 @@
             dataStore.viewers[plot].xAxisTitle = xTitle;
 
             dataStore.viewers[plot].plotData();
-            
+
         }
 
         this.updateRangeSelector = function(){
@@ -641,7 +689,7 @@
 
             for(i=0; i<this.targets.length; i++){
                 dataStore.viewers[this.targets[i]].unzoom.bind(dataStore.viewers[this.targets[i]])();
-            }            
+            }
         }
 
         this.cycleXlimits = function(step){
@@ -650,7 +698,7 @@
             var i;
             for(i=0; i<this.targets.length; i++){
                 dataStore.viewers[this.targets[i]].restoreLimits.bind(dataStore.viewers[this.targets[i]], step)();
-            } 
+            }
 
         }
 
@@ -665,9 +713,9 @@
 
             for(i=0; i<this.targets.length; i++){
                 this.waveformSnap(this.targets[i]);
-            }  
+            }
         }
-        
+
         this.waveformSnap = function(plot){
             //toggle the snap to waveform state on the requested plot
             //<plot>: string; name of plot to update, from dataStore.plots
@@ -686,7 +734,7 @@
                 dataStore.viewers[plot].demandXmin = 0;
                 dataStore.viewers[plot].demandXmax = dataStore.viewers[plot].longestHist()
                 dataStore.viewers[plot].demandYmin = Math.max(0, dataStore.viewers[plot].minY - (dataStore.viewers[plot].maxY - dataStore.viewers[plot].minY)*0.1);
-                dataStore.viewers[plot].demandYmax = dataStore.viewers[plot].maxY + (dataStore.viewers[plot].maxY - dataStore.viewers[plot].minY)*0.1; 
+                dataStore.viewers[plot].demandYmax = dataStore.viewers[plot].maxY + (dataStore.viewers[plot].maxY - dataStore.viewers[plot].minY)*0.1;
                 dataStore.viewers[plot].chooseLimitsCallback = function(plot){
                     //set some demand values for the y axis and rerun the limit calculation
                     var rerun = dataStore.viewers[plot].demandYmin == null;
@@ -696,7 +744,7 @@
                     //bracket y around min and max
                     dataStore.viewers[plot].demandYmin = Math.max(0, dataStore.viewers[plot].minY - (dataStore.viewers[plot].maxY - dataStore.viewers[plot].minY)*0.1);
                     dataStore.viewers[plot].demandYmax = dataStore.viewers[plot].maxY + (dataStore.viewers[plot].maxY - dataStore.viewers[plot].minY)*0.1;
-                    //fix the limits with these demand values 
+                    //fix the limits with these demand values
                     if(rerun) dataStore.viewers[plot].chooseLimits();
                     dataStore.viewers[plot].demandYmin = null;
                     dataStore.viewers[plot].demandYmax = null;
@@ -704,18 +752,18 @@
                 dataStore.viewers[plot].yAxisTitle = 'Waveform Level (Snapped)';
                 dataStore.viewers[plot].plotData();
                 dataStore.viewers[plot].waveformLock = 1;
-            }                   
+            }
         }
 
         this.setAllAxes = function(state){
             //set the y axis state of every active plot
-            //<state>: string; 'linear' or 'log'. 
+            //<state>: string; 'linear' or 'log'.
             //this: plotControl object
-            
+
             var i;
 
             for(i=0; i<this.targets.length; i++){
-                dataStore.viewers[this.targets[i]].setAxisType(state);                
+                dataStore.viewers[this.targets[i]].setAxisType(state);
             }
 
             //manage button state

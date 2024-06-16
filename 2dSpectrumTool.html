@@ -58,13 +58,14 @@
   <div id='topControls' class='col-md-12'>
     <div id='functionalityWrap' class='col-md-3'>
         <h4>Viewing Mode</h4>
-        <button id='modeBtn1d' class='btn btn-default btn-sm' onclick='toggleProjectionMode()'>1D Histogram</button>
+        <button id='modeBtn1d' class='btn btn-default btn-sm' onclick='toggle1DMode()'>1D Histogram</button>
         <button id='modeBtn2d' class='btn btn-success btn-sm' onclick='toggleHeatmapMode()'>2D Heatmap</button>
+        <button id='modeBtnGate' class='btn btn-default btn-sm hidden' onclick='toggleGatingMode()'>Gating</button>
       </div>
       <div id='functionalityWrap2' class='col-md-3'>
         <h4 id='projectionsTitleDiv' class="hidden">Projections</h4>
-        <button id="showXproj" class="btn btn-default btn-sm hidden" type="button">Total X projection</button>
-        <button id="showYproj" class="btn btn-default btn-sm hidden" type="button">Total Y projection</button>
+        <button id="showXproj" class="btn btn-default btn-sm hidden" disabled='true' type="button">Total X projection</button>
+        <button id="showYproj" class="btn btn-default btn-sm hidden" disabled='true' type="button">Total Y projection</button>
       </div>
 
     <div id='updateWrapPeriodic' class='col-md-6'>
@@ -93,16 +94,21 @@
     <div id='plotWrap1D' class='col-md-9 plotRegion' style='display: none'>
       <div id='plottingGrid'></div>
     </div>
+    <div id='plotWrap1DGating' class='col-md-9 plotRegion' style='display: none'>
+      <div id='gatingGridActiveMatrixDiv' class='col-md-12'></div>
+        <div id='gatingGridUpper'></div>
+      <div id='gatingGridLower'></div>
+    </div>
     <div class='col-md-3 no-pad'>
       <div id='plotControl'>
 
-        <div id='colorPalette' class='ui-group-vertical'>
-          <h4>Color Palette</h4>
+        <div id='colorPalette' class='ui-group-vertical noselect'>
+          <h4 class='noselect'>Color Palette</h4>
           <div id='colorPaletteSelectDiv'></div>
         </div>
 
-        <div id='cutBounds' class='ui-group-vertical'>
-          <h4>Cut Bounds</h4>
+        <div id='cutBounds' class='ui-group-vertical noselect'>
+          <h4 class='noselect'>Cut Bounds</h4>
           <div id='intro-shift-click' class="alert alert-warning hidden" role="alert">
             <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
             Shift-click several points on the plot to mark a region of interest.
@@ -185,6 +191,22 @@
     dataStore._plotControl.setup();
     dataStore._gateControl.setup();
     dataStore._auxCtrl.setup();
+
+    // Gating viewer setup
+
+    // Create the upper viewer that will be used for total projections to set gates
+    var wrapper = 'gatingGridUpper';
+    var label = 'UpperViewer';
+    dataStore._gatingGrid = new plotGrid(wrapper);
+    dataStore._gatingGrid.setup();
+    addSingleSpectrumViewer(wrapper,label,false);
+
+    // Create the lower viewer that will be used for showing the gates created
+    var wrapper = 'gatingGridLower';
+    var label = 'LowerViewer';
+    dataStore._gatingGrid = new plotGrid(wrapper);
+    dataStore._gatingGrid.setup();
+    addSingleSpectrumViewer(wrapper,label,false);
 
     $(function () {
       $('[data-toggle="tooltip"]').tooltip()

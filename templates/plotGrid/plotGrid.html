@@ -21,7 +21,7 @@
         this.setup = function(){
 
             var i, wrapper, newPlot;
-            
+
             //set up a wrapper for plots
             wrapper = document.createElement('div');
             wrapper.setAttribute('id', this.wrapID + 'plotWrap');
@@ -100,10 +100,10 @@
 
             //report new cell to listeners
             dispatcher(
-                { 
+                {
                     'cellName': label,
                     'state': true //attached / active by default
-                }, 
+                },
                 'newCell'
             )
         }
@@ -165,13 +165,12 @@
             if(height > 0.8*window.innerHeight){
                 height = window.innerHeight / window.innerWidth * width;
             }
-
             canvas.width = width;
             canvas.height = height;
 
-            if(!dataStore.viewers)
+            if(typeof dataStore.viewers === 'undefined')
                 dataStore.viewers = {};
-            if(!dataStore.viewers[id]){
+            if(typeof dataStore.viewers[id] === 'undefined'){
                 dataStore.viewers[id] = new spectrumViewer(id);
             } else{
                 dataStore.viewers[id].rescale();
@@ -181,13 +180,13 @@
         }
 
         this.attachCell = function(e){
-            //dispatch an event carrying the cell in question and its attachment state 
+            //dispatch an event carrying the cell in question and its attachment state
             //<e>: event; onchange.
             //this: input type=checkbox element.
 
             var event = e || window.event,
                 activeToggles, i;
-            
+
             // unselect everyone else unless shift pressed
             if(event && (!event.shiftKey && event.target.checked ) ){
                 activeToggles = document.getElementsByClassName('activeWindowFlag');
@@ -198,10 +197,10 @@
             }
 
             dispatcher(
-                { 
+                {
                     'cellName': this.value,
                     'state': this.checked
-                },  
+                },
                 'attachCell'
             )
         }

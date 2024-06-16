@@ -205,8 +205,9 @@
 
             dataStore.viewers[target].fitTarget = spectrum;
 
-            // also set the gateTarget if this is a projection.
+            // also set the gateTarget if this is a projection spectrum for the UpperViewer.
             // the gateTarget is the spectrum used to set gate limits for making projections
+            if(target == 'UpperViewer'){
             if(typeof dataStore.createdSpectra !== 'undefined'){
     	      for(let key in dataStore.createdSpectra) {
     	        const index = dataStore._plotControl.activeSpectra.indexOf(key);
@@ -218,6 +219,7 @@
     	        }
     	      }
           }
+        }
         //  console.log('fitTarget  = '+dataStore.viewers[target].fitTarget);
         //  console.log('gateTarget = '+dataStore.viewers[target].gateTarget);
         }

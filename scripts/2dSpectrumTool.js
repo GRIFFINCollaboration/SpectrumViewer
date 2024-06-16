@@ -31,6 +31,8 @@ function setupDataStore(){
         "ODBrequests": [],                                                        //array of odb requests to make on refresh
 	"zeroedPlots": {},                                                        //initialize empty object for zeroed plots
 	"createdSpectra": {},                                                     //initialize empty object for created spectra
+	"createdBG1Spectra": {},                                                     //initialize empty object for created background (BG1) spectra
+  "createdBG2Spectra": {},                                                     //initialize empty object for created background (BG2) spectra
 	"twoDimensionalSpectra": [],                                              //list of 2d spectra which need to be handled differently to 1d spectra
 	"activeMatrix": "",                                                       //only one 2d spectrum (matrix) is active at any one time. This is the gate target
 	"activeMatrixXaxisLength": 0,                                             //only one 2d spectrum (matrix) is active at any one time. This is the X axis length
@@ -191,9 +193,9 @@ function plotControl2d(wrapID){
 
 	// Make the gated spectra
 	if(axis === 'y'){
-	    plotName = projectYaxis(min,max);
+	    plotName = projectYaxis(min,max,'gate');
 	}else{
-	    plotName = projectXaxis(min,max);
+	    plotName = projectXaxis(min,max,'gate');
 	}
 
 	// Add this new specturm to the menu if it is not already there
@@ -221,9 +223,25 @@ function plotControl2d(wrapID){
 	document.getElementById('dropprojlist').appendChild(newMenuItem);
 	}
 
+
+  	// Make the BG spectra if requested
+    if(typeof(event.detail.BG1Min) != 'undefined'){
+  	if(axis === 'y'){
+  	    plotNameBG1 = projectYaxis(event.detail.BG1Min,event.detail.BG1Max,'BG1',plotName);
+      	plotNameBG2 = projectYaxis(event.detail.BG2Min,event.detail.BG2Max,'BG2',plotName);
+  	}else{
+  	    plotNameBG1 = projectYaxis(event.detail.BG1Min,event.detail.BG1Max,'BG1',plotName);
+      	plotNameBG2 = projectYaxis(event.detail.BG2Min,event.detail.BG2Max,'BG2',plotName);
+  	}
+  }
+
 	// Send a request to plot this now if requested
 	if(event.detail.plotNow === true){
-            dispatcher({ 'plotName': plotName }, 'requestPlot');
+    if(event.detail.target != 'undefined'){
+            dispatcher({ 'plotName': plotName, 'target': event.detail.target }, 'requestPlot');
+          }else{
+                  dispatcher({ 'plotName': plotName }, 'requestPlot');
+          }
 	}
 
     }
@@ -236,44 +254,86 @@ function toggleHeatmapMode(){
     document.getElementById('gateCtrl1D').style.display = "none";
     document.getElementById('auxCtrlWrap').style.display = "none";
 
+    // hide all unneeded 1D viewer
+    document.getElementById('plotWrap1DGating').style.display = "none";
+
     // display spectra as a 2D heatmap and show controls
     document.getElementById('plotWrap2D').style.display = "block";
     document.getElementById('colorPalette').style.display = "block";
     document.getElementById('cutBounds').style.display = "block";
 
     // Toggle the mode buttons
-    document.getElementById('modeBtn2d').classList.remove('btn-default');
-    document.getElementById('modeBtn2d').classList.add('btn-success');
     document.getElementById('modeBtn1d').classList.remove('btn-success');
     document.getElementById('modeBtn1d').classList.add('btn-default');
+    document.getElementById('modeBtn2d').classList.remove('btn-default');
+    document.getElementById('modeBtn2d').classList.add('btn-success');
+    document.getElementById('modeBtnGate').classList.remove('btn-success');
+    document.getElementById('modeBtnGate').classList.add('btn-default');
 }
 
-function toggleProjectionMode(){
+function toggle1DMode(){
     // hide all 2D heatmap viewers and controls
     document.getElementById('plotWrap2D').style.display = "none";
     document.getElementById('colorPalette').style.display = "none";
     document.getElementById('cutBounds').style.display = "none";
 
+    // hide all unneeded 1D viewer
+    document.getElementById('plotWrap1DGating').style.display = "none";
+    document.getElementById('gateCtrl1D').style.display = "none";
+
+    // Deactivate the Gating viewers axis controls
+    document.getElementById('gatingGridUpperUpperViewer' + 'attachAxis').checked = false;
+    document.getElementById('gatingGridLowerLowerViewer' + 'attachAxis').checked = false;
+
     // display spectra as 1D projections and show the controls for gating etc.
     document.getElementById('plotWrap1D').style.display = "block";
     document.getElementById('plotCtrl1D').style.display = "block";
-    if(dataStore.activeMatrix.length>1){
-      // only show the gate controls if we have an activeMatrix
-          document.getElementById('gateCtrl1D').style.display = "block";
-        }
     document.getElementById('auxCtrlWrap').style.display = "block";
 
     // If this is the first time to show the 1D projections,
     // create the first plot cell
     if(typeof dataStore.viewers === 'undefined'){
-	document.getElementById('plottingGridnewPlotButton').click();
-    }
+	   document.getElementById('plottingGridnewPlotButton').click();
+   }else if(typeof dataStore.viewers['Cell0'] === 'undefined'){
+     document.getElementById('plottingGridnewPlotButton').click();
+   }
 
     // Toggle the mode buttons
     document.getElementById('modeBtn1d').classList.remove('btn-default');
     document.getElementById('modeBtn1d').classList.add('btn-success');
     document.getElementById('modeBtn2d').classList.remove('btn-success');
     document.getElementById('modeBtn2d').classList.add('btn-default');
+    document.getElementById('modeBtnGate').classList.remove('btn-success');
+    document.getElementById('modeBtnGate').classList.add('btn-default');
+}
+
+function toggleGatingMode(){
+    // hide all 2D heatmap viewers and controls
+    document.getElementById('plotWrap2D').style.display = "none";
+    document.getElementById('colorPalette').style.display = "none";
+    document.getElementById('cutBounds').style.display = "none";
+
+    // hide all unneeded 1D viewer
+    document.getElementById('plotWrap1D').style.display = "none";
+
+    // display spectra as 1D projections and show the controls for gating etc.
+    document.getElementById('plotWrap1DGating').style.display = "block";
+    document.getElementById('plotCtrl1D').style.display = "block";
+    if(dataStore.activeMatrix.length>1){
+      // only show the gate controls if we have an activeMatrix
+          document.getElementById('gateCtrl1D').style.display = "block";
+          document.getElementById('gatingGridActiveMatrixDiv').innerHTML = '<span>Current matrix = '+dataStore.activeMatrix+'</span>';
+
+        }
+    document.getElementById('auxCtrlWrap').style.display = "block";
+
+    // Toggle the mode buttons
+    document.getElementById('modeBtn1d').classList.remove('btn-success');
+    document.getElementById('modeBtn1d').classList.add('btn-default');
+    document.getElementById('modeBtn2d').classList.remove('btn-success');
+    document.getElementById('modeBtn2d').classList.add('btn-default');
+    document.getElementById('modeBtnGate').classList.remove('btn-default');
+    document.getElementById('modeBtnGate').classList.add('btn-success');
 }
 
 
@@ -386,6 +446,12 @@ function fetchCallback(){
         }
     }
 
+    // enable the projection buttons
+    if(typeof(document.getElementById('showXproj')) != 'undefined'){
+      document.getElementById('showXproj').disabled = false;
+      document.getElementById('showYproj').disabled = false;
+    }
+
     // plug in the onclicks to the 2d heatmap
     dataStore.hm.canvas.addEventListener('heatmap_shiftclick', heatmapClick, false);
 
@@ -468,4 +534,57 @@ function moveVertex(direction){
 
     extractCutVertices();
     dataStore.hm.render();
+}
+
+function addSingleSpectrumViewer(wrapper,label,state){
+  // Most of this code is taken from plotGrid functions.
+  // Currently there is a problem because the separate 1D viewer becomes corrupted during this execution, and nothing is displayed for either viewer
+
+  var cell = document.createElement('div');
+  cell.setAttribute('id', wrapper + label + 'Cell');
+  cell.setAttribute('class', 'plotCell col-md-12');
+  cell.innerHTML = Mustache.to_html(dataStore.templates.plotGrid, {
+    'label': label,
+    'id': wrapper
+  });
+  document.getElementById(wrapper + 'plotWrap').appendChild(cell);
+
+
+  var canvas = document.getElementById(label);
+  var width = canvas.parentElement.offsetWidth
+  var height = 2/3*width;
+  if(height > 0.8*window.innerHeight){
+    height = window.innerHeight / window.innerWidth * width;
+  }
+  canvas.width = 920;
+  canvas.height = 300;
+
+  if(typeof dataStore.viewers === 'undefined'){
+    dataStore.viewers = {};
+  }
+
+  dataStore.viewers[label] = new spectrumViewer(label);
+  //dataStore.viewers[label].rescale();
+  dataStore.viewers[label].plotData();
+
+  //plug in attachment toggles
+  document.getElementById(wrapper + label + 'attachAxis').onclick = dataStore._gatingGrid.attachCell;
+
+  //report new cell to listeners
+  dispatcher(
+    {
+      'cellName': label,
+      'state': state //inactive by default
+    },
+    'newCell'
+  )
+
+  //remove the title and the delete button
+  document.getElementById(wrapper + 'newPlotButton').remove();
+  document.getElementById(wrapper + label + 'Delete').classList.add('hidden');
+
+    // Set the checkbox to inactive so this viewer will not be added as a target unless we do that deliberately.
+    // Uncheck
+    document.getElementById(wrapper + label + 'attachAxis').checked = false;
+
 }

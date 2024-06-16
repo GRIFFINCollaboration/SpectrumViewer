@@ -1,233 +1,311 @@
 <link rel="stylesheet" href="gateControl.css"/>
 
 <template id='gateControl'>
-        <button class="btn btn-info" data-trigger="hover"
-        data-html="true" data-toggle="tooltip" title="Some advise
-        about gating 2d matrices will go here.<br><br>Background
-        region 1 (Bkg1): A region of channels to the lower-energy side
-        of the main peak. This data will be subtracted from the main
-        gate spectrum after being multipled by the Bkg1 Scaling
-        Factor.<br><br>Background region 2 (Bkg2): A region of
-        channels to the higher-energy side of the main peak. This data
-        will be subtracted from the main gate spectrum after being
-        multipled by the Bkg2 Scaling Factor.<br><br>Background region
-        3 (Bkg3): A region of channels on both sides of the main peak
-        along the diagonal in the matrix (Removes the contribution of
-        events which are equal to the energy of the main
-        gate but belong to the Compton scattering of higher-energy
-        gamma rays.). This data will be subtracted from the main gate spectrum after being multipled by the Bkg3 Scaling Factor." data-placement="auto left" data-container="body">Gating Help</button>
+  <button class="btn btn-info" data-trigger="hover"
+  data-html="true" data-toggle="tooltip" title="Some advise
+  about gating 2d matrices will go here.<br><br>Background
+  region 1 (Bkg1): A region of channels to the lower-energy side
+  of the main peak. This data will be subtracted from the main
+  gate spectrum after being multipled by the Bkg1 Scaling
+  Factor.<br><br>Background region 2 (Bkg2): A region of
+  channels to the higher-energy side of the main peak. This data
+  will be subtracted from the main gate spectrum after being
+  multipled by the Bkg2 Scaling Factor.<br><br>Background region
+  3 (Bkg3): A region of channels on both sides of the main peak
+  along the diagonal in the matrix (Removes the contribution of
+  events which are equal to the energy of the main
+  gate but belong to the Compton scattering of higher-energy
+  gamma rays.). This data will be subtracted from the main gate spectrum after being multipled by the Bkg3 Scaling Factor." data-placement="auto left" data-container="body">Gating Help</button>
 
-        <div id="gateControlForm">
+  <div id="gateControlForm">
 
-	    <div class='ui-group-vertical'>
-	      <button type="button" class="btn btn-default btn-sm" id='gateMode' engaged='0'>
-	       <span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> Set new Gate with mouse
-	      </button>
+    <div class='ui-group-vertical'>
+      <button type="button" class="btn btn-default btn-sm" id='gateMode' engaged='0'>
+        <span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> Set new Gate with mouse
+      </button>
 
-                <h4>Gate definition:</h4>
+      <h4>Gate definition:</h4>
 
-                <div class="input-group">
-                    <span class='input-group-addon'>Project onto</span>
-		  <select id="axisSelect" value="x" type="select">
-		     <option value="x">X axis</option>
-		     <option value="y">Y axis</option>
-		  </select>
-		</div>
+      <div class="input-group">
+        <span class='input-group-addon'>Project onto</span>
+        <select id="axisSelect" value="x" type="select">
+          <option value="x">X axis</option>
+          <option value="y">Y axis</option>
+        </select>
+      </div>
 
-                <div class="input-group">
-                    <span class='input-group-addon'>Gate min/max</span>
-                    <input id="gateMinInput" value="0" type="number" class='black-text'></input>
-                    <input id="gateMaxInput" value="2048" type="number" class='black-text'></input>
-                </div>
+      <div class="input-group">
+        <span class='input-group-addon'>Gate min/max</span>
+        <input id="gateMinInput" value="0" type="number" class='black-text'></input>
+        <input id="gateMaxInput" value="2048" type="number" class='black-text'></input>
+      </div>
+
+      <div class="input-group">
+      <span class='input-group-addon'>Bkg1 min/max</span>
+      <input id="bg1MinInput" value="0" type="number" class='black-text'></input>
+      <input id="bg1MaxInput" value="2048" type="number" class='black-text'></input>
+    </div>
+    <div class="input-group">
+    <span class='input-group-addon'>Bkg1 Scaling Factor</span>
+    <input id="bg1SFInput" value="0.5" min="0" max="100" step="0.01" type="number" class='black-text'></input>
+    <input type="range" id="bg1SFslider" min="0" max="100" step="0.01" value="1">
+  </div>
+
+  <div class="input-group">
+  <span class='input-group-addon'>Bkg2 min/max</span>
+  <input id="bg2MinInput" value="0" type="number" class='black-text'></input>
+  <input id="bg2MaxInput" value="2048" type="number" class='black-text'></input>
+</div>
+
+<div class="input-group">
+<span class='input-group-addon'>Bkg2 Scaling Factor</span>
+<input id="bg2SFInput" value="0.5" min="0" max="100" step="0.01" type="number" class='black-text'></input>
+<input type="range" id="bg2SFslider" min="0" max="100" step="0.01" value="1">
+</div>
 <!--
-                <div class="input-group">
-		  <span class='input-group-addon'>Bkg1 min/max</span>
-                    <input id="bg1MinInput" value="0" type="number" class='black-text'></input>
-                    <input id="bg1MaxInput" value="2048" type="number" class='black-text'></input>
-		</div>
-                <div class="input-group">
-		  <span class='input-group-addon'>Bkg1 Scaling Factor</span>
-                    <input id="bg1SFInput" value="1.0" min="0.1" max="1000" step="0.1" type="number" class='black-text'></input>
-		    <input type="range" id="bg1SFslider" min="0.1" max="1000" step="0.1" value="1">
-		</div>
-
-                <div class="input-group">
-                    <span class='input-group-addon'>Bkg2 min/max</span>
-                    <input id="bg2MinInput" value="0" type="number" class='black-text'></input>
-                    <input id="bg2MaxInput" value="2048" type="number" class='black-text'></input>
-                </div>
-                <div class="input-group">
-		  <span class='input-group-addon'>Bkg2 Scaling Factor</span>
-                    <input id="bg2SFInput" value="1.0" min="0.1" max="1000" step="0.1" type="number" class='black-text'></input>
-		    <input type="range" id="bg2SFslider" min="0.1" max="1000" step="0.1" value="1">
-		</div>
-
-                <div class="input-group">
-		  <span class='input-group-addon'>Bkg3 Scaling Factor</span>
-                    <input id="bg3SFInput" value="1.0" min="0.1" max="1000" step="0.1" type="number" class='black-text'></input>
-		    <input type="range" id="bg3SFslider" min="0.1" max="1000" step="0.1" value="1">
-		</div>
+<div class="input-group">
+<span class='input-group-addon'>Bkg3 Scaling Factor</span>
+<input id="bg3SFInput" value="1.0" min="0.1" max="1000" step="0.1" type="number" class='black-text'></input>
+<input type="range" id="bg3SFslider" min="0.1" max="1000" step="0.1" value="1">
+</div>
 -->
-		<div class='btn-group btn-group-sm' roll='group'>
-		  <button class="btn btn-default" id="submitGateButton" type="button">Gate</button>
-		</div>
-            </div>
+<div class='btn-group btn-group-sm' roll='group'>
+  <button class="btn btn-default" id="submitGateButton" type="button">Gate</button>
+</div>
+</div>
 
-        </div>
+</div>
 </template>
 
 
 <script>
-    function gateControl(wrapID){
+  function gateControl(wrapID){
 
-        this.wrapID = wrapID;
-        this.wrap = document.getElementById(wrapID);
+    this.wrapID = wrapID;
+    this.wrap = document.getElementById(wrapID);
 
-        this.setup = function(){
+    this.setup = function(){
 
-            var i, j, linY, logY;
-            //inject template
-            this.wrap.innerHTML = Mustache.to_html(
-                dataStore.templates.gateControl,
-                {
-                    'id': this.wrapID
-                }
-            )
+      var i, j, linY, logY;
+      //inject template
+      this.wrap.innerHTML = Mustache.to_html(
+      dataStore.templates.gateControl,
+      {
+        'id': this.wrapID
+      }
+      )
 
-            //UI callbacks:
+      //UI callbacks:
 
-	// Set up the X and Y total projection buttons
-	document.getElementById('showXproj').onclick = this.selectPlot.bind(this, 'x');
-	document.getElementById('showYproj').onclick = this.selectPlot.bind(this, 'y');
+      // Set up the X and Y total projection buttons
+      document.getElementById('showXproj').onclick = this.selectPlot.bind(this, 'x');
+      document.getElementById('showYproj').onclick = this.selectPlot.bind(this, 'y');
 
+
+      // Set up the functions for the background factor sliders
+      document.getElementById('bg1SFslider').oninput = function(){
+        document.getElementById('bg1SFInput').value = this.value;
+        dataStore._gateControl.changeInBGSubtraction();
+      }.bind(document.getElementById('bg1SFslider'));
+
+      document.getElementById('bg2SFslider').oninput = function(){
+        document.getElementById('bg2SFInput').value = this.value;
+        dataStore._gateControl.changeInBGSubtraction();
+      }.bind(document.getElementById('bg2SFslider'));
 /*
-	// Set up the background factor sliders
-	document.getElementById('bg1SFslider').oninput = function(){
-	     document.getElementById('bg1SFInput').value = this.value;
-	};
-	document.getElementById('bg2SFslider').oninput = function(){
-	     document.getElementById('bg2SFInput').value = this.value;
-	};
-	document.getElementById('bg3SFslider').oninput = function(){
-	     document.getElementById('bg3SFInput').value = this.value;
-	};
-	document.getElementById('bg1SFInput').oninput = function(){
-	     document.getElementById('bg1SFslider').value = this.value;
-	};
-  */
+      document.getElementById('bg3SFslider').oninput = function(){
+        document.getElementById('bg3SFInput').value = this.value;
+        dataStore._gateControl.changeInBGSubtraction();
+      }.bind(document.getElementById('bg3SFslider'));
+*/
+      // Set up the functions for the background factor inputs
+      document.getElementById('bg1SFInput').onchange = function(){
+        document.getElementById('bg1SFslider').value = this.value;
+        dataStore._gateControl.changeInBGSubtraction();
+      }.bind(document.getElementById('bg1SFInput'));
 
-	//plug in gate mode toggle
-	document.getElementById('gateMode').onclick = this.toggleGateMode.bind(this);
+      document.getElementById('bg2SFInput').onchange = function(){
+        document.getElementById('bg2SFslider').value = this.value;
+        dataStore._gateControl.changeInBGSubtraction();
+      }.bind(document.getElementById('bg2SFInput'));
+/*
+      document.getElementById('bg3SFInput').onchange = function(){
+        document.getElementById('bg3SFslider').value = this.value;
+        dataStore._gateControl.changeInBGSubtraction();
+      }.bind(document.getElementById('bg3SFInput'));
+*/
 
-	// Set up the submit Gate button
-	document.getElementById('submitGateButton').onclick = this.submitGate.bind();
+//plug in gate mode toggle
+document.getElementById('gateMode').onclick = this.toggleGateMode.bind(this);
 
-	}
+// Set up the submit Gate button
+document.getElementById('submitGateButton').onclick = this.submitGate.bind();
 
-        this.selectPlot = function(axis, e){
-            //dispatch an event carrying the requested plot name on click of a button, or on Gate generation.
-            //<plotName>: string; name of plot requested from analyzer
-            //<e>: event; onclick.
-	    // this: gateControl object
+}
 
-	    if(dataStore.activeMatrix.length<1){
-	      // Bail out if no 2d matrix is loaded
-	      return;
-	    }
+this.changeInBGSubtraction = function(){
+  // Trigger a redraw of the spectrum data which will apply the background subtraction with a new scaling factor
+  target = 'LowerViewer';
+  keys = Object.keys(dataStore.viewers['LowerViewer'].plotBuffer);
+  spectrum = keys[keys.length-1];
+  if(typeof(spectrum) == 'undefined'){
+    // Bail out if there is no spectrum loaded yet
+    return;
+  }
+  document.getElementById(target+spectrum+'FitResult').innerHTML = '-';
+  dataStore.viewers[target].clearFits();
+  dataStore.viewers[target].plotData();
+}
 
-	    plotName = dataStore.activeMatrix+axis;
+this.selectPlot = function(axis, e){
+  //dispatch an event carrying the requested plot name on click of a button, or on Gate generation.
+  //<plotName>: string; name of plot requested from analyzer
+  //<e>: event; onclick.
+  // this: gateControl object
 
-            dispatcher({ 'plotName': plotName }, 'requestPlot');
-        }
+  if(dataStore.activeMatrix.length<1){
+    // Bail out if no 2d matrix is loaded
+    return;
+  }
 
-        this.submitGate = function(){
-            //dispatch an event carrying the requested gate limits on click of a button.
-	    // this: gateControl object
+  plotName = dataStore.activeMatrix+axis;
 
-	gateAxis = document.getElementById('axisSelect').value;
-	gateMin = document.getElementById('gateMinInput').value;
-	gateMax = document.getElementById('gateMaxInput').value;
+  // Activate the Upper Gating viewer
+  document.getElementById('gatingGridUpperUpperViewer' + 'attachAxis').checked = true;
 
-            dispatcher({ 'gateAxis': gateAxis, 'gateMin': gateMin, 'gateMax': gateMax, 'plotNow': true }, 'requestGate');
-        }
+  dispatcher({ 'plotName': plotName, 'target': 'UpperViewer' }, 'requestPlot');
+}
 
-        this.toggleGateMode = function(){
-            //manage the state of the Gate Mode button, and the corresponding state of the viewer.
-            //this: gateControl object
+this.submitGate = function(){
+  //dispatch an event carrying the requested gate limits on click of a button.
+  // this: gateControl object
 
-          //  console.log(dataStore);
-          //  console.log('Gate mode button clicked');
-            if(dataStore.activeMatrix.length<1){
-              // Bail out if we dont have a matric to project
-              return;
-            }
+  // detach all viewer targets from receiving the gate, except the LowerViewer
+  dataStore._plotControl.targets = [];
+  dataStore._plotControl.targets.push('LowerViewer');
+  document.getElementById('gatingGridLowerLowerViewer' + 'attachAxis').checked = true;
 
-            //determine which canvas and spectrum we're currently pointing at
-            var target = dataStore.plots[0];
-            var spectrum = dataStore.viewers[target].fitTarget;
+  var gateAxis = document.getElementById('axisSelect').value;
+  var gateMin = document.getElementById('gateMinInput').value;
+  var gateMax = document.getElementById('gateMaxInput').value;
 
-            var gateModeSwitch = document.getElementById('gateMode')
-            var state = gateModeSwitch.getAttribute('engaged')
+  var BG1SF = document.getElementById('bg1SFInput').value;
+  var BG1Min = document.getElementById('bg1MinInput').value;
+  var BG1Max = document.getElementById('bg1MaxInput').value;
 
-            //make sure the gate callback is set up
-            dataStore.viewers[target].gateCallback = this.gateCallback.bind(this);
+  var BG2SF = document.getElementById('bg2SFInput').value;
+  var BG2Min = document.getElementById('bg2MinInput').value;
+  var BG2Max = document.getElementById('bg2MaxInput').value;
 
-            if(state == 0){
-                dataStore.viewers[target].setupGateMode();
-                gateModeSwitch.setAttribute('engaged', 1);
-                document.getElementById('gateBadge').classList.add('red-text')
-            }
-            else{
-                dataStore.viewers[target].leaveGateMode();
-                gateModeSwitch.setAttribute('engaged', 0);
-                document.getElementById('gateBadge').classList.remove('red-text')
-            }
+  dispatcher({ 'gateAxis': gateAxis, 'gateMin': gateMin, 'gateMax': gateMax, 'plotNow': true, 'target': 'LowerViewer',
+              'BG1SF': BG1SF,'BG1Min': BG1Min,'BG1Max': BG1Max,'BG2SF': BG2SF,'BG2Min': BG2Min,'BG2Max': BG2Max,
+             }, 'requestGate');
 
-            //toggle state indicator
-          //  document.getElementById('gateInstructions').classList.toggle('hidden')
-        }
+}
 
-        /////////////////////////////
-        // x-range management
-        /////////////////////////////
+this.toggleGateMode = function(){
+  //manage the state of the Gate Mode button, and the corresponding state of the viewer.
+  //this: gateControl object
 
-        this.manageXvalidity = function(){
-            //check that x min < x max, and complain otherwise.
-            //this: gateControl object
+  if(dataStore.activeMatrix.length<1){
+    // Bail out if we dont have a matric to project
+    return;
+  }
 
-            var xMin = document.getElementById('minX'),
-                xMax = document.getElementById('maxX');
+  //determine which canvas and spectrum we're currently pointing at
+  //var target = dataStore.plots[0];
+  var target = 'UpperViewer';
+  var spectrum = dataStore.gateTarget;
 
-            var x0 = parseInt(xMin.value,10);
-            var x1 = parseInt(xMax.value,10);
+  // Clear all previous Gate information ready for a new projections
+  dataStore.viewers[target].GateLimitLower = -1; //gating limits
+  dataStore.viewers[target].GateLimitUpper = -1;
+  dataStore.viewers[target].BG1LimitLower = -1; // BG1 limits
+  dataStore.viewers[target].BG1LimitUpper = -1;
+  dataStore.viewers[target].BG2LimitLower = -1; // BG2 limits
+  dataStore.viewers[target].BG2LimitUpper = -1;
 
-            if(x1 <= x0){
-                xMin.setCustomValidity("minimum value of x must be less than maximum value of x.");
-                xMax.setCustomValidity("minimum value of x must be less than maximum value of x.");
-                return false
-            }
+  // Activate gate mode
+  var gateModeSwitch = document.getElementById('gateMode')
+  var state = gateModeSwitch.getAttribute('engaged')
 
-            xMin.setCustomValidity("");
-            xMax.setCustomValidity("");
+  // Set the axis to gate on based on which spectrum is the gateTarget
+if(spectrum.includes('x') && !spectrum.includes('y')){
+  document.getElementById('axisSelect').value = 'y';
+}else if(spectrum.includes('y') && !spectrum.includes('x')){
+  document.getElementById('axisSelect').value = 'x';
+}else{
+  // gateTarget name contains both x and y characters, so which axis to gate on?
+  console.log('cannot decide on how to set gating axis for '+spectrum);
+}
 
-            return true
-        };
+  //make sure the gate callback is set up
+  dataStore.viewers[target].gateCallback = this.gateCallback.bind(this);
 
-        // Callback function for when the gate parameters have been set.
-        this.gateCallback = function(){
-            //route the gate limits to the DOM elements, request the projection, and gracefully exit gate mode.
-            //this: gateControl object
-      //  console.log('gateCallback in gateControl.html');
-      //  console.log(dataStore);
+  if(state == 0){
+    dataStore.viewers[target].setupGateMode();
+    gateModeSwitch.setAttribute('engaged', 1);
+    document.getElementById('gateBadge').classList.add('red-text')
+  }
+  else{
+    dataStore.viewers[target].leaveGateMode();
+    gateModeSwitch.setAttribute('engaged', 0);
+    document.getElementById('gateBadge').classList.remove('red-text')
+  }
 
-           //determine which canvas and spectrum we're currently pointing at
-           var target = dataStore.plots[0];
-           var spectrum = dataStore.viewers[target].fitTarget;
+  //toggle state indicator
+  //  document.getElementById('gateInstructions').classList.toggle('hidden')
+}
 
-          // Exit Gate mode
-                    this.toggleGateMode()
-                    dataStore.viewers[target].leaveGateMode();
-        }
+/////////////////////////////
+// x-range management
+/////////////////////////////
+
+this.manageXvalidity = function(){
+  //check that x min < x max, and complain otherwise.
+  //this: gateControl object
+
+  var xMin = document.getElementById('minX'),
+  xMax = document.getElementById('maxX');
+
+  var x0 = parseInt(xMin.value,10);
+  var x1 = parseInt(xMax.value,10);
+
+  if(x1 <= x0){
+    xMin.setCustomValidity("minimum value of x must be less than maximum value of x.");
+    xMax.setCustomValidity("minimum value of x must be less than maximum value of x.");
+    return false
+  }
+
+  xMin.setCustomValidity("");
+  xMax.setCustomValidity("");
+
+  return true
+};
+
+// Callback function for when the gate parameters have been set.
+this.gateCallback = function(){
+  //gracefully exit gate mode and reattach all viewer targets.
+  //this: gateControl object
+
+  // Exit Gate mode
+  this.toggleGateMode()
+  dataStore.viewers['UpperViewer'].leaveGateMode();
+
+  // Attach all viewer targets again after the gating process
+  var activeToggles = document.getElementsByClassName('activeWindowFlag');
+  dataStore._plotControl.targets = [];
+
+  for(i=0; i<activeToggles.length; i++){
+      if(activeToggles[i].checked){
+          dataStore._plotControl.targets.push(activeToggles[i].value);
+      }
+  }
+
+  //set the UI to something sensible based on the new attachment state
+  dataStore._plotControl.updateRangeSelector();
+
+}
 
 
 
