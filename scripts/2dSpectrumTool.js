@@ -230,8 +230,8 @@ function plotControl2d(wrapID){
   	    plotNameBG1 = projectYaxis(event.detail.BG1Min,event.detail.BG1Max,'BG1',plotName);
       	plotNameBG2 = projectYaxis(event.detail.BG2Min,event.detail.BG2Max,'BG2',plotName);
   	}else{
-  	    plotNameBG1 = projectYaxis(event.detail.BG1Min,event.detail.BG1Max,'BG1',plotName);
-      	plotNameBG2 = projectYaxis(event.detail.BG2Min,event.detail.BG2Max,'BG2',plotName);
+  	    plotNameBG1 = projectXaxis(event.detail.BG1Min,event.detail.BG1Max,'BG1',plotName);
+      	plotNameBG2 = projectXaxis(event.detail.BG2Min,event.detail.BG2Max,'BG2',plotName);
   	}
   }
 

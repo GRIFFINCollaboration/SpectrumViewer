@@ -9,7 +9,7 @@
 // If manual then the peak regions are defined here by user mouse inputs. If automatic then the guesses are loaded.
 // Click the fitAll ('Gainmatch all') button to call this.fitAll were this is the gainMatchReport object.
 // this.fitAll uses a releaser to execute an operation for each key of dataStore.rawData.
-//      in the releaser: calls this.fitSpectra(keys[i]) with each key of dataStore.rawData. 
+//      in the releaser: calls this.fitSpectra(keys[i]) with each key of dataStore.rawData.
 //             this.fitSpectra calls this.guessPeaks to identify the peaks, plots the spectrum and fits the peaks by calling fitData which is a viewer function, then dumps the specturm data.
 //             fitData is in gammaSpectrum.js. It uses a [guassian + linear background] fit from a maximum-likihood approach. It calls this.fitCallback.
 //                    fitCallback is defined in gainMatchReport.html. after fitting, log the fit results (dataStore.fitResults), log the resolution, update any modification made to the ROI by the fitting algortihm,
@@ -35,7 +35,7 @@ function setupDataStore(){
 
     // Get the analyzer Server and ODB host names from the URL
     GetURLArguments();
-    
+
     dataStore.numberOfClovers = 16;                                     // Default number of clovers is all of the array
     // shouldn't need to change anything below this line -----------------------------------------------------------------------
 
@@ -51,24 +51,24 @@ function setupDataStore(){
     dataStore.RunNumber = '';                                               //store the run number for naming the Cal file
     dataStore.rawData = {};                                                 //buffer for raw spectrum data
     //fitting
-    dataStore.mode = 'manual';                                              //mode of operation: manual (user defined search regions) or auto (predefined search regions). 
+    dataStore.mode = 'manual';                                              //mode of operation: manual (user defined search regions) or auto (predefined search regions).
     dataStore.ROI = {};                                                     //regions of interest to look for peaks in: 'plotname': {'ROIupper':[low bin, high bin], 'ROIlower': [low bin, high bin]}
     dataStore.fitResults = {};                                              //fit results: 'plotname': [[amplitude, center, width, intercept, slope], [amplitude, center, width, intercept, slope]]
-    
+
     //custom element config
     dataStore.plots = ['Spectra'];                                          //names of plotGrid cells and spectrumViewer objects
 
     dataStore.resolutionData = [];                                      //dygraphs-sorted peak widths for both peaks, in same order as THESEdetectors: [[detectorIndex, low peak width, high peak width], ...]
-    dataStore.residualsData = [];                                     
-    dataStore.residualsData[0] = [];                                  
-    dataStore.residualsData[1] = [];        // peak1                          
-    dataStore.residualsData[2] = [];        //peak2                          
-    dataStore.residualsData[3] = [];        //peak3                          
-    dataStore.residualsData[4] = [];        //peak4                   
-    dataStore.residualsData[5] = [];        // peak1                          
-    dataStore.residualsData[6] = [];        //peak2                          
-    dataStore.residualsData[7] = [];        //peak3                          
-    dataStore.residualsData[8] = [];        //peak4                             
+    dataStore.residualsData = [];
+    dataStore.residualsData[0] = [];
+    dataStore.residualsData[1] = [];        // peak1
+    dataStore.residualsData[2] = [];        //peak2
+    dataStore.residualsData[3] = [];        //peak3
+    dataStore.residualsData[4] = [];        //peak4
+    dataStore.residualsData[5] = [];        // peak1
+    dataStore.residualsData[6] = [];        //peak2
+    dataStore.residualsData[7] = [];        //peak3
+    dataStore.residualsData[8] = [];        //peak4
     dataStore.lowPeakResolution = [];                                   //low energy peak resolutions, indexed per GRIFFINdetectors
     dataStore.lowPeakResolution.fillN(0,(dataStore.numberOfClovers*4*2));                             //start with zeroes
     dataStore.midPeakResolution = [];                                  //as midPeakResolution
@@ -82,15 +82,15 @@ function setupDataStore(){
     dataStore.searchRegionP3 = [];                                         //[x_start, x_finish, y for peak search bar]
     dataStore.searchRegionP4 = [];                                         //[x_start, x_finish, y for peak search bar]
 
-    dataStore.modeType = 'Online';                                         //mode of operation: Online or Histo. 
+    dataStore.modeType = 'Online';                                         //mode of operation: Online or Histo.
     dataStore.modeChoice = [                                               // Mode choice (online/histogram file) information to generate buttons
 	{"name": "Online", "text": "Use online data"},
 	{"name": "Histo", "text": "Use a histogram file"}
     ];
-    
+
     dataStore.detectorType = 'HPGe';                                       //Detector choice that has been selected; HPGe or PACES
     dataStore.detectorChoice = [{"name": "HPGe"},{"name": "PACES"}];       // Detector choice information to generate buttons
-    
+
     dataStore.sourceInfo = [                                            // Source information and settings
 	{"name":  "Co-60", "title":  "60Co", "lowEnergy":  74.97, "midEnergy": 1173.23, "highEnergy": 1332.49, "vhiEnergy": 2614.52, "maxXValue":2650 },
 	{"name":  "Co-56", "title":  "56Co", "lowEnergy": 122.06, "midEnergy":  846.77, "highEnergy": 1238.29, "vhiEnergy": 2598.50, "maxXValue":2650 },
@@ -102,7 +102,8 @@ function setupDataStore(){
 	{"name": "Background", "title": "Background", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "maxXValue":2650 }
     ];
     dataStore.sourceInfoPACES = [
-	{"name": "PACES",  "title": "PACES 207Bi", "lowEnergy":  74.97, "midEnergy":  481.69, "highEnergy":  975.65, "vhiEnergy": 1682.22, "maxXValue":2000 }
+	{"name": "PACES207Bi",  "title": "PACES 207Bi", "lowEnergy":  74.97, "midEnergy":  481.69, "highEnergy":  975.65, "vhiEnergy": 1682.22, "maxXValue":2000 },
+  {"name":  "PACESA146",  "title": "PACES A=146", "lowEnergy":  82.28, "midEnergy":  101.78, "highEnergy":  142.14, "vhiEnergy": 218.13, "maxXValue":450 }
     ];
 
     dataStore.THESEdetectors = [];                                    //10-char codes of all possible griffin/paces detectors. Contents based on detectorChoice
@@ -120,16 +121,16 @@ function setupDataStore(){
     dataStore.plotInitData[6] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
     dataStore.plotInitData[7] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
     dataStore.plotInitData[8] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
-    dataStore.dataplotData = [];                                       // place for dataplot data 
-    dataStore.dataplotData[0] = [];                                       // place for dataplot data 
-    dataStore.dataplotData[1] = [];                                       // place for dataplot data 
-    dataStore.dataplotData[2] = [];                                       // place for dataplot data 
-    dataStore.dataplotData[3] = [];                                       // place for dataplot data 
-    dataStore.dataplotData[4] = [];                                       // place for dataplot data 
-    dataStore.dataplotData[5] = [];                                       // place for dataplot data 
-    dataStore.dataplotData[6] = [];                                       // place for dataplot data 
-    dataStore.dataplotData[7] = [];                                       // place for dataplot data 
-    dataStore.dataplotData[8] = [];                                       // place for dataplot data 
+    dataStore.dataplotData = [];                                       // place for dataplot data
+    dataStore.dataplotData[0] = [];                                       // place for dataplot data
+    dataStore.dataplotData[1] = [];                                       // place for dataplot data
+    dataStore.dataplotData[2] = [];                                       // place for dataplot data
+    dataStore.dataplotData[3] = [];                                       // place for dataplot data
+    dataStore.dataplotData[4] = [];                                       // place for dataplot data
+    dataStore.dataplotData[5] = [];                                       // place for dataplot data
+    dataStore.dataplotData[6] = [];                                       // place for dataplot data
+    dataStore.dataplotData[7] = [];                                       // place for dataplot data
+    dataStore.dataplotData[8] = [];                                       // place for dataplot data
     dataStore.plotStyle = [];
     dataStore.plotStyle[0] = {                                              //dygraphs style object
         labels: ["channel", "Peak1 Width", "Peak2 Width", "Peak3 Width", "Peak4 Width"],
@@ -155,7 +156,7 @@ function setupDataStore(){
                         return dataStore.THESEdetectors[number].slice(3,6);
                     else
                         return number
-                    
+
                 }
             },
 
@@ -188,7 +189,7 @@ function setupDataStore(){
                         return dataStore.THESEdetectors[number].slice(3,6);
                     else
                         return number
-                    
+
                 }
             },
 
@@ -221,7 +222,7 @@ function setupDataStore(){
                         return dataStore.THESEdetectors[number].slice(3,6);
                     else
                         return number
-                    
+
                 }
             },
 
@@ -254,7 +255,7 @@ function setupDataStore(){
                         return dataStore.THESEdetectors[number].slice(3,6);
                     else
                         return number
-                    
+
                 }
             },
 
@@ -287,7 +288,7 @@ function setupDataStore(){
                         return dataStore.THESEdetectors[number].slice(3,6);
                     else
                         return number
-                    
+
                 }
             }
         }
@@ -316,7 +317,7 @@ function setupDataStore(){
                         return dataStore.THESEdetectors[number].slice(3,6);
                     else
                         return number
-                    
+
                 }
             },
 
@@ -349,7 +350,7 @@ function setupDataStore(){
                         return dataStore.THESEdetectors[number].slice(3,6);
                     else
                         return number
-                    
+
                 }
             },
 
@@ -382,7 +383,7 @@ function setupDataStore(){
                         return dataStore.THESEdetectors[number].slice(3,6);
                     else
                         return number
-                    
+
                 }
             },
 
@@ -415,7 +416,7 @@ function setupDataStore(){
                         return dataStore.THESEdetectors[number].slice(3,6);
                     else
                         return number
-                    
+
                 }
             }
         }
@@ -434,7 +435,7 @@ function fetchCallback(){
     if(document.getElementById('regionMessage')){
 	document.getElementById('regionMessage').classList.remove('hidden');
     }
-	
+
     //show first plot
     dataStore._plotListLite.snapToTop();
 
@@ -446,13 +447,13 @@ function fetchCallback(){
 }
 
 function setupMenusFromModeChoice(modeType){
-    
+
     //user guidance
     deleteNode('modeMessage');
 
     // Save the modeType to the dataStore for use later
     dataStore.modeType = modeType;
-    
+
     // If histograms are required then inject the inputs for this
     if(modeType == 'Histo'){
 	//user guidance
@@ -462,15 +463,15 @@ function setupMenusFromModeChoice(modeType){
 	for(i=0; i<dataStore.modeChoice.length; i++){
 	deleteNode('modeChoice-'+dataStore.modeChoice[i].name);
 	}
-	
+
 	// Create the text input for the Histogram file directory
 	var newLabel = document.createElement("label");
 	newLabel.for = 'HistoDirectoryInput';
 	newLabel.innerHTML = 'Histogram fileDirectory: ';
 	document.getElementById('modeChoiceBar').appendChild(newLabel);
-	
-	newInput = document.createElement('input'); 
-	newInput.id = 'HistoDirectoryInput'; 
+
+	newInput = document.createElement('input');
+	newInput.id = 'HistoDirectoryInput';
 	newInput.type = 'text';
 	newInput.style.width = '400px';
 	newInput.value = dataStore.histoFileDirectoryPath;
@@ -482,21 +483,21 @@ function setupMenusFromModeChoice(modeType){
 
 	// Grab the histogram list for the default directory
 	getHistoFileListFromServer();
-	
-	
+
+
     }else{
 	// Online mode so do straight to detector choice
 	// Hide the mode choice
 	document.getElementById('modeChoiceBar').classList.add("hidden");
-	
+
 	//user guidance
 	deleteNode('histogramMessage');
 	document.getElementById('detectorMessage').classList.remove('hidden');
-	
+
 	// Display the detector choice
 	document.getElementById('detectorChoiceBar').classList.remove("hidden");
     }
-    
+
 }
 
 function setupHistoListSelect(){
@@ -506,14 +507,14 @@ function setupHistoListSelect(){
 	document.getElementById('HistoListSelectLabel').remove();
     }
     catch(err){ }
-    
+
     // Add the title text
     var newLabel = document.createElement("label");
     newLabel.for = 'HistoListSelect';
     newLabel.id = 'HistoListSelectLabel';
     newLabel.innerHTML = 'Histogram file: ';
     document.getElementById('modeChoiceBar').appendChild(newLabel);
-    
+
     // Create a select input for the histo file list
     var newSelect = document.createElement("select");
     newSelect.id = 'HistoListSelect';
@@ -521,18 +522,18 @@ function setupHistoListSelect(){
     newSelect.onchange = function(){
 	dataStore.histoFileName = this.value;
 	console.log('Histogram selected is '+dataStore.histoFileName);
-	
+
 	//user guidance
 	if(document.getElementById('histogramMessage')){
 	    deleteNode('histogramMessage');
 	}
 	document.getElementById('detectorMessage').classList.remove('hidden');
-	
+
 	// Display the detector choice
 	document.getElementById('detectorChoiceBar').classList.remove("hidden");
     }.bind(newSelect);
     document.getElementById('modeChoiceBar').appendChild(newSelect);
-    
+
     // Add the list of histo files as the options
     thisSelect = document.getElementById('HistoListSelect');
     for(var i=0; i<dataStore.histoFileList.length; i++){
@@ -543,7 +544,7 @@ function setupHistoListSelect(){
     if(dataStore.histoAutoLoad){
 	thisSelect.value = dataStore.histoFileName;
     }
-    
+
     // Fire the onchange event for the select with the default value to set it
     document.getElementById('HistoListSelect').onchange();
 }
@@ -559,7 +560,7 @@ function setupMenusFromDetectorChoice(detectorType){
 
     // Remember this choice
     dataStore.detectorType = detectorType;
-    
+
     if(detectorType == 'PACES'){
 	// Delete the HPGe source buttons and generate only the PACES buttons
 	const thisNode = document.getElementById('decisionBarAuto');
@@ -568,9 +569,9 @@ function setupMenusFromDetectorChoice(detectorType){
 	}
 	for(var i=0; i<dataStore.sourceInfoPACES.length; i++){
 	    // Create Auto calibrate source Submit button
-	    newButton = document.createElement('button'); 
-	    newButton.setAttribute('id', 'automaticCalibration-'+dataStore.sourceInfoPACES[i].name); 
-	    newButton.setAttribute('class', 'btn btn-default'); 
+	    newButton = document.createElement('button');
+	    newButton.setAttribute('id', 'automaticCalibration-'+dataStore.sourceInfoPACES[i].name);
+	    newButton.setAttribute('class', 'btn btn-default');
 	    newButton.setAttribute('engaged', '0');
 	    newButton.value = dataStore.sourceInfoPACES[i].name;
 	    newButton.innerHTML = '<span id=\'autoCalibBadge-'+dataStore.sourceInfoPACES[i].name+'\' class=\'glyphicon glyphicon-equalizer\' aria-hidden=\'true\'></span><span id=\'autoText\'>Calibrate '+dataStore.sourceInfoPACES[i].title+'</span>';
@@ -580,7 +581,7 @@ function setupMenusFromDetectorChoice(detectorType){
             document.getElementById('decisionBarAuto').appendChild(newButton);
 	}
     }
-    
+
     // setup the dataStore for this choice of detectorType
     var i, num=0, groups = [];
     var histoName = '';
@@ -589,7 +590,7 @@ function setupMenusFromDetectorChoice(detectorType){
     if(dataStore.histoFileName.length>0){
 	histoName = dataStore.histoFileName.split('.')[0]+':';
     }
-    
+
     // Save the lists of spectrum names to the dataStore for this detectorType
     if(detectorType == 'HPGe'){
 	// Set up GRIFFIN detectors
@@ -604,7 +605,7 @@ function setupMenusFromDetectorChoice(detectorType){
 	    }
 	}
     }
-	
+
     //generate the groups for plot selector
     for(i=1; i<(dataStore.numberOfClovers+1); i++){
         groups.push({
@@ -612,35 +613,35 @@ function setupMenusFromDetectorChoice(detectorType){
             "groupTitle": 'GRIFFIN ' + alwaysThisLong(i, 2),
             "plots": [
                 {
-                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'BN00A_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'BN00A_Pulse_Height',
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'BN00A'
                 },
                 {
-                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'GN00A_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'GN00A_Pulse_Height',
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'GN00A'
                 },
                 {
-                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'RN00A_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'RN00A_Pulse_Height',
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'RN00A'
                 },
                 {
-                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'WN00A_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'WN00A_Pulse_Height',
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'WN00A'
                 },
                 {
-                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'BN00B_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'BN00B_Pulse_Height',
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'BN00B'
                 },
                 {
-                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'GN00B_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'GN00B_Pulse_Height',
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'GN00B'
                 },
                 {
-                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'RN00B_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'RN00B_Pulse_Height',
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'RN00B'
                 },
                 {
-                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'WN00B_Pulse_Height', 
+                    "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'WN00B_Pulse_Height',
                     "title": 'GRG' + alwaysThisLong(i, 2) + 'WN00B'
                 }
             ]
@@ -663,39 +664,39 @@ function setupMenusFromDetectorChoice(detectorType){
             "groupTitle": 'PACES',
             "plots": [
                 {
-                    "plotID": histoName+'PAC01XN00A_Pulse_Height', 
+                    "plotID": histoName+'PAC01XN00A_Pulse_Height',
                     "title": 'PAC01XN00A'
                 },
                 {
-                    "plotID": histoName+'PAC02XN00A_Pulse_Height', 
+                    "plotID": histoName+'PAC02XN00A_Pulse_Height',
                     "title": 'PAC02XN00A'
                 },
                 {
-                    "plotID": histoName+'PAC03XN00A_Pulse_Height', 
+                    "plotID": histoName+'PAC03XN00A_Pulse_Height',
                     "title": 'PAC03XN00A'
                 },
                 {
-                    "plotID": histoName+'PAC04XN00A_Pulse_Height', 
+                    "plotID": histoName+'PAC04XN00A_Pulse_Height',
                     "title": 'PAC04XN00A'
                 },
                 {
-                    "plotID": histoName+'PAC05XN00A_Pulse_Height', 
+                    "plotID": histoName+'PAC05XN00A_Pulse_Height',
                     "title": 'PAC05XN00A'
                 }
             ]
         })
 
 }
-    
+
     dataStore.plotGroups = groups;     //groups to arrange detectors into for dropdowns
-    
+
     // Generate the spectrum lists based on the list of detectors
     dataStore._plotListLite = new plotListLite('plotList');
     dataStore._plotListLite.setup();
 
     // Generate the gain match report table based on the list of detectors
-    dataStore._gainMatchReport = new gainMatchReport('gainMatcher', 'setupBar'); 
-    dataStore._gainMatchReport.setup(); 
+    dataStore._gainMatchReport = new gainMatchReport('gainMatcher', 'setupBar');
+    dataStore._gainMatchReport.setup();
 
     //user guidance
     deleteNode('detectorMessage');
@@ -723,14 +724,14 @@ function loadData(DAQ){
 		dataStore.midasCalibration[keyString] = [DAQ[3].offset[i], DAQ[4].gain[i], DAQ[5].quadratic[i] ];
 	    }
 	}
-	
+
     }else{
 	// modeType is Histo
 	// If the data is from a histogram file, unpack the data here
 	Config = JSON.parse(DAQ);
 	dataStore.PSCchannels = [];
 	dataStore.PSCaddresses = [];
-	
+
 	for(i=0; i<Config.Analyzer[4].Calibrations.length; i++){
 	    channels.push(Config.Analyzer[4].Calibrations[i].name);
 	    dataStore.PSCchannels.push(Config.Analyzer[4].Calibrations[i].name);
@@ -743,7 +744,7 @@ function loadData(DAQ){
 	}
 	dataStore.RunNumber = dataStore.histoFileName.split("_")[0].replace(/^\D+/g, '').split(".")[0];
     }
-    
+
     //Add the detector type and run number to the name of the Cal file
     if(dataStore.THESEdetectors[0].includes('GRG')){
 	document.getElementById('saveCalname').value = 'GRIFFIN-Cal-File-Run'+dataStore.RunNumber+'.cal';
@@ -754,12 +755,12 @@ function loadData(DAQ){
     // Trigger the saving of this new filename
     document.getElementById('saveCalname').onchange();
 
-    // Plug in the active spectra names    
+    // Plug in the active spectra names
     for(i=0; i<channels.length; i++){
         if(channels[i].slice(0,3) == dataStore.THESEdetectors[0].slice(0,3))
             dataStore._plotControl.activeSpectra.push(channels[i] + '_Pulse_Height');
     }
-    
+
     dataStore._plotControl.refreshAll();
 }
 
@@ -769,7 +770,7 @@ function updateAnalyzer(){
     // For the Analyzer we can get a similar list from the viewConfig command with the Histogram file as the argument.
     // That should probably be done for the building of the initial spectrum list for gain-matching if Histogram mode is selected.
     // Need to reformat the URLs generated here for the Analyzer
-    
+
     // bail out if there's no fit yet
     if(Object.keys(dataStore.fitResults).length == 0)
         return;
@@ -780,22 +781,29 @@ function updateAnalyzer(){
     //for every channel, update the quads, gains and offsets:
     urls[0]=dataStore.spectrumServer + '?cmd=setCalibration';
     for(i=0; i<dataStore.THESEdetectors.length; i++){
-        if( document.getElementById(dataStore.THESEdetectors[i]+'write').checked){
-            q = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][2];
-            q = isNumeric(q) ? q : 1;
-            quad[i] = q;
-            g = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][1];
-            g = isNumeric(g) ? g : 1;
-            gain[i] = g;
-            o = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][0];
-            o = isNumeric(o) ? o : 0;
-            offset[i] = o;
+      if( document.getElementById(dataStore.THESEdetectors[i]+'write').checked){
+        if(dataStore.modeType == 'Histo'){
+          var thisHisto = dataStore.histoFileName.split('.')[0]+':';
+          q = dataStore.fitResults[thisHisto+dataStore.THESEdetectors[i]+'_Pulse_Height'][4][2];
+          g = dataStore.fitResults[thisHisto+dataStore.THESEdetectors[i]+'_Pulse_Height'][4][1];
+          o = dataStore.fitResults[thisHisto+dataStore.THESEdetectors[i]+'_Pulse_Height'][4][0];
+        }else{
+          q = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][2];
+          g = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][1];
+          o = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][0];
+        }
+        q = isNumeric(q) ? q : 1;
+        quad[i] = q;
+        g = isNumeric(g) ? g : 1;
+        gain[i] = g;
+        o = isNumeric(o) ? o : 0;
+        offset[i] = o;
 
 	    // Write a separate URL for each clover
 	    if(i>0 && (dataStore.THESEdetectors[i].includes('GRG')) && ((i%4) == 0)){ num++; j=0; urls[num]= dataStore.spectrumServer + '?cmd=setCalibration';}
 	    urls[num] += '&channelName'+j+'='+dataStore.THESEdetectors[i]+'&quad'+j+'='+quad[i]+'&gain'+j+'='+gain[i]+'&offset'+j+'='+offset[i];
 	    j++;
-	    
+
         }else{
 	    // Set some values rather than have these entries undefined for unchecked channels
 	    // Channels that did not produce good coefficients are not included in the URLs
@@ -804,11 +812,11 @@ function updateAnalyzer(){
             offset[i] = 0;
 	}
     }
-    
+
     //send requests
     for(i=0; i<urls.length; i++){
-        XHR(urls[i], 
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+        XHR(urls[i],
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
             function(){return 0},
             function(error){console.log(error)}
         )
@@ -834,32 +842,39 @@ function updateODB(obj){
     for(i=0; i<channel.length; i++){
         position = dataStore.THESEdetectors.indexOf(channel[i]);
         if( (position != -1) && (document.getElementById(channel[i]+'write').checked)){
+          if(dataStore.modeType == 'Histo'){
+            var thisHisto = dataStore.histoFileName.split('.')[0]+':';
+            q = dataStore.fitResults[thisHisto+dataStore.THESEdetectors[position]+'_Pulse_Height'][4][2];
+            g = dataStore.fitResults[thisHisto+dataStore.THESEdetectors[position]+'_Pulse_Height'][4][1];
+            o = dataStore.fitResults[thisHisto+dataStore.THESEdetectors[position]+'_Pulse_Height'][4][0];
+          }else{
             q = dataStore.fitResults[dataStore.THESEdetectors[position]+'_Pulse_Height'][4][2];
-            q = isNumeric(q) ? q : 1;
-            quad[i] = q;
             g = dataStore.fitResults[dataStore.THESEdetectors[position]+'_Pulse_Height'][4][1];
-            g = isNumeric(g) ? g : 1;
-            gain[i] = g;
             o = dataStore.fitResults[dataStore.THESEdetectors[position]+'_Pulse_Height'][4][0];
-            o = isNumeric(o) ? o : 0;
-            offset[i] = o;
+          }
+          q = isNumeric(q) ? q : 1;
+          quad[i] = q;
+          g = isNumeric(g) ? g : 1;
+          gain[i] = g;
+          o = isNumeric(o) ? o : 0;
+          offset[i] = o;
         }
     }
 
     //turn gain and offset arrays into csv strings
-    quad = JSON.stringify(quad).slice(1,-1) 
-    gain = JSON.stringify(gain).slice(1,-1) 
-    offset = JSON.stringify(offset).slice(1,-1) 
+    quad = JSON.stringify(quad).slice(1,-1)
+    gain = JSON.stringify(gain).slice(1,-1)
+    offset = JSON.stringify(offset).slice(1,-1)
 
     //construct urls to post to
     urls[0] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/PSC/quadratic[*]&value='+quad;
     urls[1] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/PSC/gain[*]&value='+gain;
     urls[2] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/PSC/offset[*]&value='+offset;
-    
+
     //send requests
     for(i=0; i<urls.length; i++){
-        XHR(urls[i], 
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).', 
+        XHR(urls[i],
+            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
             function(){return 0},
             function(error){console.log(error)}
         )
@@ -872,33 +887,33 @@ function updateODB(obj){
 function setupManualCalibration(){
     // alternative to the shift-click on plot - set limits automatically then draw a horizontal line as the peak search region.
     // this == spectrumViewer object
-    
+
     // Set the mode of operation
     dataStore.mode = 'manual';
-    
+
     // Hide the unnessary buttons
     document.getElementById('decisionBarAuto').classList.add('hidden');
-    
+
     // Reveal the peak info inputs
     document.getElementById('setupBar').classList.remove("hidden");
 
     // Set the decision button to engaged
     document.getElementById('manualCalibration').setAttribute('engaged', 1);
     document.getElementById('manCalibBadge').classList.add('red-text')
-    
+
     //plug in special fit controls
     document.getElementById('fitLow').onclick = dataStore._gainMatchReport.toggleFitMode;
     document.getElementById('fitMid').onclick = dataStore._gainMatchReport.toggleFitMode;
     document.getElementById('fitHigh').onclick = dataStore._gainMatchReport.toggleFitMode;
     document.getElementById('fitvHi').onclick = dataStore._gainMatchReport.toggleFitMode;
-    
+
     // set up shift-click behavior:
     dataStore.viewers[dataStore.plots[0]].shiftclickCallback = shiftclick;
-    
+
     //user guidance
     deleteNode('decisionMessage');
     document.getElementById('waitMessage').classList.remove('hidden');
-    
+
     //identify, register & fetch all spectra
     if(dataStore.modeType == 'Histo'){
 	// Histogram mode: get odb data from the histo file via the spectrumServer
@@ -925,20 +940,20 @@ function setupAutomaticCalibration(sourceType){
 	    }
 	}
     }
-    document.getElementById('manualCalibration').classList.add('hidden');    
-    
+    document.getElementById('manualCalibration').classList.add('hidden');
+
     // Set the decision button to engaged
     thisID = 'automaticCalibration-' + sourceType;
     thisBadgeID = 'autoCalibBadge-' + sourceType;
     document.getElementById(thisID).setAttribute('engaged', 1);
     document.getElementById(thisBadgeID).classList.add('red-text')
-    
+
     // Reveal the peak info inputs
     document.getElementById('setupBar').classList.remove("hidden");
-    
+
     // Set the search area automatically instead of asking for user input
     autoPeakSearchLimits(sourceType);
-    
+
     //user guidance
     deleteNode('decisionMessage');
     document.getElementById('waitMessage').classList.remove('hidden');
@@ -946,15 +961,15 @@ function setupAutomaticCalibration(sourceType){
     //identify, register & fetch all spectra
     if(dataStore.modeType == 'Histo'){
 	// Histogram mode: get odb data from the histo file via the spectrumServer
-	
+
 	dataStore.ViewConfigQuery = dataStore.spectrumServer + '?cmd=viewConfig&filename=' + dataStore.histoFileDirectoryPath + '/' + dataStore.histoFileName;
 	XHR(dataStore.ViewConfigQuery, "Problem getting viewConfig from analyzer server", loadData, function(error){console.log(error)});
     }else{
 	// Online mode: get odb data from ODBhost
-	
+
 	promiseScript(dataStore.DAQquery)
     }
-    
+
     // Draw the search region
    dataStore.viewers[dataStore.plots[0]].plotData();
 
@@ -963,7 +978,7 @@ function setupAutomaticCalibration(sourceType){
     document.getElementById('fitMid').onclick = dataStore._gainMatchReport.toggleFitMode;
     document.getElementById('fitHigh').onclick = dataStore._gainMatchReport.toggleFitMode;
     document.getElementById('fitvHi').onclick = dataStore._gainMatchReport.toggleFitMode;
-    
+
     //user guidance
     deleteNode('regionMessage');
     deleteNode('pickerMessage');
@@ -973,7 +988,7 @@ function setupAutomaticCalibration(sourceType){
 function autoPeakSearchLimits(sourceType){
     // alternative to the shift-click on plot - set limits automatically then draw a horizontal line as the peak search region.
     // this == spectrumViewer object
-
+console.log(sourceType)
     // Set the peak energies for this source
     if(dataStore.THESEdetectors[0].includes('PAC')){
 	// Find the index number for the source information for this sourceType
@@ -982,6 +997,8 @@ function autoPeakSearchLimits(sourceType){
 	var midEnergy  = dataStore.sourceInfoPACES[index].midEnergy;
 	var highEnergy = dataStore.sourceInfoPACES[index].highEnergy;
 	var vhiEnergy  = dataStore.sourceInfoPACES[index].vhiEnergy;
+  var LowerLimitFactor = 1.02;
+  var UpperLimitFactor = 1.3;
     }else{
 	// Find the index number for the source information for this sourceType
 	var index = dataStore.sourceInfo.map(function(e) { return e.name; }).indexOf(sourceType);
@@ -989,13 +1006,15 @@ function autoPeakSearchLimits(sourceType){
 	var midEnergy  = dataStore.sourceInfo[index].midEnergy;
 	var highEnergy = dataStore.sourceInfo[index].highEnergy;
 	var vhiEnergy  = dataStore.sourceInfo[index].vhiEnergy;
+  var LowerLimitFactor = 0.644;
+  var UpperLimitFactor = 0.966;
     }
-    
+
     // Configure the axis settings
     document.getElementById('logY').onclick();
-    document.getElementById('maxX').value = dataStore.sourceInfo[index].maxXValue; 
+    document.getElementById('maxX').value = dataStore.sourceInfo[index].maxXValue;
     document.getElementById('maxX').onchange();
-    
+
     // Set the source details on the page
     document.getElementById('gainMatchercalibrationSource').value = sourceType;
     document.getElementById('peak1').value = lowEnergy;
@@ -1004,22 +1023,22 @@ function autoPeakSearchLimits(sourceType){
     document.getElementById('peak4').value = vhiEnergy;
 
     // Set the limits for the peak searches automatically instead of getting shift-click input from user
-    dataStore.searchRegionP1[0] = Math.floor(lowEnergy *0.644);
-    dataStore.searchRegionP1[1] = Math.floor(lowEnergy *0.966);
+    dataStore.searchRegionP1[0] = Math.floor(lowEnergy * LowerLimitFactor);
+    dataStore.searchRegionP1[1] = Math.floor(lowEnergy * UpperLimitFactor);
     dataStore.searchRegionP1[2] = 10;
-    
-    dataStore.searchRegionP2[0] = Math.floor(midEnergy *0.644);
-    dataStore.searchRegionP2[1] = Math.floor(midEnergy *0.966);
+
+    dataStore.searchRegionP2[0] = Math.floor(midEnergy * LowerLimitFactor);
+    dataStore.searchRegionP2[1] = Math.floor(midEnergy * UpperLimitFactor);
     dataStore.searchRegionP2[2] = 10;
-    
-    dataStore.searchRegionP3[0] = Math.floor(highEnergy *0.644);
-    dataStore.searchRegionP3[1] = Math.floor(highEnergy *0.966);
+
+    dataStore.searchRegionP3[0] = Math.floor(highEnergy * LowerLimitFactor);
+    dataStore.searchRegionP3[1] = Math.floor(highEnergy * UpperLimitFactor);
     dataStore.searchRegionP3[2] = 10;
-    
-    dataStore.searchRegionP4[0] = Math.floor(vhiEnergy *0.644);
-    dataStore.searchRegionP4[1] = Math.floor(vhiEnergy *0.966);
+
+    dataStore.searchRegionP4[0] = Math.floor(vhiEnergy * LowerLimitFactor);
+    dataStore.searchRegionP4[1] = Math.floor(vhiEnergy * UpperLimitFactor);
     dataStore.searchRegionP4[2] = 10;
-    
+
 }
 
 
@@ -1028,7 +1047,7 @@ function buildCalfile(){
 
     // Write the Cal file content based on the list in the ODB and the fitted results
     CAL = '';
-    
+
     for(i=0; i<dataStore.PSCchannels.length; i++){
         if(dataStore.PSCchannels[i].slice(0,3) == 'XXX'){ continue; }
         if(dataStore.PSCaddresses[i]<0){ continue; }

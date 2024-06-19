@@ -929,21 +929,21 @@ function spectrumViewer(canvasID){
 					this.shadeGateBins(this.bkgColor,this.BG2LimitLower,this.BG2LimitUpper,this.gateTarget);
 					this.stage.update();
 
-										// Remeber these BG regions for redrawing later
-												this.activeGateLines[gateKey + 'BG1' + (Math.round(this.GateLimitUpper-this.GateLimitLower)+this.GateLimitLower)] = {
-													'Color': this.bkgColor,
-													'LimitLower': this.BG1LimitLower,
-													'LimitUpper': this.BG1LimitUpper,
-													'Target': this.gateTarget,
-												}
-														this.activeGateLines[gateKey + 'BG2' + (Math.round(this.GateLimitUpper-this.GateLimitLower)+this.GateLimitLower)] = {
-															'Color': this.bkgColor,
-															'LimitLower': this.BG2LimitLower,
-															'LimitUpper': this.BG2LimitUpper,
-															'Target': this.gateTarget,
-														}
-          // Request the gate region projection be made
-        	document.getElementById('submitGateButton').click();
+					// Remeber these BG regions for redrawing later
+					this.activeGateLines[gateKey + 'BG1' + (Math.round(this.GateLimitUpper-this.GateLimitLower)+this.GateLimitLower)] = {
+						'Color': this.bkgColor,
+						'LimitLower': this.BG1LimitLower,
+						'LimitUpper': this.BG1LimitUpper,
+						'Target': this.gateTarget,
+					}
+					this.activeGateLines[gateKey + 'BG2' + (Math.round(this.GateLimitUpper-this.GateLimitLower)+this.GateLimitLower)] = {
+						'Color': this.bkgColor,
+						'LimitLower': this.BG2LimitLower,
+						'LimitUpper': this.BG2LimitUpper,
+						'Target': this.gateTarget,
+					}
+					// Request the gate region projection be made
+					document.getElementById('submitGateButton').click();
 
 					// prepare to exit Gate mode
 					this.gated=1;

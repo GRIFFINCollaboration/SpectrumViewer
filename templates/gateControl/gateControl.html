@@ -41,37 +41,37 @@
       </div>
 
       <div class="input-group">
-      <span class='input-group-addon'>Bkg1 min/max</span>
-      <input id="bg1MinInput" value="0" type="number" class='black-text'></input>
-      <input id="bg1MaxInput" value="2048" type="number" class='black-text'></input>
+        <span class='input-group-addon'>Bkg1 min/max</span>
+        <input id="bg1MinInput" value="0" type="number" class='black-text'></input>
+        <input id="bg1MaxInput" value="2048" type="number" class='black-text'></input>
+      </div>
+      <div class="input-group">
+        <span class='input-group-addon'>Bkg1 Scaling Factor</span>
+        <input id="bg1SFInput" value="0.5" min="0" max="100" step="0.01" type="number" class='black-text'></input>
+        <input type="range" id="bg1SFslider" min="0" max="100" step="0.01" value="1">
+      </div>
+
+      <div class="input-group">
+        <span class='input-group-addon'>Bkg2 min/max</span>
+        <input id="bg2MinInput" value="0" type="number" class='black-text'></input>
+        <input id="bg2MaxInput" value="2048" type="number" class='black-text'></input>
+      </div>
+
+      <div class="input-group">
+        <span class='input-group-addon'>Bkg2 Scaling Factor</span>
+        <input id="bg2SFInput" value="0.5" min="0" max="100" step="0.01" type="number" class='black-text'></input>
+        <input type="range" id="bg2SFslider" min="0" max="100" step="0.01" value="1">
+      </div>
+      <!--
+      <div class="input-group">
+      <span class='input-group-addon'>Bkg3 Scaling Factor</span>
+      <input id="bg3SFInput" value="1.0" min="0.1" max="1000" step="0.1" type="number" class='black-text'></input>
+      <input type="range" id="bg3SFslider" min="0.1" max="1000" step="0.1" value="1">
     </div>
-    <div class="input-group">
-    <span class='input-group-addon'>Bkg1 Scaling Factor</span>
-    <input id="bg1SFInput" value="0.5" min="0" max="100" step="0.01" type="number" class='black-text'></input>
-    <input type="range" id="bg1SFslider" min="0" max="100" step="0.01" value="1">
+  -->
+  <div class='btn-group btn-group-sm' roll='group'>
+    <button class="btn btn-default" id="submitGateButton" type="button">Gate</button>
   </div>
-
-  <div class="input-group">
-  <span class='input-group-addon'>Bkg2 min/max</span>
-  <input id="bg2MinInput" value="0" type="number" class='black-text'></input>
-  <input id="bg2MaxInput" value="2048" type="number" class='black-text'></input>
-</div>
-
-<div class="input-group">
-<span class='input-group-addon'>Bkg2 Scaling Factor</span>
-<input id="bg2SFInput" value="0.5" min="0" max="100" step="0.01" type="number" class='black-text'></input>
-<input type="range" id="bg2SFslider" min="0" max="100" step="0.01" value="1">
-</div>
-<!--
-<div class="input-group">
-<span class='input-group-addon'>Bkg3 Scaling Factor</span>
-<input id="bg3SFInput" value="1.0" min="0.1" max="1000" step="0.1" type="number" class='black-text'></input>
-<input type="range" id="bg3SFslider" min="0.1" max="1000" step="0.1" value="1">
-</div>
--->
-<div class='btn-group btn-group-sm' roll='group'>
-  <button class="btn btn-default" id="submitGateButton" type="button">Gate</button>
-</div>
 </div>
 
 </div>
@@ -101,6 +101,101 @@
       document.getElementById('showXproj').onclick = this.selectPlot.bind(this, 'x');
       document.getElementById('showYproj').onclick = this.selectPlot.bind(this, 'y');
 
+/*
+      // Set up the functions for the background channel inputs
+      document.getElementById('bg1MinInput').onchange = function(){
+        // Collect the current values
+        var BG1Min = this.value;
+        var BG1Max = document.getElementById('bg1MaxInput').value;
+        var axis = document.getElementById('axisSelect').value;
+        keys = Object.keys(dataStore.viewers['LowerViewer'].plotBuffer);
+        plotName = keys[keys.length-1];
+console.log(dataStore);
+console.log(plotName);
+        // Adjust the limits saved for this BG region on the total projection and redraw
+        var gateMin = parseInt(document.getElementById('gateMinInput').value);
+        var gateMax = parseInt(document.getElementById('gateMaxInput').value);
+        var plotKey = plotName.split('-')[0];
+        plotKey = plotKey.substring(0, plotKey.length - 1);
+
+        // the projection has the opposite axis to the BG
+        if(axis === 'y'){
+        plotKey += 'xBG1' + (Math.round(gateMax-gateMin)+gateMin);
+      }else{
+        plotKey += 'yBG1' + (Math.round(gateMax-gateMin)+gateMin);
+      }
+dataStore.viewers['UpperViewer'].activeGateLines[plotKey].LimitLower = BG1Min;
+//redraw gate lines
+dataStore.viewers['UpperViewer'].redrawGateLines();
+
+        // Request directly that the BG projection be made
+        if(axis === 'y'){
+          plotNameBG1 = projectYaxis(BG1Min,BG1Max,'BG1',plotName);
+        }else{
+          plotNameBG1 = projectXaxis(BG1Min,BG1Max,'BG1',plotName);
+        }
+
+        // Trigger a redraw where the new BG will be applied
+        dataStore._gateControl.changeInBGSubtraction();
+      }.bind(document.getElementById('bg1MinInput'));
+
+      document.getElementById('bg1MaxInput').onchange = function(){
+        // Collect the current values
+        var BG1Min = document.getElementById('bg1MinInput').value;
+        var BG1Max = this.value;
+        var axis = document.getElementById('axisSelect').value;
+        keys = Object.keys(dataStore.viewers['LowerViewer'].plotBuffer);
+        plotName = keys[keys.length-1];
+
+        // Request directly that the BG projection be made
+        if(axis === 'y'){
+          plotNameBG1 = projectYaxis(BG1Min,BG1Max,'BG1',plotName);
+        }else{
+          plotNameBG1 = projectXaxis(BG1Min,BG1Max,'BG1',plotName);
+        }
+
+        // Trigger a redraw where the new BG will be applied
+        dataStore._gateControl.changeInBGSubtraction();
+      }.bind(document.getElementById('bg1MaxInput'));
+
+      document.getElementById('bg2MinInput').onchange = function(){
+        // Collect the current values
+        var BG2Min = this.value;
+        var BG2Max = document.getElementById('bg2MaxInput').value;
+        var axis = document.getElementById('axisSelect').value;
+        keys = Object.keys(dataStore.viewers['LowerViewer'].plotBuffer);
+        plotName = keys[keys.length-1];
+
+        // Request directly that the BG projection be made
+        if(axis === 'y'){
+          plotNameBG2 = projectYaxis(BG2Min,BG2Max,'BG2',plotName);
+        }else{
+          plotNameBG2 = projectXaxis(BG2Min,BG2Max,'BG2',plotName);
+        }
+
+        // Trigger a redraw where the new BG will be applied
+        dataStore._gateControl.changeInBGSubtraction();
+      }.bind(document.getElementById('bg2MinInput'));
+
+      document.getElementById('bg2MaxInput').onchange = function(){
+        // Collect the current values
+        var BG2Min = document.getElementById('bg2MinInput').value;
+        var BG2Max = this.value;
+        var axis = document.getElementById('axisSelect').value;
+        keys = Object.keys(dataStore.viewers['LowerViewer'].plotBuffer);
+        plotName = keys[keys.length-1];
+
+        // Request directly that the BG projection be made
+        if(axis === 'y'){
+          plotNameBG2 = projectYaxis(BG2Min,BG2Max,'BG2',plotName);
+        }else{
+          plotNameBG2 = projectXaxis(BG2Min,BG2Max,'BG2',plotName);
+        }
+
+        // Trigger a redraw where the new BG will be applied
+        dataStore._gateControl.changeInBGSubtraction();
+      }.bind(document.getElementById('bg2MaxInput'));
+      */
 
       // Set up the functions for the background factor sliders
       document.getElementById('bg1SFslider').oninput = function(){
@@ -112,34 +207,34 @@
         document.getElementById('bg2SFInput').value = this.value;
         dataStore._gateControl.changeInBGSubtraction();
       }.bind(document.getElementById('bg2SFslider'));
-/*
+      /*
       document.getElementById('bg3SFslider').oninput = function(){
-        document.getElementById('bg3SFInput').value = this.value;
-        dataStore._gateControl.changeInBGSubtraction();
-      }.bind(document.getElementById('bg3SFslider'));
-*/
-      // Set up the functions for the background factor inputs
-      document.getElementById('bg1SFInput').onchange = function(){
-        document.getElementById('bg1SFslider').value = this.value;
-        dataStore._gateControl.changeInBGSubtraction();
-      }.bind(document.getElementById('bg1SFInput'));
+      document.getElementById('bg3SFInput').value = this.value;
+      dataStore._gateControl.changeInBGSubtraction();
+    }.bind(document.getElementById('bg3SFslider'));
+    */
+    // Set up the functions for the background factor inputs
+    document.getElementById('bg1SFInput').onchange = function(){
+      document.getElementById('bg1SFslider').value = this.value;
+      dataStore._gateControl.changeInBGSubtraction();
+    }.bind(document.getElementById('bg1SFInput'));
 
-      document.getElementById('bg2SFInput').onchange = function(){
-        document.getElementById('bg2SFslider').value = this.value;
-        dataStore._gateControl.changeInBGSubtraction();
-      }.bind(document.getElementById('bg2SFInput'));
-/*
-      document.getElementById('bg3SFInput').onchange = function(){
-        document.getElementById('bg3SFslider').value = this.value;
-        dataStore._gateControl.changeInBGSubtraction();
-      }.bind(document.getElementById('bg3SFInput'));
-*/
+    document.getElementById('bg2SFInput').onchange = function(){
+      document.getElementById('bg2SFslider').value = this.value;
+      dataStore._gateControl.changeInBGSubtraction();
+    }.bind(document.getElementById('bg2SFInput'));
+    /*
+    document.getElementById('bg3SFInput').onchange = function(){
+    document.getElementById('bg3SFslider').value = this.value;
+    dataStore._gateControl.changeInBGSubtraction();
+  }.bind(document.getElementById('bg3SFInput'));
+  */
 
-//plug in gate mode toggle
-document.getElementById('gateMode').onclick = this.toggleGateMode.bind(this);
+  //plug in gate mode toggle
+  document.getElementById('gateMode').onclick = this.toggleGateMode.bind(this);
 
-// Set up the submit Gate button
-document.getElementById('submitGateButton').onclick = this.submitGate.bind();
+  // Set up the submit Gate button
+  document.getElementById('submitGateButton').onclick = this.submitGate.bind();
 
 }
 
@@ -198,8 +293,8 @@ this.submitGate = function(){
   var BG2Max = document.getElementById('bg2MaxInput').value;
 
   dispatcher({ 'gateAxis': gateAxis, 'gateMin': gateMin, 'gateMax': gateMax, 'plotNow': true, 'target': 'LowerViewer',
-              'BG1SF': BG1SF,'BG1Min': BG1Min,'BG1Max': BG1Max,'BG2SF': BG2SF,'BG2Min': BG2Min,'BG2Max': BG2Max,
-             }, 'requestGate');
+  'BG1SF': BG1SF,'BG1Min': BG1Min,'BG1Max': BG1Max,'BG2SF': BG2SF,'BG2Min': BG2Min,'BG2Max': BG2Max,
+}, 'requestGate');
 
 }
 
@@ -230,14 +325,14 @@ this.toggleGateMode = function(){
   var state = gateModeSwitch.getAttribute('engaged')
 
   // Set the axis to gate on based on which spectrum is the gateTarget
-if(spectrum.includes('x') && !spectrum.includes('y')){
-  document.getElementById('axisSelect').value = 'y';
-}else if(spectrum.includes('y') && !spectrum.includes('x')){
-  document.getElementById('axisSelect').value = 'x';
-}else{
-  // gateTarget name contains both x and y characters, so which axis to gate on?
-  console.log('cannot decide on how to set gating axis for '+spectrum);
-}
+  if(spectrum.includes('x') && !spectrum.includes('y')){
+    document.getElementById('axisSelect').value = 'y';
+  }else if(spectrum.includes('y') && !spectrum.includes('x')){
+    document.getElementById('axisSelect').value = 'x';
+  }else{
+    // gateTarget name contains both x and y characters, so which axis to gate on?
+    console.log('cannot decide on how to set gating axis for '+spectrum);
+  }
 
   //make sure the gate callback is set up
   dataStore.viewers[target].gateCallback = this.gateCallback.bind(this);
@@ -297,9 +392,9 @@ this.gateCallback = function(){
   dataStore._plotControl.targets = [];
 
   for(i=0; i<activeToggles.length; i++){
-      if(activeToggles[i].checked){
-          dataStore._plotControl.targets.push(activeToggles[i].value);
-      }
+    if(activeToggles[i].checked){
+      dataStore._plotControl.targets.push(activeToggles[i].value);
+    }
   }
 
   //set the UI to something sensible based on the new attachment state
