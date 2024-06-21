@@ -7,6 +7,7 @@
         <script src='scripts/dygraphs.1.1.1.min.js' type="text/javascript"></script>
         <script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
         <script src='scripts/fitit.js' type="text/javascript"></script>
+        <script src='scripts/regression.min.js' type="text/javascript"></script>
         <script src="scripts/jquery1-11-3.min.js"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
         <script src="scripts/bootstrap3-3-5.min.js"></script>
@@ -44,7 +45,7 @@
 	    </div>
 	    </div>
 	</div>
-	
+
 	<!--Static Plots-->
 	<div id='plotRegion2' class='sectionWrapper item'>
 	    <div id='InfrastructurerateWrap' class='col-md-4 plotRegion'>
@@ -68,7 +69,7 @@
                 <div id='Otherrates'></div>
             </div>
         </div>
-	
+
         <!--Gamma spectrum and rates plots-->
         <div id='plotRegion' class='sectionWrapper item'>
             <div id='plotWrap' class='col-md-6 plotRegion'>
@@ -96,12 +97,12 @@
 
                 dataStore._plotGrid = new plotGrid('plottingGrid');
                 dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
-                dataStore._striptool = new striptool('rates'); 
-                dataStore._striptoolInfra = new striptool('Infrarates'); 
-                dataStore._striptoolISAC = new striptool('ISACrates'); 
-                dataStore._striptoolSEP = new striptool('SEPrates'); 
-                dataStore._striptoolPhoton = new striptool('Photonrates'); 
-                dataStore._striptoolCharged = new striptool('Chargedrates'); 
+                dataStore._striptool = new striptool('rates');
+                dataStore._striptoolInfra = new striptool('Infrarates');
+                dataStore._striptoolISAC = new striptool('ISACrates');
+                dataStore._striptoolSEP = new striptool('SEPrates');
+                dataStore._striptoolPhoton = new striptool('Photonrates');
+                dataStore._striptoolCharged = new striptool('Chargedrates');
                 dataStore._striptoolOther = new striptool('Otherrates');
                 dataStore._striptoolSliders = new striptoolSliders('rateSlides');
 	        dataStore._rateControl = new rateControl('rateCtrl');
@@ -138,40 +139,40 @@
                 dataStore._striptool.setup();
                 dataStore._striptoolInfra.setup();
                 dataStore._striptoolISAC.setup();
-                dataStore._striptoolSEP.setup(); 
+                dataStore._striptoolSEP.setup();
                 dataStore._striptoolPhoton.setup();
                 dataStore._striptoolCharged.setup();
                 dataStore._striptoolOther.setup();
 
                 //set up dygraph Y axis controls
 var tbl = document.createElement('table');
-tbl.id = 'yaxisControlsTable'; 
+tbl.id = 'yaxisControlsTable';
 tbl.style.width = '80%';
 //var tbdy = document.createElement('tbody');
 //tbl.appendChild(tbdy);
-document.getElementById('yaxisControls').appendChild(tbl); 
-var row = document.getElementById('yaxisControlsTable').insertRow(0); 
-var cell1 = row.insertCell(0); 
-var cell2 = row.insertCell(1); 
+document.getElementById('yaxisControls').appendChild(tbl);
+var row = document.getElementById('yaxisControlsTable').insertRow(0);
+var cell1 = row.insertCell(0);
+var cell2 = row.insertCell(1);
 cell1.innerHTML = 'Series:';
-cell2.innerHTML = '<select id=SeriesSelector></select>'; 
-var row = document.getElementById('yaxisControlsTable').insertRow(1); 
-var cell1 = row.insertCell(0); 
-var cell2 = row.insertCell(1); 
+cell2.innerHTML = '<select id=SeriesSelector></select>';
+var row = document.getElementById('yaxisControlsTable').insertRow(1);
+var cell1 = row.insertCell(0);
+var cell2 = row.insertCell(1);
 cell1.innerHTML = 'Y-axis Min.:';
-cell2.innerHTML = '<input id=YMinInput></input>'; 
-var row = document.getElementById('yaxisControlsTable').insertRow(2); 
-var cell1 = row.insertCell(0); 
-var cell2 = row.insertCell(1); 
+cell2.innerHTML = '<input id=YMinInput></input>';
+var row = document.getElementById('yaxisControlsTable').insertRow(2);
+var cell1 = row.insertCell(0);
+var cell2 = row.insertCell(1);
 cell1.innerHTML = 'Y-axis Max.:';
 cell2.innerHTML = '<input id=YMaxInput></input>';
 
-sel = document.getElementById("SeriesSelector"); 
+sel = document.getElementById("SeriesSelector");
 for(i=1; i<dataStore.defaults.length; i++){
    for(j=0; j<dataStore.defaults[i].levels.length; j++){
        var opt = document.createElement("option");
        opt.value =(i*10)+j;
-       opt.text = dataStore.defaults[i].levels[j].title; 
+       opt.text = dataStore.defaults[i].levels[j].title;
        sel.appendChild(opt);
     }
 }
@@ -179,22 +180,22 @@ i=0;
    for(j=0; j<dataStore.defaults[i].levels.length; j++){
        var opt = document.createElement("option");
        opt.value = 1;
-       opt.text = dataStore.defaults[i].levels[j].title; 
+       opt.text = dataStore.defaults[i].levels[j].title;
        sel.appendChild(opt);
     }
        var opt = document.createElement("option");
        opt.value = 0;
-       opt.text = "Gamma-ray Gates"; 
+       opt.text = "Gamma-ray Gates";
        sel.appendChild(opt);
 
-sel.onchange = function () { ChangeSeriesSelect(this.value); }; 
+sel.onchange = function () { ChangeSeriesSelect(this.value); };
 
 document.getElementById("YMinInput").onchange = function () { SetYAxisMin(this.value); };
 
 document.getElementById("YMaxInput").onchange = function() { SetYAxisMax(this.value); };
 
-// set initial values of the inputs 
-   document.getElementById("YMinInput").value = dataStore.YAxisMinValue[Math.floor(document.getElementById("SeriesSelector").value/10)][document.getElementById("SeriesSelector").value%10]; 
+// set initial values of the inputs
+   document.getElementById("YMinInput").value = dataStore.YAxisMinValue[Math.floor(document.getElementById("SeriesSelector").value/10)][document.getElementById("SeriesSelector").value%10];
    document.getElementById("YMaxInput").value = dataStore.YAxisMaxValue[Math.floor(document.getElementById("SeriesSelector").value/10)][document.getElementById("SeriesSelector").value%10];
 
 
@@ -216,8 +217,8 @@ document.getElementById("YMaxInput").onchange = function() { SetYAxisMax(this.va
 
 
 function ChangeSeriesSelect(thisValue){
-   document.getElementById("YMinInput").value = dataStore.YAxisMinValue[Math.floor(thisValue/10)][Math.floor(thisValue%10)]; 
-   document.getElementById("YMaxInput").value = dataStore.YAxisMaxValue[Math.floor(thisValue/10)][Math.floor(thisValue%10)]; 
+   document.getElementById("YMinInput").value = dataStore.YAxisMinValue[Math.floor(thisValue/10)][Math.floor(thisValue%10)];
+   document.getElementById("YMaxInput").value = dataStore.YAxisMaxValue[Math.floor(thisValue/10)][Math.floor(thisValue%10)];
 }
 
 function SetYAxisMin(thisValue){

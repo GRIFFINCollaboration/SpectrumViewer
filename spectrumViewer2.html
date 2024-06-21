@@ -7,6 +7,7 @@
         <script src='scripts/easeljs-1.0.0.min.js' type="text/javascript"></script>
         <script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
         <script src='scripts/fitit.js' type="text/javascript"></script>
+        <script src='scripts/regression.min.js' type="text/javascript"></script>
         <script src="scripts/jquery1-11-3.min.js" type="text/javascript"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
         <script src="scripts/bootstrap3-3-5.min.js" type="text/javascript"></script>
@@ -36,12 +37,12 @@
         </div>
         <div id='messageDiv' class='col-md-12'></div>
 	<div id='analyzerPlots'>
-	  
+
 	  <nav class="navbar navbar-default">
 	     <div class="container-fluid">
 	        <!-- Brand and toggle get grouped for better mobile display -->
  	        <div class="navbar-header" id='navbar-header-div'></div>
-		 
+
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse" id="navbar-content-div">Spectrum menu</div>
 	     </div><!-- /.container-fluid -->
@@ -70,48 +71,48 @@
         <div id='foot'></div>
 
 	<script>
-	
+
 	window.addEventListener('HTMLImportsLoaded', function(e) {
 	dataStore.templates = prepareTemplates(['plotListHeader', 'plotList', 'plotGrid', 'plotControl', 'auxPlotControl', 'auxPlotControlTable', 'fitRow', 'footer']);
-	
+
 	dataStore._plotListHeader = new plotListHeader('navbar-header-div');
         dataStore._plotGrid = new plotGrid('plottingGrid');
         dataStore._plotControl = new plotControl('plotCtrl', 'vertical');
         dataStore._auxCtrl = new auxPlotControl('auxCtrl');
-	
+
         dataStore._plotListHeader.setup();
         dataStore._plotGrid.setup();
         dataStore._plotControl.setup();
         dataStore._auxCtrl.setup();
         setupFooter('foot');
-	
+
         //start with a single plot
 	document.getElementById('plottingGridnewPlotButton').click();
 
-    
+
         $(function () {
             $('[data-toggle="tooltip"]').tooltip()
 	})
 
-	
+
     // Display the analyzer server name
     document.getElementById('histo-list-server-div').innerHTML = dataStore.spectrumServer;
 
     // Create the text input for the Histogram file directory
-    newInput = document.createElement('input'); 
-    newInput.id = 'HistoDirectoryInput'; 
+    newInput = document.createElement('input');
+    newInput.id = 'HistoDirectoryInput';
     newInput.type = 'text';
     newInput.style.width = '300px';
-    newInput.value = dataStore.histoFileDirectoryPath; 
+    newInput.value = dataStore.histoFileDirectoryPath;
     newInput.onchange = function(){
     dataStore.histoFileDirectoryPath = this.value;
     getHistoFileListFromServer();
     }.bind(newInput);
     document.getElementById('histo-list-directory-div').appendChild(newInput);
-	
+
 	});
 
-	
+
         </script>
     </body>
 </html>

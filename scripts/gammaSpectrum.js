@@ -740,7 +740,7 @@ function spectrumViewer(canvasID){
 			x.push(i)
 			y.push(this.plotBuffer[fitKey][i])
 		}
-		estimate = this.linearBKG(x,y)
+		estimate = this.newLinearBKG(x,y)
 
 		//use the new prototype fitting package to do a maximum likelihood gaussian fit:
 		if(this.MLfit){
@@ -850,7 +850,7 @@ function spectrumViewer(canvasID){
 											x.push(regionLimitLower+i)
 											y.push(gateData[i])
 										}
-										var gateBKGfit = this.linearBKG(x,y); //return is [intercept, slope]
+										var gateBKGfit = this.newLinearBKG(x,y); //return is [intercept, slope]
 
 					// BG1
 					var BG1LimitUpper = this.GateLimitLower-3;
@@ -1126,6 +1126,34 @@ function spectrumViewer(canvasID){
 			return fitter.simpleLine(x,y)
 
 		return fitter.param
+	}
+
+	this.newLinearBKG = function(x,y){
+		//do a straight line fit to the points x, y, and return the results as [intercept, slope]
+		// Hats off to Tom Alexander for regression, https://github.com/Tom-Alexander/regression-js
+		//given the data, return [intercept, slope] defining
+		//this: gammaSpectrum object
+
+		var slope, intercept,
+		data = [];
+
+		if(x.length != y.length){
+			console.log('newLinearBKG Error: x and y data arrays have different size.');
+			return [null, null];
+		}
+
+		for(i=0; i<x.length; i++){
+			data.push([parseFloat(x[i]),parseFloat(y[i])]);
+		}
+
+		// Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
+		const result = regression.linear(data);
+		//console.log(result);
+
+		slope = result.equation[0];
+		intercept = result.equation[1];
+
+		return [intercept, slope]
 	}
 
 	//given the position of a peak in a spectrum, estimate its width
