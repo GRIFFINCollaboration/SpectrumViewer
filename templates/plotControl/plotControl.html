@@ -326,8 +326,9 @@
                               //if new, send an event to the auxilary control table so it can update itself
                               if(typeof(dataStore.viewers[event.detail.target].plotBuffer[event.detail.plotName]) == 'undefined'){
 
-                                  //add data now so row adder can find its color assignment
-                                  dataStore.viewers[event.detail.target].addData(event.detail.plotName, [0]);
+                                  // if the plot request points specifically to the Gating viewer then these are locally created spectra
+                                  //add data now so row adder can find its color assignment, and avoid a refreshAll
+                                  dataStore.viewers[event.detail.target].addData(event.detail.plotName, dataStore.createdSpectra[event.detail.plotName]);
 
                                   dispatcher(
                                       {
@@ -338,9 +339,15 @@
                                   )
 
                               } else {
-                                  //add a dummy spectrum
-                                  dataStore.viewers[event.detail.target].addData(event.detail.plotName, [0]);
+                                  // if the plot request points specifically to the Gating viewer then these are locally created spectra
+                                  dataStore.viewers[event.detail.target].addData(event.detail.plotName, dataStore.createdSpectra[event.detail.plotName]);
                               }
+
+                              // Trigger the plotting of the spectrum data
+                              dataStore.viewers[event.detail.target].plotData(null, true);
+
+                              // avoid a refreshAll and fetchCallback by returning here
+                              return;
             }else{
               // pass this plot to all active viewers and targets
             for(i=0; i<this.targets.length; i++){
