@@ -88,8 +88,8 @@ function setupDataStore(){
 	{"name": "Histo", "text": "Use a histogram file"}
     ];
 
-    dataStore.detectorType = 'HPGe';                                       //Detector choice that has been selected; HPGe or PACES
-    dataStore.detectorChoice = [{"name": "HPGe"},{"name": "PACES"}];       // Detector choice information to generate buttons
+    dataStore.detectorType = 'HPGe';                                       //Detector choice that has been selected; HPGe or PACES or LaBr3 or RCMP
+    dataStore.detectorChoice = [{"name": "HPGe"},{"name": "PACES"},{"name": "LaBr3"},{"name": "RCMP"}];       // Detector choice information to generate buttons
 
     dataStore.sourceInfo = [                                            // Source information and settings
 	{"name":  "Co-60", "title":  "60Co", "lowEnergy":  74.97, "midEnergy": 1173.23, "highEnergy": 1332.49, "vhiEnergy": 2614.52, "maxXValue":2650 },
@@ -99,11 +99,16 @@ function setupDataStore(){
 	{"name": "Eu-152", "title": "152Eu", "lowEnergy":  39.91, "midEnergy":  121.78, "highEnergy":  344.28, "vhiEnergy": 1408.00, "maxXValue":2000 },
 	{"name": "Bi-207", "title": "207Bi", "lowEnergy":  74.97, "midEnergy":  569.70, "highEnergy": 1063.66, "vhiEnergy": 1770.23, "maxXValue":2000 },
 	{"name":  "Sr-90", "title":  "90Sr", "lowEnergy":  59.32, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "maxXValue":2650 },
+	{"name":   "A224", "title":  "A=224", "lowEnergy": 131.61, "midEnergy":  215.98, "highEnergy":  837.03, "vhiEnergy": 2614.52, "maxXValue":2650 },
 	{"name": "Background", "title": "Background", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "maxXValue":2650 }
     ];
     dataStore.sourceInfoPACES = [
 	{"name": "PACES207Bi",  "title": "PACES 207Bi", "lowEnergy":  74.97, "midEnergy":  481.69, "highEnergy":  975.65, "vhiEnergy": 1682.22, "maxXValue":2000 },
   {"name":  "PACESA146",  "title": "PACES A=146", "lowEnergy":  82.28, "midEnergy":  101.78, "highEnergy":  142.14, "vhiEnergy": 218.13, "maxXValue":450 }
+    ];
+    dataStore.sourceInfoLaBr3 = [
+	{"name": "LBL207Bi", "title":  "207Bi", "lowEnergy":  74.97, "midEnergy":  569.70, "highEnergy": 1063.66, "vhiEnergy": 1770.23, "maxXValue":2000 },
+	{"name": "LBLA224",  "title":  "A=224", "lowEnergy": 131.61, "midEnergy":  215.98, "highEnergy":  837.03, "vhiEnergy": 2614.52, "maxXValue":2650 }
     ];
 
     dataStore.THESEdetectors = [];                                    //10-char codes of all possible griffin/paces detectors. Contents based on detectorChoice
@@ -561,26 +566,45 @@ function setupMenusFromDetectorChoice(detectorType){
     // Remember this choice
     dataStore.detectorType = detectorType;
 
-    if(detectorType == 'PACES'){
-	// Delete the HPGe source buttons and generate only the PACES buttons
-	const thisNode = document.getElementById('decisionBarAuto');
-	while (thisNode.firstChild) {
-	    thisNode.removeChild(thisNode.lastChild);
-	}
-	for(var i=0; i<dataStore.sourceInfoPACES.length; i++){
-	    // Create Auto calibrate source Submit button
-	    newButton = document.createElement('button');
-	    newButton.setAttribute('id', 'automaticCalibration-'+dataStore.sourceInfoPACES[i].name);
-	    newButton.setAttribute('class', 'btn btn-default');
-	    newButton.setAttribute('engaged', '0');
-	    newButton.value = dataStore.sourceInfoPACES[i].name;
-	    newButton.innerHTML = '<span id=\'autoCalibBadge-'+dataStore.sourceInfoPACES[i].name+'\' class=\'glyphicon glyphicon-equalizer\' aria-hidden=\'true\'></span><span id=\'autoText\'>Calibrate '+dataStore.sourceInfoPACES[i].title+'</span>';
-            newButton.onclick = function(){
-		setupAutomaticCalibration(this.value);
-	    }.bind(newButton);
-            document.getElementById('decisionBarAuto').appendChild(newButton);
-	}
-    }
+        if(detectorType == 'PACES'){
+    	// Delete the HPGe source buttons and generate only the PACES buttons
+    	const thisNode = document.getElementById('decisionBarAuto');
+    	while (thisNode.firstChild) {
+    	    thisNode.removeChild(thisNode.lastChild);
+    	}
+    	for(var i=0; i<dataStore.sourceInfoPACES.length; i++){
+    	    // Create Auto calibrate source Submit button
+    	    newButton = document.createElement('button');
+    	    newButton.setAttribute('id', 'automaticCalibration-'+dataStore.sourceInfoPACES[i].name);
+    	    newButton.setAttribute('class', 'btn btn-default');
+    	    newButton.setAttribute('engaged', '0');
+    	    newButton.value = dataStore.sourceInfoPACES[i].name;
+    	    newButton.innerHTML = '<span id=\'autoCalibBadge-'+dataStore.sourceInfoPACES[i].name+'\' class=\'glyphicon glyphicon-equalizer\' aria-hidden=\'true\'></span><span id=\'autoText\'>Calibrate '+dataStore.sourceInfoPACES[i].title+'</span>';
+                newButton.onclick = function(){
+    		setupAutomaticCalibration(this.value);
+    	    }.bind(newButton);
+                document.getElementById('decisionBarAuto').appendChild(newButton);
+    	}
+    }else if(detectorType == 'LaBr3'){
+        	// Delete the HPGe source buttons and generate only the PACES buttons
+        	const thisNode = document.getElementById('decisionBarAuto');
+        	while (thisNode.firstChild) {
+        	    thisNode.removeChild(thisNode.lastChild);
+        	}
+        	for(var i=0; i<dataStore.sourceInfoLaBr3.length; i++){
+        	    // Create Auto calibrate source Submit button
+        	    newButton = document.createElement('button');
+        	    newButton.setAttribute('id', 'automaticCalibration-'+dataStore.sourceInfoLaBr3[i].name);
+        	    newButton.setAttribute('class', 'btn btn-default');
+        	    newButton.setAttribute('engaged', '0');
+        	    newButton.value = dataStore.sourceInfoLaBr3[i].name;
+        	    newButton.innerHTML = '<span id=\'autoCalibBadge-'+dataStore.sourceInfoLaBr3[i].name+'\' class=\'glyphicon glyphicon-equalizer\' aria-hidden=\'true\'></span><span id=\'autoText\'>Calibrate '+dataStore.sourceInfoLaBr3[i].title+'</span>';
+                    newButton.onclick = function(){
+        		setupAutomaticCalibration(this.value);
+        	    }.bind(newButton);
+                    document.getElementById('decisionBarAuto').appendChild(newButton);
+        	}
+            }
 
     // setup the dataStore for this choice of detectorType
     var i, num=0, groups = [];
@@ -686,6 +710,60 @@ function setupMenusFromDetectorChoice(detectorType){
             ]
         })
 
+}else if(detectorType == 'LaBr3'){
+
+    dataStore.THESEdetectors = [                                      //10-char codes of all possible griffin detectors.
+            'LBL01XN00X',
+            'LBL02XN00X',
+            'LBL03XN00X',
+            'LBL04XN00X',
+            'LBL05XN00X',
+            'LBL06XN00X',
+            'LBL07XN00X',
+            'LBL08XN00X'
+        ];
+
+
+    //generate groups for plot selector
+        groups.push({
+            "groupID": 'LBL',
+            "groupTitle": 'LaBr3',
+            "plots": [
+                {
+                    "plotID": histoName+'LBL01XN00X_Pulse_Height',
+                    "title": 'LBL01XN00X'
+                },
+                {
+                    "plotID": histoName+'LBL02XN00X_Pulse_Height',
+                    "title": 'LBL02XN00X'
+                },
+                {
+                    "plotID": histoName+'LBL03XN00X_Pulse_Height',
+                    "title": 'LBL03XN00X'
+                },
+                {
+                    "plotID": histoName+'LBL04XN00X_Pulse_Height',
+                    "title": 'LBL04XN00X'
+                },
+                {
+                    "plotID": histoName+'LBL05XN00X_Pulse_Height',
+                    "title": 'LBL05XN00X'
+                },
+                {
+                    "plotID": histoName+'LBL06XN00X_Pulse_Height',
+                    "title": 'LBL06XN00X'
+                },
+                {
+                    "plotID": histoName+'LBL07XN00X_Pulse_Height',
+                    "title": 'LBL07XN00X'
+                },
+                {
+                    "plotID": histoName+'LBL08XN00X_Pulse_Height',
+                    "title": 'LBL08XN00X'
+                }
+            ]
+        })
+
 }
 
     dataStore.plotGroups = groups;     //groups to arrange detectors into for dropdowns
@@ -718,7 +796,7 @@ function loadData(DAQ){
 	dataStore.RunNumber = DAQ[2][ 'Run number' ];
 	// need to extract the offset, gain and quadratic numbers here
 	for(i=0; i<dataStore.PSCchannels.length; i++){
-	    if((dataStore.detectorType == 'HPGe' && dataStore.PSCchannels[i].includes('GRG')) || (dataStore.detectorType == 'PACES' && dataStore.PSCchannels[i].includes('PAC'))){
+	    if((dataStore.detectorType == 'HPGe' && dataStore.PSCchannels[i].includes('GRG')) || (dataStore.detectorType == 'PACES' && dataStore.PSCchannels[i].includes('PAC')) || (dataStore.detectorType == 'LaBr3' && dataStore.PSCchannels[i].includes('LBL'))){
 		keyString = dataStore.PSCchannels[i] + '_Pulse_Height';
 		if(!dataStore.midasCalibration[keyString]){ dataStore.midasCalibration[keyString] = []; }
 		dataStore.midasCalibration[keyString] = [DAQ[3].offset[i], DAQ[4].gain[i], DAQ[5].quadratic[i] ];
@@ -736,7 +814,7 @@ function loadData(DAQ){
 	    channels.push(Config.Analyzer[4].Calibrations[i].name);
 	    dataStore.PSCchannels.push(Config.Analyzer[4].Calibrations[i].name);
 	    dataStore.PSCaddresses.push(Config.Analyzer[4].Calibrations[i].address);
-	    if((dataStore.detectorType == 'HPGe' && Config.Analyzer[4].Calibrations[i].name.includes('GRG')) || (dataStore.detectorType == 'PACES' && Config.Analyzer[4].Calibrations[i].name.includes('PAC'))){
+	    if((dataStore.detectorType == 'HPGe' && Config.Analyzer[4].Calibrations[i].name.includes('GRG')) || (dataStore.detectorType == 'PACES' && Config.Analyzer[4].Calibrations[i].name.includes('PAC')) || (dataStore.detectorType == 'LaBr3' && Config.Analyzer[4].Calibrations[i].name.includes('LBL'))){
 		keyString = Config.Analyzer[4].Calibrations[i].name + '_Pulse_Height';
 		if(!dataStore.midasCalibration[keyString]){ dataStore.midasCalibration[keyString] = []; }
 		dataStore.midasCalibration[keyString] = [Config.Analyzer[4].Calibrations[i].offset, Config.Analyzer[4].Calibrations[i].gain, Config.Analyzer[4].Calibrations[i].quad ];
@@ -750,6 +828,8 @@ function loadData(DAQ){
 	document.getElementById('saveCalname').value = 'GRIFFIN-Cal-File-Run'+dataStore.RunNumber+'.cal';
     }else if(dataStore.THESEdetectors[0].includes('PAC')){
 	document.getElementById('saveCalname').value = 'PACES-Cal-File-Run'+dataStore.RunNumber+'.cal';
+}else if(dataStore.THESEdetectors[0].includes('LBL')){
+	document.getElementById('saveCalname').value = 'LaBr3-Cal-File-Run'+dataStore.RunNumber+'.cal';
     }
 
     // Trigger the saving of this new filename
@@ -766,65 +846,75 @@ function loadData(DAQ){
 
 function updateAnalyzer(){
 
-    // For the ODB it first grabs the PSB table and then sets values only for the channels that are defined there.
-    // For the Analyzer we can get a similar list from the viewConfig command with the Histogram file as the argument.
-    // That should probably be done for the building of the initial spectrum list for gain-matching if Histogram mode is selected.
-    // Need to reformat the URLs generated here for the Analyzer
+  // For the ODB it first grabs the PSB table and then sets values only for the channels that are defined there.
+  // For the Analyzer we can get a similar list from the viewConfig command with the Histogram file as the argument.
+  // That should probably be done for the building of the initial spectrum list for gain-matching if Histogram mode is selected.
+  // Need to reformat the URLs generated here for the Analyzer
 
-    // bail out if there's no fit yet
-    if(Object.keys(dataStore.fitResults).length == 0)
-        return;
+  // bail out if there's no fit yet
+  if(Object.keys(dataStore.fitResults).length == 0)
+  return;
 
-    var  gain =[], offset = [], quad = [];
-    var i, j=0, q, g, o, num=0, position, urls = [];
+  var  gain =[], offset = [], quad = [];
+  var i, j=0, q, g, o, num=0, position, urls = [];
 
-    //for every channel, update the quads, gains and offsets:
-    urls[0]=dataStore.spectrumServer + '?cmd=setCalibration';
-    for(i=0; i<dataStore.THESEdetectors.length; i++){
-      if( document.getElementById(dataStore.THESEdetectors[i]+'write').checked){
-        if(dataStore.modeType == 'Histo'){
-          var thisHisto = dataStore.histoFileName.split('.')[0]+':';
-          q = dataStore.fitResults[thisHisto+dataStore.THESEdetectors[i]+'_Pulse_Height'][4][2];
-          g = dataStore.fitResults[thisHisto+dataStore.THESEdetectors[i]+'_Pulse_Height'][4][1];
-          o = dataStore.fitResults[thisHisto+dataStore.THESEdetectors[i]+'_Pulse_Height'][4][0];
-        }else{
-          q = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][2];
-          g = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][1];
-          o = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][0];
-        }
-        q = isNumeric(q) ? q : 1;
-        quad[i] = q;
-        g = isNumeric(g) ? g : 1;
-        gain[i] = g;
-        o = isNumeric(o) ? o : 0;
-        offset[i] = o;
+  //for every channel, update the quads, gains and offsets:
+  urls[0]=dataStore.spectrumServer + '?cmd=setCalibration';
+  for(i=0; i<dataStore.THESEdetectors.length; i++){
+    if( document.getElementById(dataStore.THESEdetectors[i]+'write').checked){
+      if(dataStore.modeType == 'Histo'){
+        var thisHisto = dataStore.histoFileName.split('.')[0]+':';
+        q = dataStore.fitResults[thisHisto+dataStore.THESEdetectors[i]+'_Pulse_Height'][4][2];
+        g = dataStore.fitResults[thisHisto+dataStore.THESEdetectors[i]+'_Pulse_Height'][4][1];
+        o = dataStore.fitResults[thisHisto+dataStore.THESEdetectors[i]+'_Pulse_Height'][4][0];
+      }else{
+        q = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][2];
+        g = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][1];
+        o = dataStore.fitResults[dataStore.THESEdetectors[i]+'_Pulse_Height'][4][0];
+      }
+      q = isNumeric(q) ? q : 1;
+      quad[i] = q;
+      g = isNumeric(g) ? g : 1;
+      gain[i] = g;
+      o = isNumeric(o) ? o : 0;
+      offset[i] = o;
 
-	    // Write a separate URL for each clover
-	    if(i>0 && (dataStore.THESEdetectors[i].includes('GRG')) && ((i%4) == 0)){ num++; j=0; urls[num]= dataStore.spectrumServer + '?cmd=setCalibration';}
-	    urls[num] += '&channelName'+j+'='+dataStore.THESEdetectors[i]+'&quad'+j+'='+quad[i]+'&gain'+j+'='+gain[i]+'&offset'+j+'='+offset[i];
-	    j++;
 
-        }else{
-	    // Set some values rather than have these entries undefined for unchecked channels
-	    // Channels that did not produce good coefficients are not included in the URLs
-            quad[i] = 1;
-            gain[i] = 1;
-            offset[i] = 0;
-	}
+      if(dataStore.detectorType == 'HPGe'){
+        // Write a separate URL for each clover
+        if(i>0 && (dataStore.THESEdetectors[i].includes('GRG')) && ((i%4) == 0)){ num++; j=0; urls[num]= dataStore.spectrumServer + '?cmd=setCalibration';}
+        urls[num] += '&channelName'+j+'='+dataStore.THESEdetectors[i]+'&quad'+j+'='+quad[i]+'&gain'+j+'='+gain[i]+'&offset'+j+'='+offset[i];
+        j++;
+
+      }else if((dataStore.detectorType == 'PACES') || (dataStore.detectorType == 'LaBr3')){
+
+        urls[num] += '&channelName'+j+'='+dataStore.THESEdetectors[i]+'&quad'+j+'='+quad[i]+'&gain'+j+'='+gain[i]+'&offset'+j+'='+offset[i];
+        j++;
+
+      }
+
+    }else{
+      // Set some values rather than have these entries undefined for unchecked channels
+      // Channels that did not produce good coefficients are not included in the URLs
+      quad[i] = 1;
+      gain[i] = 1;
+      offset[i] = 0;
     }
+  }
 
-    //send requests
-    for(i=0; i<urls.length; i++){
-        XHR(urls[i],
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
-            function(){return 0},
-            function(error){console.log(error)}
-        )
-    }
 
-    //get rid of the modal
-    document.getElementById('dismissAnalyzermodal').click();
-}
+  //send requests
+  for(i=0; i<urls.length; i++){
+    XHR(urls[i],
+      'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
+      function(){return 0},
+      function(error){console.log(error)}
+    )
+  }
+
+//get rid of the modal
+document.getElementById('dismissAnalyzermodal').click();
+  }
 
 function updateODB(obj){
 
@@ -999,6 +1089,15 @@ console.log(sourceType)
 	var vhiEnergy  = dataStore.sourceInfoPACES[index].vhiEnergy;
   var LowerLimitFactor = 1.02;
   var UpperLimitFactor = 1.3;
+}else if(dataStore.THESEdetectors[0].includes('LBL')){
+	// Find the index number for the source information for this sourceType
+	var index = dataStore.sourceInfoLaBr3.map(function(e) { return e.name; }).indexOf(sourceType);
+	var lowEnergy  = dataStore.sourceInfoLaBr3[index].lowEnergy;
+	var midEnergy  = dataStore.sourceInfoLaBr3[index].midEnergy;
+	var highEnergy = dataStore.sourceInfoLaBr3[index].highEnergy;
+	var vhiEnergy  = dataStore.sourceInfoLaBr3[index].vhiEnergy;
+  var LowerLimitFactor = 0.41;
+  var UpperLimitFactor = 0.75;
     }else{
 	// Find the index number for the source information for this sourceType
 	var index = dataStore.sourceInfo.map(function(e) { return e.name; }).indexOf(sourceType);

@@ -110,8 +110,7 @@
         var axis = document.getElementById('axisSelect').value;
         keys = Object.keys(dataStore.viewers['LowerViewer'].plotBuffer);
         plotName = keys[keys.length-1];
-console.log(dataStore);
-console.log(plotName);
+
         // Adjust the limits saved for this BG region on the total projection and redraw
         var gateMin = parseInt(document.getElementById('gateMinInput').value);
         var gateMax = parseInt(document.getElementById('gateMaxInput').value);
@@ -120,13 +119,13 @@ console.log(plotName);
 
         // the projection has the opposite axis to the BG
         if(axis === 'y'){
-        plotKey += 'xBG1' + (Math.round(gateMax-gateMin)+gateMin);
-      }else{
-        plotKey += 'yBG1' + (Math.round(gateMax-gateMin)+gateMin);
-      }
-dataStore.viewers['UpperViewer'].activeGateLines[plotKey].LimitLower = BG1Min;
-//redraw gate lines
-dataStore.viewers['UpperViewer'].redrawGateLines();
+          plotKey += 'xBG1' + (Math.round(gateMax-gateMin)+gateMin);
+        }else{
+          plotKey += 'yBG1' + (Math.round(gateMax-gateMin)+gateMin);
+        }
+        dataStore.viewers['UpperViewer'].activeGateLines[plotKey].LimitLower = BG1Min;
+        //redraw gate lines
+        dataStore.viewers['UpperViewer'].redrawGateLines();
 
         // Request directly that the BG projection be made
         if(axis === 'y'){
@@ -147,6 +146,22 @@ dataStore.viewers['UpperViewer'].redrawGateLines();
         keys = Object.keys(dataStore.viewers['LowerViewer'].plotBuffer);
         plotName = keys[keys.length-1];
 
+        // Adjust the limits saved for this BG region on the total projection and redraw
+        var gateMin = parseInt(document.getElementById('gateMinInput').value);
+        var gateMax = parseInt(document.getElementById('gateMaxInput').value);
+        var plotKey = plotName.split('-')[0];
+        plotKey = plotKey.substring(0, plotKey.length - 1);
+
+        // the projection has the opposite axis to the BG
+        if(axis === 'y'){
+          plotKey += 'xBG1' + (Math.round(gateMax-gateMin)+gateMin);
+        }else{
+          plotKey += 'yBG1' + (Math.round(gateMax-gateMin)+gateMin);
+        }
+        dataStore.viewers['UpperViewer'].activeGateLines[plotKey].LimitUpper = BG1Max;
+        //redraw gate lines
+        dataStore.viewers['UpperViewer'].redrawGateLines();
+
         // Request directly that the BG projection be made
         if(axis === 'y'){
           plotNameBG1 = projectYaxis(BG1Min,BG1Max,'BG1',plotName);
@@ -165,6 +180,22 @@ dataStore.viewers['UpperViewer'].redrawGateLines();
         var axis = document.getElementById('axisSelect').value;
         keys = Object.keys(dataStore.viewers['LowerViewer'].plotBuffer);
         plotName = keys[keys.length-1];
+
+        // Adjust the limits saved for this BG region on the total projection and redraw
+        var gateMin = parseInt(document.getElementById('gateMinInput').value);
+        var gateMax = parseInt(document.getElementById('gateMaxInput').value);
+        var plotKey = plotName.split('-')[0];
+        plotKey = plotKey.substring(0, plotKey.length - 1);
+
+        // the projection has the opposite axis to the BG
+        if(axis === 'y'){
+          plotKey += 'xBG2' + (Math.round(gateMax-gateMin)+gateMin);
+        }else{
+          plotKey += 'yBG2' + (Math.round(gateMax-gateMin)+gateMin);
+        }
+        dataStore.viewers['UpperViewer'].activeGateLines[plotKey].LimitLower = BG2Min;
+        //redraw gate lines
+        dataStore.viewers['UpperViewer'].redrawGateLines();
 
         // Request directly that the BG projection be made
         if(axis === 'y'){
@@ -185,6 +216,22 @@ dataStore.viewers['UpperViewer'].redrawGateLines();
         keys = Object.keys(dataStore.viewers['LowerViewer'].plotBuffer);
         plotName = keys[keys.length-1];
 
+        // Adjust the limits saved for this BG region on the total projection and redraw
+        var gateMin = parseInt(document.getElementById('gateMinInput').value);
+        var gateMax = parseInt(document.getElementById('gateMaxInput').value);
+        var plotKey = plotName.split('-')[0];
+        plotKey = plotKey.substring(0, plotKey.length - 1);
+
+        // the projection has the opposite axis to the BG
+        if(axis === 'y'){
+          plotKey += 'xBG2' + (Math.round(gateMax-gateMin)+gateMin);
+        }else{
+          plotKey += 'yBG2' + (Math.round(gateMax-gateMin)+gateMin);
+        }
+        dataStore.viewers['UpperViewer'].activeGateLines[plotKey].LimitUpper = BG2Max;
+        //redraw gate lines
+        dataStore.viewers['UpperViewer'].redrawGateLines();
+
         // Request directly that the BG projection be made
         if(axis === 'y'){
           plotNameBG2 = projectYaxis(BG2Min,BG2Max,'BG2',plotName);
@@ -195,7 +242,7 @@ dataStore.viewers['UpperViewer'].redrawGateLines();
         // Trigger a redraw where the new BG will be applied
         dataStore._gateControl.changeInBGSubtraction();
       }.bind(document.getElementById('bg2MaxInput'));
-      
+
 
       // Set up the functions for the background factor sliders
       document.getElementById('bg1SFslider').oninput = function(){

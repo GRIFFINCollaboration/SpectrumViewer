@@ -1373,6 +1373,19 @@ function spectrumViewer(canvasID){
 		var i, bin, x0, y0;
 		var specData=this.plotBuffer[target];
 
+		// Protect against bad values
+		if(xMin<0){
+			xMin = 0;
+		}
+		if(xMax>this.XaxisLimitAbsMax){
+			xMax = this.XaxisLimitAbsMax;
+		}
+		if(xMax<xMin){
+			temp = xMin;
+			xMin = xMax;
+			xMax = temp;
+		}
+
 		for(i=xMin; i<xMax+1; i++){
 			if(specData[i]){
 				x0 = this.leftMargin + this.binWidth*(i-this.XaxisLimitMin);

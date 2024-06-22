@@ -353,6 +353,11 @@ var foundP3peaks = [], foundP3id=0;
 var foundP4peaks = [], foundP4id=0;
 var thisSearchRegion = [];
 
+// Different detector types have different energy resolution
+      if(dataStore.detectorType == 'LaBr3'){
+        ROIwidth = 20;
+      }
+
 // Now we have three search regions instead of a single search region
 
  // identify the peak center of the three highest peaks within the search region for Peak 1
@@ -615,12 +620,23 @@ if(breakForLoop){ break; }
 }
 
 // Define the Regions of Interest for the full peak fitting based on the peaks found
+      if(dataStore.detectorType == 'LaBr3'){
+        ROIwidth = 20;
             dataStore.ROI[spectrumName] = {
-                "ROIlower":  [centers[0] - ROIwidth, centers[0] + ROIwidth],
-                "ROImiddle": [centers[1] - ROIwidth, centers[1] + ROIwidth],
-                "ROIupper":  [centers[2] - ROIwidth, centers[2] + ROIwidth],
-                "ROItop":    [centers[3] - ROIwidth, centers[3] + ROIwidth]
+                "ROIlower":  [centers[0] - 10, centers[0] + 10],
+                "ROImiddle": [centers[1] - 10, centers[1] + 10],
+                "ROIupper":  [centers[2] - 15, centers[2] + 15],
+                "ROItop":    [centers[3] - 30, centers[3] + 30]
             }
+          }else{
+              ROIwidth = 4;
+                dataStore.ROI[spectrumName] = {
+                    "ROIlower":  [centers[0] - ROIwidth, centers[0] + ROIwidth],
+                    "ROImiddle": [centers[1] - ROIwidth, centers[1] + ROIwidth],
+                    "ROIupper":  [centers[2] - ROIwidth, centers[2] + ROIwidth],
+                    "ROItop":    [centers[3] - ROIwidth, centers[3] + ROIwidth]
+                }
+          }
 },
 
         this.fitCallback = function(center, width, amplitude, intercept, slope){
@@ -744,7 +760,7 @@ if(breakForLoop){ break; }
                 document.getElementById(this.wrapID + thisPlotName + 'chan4').innerHTML = dataStore.fitResults[spectrum][3][1].toFixed(3);
 
             if(Array.isArray(dataStore.fitResults[spectrum][0]) && Array.isArray(dataStore.fitResults[spectrum][1]) && Array.isArray(dataStore.fitResults[spectrum][2]) && Array.isArray(dataStore.fitResults[spectrum][3])){
-              if(dataStore.detectorType == 'HPGe'){
+              if(dataStore.detectorType == 'HPGe' || dataStore.detectorType == 'LaBr3'){
                 // Quadratic fit for HPGe
                 calibration = this.calculateQuadratic(dataStore.fitResults[spectrum][0][1], dataStore.fitResults[spectrum][1][1], dataStore.fitResults[spectrum][2][1], dataStore.fitResults[spectrum][3][1]);
                 document.getElementById(this.wrapID + thisPlotName + 'offset').innerHTML = calibration[0].toFixed(8);
