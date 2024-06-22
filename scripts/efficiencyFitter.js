@@ -873,7 +873,7 @@ function projectAllMatrices(){
 		    // Loop through the making all the projections required for this source
 		    for(j=0; j<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; j++){
 			console.log('Make projection for '+dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]);
-			min = Math.floor((dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth)) / 2.0);
+			min = Math.floor(dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth));
 			max = min + parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth);
 
 			plotName = projectXaxis(min,max);
@@ -913,7 +913,7 @@ function projectAllMatrices(){
 				// Make it now, unless it has already been created
 
 			console.log('Projections: This peak is not a literature peak, '+dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1]);
-			min = Math.floor((dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth)) / 2.0);
+			min = Math.floor(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth));
 			max = min + parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth);
 
 			thisKey = dataStore.activeMatrix+'y-'+min+'-'+max;
@@ -947,7 +947,7 @@ function projectAllMatrices(){
 
 			    // Save the ROI for projections so it can be used for drawing the fitlines
 			    if(!dataStore.ROIprojections[plotName]) dataStore.ROIprojections[plotName] = [];
-			    dataStore.ROIprojections[plotName].push([((dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth))/2),((dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]+parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth))/2)]);
+			    dataStore.ROIprojections[plotName].push([(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth)),(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]+parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth))]);
 			}
 			console.log(dataStore.spectrumListProjectionsPeaks[plotName]);
 

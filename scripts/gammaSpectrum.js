@@ -1351,6 +1351,15 @@ function spectrumViewer(canvasID){
 			if(this.binHighlights[i]){
 				x0 = this.leftMargin + this.binWidth*(i-this.XaxisLimitMin)
 				y0 = this.canvas.height - this.bottomMargin - this.binHighlights[i].height*this.countHeight;
+
+				// Handle log Y axis
+				if(this.AxisType == 1){
+					if(specData[i]<=0) height = 0;
+					else height = Math.log10(specData[i]) - Math.log10(this.YaxisLimitMin);
+					if(height<0) height = 0;
+					y0 = this.canvas.height - this.bottomMargin - height*this.countHeight;
+				}
+
 				bin = new createjs.Shape();
  				bin.graphics.beginFill(this.binHighlights[i].color).drawRect(x0, y0, this.binWidth, this.binHighlights[i].height*this.countHeight);
  				bin.graphics.beginStroke(this.binHighlights[i].color).drawRect(x0, y0, this.binWidth, this.binHighlights[i].height*this.countHeight);
@@ -1359,23 +1368,31 @@ function spectrumViewer(canvasID){
 		}
 	}
 
-		//highlight the bins indicating the gate limits for a projection
-		this.shadeGateBins = function(shadeColor,xMin,xMax,target){
-			var i, bin, x0, y0;
-			var specData=this.plotBuffer[target];
+	//highlight the bins indicating the gate limits for a projection
+	this.shadeGateBins = function(shadeColor,xMin,xMax,target){
+		var i, bin, x0, y0;
+		var specData=this.plotBuffer[target];
 
-			for(i=xMin; i<xMax+1; i++){
-				if(specData[i]){
-					x0 = this.leftMargin + this.binWidth*(i-this.XaxisLimitMin)
-					y0 = this.canvas.height - this.bottomMargin - specData[i]*this.countHeight;
+		for(i=xMin; i<xMax+1; i++){
+			if(specData[i]){
+				x0 = this.leftMargin + this.binWidth*(i-this.XaxisLimitMin);
+				y0 = this.canvas.height - this.bottomMargin - specData[i]*this.countHeight;
 
-					bin = new createjs.Shape();
-	 				bin.graphics.beginFill(shadeColor).drawRect(x0, y0, this.binWidth, specData[i]*this.countHeight);
-	 				bin.graphics.beginStroke(shadeColor).drawRect(x0, y0, this.binWidth, specData[i]*this.countHeight);
-					this.containerGate.addChild(bin);
+				// Handle log Y axis
+				if(this.AxisType == 1){
+					if(specData[i]<=0) height = 0;
+					else height = Math.log10(specData[i]) - Math.log10(this.YaxisLimitMin);
+					if(height<0) height = 0;
+					y0 = this.canvas.height - this.bottomMargin - height*this.countHeight;
 				}
+
+				bin = new createjs.Shape();
+				bin.graphics.beginFill(shadeColor).drawRect(x0, y0, this.binWidth, specData[i]*this.countHeight);
+				bin.graphics.beginStroke(shadeColor).drawRect(x0, y0, this.binWidth, specData[i]*this.countHeight);
+				this.containerGate.addChild(bin);
 			}
 		}
+	}
 
 	//how long is the longest histogam?
 	this.longestHist = function(){
