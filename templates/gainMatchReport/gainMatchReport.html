@@ -300,7 +300,7 @@
           // Different detector types have different energy resolution
           if(dataStore.detectorType == 'LaBr3'){
             ROIwidth = 20;
-          }else if(dataStore.detectorType == 'RCMP'){ ROIwidth = 70; }
+          }else if(dataStore.detectorType == 'RCMP'){ ROIwidth = 50; }
 
           // Now we have X search regions instead of a single search region
           // identify the peak center of the three highest peaks within the search region for each Peak
@@ -355,7 +355,7 @@
             }
           }else{
             ROIwidth = 4;
-              if(dataStore.detectorType == 'RCMP'){ ROIwidth = 70; }
+              if(dataStore.detectorType == 'RCMP'){ ROIwidth = 80; }
 
             if(typeof(dataStore.ROI[spectrumName]) == 'undefined'){ dataStore.ROI[spectrumName] = []; }
 
@@ -490,7 +490,7 @@
             dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, center, width, intercept, slope]
 
             //convenient to arrange resolution data here
-            dataStore.PeakResolution[dataStore.currentPeak][dataStore.THESEdetectors.indexOf(thisPlotName)] = width;
+            dataStore.PeakResolution[dataStore.currentPeak][dataStore.THESEdetectors.indexOf(thisPlotName)] = width*2.35;
 
             // Save ROI information again in case it was modified during the fitting
                 dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0] = dataStore.viewers[viewerName].FitLimitLower;
@@ -790,7 +790,6 @@ intercept = result.equation[2];
 
             for(i=0; i<dataStore.THESEdetectors.length; i++){
                 detectorIndex[i] = i;
-
             }
 
             dataStore.resolutionData = arrangePoints(detectorIndex, [dataStore.PeakResolution[0], dataStore.PeakResolution[1], dataStore.PeakResolution[2], dataStore.PeakResolution[3]], flags );

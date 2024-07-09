@@ -103,7 +103,7 @@ function setupDataStore(){
     'HPGe': { 'Lower': 0.644, 'Upper': 0.966},
     'PACES':{ 'Lower':  1.02, 'Upper':   1.3},
     'LaBr3':{ 'Lower':  0.41, 'Upper':  0.75},
-    'RCMP': { 'Lower':  0.2, 'Upper':   0.95}
+    'RCMP': { 'Lower':  0.15, 'Upper':   0.95}
   };
   dataStore.sourceType = '';                                          // Source type that has been selected
   dataStore.sourceInfo = {                                            // Source information and settings
@@ -603,6 +603,10 @@ function setupMenusFromDetectorChoice(detectorType){
   // Remember this choice
   dataStore.detectorType = detectorType;
 
+  // Adjust y axis of resolution plot for DSSD resolution
+  if(detectorType == 'RCMP'){
+    dataStore.YAxisMaxValue[0][0] = 100;
+  }
 /*
   if(detectorType == 'PACES' || detectorType == 'LaBr3' || detectorType == 'RCMP'){
     // Delete the HPGe source buttons and generate only the required buttons
