@@ -1228,7 +1228,7 @@ function packZ(raw2){
   // console.log(raw2);
 
   // Declare local variables
-  var repack = [],repack2 = [],
+  var repack = [], repack2 = [],
   rowLength = dataStore.activeMatrixXaxisLength,
   nRows = dataStore.activeMatrixYaxisLength,
   subMatrixXlength = 16,
@@ -1298,6 +1298,235 @@ for(subMatrixIndex=0; subMatrixIndex<raw2.length; subMatrixIndex++){
     case 'list':
     // list format
     // The values are in pairs of [bin number within this submatrix, 0-255], then [z value]
+    // console.log(raw2[subMatrixIndex]);
+    // type = raw2[subMatrixIndex].shift();
+    for(j=1; j<raw2[subMatrixIndex].length; j+=2){ // j=0 entry is the subMatrix type
+      thisXindex = subMatrixXbaseCoordinate+Math.floor(raw2[subMatrixIndex][j]%subMatrixXlength);
+      thisYindex = subMatrixYbaseCoordinate+Math.floor(raw2[subMatrixIndex][j]/subMatrixXlength);
+      thisValue = raw2[subMatrixIndex][j+1];
+      //	console.log('['+thisYindex+']['+thisXindex+']='+thisValue);
+      repack2[thisYindex][thisXindex] = thisValue;
+    }
+    break;
+    default:
+    // code block
+    // Unrecognized format
+    console.log('Unrecognized format!!!');
+    console.log(raw2[subMatrixIndex]);
+  } // end of switch
+} // end of submatrices for loop
+//  console.log('Finshed unpacking');
+//  console.log(repack);
+//  console.log(repack2);
+
+// Remove channel zero noise and junk
+/*
+for(i=0; i<nRows; i++){
+repack2[i][0] = 0;
+}
+for(i=0; i<rowLength-1; i++){
+repack2[0][i] = 0;
+}
+*/
+// return the correctly formatted data
+return repack2;
+}
+
+function packZcompressed(raw2){
+  // histo z values arrive as [row length, x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax]
+  // heatmap wants it as [[x0y0, x1y0, ..., xmaxy0], [x0y1, x1y1, ..., xmaxy1], ...]
+  //  console.log('unpackZ');
+  // console.log(raw);
+  // console.log(raw2);
+
+  // Declare local variables
+  var repack = [], repack2 = [],
+  rowLength = dataStore.activeMatrixXaxisLength,
+  nRows = dataStore.activeMatrixYaxisLength,
+  subMatrixXlength = 16,
+  subMatrixYlength = 16,
+  i, j, subMatrixType, row=[];
+  //    console.log(rowLength);
+  //    console.log(nRows);
+
+  /*
+  // Unpack the matrix data as a list of data (slowest transfer from server)
+  for(i=0; i<nRows; i++){
+  repack.push(raw.slice(rowLength*i, rowLength*(i+1)-1));
+}
+*/
+
+// Unpack the matrix data as a list of 16x16 submatrices (faster transfer from server)
+// The values are given in the order of x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax, but split into the 16x16 submatrices
+// Submatrix format is one of three:
+// ["empty"],
+// ["array", 0,1,2,3,4,5 ... 255 ],
+// ["list", 23,55, ... ],
+// these formats are as follows:
+// "empty" means all 256 bins are zero
+// "array" is just 256 values - contents (z value) of each x,y bin
+// "list" is list of bin-number[0-255], bin-content pairs
+
+// Create the whole matrix full of zeros. This then allows us to access any element directly
+repack2 = new Array(nRows);
+for (let i = 0; i < repack2.length; i++) {
+  repack2[i] = new Array(rowLength-1).fill(0); // Creating an array of size rowLength and filled of 0
+}
+
+subMatrixIndexValue=-1;
+for(subMatrixIndex=0; subMatrixIndex<raw2.length; subMatrixIndex++){
+  // Step through the subMatrix arrays one at a time.
+  subMatrixIndexValue++;
+
+  // Calculate the subMatrix Coordinates
+  subMatrixX = (Math.floor(subMatrixIndexValue%Math.floor(rowLength/subMatrixXlength)));
+  subMatrixY = (Math.floor(subMatrixIndexValue/Math.floor(rowLength/subMatrixXlength)));
+  subMatrixXbaseCoordinate = subMatrixX*subMatrixXlength;
+  subMatrixYbaseCoordinate = subMatrixY*subMatrixYlength;
+//	console.log('SubMatrix '+subMatrixIndex+', '+subMatrixIndexValue+' ['+subMatrixX+']['+subMatrixY+']');
+
+if(Number.isInteger(raw2[subMatrixIndex][0])){
+  // Process the current 16*16=256 values. Add them to the local matrix and the heatmap
+		  // the subMatrixType will be communicated as an integer value between 0 and 8 (1 byte)
+		  // 0 = empty
+		  // 1 = list type with 8-bit values
+		  // 2 = list type with 16-bit values
+		  // 3 = list type with 32-bit values
+		  // 4 = list type with 64-bit values
+		  // 5 = array type with 8-bit values
+		  // 6 = array type with 16-bit values
+		  // 7 = array type with 32-bit values
+		  // 8 = array type with 64-bit values
+  subMatrixType = parseInt(raw2[subMatrixIndex][0]);
+  switch(subMatrixType) {
+    case 0: // empty
+    // empty type now indicates the number of sequential empty submatrices.
+    // Need to use this value to advance the base coordinates for the next submatrix
+  //  console.log('Empty type, advance '+(parseInt(raw2[subMatrixIndex][1]))+' submatrices');
+    subMatrixIndexValue += parseInt(raw2[subMatrixIndex][1])-1;
+
+    // empty format, nothing more to be done
+    break;
+    case 5: // array with 6-bit values
+    case 6: // array with 12-bit values
+    case 7: // array with 18-bit values
+    case 8: // array with 24-bit values
+    // array format
+    // 256 z values are given in order.
+    // The values are given in the order of x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax
+    //  console.log(raw2[subMatrixIndex]);
+    // type = raw2[subMatrixIndex].shift();
+
+    thisArrayString = raw2[subMatrixIndex][1];
+    thisArrayValueSize = Math.floor((thisArrayString.length)/256);
+    thisIndex = 0;
+
+    for(i=0; i<subMatrixYlength; i++){
+      for(j=1; j<=subMatrixXlength; j++){ // j=0 entry is the subMatrix type
+        thisXindex = subMatrixXbaseCoordinate+j;
+        thisYindex = subMatrixYbaseCoordinate+i;
+         thisValueString = thisArrayString.substr(thisIndex,thisArrayValueSize);
+         thisValue = 0;
+
+        thisShift=0;
+        for(x=thisValueString.length-1; x>=0; x--){
+          thisByte = thisValueString[x].charCodeAt();
+          if(thisByte == 60){ thisByte = 92; }
+          thisByte -= 64;
+          thisValue = thisValue | (thisByte << (thisShift * 6));
+          thisShift++;
+        }
+        //console.log('Type'+subMatrixType+'['+thisYindex+']['+thisXindex+']='+thisValue);
+        repack2[thisYindex][thisXindex] = thisValue;
+        thisIndex += thisArrayValueSize;
+      }
+    }
+
+    break;
+    case 1: // list with 8-bit values
+    case 2: // list with 16-bit values
+    case 3: // list with 32-bit values
+    case 4: // list with 64-bit values
+    // list format
+    // The values are in pairs of [bin number within this submatrix, 0-255], then [z value]
+    // console.log(raw2[subMatrixIndex]);
+    // type = raw2[subMatrixIndex].shift();
+    thisIndex=-1;
+    for(i=1; i<9; i+=2){ // Loop through the four sets of coord+value strings per subMatrix. i=0 entry is the subMatrix type
+      ++thisIndex;
+      thisCoordString = raw2[subMatrixIndex][i+0];
+      thisArrayString = raw2[subMatrixIndex][i+1];
+    //  console.log(thisCoordString+', '+thisArrayString);
+      if(thisCoordString.length==0){ continue; }
+      thisValueSize = Math.floor((thisArrayString.length)/(thisCoordString.length));
+      /*
+      console.log(thisCoordString);
+      console.log(thisArrayString);
+      console.log(thisCoordString.length);
+      console.log(thisArrayString.length);
+      */
+    //  console.log('subMatrixType'+subMatrixType+' size '+thisValueSize+' for i='+i+', index='+thisIndex);
+
+      for(j=0; j<thisCoordString.length; j++){
+        thisByte = thisCoordString[j].charCodeAt();
+        if(thisByte == 60){ thisByte = 92; }
+        thisByte -= 64;
+        thisXindex = subMatrixXbaseCoordinate+Math.floor((thisByte+(thisIndex*64))%subMatrixXlength);
+        thisYindex = subMatrixYbaseCoordinate+Math.floor((thisByte+(thisIndex*64))/subMatrixXlength);
+      //  console.log(subMatrixXbaseCoordinate+','+subMatrixYbaseCoordinate);
+      //  console.log(Math.floor((thisByte+(thisIndex*64))%subMatrixXlength));
+      //  console.log(Math.floor((thisByte+(thisIndex*64))/subMatrixXlength));
+
+        thisValueString = thisArrayString.substr(j*thisValueSize,thisValueSize);
+        thisValue = 0;
+          thisShift=0;
+          for(x=thisValueString.length-1; x>=0; x--){
+            thisByte = thisValueString[x].charCodeAt();
+            if(thisByte == 60){ thisByte = 92; }
+            thisByte -= 64;
+            thisValue = thisValue | (thisByte << (thisShift * 6));
+            thisShift++;
+          }
+
+      //  console.log('Type'+subMatrixType+'['+thisYindex+']['+thisXindex+']='+thisValue);
+        repack2[thisYindex][thisXindex] = thisValue;
+      }
+    }
+    break;
+    default:
+    // code block
+    // Unrecognized format
+    console.log('Unrecognized integer format!!!');
+    console.log(raw2[subMatrixIndex]);
+  } // end of switch
+}else{
+
+  // Process the current 16*16=256 values. Add them to the local matrix and the heatmap
+  switch(raw2[subMatrixIndex][0]) {
+    case 'empty':
+    // empty format, nothing to be done
+    break;
+    case 'array':
+    // array format
+    // 256 z values are given in order.
+    // The values are given in the order of x0y0, x1y0, ..., x0y1, x1y1, ..., xmaxymax
+    //  console.log(raw2[subMatrixIndex]);
+    // type = raw2[subMatrixIndex].shift();
+
+    for(i=0; i<subMatrixYlength; i++){
+      for(j=1; j<=subMatrixXlength; j++){ // j=0 entry is the subMatrix type
+        thisXindex = subMatrixXbaseCoordinate+j;
+        thisYindex = subMatrixYbaseCoordinate+i;
+        thisValue = raw2[subMatrixIndex][i*subMatrixXlength+j];
+        //	    console.log('['+thisYindex+']['+thisXindex+']='+thisValue);
+        repack2[thisYindex][thisXindex] = thisValue;
+      }
+    }
+
+    break;
+    case 'list':
+    // list format
+    // The values are in pairs of [bin number within this submatrix, 0-255], then [z value]
     //  console.log(raw2[subMatrixIndex]);
     // type = raw2[subMatrixIndex].shift();
     for(j=1; j<raw2[subMatrixIndex].length; j+=2){ // j=0 entry is the subMatrix type
@@ -1314,6 +1543,7 @@ for(subMatrixIndex=0; subMatrixIndex<raw2.length; subMatrixIndex++){
     console.log('Unrecognized format!!!');
     console.log(raw2[subMatrixIndex]);
   } // end of switch
+} // end of if else of isInteger(submatrix type)
 } // end of submatrices for loop
 //  console.log('Finshed unpacking');
 //  console.log(repack);
@@ -1529,3 +1759,79 @@ function HPGeEfficiency(param, logEn){
   eff = Math.exp(logEff);
   return eff;
 }
+
+// Perform a polynomial regression with a least squares estimator
+  function efficiencyRegression(dataX,dataY) {
+
+    console.log('efficiencyRegression');
+    console.log(dataX);
+    console.log(dataY);
+    var params = [];
+
+// Set everything to zero to begin
+        var sum_xy = 0.0, sum_x = 0.0, sum_y = 0.0, sum_x2 = 0.0, num = 0;
+
+        // Loop over all data
+        for (var i = 0; i < dataX.length; i++) {
+          var x = dataX[i];
+          var y = dataY[i];
+          if (y === null || y === undefined) continue;
+
+          // calculate the least squares
+          num++;
+          sum_x += x;
+          sum_y += y;
+          sum_xy += x * y;
+          sum_x2 += x * x;
+        }
+
+        // calculate the parameters
+        var a = (sum_xy - sum_x * sum_y / num) / (sum_x2 - sum_x * sum_x / num);
+        var b = (sum_y - a * sum_x) / num;
+
+        params = [b, a];
+        if (typeof(console) != 'undefined') {
+          console.log("params: [" + b + ", " + a + "]");
+        }
+
+        return(params);
+      };
+
+      // Perform a polynomial regression with a weighted least squares estimator
+        function efficiencyWeightedRegression(dataX,dataY,thisYerror) {
+
+          console.log('efficiencyRegression');
+          console.log(dataX);
+          console.log(dataY);
+          console.log(dataYerror);
+          var params = [];
+
+      // Set everything to zero to begin
+              var sum_xy = 0.0, sum_x = 0.0, sum_y = 0.0, sum_x2 = 0.0, num = 0;
+
+              // Loop over all data
+              for (var i = 0; i < dataX.length; i++) {
+                var x = dataX[i];
+                var y = dataY[i];
+                var w = 1.0/dataYerror[i];
+                if (y === null || y === undefined) continue;
+
+                // calculate the sums, residuals and squared residuals
+                num++;
+                sum_x += x;
+                sum_y += y;
+                sum_xy += x * y;
+                sum_x2 += x * x;
+              }
+
+              // calculate the parameters
+              var a = (sum_xy - sum_x * sum_y / num) / (sum_x2 - sum_x * sum_x / num);
+              var b = (sum_y - a * sum_x) / num;
+
+              params = [b, a];
+              if (typeof(console) != 'undefined') {
+                console.log("params: [" + b + ", " + a + "]");
+              }
+
+              return(params);
+            };

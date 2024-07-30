@@ -419,14 +419,15 @@ function fetchCallback(){
     }
 
     // unpack the raw 2d spectrum to the required format
-    dataStore.hm.raw = packZ(dataStore.rawData[dataStore.activeMatrix].data2);
+    //dataStore.hm.raw = packZ(dataStore.rawData[dataStore.activeMatrix].data2);
+    dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2);
 
     // set the axis lengths for this histograms and redraw the scale
     dataStore.hm.xmin = 0;
     dataStore.hm.ymin = 0;
     dataStore.hm.xmax = dataStore.activeMatrixXaxisLength;
     dataStore.hm.ymax = dataStore.activeMatrixYaxisLength;
-    dataStore.hm.drawScale();
+  //  dataStore.hm.drawScale();
     dataStore.hm._oldraw = null; //force complete redraw
 
     // make the 2d heatmap plot of this histogram

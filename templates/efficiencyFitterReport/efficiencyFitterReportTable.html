@@ -9,6 +9,7 @@
         <td class='col-md-2'>Summing-Out Correction</td>
         <td class='col-md-2'>Corrected Area</td>
         <td class='col-md-2'>Relative Efficiency</td>
+        <td class='col-md-2'>Absolute Efficiency</td>
     </tr>
     {{# detectors}}
         <tr id='{{id}}{{detectors}}row'>
@@ -21,6 +22,7 @@
             <td id='{{id}}{{.}}summingOut'>-</td>
             <td id='{{id}}{{.}}correctedArea'>-</td>
             <td id='{{id}}{{.}}relativeEfficiency'>-</td>
+            <td id='{{id}}{{.}}absoluteEfficiency'>-</td>
         </tr>
     {{/ detectors}}
 </template>
