@@ -1346,6 +1346,8 @@ function packZcompressed(raw2){
   subMatrixXlength = 16,
   subMatrixYlength = 16,
   i, j, subMatrixType, row=[];
+  var matrixMinValue = 0;
+  var matrixMaxValue = dataStore.hm.zmaxfull;
   //    console.log(rowLength);
   //    console.log(nRows);
 
@@ -1370,8 +1372,29 @@ function packZcompressed(raw2){
 // Create the whole matrix full of zeros. This then allows us to access any element directly
 repack2 = new Array(nRows);
 for (let i = 0; i < repack2.length; i++) {
-  repack2[i] = new Array(rowLength-1).fill(0); // Creating an array of size rowLength and filled of 0
+  repack2[i] = new Array(rowLength).fill(0); // Creating an array of size rowLength and filled of 0
 }
+
+// Create a full color map for this matrix. Building this now saves the time of accessing all elements again later.
+// First check if a color map exists for this matrix. If so, zero it. If not, create it.
+      try{ objectIndex = dataStore.hm.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
+      //  console.log('A colorMap exists for this matrix.');
+      }
+      catch(err){ console.log('No colorMap for this matrix.'); objectIndex=-1; }
+
+      if(objectIndex<0){
+        // A colorMap for this matrix does not exist, so we need to create space for it
+        let name = dataStore.activeMatrix;
+        newMatrix = {
+          "matrix" : dataStore.activeMatrix,
+          "data" : []
+        }
+        dataStore.hm.colorMap.push(newMatrix);
+        objectIndex = dataStore.hm.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
+      }else{
+      //  console.log('zero the color map and build it for this zoomed region');
+        dataStore.hm.colorMap[objectIndex].data = [];
+      }
 
 subMatrixIndexValue=-1;
 for(subMatrixIndex=0; subMatrixIndex<raw2.length; subMatrixIndex++){
@@ -1438,6 +1461,8 @@ if(Number.isInteger(raw2[subMatrixIndex][0])){
         }
         //console.log('Type'+subMatrixType+'['+thisYindex+']['+thisXindex+']='+thisValue);
         repack2[thisYindex][thisXindex] = thisValue;
+        if(thisValue>matrixMaxValue){ matrixMaxValue = thisValue; } // Update the max Z value
+        dataStore.hm.addPointToColorMap(objectIndex,thisYindex,thisXindex,thisValue); // Add this point to the color Map
         thisIndex += thisArrayValueSize;
       }
     }
@@ -1490,6 +1515,8 @@ if(Number.isInteger(raw2[subMatrixIndex][0])){
 
       //  console.log('Type'+subMatrixType+'['+thisYindex+']['+thisXindex+']='+thisValue);
         repack2[thisYindex][thisXindex] = thisValue;
+        if(thisValue>matrixMaxValue){ matrixMaxValue = thisValue; } // Update the max Z value
+        dataStore.hm.addPointToColorMap(objectIndex,thisYindex,thisXindex,thisValue); // Add this point to the color Map
       }
     }
     break;
@@ -1520,6 +1547,8 @@ if(Number.isInteger(raw2[subMatrixIndex][0])){
         thisValue = raw2[subMatrixIndex][i*subMatrixXlength+j];
         //	    console.log('['+thisYindex+']['+thisXindex+']='+thisValue);
         repack2[thisYindex][thisXindex] = thisValue;
+        if(thisValue>matrixMaxValue){ matrixMaxValue = thisValue; } // Update the max Z value
+        dataStore.hm.addPointToColorMap(objectIndex,thisYindex,thisXindex,thisValue); // Add this point to the color Map
       }
     }
 
@@ -1535,6 +1564,8 @@ if(Number.isInteger(raw2[subMatrixIndex][0])){
       thisValue = raw2[subMatrixIndex][j+1];
       //	console.log('['+thisYindex+']['+thisXindex+']='+thisValue);
       repack2[thisYindex][thisXindex] = thisValue;
+      if(thisValue>matrixMaxValue){ matrixMaxValue = thisValue; } // Update the max Z value
+      dataStore.hm.addPointToColorMap(objectIndex,thisYindex,thisXindex,thisValue); // Add this point to the color Map
     }
     break;
     default:
@@ -1558,6 +1589,14 @@ for(i=0; i<rowLength-1; i++){
 repack2[0][i] = 0;
 }
 */
+
+// set the zmax value for this matrix
+dataStore.hm.zminfull = 0;
+dataStore.hm.zmaxfull = matrixMaxValue;
+
+// save this colorMap to the colorMapFull for subsequent fast redraws
+  dataStore.hm.colorMap[objectIndex].fulldata = dataStore.hm.colorMap[objectIndex].data;
+
 // return the correctly formatted data
 return repack2;
 }

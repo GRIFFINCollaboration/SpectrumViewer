@@ -24,8 +24,10 @@ function heatmap(width, height){
     this.xmax = null;
     this.ymin = null;
     this.ymax = null;
-    this.zmin = null;
-    this.zmax = null;
+    this.zmin = null;     // zmin for the current zoomed region
+    this.zmax = null;     // zmax for the current zoomed region
+    this.zminfull = null; // zmin for the full matrix
+    this.zmaxfull = null; // zmax for the full matrix
     this.zoom_x_coord_min = null;
     this.zoom_y_coord_min = null;
     this.zoom_x_min = null;
@@ -149,7 +151,10 @@ function heatmap(width, height){
       try{ objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
       //  console.log('A colorMap exists for this matrix.');
       }
-      catch(err){ console.log('No colorMap for this matrix.'); objectIndex=-1; }
+      catch(err){
+        //console.log('No colorMap for this matrix.');
+        objectIndex=-1;
+      }
 
       if(objectIndex<0){
         // A colorMap for this matrix does not exist, so we need to create space for it
@@ -174,56 +179,21 @@ function heatmap(width, height){
       // Look through all the data for this matrix within the current zoom window.
       // Identify the color associated with this non-zero data z value.
       // Save these x and y coordinates of all non-zero z data in an array associated with the color for faster drawing.
-//      console.log('Color map for '+this.xmin+', '+this.ymin+', '+this.xmax+', '+this.ymax);
-//      console.log('Unzoom coords '+0+', '+0+', '+this._raw[0].length+', '+this._raw.length);
+    // console.log('Color map for '+this.xmin+', '+this.ymin+', '+this.xmax+', '+this.ymax);
+    // console.log('Unzoom coords '+0+', '+0+', '+this._raw[0].length+', '+this._raw.length);
       for(i=this.ymin; i<this.ymax; i++){
         for(j=this.xmin; j<this.xmax; j++){
           if(this._raw[i][j] == 0) continue; // skip zero z values because we already painted the whole canvas white
-          if(this._raw[i][j] == 1){ // skip zero z values because we already painted the whole canvas white
-            colorIndex = 0;
-          }else{
-            colorIndex = Math.floor((this._raw[i][j] - this.zmin) / (this.zmax - this.zmin) * (this.colorscales[this.colorscale].length-1))+1;
-          }
-          if(isNaN(colorIndex)) continue; // skip NaN values
-          if(colorIndex<1) continue; // skip zero values
-          try{	objectDataIndex = this.colorMap[objectIndex].data.map(e => e.colorIndex).indexOf(colorIndex);}
-          catch(err){ objectDataIndex=-1; }
-          if(objectDataIndex>-1){
-            // This colorIndex already exists in the object, so add to it
-            this.colorMap[objectIndex].data[objectDataIndex].xValues.push(j);
-            this.colorMap[objectIndex].data[objectDataIndex].yValues.push(i);
-          }else{
-            try{
-              var newColorIndex ={
-                "colorIndex" : colorIndex,
-                "color" : this.chooseColor(this._raw[i][j]),
-                "xValues" : [j],
-                "yValues" : [i],
-              };
-              this.colorMap[objectIndex].data.push(newColorIndex);
-            }
-            catch(err){
 
-              var newColorIndex ={
-                "matrix" : dataStore.activeMatrix,
-                "data" : [{
-                  "colorIndex" : colorIndex,
-                  "color" : this.chooseColor(this._raw[i][j]),
-                  "xValues" : [j],
-                  "yValues" : [i]
-                }
-              ]
-            };
-            this.colorMap.push(newColorIndex);
-            objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
-          }
-        }
+        this.addPointToColorMap(objectIndex,i,j,this._raw[i][j]);
+
+
       }
     }
 
     // If this is the full matrix then save this colorMap to the colorMapFull for subsequent fast redraws
     if((this.xmin == 0) && (this.ymin == 0) && (this.xmax == this._raw[0].length) && (this.ymax == this._raw.length)){
-    //  console.log('Save the full color map');
+    // console.log('Save the full color map');
       this.colorMap[objectIndex].fulldata = this.colorMap[objectIndex].data;
     }
 
@@ -232,6 +202,50 @@ function heatmap(width, height){
   }.bind(this)); // end of promise
 
   }
+
+  this.addPointToColorMap = function(objectIndex,y,x,z){
+
+    if(z == 0) return; // skip zero z values because we already painted the whole canvas white
+    if(z == 1){ // skip zero z values because we already painted the whole canvas white
+      colorIndex = 0;
+    }else{
+      colorIndex = Math.floor((z - this.zmin) / (this.zmax - this.zmin) * (this.colorscales[this.colorscale].length-1))+1;
+    }
+    if(isNaN(colorIndex)) return; // skip NaN values
+    if(colorIndex<1) return; // skip zero values
+    try{	objectDataIndex = this.colorMap[objectIndex].data.map(e => e.colorIndex).indexOf(colorIndex);}
+    catch(err){ objectDataIndex=-1; }
+    if(objectDataIndex>-1){
+      // This colorIndex already exists in the object, so add to it
+      this.colorMap[objectIndex].data[objectDataIndex].xValues.push(x);
+      this.colorMap[objectIndex].data[objectDataIndex].yValues.push(y);
+    }else{
+      try{
+        var newColorIndex ={
+          "colorIndex" : colorIndex,
+          "color" : this.chooseColor(z),
+          "xValues" : [x],
+          "yValues" : [y],
+        };
+        this.colorMap[objectIndex].data.push(newColorIndex);
+      }
+      catch(err){
+
+        var newColorIndex ={
+          "matrix" : dataStore.activeMatrix,
+          "data" : [{
+            "colorIndex" : colorIndex,
+            "color" : this.chooseColor(z),
+            "xValues" : [x],
+            "yValues" : [y]
+          }
+        ]
+      };
+      this.colorMap.push(newColorIndex);
+      objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
+    }
+  }
+}
 
     this.render = function(){
         //composite layers and display
@@ -408,8 +422,15 @@ function heatmap(width, height){
     }
 
     this.zrange = function(){
-        // set an appropriate z range based on whatever is currently on display
 
+        if((this.xmin == 0) && (this.ymin == 0) && (this.xmax == this._raw[0].length) && (this.ymax == this._raw.length)){
+          // If diaplayed region is the whole matrix then apply the saved values for zmin and zmax
+          this.zmin = this.zminfull;
+          this.zmax = this.zmaxfull;
+          return;
+        }
+
+        // set an appropriate z range based on whatever is currently on display
         var max = this._raw.map(function(row){
             return Math.max.apply(null, row.slice(this.xmin, this.xmax))
         }.bind(this)),

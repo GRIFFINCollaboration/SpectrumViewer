@@ -36,7 +36,8 @@ function setupDataStore(){
 	"twoDimensionalSpectra": [],                                              //list of 2d spectra which need to be handled differently to 1d spectra
 	"activeMatrix": "",                                                       //only one 2d spectrum (matrix) is active at any one time. This is the gate target
 	"activeMatrixXaxisLength": 0,                                             //only one 2d spectrum (matrix) is active at any one time. This is the X axis length
-	"activeMatrixYaxisLength": 0,                                             //only one 2d spectrum (matrix) is active at any one time. This is the Y axis length
+  "activeMatrixYaxisLength": 0,                                             //only one 2d spectrum (matrix) is active at any one time. This is the Y axis length
+  "activeMatrixZaxisMax":   16,                                             //only one 2d spectrum (matrix) is active at any one time. This is the maximum value for the Z axis
 	"activeMatrixSymmetrized": false,                                         //only one 2d spectrum (matrix) is active at any one time. This is if it is symmeterized.
   "gateTarget": '',                                                         // the gateTarget is the 1D spectrum used to set gate limits for making projections in the 2D activeMatrix
 
@@ -173,6 +174,7 @@ function plotControl2d(wrapID){
 			dataStore.raw2 = dataStore.rawData[dataStore.activeMatrix].data2;
 			dataStore.activeMatrixXaxisLength = dataStore.rawData[dataStore.activeMatrix].XaxisLength;
 			dataStore.activeMatrixYaxisLength = dataStore.rawData[dataStore.activeMatrix].YaxisLength;
+			dataStore.activeMatrixZaxisMax = dataStore.rawData[dataStore.activeMatrix].ZaxisMax;
 			dataStore.activeMatrixSymmetrized = dataStore.rawData[dataStore.activeMatrix].symmetrized;
                         fetchCallback();
                     }
@@ -412,25 +414,28 @@ function fetchCallback(){
     // clear a previous color map if necessary
     try{ objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
 	 dataStore.hm.colorMap[objectIndex].data = [];
-	 //console.log('Clear the colorMap');
+	 //console.log('In FetchCallback, Clear the colorMap');
        }
     catch(err){
-	//console.log('No colorMap to clear')
+	//console.log('In FetchCallback, No colorMap to clear')
     }
 
-    // unpack the raw 2d spectrum to the required format
+        // set the axis lengths for this histograms
+        dataStore.hm.xmin = 0;
+        dataStore.hm.ymin = 0;
+        dataStore.hm.xmax = dataStore.activeMatrixXaxisLength;
+        dataStore.hm.ymax = dataStore.activeMatrixYaxisLength;
+        dataStore.hm.zmin = 0;
+        dataStore.hm.zmax = dataStore.activeMatrixZaxisMax;
+        dataStore.hm.zminfull = 0;
+        dataStore.hm.zmaxfull = dataStore.activeMatrixZaxisMax;
+
+        // unpack the raw 2d spectrum to the required format
     //dataStore.hm.raw = packZ(dataStore.rawData[dataStore.activeMatrix].data2);
     dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2);
 
-    // set the axis lengths for this histograms and redraw the scale
-    dataStore.hm.xmin = 0;
-    dataStore.hm.ymin = 0;
-    dataStore.hm.xmax = dataStore.activeMatrixXaxisLength;
-    dataStore.hm.ymax = dataStore.activeMatrixYaxisLength;
-  //  dataStore.hm.drawScale();
-    dataStore.hm._oldraw = null; //force complete redraw
-
     // make the 2d heatmap plot of this histogram
+    dataStore.hm._oldraw = null; //force complete redraw
     dataStore.hm.drawData();
 
     // Create total projections for the two axes of the active matrix
