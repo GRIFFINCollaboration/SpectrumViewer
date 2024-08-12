@@ -1,0 +1,28 @@
+<template id='angularCorrelationsTable'>
+    <tr>
+        <td class='col-md-2'>Source</td>
+        <td class='col-md-2'>Peak Energy</td>
+        <td class='col-md-2'>Peak Intensity</td>
+        <td class='col-md-2'>FWHM</td>
+        <td class='col-md-2'>Raw Singles Area</td>
+        <td class='col-md-2'>Summing-In Correction</td>
+        <td class='col-md-2'>Summing-Out Correction</td>
+        <td class='col-md-2'>Corrected Area</td>
+        <td class='col-md-2'>Relative Efficiency</td>
+        <td class='col-md-2'>Absolute Efficiency</td>
+    </tr>
+    {{# detectors}}
+        <tr id='{{id}}{{detectors}}row'>
+            <td id='{{id}}{{.}}title'></td>
+            <td id='{{id}}{{.}}energy'>-</td>
+            <td id='{{id}}{{.}}intensity'>-</td>
+            <td id='{{id}}{{.}}FWHM'>-</td>
+            <td id='{{id}}{{.}}uncorrectedArea'>-</td>
+            <td id='{{id}}{{.}}summingIn'>-</td>
+            <td id='{{id}}{{.}}summingOut'>-</td>
+            <td id='{{id}}{{.}}correctedArea'>-</td>
+            <td id='{{id}}{{.}}relativeEfficiency'>-</td>
+            <td id='{{id}}{{.}}absoluteEfficiency'>-</td>
+        </tr>
+    {{/ detectors}}
+</template>

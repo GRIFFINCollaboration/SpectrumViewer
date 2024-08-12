@@ -703,7 +703,7 @@ function spectrumViewer(canvasID){
 	    // Performance comparison of the normalization factor:
 	    // No normalization = 6.2 seconds to fit a peak with max bin content 2.5M counts.
 	    // maxBinContentsLimit=1,000,000, fit took 3060 ms.
-	    // maxBinContentsLimit=  500,000, fit took 1510 ms.
+	    // maxBinContentsLimit=  500,000, fit took 1510 ms. <- Using this now that logPoisson function has been made 100 times faster
 	    // maxBinContentsLimit=  250,000, fit took  632 ms.
 	    // maxBinContentsLimit=  200,000, fit took  492 ms.
 	    // maxBinContentsLimit=  150,000, fit took  373 ms. <- Optimal chosen for speed and fit accuracy.
@@ -725,7 +725,7 @@ function spectrumViewer(canvasID){
 			cent++;
 		}
 
-	        width = this.estimateWidth(fitdata, cent, max);
+	  width = this.estimateWidth(fitdata, cent, max);
 
 		cent=cent+this.FitLimitLower+0.5;
 

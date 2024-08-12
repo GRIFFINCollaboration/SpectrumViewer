@@ -1082,7 +1082,7 @@ function projectAllMatrices(){
 			dataStore.activeMatrixXaxisLength = dataStore.rawData[oppKeys[i]].XaxisLength;
 			dataStore.activeMatrixYaxisLength = dataStore.rawData[oppKeys[i]].YaxisLength;
 			dataStore.activeMatrixSymmetrized = dataStore.rawData[oppKeys[i]].symmetrized;
-		    dataStore.hm._raw = packZ(dataStore.rawData[oppKeys[i]].data2);
+		    dataStore.hm._raw = packZcompressed(dataStore.rawData[oppKeys[i]].data2);
 
 		    // Loop through the making all the projections required for this source
 		    for(j=0; j<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; j++){

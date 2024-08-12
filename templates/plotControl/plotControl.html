@@ -214,9 +214,11 @@
             //keep a list of canvases to point at
             this.targets = JSON.parse(JSON.stringify(dataStore.plots));
 
-            //keep a list of spectra to poll
+            //keep a list of 1d spectra to poll (can contain 2d histograms but only one per filename, use active2dSpectra for any additional)
             this.activeSpectra = [];
 
+            //keep a list of 2d spectra to poll
+            this.active2dSpectra = [];
 
             //UI callbacks:
             //x-range control:
@@ -383,7 +385,7 @@
 
 	      var thisRawData = {};
 
-	      // activeSpectra can now include 1D Projections of 2D matrices which are created locally in the server.
+	      // activeSpectra can now include 1D Projections of 2D matrices which are created locally in the browser.
 	      // So these need to be stripped from the requests that go to the server for updates.
 	      var activeSpectraForQueries = this.activeSpectra;
 	      for(let key in dataStore.createdSpectra) {
@@ -401,7 +403,14 @@
 	        }
 	      }
 
+        // Build the queirie URLs for 1d histograms (plus 2d histograms if there are one per histogram file)
 	      var queries = constructQueries(activeSpectraForQueries);
+
+        // Add additional URLs for 2d histograms (one URL per 2d histogram)
+          // ensure one 2d histogram per url using the construct2dQueries function
+          if(this.active2dSpectra.length>0){
+          queries = construct2dQueries(queries,this.active2dSpectra);
+          }
 
 	      var spectraFetched = Promise.all(queries.map(promiseJSONURL)).then(
                     function(spectra){
@@ -417,7 +426,7 @@
                         // Loop through the keys of this spectrum element where each key is a histogram (or components of a 2d matrix)
                             for(key in spectra[i]){
 
-                          if(key == 'XaxisLength' || key == 'YaxisLength' || key == 'symmetrized' || key == 'ZaxisMin' || key == 'ZaxisMax' || key == 'data2'){ continue; }
+                          if(key == 'XaxisLength' || key == 'YaxisLength' || key == 'symmetrized' || key == 'XaxisMin' || key == 'XaxisMax' || key == 'YaxisMin' || key == 'YaxisMax' || key == 'ZaxisMin' || key == 'ZaxisMax' || key == 'data2'){ continue; }
                           if(key == 'name'){
                             // Treatment for 2d spectra - append the histoFileName to the beginning of the 'name' key only
                             // 'name' is the first component of the matrix element
@@ -435,6 +444,10 @@
                                        "XaxisLength" : JSON.parse(JSON.stringify(spectra[i]['XaxisLength'])),
                                        "YaxisLength" : JSON.parse(JSON.stringify(spectra[i]['YaxisLength'])),
                                        "symmetrized" : JSON.parse(JSON.stringify(spectra[i]['symmetrized'])),
+                                       "XaxisMin" : JSON.parse(JSON.stringify(spectra[i]['XaxisMin'])),
+                                       "XaxisMax" : JSON.parse(JSON.stringify(spectra[i]['XaxisMax'])),
+                                       "YaxisMin" : JSON.parse(JSON.stringify(spectra[i]['YaxisMin'])),
+                                       "YaxisMax" : JSON.parse(JSON.stringify(spectra[i]['YaxisMax'])),
                                        "ZaxisMin" : JSON.parse(JSON.stringify(spectra[i]['ZaxisMin'])),
                                        "ZaxisMax" : JSON.parse(JSON.stringify(spectra[i]['ZaxisMax'])),
                                        "data2" : JSON.parse(JSON.stringify(spectra[i]['data2']))
