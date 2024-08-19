@@ -1552,7 +1552,7 @@ for(subMatrixIndex=0; subMatrixIndex<raw2.length; subMatrixIndex++){
             thisShift++;
           }
 
-          //  console.log('Type'+subMatrixType+'['+thisYindex+']['+thisXindex+']='+thisValue);
+        //  console.log('Type'+subMatrixType+'['+thisYindex+']['+thisXindex+']='+thisValue);
           repack2[thisYindex][thisXindex] = thisValue;
           if(thisValue>matrixMaxValue){ matrixMaxValue = thisValue; } // Update the max Z value
           if(generateColorMap){

@@ -432,7 +432,7 @@ function fetchCallback(){
 
         // unpack the raw 2d spectrum to the required format
     //dataStore.hm.raw = packZ(dataStore.rawData[dataStore.activeMatrix].data2);
-    dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2);
+    dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2,dataStore.activeMatrixXaxisLength,dataStore.activeMatrixYaxisLength,dataStore.activeMatrixZaxisMax,true);
 
     // make the 2d heatmap plot of this histogram
     dataStore.hm._oldraw = null; //force complete redraw
