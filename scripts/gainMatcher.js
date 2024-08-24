@@ -109,13 +109,15 @@ function setupDataStore(){
   dataStore.sourceInfo = {                                            // Source information and settings
     'HPGe': [
     {"name":  "Co-60", "title":  "60Co", "lowEnergy":  74.97, "midEnergy": 1173.23, "highEnergy": 1332.49, "vhiEnergy": 2614.52, "energies": [74.97,1173.23,1332.49,2614.52], "maxXValue":2650 },
-    {"name":  "Co-56", "title":  "56Co", "lowEnergy": 122.06, "midEnergy":  846.77, "highEnergy": 1238.29, "vhiEnergy": 2598.50, "energies": [122.06,846.77,1238.29,2598.50], "maxXValue":2650 },
+    {"name":  "Co-56L", "title":  "56Co Low En", "lowEnergy": 122.06, "midEnergy":  846.77, "highEnergy": 1238.29, "vhiEnergy": 2598.50, "energies": [122.06,846.77,1238.29,2598.50], "maxXValue":2650 },
+    {"name":  "Co-56H", "title":  "56Co Hi En", "lowEnergy": 122.06, "midEnergy":  846.77, "highEnergy": 2598.50, "vhiEnergy": 3253.40, "energies": [122.06,846.77,2598.50,3253.40], "maxXValue":3800 },
     {"name": "Ba-133", "title": "133Ba", "lowEnergy":  81.00, "midEnergy":  356.01, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "energies": [81.00,356.01,1460.85,2614.52], "maxXValue":2650 },
     {"name": "Cs-137", "title": "137Cs", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy":  661.66, "vhiEnergy": 1460.85, "energies": [74.97,511.00,661.66,2614.52], "maxXValue":2000 },
     {"name": "Eu-152", "title": "152Eu", "lowEnergy":  39.91, "midEnergy":  121.78, "highEnergy":  344.28, "vhiEnergy": 1408.00, "energies": [39.91,121.78,344.28,1408.00], "maxXValue":2000 },
     {"name": "Bi-207", "title": "207Bi", "lowEnergy":  74.97, "midEnergy":  569.70, "highEnergy": 1063.66, "vhiEnergy": 1770.23, "energies": [74.97,569.70,1063.66,1770.23], "maxXValue":2000 },
     {"name":  "Sr-90", "title":  "90Sr", "lowEnergy":  59.32, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "energies": [59.32,511.00,1460.85,2614.52], "maxXValue":2650 },
-    {"name":   "A224", "title":  "A=224", "lowEnergy": 131.61, "midEnergy":  215.98, "highEnergy":  837.03, "vhiEnergy": 2614.52, "energies": [131.61,215.98,837.03,2614.52], "maxXValue":2650 },
+    {"name":   "A224", "title": "A=224", "lowEnergy": 131.61, "midEnergy":  215.98, "highEnergy":  837.03, "vhiEnergy": 2614.52, "energies": [131.61,215.98,837.03,2614.52], "maxXValue":2650 },
+  //  {"name":  "Be-11", "title":  "11Be", "lowEnergy": 511.00, "midEnergy": 2224.69, "highEnergy": 4665.90, "vhiEnergy": 6789.81, "energies": [511.00,2224.69,4665.90,6789.81], "maxXValue":8150 },
     {"name": "Background", "title": "Background", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "energies": [74.97,511.00,1460.85,2614.52], "maxXValue":2650 }
   ],
             'PACES':
