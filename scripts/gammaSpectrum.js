@@ -676,7 +676,9 @@ function spectrumViewer(canvasID){
 	this.fitData = function(fitKey, retries){
 		var cent, fitdata, i, max, width, x, y, height, bkg, bins, estimate;
 	        var fitLine, fitter;
- 	    var maxBinContentsLimit=500000, normalizationFactor=0, originalFitdata;
+ 	  //  var maxBinContentsLimit=500000;
+	var maxBinContentsLimit=5000000;
+			var normalizationFactor=0, originalFitdata;
 
 		if(!retries)
 			retries = 0;

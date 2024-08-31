@@ -237,6 +237,13 @@ function efficiencyFitterReport(wrapID){
       var thisSourceKeyData = dataStore.sourceInfo[referenceSourceKey].relativeEfficiency;
     }
 
+    if(thisSourceKey == '11Be' && referenceSourceKey == '56Co'){
+
+      // take only some of the points
+      var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].normalizedEfficiency.slice(6,8);
+      var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].relativeEfficiency.slice(0,1);
+    }
+
     if(thisSourceKey == '56Co' && referenceSourceKey == '60Co'){
 
       // take only some of the points
@@ -248,6 +255,11 @@ function efficiencyFitterReport(wrapID){
     var thisSourceKeyAverage = (thisSourceKeyData.reduce((a, b) => parseFloat(a) + parseFloat(b), 0))/thisSourceKeyData.length;
 
     normalizationFactor = referenceSourceKeyAverage / thisSourceKeyAverage;
+
+        console.log([thisSourceKey,referenceSourceKey]);
+            console.log(referenceSourceKeyData);
+    console.log(thisSourceKeyData);
+    console.log([referenceSourceKeyAverage,thisSourceKeyAverage,normalizationFactor]);
 
     return [normalizationFactor];
   }
@@ -568,6 +580,11 @@ function efficiencyFitterReport(wrapID){
       dataStore.sourceInfo['60Co'].normalizedEfficiency.push((dataStore.sourceInfo['60Co'].relativeEfficiency[i]*dataStore.sourceInfo['60Co'].normalizationFactor).toFixed(2));
       dataStore.sourceInfo['60Co'].normalizedEfficiencyUnc.push((dataStore.sourceInfo['60Co'].relativeEfficiencyUnc[i]*dataStore.sourceInfo['60Co'].normalizationFactor).toFixed(2));
     }
+    dataStore.sourceInfo['11Be'].normalizationFactor = this.normalizeSourceData('11Be','56Co'); // Must be done after the 56Co normalizedEfficiency is calculated
+    for(i=0; i<dataStore.sourceInfo['11Be'].relativeEfficiency.length; i++){
+      dataStore.sourceInfo['11Be'].normalizedEfficiency.push((dataStore.sourceInfo['11Be'].relativeEfficiency[i]*dataStore.sourceInfo['11Be'].normalizationFactor).toFixed(2));
+      dataStore.sourceInfo['11Be'].normalizedEfficiencyUnc.push((dataStore.sourceInfo['11Be'].relativeEfficiencyUnc[i]*dataStore.sourceInfo['11Be'].normalizationFactor).toFixed(2));
+    }
     dataStore.sourceInfo['152Eu'].normalizedEfficiency = dataStore.sourceInfo['152Eu'].relativeEfficiency;
     dataStore.sourceInfo['152Eu'].normalizedEfficiencyUnc = dataStore.sourceInfo['152Eu'].relativeEfficiencyUnc;
     console.log(dataStore.sourceInfo['133Ba'].normalizedEfficiency);
@@ -576,6 +593,8 @@ function efficiencyFitterReport(wrapID){
     console.log(dataStore.sourceInfo['152Eu'].normalizedEfficiencyUnc);
     console.log(dataStore.sourceInfo['56Co'].normalizedEfficiency);
     console.log(dataStore.sourceInfo['56Co'].normalizedEfficiencyUnc);
+    console.log(dataStore.sourceInfo['11Be'].normalizedEfficiency);
+    console.log(dataStore.sourceInfo['11Be'].normalizedEfficiencyUnc);
 
 
     //update the relative efficiency data plot which includes all sources
@@ -587,7 +606,7 @@ function efficiencyFitterReport(wrapID){
       dataStore.sourceInfo['60Co'].absoluteEfficiencyUnc.push((dataStore.sourceInfo['60Co'].relativeEfficiencyUnc[i]*dataStore.sourceInfo['60Co'].normalizationAbsFactor).toFixed(5));
     }
     dataStore.sourceInfo['56Co'].normalizationAbsFactor = this.normalizeSourceData('56Co','60Co');
-    dataStore.sourceInfo['133Ba'].normalizationAbsFactor = dataStore.sourceInfo['152Eu'].normalizationAbsFactor = dataStore.sourceInfo['56Co'].normalizationAbsFactor;
+    dataStore.sourceInfo['133Ba'].normalizationAbsFactor = dataStore.sourceInfo['11Be'].normalizationAbsFactor = dataStore.sourceInfo['152Eu'].normalizationAbsFactor = dataStore.sourceInfo['56Co'].normalizationAbsFactor;
 
     for(i=0; i<dataStore.sourceInfo['133Ba'].normalizedEfficiency.length; i++){
       dataStore.sourceInfo['133Ba'].absoluteEfficiency.push((dataStore.sourceInfo['133Ba'].normalizedEfficiency[i]*dataStore.sourceInfo['133Ba'].normalizationAbsFactor).toFixed(4));
@@ -600,6 +619,10 @@ function efficiencyFitterReport(wrapID){
     for(i=0; i<dataStore.sourceInfo['56Co'].normalizedEfficiency.length; i++){
       dataStore.sourceInfo['56Co'].absoluteEfficiency.push((dataStore.sourceInfo['56Co'].normalizedEfficiency[i]*dataStore.sourceInfo['56Co'].normalizationAbsFactor).toFixed(4));
       dataStore.sourceInfo['56Co'].absoluteEfficiencyUnc.push((dataStore.sourceInfo['56Co'].normalizedEfficiencyUnc[i]*dataStore.sourceInfo['56Co'].normalizationAbsFactor).toFixed(5));
+    }
+    for(i=0; i<dataStore.sourceInfo['11Be'].normalizedEfficiency.length; i++){
+      dataStore.sourceInfo['11Be'].absoluteEfficiency.push((dataStore.sourceInfo['11Be'].normalizedEfficiency[i]*dataStore.sourceInfo['11Be'].normalizationAbsFactor).toFixed(4));
+      dataStore.sourceInfo['11Be'].absoluteEfficiencyUnc.push((dataStore.sourceInfo['11Be'].normalizedEfficiencyUnc[i]*dataStore.sourceInfo['11Be'].normalizationAbsFactor).toFixed(5));
     }
     console.log(dataStore.sourceInfo['60Co'].normalizationFactor);
     console.log(dataStore.sourceInfo['60Co'].relativeEfficiency);

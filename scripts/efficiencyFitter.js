@@ -125,7 +125,7 @@ efficiencyRegression(thisX,thisY,thisYerror);
       "correctedAreaUnc": [],
       "FWHM": [],
       "FCorrectionFactor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
-      "summingInCorrectionPeaks": [ //[[]],// An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
+      "summingInCorrectionPeaks": [ //[[]],// An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak' [fit_energy,gate_energy]
         [[]], // for 80keV
         [[53.16,223]],      // for 276keV. 79 and 80keV are hard to fit.
         [[223,79.61]],      // for 302keV. 79 and 80keV are hard to fit.
@@ -167,7 +167,7 @@ efficiencyRegression(thisX,thisY,thisYerror);
         "correctedAreaUnc": [],
         "FWHM": [],
         "FCorrectionFactor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
-        "summingInCorrectionPeaks": [ [[]],  [[]],  [[]],  [[]], // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
+        "summingInCorrectionPeaks": [ [[]],  [[]],  [[]],  [[]], // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak' [fit_energy,gate_energy]
         [[367,411.1],[192,586]], // for 778.9 keV
         [[210,656],[148,719],[423,444]], // for 867.4 keV
         [[719,244.7],[401,562],[275,689]], // for 964.0 keV
@@ -208,7 +208,7 @@ efficiencyRegression(thisX,thisY,thisYerror);
     "correctedAreaUnc": [],
     "FWHM": [],
     "FCorrectionFactor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
-    "summingInCorrectionPeaks": [ [[]],  [[]],  [[]],  [[]],  [[]], // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
+    "summingInCorrectionPeaks": [ [[]],  [[]],  [[]],  [[]],  [[]], // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak' [fit_energy,gate_energy]
     [[733,1037.84],[411,1360]], // for 1771.35 keV
     [[977,1037.84],[655,1360]], // for 2015.18 keV
     [[996,1037.84],[674,1360],[263,1771]], // for 2034.76 keV
@@ -236,6 +236,45 @@ efficiencyRegression(thisX,thisY,thisYerror);
   "absoluteEfficiency": [],            // Absolute efficiency calculated for this peak energy after summing corrections
   "absoluteEfficiencyUnc": [],         // Uncertainty for Absolute efficiency calculated for this peak energy after summing corrections
 },
+'11Be' : {"name":  "Be-11", "title":  "11Be", 'histoFileName' : '', "maxXValue":8100,       // General source details
+"literaturePeaks": [ 2124.47, 2895.30, 4443.90, 4665.90, 5018.98, 5851.47, 6789.81, 7282.92, 7974.73 ],     // Peak energies from this source. Literature values taken from ENSDF.
+"literatureIntensity":    [ 1.0, 0.144, 1.0, 0.285, 0.856, 0.532, 0.675, 0.870, 0.462 ], // Peak intensities from this source. Literature values taken from ENSDF (gamma rays per 100 decays of the parent).
+"literatureIntensityUnc": [ 0.01, 0.006, 0.01, 0.011, 0.006, 0.012, 0.011, 0.020, 0.011 ], // Peak intensities from this source. Literature values taken from ENSDF (gamma rays per 100 decays of the parent).
+"peakWidth":10,                     // integer number of channels used for gating. [centroid-peakWidth ... centroid+peakWidth]
+"ROIWidth": 20,                      // integer number of channels used for setting ROI limits. [centroid-peakWidth ... centroid+peakWidth]
+"uncalibratedCentroids": [],
+"calibratedCentroids": [],
+"uncorrectedArea": [],
+"uncorrectedAreaUnc": [],
+"correctedArea": [],
+"correctedAreaUnc": [],
+"FWHM": [],
+"FCorrectionFactor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
+"summingInCorrectionPeaks": [ [[]],  [[]],  [[]],   // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak' [fit_energy,gate_energy]
+[[1771.31,2895.30]], // for 4665.90 keV
+[[2895.30,2124.47]], // for 5018.98 keV
+[[]],
+[[4665.90,2124.47],[1771.31,5018.98]], // for 6789.81 keV
+[[]],
+[[5851.47,2124.47]] // for 5018.98 keV
+],
+"summingInCorrectionCounts": [],  // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
+"summingOutCorrectionCounts": [], // An array of the counts found in the 180 degree coincidence matrix projection.
+"summingInCorrectionCountsUnc": [],  // Uncertainty in An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
+"summingOutCorrectionCounts": [],    // An array of the counts found in the 180 degree coincidence matrix projection.
+"summingOutCorrectionCountsUnc": [], // Uncertainty in An array of the counts found in the 180 degree coincidence matrix projection.
+"rawEfficiency": [],                 // Relative efficiency calculated for this peak energy before summing corrections
+"rawEfficiencyUnc": [],              // Uncertainty for Relative efficiency calculated for this peak energy before summing corrections
+"relativeEfficiency": [],            // Relative efficiency calculated for this peak energy after summing corrections
+"relativeEfficiencyUnc": [],         // Uncertainty for relative efficiency calculated for this peak energy after summing corrections
+"normalizedEfficiency": [],          // Relative efficiency calculated for this peak energy before summing corrections, normalized to 152Eu
+"normalizedEfficiencyUnc": [],       // Uncertainty for Relative efficiency calculated for this peak energy before summing corrections, normalized to 152Eu
+"normalizationFactorParameter": [],  // paremeters of the fitting used to determine the Normalization factor
+"normalizationFactor": 0,            // Normalization factor for the relative efficiency curve of this source
+"normalizationAbsFactor": 0,         // Normalization factor for the absolute efficiency curve of this source
+"absoluteEfficiency": [],            // Absolute efficiency calculated for this peak energy after summing corrections
+"absoluteEfficiencyUnc": [],         // Uncertainty for Absolute efficiency calculated for this peak energy after summing corrections
+},
 '60Co' : {"name":  "Co-60", "title":  "60Co", 'histoFileName' : '', "maxXValue": 2000,       // General source details
 "literaturePeaks": [ 1173.23, 1332.49],     // Peak energies from this source. Literature values taken from ENSDF.
 "literatureIntensity": [ 0.9985, 0.999826 ], // Peak intensities from this source. Literature values taken from ENSDF (gamma rays per 100 decays of the parent).
@@ -250,7 +289,7 @@ efficiencyRegression(thisX,thisY,thisYerror);
 "correctedAreaUnc": [],
 "FWHM": [],
 "FCorrectionFactor": [],           // F factor determined from the number of active/inactive crystals which contribute to the 180 degree coincidence matrix
-"summingInCorrectionPeaks": [ [[]], [[]] ],   // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak'
+"summingInCorrectionPeaks": [ [[]], [[]] ],   // An array of arrays of literautre peak energies which need to be gated on and fit to obtain the summing-In correction for the corresponding (by index number) 'literaturePeak' [fit_energy,gate_energy]
 "summingInCorrectionCounts": [],     // An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
 "summingInCorrectionCountsUnc": [],  // Uncertainty in An array of arrays of the counts found in the peak in the 180 degree coincidence matrix projection.
 "summingOutCorrectionCounts": [],    // An array of the counts found in the 180 degree coincidence matrix projection.
@@ -291,10 +330,10 @@ dataStore.cellIndex = dataStore.plots.length;
 //resolution plot
 dataStore._dataplot = [];                 // Place for all dataplot objects to be created as an array. This makes them indexable and iteratable
 dataStore.dataplotData = [];                                       // place for dataplot data
-dataStore.efficiencyPlotDataKeyMap = ['Abs', 'Rel', '133Ba', '152Eu', '56Co', '60Co'];
+dataStore.efficiencyPlotDataKeyMap = ['Abs', 'Rel', '133Ba', '152Eu', '56Co', '60Co', '11Be'];
 dataStore.efficiencyPlotEquationParameters = [[],[]];
 dataStore.efficiencyPlotData = [];
-dataStore.efficiencyPlotDataUnc = [[],[],[],[],[],[]]; // Y uncertainty values for drawing the error bars
+dataStore.efficiencyPlotDataUnc = [[],[],[],[],[],[],[]]; // Y uncertainty values for drawing the error bars
 dataStore.efficiencyPlotY2Data = [];
 dataStore.efficiencyPlotY2Data[0] = [];
 dataStore.efficiencyPlotY2Data[1] = [];
@@ -307,6 +346,7 @@ dataStore.efficiencyPlotData[2] = [];    // 133Ba only
 dataStore.efficiencyPlotData[3] = [];    // 152Eu only
 dataStore.efficiencyPlotData[4] = [];    // 56Co only
 dataStore.efficiencyPlotData[5] = [];    // 60Co only
+dataStore.efficiencyPlotData[6] = [];    // 11Be only
 dataStore.plotInitData = [];
 dataStore.plotInitData[0] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
 dataStore.plotInitData[1] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
@@ -314,8 +354,9 @@ dataStore.plotInitData[2] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial 
 dataStore.plotInitData[3] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
 dataStore.plotInitData[4] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
 dataStore.plotInitData[5] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
-dataStore.YAxisMinValue = [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]];
-dataStore.YAxisMaxValue = [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0]];
+dataStore.plotInitData[6] = [[0,0], [1,0], [2,0], [3,0], [4,0]];      //initial dummy data
+dataStore.YAxisMinValue = [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0]];
+dataStore.YAxisMaxValue = [[0,0], [0,0], [0,0], [0,0], [0,0], [0,0], [0,0]];
 dataStore.annotations = [0,0];
 dataStore.plotStyle = [];
 dataStore.plotStyle[0] = {                                              //dygraphs style object
@@ -334,7 +375,7 @@ dataStore.plotStyle[0] = {                                              //dygrap
   legend: 'always',
   axes: {
     x: {
-      valueRange: [0,5000]
+      valueRange: [0,10000]
     },
 
     y : {
@@ -366,7 +407,7 @@ dataStore.plotStyle[1] = {                                              //dygrap
   },
   axes: {
     x: {
-      valueRange: [0,5000]
+      valueRange: [0,10000]
     },
 
     y : {
@@ -388,7 +429,7 @@ dataStore.plotStyle[2] = {                                              //dygrap
   legend: 'always',
   axes: {
     x: {
-      valueRange: [0,5000]
+      valueRange: [0,10000]
     },
 
     y : {
@@ -411,7 +452,7 @@ dataStore.plotStyle[3] = {                                              //dygrap
   legend: 'always',
   axes: {
     x: {
-      valueRange: [0,5000]
+      valueRange: [0,10000]
     },
 
     y : {
@@ -434,7 +475,7 @@ dataStore.plotStyle[4] = {                                              //dygrap
   legend: 'always',
   axes: {
     x: {
-      valueRange: [0,5000]
+      valueRange: [0,10000]
     },
 
     y : {
@@ -457,7 +498,30 @@ dataStore.plotStyle[5] = {                                              //dygrap
   legend: 'always',
   axes: {
     x: {
-      valueRange: [0,5000]
+      valueRange: [0,10000]
+    },
+
+    y : {
+      valueRange: [0,10]
+    }
+  }
+}
+
+dataStore.plotStyle[6] = {                                              //dygraphs style object
+  labels: ["Energy (keV)", "Efficiency (arbitary units)"],
+  title: 'Efficiency - 11Be (unnormalized, no summing corrections)',
+  axisLabelColor: '#FFFFFF',
+  colors: ["#AAE66A", "#EFB2F0", "#B2D1F0", "#F0DBB2"],
+  labelsDiv: 'efficiencyPlot60CoLegend',
+  drawPoints: 'true',
+//  customBars: true,
+  pointSize: 5,
+  highlightCircleSize: 7,
+  strokeWidth: 0.0,
+  legend: 'always',
+  axes: {
+    x: {
+      valueRange: [0,10000]
     },
 
     y : {
@@ -720,6 +784,7 @@ function submitHistoFilenameChoices(){
     // this is the main setup and start of the automatic process.
 
 // TRIGGERING THIS FUNCTION SHOULD DISABLE CHANGING THE SELECTS
+document.getElementById('HistoListSelect11Be').disabled = true;
 document.getElementById('HistoListSelect133Ba').disabled = true;
 document.getElementById('HistoListSelect152Eu').disabled = true;
 document.getElementById('HistoListSelect56Co').disabled = true;
@@ -812,11 +877,11 @@ document.getElementById('submitHistoFilenameChoicesButton').disabled = true;
 
     // Define the Regions of Interest for the full peak fitting based on the literature peaks for each source
     // dataStore.ROI[sourceKey][peakIndex] = [low bin, high bin]
-    var ROIwidth=6;
     for(i=0; i<keys.length; i++){
 	dataStore.ROI[keys[i]] = [];
 	for(j=0; j<dataStore.sourceInfo[keys[i]]['literaturePeaks'].length; j++){
-	    dataStore.ROI[keys[i]][j] = [Math.floor(dataStore.sourceInfo[keys[i]].literaturePeaks[j]) - ROIwidth, Math.floor(dataStore.sourceInfo[keys[i]].literaturePeaks[j]) + ROIwidth];
+      var ROIwidth= dataStore.sourceInfo[keys[i]].literaturePeaks[j]*0.0028 + 4.434; // HPGe singles ROI width
+	    dataStore.ROI[keys[i]][j] = [Math.floor(dataStore.sourceInfo[keys[i]].literaturePeaks[j] - ROIwidth), Math.ceil(dataStore.sourceInfo[keys[i]].literaturePeaks[j] + ROIwidth)];
 
 	    // Count the total number of peaks to fit for use in the progress bar
 	    dataStore.progressBarNumberTasks++;
@@ -1082,7 +1147,8 @@ function projectAllMatrices(){
 			dataStore.activeMatrixXaxisLength = dataStore.rawData[oppKeys[i]].XaxisLength;
 			dataStore.activeMatrixYaxisLength = dataStore.rawData[oppKeys[i]].YaxisLength;
 			dataStore.activeMatrixSymmetrized = dataStore.rawData[oppKeys[i]].symmetrized;
-		    dataStore.hm._raw = packZcompressed(dataStore.rawData[oppKeys[i]].data2);
+      dataStore.hm._raw = packZcompressed(dataStore.rawData[oppKeys[i]].data2,dataStore.activeMatrixXaxisLength,dataStore.activeMatrixYaxisLength,dataStore.activeMatrixZaxisMax,false);
+
 
 		    // Loop through the making all the projections required for this source
 		    for(j=0; j<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; j++){
@@ -1093,8 +1159,9 @@ function projectAllMatrices(){
 
       // Set limits for the projections
 			console.log('Make projection for '+dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]);
-			min = Math.floor(dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth));
-			max = Math.floor(dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]+parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth));
+      var thisPeakWidth = dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]*0.0014 + 2.2; // HPGe singles peak width
+			min = Math.floor(dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]-thisPeakWidth);
+			max = Math.ceil(dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[j]+thisPeakWidth);
 
 			plotName = projectXaxis(min,max);
 			console.log('Created '+plotName);
@@ -1137,8 +1204,9 @@ function projectAllMatrices(){
 				// Make it now, unless it has already been created
 
 			console.log('Projections: This peak is not a literature peak, '+dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1]);
-			min = Math.floor(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1]-parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth));
-			max = Math.floor(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1]+parseInt(dataStore.sourceInfo[dataStore.currentSource].peakWidth));
+      var thisPeakWidth = dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1]*0.0014 + 2.2; // HPGe singles peak width
+			min = Math.floor(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1]-thisPeakWidth);
+			max = Math.ceil(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][1]+thisPeakWidth);
 
 			thisKey = dataStore.activeMatrix+'y-'+min+'-'+max;
 				if(!(thisKey in dataStore.createdSpectra)){
@@ -1174,7 +1242,8 @@ function projectAllMatrices(){
 
 			    // Save the ROI for projections so it can be used for drawing the fitlines
 			    if(!dataStore.ROIprojections[plotName]) dataStore.ROIprojections[plotName] = [];
-			    dataStore.ROIprojections[plotName].push([(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]-parseInt(dataStore.sourceInfo[dataStore.currentSource].ROIWidth)),(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]+parseInt(dataStore.sourceInfo[dataStore.currentSource].ROIWidth))]);
+          var ROIwidth= dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]*0.0028 + 4.434; // HPGe singles ROI width
+			    dataStore.ROIprojections[plotName].push([Math.floor(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]-ROIwidth),Math.ceil(dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionPeaks[j][k][0]+ROIwidth)]);
 			}
 			console.log(dataStore.spectrumListProjectionsPeaks[plotName].peaks);
 

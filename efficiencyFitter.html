@@ -36,7 +36,7 @@
          <div id='progressDiv' class="progress hidden" width=100%>
            <div id='progress' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
 	 </div>
-	   
+
         <!--helpful hints-->
         <div class='col-md-6'>
             <div id='histogramMessage' class="alert alert-warning" role="alert">
@@ -74,13 +74,13 @@
                 Review the results in the table below, and refit any troublesome peaks one at a time.
             </div>
         </div>
-	
+
         <!--User input for initial setup-->
 	<div id='histoChoiceBar' class='col-md-12'>
 	   <div id='histoChoiceDir' class='col-md-8'></div>
 
 	   <div class='col-md-12'>
-	     <div id='histoChoice133Ba' class='col-md-4'></div>
+  	     <div id='histoChoice133Ba' class='col-md-4'></div>
              <div id='histoChoice152Eu' class='col-md-4'></div>
            </div>
            <div class='col-md-12'>
@@ -88,11 +88,14 @@
              <div id='histoChoice60Co' class='col-md-4'></div>
              <div id='sourceChoice60Co' class='col-md-2'></div>
            </div>
+           <div class='col-md-12'>
+      	     <div id='histoChoice11Be' class='col-md-4'></div>
+           </div>
 	   <div id='histoChoiceSubmit' class='col-md-12'></div>
 
 	   </div>
 
-      
+
         <!--Spectrum Plotting-->
         <div id='plotRegion' class='sectionWrapper'>
             <div id='plotWrap' class='col-md-9 plotRegion item'>
@@ -101,7 +104,7 @@
                 <div class='sectionWrapper refitButtons'>
                     <div class='col-md-12'>
                         <button type="button" class="btn btn-default btn-lg" id='fitLow' engaged='0'>
-                            <span id='refitLoBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span> 
+                            <span id='refitLoBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
                             <span id='loText'>Refit a Peak</span>
                         </button>
                     </div>
@@ -132,6 +135,9 @@
                 <div id='efficiencyPlot56Co' class='col-md-6'></div>
 		<div id='efficiencyPlot60Co' class='col-md-6'></div>
 		</div>
+		<div class='col-md-12'>
+<div id='efficiencyPlot11Be' class='col-md-6'></div>
+		</div>
             </div>
             </div>
         </div>
@@ -142,13 +148,14 @@
             window.addEventListener('HTMLImportsLoaded', function(e) {
 
                 dataStore._plotGrid = new plotGrid('plottingGrid');
-                dataStore._plotControl = new plotControl('plotCtrl', 'horizontal'); 
-                dataStore._dataplot[0] = new dataplot('efficiencyPlotAbs',0); 
-                dataStore._dataplot[1] = new dataplot('efficiencyPlotRel',1); 
-                dataStore._dataplot[2] = new dataplot('efficiencyPlot133Ba',2); 
-                dataStore._dataplot[3] = new dataplot('efficiencyPlot152Eu',3); 
-                dataStore._dataplot[4] = new dataplot('efficiencyPlot56Co',4); 
-                dataStore._dataplot[5] = new dataplot('efficiencyPlot60Co',5); 
+                dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
+                dataStore._dataplot[0] = new dataplot('efficiencyPlotAbs',0);
+                dataStore._dataplot[1] = new dataplot('efficiencyPlotRel',1);
+                dataStore._dataplot[2] = new dataplot('efficiencyPlot133Ba',2);
+                dataStore._dataplot[3] = new dataplot('efficiencyPlot152Eu',3);
+                dataStore._dataplot[4] = new dataplot('efficiencyPlot56Co',4);
+                dataStore._dataplot[5] = new dataplot('efficiencyPlot60Co',5);
+                dataStore._dataplot[6] = new dataplot('efficiencyPlot11Be',6);
 
                 dataStore.templates = prepareTemplates(['header', 'efficiencyFitterReport', 'efficiencyFitterReportTable', 'plotGrid', 'plotControl', 'plotListLite', 'dataplot', 'footer']);
 
@@ -156,13 +163,14 @@
                 dataStore._plotGrid.setup();
                 dataStore._plotControl.setup();
                 //set up spectrum cell
-                dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]); 
-                dataStore._dataplot[0].setup(0); 
-                dataStore._dataplot[1].setup(1); 
-                dataStore._dataplot[2].setup(2); 
-                dataStore._dataplot[3].setup(3); 
-                dataStore._dataplot[4].setup(4); 
-                dataStore._dataplot[5].setup(5); 
+                dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]);
+                dataStore._dataplot[0].setup(0);
+                dataStore._dataplot[1].setup(1);
+                dataStore._dataplot[2].setup(2);
+                dataStore._dataplot[3].setup(3);
+                dataStore._dataplot[4].setup(4);
+                dataStore._dataplot[5].setup(5);
+                dataStore._dataplot[6].setup(6);
                 setupFooter('foot');
 
                 //don't want additional plots in this app
@@ -173,21 +181,21 @@
 	newLabel.for = 'HistoDirectoryInput';
 	newLabel.innerHTML = 'Directory of Histogram files: ';
 	document.getElementById('histoChoiceDir').appendChild(newLabel);
-	
-	newInput = document.createElement('input'); 
-	newInput.id = 'HistoDirectoryInput'; 
+
+	newInput = document.createElement('input');
+	newInput.id = 'HistoDirectoryInput';
 	newInput.type = 'text';
 	newInput.style.width = '400px';
-	newInput.value = dataStore.histoFileDirectoryPath; 
+	newInput.value = dataStore.histoFileDirectoryPath;
 	newInput.onchange = function(){
 	dataStore.histoFileDirectoryPath = this.value;
 	getHistoFileListFromServer();
 	}.bind(newInput);
 	document.getElementById('histoChoiceDir').appendChild(newInput);
-	
+
 	// Grab the histogram list for the default directory
 	getHistoFileListFromServer();
-	
+
 	        $(function () {
                     $('[data-toggle="tooltip"]').tooltip()
                 });

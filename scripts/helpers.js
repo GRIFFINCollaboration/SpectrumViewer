@@ -1425,6 +1425,7 @@ if(generateColorMap){
       "matrix" : dataStore.activeMatrix,
       "data" : []
     }
+    if(dataStore.hm.colorMap == undefined){ dataStore.hm.colorMap = []; }
     dataStore.hm.colorMap.push(newMatrix);
     objectIndex = dataStore.hm.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
   }else{

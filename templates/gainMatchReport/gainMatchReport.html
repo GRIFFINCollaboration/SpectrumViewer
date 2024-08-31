@@ -214,6 +214,7 @@
                     this.whatsNormal();
                     this.highlightOutliers();
 
+                    console.log(dataStore);
                 }.bind(this),
 
                 keys.length-1
@@ -341,6 +342,9 @@
           // The peak with the highest number of counts might not be the correct peak for the energy we are looking for
           var centers = this.identifyCorrectPeaks(foundPeaks, foundId);
 
+          // Likely a mistake in the literature energies or search regions
+          if(centers.length<2){ console.log("Failed to guess peaks correctly"); }
+
           // Define the Regions of Interest for the full peak fitting based on the peaks found
           if(dataStore.detectorType == 'LaBr3'){
             // Special case for LaBr3 where the resolution deteriorates with energy in a non-linear way (This approach needs improvement)
@@ -405,13 +409,13 @@
                     var ratioDiffP24 = Math.abs((foundPeaks[1][j] / foundPeaks[3][l])-(Epeak[1] / Epeak[3]));
                     var ratioDiffP34 = Math.abs((foundPeaks[2][k] / foundPeaks[3][l])-(Epeak[2] / Epeak[3]));
 
-                    //console.log('Test '+i+', '+j+', '+k+', '+l+', '+foundP1peaks[i]+', '+foundP2peaks[j]+', '+foundP3peaks[k]+', '+foundP4peaks[l]);
-                    //console.log('Ratio12='+ratioDiffP12);
-                    //console.log('Ratio13='+ratioDiffP13);
-                    //console.log('Ratio14='+ratioDiffP14);
-                    //console.log('Ratio23='+ratioDiffP23);
-                    //console.log('Ratio24='+ratioDiffP24);
-                    //console.log('Ratio34='+ratioDiffP34);
+                //    console.log('Test '+i+', '+j+', '+k+', '+l+', '+foundPeaks[0][i]+', '+foundPeaks[1][j]+', '+foundPeaks[2][k]+', '+foundPeaks[3][l]);
+                //    console.log('Ratio12='+ratioDiffP12);
+                //    console.log('Ratio13='+ratioDiffP13);
+                //    console.log('Ratio14='+ratioDiffP14);
+                //    console.log('Ratio23='+ratioDiffP23);
+              //      console.log('Ratio24='+ratioDiffP24);
+              //      console.log('Ratio34='+ratioDiffP34);
 
                     // Test if this combination of Peaks identified are correct
                     if((ratioDiffP12 < 0.005)
