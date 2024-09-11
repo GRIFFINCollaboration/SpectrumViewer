@@ -452,7 +452,9 @@ function processSortStatus(payload){
 	document.getElementById('progress').className = 'progress-bar progress-bar-success progress-bar-striped';
     }
     document.getElementById('progress').setAttribute('style', 'width:' + dataStore.SortStatusCurrentPercentageComplete + '%' );
-    document.getElementById('progress').innerHTML = dataStore.SortStatusCurrentPercentageComplete+'% Completed';
+    string = dataStore.SortStatusCurrentPercentageComplete+'% Completed';
+    if(dataStore.SortStatusCurrentPercentageComplete == 100){ string += ", saving tar file to disk"; }
+    document.getElementById('progress').innerHTML = string;
 
     // Save the timestamp and bytes sorted for use at the next update
     dataStore.SortStatusPreviousTimestamp = dataStore.SortStatusCurrentTimestamp;

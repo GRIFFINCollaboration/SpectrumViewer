@@ -1125,6 +1125,27 @@ function buildCSVfile(){
     downloadLink.click();
 }
 
+function buildGNUfile(){
+    console.log('Download initiated');
+    var keys = Object.keys(dataStore.sourceInfo);
+
+    // Write the table of results to a GNUplot file for download.
+    GNU = '';
+
+    GNU += 'GRIFFIN GNU plot file\n\n';
+
+    // Create a download link
+    const textBlob = new Blob([GNU], {type: 'text/plain'});
+    URL.revokeObjectURL(window.textBlobURL);
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(textBlob);
+    downloadLink.download = document.getElementById('saveGNUname').value;
+
+    // Trigger the download
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+}
+
 function projectAllMatrices(){
             //make the projections for the matrix of each source based on the peaks defined.
             console.log(dataStore);

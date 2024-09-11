@@ -17,6 +17,11 @@
 <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Download table as CSV
 </button>
 <input id='saveCSVname' type='text' value='GRIFFIN-Eff-data.csv' width='500px'></input>
+<br>
+<button type="button" class="btn btn-primary btn-lg"  id='saveGNU'>
+<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Download gnuplot file
+</button>
+<input id='saveGNUname' type='text' value='GRIFFIN-Eff-plot.gnu' width='500px'></input>
 
 </div>
 </div>
@@ -125,14 +130,22 @@ function efficiencyFitterReport(wrapID){
       }
     );
 
-    //make sure the file name for CSV file download gets passed around:
-    document.getElementById('saveCSVname').onchange = function(){
-      //set the filename to whatever the user has requested:
-      document.getElementById('saveCSV').download = this.value;
+        //make sure the file name for CSV file download gets passed around:
+        document.getElementById('saveCSVname').onchange = function(){
+          //set the filename to whatever the user has requested:
+          document.getElementById('saveCSV').download = this.value;
+
+              //make sure the file name for Gnuplot file download gets passed around:
+              document.getElementById('saveGNUname').onchange = function(){
+                //set the filename to whatever the user has requested:
+                document.getElementById('saveGNU').download = this.value;
     }
 
-    // Set up the CSV file button
-    document.getElementById('saveCSV').onclick = function(){ buildCSVfile(); }
+        // Set up the CSV file button
+        document.getElementById('saveCSV').onclick = function(){ buildCSVfile(); }
+
+            // Set up the GNUplot file button
+            document.getElementById('saveGNU').onclick = function(){ buildGNUfile(); }
 
     //set up fit callbacks
     dataStore.viewers[dataStore.plots[0]].fitCallback = this.fitCallback.bind(this);
