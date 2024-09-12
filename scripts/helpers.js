@@ -425,7 +425,11 @@ function GetURLArguments(callback){
 
   // Save the information to the dataStore
   // Save the hostname and port number
-  dataStore.spectrumServer = 'http://'+urlData.backend+'.triumf.ca:'+urlData.port;
+  if(urlData.backend == "localhost"){
+    dataStore.spectrumServer = 'http://'+urlData.backend+":"+urlData.port;
+  }else{
+    dataStore.spectrumServer = 'http://'+urlData.backend+'.triumf.ca:'+urlData.port;
+  }
   dataStore.spectrumServerBackend = urlData.backend;
   dataStore.spectrumServerPort = urlData.port;
 
@@ -466,7 +470,11 @@ function promiseURLArguments(){
 
     // Save the information to the dataStore
     // Save the hostname and port number
-    dataStore.spectrumServer = 'http://'+urlData.backend+'.triumf.ca:'+urlData.port;
+    if(urlData.backend == "localhost"){
+      dataStore.spectrumServer = 'http://'+urlData.backend+":"+urlData.port;
+    }else{
+      dataStore.spectrumServer = 'http://'+urlData.backend+'.triumf.ca:'+urlData.port;
+    }
     dataStore.spectrumServerBackend = urlData.backend;
     dataStore.spectrumServerPort = urlData.port;
 

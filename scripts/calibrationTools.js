@@ -18,12 +18,20 @@ function GetURLArguments(){
 
     // Save the information to the dataStore
     // Save the hostname and port number for getting spectrum data and writing to the config file
-    dataStore.spectrumServer = 'http://'+urlData.analyzerBackend+'.triumf.ca:'+urlData.analyzerPort;
-    
+	  if(urlData.analyzerBackend == "localhost"){
+	    dataStore.spectrumServer = 'http://'+urlData.analyzerBackend+":"+urlData.analyzerPort;
+	  }else{
+	    dataStore.spectrumServer = 'http://'+urlData.analyzerBackend+'.triumf.ca:'+urlData.analyzerPort;
+	  }
+
     // Save the information to the dataStore
     // Save the hostname and port number for writing the ODB parameters
-    dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+'.triumf.ca:'+urlData.ODBHostPort;
-    
+	  if(urlData.analyzerBackend == "localhost"){
+	    dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+":"+urlData.ODBHostPort;
+	  }else{
+	    dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+'.triumf.ca:'+urlData.ODBHostPort;
+	  }
+
     // Copy the histogram URL arguments to the dataStore
     dataStore.histoFileDirectoryPath = urlData.histoDir;
     if(dataStore.histoFileDirectoryPath==undefined){
@@ -34,14 +42,14 @@ function GetURLArguments(){
 	dataStore.histoFileName = urlData.histoFile;
 	dataStore.histoAutoLoad = true;
     }
-    
+
 }
 
 function processHistoFileList(payload){
 
     // receive the payload and split into an array of strings
     var thisPayload = payload.split(" ]")[0].split("[ \n")[1];
-    
+
     // tidy up the strings to extract the list of midas files
     dataStore.histoFileList = thisPayload.split(" , \n ");
 
@@ -61,7 +69,7 @@ function shiftclick(clickCoords){
     var buffer;
 
     // Use each shiftclick to define a small search region around a specific peak
-    
+
     if(dataStore.searchRegionP1.length == 0){
         dataStore.searchRegionP1[0] =  Math.floor(clickCoords.x *0.80);
         dataStore.searchRegionP1[1] =  Math.floor(clickCoords.x *1.20);
@@ -98,5 +106,5 @@ function shiftclick(clickCoords){
 
 // Need to check the ordering of the energy regions and reorder if necessary.
 
-    
+
 }
