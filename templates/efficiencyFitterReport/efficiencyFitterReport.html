@@ -1,195 +1,196 @@
 <link rel="stylesheet" href="efficiencyFitterReport.css"/>
 
 <template id='efficiencyFitterReport'>
-<div class='sectionWrapper item'>
-<div class='col-md-12'>
-<table id='{{id}}efficiencyFitterResults' class='table efficiencyFitterTable'></table>
+  <div class='sectionWrapper item'>
+    <div class='col-md-12'>
+      <table id='{{id}}efficiencyFitterResults' class='table efficiencyFitterTable'></table>
 
-<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myAnalyzerModal">
-<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Write calibration to Analyzer
-</button>
-<br>
-<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myODBModal">
-<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Write calibration to ODB
-</button>
-<br>
-<button type="button" class="btn btn-primary btn-lg"  id='saveCSV'>
-<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Download table as CSV
-</button>
-<input id='saveCSVname' type='text' value='GRIFFIN-Eff-data.csv' width='500px'></input>
-<br>
-<button type="button" class="btn btn-primary btn-lg"  id='saveGNU'>
-<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Download gnuplot file
-</button>
-<input id='saveGNUname' type='text' value='GRIFFIN-Eff-plot.gnu' width='500px'></input>
+      <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myAnalyzerModal">
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Write calibration to Analyzer
+      </button>
+      <br>
+      <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myODBModal">
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Write calibration to ODB
+      </button>
+      <br>
+      <button type="button" class="btn btn-primary btn-lg"  id='saveCSV'>
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Download table as CSV
+      </button>
+      <input id='saveCSVname' type='text' value='GRIFFIN-Eff-data.csv' width='500px'></input>
+      <br>
+      <button type="button" class="btn btn-primary btn-lg"  id='saveGNU'>
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Download gnuplot file
+      </button>
+      <input id='saveGNUname' type='text' value='GRIFFIN-Eff-plot.gnu' width='500px'></input>
 
-</div>
-</div>
+    </div>
+  </div>
 
-<!--are you sure modal for Analyzer write-->
-<div class="modal fade" id="myAnalyzerModal" tabindex="-1" role="dialog" aria-labelledby="myAnalyzerModalLabel">
-<div class="modal-dialog" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-<h4 class="modal-title" id="myAnalyzerModalLabel">Change values in Analyzer Config file?</h4>
-</div>
-<div class="modal-body">
-<p>Are you sure you want to change the quadratic, gain and offset values for all selected detectors in the Analyzer? There is no undo.</p>
-<input type='checkbox' id='{{id}}yesDefinitelyWriteAnalyzer'></input>
-<label for='{{id}}yesDefinitelyWriteAnalyzer'>I'm very sure.</label>
-</div>
-<div class="modal-footer">
-<button type="button" class="btn btn-default" data-dismiss="modal" id='dismissAnalyzermodal'>
-<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> Abort
-</button>
-<button type="button" class="btn btn-default" id='{{id}}writeToAnalyzer' disabled>
-<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Write
-</button>
-</div>
-</div>
-</div>
-</div>
+  <!--are you sure modal for Analyzer write-->
+  <div class="modal fade" id="myAnalyzerModal" tabindex="-1" role="dialog" aria-labelledby="myAnalyzerModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myAnalyzerModalLabel">Change values in Analyzer Config file?</h4>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to change the quadratic, gain and offset values for all selected detectors in the Analyzer? There is no undo.</p>
+          <input type='checkbox' id='{{id}}yesDefinitelyWriteAnalyzer'></input>
+          <label for='{{id}}yesDefinitelyWriteAnalyzer'>I'm very sure.</label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" id='dismissAnalyzermodal'>
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> Abort
+          </button>
+          <button type="button" class="btn btn-default" id='{{id}}writeToAnalyzer' disabled>
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Write
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<!--are you sure modal for ODB write-->
-<div class="modal fade" id="myODBModal" tabindex="-1" role="dialog" aria-labelledby="myODBModalLabel">
-<div class="modal-dialog" role="document">
-<div class="modal-content">
-<div class="modal-header">
-<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-<h4 class="modal-title" id="myODBModalLabel">Change values in ODB?</h4>
-</div>
-<div class="modal-body">
-<p>Are you sure you want to change the quadratic, gain and offset values for all selected detectors in the ODB? There is no undo.</p>
-<input type='checkbox' id='{{id}}yesDefinitelyWriteODB'></input>
-<label for='{{id}}yesDefinitelyWriteODB'>I'm very sure.</label>
-</div>
-<div class="modal-footer">
-<button type="button" class="btn btn-default" data-dismiss="modal" id='dismissODBmodal'>
-<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> Abort
-</button>
-<button type="button" class="btn btn-default" id='{{id}}writeToODB' disabled>
-<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Write
-</button>
-</div>
-</div>
-</div>
-</div>
+  <!--are you sure modal for ODB write-->
+  <div class="modal fade" id="myODBModal" tabindex="-1" role="dialog" aria-labelledby="myODBModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myODBModalLabel">Change values in ODB?</h4>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to change the quadratic, gain and offset values for all selected detectors in the ODB? There is no undo.</p>
+          <input type='checkbox' id='{{id}}yesDefinitelyWriteODB'></input>
+          <label for='{{id}}yesDefinitelyWriteODB'>I'm very sure.</label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal" id='dismissODBmodal'>
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> Abort
+          </button>
+          <button type="button" class="btn btn-default" id='{{id}}writeToODB' disabled>
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Write
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-function efficiencyFitterReport(wrapID){
+  function efficiencyFitterReport(wrapID){
 
-  this.wrapID = wrapID;
-  this.wrap = document.getElementById(wrapID);
+    this.wrapID = wrapID;
+    this.wrap = document.getElementById(wrapID);
 
-  this.setup = function(){
-    // build list of source titles
-    var listOfSourceTitles = [];
+    this.setup = function(){
+      // build list of source titles
+      var listOfSourceTitles = [];
 
-    if(dataStore.THESEdetectors[0].includes('PAC')){
-      var thisObject = {
-        "name" : dataStore.sourceInfoPACES[0].name,
-        "title" : dataStore.sourceInfoPACES[0].title
-      }
-      listOfSourceTitles.push(thisObject);
-    }else{
-      for(var i=0; i<dataStore.sourceInfo.length; i++){
+      if(dataStore.THESEdetectors[0].includes('PAC')){
         var thisObject = {
-          "name" : dataStore.sourceInfo[i].name,
-          "title" : dataStore.sourceInfo[i].title
+          "name" : dataStore.sourceInfoPACES[0].name,
+          "title" : dataStore.sourceInfoPACES[0].title
         }
         listOfSourceTitles.push(thisObject);
+      }else{
+        for(var i=0; i<dataStore.sourceInfo.length; i++){
+          var thisObject = {
+            "name" : dataStore.sourceInfo[i].name,
+            "title" : dataStore.sourceInfo[i].title
+          }
+          listOfSourceTitles.push(thisObject);
+        }
       }
-    }
 
-    //inject templates
-    this.wrap.innerHTML = Mustache.to_html(
+      //inject templates
+      this.wrap.innerHTML = Mustache.to_html(
       dataStore.templates.efficiencyFitterReport,
       {
         'id': this.wrapID,
       }
-    );
-    // table has to be done as a separate template, since templates and tables don't play too nice together
-    console.log('Inject the Table');
-    // Build the list of rows for the table. Loop through each peak of each source
-    var detectors =[];
-    var keys = Object.keys(dataStore.sourceInfo);
-    for(i=0; i<keys.length; i++){
-      for(j=0; j<dataStore.sourceInfo[keys[i]].literaturePeaks.length; j++){
-        detectors.push(keys[i] + '-P' + j);
+      );
+      // table has to be done as a separate template, since templates and tables don't play too nice together
+      console.log('Inject the Table');
+      // Build the list of rows for the table. Loop through each peak of each source
+      var detectors =[];
+      var keys = Object.keys(dataStore.sourceInfo);
+      for(i=0; i<keys.length; i++){
+        for(j=0; j<dataStore.sourceInfo[keys[i]].literaturePeaks.length; j++){
+          detectors.push(keys[i] + '-P' + j);
+        }
       }
-    }
-    console.log(keys);
-    console.log(detectors);
-    document.getElementById(this.wrapID + 'efficiencyFitterResults').innerHTML= Mustache.to_html(
+      console.log(keys);
+      console.log(detectors);
+      document.getElementById(this.wrapID + 'efficiencyFitterResults').innerHTML= Mustache.to_html(
       dataStore.templates.efficiencyFitterReportTable,
       content = {
         'id': this.wrapID,
         'detectors': detectors
       }
-    );
+      );
 
-        //make sure the file name for CSV file download gets passed around:
-        document.getElementById('saveCSVname').onchange = function(){
-          //set the filename to whatever the user has requested:
-          document.getElementById('saveCSV').download = this.value;
-
-              //make sure the file name for Gnuplot file download gets passed around:
-              document.getElementById('saveGNUname').onchange = function(){
-                //set the filename to whatever the user has requested:
-                document.getElementById('saveGNU').download = this.value;
-    }
-
-        // Set up the CSV file button
-        document.getElementById('saveCSV').onclick = function(){ buildCSVfile(); }
-
-            // Set up the GNUplot file button
-            document.getElementById('saveGNU').onclick = function(){ buildGNUfile(); }
-
-    //set up fit callbacks
-    dataStore.viewers[dataStore.plots[0]].fitCallback = this.fitCallback.bind(this);
-
-    //plug in the allow Analyzer write switch
-    document.getElementById(this.wrapID + 'yesDefinitelyWriteAnalyzer').onchange = this.toggleAnalyzerwrite.bind(this);
-
-    //plug in write to Analyzer button
-    document.getElementById(this.wrapID + 'writeToAnalyzer').onclick = function(){
-      //bail out if there's no fit yet
-      if(Object.keys(dataStore.fitResults).length == 0){
-        window.alert('You need to perform the gain match (see button at top of page) before writing results to the Analyzer.');
-        document.getElementById('dismissAnalyzermodal').click();
+      //make sure the file name for CSV file download gets passed around:
+      document.getElementById('saveCSVname').onchange = function(){
+        //set the filename to whatever the user has requested:
+        document.getElementById('saveCSV').download = this.value;
       }
-      updateAnalyzer();
-    }
 
-    //plug in the allow ODB write switch
-    document.getElementById(this.wrapID + 'yesDefinitelyWriteODB').onchange = this.toggleODBwrite.bind(this);
-
-    //plug in write to odb button
-    document.getElementById(this.wrapID + 'writeToODB').onclick = function(){
-      //bail out if there's no fit yet
-      if(Object.keys(dataStore.fitResults).length == 0){
-        window.alert('You need to perform the gain match (see button at top of page) before writing results to the ODB.');
-        document.getElementById('dismissODBmodal').click();
+      //make sure the file name for Gnuplot file download gets passed around:
+      document.getElementById('saveGNUname').onchange = function(){
+        //set the filename to whatever the user has requested:
+        document.getElementById('saveGNU').download = this.value;
       }
-      promiseScript(dataStore.ODBrequests[0]);
-    }
-  },
 
-  this.fitAllSinglesPeaks = function(){
-    //fit all spectra to the peaks defined.
-    //this: efficiencyFitterReport object
-    console.log(dataStore);
+      // Set up the CSV file button
+      document.getElementById('saveCSV').onclick = function(){ buildCSVfile(); }
 
-    // Change rawData to another list that is just the Sum_Energy_ spectrum
-    var i, keys = Object.keys(dataStore.spectrumListSingles),
-    buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
+      // Set up the GNUplot file button
+      document.getElementById('saveGNU').onclick = function(){ buildGNUfile(); }
 
-    //dump data so there is one displayed at a time
-    dataStore.viewers[dataStore.plots[0]].removeData(dataStore.currentPlot);
+      //set up fit callbacks
+      dataStore.viewers[dataStore.plots[0]].fitCallback = this.fitCallback.bind(this);
 
-    releaser(
+      //plug in the allow Analyzer write switch
+      document.getElementById(this.wrapID + 'yesDefinitelyWriteAnalyzer').onchange = this.toggleAnalyzerwrite.bind(this);
+
+      //plug in write to Analyzer button
+      document.getElementById(this.wrapID + 'writeToAnalyzer').onclick = function(){
+        //bail out if there's no fit yet
+        if(Object.keys(dataStore.fitResults).length == 0){
+          window.alert('You need to perform the gain match (see button at top of page) before writing results to the Analyzer.');
+          document.getElementById('dismissAnalyzermodal').click();
+        }
+        updateAnalyzer();
+      }
+
+      //plug in the allow ODB write switch
+      document.getElementById(this.wrapID + 'yesDefinitelyWriteODB').onchange = this.toggleODBwrite.bind(this);
+
+      //plug in write to odb button
+      document.getElementById(this.wrapID + 'writeToODB').onclick = function(){
+        //bail out if there's no fit yet
+        if(Object.keys(dataStore.fitResults).length == 0){
+          window.alert('You need to perform the gain match (see button at top of page) before writing results to the ODB.');
+          document.getElementById('dismissODBmodal').click();
+        }
+        promiseScript(dataStore.ODBrequests[0]);
+      }
+    },
+
+    this.fitAllSinglesPeaks = function(){
+      //fit all spectra to the peaks defined.
+      //this: efficiencyFitterReport object
+      console.log(dataStore);
+
+      // Change rawData to another list that is just the Sum_Energy_ spectrum
+      var i, keys = Object.keys(dataStore.spectrumListSingles),
+      buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
+
+      //dump data so there is one displayed at a time
+      dataStore.viewers[dataStore.plots[0]].removeData(dataStore.currentPlot);
+
+      releaser(
       function(i){
         // Change rawData to another list that is just the Sum_Energy_ spectrum
         var keys = Object.keys(dataStore.spectrumListSingles);
@@ -222,74 +223,74 @@ function efficiencyFitterReport(wrapID){
       }.bind(this),
 
       keys.length-1
-    )
-  },
+      )
+    },
 
-  this.normalizeSourceData = function(thisSourceKey,referenceSourceKey){
-    // The data for thisSourceKey will be normalized to the data of the referenceSourceKey
-    // residualsData returns the best-fit normalization factor
+    this.normalizeSourceData = function(thisSourceKey,referenceSourceKey){
+      // The data for thisSourceKey will be normalized to the data of the referenceSourceKey
+      // residualsData returns the best-fit normalization factor
 
-    if(thisSourceKey == '133Ba' && referenceSourceKey == '152Eu'){
+      if(thisSourceKey == '133Ba' && referenceSourceKey == '152Eu'){
 
-      // take only some of the points
-      var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].relativeEfficiency.slice(1,3);
-      var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].relativeEfficiency.slice(1,4);
-    }
+        // take only some of the points
+        var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].relativeEfficiency.slice(1,3);
+        var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].relativeEfficiency.slice(1,4);
+      }
 
-    if(thisSourceKey == '56Co' && referenceSourceKey == '152Eu'){
+      if(thisSourceKey == '56Co' && referenceSourceKey == '152Eu'){
 
-      // take only some of the points
-      var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].relativeEfficiency.slice(6,8);
-      var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].relativeEfficiency.slice(0,4);
-    }
+        // take only some of the points
+        var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].relativeEfficiency.slice(6,8);
+        var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].relativeEfficiency.slice(0,4);
+      }
 
-    if(thisSourceKey == '60Co' && referenceSourceKey == '152Eu'){
+      if(thisSourceKey == '60Co' && referenceSourceKey == '152Eu'){
 
-      // take only some of the points
-      var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].relativeEfficiency.slice(7,8);
-      var thisSourceKeyData = dataStore.sourceInfo[referenceSourceKey].relativeEfficiency;
-    }
+        // take only some of the points
+        var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].relativeEfficiency.slice(7,8);
+        var thisSourceKeyData = dataStore.sourceInfo[referenceSourceKey].relativeEfficiency;
+      }
 
-    if(thisSourceKey == '11Be' && referenceSourceKey == '56Co'){
+      if(thisSourceKey == '11Be' && referenceSourceKey == '56Co'){
 
-      // take only some of the points
-      var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].normalizedEfficiency.slice(6,8);
-      var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].relativeEfficiency.slice(0,1);
-    }
+        // take only some of the points
+        var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].normalizedEfficiency.slice(6,8);
+        var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].relativeEfficiency.slice(0,1);
+      }
 
-    if(thisSourceKey == '56Co' && referenceSourceKey == '60Co'){
+      if(thisSourceKey == '56Co' && referenceSourceKey == '60Co'){
 
-      // take only some of the points
-      var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].absoluteEfficiency;
-      var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].normalizedEfficiency.slice(2,4);
-    }
+        // take only some of the points
+        var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].absoluteEfficiency;
+        var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].normalizedEfficiency.slice(2,4);
+      }
 
-    var referenceSourceKeyAverage = (referenceSourceKeyData.reduce((a, b) => parseFloat(a) + parseFloat(b), 0))/referenceSourceKeyData.length;
-    var thisSourceKeyAverage = (thisSourceKeyData.reduce((a, b) => parseFloat(a) + parseFloat(b), 0))/thisSourceKeyData.length;
+      var referenceSourceKeyAverage = (referenceSourceKeyData.reduce((a, b) => parseFloat(a) + parseFloat(b), 0))/referenceSourceKeyData.length;
+      var thisSourceKeyAverage = (thisSourceKeyData.reduce((a, b) => parseFloat(a) + parseFloat(b), 0))/thisSourceKeyData.length;
 
-    normalizationFactor = referenceSourceKeyAverage / thisSourceKeyAverage;
+      normalizationFactor = referenceSourceKeyAverage / thisSourceKeyAverage;
 
-        console.log([thisSourceKey,referenceSourceKey]);
-            console.log(referenceSourceKeyData);
-    console.log(thisSourceKeyData);
-    console.log([referenceSourceKeyAverage,thisSourceKeyAverage,normalizationFactor]);
+      console.log([thisSourceKey,referenceSourceKey]);
+      console.log(referenceSourceKeyData);
+      console.log(thisSourceKeyData);
+      console.log([referenceSourceKeyAverage,thisSourceKeyAverage,normalizationFactor]);
 
-    return [normalizationFactor];
-  }
+      return [normalizationFactor];
+    },
 
-  this.fitAllSummingCorrections = function(){
-    //fit all spectra to the peaks defined.
-    //this: efficiencyFitterReport object
-    console.log(dataStore);
+    this.fitAllSummingCorrections = function(){
+      //fit all spectra to the peaks defined.
+      //this: efficiencyFitterReport object
+      console.log(dataStore);
 
-    // Change rawData to another list that is just the Opp spectrum
-    var i, keys = Object.keys(dataStore.spectrumListProjections),
-    buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
+      // Change rawData to another list that is just the Opp spectrum
+      var i, keys = Object.keys(dataStore.spectrumListProjections),
+      buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
 
-    //dump previous spectrum so there is one displayed at a time
-    dataStore.viewers[dataStore.plots[0]].removeData(dataStore.currentPlot);
+      //dump previous spectrum so there is one displayed at a time
+      dataStore.viewers[dataStore.plots[0]].removeData(dataStore.currentPlot);
 
-    releaser(
+      releaser(
       function(i){
         // Change rawData to another list that is just the Sum_Energy_ spectrum
         var keys = Object.keys(dataStore.spectrumListProjections);
@@ -340,101 +341,101 @@ function efficiencyFitterReport(wrapID){
       }.bind(this),
 
       keys.length-1
-    )
-  },
+      )
+    },
 
-  this.fitSpectra = function(spectrum){
-    //redo the fits for the named spectrum.
-    //<spectrum>: string; name of spectrum, per names from analyzer
-    //this: efficiencyFitterReport object
+    this.fitSpectra = function(spectrum){
+      //redo the fits for the named spectrum.
+      //<spectrum>: string; name of spectrum, per names from analyzer
+      //this: efficiencyFitterReport object
 
-    var viewerName = dataStore.plots[0];
+      var viewerName = dataStore.plots[0];
 
-    // Set the current Source for this spectrum
-    dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === spectrum.split(':')[0])
-    console.log('fitSpectra for '+spectrum+', identify key '+dataStore.currentSource);
+      // Set the current Source for this spectrum
+      dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === spectrum.split(':')[0])
+      console.log('fitSpectra for '+spectrum+', identify key '+dataStore.currentSource);
 
-    //set the x axis valueRange
-    document.getElementById('maxX').value = dataStore.sourceInfo[dataStore.currentSource].maxXValue;
-    document.getElementById('maxX').onchange();
+      //set the x axis valueRange
+      document.getElementById('maxX').value = dataStore.sourceInfo[dataStore.currentSource].maxXValue;
+      document.getElementById('maxX').onchange();
 
-    //set up fitting for this spectrum/source
-    dataStore.currentPlot = spectrum;
-    dataStore.viewers[viewerName].plotData() //kludge to update limits, could be nicer
-    dataStore.viewers[viewerName].fitTarget = spectrum;
-    dataStore._plotListLite.exclusivePlot(spectrum, dataStore.viewers[dataStore.plots[0]]);
+      //set up fitting for this spectrum/source
+      dataStore.currentPlot = spectrum;
+      dataStore.viewers[viewerName].plotData() //kludge to update limits, could be nicer
+      dataStore.viewers[viewerName].fitTarget = spectrum;
+      dataStore._plotListLite.exclusivePlot(spectrum, dataStore.viewers[dataStore.plots[0]]);
 
-    if(dataStore.currentTask == 'SinglesFitting'){
-      // fitting singles
+      if(dataStore.currentTask == 'SinglesFitting'){
+        // fitting singles
 
-      //set up the spectrum data for fitting
-      dataStore.viewers[viewerName].addData(spectrum, JSON.parse(JSON.stringify(dataStore.rawData[spectrum])) );
+        //set up the spectrum data for fitting
+        dataStore.viewers[viewerName].addData(spectrum, JSON.parse(JSON.stringify(dataStore.rawData[spectrum])) );
 
-      // Loop through all literature peaks for this source
-      for(peakIndex=0; peakIndex<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; peakIndex++){
+        // Loop through all literature peaks for this source
+        for(peakIndex=0; peakIndex<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; peakIndex++){
 
-        //set up peak fit
-        dataStore.currentPeak = peakIndex;
-        dataStore.viewers[viewerName].FitLimitLower = dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][0];
-        dataStore.viewers[viewerName].FitLimitUpper = dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][1];
-        dataStore.viewers[viewerName].fitData(spectrum, 0);
+          //set up peak fit
+          dataStore.currentPeak = peakIndex;
+          dataStore.viewers[viewerName].FitLimitLower = dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][0];
+          dataStore.viewers[viewerName].FitLimitUpper = dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][1];
+          dataStore.viewers[viewerName].fitData(spectrum, 0);
+        }
+      }else{
+        // fitting projections for summing corrections
+        console.log('fitting projections for summing corrections with '+spectrum);
+
+        //set up the spectrum data for fitting
+        dataStore.viewers[viewerName].addData(spectrum, JSON.parse(JSON.stringify(dataStore.createdSpectra[spectrum])) );
+
+        // Loop through the peaks to fit for this projection
+        for(peakIndex=0; peakIndex<dataStore.spectrumListProjectionsPeaks[spectrum].peaks.length; peakIndex++){
+
+          //set up peak fit
+          console.log('fitting projections for summing corrections with '+spectrum+', peak '+peakIndex);
+          dataStore.currentPeak = peakIndex;
+          dataStore.viewers[viewerName].FitLimitLower = dataStore.ROIprojections[spectrum][dataStore.currentPeak][0];
+          dataStore.viewers[viewerName].FitLimitUpper = dataStore.ROIprojections[spectrum][dataStore.currentPeak][1];
+          dataStore.viewers[viewerName].fitData(spectrum, 0);
+
+        }
       }
-    }else{
-      // fitting projections for summing corrections
-      console.log('fitting projections for summing corrections with '+spectrum);
+      //dump data so it doesn't stack up
+      dataStore.viewers[viewerName].removeData(spectrum);
+    },
 
-      //set up the spectrum data for fitting
-      dataStore.viewers[viewerName].addData(spectrum, JSON.parse(JSON.stringify(dataStore.createdSpectra[spectrum])) );
+    this.addFitLines = function(){
+      //add current fits to the plot
+      console.log('addFitLines in efficiencyFitterReport');
 
-      // Loop through the peaks to fit for this projection
-      for(peakIndex=0; peakIndex<dataStore.spectrumListProjectionsPeaks[spectrum].peaks.length; peakIndex++){
+      var fitLines = [];
+      var lower, upper, middle
+      viewerName = dataStore.plots[0];
 
-        //set up peak fit
-        console.log('fitting projections for summing corrections with '+spectrum+', peak '+peakIndex);
-        dataStore.currentPeak = peakIndex;
-        dataStore.viewers[viewerName].FitLimitLower = dataStore.ROIprojections[spectrum][dataStore.currentPeak][0];
-        dataStore.viewers[viewerName].FitLimitUpper = dataStore.ROIprojections[spectrum][dataStore.currentPeak][1];
-        dataStore.viewers[viewerName].fitData(spectrum, 0);
+      dataStore.viewers[viewerName].containerFit.removeAllChildren();
 
-      }
-    }
-    //dump data so it doesn't stack up
-    dataStore.viewers[viewerName].removeData(spectrum);
-  },
-
-  this.addFitLines = function(){
-    //add current fits to the plot
-    console.log('addFitLines in efficiencyFitterReport');
-
-    var fitLines = [];
-    var lower, upper, middle
-    viewerName = dataStore.plots[0];
-
-    dataStore.viewers[viewerName].containerFit.removeAllChildren();
-
-    // Set the current Source for this spectrum
-    dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === dataStore.currentPlot.split(':')[0])
-    console.log('addFitLines for '+dataStore.currentPlot+', identify key '+dataStore.currentSource+' during '+dataStore.currentTask);
+      // Set the current Source for this spectrum
+      dataStore.currentSource = Object.keys(dataStore.sourceInfo).find(key => dataStore.sourceInfo[key].histoFileName.split('.')[0] === dataStore.currentPlot.split(':')[0])
+      console.log('addFitLines for '+dataStore.currentPlot+', identify key '+dataStore.currentSource+' during '+dataStore.currentTask);
 
 
-    if(dataStore.currentTask == 'SinglesFitting'){
-      var theseFitlines = 'Singles';
-    }else if(dataStore.currentTask == 'SummingFitting'){
-      var theseFitlines = 'Summing';
-    }else{
-      if( dataStore.currentPlot.includes('oppo') ){
+      if(dataStore.currentTask == 'SinglesFitting'){
+        var theseFitlines = 'Singles';
+      }else if(dataStore.currentTask == 'SummingFitting'){
         var theseFitlines = 'Summing';
       }else{
-        var theseFitlines = 'Singles';
+        if( dataStore.currentPlot.includes('oppo') ){
+          var theseFitlines = 'Summing';
+        }else{
+          var theseFitlines = 'Singles';
+        }
       }
-    }
 
-    if(theseFitlines == 'Singles'){
-      // fitting singles
+      if(theseFitlines == 'Singles'){
+        // fitting singles
 
-      for(i=0; i<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; i++){
-        //add fit lines
-        fitLines[i] = dataStore.viewers[viewerName].addFitLine(
+        for(i=0; i<dataStore.sourceInfo[dataStore.currentSource].literaturePeaks.length; i++){
+          //add fit lines
+          fitLines[i] = dataStore.viewers[viewerName].addFitLine(
           dataStore.ROI[dataStore.currentSource][i][0],
           dataStore.ROI[dataStore.currentSource][i][1] - dataStore.ROI[dataStore.currentSource][i][0],
           dataStore.fitResults[dataStore.currentPlot][i][0],
@@ -442,29 +443,29 @@ function efficiencyFitterReport(wrapID){
           dataStore.fitResults[dataStore.currentPlot][i][2],
           dataStore.fitResults[dataStore.currentPlot][i][3],
           dataStore.fitResults[dataStore.currentPlot][i][4]
-        );
+          );
 
-        dataStore.viewers[viewerName].containerFit.addChild(fitLines[i]);
-      }
-    }else if(theseFitlines == 'Summing'){
-      // fitting projections for summing corrections
-      console.log(dataStore);
-      console.log(dataStore.ROIprojections);
-      console.log(dataStore.fitResultsProjections);
-      console.log(dataStore.currentSource);
-      console.log(dataStore.currentPlot);
+          dataStore.viewers[viewerName].containerFit.addChild(fitLines[i]);
+        }
+      }else if(theseFitlines == 'Summing'){
+        // fitting projections for summing corrections
+        console.log(dataStore);
+        console.log(dataStore.ROIprojections);
+        console.log(dataStore.fitResultsProjections);
+        console.log(dataStore.currentSource);
+        console.log(dataStore.currentPlot);
 
-      // Bail out of no fitResults yet
-      if(!dataStore.fitResultsProjections[dataStore.currentPlot]){
-        console.log('No fitResults yet for '+dataStore.currentPlot+' in addFitLines so bailing out');
-        return;
-      }
+        // Bail out of no fitResults yet
+        if(!dataStore.fitResultsProjections[dataStore.currentPlot]){
+          console.log('No fitResults yet for '+dataStore.currentPlot+' in addFitLines so bailing out');
+          return;
+        }
 
-      // Loop through the peaks for this spectrum
-      for(i=0; i<dataStore.spectrumListProjectionsPeaks[dataStore.currentPlot].peaks.length; i++){
-        //add fit lines
-        console.log('Add fit lines for '+dataStore.currentPlot+', peak '+i);
-        fitLines[i] = dataStore.viewers[viewerName].addFitLine(
+        // Loop through the peaks for this spectrum
+        for(i=0; i<dataStore.spectrumListProjectionsPeaks[dataStore.currentPlot].peaks.length; i++){
+          //add fit lines
+          console.log('Add fit lines for '+dataStore.currentPlot+', peak '+i);
+          fitLines[i] = dataStore.viewers[viewerName].addFitLine(
           dataStore.ROIprojections[dataStore.currentPlot][i][0],
           dataStore.ROIprojections[dataStore.currentPlot][i][1] - dataStore.ROIprojections[dataStore.currentPlot][i][0],
           dataStore.fitResultsProjections[dataStore.currentPlot][i][0],
@@ -472,418 +473,439 @@ function efficiencyFitterReport(wrapID){
           dataStore.fitResultsProjections[dataStore.currentPlot][i][2],
           dataStore.fitResultsProjections[dataStore.currentPlot][i][3],
           dataStore.fitResultsProjections[dataStore.currentPlot][i][4]
-        );
+          );
 
-        dataStore.viewers[viewerName].containerFit.addChild(fitLines[i]);
+          dataStore.viewers[viewerName].containerFit.addChild(fitLines[i]);
+        }
+
+      }else{
+        // If all tasks are done then we are just displaying spectra and fit lines.
+
       }
 
-    }else{
-      // If all tasks are done then we are just displaying spectra and fit lines.
+      dataStore.viewers[viewerName].stage.update();
+    },
 
+    this.fitCallback = function(center, width, amplitude, intercept, slope){
+      //after fitting, log the fit results, as well as any modification made to the ROI by the fitting algortihm
+      //also update table
+      //<center>: number; center of gaussian peak
+      //<width>: number; width of peak
+      //<amplitude>: number; amplitude of peak
+      //<intercept>: number; intercept of linear background beneath peak
+      //<slope>: number; slope of linear background
+      //this: gainMatchReport object
+
+      var lowPeak = document.getElementById('fitLow');
+      var midPeak = document.getElementById('fitMid');
+      var highPeak = document.getElementById('fitHigh');
+      var vhiPeak = document.getElementById('fitvHi');
+      var viewerName = dataStore.plots[0];
+
+      // update the progress bar
+      dataStore.progressBarTasksCompleted++;
+      console.log('Tasks completed '+dataStore.progressBarTasksCompleted+' of '+dataStore.progressBarNumberTasks+' tasks, '+(dataStore.progressBarTasksCompleted / dataStore.progressBarNumberTasks)+'.');
+      document.getElementById('progress').setAttribute('style', 'width:' + ((75*(dataStore.progressBarTasksCompleted / dataStore.progressBarNumberTasks))+25) + '%' );
+
+      // Calculate peak area here
+      var grossArea = 0,
+      netArea = 0,
+      integral = 0,
+      functionVals = [],
+      i, x, sigmas = 5, stepSize = 0.01;
+      //calculate peak area in excess of background, for <sigmas> up and down.
+      for(i=0; i<2*sigmas*width/stepSize; i++){
+        x = center - sigmas*width + i*stepSize
+        functionVals.push( gauss(amplitude, center, width, x)*stepSize )
+        integral = functionVals.integrate()
+      }
+
+      // Bail out if this is not singles spectrum fitting
+      if(dataStore.currentTask == 'SinglesFitting'){
+        // fitting singles
+
+        //keep track of fit results
+        if(!dataStore.fitResults[dataStore.currentPlot]) dataStore.fitResults[dataStore.currentPlot] = [];
+        dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, center, width, intercept, slope];
+
+        // Update the ROI in case they were modified by the fitting routine
+        dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][0] = dataStore.viewers[viewerName].FitLimitLower;
+        dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][1] = dataStore.viewers[viewerName].FitLimitUpper;
+
+        //convenient to arrange resolution data here
+        dataStore.sourceInfo[dataStore.currentSource].FWHM[dataStore.currentPeak] = (width*2.35).toFixed(2);
+
+        dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak] = integral.toFixed(0);
+        dataStore.sourceInfo[dataStore.currentSource].uncorrectedAreaUnc[dataStore.currentPeak] = Math.ceil(Math.sqrt(dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak]));
+        console.log(dataStore.currentPlot + ', '+dataStore.currentSource + ', Peak '+dataStore.currentPeak+', centroid='+center.toFixed(2)+', height='+amplitude.toFixed(2)+', FWHM='+(width*2.35).toFixed(2)+', Net Area = '+dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak]);
+
+      }else{
+        // Fitting projections
+        console.log('Save these Projection fit Results');
+        console.log(dataStore.currentPlot);
+        console.log(dataStore.ROIprojections);
+        console.log(dataStore.currentPeak);
+
+        //keep track of fit results
+        if(!dataStore.fitResultsProjections[dataStore.currentPlot]) dataStore.fitResultsProjections[dataStore.currentPlot] = [];
+        dataStore.fitResultsProjections[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, center, width, intercept, slope];
+
+        // Save the ROI for projections so it can be used for drawing the fitlines
+        if(!dataStore.ROIprojections[dataStore.currentPlot]) dataStore.ROIProjections[dataStore.currentPlot] = [];
+        dataStore.ROIprojections[dataStore.currentPlot][dataStore.currentPeak][0] = dataStore.viewers[viewerName].FitLimitLower;
+        dataStore.ROIprojections[dataStore.currentPlot][dataStore.currentPeak][1] = dataStore.viewers[viewerName].FitLimitUpper;
+
+        // Add the area of this fit to the Summing-In correction of the appropriate peak
+        dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionCounts[dataStore.spectrumListProjectionsPeaks[dataStore.currentPlot].parentPeakId] += parseInt(integral);
+        dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionCountsUnc[dataStore.spectrumListProjectionsPeaks[dataStore.currentPlot].parentPeakId] += parseInt(Math.sqrt(integral)*Math.sqrt(integral));
+
+        console.log('fitCallback during Summing corrections but anything else to do here?');
+      }
+
+      return;
+
+      //disengage fit mode buttons
+      if( parseInt(lowPeak.getAttribute('engaged'),10) == 1)
+      lowPeak.onclick();
+      if( parseInt(midPeak.getAttribute('engaged'),10) == 1)
+      midPeak.onclick();
+      if( parseInt(highPeak.getAttribute('engaged'),10) == 1)
+      highPeak.onclick();
+      if( parseInt(vhiPeak.getAttribute('engaged'),10) == 1)
+      vhiPeak.onclick();
+
+    },
+
+    this.performNormalizations = function(){
+      dataStore.sourceInfo['152Eu'].normalizationFactor = 1.0;
+      if("133Ba" in dataStore.sourceInfo){
+      dataStore.sourceInfo['133Ba'].normalizationFactor = this.normalizeSourceData('133Ba','152Eu');
     }
+      dataStore.sourceInfo['56Co'].normalizationFactor = this.normalizeSourceData('56Co','152Eu');
+      dataStore.sourceInfo['60Co'].normalizationFactor = this.normalizeSourceData('60Co','152Eu');
 
-    dataStore.viewers[viewerName].stage.update();
-  },
-
-  this.fitCallback = function(center, width, amplitude, intercept, slope){
-    //after fitting, log the fit results, as well as any modification made to the ROI by the fitting algortihm
-    //also update table
-    //<center>: number; center of gaussian peak
-    //<width>: number; width of peak
-    //<amplitude>: number; amplitude of peak
-    //<intercept>: number; intercept of linear background beneath peak
-    //<slope>: number; slope of linear background
-    //this: gainMatchReport object
-
-    var lowPeak = document.getElementById('fitLow');
-    var midPeak = document.getElementById('fitMid');
-    var highPeak = document.getElementById('fitHigh');
-    var vhiPeak = document.getElementById('fitvHi');
-    var viewerName = dataStore.plots[0];
-
-    // update the progress bar
-    dataStore.progressBarTasksCompleted++;
-    console.log('Tasks completed '+dataStore.progressBarTasksCompleted+' of '+dataStore.progressBarNumberTasks+' tasks, '+(dataStore.progressBarTasksCompleted / dataStore.progressBarNumberTasks)+'.');
-    document.getElementById('progress').setAttribute('style', 'width:' + ((75*(dataStore.progressBarTasksCompleted / dataStore.progressBarNumberTasks))+25) + '%' );
-
-    // Calculate peak area here
-    var grossArea = 0,
-    netArea = 0,
-    integral = 0,
-    functionVals = [],
-    i, x, sigmas = 5, stepSize = 0.01;
-    //calculate peak area in excess of background, for <sigmas> up and down.
-    for(i=0; i<2*sigmas*width/stepSize; i++){
-      x = center - sigmas*width + i*stepSize
-      functionVals.push( gauss(amplitude, center, width, x)*stepSize )
-      integral = functionVals.integrate()
-    }
-
-    // Bail out if this is not singles spectrum fitting
-    if(dataStore.currentTask == 'SinglesFitting'){
-      // fitting singles
-
-      //keep track of fit results
-      if(!dataStore.fitResults[dataStore.currentPlot]) dataStore.fitResults[dataStore.currentPlot] = [];
-      dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, center, width, intercept, slope];
-
-      // Update the ROI in case they were modified by the fitting routine
-      dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][0] = dataStore.viewers[viewerName].FitLimitLower;
-      dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][1] = dataStore.viewers[viewerName].FitLimitUpper;
-
-      //convenient to arrange resolution data here
-      dataStore.sourceInfo[dataStore.currentSource].FWHM[dataStore.currentPeak] = (width*2.35).toFixed(2);
-
-      dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak] = integral.toFixed(0);
-      dataStore.sourceInfo[dataStore.currentSource].uncorrectedAreaUnc[dataStore.currentPeak] = Math.ceil(Math.sqrt(dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak]));
-      console.log(dataStore.currentPlot + ', '+dataStore.currentSource + ', Peak '+dataStore.currentPeak+', centroid='+center.toFixed(2)+', height='+amplitude.toFixed(2)+', FWHM='+(width*2.35).toFixed(2)+', Net Area = '+dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak]);
-
-    }else{
-      // Fitting projections
-      console.log('Save these Projection fit Results');
-      console.log(dataStore.currentPlot);
-      console.log(dataStore.ROIprojections);
-      console.log(dataStore.currentPeak);
-
-      //keep track of fit results
-      if(!dataStore.fitResultsProjections[dataStore.currentPlot]) dataStore.fitResultsProjections[dataStore.currentPlot] = [];
-      dataStore.fitResultsProjections[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, center, width, intercept, slope];
-
-      // Save the ROI for projections so it can be used for drawing the fitlines
-      if(!dataStore.ROIprojections[dataStore.currentPlot]) dataStore.ROIProjections[dataStore.currentPlot] = [];
-      dataStore.ROIprojections[dataStore.currentPlot][dataStore.currentPeak][0] = dataStore.viewers[viewerName].FitLimitLower;
-      dataStore.ROIprojections[dataStore.currentPlot][dataStore.currentPeak][1] = dataStore.viewers[viewerName].FitLimitUpper;
-
-      // Add the area of this fit to the Summing-In correction of the appropriate peak
-      dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionCounts[dataStore.spectrumListProjectionsPeaks[dataStore.currentPlot].parentPeakId] += parseInt(integral);
-      dataStore.sourceInfo[dataStore.currentSource].summingInCorrectionCountsUnc[dataStore.spectrumListProjectionsPeaks[dataStore.currentPlot].parentPeakId] += parseInt(Math.sqrt(integral)*Math.sqrt(integral));
-
-      console.log('fitCallback during Summing corrections but anything else to do here?');
-    }
-
-    return;
-
-    //disengage fit mode buttons
-    if( parseInt(lowPeak.getAttribute('engaged'),10) == 1)
-    lowPeak.onclick();
-    if( parseInt(midPeak.getAttribute('engaged'),10) == 1)
-    midPeak.onclick();
-    if( parseInt(highPeak.getAttribute('engaged'),10) == 1)
-    highPeak.onclick();
-    if( parseInt(vhiPeak.getAttribute('engaged'),10) == 1)
-    vhiPeak.onclick();
-
-  },
-
-  this.performNormalizations = function(){
-    dataStore.sourceInfo['152Eu'].normalizationFactor = 1.0;
-    dataStore.sourceInfo['133Ba'].normalizationFactor = this.normalizeSourceData('133Ba','152Eu');
-    dataStore.sourceInfo['56Co'].normalizationFactor = this.normalizeSourceData('56Co','152Eu');
-    dataStore.sourceInfo['60Co'].normalizationFactor = this.normalizeSourceData('60Co','152Eu');
-
-    for(i=0; i<dataStore.sourceInfo['133Ba'].relativeEfficiency.length; i++){
-      dataStore.sourceInfo['133Ba'].normalizedEfficiency.push((dataStore.sourceInfo['133Ba'].relativeEfficiency[i]*dataStore.sourceInfo['133Ba'].normalizationFactor).toFixed(2));
+      if("133Ba" in dataStore.sourceInfo){
+      for(i=0; i<dataStore.sourceInfo['133Ba'].relativeEfficiency.length; i++){
+        dataStore.sourceInfo['133Ba'].normalizedEfficiency.push((dataStore.sourceInfo['133Ba'].relativeEfficiency[i]*dataStore.sourceInfo['133Ba'].normalizationFactor).toFixed(2));
         dataStore.sourceInfo['133Ba'].normalizedEfficiencyUnc.push((dataStore.sourceInfo['133Ba'].relativeEfficiencyUnc[i]*dataStore.sourceInfo['133Ba'].normalizationFactor).toFixed(2));
+      }
     }
-    for(i=0; i<dataStore.sourceInfo['56Co'].relativeEfficiency.length; i++){
-      dataStore.sourceInfo['56Co'].normalizedEfficiency.push((dataStore.sourceInfo['56Co'].relativeEfficiency[i]*dataStore.sourceInfo['56Co'].normalizationFactor).toFixed(2));
-      dataStore.sourceInfo['56Co'].normalizedEfficiencyUnc.push((dataStore.sourceInfo['56Co'].relativeEfficiencyUnc[i]*dataStore.sourceInfo['56Co'].normalizationFactor).toFixed(2));
-    }
-    for(i=0; i<dataStore.sourceInfo['60Co'].relativeEfficiency.length; i++){
-      dataStore.sourceInfo['60Co'].normalizedEfficiency.push((dataStore.sourceInfo['60Co'].relativeEfficiency[i]*dataStore.sourceInfo['60Co'].normalizationFactor).toFixed(2));
-      dataStore.sourceInfo['60Co'].normalizedEfficiencyUnc.push((dataStore.sourceInfo['60Co'].relativeEfficiencyUnc[i]*dataStore.sourceInfo['60Co'].normalizationFactor).toFixed(2));
-    }
-    dataStore.sourceInfo['11Be'].normalizationFactor = this.normalizeSourceData('11Be','56Co'); // Must be done after the 56Co normalizedEfficiency is calculated
-    for(i=0; i<dataStore.sourceInfo['11Be'].relativeEfficiency.length; i++){
-      dataStore.sourceInfo['11Be'].normalizedEfficiency.push((dataStore.sourceInfo['11Be'].relativeEfficiency[i]*dataStore.sourceInfo['11Be'].normalizationFactor).toFixed(2));
-      dataStore.sourceInfo['11Be'].normalizedEfficiencyUnc.push((dataStore.sourceInfo['11Be'].relativeEfficiencyUnc[i]*dataStore.sourceInfo['11Be'].normalizationFactor).toFixed(2));
-    }
-    dataStore.sourceInfo['152Eu'].normalizedEfficiency = dataStore.sourceInfo['152Eu'].relativeEfficiency;
-    dataStore.sourceInfo['152Eu'].normalizedEfficiencyUnc = dataStore.sourceInfo['152Eu'].relativeEfficiencyUnc;
-    console.log(dataStore.sourceInfo['133Ba'].normalizedEfficiency);
-    console.log(dataStore.sourceInfo['133Ba'].normalizedEfficiencyUnc);
-    console.log(dataStore.sourceInfo['152Eu'].normalizedEfficiency);
-    console.log(dataStore.sourceInfo['152Eu'].normalizedEfficiencyUnc);
-    console.log(dataStore.sourceInfo['56Co'].normalizedEfficiency);
-    console.log(dataStore.sourceInfo['56Co'].normalizedEfficiencyUnc);
-    console.log(dataStore.sourceInfo['11Be'].normalizedEfficiency);
-    console.log(dataStore.sourceInfo['11Be'].normalizedEfficiencyUnc);
-
-
-    //update the relative efficiency data plot which includes all sources
-    this.reconstructRelativeEfficiencyData();
-
-    // Now calculate the absolute efficiency
-    for(i=0; i<dataStore.sourceInfo['60Co'].relativeEfficiency.length; i++){
-      dataStore.sourceInfo['60Co'].absoluteEfficiency.push((dataStore.sourceInfo['60Co'].relativeEfficiency[i]*dataStore.sourceInfo['60Co'].normalizationAbsFactor).toFixed(4));
-      dataStore.sourceInfo['60Co'].absoluteEfficiencyUnc.push((dataStore.sourceInfo['60Co'].relativeEfficiencyUnc[i]*dataStore.sourceInfo['60Co'].normalizationAbsFactor).toFixed(5));
-    }
-    dataStore.sourceInfo['56Co'].normalizationAbsFactor = this.normalizeSourceData('56Co','60Co');
-    dataStore.sourceInfo['133Ba'].normalizationAbsFactor = dataStore.sourceInfo['11Be'].normalizationAbsFactor = dataStore.sourceInfo['152Eu'].normalizationAbsFactor = dataStore.sourceInfo['56Co'].normalizationAbsFactor;
-
-    for(i=0; i<dataStore.sourceInfo['133Ba'].normalizedEfficiency.length; i++){
-      dataStore.sourceInfo['133Ba'].absoluteEfficiency.push((dataStore.sourceInfo['133Ba'].normalizedEfficiency[i]*dataStore.sourceInfo['133Ba'].normalizationAbsFactor).toFixed(4));
-      dataStore.sourceInfo['133Ba'].absoluteEfficiencyUnc.push((dataStore.sourceInfo['133Ba'].normalizedEfficiencyUnc[i]*dataStore.sourceInfo['133Ba'].normalizationAbsFactor).toFixed(5));
-    }
-    for(i=0; i<dataStore.sourceInfo['152Eu'].normalizedEfficiency.length; i++){
-      dataStore.sourceInfo['152Eu'].absoluteEfficiency.push((dataStore.sourceInfo['152Eu'].normalizedEfficiency[i]*dataStore.sourceInfo['152Eu'].normalizationAbsFactor).toFixed(4));
-      dataStore.sourceInfo['152Eu'].absoluteEfficiencyUnc.push((dataStore.sourceInfo['152Eu'].normalizedEfficiencyUnc[i]*dataStore.sourceInfo['152Eu'].normalizationAbsFactor).toFixed(5));
-    }
-    for(i=0; i<dataStore.sourceInfo['56Co'].normalizedEfficiency.length; i++){
-      dataStore.sourceInfo['56Co'].absoluteEfficiency.push((dataStore.sourceInfo['56Co'].normalizedEfficiency[i]*dataStore.sourceInfo['56Co'].normalizationAbsFactor).toFixed(4));
-      dataStore.sourceInfo['56Co'].absoluteEfficiencyUnc.push((dataStore.sourceInfo['56Co'].normalizedEfficiencyUnc[i]*dataStore.sourceInfo['56Co'].normalizationAbsFactor).toFixed(5));
-    }
-    for(i=0; i<dataStore.sourceInfo['11Be'].normalizedEfficiency.length; i++){
-      dataStore.sourceInfo['11Be'].absoluteEfficiency.push((dataStore.sourceInfo['11Be'].normalizedEfficiency[i]*dataStore.sourceInfo['11Be'].normalizationAbsFactor).toFixed(4));
-      dataStore.sourceInfo['11Be'].absoluteEfficiencyUnc.push((dataStore.sourceInfo['11Be'].normalizedEfficiencyUnc[i]*dataStore.sourceInfo['11Be'].normalizationAbsFactor).toFixed(5));
-    }
-    console.log(dataStore.sourceInfo['60Co'].normalizationFactor);
-    console.log(dataStore.sourceInfo['60Co'].relativeEfficiency);
-    console.log(dataStore.sourceInfo['60Co'].absoluteEfficiency);
-
-    //Populate the table with the results
-    this.updateTable();
-
-    //update data plots for the individual sources
-    this.reconstructSourceEfficiencyData();
-
-    //update the relative efficiency data plot which includes all sources
-    this.reconstructAbsoluteEfficiencyData();
-
-    // We are finished
-    dataStore.currentTask = 'Finished';
-    console.log('Everything completed. Tasks completed '+dataStore.progressBarTasksCompleted+' of '+dataStore.progressBarNumberTasks+' tasks, '+(dataStore.progressBarTasksCompleted / dataStore.progressBarNumberTasks)+'.');
-    document.getElementById('progress').setAttribute('style', 'width:' + (100) + '%' );
-    console.log(dataStore);
-
-  },
-
-  this.updateTable = function(spectrum){
-    //update the report table with whatever is currently in the dataStore
-    //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
-    //<spectrumName>: string; name of spectrum, per names from analyzer
-    //this: efficiencyFitterReport object
-
-    var calibration, thisID, currentSource, currentPeak;
-
-    // Look through all peaks for each source
-    var keys = Object.keys(dataStore.sourceInfo);
-    for(i=0; i<keys.length; i++){
-      currentSource = keys[i];
-      for(currentPeak=0; currentPeak<dataStore.sourceInfo[currentSource]['literaturePeaks'].length; currentPeak++){
-
-        // define the ID for the HTML elements
-        thisID = this.wrapID + currentSource + '-P' + currentPeak;
-        console.log('updateTable for '+thisID);
-
-        // Update the literature parts of the table
-        if(currentPeak == 0){
-          document.getElementById(thisID+ 'title').innerHTML = dataStore.sourceInfo[currentSource].title;
-        }
-        document.getElementById(thisID+ 'energy').innerHTML = dataStore.sourceInfo[currentSource].literaturePeaks[currentPeak];
-        document.getElementById(thisID+ 'intensity').innerHTML = dataStore.sourceInfo[currentSource].literatureIntensity[currentPeak]+'('+dataStore.sourceInfo[currentSource].literatureIntensityUnc[currentPeak]+')';
-
-        // update the measured and calculated items in the table
-        if(dataStore.sourceInfo[currentSource].FWHM[currentPeak])
-        document.getElementById(thisID+ 'FWHM').innerHTML = dataStore.sourceInfo[currentSource].FWHM[currentPeak];
-        if(dataStore.sourceInfo[currentSource].uncorrectedArea[currentPeak]){
-          document.getElementById(thisID+'uncorrectedArea').innerHTML =
-          dataStore.sourceInfo[currentSource].uncorrectedArea[currentPeak]+'('+Math.sqrt(dataStore.sourceInfo[currentSource].uncorrectedArea[currentPeak]).toFixed(0)+')';
-          //formatNumberAndUncertaintyString(dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak], Math.sqrt(dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak]).toFixed(0));
-
-          // Add the summing-in counts to the table
-          document.getElementById(thisID+'summingIn').innerHTML = dataStore.sourceInfo[currentSource].summingInCorrectionCounts[currentPeak];
-
-          // Add the summing-out counts to the table
-          document.getElementById(thisID+'summingOut').innerHTML = dataStore.sourceInfo[currentSource].summingOutCorrectionCounts[currentPeak];
-
-          // Add the corrected Area counts to the table
-          document.getElementById(thisID+'correctedArea').innerHTML = dataStore.sourceInfo[currentSource].correctedArea[currentPeak];
-
-          // Display the relativeEfficiency in table as a placeholder before summing corrections are done.
-          document.getElementById(thisID+'relativeEfficiency').innerHTML = dataStore.sourceInfo[currentSource].normalizedEfficiency[currentPeak];
-
-          // Display the absoluteEfficiency in table as a placeholder before summing corrections are done.
-          document.getElementById(thisID+'absoluteEfficiency').innerHTML = dataStore.sourceInfo[currentSource].absoluteEfficiency[currentPeak];
-        }
-      }// end of peak for
-    }// end of source for
-
-  },
-
-  this.calculateLine = function(lowBin, highBin){
-    //given the positions of the low bin and high bin, return [intercept, slope] defining
-    //a striaght calibration line using the energies reported in the input.
-    //lowBin: number; center of low energy peak in bins
-    //highBin: number; center of high energy peak in bins
-    //this: gainMatchReport object
-
-    var lowEnergy = document.getElementById('peak1').value
-    var highEnergy = document.getElementById('peak2').value
-    var slope, intercept;
-
-    slope = (lowEnergy - highEnergy) / (lowBin - highBin);
-    intercept = lowEnergy - slope*lowBin
-
-    return [intercept, slope]
-
-  },
-
-  this.fitEfficiencyCurve = function(Xdata,Ydata){
-    //given the x and y data, fit an 8th order polynomial as the efficiency curve
-    // Xdata and Ydata are arrays containing the X and the Y data points. X is energy, Y is counts/efficiency
-    //this: efficiencyCurveReport object
-
-    //            var quad, slope, intercept;
-    var data = [];
-
-    //Convert to log and convert keV to MeV
-    for(var i=0; i<Xdata.length; i++){
-      data.push([Math.log(Xdata[i]/1000), Math.log(Ydata[i])]);
+      for(i=0; i<dataStore.sourceInfo['56Co'].relativeEfficiency.length; i++){
+        dataStore.sourceInfo['56Co'].normalizedEfficiency.push((dataStore.sourceInfo['56Co'].relativeEfficiency[i]*dataStore.sourceInfo['56Co'].normalizationFactor).toFixed(2));
+        dataStore.sourceInfo['56Co'].normalizedEfficiencyUnc.push((dataStore.sourceInfo['56Co'].relativeEfficiencyUnc[i]*dataStore.sourceInfo['56Co'].normalizationFactor).toFixed(2));
+      }
+      for(i=0; i<dataStore.sourceInfo['60Co'].relativeEfficiency.length; i++){
+        dataStore.sourceInfo['60Co'].normalizedEfficiency.push((dataStore.sourceInfo['60Co'].relativeEfficiency[i]*dataStore.sourceInfo['60Co'].normalizationFactor).toFixed(2));
+        dataStore.sourceInfo['60Co'].normalizedEfficiencyUnc.push((dataStore.sourceInfo['60Co'].relativeEfficiencyUnc[i]*dataStore.sourceInfo['60Co'].normalizationFactor).toFixed(2));
+      }
+      if("11Be" in dataStore.sourceInfo){
+      dataStore.sourceInfo['11Be'].normalizationFactor = this.normalizeSourceData('11Be','56Co'); // Must be done after the 56Co normalizedEfficiency is calculated
+      for(i=0; i<dataStore.sourceInfo['11Be'].relativeEfficiency.length; i++){
+        dataStore.sourceInfo['11Be'].normalizedEfficiency.push((dataStore.sourceInfo['11Be'].relativeEfficiency[i]*dataStore.sourceInfo['11Be'].normalizationFactor).toFixed(2));
+        dataStore.sourceInfo['11Be'].normalizedEfficiencyUnc.push((dataStore.sourceInfo['11Be'].relativeEfficiencyUnc[i]*dataStore.sourceInfo['11Be'].normalizationFactor).toFixed(2));
+      }
     }
 
-    // Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
-    const result = regression.polynomial(data, { order: 8, precision: 20 });
-    console.log(result);
+      dataStore.sourceInfo['152Eu'].normalizedEfficiency = dataStore.sourceInfo['152Eu'].relativeEfficiency;
+      dataStore.sourceInfo['152Eu'].normalizedEfficiencyUnc = dataStore.sourceInfo['152Eu'].relativeEfficiencyUnc;
+      if("133Ba" in dataStore.sourceInfo){
+      console.log(dataStore.sourceInfo['133Ba'].normalizedEfficiency);
+      console.log(dataStore.sourceInfo['133Ba'].normalizedEfficiencyUnc);
+    }
+      console.log(dataStore.sourceInfo['152Eu'].normalizedEfficiency);
+      console.log(dataStore.sourceInfo['152Eu'].normalizedEfficiencyUnc);
+      console.log(dataStore.sourceInfo['56Co'].normalizedEfficiency);
+      console.log(dataStore.sourceInfo['56Co'].normalizedEfficiencyUnc);
+      if("11Be" in dataStore.sourceInfo){
+       console.log(dataStore.sourceInfo['11Be'].normalizedEfficiency);
+       console.log(dataStore.sourceInfo['11Be'].normalizedEfficiencyUnc);
+      }
 
-    return result.equation;
+      //update the relative efficiency data plot which includes all sources
+      this.reconstructRelativeEfficiencyData();
 
-  },
+      // Now calculate the absolute efficiency
+      for(i=0; i<dataStore.sourceInfo['60Co'].relativeEfficiency.length; i++){
+        dataStore.sourceInfo['60Co'].absoluteEfficiency.push((dataStore.sourceInfo['60Co'].relativeEfficiency[i]*dataStore.sourceInfo['60Co'].normalizationAbsFactor).toFixed(4));
+        dataStore.sourceInfo['60Co'].absoluteEfficiencyUnc.push((dataStore.sourceInfo['60Co'].relativeEfficiencyUnc[i]*dataStore.sourceInfo['60Co'].normalizationAbsFactor).toFixed(5));
+      }
+      dataStore.sourceInfo['56Co'].normalizationAbsFactor = this.normalizeSourceData('56Co','60Co');
+      dataStore.sourceInfo['152Eu'].normalizationAbsFactor = dataStore.sourceInfo['56Co'].normalizationAbsFactor;
 
-  this.reconstructSourceEfficiencyData = function(){
-    // First determine the residuals by applying the calibration coefficients to the fitted centroid, then comparing it to the literature energy.
-    // Save the residuals data to the dataStore, then
-    //arrange the latest residual info for representation in the dygraph.
+      if("133Ba" in dataStore.sourceInfo){
+        dataStore.sourceInfo['133Ba'].normalizationAbsFactor = dataStore.sourceInfo['56Co'].normalizationAbsFactor;
+      }
+      if("11Be" in dataStore.sourceInfo){
+        dataStore.sourceInfo['11Be'].normalizationAbsFactor = dataStore.sourceInfo['56Co'].normalizationAbsFactor;
+       }
+
+       if("133Ba" in dataStore.sourceInfo){
+      for(i=0; i<dataStore.sourceInfo['133Ba'].normalizedEfficiency.length; i++){
+        dataStore.sourceInfo['133Ba'].absoluteEfficiency.push((dataStore.sourceInfo['133Ba'].normalizedEfficiency[i]*dataStore.sourceInfo['133Ba'].normalizationAbsFactor).toFixed(4));
+        dataStore.sourceInfo['133Ba'].absoluteEfficiencyUnc.push((dataStore.sourceInfo['133Ba'].normalizedEfficiencyUnc[i]*dataStore.sourceInfo['133Ba'].normalizationAbsFactor).toFixed(5));
+      }
+    }
+      for(i=0; i<dataStore.sourceInfo['152Eu'].normalizedEfficiency.length; i++){
+        dataStore.sourceInfo['152Eu'].absoluteEfficiency.push((dataStore.sourceInfo['152Eu'].normalizedEfficiency[i]*dataStore.sourceInfo['152Eu'].normalizationAbsFactor).toFixed(4));
+        dataStore.sourceInfo['152Eu'].absoluteEfficiencyUnc.push((dataStore.sourceInfo['152Eu'].normalizedEfficiencyUnc[i]*dataStore.sourceInfo['152Eu'].normalizationAbsFactor).toFixed(5));
+      }
+      for(i=0; i<dataStore.sourceInfo['56Co'].normalizedEfficiency.length; i++){
+        dataStore.sourceInfo['56Co'].absoluteEfficiency.push((dataStore.sourceInfo['56Co'].normalizedEfficiency[i]*dataStore.sourceInfo['56Co'].normalizationAbsFactor).toFixed(4));
+        dataStore.sourceInfo['56Co'].absoluteEfficiencyUnc.push((dataStore.sourceInfo['56Co'].normalizedEfficiencyUnc[i]*dataStore.sourceInfo['56Co'].normalizationAbsFactor).toFixed(5));
+      }
+      if("11Be" in dataStore.sourceInfo){
+      for(i=0; i<dataStore.sourceInfo['11Be'].normalizedEfficiency.length; i++){
+        dataStore.sourceInfo['11Be'].absoluteEfficiency.push((dataStore.sourceInfo['11Be'].normalizedEfficiency[i]*dataStore.sourceInfo['11Be'].normalizationAbsFactor).toFixed(4));
+        dataStore.sourceInfo['11Be'].absoluteEfficiencyUnc.push((dataStore.sourceInfo['11Be'].normalizedEfficiencyUnc[i]*dataStore.sourceInfo['11Be'].normalizationAbsFactor).toFixed(5));
+      }
+    }
+      console.log(dataStore.sourceInfo['60Co'].normalizationFactor);
+      console.log(dataStore.sourceInfo['60Co'].relativeEfficiency);
+      console.log(dataStore.sourceInfo['60Co'].absoluteEfficiency);
+
+      //Populate the table with the results
+      this.updateTable();
+
+      //update data plots for the individual sources
+      this.reconstructSourceEfficiencyData();
+
+      //update the relative efficiency data plot which includes all sources
+      this.reconstructAbsoluteEfficiencyData();
+
+      // We are finished
+      dataStore.currentTask = 'Finished';
+      console.log('Everything completed. Tasks completed '+dataStore.progressBarTasksCompleted+' of '+dataStore.progressBarNumberTasks+' tasks, '+(dataStore.progressBarTasksCompleted / dataStore.progressBarNumberTasks)+'.');
+      document.getElementById('progress').setAttribute('style', 'width:' + (100) + '%' );
+      console.log(dataStore);
+
+    },
+
+    this.updateTable = function(spectrum){
+      //update the report table with whatever is currently in the dataStore
+      //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
+      //<spectrumName>: string; name of spectrum, per names from analyzer
+      //this: efficiencyFitterReport object
+
+      var calibration, thisID, currentSource, currentPeak;
+
+      // Look through all peaks for each source
+      var keys = Object.keys(dataStore.sourceInfo);
+      for(i=0; i<keys.length; i++){
+        currentSource = keys[i];
+        for(currentPeak=0; currentPeak<dataStore.sourceInfo[currentSource]['literaturePeaks'].length; currentPeak++){
+
+          // define the ID for the HTML elements
+          thisID = this.wrapID + currentSource + '-P' + currentPeak;
+          console.log('updateTable for '+thisID);
+
+          // Update the literature parts of the table
+          if(currentPeak == 0){
+            document.getElementById(thisID+ 'title').innerHTML = dataStore.sourceInfo[currentSource].title;
+          }
+          document.getElementById(thisID+ 'energy').innerHTML = dataStore.sourceInfo[currentSource].literaturePeaks[currentPeak];
+          document.getElementById(thisID+ 'intensity').innerHTML = dataStore.sourceInfo[currentSource].literatureIntensity[currentPeak]+'('+dataStore.sourceInfo[currentSource].literatureIntensityUnc[currentPeak]+')';
+
+          // update the measured and calculated items in the table
+          if(dataStore.sourceInfo[currentSource].FWHM[currentPeak])
+          document.getElementById(thisID+ 'FWHM').innerHTML = dataStore.sourceInfo[currentSource].FWHM[currentPeak];
+          if(dataStore.sourceInfo[currentSource].uncorrectedArea[currentPeak]){
+            document.getElementById(thisID+'uncorrectedArea').innerHTML =
+            dataStore.sourceInfo[currentSource].uncorrectedArea[currentPeak]+'('+Math.sqrt(dataStore.sourceInfo[currentSource].uncorrectedArea[currentPeak]).toFixed(0)+')';
+            //formatNumberAndUncertaintyString(dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak], Math.sqrt(dataStore.sourceInfo[dataStore.currentSource].uncorrectedArea[dataStore.currentPeak]).toFixed(0));
+
+            // Add the summing-in counts to the table
+            document.getElementById(thisID+'summingIn').innerHTML = dataStore.sourceInfo[currentSource].summingInCorrectionCounts[currentPeak];
+
+            // Add the summing-out counts to the table
+            document.getElementById(thisID+'summingOut').innerHTML = dataStore.sourceInfo[currentSource].summingOutCorrectionCounts[currentPeak];
+
+            // Add the corrected Area counts to the table
+            document.getElementById(thisID+'correctedArea').innerHTML = dataStore.sourceInfo[currentSource].correctedArea[currentPeak];
+
+            // Display the relativeEfficiency in table as a placeholder before summing corrections are done.
+            document.getElementById(thisID+'relativeEfficiency').innerHTML = dataStore.sourceInfo[currentSource].normalizedEfficiency[currentPeak];
+
+            // Display the absoluteEfficiency in table as a placeholder before summing corrections are done.
+            document.getElementById(thisID+'absoluteEfficiency').innerHTML = dataStore.sourceInfo[currentSource].absoluteEfficiency[currentPeak];
+          }
+        }// end of peak for
+      }// end of source for
+
+    },
+
+    this.calculateLine = function(lowBin, highBin){
+      //given the positions of the low bin and high bin, return [intercept, slope] defining
+      //a striaght calibration line using the energies reported in the input.
+      //lowBin: number; center of low energy peak in bins
+      //highBin: number; center of high energy peak in bins
+      //this: gainMatchReport object
+
+      var lowEnergy = document.getElementById('peak1').value
+      var highEnergy = document.getElementById('peak2').value
+      var slope, intercept;
+
+      slope = (lowEnergy - highEnergy) / (lowBin - highBin);
+      intercept = lowEnergy - slope*lowBin
+
+      return [intercept, slope]
+
+    },
+
+    this.fitEfficiencyCurve = function(Xdata,Ydata){
+      //given the x and y data, fit an 8th order polynomial as the efficiency curve
+      // Xdata and Ydata are arrays containing the X and the Y data points. X is energy, Y is counts/efficiency
+      //this: efficiencyCurveReport object
+
+      //            var quad, slope, intercept;
+      var data = [];
+
+      //Convert to log and convert keV to MeV
+      for(var i=0; i<Xdata.length; i++){
+        data.push([Math.log(Xdata[i]/1000), Math.log(Ydata[i])]);
+      }
+
+      // Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
+      const result = regression.polynomial(data, { order: 8, precision: 20 });
+      console.log(result);
+
+      return result.equation;
+
+    },
+
+    this.reconstructSourceEfficiencyData = function(){
+      // First determine the residuals by applying the calibration coefficients to the fitted centroid, then comparing it to the literature energy.
+      // Save the residuals data to the dataStore, then
+      //arrange the latest residual info for representation in the dygraph.
 
 
-    // Look through each source
-    var keys = Object.keys(dataStore.sourceInfo);
-    for(i=0; i<keys.length; i++){
-      currentSource = keys[i];
+      // Look through each source
+      var keys = Object.keys(dataStore.sourceInfo);
+      for(i=0; i<keys.length; i++){
+        currentSource = keys[i];
+
+        // Find the plot id for this source
+        var thisPlotID = dataStore.efficiencyPlotDataKeyMap.indexOf(currentSource);
+        console.log('reconstructEfficiencyData for Plot'+thisPlotID);
+        console.log(currentSource);
+        console.log();
+
+        // Fill the flags array
+        var flags = [];
+        flags.fillN(0, dataStore.sourceInfo[currentSource].literaturePeaks.length);
+
+
+
+        for(currentPeak=0; currentPeak<dataStore.sourceInfo[currentSource]['literaturePeaks'].length; currentPeak++){
+
+          // x value should be the literature energy value
+          // How do we add x values to the dataplot? - Answer is you pass them to arrangePoints function.
+
+          // y value of raw efficiency plot is the uncorrected area divided by intensity
+          dataStore.efficiencyPlotData[thisPlotID][currentPeak] = dataStore.sourceInfo[currentSource].rawEfficiency[currentPeak];
+
+
+          // Update the Y axis scale if needed
+          if(dataStore.efficiencyPlotData[thisPlotID][currentPeak] < (0.75 * dataStore.YAxisMinValue[thisPlotID][0])){
+            dataStore.YAxisMinValue[thisPlotID][0] = dataStore.efficiencyPlotData[thisPlotID][currentPeak] * 1.33;
+          }
+          if(dataStore.efficiencyPlotData[thisPlotID][dataStore.currentPeak] > (0.75 * dataStore.YAxisMaxValue[thisPlotID][0])){
+            dataStore.YAxisMaxValue[thisPlotID][0] = dataStore.efficiencyPlotData[thisPlotID][currentPeak] * 1.33;
+          }
+        }// end of peak for loop
+
+        dataStore.dataplotData[thisPlotID] =
+        arrangePoints(dataStore.sourceInfo[currentSource].literaturePeaks, [ dataStore.efficiencyPlotData[thisPlotID] ], flags );
+        var eventString = 'updateDyData'+thisPlotID;
+        dispatcher({ 'data': dataStore.dataplotData[thisPlotID] }, eventString);
+
+      }// end of source for loop
+
+    },
+
+    this.reconstructRelativeEfficiencyData = function(){
+      // First determine the residuals by applying the calibration coefficients to the fitted centroid, then comparing it to the literature energy.
+      // Save the residuals data to the dataStore, then
+      //arrange the latest residual info for representation in the dygraph.
 
       // Find the plot id for this source
-      var thisPlotID = dataStore.efficiencyPlotDataKeyMap.indexOf(currentSource);
-      console.log('reconstructEfficiencyData for Plot'+thisPlotID);
-      console.log(currentSource);
-      console.log();
+      var thisPlotID = 1;
+      console.log('Relative Efficiency plot data for plot'+thisPlotID);
+
+      // The peak energies over all sources are not sequential. So build an
+      // object of the peak energies and efficienicies so we can
+      // then sort them into energy order before displaying the plot.
+      // x value should be the literature energy value
+      // y value is raw efficiency normalized to 152Eu
+
+      var data = [];
+
+      // loop over all sources
+      var count=0;
+      var keys = Object.keys(dataStore.sourceInfo);
+      for(var i=0; i<keys.length; i++){
+        for(var j=0; j<dataStore.sourceInfo[keys[i]].literaturePeaks.length; j++){
+          if(isNaN(dataStore.sourceInfo[keys[i]].normalizedEfficiency[j]) || !dataStore.sourceInfo[keys[i]].normalizedEfficiency[j]){ continue; }
+          data.push({
+            'X' : dataStore.sourceInfo[keys[i]].literaturePeaks[j],
+            'Y' :dataStore.sourceInfo[keys[i]].normalizedEfficiency[j],
+            'YUnc' :dataStore.sourceInfo[keys[i]].normalizedEfficiencyUnc[j]
+          });
+        }
+      }
+
+      // Order the x and y arrays in energy order
+      data.sort( compareX );
+
+      // Fill the arrays with the energy-sorted data
+      for(var i=0; i<data.length; i++){
+        dataStore.efficiencyPlotXData[thisPlotID].push( data[i].X );
+        dataStore.efficiencyPlotData[thisPlotID].push( data[i].Y );
+        dataStore.efficiencyPlotDataUnc[thisPlotID].push( data[i].YUnc );
+      }
+
+
+      // Fit the relative efficiency curve
+      // Make array of log and log values
+      // use regression with 8th order polynomial
+      // Plot the curve
+      dataStore.efficiencyPlotEquationParameters[thisPlotID] = this.fitEfficiencyCurve(dataStore.efficiencyPlotXData[1], dataStore.efficiencyPlotData[1]);
+
+      // Build the relative efficiency curve data from the fitted parameters
+      var params = dataStore.efficiencyPlotEquationParameters[thisPlotID];
+      params = params.reverse();
+      console.log(params);
+
+      // Hard code to a GEANT4 efficiency curve for testing and development
+      // crystalUSSDSSnodescantfullshields1614.50
+      //params = [ -2.4731527545,-0.6159638309 , 0.0152499594 ,-0.0901066898 ,-0.0392021262 , 0.0195202734 , 0.0053811928 ,-0.0017085412 ,-0.0004470462  ];
+      //for(i=0; i<10000; i+=5){
+      for(var i=0; i<dataStore.efficiencyPlotXData[thisPlotID].length; i++){
+        var thisX = dataStore.efficiencyPlotXData[thisPlotID][i];
+
+        // HPGeEfficiency() expects energy in MeV and the natural log.
+        dataStore.efficiencyPlotY2Data[thisPlotID][i] = HPGeEfficiency(params, Math.log(parseFloat(thisX/1000)));
+        console.log('Calculated efficiency of '+dataStore.efficiencyPlotY2Data[thisPlotID][i]+' for energy '+thisX);
+      }
 
       // Fill the flags array
       var flags = [];
-      flags.fillN(0, dataStore.sourceInfo[currentSource].literaturePeaks.length);
+      flags.fillN(0, dataStore.efficiencyPlotXData[thisPlotID].length);
 
 
+      // Update the Y axis scale if needed
+      if(dataStore.efficiencyPlotData[thisPlotID][dataStore.efficiencyPlotData[thisPlotID].length-1] < (0.75 * dataStore.YAxisMinValue[thisPlotID][0])){
+        dataStore.YAxisMinValue[thisPlotID][0] = dataStore.efficiencyPlotData[thisPlotID][dataStore.efficiencyPlotData.length-1] * 1.33;
+      }
+      if(dataStore.efficiencyPlotData[thisPlotID][0] > (1.33 * dataStore.YAxisMaxValue[thisPlotID][0])){
+        dataStore.YAxisMaxValue[thisPlotID][0] = dataStore.efficiencyPlotData[thisPlotID][0] * 1.33;
+      }
 
-      for(currentPeak=0; currentPeak<dataStore.sourceInfo[currentSource]['literaturePeaks'].length; currentPeak++){
-
-        // x value should be the literature energy value
-        // How do we add x values to the dataplot? - Answer is you pass them to arrangePoints function.
-
-        // y value of raw efficiency plot is the uncorrected area divided by intensity
-        dataStore.efficiencyPlotData[thisPlotID][currentPeak] = dataStore.sourceInfo[currentSource].rawEfficiency[currentPeak];
-
-
-        // Update the Y axis scale if needed
-        if(dataStore.efficiencyPlotData[thisPlotID][currentPeak] < (0.75 * dataStore.YAxisMinValue[thisPlotID][0])){
-          dataStore.YAxisMinValue[thisPlotID][0] = dataStore.efficiencyPlotData[thisPlotID][currentPeak] * 1.33;
-        }
-        if(dataStore.efficiencyPlotData[thisPlotID][dataStore.currentPeak] > (0.75 * dataStore.YAxisMaxValue[thisPlotID][0])){
-          dataStore.YAxisMaxValue[thisPlotID][0] = dataStore.efficiencyPlotData[thisPlotID][currentPeak] * 1.33;
-        }
-      }// end of peak for loop
-
-      dataStore.dataplotData[thisPlotID] =
-      arrangePoints(dataStore.sourceInfo[currentSource].literaturePeaks, [ dataStore.efficiencyPlotData[thisPlotID] ], flags );
+      //    dataStore.dataplotData[thisPlotID] = arrangePoints(dataStore.efficiencyPlotXData[thisPlotID], [dataStore.efficiencyPlotData[thisPlotID], dataStore.efficiencyPlotY2Data[thisPlotID]], flags );
+      dataStore.dataplotData[thisPlotID] = arrangePoints(dataStore.efficiencyPlotXData[thisPlotID], [dataStore.efficiencyPlotData[thisPlotID]], flags );
       var eventString = 'updateDyData'+thisPlotID;
       dispatcher({ 'data': dataStore.dataplotData[thisPlotID] }, eventString);
 
-    }// end of source for loop
-
-  },
-
-  this.reconstructRelativeEfficiencyData = function(){
-    // First determine the residuals by applying the calibration coefficients to the fitted centroid, then comparing it to the literature energy.
-    // Save the residuals data to the dataStore, then
-    //arrange the latest residual info for representation in the dygraph.
-
-    // Find the plot id for this source
-    var thisPlotID = 1;
-    console.log('Relative Efficiency plot data for plot'+thisPlotID);
-
-    // The peak energies over all sources are not sequential. So build an
-    // object of the peak energies and efficienicies so we can
-    // then sort them into energy order before displaying the plot.
-    // x value should be the literature energy value
-    // y value is raw efficiency normalized to 152Eu
-
-    var data = [];
-
-    // loop over all sources
-    var count=0;
-    var keys = Object.keys(dataStore.sourceInfo);
-    for(var i=0; i<keys.length; i++){
-      for(var j=0; j<dataStore.sourceInfo[keys[i]].literaturePeaks.length; j++){
-        if(isNaN(dataStore.sourceInfo[keys[i]].normalizedEfficiency[j]) || !dataStore.sourceInfo[keys[i]].normalizedEfficiency[j]){ continue; }
-        data.push({
-          'X' : dataStore.sourceInfo[keys[i]].literaturePeaks[j],
-          'Y' :dataStore.sourceInfo[keys[i]].normalizedEfficiency[j],
-          'YUnc' :dataStore.sourceInfo[keys[i]].normalizedEfficiencyUnc[j]
-        });
-      }
-    }
-
-    // Order the x and y arrays in energy order
-    data.sort( compareX );
-
-    // Fill the arrays with the energy-sorted data
-    for(var i=0; i<data.length; i++){
-      dataStore.efficiencyPlotXData[thisPlotID].push( data[i].X );
-      dataStore.efficiencyPlotData[thisPlotID].push( data[i].Y );
-      dataStore.efficiencyPlotDataUnc[thisPlotID].push( data[i].YUnc );
-    }
-
-
-    // Fit the relative efficiency curve
-    // Make array of log and log values
-    // use regression with 8th order polynomial
-    // Plot the curve
-    dataStore.efficiencyPlotEquationParameters[thisPlotID] = this.fitEfficiencyCurve(dataStore.efficiencyPlotXData[1], dataStore.efficiencyPlotData[1]);
-
-    // Build the relative efficiency curve data from the fitted parameters
-    var params = dataStore.efficiencyPlotEquationParameters[thisPlotID];
-    params = params.reverse();
-    console.log(params);
-
-    // Hard code to a GEANT4 efficiency curve for testing and development
-    // crystalUSSDSSnodescantfullshields1614.50
-    //params = [ -2.4731527545,-0.6159638309 , 0.0152499594 ,-0.0901066898 ,-0.0392021262 , 0.0195202734 , 0.0053811928 ,-0.0017085412 ,-0.0004470462  ];
-    //for(i=0; i<10000; i+=5){
-    for(var i=0; i<dataStore.efficiencyPlotXData[thisPlotID].length; i++){
-      var thisX = dataStore.efficiencyPlotXData[thisPlotID][i];
-
-      // HPGeEfficiency() expects energy in MeV and the natural log.
-      dataStore.efficiencyPlotY2Data[thisPlotID][i] = HPGeEfficiency(params, Math.log(parseFloat(thisX/1000)));
-      console.log('Calculated efficiency of '+dataStore.efficiencyPlotY2Data[thisPlotID][i]+' for energy '+thisX);
-    }
-
-    // Fill the flags array
-    var flags = [];
-    flags.fillN(0, dataStore.efficiencyPlotXData[thisPlotID].length);
-
-
-    // Update the Y axis scale if needed
-    if(dataStore.efficiencyPlotData[thisPlotID][dataStore.efficiencyPlotData[thisPlotID].length-1] < (0.75 * dataStore.YAxisMinValue[thisPlotID][0])){
-      dataStore.YAxisMinValue[thisPlotID][0] = dataStore.efficiencyPlotData[thisPlotID][dataStore.efficiencyPlotData.length-1] * 1.33;
-    }
-    if(dataStore.efficiencyPlotData[thisPlotID][0] > (1.33 * dataStore.YAxisMaxValue[thisPlotID][0])){
-      dataStore.YAxisMaxValue[thisPlotID][0] = dataStore.efficiencyPlotData[thisPlotID][0] * 1.33;
-    }
-
-//    dataStore.dataplotData[thisPlotID] = arrangePoints(dataStore.efficiencyPlotXData[thisPlotID], [dataStore.efficiencyPlotData[thisPlotID], dataStore.efficiencyPlotY2Data[thisPlotID]], flags );
-    dataStore.dataplotData[thisPlotID] = arrangePoints(dataStore.efficiencyPlotXData[thisPlotID], [dataStore.efficiencyPlotData[thisPlotID]], flags );
-    var eventString = 'updateDyData'+thisPlotID;
-    dispatcher({ 'data': dataStore.dataplotData[thisPlotID] }, eventString);
-
-  },
+    },
 
     this.reconstructAbsoluteEfficiencyData = function(){
       // First determine the residuals by applying the calibration coefficients to the fitted centroid, then comparing it to the literature energy.
@@ -925,9 +947,9 @@ function efficiencyFitterReport(wrapID){
         dataStore.efficiencyPlotData[thisPlotID].push( data[i].Y );
         dataStore.efficiencyPlotDataUnc[thisPlotID].push( data[i].YUnc );
       }
-console.log(dataStore.efficiencyPlotXData[thisPlotID]);
-console.log(dataStore.efficiencyPlotData[thisPlotID]);
-console.log(dataStore.efficiencyPlotDataUnc[thisPlotID]);
+      console.log(dataStore.efficiencyPlotXData[thisPlotID]);
+      console.log(dataStore.efficiencyPlotData[thisPlotID]);
+      console.log(dataStore.efficiencyPlotDataUnc[thisPlotID]);
 
       // Fit the absolute efficiency curve
       // Make array of log and log values
@@ -938,7 +960,7 @@ console.log(dataStore.efficiencyPlotDataUnc[thisPlotID]);
       // The absolute efficiency curve is built from the fitted parameters in the underlayCallback function of the dygraph using the parameters of the above fit
       var params = dataStore.efficiencyPlotEquationParameters[thisPlotID];
 
-    //  params = params.reverse();
+      //  params = params.reverse();
       console.log(params);
 
       // Hard code to a GEANT4 efficiency curve for testing and development
@@ -966,7 +988,7 @@ console.log(dataStore.efficiencyPlotDataUnc[thisPlotID]);
         dataStore.YAxisMaxValue[thisPlotID][0] = dataStore.efficiencyPlotData[thisPlotID][0] * 1.33;
       }
 
-//      dataStore.dataplotData[thisPlotID] = arrangePoints(dataStore.efficiencyPlotXData[thisPlotID], [dataStore.efficiencyPlotData[thisPlotID], dataStore.efficiencyPlotY2Data[thisPlotID]], flags );
+      //      dataStore.dataplotData[thisPlotID] = arrangePoints(dataStore.efficiencyPlotXData[thisPlotID], [dataStore.efficiencyPlotData[thisPlotID], dataStore.efficiencyPlotY2Data[thisPlotID]], flags );
       dataStore.dataplotData[thisPlotID] = arrangePoints(dataStore.efficiencyPlotXData[thisPlotID], [dataStore.efficiencyPlotData[thisPlotID]], flags );
       var eventString = 'updateDyData'+thisPlotID;
       console.log(eventString);
@@ -974,263 +996,263 @@ console.log(dataStore.efficiencyPlotDataUnc[thisPlotID]);
 
     },
 
-  this.reconstructMidasResidualsData = function(currentSpectrum,currentDetNum){
-    // First determine the residuals by applying the calibration coefficients from the server to the fitted centroid, then comparing it to the literature energy.
-    // Save the residuals data to the dataStore, then
-    //arrange the latest residual info for representation in the dygraph.
+    this.reconstructMidasResidualsData = function(currentSpectrum,currentDetNum){
+      // First determine the residuals by applying the calibration coefficients from the server to the fitted centroid, then comparing it to the literature energy.
+      // Save the residuals data to the dataStore, then
+      //arrange the latest residual info for representation in the dygraph.
 
-    var thisOffset = dataStore.midasCalibration[currentSpectrum][0];
-    var thisGain = dataStore.midasCalibration[currentSpectrum][1];
-    var thisQuadratic = dataStore.midasCalibration[currentSpectrum][2];
+      var thisOffset = dataStore.midasCalibration[currentSpectrum][0];
+      var thisGain = dataStore.midasCalibration[currentSpectrum][1];
+      var thisQuadratic = dataStore.midasCalibration[currentSpectrum][2];
 
-    for(currentPeak=0; currentPeak<4; currentPeak++){
-      var peakIndex = currentPeak+1;
-      var literatureEnergy = document.getElementById('peak'+peakIndex).value;
-      peakIndex +=4;
+      for(currentPeak=0; currentPeak<4; currentPeak++){
+        var peakIndex = currentPeak+1;
+        var literatureEnergy = document.getElementById('peak'+peakIndex).value;
+        peakIndex +=4;
 
-      // Save the data for the residuals plots
-      thisCentroid = dataStore.fitResults[currentSpectrum][currentPeak][1];
-      dataStore.residualsData[peakIndex][currentDetNum] = literatureEnergy - ( thisOffset  + (thisGain*thisCentroid) + (thisQuadratic*thisCentroid*thisCentroid) );
+        // Save the data for the residuals plots
+        thisCentroid = dataStore.fitResults[currentSpectrum][currentPeak][1];
+        dataStore.residualsData[peakIndex][currentDetNum] = literatureEnergy - ( thisOffset  + (thisGain*thisCentroid) + (thisQuadratic*thisCentroid*thisCentroid) );
 
-      var i, evt, detectorIndex = [],
-      flags = [];
-      flags.fillN(0, dataStore.THESEdetectors.length)
+        var i, evt, detectorIndex = [],
+        flags = [];
+        flags.fillN(0, dataStore.THESEdetectors.length)
 
-      for(i=0; i<dataStore.THESEdetectors.length; i++){
-        detectorIndex[i] = i;
+        for(i=0; i<dataStore.THESEdetectors.length; i++){
+          detectorIndex[i] = i;
+        }
+
+        // Update the Y axis scale if needed
+        if(dataStore.residualsData[peakIndex][currentDetNum] < (0.75 * dataStore.YAxisMinValue[peakIndex][0])){
+          var newYAxisMinValue = dataStore.residualsData[peakIndex][currentDetNum] * 1.33;
+          dataStore.YAxisMinValue[5][0] = dataStore.YAxisMinValue[6][0] = dataStore.YAxisMinValue[7][0] = dataStore.YAxisMinValue[8][0] = newYAxisMinValue;
+        }
+        if(dataStore.residualsData[peakIndex][currentDetNum] > (0.75 * dataStore.YAxisMaxValue[peakIndex][0])){
+          var newYAxisMaxValue = dataStore.residualsData[peakIndex][currentDetNum] * 1.33;
+          dataStore.YAxisMaxValue[5][0] = dataStore.YAxisMaxValue[6][0] = dataStore.YAxisMaxValue[7][0] = dataStore.YAxisMaxValue[8][0] = newYAxisMaxValue;
+        }
+
+        dataStore.dataplotData[peakIndex] = arrangePoints(detectorIndex, [dataStore.residualsData[peakIndex]], flags );
+        var eventString = 'updateDyData'+peakIndex;
+        dispatcher({ 'data': dataStore.dataplotData[peakIndex] }, eventString);
       }
 
-      // Update the Y axis scale if needed
-      if(dataStore.residualsData[peakIndex][currentDetNum] < (0.75 * dataStore.YAxisMinValue[peakIndex][0])){
-        var newYAxisMinValue = dataStore.residualsData[peakIndex][currentDetNum] * 1.33;
-        dataStore.YAxisMinValue[5][0] = dataStore.YAxisMinValue[6][0] = dataStore.YAxisMinValue[7][0] = dataStore.YAxisMinValue[8][0] = newYAxisMinValue;
+      // Update the mean and standard deviation of the dataset
+      this.calculateMidasResidualsSD();
+    },
+
+    this.calculateResidualsSD = function(){
+      //identifies the mean and SD of the residuals across all detectors
+
+      var i, meanP1 = 0, sqMeanP1 = 0, meanP2 = 0, sqMeanP2 = 0, meanP3 = 0, sqMeanP3 = 0, meanP4 = 0, sqMeanP4 = 0,
+      numP1 = 0, numP2 = 0, numP3 = 0, numP4 = 0;
+
+      for(i=0; i<dataStore.residualsData.length; i++){
+        if(dataStore.residualsData[1][i]){
+          meanP1 += dataStore.residualsData[1][i];
+          sqMeanP1 += Math.pow(dataStore.residualsData[1][i],2);
+          numP1++;
+        }
+        if(dataStore.residualsData[2][i]){
+          meanP2 += dataStore.residualsData[2][i];
+          sqMeanP2 += Math.pow(dataStore.residualsData[2][i],2);
+          numP2++;
+        }
+        if(dataStore.residualsData[3][i]){
+          meanP3 += dataStore.residualsData[3][i];
+          sqMeanP3 += Math.pow(dataStore.residualsData[3][i],2);
+          numP3++;
+        }
+        if(dataStore.residualsData[4][i]){
+          meanP4 += dataStore.residualsData[4][i];
+          sqMeanP4 += Math.pow(dataStore.residualsData[4][i],2);
+          numP4++;
+        }
       }
-      if(dataStore.residualsData[peakIndex][currentDetNum] > (0.75 * dataStore.YAxisMaxValue[peakIndex][0])){
-        var newYAxisMaxValue = dataStore.residualsData[peakIndex][currentDetNum] * 1.33;
-        dataStore.YAxisMaxValue[5][0] = dataStore.YAxisMaxValue[6][0] = dataStore.YAxisMaxValue[7][0] = dataStore.YAxisMaxValue[8][0] = newYAxisMaxValue;
+
+      meanP1 /= numP1;
+      meanP2 /= numP2;
+      meanP3 /= numP3;
+      meanP4 /= numP4;
+
+      sqMeanP1 /= numP1;
+      sqMeanP2 /= numP2;
+      sqMeanP3 /= numP3;
+      sqMeanP4 /= numP4;
+
+
+      sdMeanP1 = Math.sqrt(sqMeanP1 - Math.pow(meanP1,2));
+      sdMeanP2 = Math.sqrt(sqMeanP2 - Math.pow(meanP2,2));
+      sdMeanP3 = Math.sqrt(sqMeanP3 - Math.pow(meanP3,2));
+      sdMeanP4 = Math.sqrt(sqMeanP4 - Math.pow(meanP4,2));
+
+      dataStore.residualsDataMean = [0, meanP1, meanP2, meanP3, meanP4];
+      dataStore.residualsDataSD = [0, sqMeanP1, sqMeanP2, sqMeanP3, sqMeanP4];
+
+      document.getElementById('residualP1newText').innerHTML  = 'Peak1 residuals: Mean: '+meanP1.toFixed(3)+', Standard Deviation: '+sdMeanP1.toFixed(3)+' keV';
+      document.getElementById('residualP2newText').innerHTML  = 'Peak2 residuals: Mean: '+meanP2.toFixed(3)+', Standard Deviation: '+sdMeanP2.toFixed(3)+' keV';
+      document.getElementById('residualP3newText').innerHTML  = 'Peak3 residuals: Mean: '+meanP3.toFixed(3)+', Standard Deviation: '+sdMeanP3.toFixed(3)+' keV';
+      document.getElementById('residualP4newText').innerHTML  = 'Peak4 residuals: Mean: '+meanP4.toFixed(3)+', Standard Deviation: '+sdMeanP4.toFixed(3)+' keV';
+    },
+
+    this.calculateMidasResidualsSD = function(){
+      //identifies the mean and SD of the residuals across all detectors
+
+      var i, meanP1 = 0, sqMeanP1 = 0, meanP2 = 0, sqMeanP2 = 0, meanP3 = 0, sqMeanP3 = 0, meanP4 = 0, sqMeanP4 = 0,
+      numP1 = 0, numP2 = 0, numP3 = 0, numP4 = 0;
+
+      for(i=0; i<dataStore.residualsData.length; i++){
+        if(dataStore.residualsData[5][i]){
+          meanP1 += dataStore.residualsData[5][i];
+          sqMeanP1 += Math.pow(dataStore.residualsData[5][i],2);
+          numP1++;
+        }
+        if(dataStore.residualsData[6][i]){
+          meanP2 += dataStore.residualsData[6][i];
+          sqMeanP2 += Math.pow(dataStore.residualsData[6][i],2);
+          numP2++;
+        }
+        if(dataStore.residualsData[7][i]){
+          meanP3 += dataStore.residualsData[7][i];
+          sqMeanP3 += Math.pow(dataStore.residualsData[7][i],2);
+          numP3++;
+        }
+        if(dataStore.residualsData[8][i]){
+          meanP4 += dataStore.residualsData[8][i];
+          sqMeanP4 += Math.pow(dataStore.residualsData[8][i],2);
+          numP4++;
+        }
       }
 
-      dataStore.dataplotData[peakIndex] = arrangePoints(detectorIndex, [dataStore.residualsData[peakIndex]], flags );
-      var eventString = 'updateDyData'+peakIndex;
-      dispatcher({ 'data': dataStore.dataplotData[peakIndex] }, eventString);
-    }
+      meanP1 /= numP1;
+      meanP2 /= numP2;
+      meanP3 /= numP3;
+      meanP4 /= numP4;
 
-    // Update the mean and standard deviation of the dataset
-    this.calculateMidasResidualsSD();
-  },
+      sqMeanP1 /= numP1;
+      sqMeanP2 /= numP2;
+      sqMeanP3 /= numP3;
+      sqMeanP4 /= numP4;
 
-  this.calculateResidualsSD = function(){
-    //identifies the mean and SD of the residuals across all detectors
 
-    var i, meanP1 = 0, sqMeanP1 = 0, meanP2 = 0, sqMeanP2 = 0, meanP3 = 0, sqMeanP3 = 0, meanP4 = 0, sqMeanP4 = 0,
-    numP1 = 0, numP2 = 0, numP3 = 0, numP4 = 0;
+      sdMeanP1 = Math.sqrt(sqMeanP1 - Math.pow(meanP1,2));
+      sdMeanP2 = Math.sqrt(sqMeanP2 - Math.pow(meanP2,2));
+      sdMeanP3 = Math.sqrt(sqMeanP3 - Math.pow(meanP3,2));
+      sdMeanP4 = Math.sqrt(sqMeanP4 - Math.pow(meanP4,2));
 
-    for(i=0; i<dataStore.residualsData.length; i++){
-      if(dataStore.residualsData[1][i]){
-        meanP1 += dataStore.residualsData[1][i];
-        sqMeanP1 += Math.pow(dataStore.residualsData[1][i],2);
-        numP1++;
+      dataStore.residualsDataMean = [0, meanP1, meanP2, meanP3, meanP4];
+      dataStore.residualsDataSD = [0, sqMeanP1, sqMeanP2, sqMeanP3, sqMeanP4];
+
+      document.getElementById('residualP1midText').innerHTML  = 'Peak1 residuals: Mean: '+meanP1.toFixed(3)+', Standard Deviation: '+sdMeanP1.toFixed(3)+' keV';
+      document.getElementById('residualP2midText').innerHTML  = 'Peak2 residuals: Mean: '+meanP2.toFixed(3)+', Standard Deviation: '+sdMeanP2.toFixed(3)+' keV';
+      document.getElementById('residualP3midText').innerHTML  = 'Peak3 residuals: Mean: '+meanP3.toFixed(3)+', Standard Deviation: '+sdMeanP3.toFixed(3)+' keV';
+      document.getElementById('residualP4midText').innerHTML  = 'Peak4 residuals: Mean: '+meanP4.toFixed(3)+', Standard Deviation: '+sdMeanP4.toFixed(3)+' keV';
+    },
+
+    this.updateEnergies = function(){
+      //callback for the calibration source dropdown; updates energy input boxes with standard values
+      //this: gainMatchReport object
+
+      var calibrationSourceName = getSelected(this.wrapID + 'calibrationSource');
+
+      // Find the index number for the source information for this sourceType
+      var index = dataStore.sourceInfo.map(function(e) { return e.name; }).indexOf(calibrationSourceName);
+
+      // Set the peak energies for this source
+      document.getElementById('peak1').value  = dataStore.sourceInfo[index].lowEnergy;
+      document.getElementById('peak2').value  = dataStore.sourceInfo[index].midEnergy;
+      document.getElementById('peak3').value = dataStore.sourceInfo[index].highEnergy;
+      document.getElementById('peak4').value  = dataStore.sourceInfo[index].vhiEnergy;
+
+    },
+
+    this.customEnergy = function(){
+      //callback for changing the calibration energies to custom values
+      //this: gainMatchReport object
+
+      var i, keys = Object.keys(dataStore.fitResults)
+      var defaultSources = document.getElementById(this.wrapID + 'calibrationSource')
+
+      defaultSources.value = 'custom'
+    },
+
+    this.toggleFitMode = function(){
+      //gain matcher needs special fit controls for convenience
+      //this: fit mode engage button element
+
+      var viewerName = dataStore.plots[0];
+
+      if(parseInt(this.getAttribute('engaged'),10) == 0){
+        dataStore.viewers[viewerName].setupFitMode();
+        this.setAttribute('engaged', 1);
+        if(this.id == 'fitLow')
+        document.getElementById('refitLoBadge').classList.add('red-text')
+        if(this.id == 'fitMid')
+        document.getElementById('refitMidBadge').classList.add('red-text')
+        if(this.id == 'fitHigh')
+        document.getElementById('refitHiBadge').classList.add('red-text')
+        if(this.id == 'fitvHi')
+        document.getElementById('refitvHiBadge').classList.add('red-text')
       }
-      if(dataStore.residualsData[2][i]){
-        meanP2 += dataStore.residualsData[2][i];
-        sqMeanP2 += Math.pow(dataStore.residualsData[2][i],2);
-        numP2++;
+      else{
+        dataStore.viewers[viewerName].leaveFitMode();
+        this.setAttribute('engaged', 0);
+        if(this.id == 'fitLow')
+        document.getElementById('refitLoBadge').classList.remove('red-text')
+        if(this.id == 'fitMid')
+        document.getElementById('refitMidBadge').classList.remove('red-text')
+        if(this.id == 'fitHigh')
+        document.getElementById('refitHiBadge').classList.remove('red-text')
+        if(this.id == 'fitvHi')
+        document.getElementById('refitvHiBadge').classList.remove('red-text')
       }
-      if(dataStore.residualsData[3][i]){
-        meanP3 += dataStore.residualsData[3][i];
-        sqMeanP3 += Math.pow(dataStore.residualsData[3][i],2);
-        numP3++;
-      }
-      if(dataStore.residualsData[4][i]){
-        meanP4 += dataStore.residualsData[4][i];
-        sqMeanP4 += Math.pow(dataStore.residualsData[4][i],2);
-        numP4++;
-      }
-    }
 
-    meanP1 /= numP1;
-    meanP2 /= numP2;
-    meanP3 /= numP3;
-    meanP4 /= numP4;
-
-    sqMeanP1 /= numP1;
-    sqMeanP2 /= numP2;
-    sqMeanP3 /= numP3;
-    sqMeanP4 /= numP4;
-
-
-    sdMeanP1 = Math.sqrt(sqMeanP1 - Math.pow(meanP1,2));
-    sdMeanP2 = Math.sqrt(sqMeanP2 - Math.pow(meanP2,2));
-    sdMeanP3 = Math.sqrt(sqMeanP3 - Math.pow(meanP3,2));
-    sdMeanP4 = Math.sqrt(sqMeanP4 - Math.pow(meanP4,2));
-
-    dataStore.residualsDataMean = [0, meanP1, meanP2, meanP3, meanP4];
-    dataStore.residualsDataSD = [0, sqMeanP1, sqMeanP2, sqMeanP3, sqMeanP4];
-
-    document.getElementById('residualP1newText').innerHTML  = 'Peak1 residuals: Mean: '+meanP1.toFixed(3)+', Standard Deviation: '+sdMeanP1.toFixed(3)+' keV';
-    document.getElementById('residualP2newText').innerHTML  = 'Peak2 residuals: Mean: '+meanP2.toFixed(3)+', Standard Deviation: '+sdMeanP2.toFixed(3)+' keV';
-    document.getElementById('residualP3newText').innerHTML  = 'Peak3 residuals: Mean: '+meanP3.toFixed(3)+', Standard Deviation: '+sdMeanP3.toFixed(3)+' keV';
-    document.getElementById('residualP4newText').innerHTML  = 'Peak4 residuals: Mean: '+meanP4.toFixed(3)+', Standard Deviation: '+sdMeanP4.toFixed(3)+' keV';
-  },
-
-  this.calculateMidasResidualsSD = function(){
-    //identifies the mean and SD of the residuals across all detectors
-
-    var i, meanP1 = 0, sqMeanP1 = 0, meanP2 = 0, sqMeanP2 = 0, meanP3 = 0, sqMeanP3 = 0, meanP4 = 0, sqMeanP4 = 0,
-    numP1 = 0, numP2 = 0, numP3 = 0, numP4 = 0;
-
-    for(i=0; i<dataStore.residualsData.length; i++){
-      if(dataStore.residualsData[5][i]){
-        meanP1 += dataStore.residualsData[5][i];
-        sqMeanP1 += Math.pow(dataStore.residualsData[5][i],2);
-        numP1++;
-      }
-      if(dataStore.residualsData[6][i]){
-        meanP2 += dataStore.residualsData[6][i];
-        sqMeanP2 += Math.pow(dataStore.residualsData[6][i],2);
-        numP2++;
-      }
-      if(dataStore.residualsData[7][i]){
-        meanP3 += dataStore.residualsData[7][i];
-        sqMeanP3 += Math.pow(dataStore.residualsData[7][i],2);
-        numP3++;
-      }
-      if(dataStore.residualsData[8][i]){
-        meanP4 += dataStore.residualsData[8][i];
-        sqMeanP4 += Math.pow(dataStore.residualsData[8][i],2);
-        numP4++;
-      }
-    }
-
-    meanP1 /= numP1;
-    meanP2 /= numP2;
-    meanP3 /= numP3;
-    meanP4 /= numP4;
-
-    sqMeanP1 /= numP1;
-    sqMeanP2 /= numP2;
-    sqMeanP3 /= numP3;
-    sqMeanP4 /= numP4;
-
-
-    sdMeanP1 = Math.sqrt(sqMeanP1 - Math.pow(meanP1,2));
-    sdMeanP2 = Math.sqrt(sqMeanP2 - Math.pow(meanP2,2));
-    sdMeanP3 = Math.sqrt(sqMeanP3 - Math.pow(meanP3,2));
-    sdMeanP4 = Math.sqrt(sqMeanP4 - Math.pow(meanP4,2));
-
-    dataStore.residualsDataMean = [0, meanP1, meanP2, meanP3, meanP4];
-    dataStore.residualsDataSD = [0, sqMeanP1, sqMeanP2, sqMeanP3, sqMeanP4];
-
-    document.getElementById('residualP1midText').innerHTML  = 'Peak1 residuals: Mean: '+meanP1.toFixed(3)+', Standard Deviation: '+sdMeanP1.toFixed(3)+' keV';
-    document.getElementById('residualP2midText').innerHTML  = 'Peak2 residuals: Mean: '+meanP2.toFixed(3)+', Standard Deviation: '+sdMeanP2.toFixed(3)+' keV';
-    document.getElementById('residualP3midText').innerHTML  = 'Peak3 residuals: Mean: '+meanP3.toFixed(3)+', Standard Deviation: '+sdMeanP3.toFixed(3)+' keV';
-    document.getElementById('residualP4midText').innerHTML  = 'Peak4 residuals: Mean: '+meanP4.toFixed(3)+', Standard Deviation: '+sdMeanP4.toFixed(3)+' keV';
-  },
-
-  this.updateEnergies = function(){
-    //callback for the calibration source dropdown; updates energy input boxes with standard values
-    //this: gainMatchReport object
-
-    var calibrationSourceName = getSelected(this.wrapID + 'calibrationSource');
-
-    // Find the index number for the source information for this sourceType
-    var index = dataStore.sourceInfo.map(function(e) { return e.name; }).indexOf(calibrationSourceName);
-
-    // Set the peak energies for this source
-    document.getElementById('peak1').value  = dataStore.sourceInfo[index].lowEnergy;
-    document.getElementById('peak2').value  = dataStore.sourceInfo[index].midEnergy;
-    document.getElementById('peak3').value = dataStore.sourceInfo[index].highEnergy;
-    document.getElementById('peak4').value  = dataStore.sourceInfo[index].vhiEnergy;
-
-  },
-
-  this.customEnergy = function(){
-    //callback for changing the calibration energies to custom values
-    //this: gainMatchReport object
-
-    var i, keys = Object.keys(dataStore.fitResults)
-    var defaultSources = document.getElementById(this.wrapID + 'calibrationSource')
-
-    defaultSources.value = 'custom'
-  },
-
-  this.toggleFitMode = function(){
-    //gain matcher needs special fit controls for convenience
-    //this: fit mode engage button element
-
-    var viewerName = dataStore.plots[0];
-
-    if(parseInt(this.getAttribute('engaged'),10) == 0){
-      dataStore.viewers[viewerName].setupFitMode();
-      this.setAttribute('engaged', 1);
       if(this.id == 'fitLow')
-      document.getElementById('refitLoBadge').classList.add('red-text')
-      if(this.id == 'fitMid')
-      document.getElementById('refitMidBadge').classList.add('red-text')
-      if(this.id == 'fitHigh')
-      document.getElementById('refitHiBadge').classList.add('red-text')
-      if(this.id == 'fitvHi')
-      document.getElementById('refitvHiBadge').classList.add('red-text')
-    }
-    else{
-      dataStore.viewers[viewerName].leaveFitMode();
-      this.setAttribute('engaged', 0);
-      if(this.id == 'fitLow')
-      document.getElementById('refitLoBadge').classList.remove('red-text')
-      if(this.id == 'fitMid')
-      document.getElementById('refitMidBadge').classList.remove('red-text')
-      if(this.id == 'fitHigh')
-      document.getElementById('refitHiBadge').classList.remove('red-text')
-      if(this.id == 'fitvHi')
-      document.getElementById('refitvHiBadge').classList.remove('red-text')
-    }
+      dataStore.currentPeak = 0
+      else if(this.id == 'fitMid')
+      dataStore.currentPeak = 1
+      else if(this.id == 'fitHigh')
+      dataStore.currentPeak = 2
+      else
+      dataStore.currentPeak = 3
 
-    if(this.id == 'fitLow')
-    dataStore.currentPeak = 0
-    else if(this.id == 'fitMid')
-    dataStore.currentPeak = 1
-    else if(this.id == 'fitHigh')
-    dataStore.currentPeak = 2
-    else
-    dataStore.currentPeak = 3
+    },
 
-  },
+    this.toggleAnalyzerwrite = function(){
+      //toggle Analyzer writing permission.
 
-  this.toggleAnalyzerwrite = function(){
-    //toggle Analyzer writing permission.
+      var allowed = document.getElementById(this.wrapID + 'yesDefinitelyWriteAnalyzer').checked
 
-    var allowed = document.getElementById(this.wrapID + 'yesDefinitelyWriteAnalyzer').checked
+      if(allowed)
+      document.getElementById(this.wrapID + 'writeToAnalyzer').removeAttribute('disabled');
+      else
+      document.getElementById(this.wrapID + 'writeToAnalyzer').setAttribute('disabled', true);
+    },
 
-    if(allowed)
-    document.getElementById(this.wrapID + 'writeToAnalyzer').removeAttribute('disabled');
-    else
-    document.getElementById(this.wrapID + 'writeToAnalyzer').setAttribute('disabled', true);
-  }
+    this.toggleODBwrite = function(){
+      //toggle odb writing permission.
 
-  this.toggleODBwrite = function(){
-    //toggle odb writing permission.
+      var allowed = document.getElementById(this.wrapID + 'yesDefinitelyWriteODB').checked
 
-    var allowed = document.getElementById(this.wrapID + 'yesDefinitelyWriteODB').checked
+      if(allowed)
+      document.getElementById(this.wrapID + 'writeToODB').removeAttribute('disabled');
+      else
+      document.getElementById(this.wrapID + 'writeToODB').setAttribute('disabled', true);
+    },
 
-    if(allowed)
-    document.getElementById(this.wrapID + 'writeToODB').removeAttribute('disabled');
-    else
-    document.getElementById(this.wrapID + 'writeToODB').setAttribute('disabled', true);
-  }
+    this.toggleAllODBWrites = function(){
+      // make each channel's odb write toggle match the master switch
 
-  this.toggleAllODBWrites = function(){
-    // make each channel's odb write toggle match the master switch
+      var toggles = document.getElementsByClassName('write-to-odb'),
+      master = document.getElementById('writeAllChannels'),
+      state = master.checked,
+      i;
 
-    var toggles = document.getElementsByClassName('write-to-odb'),
-    master = document.getElementById('writeAllChannels'),
-    state = master.checked,
-    i;
+      for(i=0; i<toggles.length; i++){
+        toggles[i].checked = state;
+      }
 
-    for(i=0; i<toggles.length; i++){
-      toggles[i].checked = state;
     }
 
   }
-
-}
 </script>

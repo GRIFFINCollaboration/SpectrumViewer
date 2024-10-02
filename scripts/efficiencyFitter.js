@@ -729,6 +729,9 @@ function setupHistoListSelect(){
 
 	// Add the list of histo files as the options
 	thisSelect = document.getElementById('HistoListSelect'+thisTitle);
+  if(thisTitle == "11Be" || thisTitle == "133Ba"){
+	  thisSelect.add( new Option("Do not include "+thisTitle, "exclude") );
+  }
 	for(var j=0; j<dataStore.histoFileList.length; j++){
 	    thisSelect.add( new Option(dataStore.histoFileList[j], dataStore.histoFileList[j]) );
 	}
@@ -793,6 +796,21 @@ document.getElementById('SourceChoiceSelect60Co').disabled = true;
 document.getElementById('HistoDirectoryInput').disabled = true;
 document.getElementById('submitHistoFilenameChoicesButton').disabled = true;
 
+    // Get the keys of the different sources
+    var keys = Object.keys(dataStore.sourceInfo);
+
+// Remove any sources that are set to exclude
+for(i=0; i<keys.length; i++){
+  if(dataStore.sourceInfo[keys[i]].histoFileName == "exclude"){
+    console.log("Deleting 11Be from dataStore.sourceInfo");
+    delete dataStore.sourceInfo[keys[i]];
+    document.getElementById('efficiencyPlot11Be').style.display = 'none';
+  }
+}
+
+    // Get the keys of the different sources again in case it changed
+    var keys = Object.keys(dataStore.sourceInfo);
+
     // Get the config file for the 60Co histogram file in order to get the details for absolute efficiency
     // Format check for the data file
     var filename = dataStore.histoFileDirectoryPath;
@@ -806,9 +824,6 @@ document.getElementById('submitHistoFilenameChoicesButton').disabled = true;
 
     // setup the dataStore for this choice of detectorType
     var i, num=0, groups = [];
-
-    // Get the keys of the different sources
-    var keys = Object.keys(dataStore.sourceInfo);
 
     // Save the lists of spectrum names to the dataStore for this detectorType
     if(dataStore.detectorType == 'HPGe'){
@@ -902,6 +917,8 @@ document.getElementById('submitHistoFilenameChoicesButton').disabled = true;
 
     // Request spectra from the server. This launches a series of promises. Once complete we end with fetchCallback.
     dataStore._plotControl.refreshAll();
+
+    console.log(dataStore);
 }
 
 function updateAnalyzer(){
@@ -1132,7 +1149,79 @@ function buildGNUfile(){
     // Write the table of results to a GNUplot file for download.
     GNU = '';
 
-    GNU += 'GRIFFIN GNU plot file\n\n';
+    GNU += '# GRIFFIN Efficiency curve GNU plot file\n\n';
+    GNU += '# set terminal pngcairo  transparent enhanced font \"arial,10\" fontscale 1.0 size 600, 400 \n';
+    GNU += '# set output \'errorbars.4.png\'\n';
+    GNU += 'set style data lines\n';
+    GNU += 'set title \"Efficiency comparison\" \n';
+    GNU += 'set xlabel \"Energy [keV]\" \n';
+    GNU += 'set xrange [ * : * ] noreverse writeback\n';
+    GNU += 'set x2range [ * : * ] noreverse writeback\n';
+    GNU += 'set ylabel \"Abs. Eff.\" \n';
+    GNU += 'set yrange [ * : * ] noreverse writeback\n';
+    GNU += 'set y2range [ * : * ] noreverse writeback\n';
+    GNU += 'set zrange [ * : * ] noreverse writeback\n';
+    GNU += 'set cbrange [ * : * ] noreverse writeback\n';
+    GNU += 'set rrange [ * : * ] noreverse writeback\n';
+    GNU += 'NO_ANIMATION = 1\n\n';
+
+    GNU += '## GEANT4 style fit to data\n';
+    GNU += '## Starting values are similar to the relative efficiency curve in Ryan Dunlop\'s thesis (Table 4.9).\n';
+    GNU += '## Thesis available here: http://hdl.handle.net/10214/16278\n';
+    GNU += 'gf1A=11.2\n';
+    GNU += 'gf1B=-0.5\n';
+    GNU += 'gf1C=-0.05\n';
+    GNU += 'gf1D=-0.09\n';
+    GNU += 'gf1E=0.01\n';
+    GNU += 'gf1F=0.0001\n';
+    GNU += 'gf1G=-0.04\n';
+    GNU += 'gf1H=-0.02\n';
+    GNU += 'gf1I=-0.003\n';
+    GNU += 'gf1(x) = exp((gf1A*log(x*0.001)**0) + (gf1B*log(x*0.001)**1) + (gf1C*log(x*0.001)**2) + (gf1D*log(x*0.001)**3) + (gf1E*log(x*0.001)**4) + (gf1F*log(x*0.001)**5) + (gf1G*log(x*0.001)**6) + (gf1H*log(x*0.001)**7) + (gf1I*log(x*0.001)**8))\n';
+    GNU += 'fit gf1(x) \"-\" u 1:2:3 yerrors via gf1A, gf1B, gf1C, gf1D, gf1E, gf1F, gf1G, gf1H, gf1I\n\n';
+
+    GNU += '## Plot the data points\n';
+    GNU += 'plot [40:10000] \"-\" t \"Data from ';
+    for(i=0; i<keys.length; i++){
+      if(i>0){ GNU += '+'; }
+    GNU += keys[i];
+    }
+    GNU += '\" w yerr, \\\n';
+    GNU += 'gf1(x) t \"Efficiency fit\"\n';
+
+    // Loop through all peaks for all sources to provide the data
+
+    for(i=0; i<keys.length; i++){
+      currentSource = keys[i];
+      for(currentPeak=0; currentPeak<dataStore.sourceInfo[currentSource]['literaturePeaks'].length; currentPeak++){
+        GNU += dataStore.sourceInfo[currentSource].literaturePeaks[currentPeak] + ' ';
+        GNU += dataStore.sourceInfo[currentSource].absoluteEfficiency[currentPeak]+' ';
+        GNU += dataStore.sourceInfo[currentSource].absoluteEfficiencyUnc[currentPeak]+'\n';
+      }
+    }
+    /*
+    for(i=0; i<keys.length; i++){
+      currentSource = keys[i];
+      for(currentPeak=0; currentPeak<dataStore.sourceInfo[currentSource]['literaturePeaks'].length; currentPeak++){
+        GNU += dataStore.sourceInfo[currentSource].literaturePeaks[currentPeak] + '\n';
+      }
+    }
+    GNU += 'e\n';
+    for(i=0; i<keys.length; i++){
+      currentSource = keys[i];
+      for(currentPeak=0; currentPeak<dataStore.sourceInfo[currentSource]['literaturePeaks'].length; currentPeak++){
+        GNU += dataStore.sourceInfo[currentSource].absoluteEfficiency[currentPeak] + '\n';
+      }
+    }
+    GNU += 'e\n';
+    for(i=0; i<keys.length; i++){
+      currentSource = keys[i];
+      for(currentPeak=0; currentPeak<dataStore.sourceInfo[currentSource]['literaturePeaks'].length; currentPeak++){
+        GNU += dataStore.sourceInfo[currentSource].absoluteEfficiencyUnc[currentPeak] + '\n';
+      }
+    }
+    GNU += 'e\n';
+*/
 
     // Create a download link
     const textBlob = new Blob([GNU], {type: 'text/plain'});
