@@ -39,7 +39,7 @@ function setupDataStore(){
     }
 
     //generate ARIES detector nomenclature codes
-    for(i=1; i<71; i++){
+    for(i=1; i<77; i++){
         ariesCodes.push('ART' + alwaysThisLong(i,2) + 'XS00X');
     }
 
