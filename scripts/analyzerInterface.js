@@ -159,6 +159,7 @@ function setupDataStore(){
 	"errorMessage": ''
     };
     dataStore.heartbeatInterval = 1000;                   // ms between data updates
+    dataStore.heartbeatIntervalDEFAULTvalue = 1000;          // default interval
     dataStore.heartbeatIntervalBUSYvalue = 1000;          // default Busy interval
     dataStore.heartbeatIntervalIDLEvalue = 5000;          // default IDLE interval
     dataStore.heartbeatIntervalERRORvalue = 15000;         // default interval if error connecting to server
