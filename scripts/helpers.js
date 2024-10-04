@@ -887,11 +887,17 @@ function ErrorConnectingToAnalyzerServer(error){
   var string = 'Problem connecting to analyzer server: '+dataStore.spectrumServer+'<br>'+error;
   document.getElementById('messageDiv').innerHTML = string;
   document.getElementById('messageDiv').style.display= 'block';
+
+  // Slow down the heartbeat if the server is not responding
+  dataStore.heartbeatTimer = dataStore.heartbeatIntervalERRORvalue;
 }
 
 function ClearErrorConnectingToAnalyzerServer(){
   // Clear the error div and message
   document.getElementById('messageDiv').style.display= 'none';
+
+  // Resume the normal heartbeat if the server is responding
+  dataStore.heartbeatTimer = dataStore.heartbeatIntervalDEFAULTvalue;
 }
 
 function processSpectrumList(payload,callback){

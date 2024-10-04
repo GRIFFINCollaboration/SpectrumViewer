@@ -159,8 +159,9 @@ function setupDataStore(){
 	"errorMessage": ''
     };
     dataStore.heartbeatInterval = 1000;                   // ms between data updates
-    dataStore.heartbeatIntervalBUSYvalue = 1000;          // default Busy inteval
-    dataStore.heartbeatIntervalIDLEvalue = 5000;          // default IDLE inteval
+    dataStore.heartbeatIntervalBUSYvalue = 1000;          // default Busy interval
+    dataStore.heartbeatIntervalIDLEvalue = 5000;          // default IDLE interval
+    dataStore.heartbeatIntervalERRORvalue = 15000;         // default interval if error connecting to server
     dataStore.heartbeatTimer = '';                        // the TimeOut object so that it can be terminated with a clearTimeout call
     dataStore.waitCounter = 0;
 
@@ -255,6 +256,8 @@ function setupEventListeners(){
 	});
 }
 
+/*
+// This function has been moved to helpers.js
 function ErrorConnectingToAnalyzerServer(error){
     var string = 'Problem connecting to analyzer server: '+dataStore.spectrumServer+'<br>'+error;
     document.getElementById('messageDiv').innerHTML = string;
@@ -263,6 +266,7 @@ function ErrorConnectingToAnalyzerServer(error){
     // Stop the heartbeat if the server is not responding
     clearTimeout(dataStore.heartbeatTimer);
 }
+*/
 
 function updateTime(){
 
