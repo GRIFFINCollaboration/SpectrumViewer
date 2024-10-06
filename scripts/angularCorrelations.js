@@ -19,13 +19,12 @@ var urlData = [];
 
 function setupDataStore(){
   //sets up global variable datastore
-  console.log("setupDataStore()");
 
       // Return a new promise.
       return new Promise(function(resolve, reject) {
 
 
-  var i, num=0, groups = [];
+  var i, groups = [];
 
   dataStore = {};
 
@@ -42,7 +41,9 @@ function setupDataStore(){
 
   dataStore.ProgressValue = 0;           // Current width of the progressBar
 
-  dataStore.numberOfClovers = 16;                                     // Default number of clovers is all of the array
+  dataStore.numberOfClovers = 16;           // Default number of clovers is all of the array
+  dataStore.numberOfARIESTiles = 76;        // Default number of tiles in ARIES
+  dataStore.numberOfDSW = 60;               // Default number of detectors in the DESCANT Wall
   // shouldn't need to change anything below this line -----------------------------------------------------------------------
 
   dataStore.pageTitle = 'Angular Correlations';                                   //header title
@@ -66,11 +67,7 @@ function setupDataStore(){
   dataStore.gatePeakEnergy = [];                                    // Peak centroid to be used as the gate in each matrix
   dataStore.fitPeakEnergies = [];                                    // list of the peak centroids to be fitted in each spectrum
   dataStore.peakWidth = 6;                                           // peak width to be used in fitting
-  // Names of Angular correlation matrices that we need to fetch and use
-//  for(i=0; i<52; i++){
-  for(i=0; i<52; i++){ // Start with just a few
-    dataStore.angularMatrices[i] = "Ge-Ge_angular_bin"+i;
-  }
+
   //fitting
   dataStore.mode = 'auto';                                              //mode of operation: manual (user defined search regions) or auto (predefined search regions).
   dataStore.ROI = {};                                                     //regions of interest (singles) to look for peaks in: 'plotname': {'ROIupper':[low bin, high bin], 'ROIlower': [low bin, high bin]}
@@ -79,15 +76,6 @@ function setupDataStore(){
   dataStore.fitResultsProjections = {};                                 //fit results of Projections: 'plotname': [[amplitude, center, width, intercept, slope], [amplitude, center, width, intercept, slope]]
 
 // Custom settings for Angular Correlations
-  // Set up GRIFFIN detectors
-  var crystals = ["B","G","R","W"];
-    for(i=1; i<(dataStore.numberOfClovers+1); i++){
-      for(k=0; k<4; k++){
-        dataStore.THESEdetectors[num] = 'GRG'+alwaysThisLong(i, 2)+crystals[k]+'N00A';
-        num++;
-      }
-    }
-
   dataStore.angularBinPeakArea = [];         // place to store the peak area for each angular bin
   dataStore.angularBinWeight = [];           // place to store the weighting factor for each angular bin
   dataStore.normalizationFactor = [];        // place to store the Normalization Factor for the angular correlation
@@ -280,8 +268,12 @@ function setupDataStore(){
     {"name": "Histo", "text": "Use a histogram file"}
   ];
 
-  dataStore.detectorChoice = [{"name": "HPGe"},{"name": "PACES"}];       // Detector choice information to generate buttons
-  dataStore.detectorType = 'HPGe';                                       // The selected Detector choice
+  dataStore.detectorChoice = [
+  {"name": "GRG-GRG", "title": "Ge-Ge"},
+  {"name": "GRG-ART", "title": "Ge-ARIES"},
+  {"name": "DSW-DSW", "title": "DSW-DSW (Descant Wall)"}
+  ];       // Detector choice information to generate buttons
+  dataStore.detectorType = '';                                       // The selected Detector choice
 
   dataStore.currentTask = 'Setup';               // keep track of which task we are on to determine the behaviour of certain function. Mostly used to decide where to write fit results. Singles, Summing
   dataStore.currentSource = '133Ba';                                           // index for the dataStore.sourceInfo while looping through sources.
@@ -540,8 +532,7 @@ function onloadInitialSetup(){
 	       ).then(
 		   function(){
              // setupEventListeners is usually the callback of GetURLArguments. Here we used a promise, so trigger that callback now.
-             //initializeAngularCorrelations();
-             console.log("All promises resolved");
+             //console.log("All promises resolved");
        		   }
 	       )
 
@@ -627,45 +618,164 @@ function drawDygraphErrorBars(thisPlotID, ctx, area, layout) {
 
 function initializeAngularCorrelations(){
 console.log("initializeAngularCorrelations()");
+console.log("Detector choice is "+dataStore.detectorType)
       // this is the main setup and start of the automatic process.
 
    // Display the histogram directory and filename received from the URL
    document.getElementById('histo-list-server-div').innerHTML = dataStore.histoFileDirectoryPath;
    document.getElementById('histo-list-menu-div').innerHTML = dataStore.histoFileName;
 
-  // Custom settings for Angular Correlations
-  //generate the groups for plot selector
-  var groups = [];
-  groups.push({
-    "groupID": 'Angular Bins',
-    "groupTitle": 'Angular Bins',
-    "plots": []
-  });
-  var histoName = dataStore.histoFileName.split(".")[0] + ":";
-  for(i=1; i<(dataStore.numberOfClovers+1); i++){
-  groups.push({
-    "groupID": 'GRG' + alwaysThisLong(i, 2),
-    "groupTitle": 'Singles GRG' + alwaysThisLong(i, 2),
-    "plots": [
-      {
-        "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'BN00A_Energy',
-        "title": 'GRG' + alwaysThisLong(i, 2) + 'BN00A'
-      },
-      {
-        "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'GN00A_Energy',
-        "title": 'GRG' + alwaysThisLong(i, 2) + 'GN00A'
-      },
-      {
-        "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'RN00A_Energy',
-        "title": 'GRG' + alwaysThisLong(i, 2) + 'RN00A'
-      },
-      {
-        "plotID": histoName+'GRG' + alwaysThisLong(i, 2) + 'WN00A_Energy',
-        "title": 'GRG' + alwaysThisLong(i, 2) + 'WN00A'
+  // Custom settings for Angular Correlations for this subsytem type
+  // generate the groups for plot selector
+  // fill the THESEdetectors array of detector names
+  // fill the angularMatrices array of 2d histogram names
+  switch(dataStore.detectorType){
+
+    case "GRG-GRG": // Ge-Ge angular correlations
+
+    // Names of Angular correlation matrices that we need to fetch and use for GRG-GRG
+    for(let i=0; i<52; i++){
+      dataStore.angularMatrices[i] = "Ge-Ge_angular_bin"+i;
+    }
+
+    // Set up GRIFFIN detectors for GRG-GRG type
+    var crystals = ["B","G","R","W"];
+    var num=0;
+    for(i=1; i<(dataStore.numberOfClovers+1); i++){
+      for(k=0; k<4; k++){
+        dataStore.THESEdetectors[num] = 'GRG'+alwaysThisLong(i, 2)+crystals[k]+'N00A';
+        num++;
       }
-    ]
-  })
-  }
+    }
+
+    // Set up the groups based on THESEdetectors
+    var groups = [];
+    groups.push({
+      "groupID": 'Angular Bins',
+      "groupTitle": 'Angular Bins',
+      "plots": []
+    });
+    var histoName = dataStore.histoFileName.split(".")[0] + ":";
+    var thesePlots = [];
+    for(i=1; i<dataStore.THESEdetectors.length; i++){
+      thesePlots.push(
+        {
+          "plotID": histoName + dataStore.THESEdetectors[i] + '_Energy',
+          "title": dataStore.THESEdetectors[i]
+        });
+      }
+      groups.push({
+        "groupID": 'GRG',
+        "groupTitle": 'Ge Singles for normalization',
+        "plots": thesePlots
+      });
+
+      break; // End of case of GRG-GRG
+
+      ////////////////////////////////////////////////
+      case "GRG-ART": // Ge-ARIES angular correlations
+
+      // Names of Angular correlation matrices that we need to fetch and use for GRG-ART
+      for(let i=0; i<114; i++){
+        dataStore.angularMatrices[i] = "Ge-ART_angular_bin"+i;
+      }
+
+      // Set up GRIFFIN and ARIES detectors for GRG-ART type
+      var crystals = ["B","G","R","W"];
+      var num=0;
+      for(i=1; i<(dataStore.numberOfClovers+1); i++){
+        for(k=0; k<4; k++){
+          dataStore.THESEdetectors[num] = 'GRG'+alwaysThisLong(i, 2)+crystals[k]+'N00A';
+          num++;
+        }
+      }
+      for(i=1; i<=dataStore.numberOfARIESTiles; i++){
+        dataStore.THESEdetectors[num] = 'ART'+alwaysThisLong(i, 2)+'XS00X';
+        num++;
+      }
+
+      // Set up the groups based on THESEdetectors
+      var groups = [];
+      groups.push({
+        "groupID": 'Angular Bins',
+        "groupTitle": 'Angular Bins',
+        "plots": []
+      });
+      var histoName = dataStore.histoFileName.split(".")[0] + ":";
+      var theseGRGPlots = [];
+      var theseARTPlots = [];
+      for(i=1; i<dataStore.THESEdetectors.length; i++){
+        if(dataStore.THESEdetectors[i].includes('GRG')){
+          theseGRGPlots.push(
+            {
+              "plotID": histoName + dataStore.THESEdetectors[i] + '_Energy',
+              "title": dataStore.THESEdetectors[i]
+            });
+          }else if(dataStore.THESEdetectors[i].includes('ART')){
+            theseARTPlots.push(
+              {
+                "plotID": histoName + dataStore.THESEdetectors[i] + '_Energy',
+                "title": dataStore.THESEdetectors[i]
+              });
+            }
+      }
+      groups.push({
+        "groupID": 'GRG',
+        "groupTitle": 'Ge Singles for normalization',
+        "plots": theseGRGPlots
+      });
+      groups.push({
+        "groupID": 'ART',
+        "groupTitle": 'ARIES Singles for normalization',
+        "plots": theseARTPlots
+      });
+
+      break; // End of case of GRG-ART
+
+      ////////////////////////////////////////////////
+      case "DSW-DSW": // DSW-DSW angular correlations
+
+      // Names of Angular correlation matrices that we need to fetch and use for DSW-DSW
+      for(let i=0; i<42; i++){
+        dataStore.angularMatrices[i] = "DSW-DSW_angular_bin"+i;
+      }
+
+      // Set up DESCANT detectors for DSW-DSW type
+      var num=0;
+      for(i=1; i<=dataStore.numberOfDSW; i++){
+        dataStore.THESEdetectors[num] = 'ART'+alwaysThisLong(i, 2)+'XS00X';
+        num++;
+      }
+
+      // Set up the groups based on THESEdetectors
+      var groups = [];
+      groups.push({
+        "groupID": 'Angular Bins',
+        "groupTitle": 'Angular Bins',
+        "plots": []
+      });
+      var histoName = dataStore.histoFileName.split(".")[0] + ":";
+      var thesePlots = [];
+      for(i=1; i<dataStore.THESEdetectors.length; i++){
+        thesePlots.push(
+          {
+            "plotID": histoName + dataStore.THESEdetectors[i] + '_CTOF', // Use corrected TOF
+            "title": dataStore.THESEdetectors[i]
+          });
+        }
+        groups.push({
+          "groupID": 'DSW',
+          "groupTitle": 'DESCANT Singles for normalization',
+          "plots": thesePlots
+        });
+
+        break; // End of case of DSW-DSW
+
+default:
+console.log("Error, unrecognized detectorType = "+dataStore.detectorType);
+break;
+}
+
   dataStore.plotGroups = groups;     //groups to arrange detectors into for dropdowns
   console.log(dataStore);
   console.log(dataStore._plotControl);
@@ -696,7 +806,7 @@ console.log("initializeAngularCorrelations()");
       }
 
   	  // Count the total number of matrices to download for use in the progress bar
-  	  dataStore.progressBarNumberTasks = 52;
+  	  dataStore.progressBarNumberTasks = dataStore.angularMatrices.length;
 
       // Set the current task to keep track of our progress
       dataStore.currentTask = 'Fetching';
@@ -713,24 +823,9 @@ function fetchCallback(){
     console.log('fetchCallback');
     console.log(dataStore);
 
-
         // Create the objects for each matrix in the local storage
         createAllLocalMatrices();
 
-console.log("finished unpacking");
-console.log(dataStore);
-
-// Hide the progress bar
-//document.getElementById('progressDiv').classList.add('hidden');
-
-// change messages
-deleteNode('downloadMessage');
-document.getElementById('readyMessage').classList.remove('hidden');
-
-// Enable the input buttons
-document.getElementById('gamma1Input').disabled = false;
-document.getElementById('gamma2Input').disabled = false;
-document.getElementById('ggAngCorrProject').disabled = false;
 }
 
 async function createAllLocalMatrices(){
@@ -750,6 +845,22 @@ async function createAllLocalMatrices(){
     await createLocalMatrices(i);
 
   } // End of for loop
+
+  // Now change the DOM in preparation for peak inputs needed for projections
+  console.log("finished unpacking");
+  console.log(dataStore);
+
+  // Hide the progress bar
+  setTimeout(function(){document.getElementById('progressDiv').classList.add('hidden')},2000);
+
+  // change messages
+  deleteNode('downloadMessage');
+  document.getElementById('readyMessage').classList.remove('hidden');
+
+  // Enable the input buttons
+  document.getElementById('gamma1Input').disabled = false;
+  document.getElementById('gamma2Input').disabled = false;
+  document.getElementById('ggAngCorrProject').disabled = false;
 
 }
 
@@ -793,27 +904,6 @@ async function createLocalMatrices(i){
     setTimeout(function(){resolve('Success!')},5);
   });
 
-}
-
-
-function updateProgressBar(status,message){
-  dataStore.ProgressValue = parseInt(status);
-  document.getElementById('progress').setAttribute('style', "width:" + status + "%" );
-  document.getElementById('progress').innerHTML = status + "% " + message;
-  $(window).trigger('resize');
-}
-
-async function promiseUpdateProgressBar(status,message){
-
-        // Return a new promise.
-        return new Promise(function(resolve, reject) {
-  dataStore.ProgressValue = parseInt(status);
-  document.getElementById('progress').setAttribute('style', "width:" + status + "%" );
-  document.getElementById('progress').innerHTML = status + "% " + message;
-
-      // resolve the promise
-      resolve('Success!');
-      });
 }
 
 function projectAngularCorrelations(){
@@ -865,7 +955,6 @@ function projectAngularCorrelations(){
       dataStore.angCorrProjections.push(plotName);
 
       // Add this projection to the spectrum menu
-
       newMenuItem = document.createElement('li');
       newMenuItem.setAttribute('id', 'plotList'+plotName);
       newMenuItem.setAttribute('value', plotName);
@@ -1159,7 +1248,7 @@ function processAngularCorrelationData(){
 
   // Collect the singles peak areas
   for(i=0; i<dataStore.singlesSpectra.length; i++){
-     dataStore.singlesPeakArea[i] = [0,0]; // initalize this element
+     dataStore.singlesPeakArea[i] = [0,0]; // initialize this element
      dataStore.singlesPeakArea[i][0] = dataStore.fitResults[dataStore.singlesSpectra[i]][0][5]; // the fit energy peak
      dataStore.singlesPeakArea[i][1] = dataStore.fitResults[dataStore.singlesSpectra[i]][1][5]; // the gate energy peak
      sumSinglesAreas[0] += dataStore.singlesPeakArea[i][0]; // the fit energy peak

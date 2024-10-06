@@ -38,16 +38,24 @@
         <div id='histo-list-menu-div' class='col-md-3'></div>
       </div>
 
-      <div id='progressDiv' class="progress" width=100%>
+      <div id='progressDiv' class="progress hidden" width=100%>
 <div id='progressGGAngCorr' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">Initializing App...</div>
       </div>
 
+      <!-- Selection of which subsystems -->
+    	<div id='detectorChoiceBar' class='col-md-12'></div>
+
       <!--helpful hints-->
       <div class='col-md-6'>
-        <div id='downloadMessage' class="alert alert-warning" role="alert">
+        <div id='detectorChoiceMessage' class="alert alert-warning" role="alert">
           <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-          Initializing. Spectra are downloading, please wait...
+          Select which detector systems to use for angular correlations
         </div>
+
+          <div id='downloadMessage' class="alert alert-warning hidden" role="alert">
+            <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+            Initializing. Spectra are downloading, please wait...
+          </div>
 
         <div id='readyMessage' class="alert alert-warning hidden" role="alert">
           <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
@@ -67,7 +75,7 @@
 
             <!--user input-->
             <div class='col-md-12'>
-                    <div id='gateInputsDiv' class="input-group">
+                    <div id='gateInputsDiv' class="input-group hidden">
                       <span class='input-group-addon'>Gamma-ray energies: </span>
                       <input id="gamma1Input" value="1173" min="0" max="4095" type="number" class='black-text' disabled=true></input>
                       <input id="gamma2Input" value="1332" min="0" max="4095" type="number" class='black-text' disabled=true></input>
@@ -148,8 +156,39 @@
                  projectAngularCorrelations();
                };
 
-            // Launch the setup and histogram downloading
-            initializeAngularCorrelations();
+               // Create the Detector/subsystem choice buttons
+               for(var i=0; i<dataStore.detectorChoice.length; i++){
+                 newButton = document.createElement('button');
+                 newButton.setAttribute('id', 'detectorChoice-'+dataStore.detectorChoice[i].name);
+                 newButton.setAttribute('class', 'btn btn-default');
+                 newButton.setAttribute('engaged', '0');
+                 newButton.value = dataStore.detectorChoice[i].name;
+                 newButton.innerHTML = dataStore.detectorChoice[i].title;
+                 newButton.onclick = function(){
+                   // Save this choice in the dataStore
+                   dataStore.detectorType = this.value;
+
+                   // Hide the other choices that were not selected
+                   for(var i=0; i<dataStore.detectorChoice.length; i++){
+                     if(dataStore.detectorChoice[i].name != this.value){
+                       document.getElementById('detectorChoice-'+dataStore.detectorChoice[i].name).classList.add('hidden');
+                     }
+                     document.getElementById('detectorChoice-'+dataStore.detectorChoice[i].name).classList.add('disabled');
+                   }
+
+                   // change messages and reveal progress bar and other inputs
+                   deleteNode('detectorChoiceMessage');
+                   document.getElementById('downloadMessage').classList.remove('hidden');
+                   document.getElementById('progressDiv').classList.remove('hidden');
+                   document.getElementById('gateInputsDiv').classList.remove('hidden');
+
+                         // Initialize this type of angular correlations
+                         // Launch the setup and histogram downloading
+                         initializeAngularCorrelations();
+          	           }.bind(newButton);
+          	           document.getElementById('detectorChoiceBar').appendChild(newButton);
+          	         }
+
             });
 
         // Trigger the initial loading sequence
