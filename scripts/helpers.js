@@ -88,8 +88,19 @@ function promiseJSONURL(url){
       var mungedResponse;
 
       if (req.status == 200) {
+        // Response recieved
+        // If a progress bar exists, update it
+        if(typeof progressGGAngCorr !== "undefined"){
+          let thisURLIndex = url.split("_bin")[1];
+          let status = 5+(((thisURLIndex/dataStore.angularMatrices.length)/2.22)*100); // Divide by 2 because the download is only half the job
+          let message = "complete";
+          dataStore.ProgressValue = parseInt(status);
+          document.getElementById('progressGGAngCorr').setAttribute('style', "width:" + status + "%" );
+          document.getElementById('progressGGAngCorr').innerHTML = (status).toFixed(1) + "% " + message;
+          console.log("Progress value = " + dataStore.ProgressValue);
+        }
+
         // Resolve the promise with the response text parsed as JSON
-        //	console.log(req.response);
         mungedResponse = req.response.replace(/NULL/g,'[]');
         mungedResponse = mungedResponse.replace(/\'/g, '\"');
         resolve(JSON.parse(mungedResponse));

@@ -713,54 +713,15 @@ function fetchCallback(){
     console.log('fetchCallback');
     console.log(dataStore);
 
-      // Update the progress bar
-      //setTimeout(updateProgressBar(49), 5);
-      dataStore.ProgressValue = 49;
 
-      // Create the objects for each matrix in the local storage
-      for(i=1; i<dataStore.angularMatrices.length; i++){
-        var thisKey = dataStore.histoFileName.split(".")[0] + ":" + dataStore.angularMatrices[i];
-          console.log("Creating "+thisKey);
-        var thisMatrix = {
-          "name" : dataStore.rawData[thisKey].name,
-          "xlength" : dataStore.rawData[thisKey].XaxisLength,
-          "ylength" : dataStore.rawData[thisKey].YaxisLength,
-          "xmin" : dataStore.rawData[thisKey].XaxisMin,
-          "ymin" : dataStore.rawData[thisKey].YaxisMin,
-          "xmax" : dataStore.rawData[thisKey].XaxisMax,
-          "ymax" : dataStore.rawData[thisKey].YaxisMax,
-          "zmin" : dataStore.rawData[thisKey].ZaxisMin,
-          "zmax" : dataStore.rawData[thisKey].ZaxisMax,
-          "zminfull" : dataStore.rawData[thisKey].ZaxisMin,
-          "zmaxfull" : dataStore.rawData[thisKey].ZaxisMax,
-          "data" : []
-        };
-        dataStore.matrix[thisKey] = thisMatrix;
-
-        // Unpack the raw data to the local storage
-        // The last argument as false, suppresses the generation of a colorMap used for displaying as a heatmap
-
-        // Unpack the compressed matrix data received from the server
-        var thisMatrixData = packZcompressed(dataStore.rawData[thisKey].data2, dataStore.rawData[thisKey].XaxisLength, dataStore.rawData[thisKey].YaxisLength, dataStore.rawData[thisKey].ZaxisMax, false);
-
-        // Trim the matrix and save it in the object
-        dataStore.matrix[thisKey].data = trimMatrix(thisMatrixData,3);
-
-        // Delete the raw version to reduce total memory usage
-        delete dataStore.rawData[thisKey];
-        console.log(i);
-
-        // Update the progress bar.
-        // We need a 5 millisecond pause in the execution of this loop in order for the repaint of the progress bar to happen
-    //    setTimeout(updateProgressBar(49+i), 5);
-        dataStore.ProgressValue = parseInt(49+i);
-      }
+        // Create the objects for each matrix in the local storage
+        createAllLocalMatrices();
 
 console.log("finished unpacking");
 console.log(dataStore);
 
 // Hide the progress bar
-document.getElementById('progressDiv').classList.add('hidden');
+//document.getElementById('progressDiv').classList.add('hidden');
 
 // change messages
 deleteNode('downloadMessage');
@@ -772,9 +733,87 @@ document.getElementById('gamma2Input').disabled = false;
 document.getElementById('ggAngCorrProject').disabled = false;
 }
 
-function updateProgressBar(status){
-document.getElementById('progress').setAttribute('style', "width:" + status + "%" );
+async function createAllLocalMatrices(){
 
+  // Create the objects for each matrix in the local storage
+  for(let i=1; i<dataStore.angularMatrices.length; i++){
+
+    // Update the progress bar
+    let status = 49+i;
+    let message = "complete";
+    dataStore.ProgressValue = parseInt(status);
+    document.getElementById('progressGGAngCorr').setAttribute('style', "width:" + status + "%" );
+    document.getElementById('progressGGAngCorr').innerHTML = status + "% " + message;
+    console.log("Progress value = " + dataStore.ProgressValue);
+
+    // Process the next matrix before updating the progress bar again
+    await createLocalMatrices(i);
+
+  } // End of for loop
+
+}
+
+async function createLocalMatrices(i){
+
+  // Return a new promise.
+  return new Promise(function(resolve) {
+
+    // Create the new object for this matrix in the local storage
+    var thisKey = dataStore.histoFileName.split(".")[0] + ":" + dataStore.angularMatrices[i];
+    console.log("Creating "+thisKey);
+    var thisMatrix = {
+      "name" : dataStore.rawData[thisKey].name,
+      "xlength" : dataStore.rawData[thisKey].XaxisLength,
+      "ylength" : dataStore.rawData[thisKey].YaxisLength,
+      "xmin" : dataStore.rawData[thisKey].XaxisMin,
+      "ymin" : dataStore.rawData[thisKey].YaxisMin,
+      "xmax" : dataStore.rawData[thisKey].XaxisMax,
+      "ymax" : dataStore.rawData[thisKey].YaxisMax,
+      "zmin" : dataStore.rawData[thisKey].ZaxisMin,
+      "zmax" : dataStore.rawData[thisKey].ZaxisMax,
+      "zminfull" : dataStore.rawData[thisKey].ZaxisMin,
+      "zmaxfull" : dataStore.rawData[thisKey].ZaxisMax,
+      "data" : []
+    };
+    dataStore.matrix[thisKey] = thisMatrix;
+
+    // Unpack the raw data to the local storage
+    // The last argument as false, suppresses the generation of a colorMap used for displaying as a heatmap
+    // Unpack the compressed matrix data received from the server
+    var thisMatrixData = packZcompressed(dataStore.rawData[thisKey].data2, dataStore.rawData[thisKey].XaxisLength, dataStore.rawData[thisKey].YaxisLength, dataStore.rawData[thisKey].ZaxisMax, false);
+
+    // Trim the matrix and save it in the object
+    dataStore.matrix[thisKey].data = trimMatrix(thisMatrixData,3);
+
+    // Delete the raw version to reduce total memory usage
+    delete dataStore.rawData[thisKey];
+    console.log(i);
+
+    // resolve the promise
+    setTimeout(function(){resolve('Success!')},5);
+  });
+
+}
+
+
+function updateProgressBar(status,message){
+  dataStore.ProgressValue = parseInt(status);
+  document.getElementById('progress').setAttribute('style', "width:" + status + "%" );
+  document.getElementById('progress').innerHTML = status + "% " + message;
+  $(window).trigger('resize');
+}
+
+async function promiseUpdateProgressBar(status,message){
+
+        // Return a new promise.
+        return new Promise(function(resolve, reject) {
+  dataStore.ProgressValue = parseInt(status);
+  document.getElementById('progress').setAttribute('style', "width:" + status + "%" );
+  document.getElementById('progress').innerHTML = status + "% " + message;
+
+      // resolve the promise
+      resolve('Success!');
+      });
 }
 
 function projectAngularCorrelations(){
