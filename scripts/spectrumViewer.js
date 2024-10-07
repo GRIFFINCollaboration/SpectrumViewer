@@ -73,9 +73,9 @@ function setupDataStore(){
     }
 
     //generate DESCANT detector nomenclature codes
-    for(i=1; i<89; i++){
+    for(i=1; i<61; i++){
 	if(i>70 && i<80){ continue; }
-        descantCodes.push('DSC' + alwaysThisLong(i,2) + 'XN00X');
+        descantCodes.push('DSW' + alwaysThisLong(i,2) + 'XN00X');
     }
 
     //generate OGS detector nomenclature codes
@@ -408,37 +408,37 @@ function setupDataStore(){
             "subGroups": [
                 {
                     "subname": "Energy",
-                    "id": "DSCenergy",
+                    "id": "DSWenergy",
                     "items": descantCodes.map(function(c){return c + '_Energy'})
                 },
                 {
                     "subname": "Time",
-                    "id": "DSCtime",
+                    "id": "DSWtime",
                     "items": descantCodes.map(function(c){return c + '_Time'})
                 },
                 {
                     "subname": "Pulse Height",
-                    "id": "DSCpulseHeight",
+                    "id": "DSWpulseHeight",
                     "items": descantCodes.map(function(c){return c + '_Pulse_Height'})
                 },
                 {
                     "subname": "Waveform",
-                    "id": "DSCwaveform",
+                    "id": "DSWwaveform",
                     "items": descantCodes.map(function(c){return c + '_Waveform'})
                 },
                 {
                     "subname": "Zero Crossing",
-                    "id": "DSCzero",
+                    "id": "DSWzero",
                     "items": descantCodes.map(function(c){return c + '_Zero_Crossing'})
                 },
                 {
                     "subname": "Long Integration",
-                    "id": "DSClongInt",
+                    "id": "DSWlongInt",
                     "items": descantCodes.map(function(c){return c + '_Long_Integration'})
                 },
                 {
                     "subname": "Short Integration",
-                    "id": "DSCshortInt",
+                    "id": "DSWshortInt",
                     "items": descantCodes.map(function(c){return c + '_Short_Integration'})
                 }
             ]

@@ -1678,6 +1678,7 @@ return repack2;
 function trimMatrix(data,minCount){
   // Function will receive a matrix and return an array with the trailing low-count channels removed.
   // The legnth of each array will be reduced. Not all original row will be present.
+  console.log("trimMatrix min="+minCount+", data length = "+data.length);
   var i;
   for(i=0; i<data.length; i++){
     // Remove trailing zero counts from row
@@ -1686,9 +1687,13 @@ function trimMatrix(data,minCount){
     }
   }
 
+  console.log("trimMatrix after processing data length = "+data.length);
+  console.log(data);
+
   // Remove trailing rows that are all zeros
   i=data.length-1;
   while(data[i].length<1){
+    if(i<2){ return data; }
     data.pop();
     i--;
   }
