@@ -118,6 +118,7 @@ function setupDataStore(){
     {"name":  "Sr-90", "title":  "90Sr", "lowEnergy":  59.32, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "energies": [59.32,511.00,1460.85,2614.52], "maxXValue":2650 },
     {"name":   "A224", "title": "A=224", "lowEnergy": 131.61, "midEnergy":  215.98, "highEnergy":  837.03, "vhiEnergy": 2614.52, "energies": [131.61,215.98,837.03,2614.52], "maxXValue":2650 },
     {"name":  "Be-11", "title":  "11Be", "lowEnergy": 511.00, "midEnergy": 2124.69, "highEnergy": 4665.90, "vhiEnergy": 6789.81, "energies": [511.00,2124.69,4665.90,6789.81], "maxXValue":8150 },
+    {"name": "Na-22", "title": "22Na", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy": 1274.537, "vhiEnergy": 1785.537, "energies": [74.97,511.00,1274.537,1785.537], "maxXValue":2650 }
     {"name": "Background", "title": "Background", "lowEnergy":  74.97, "midEnergy":  511.00, "highEnergy": 1460.85, "vhiEnergy": 2614.52, "energies": [74.97,511.00,1460.85,2614.52], "maxXValue":2650 }
   ],
             'PACES':
