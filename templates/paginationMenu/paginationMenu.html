@@ -22,6 +22,8 @@
     // Display the associated Page
     document.getElementById(buttonPages[thisIndex]).classList.remove('hidden');
 
+    // Dygraphs needs a resize to display if it was drawn while the div was hidden
+    window.dispatchEvent(new Event('resize'));
   }
 
   function injectMenuButtons(){

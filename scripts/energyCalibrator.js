@@ -451,52 +451,6 @@ function setupHistoListSelect(){
   }.bind(newButton);
   document.getElementById('histoChoiceSubmit').appendChild(newButton);
 
-  // Create the Auto-fill for development button
-  newButton = document.createElement('button');
-  newButton.setAttribute('id', 'submitHistoFilenameChoicesButton');
-  newButton.setAttribute('class', 'btn btn-default btn-lg');
-  newButton.innerHTML = "Auto-fill for development, S2319";
-  newButton.style.padding = '4px';
-  newButton.onclick = function(){
-
-    document.getElementById('HistoListSelect133Ba').value = "run28177.tar";
-    document.getElementById('HistoListSelect152Eu').value = "run28171.tar";
-    document.getElementById('HistoListSelect56Co').value = "run28174.tar";
-    document.getElementById('HistoListSelect60Co').value = "run28175.tar";
-    document.getElementById('HistoListSelect66Ga').value = "exclude";
-    document.getElementById('HistoListSelect244Cm+13C').value = "run28176.tar";
-    document.getElementById('HistoListSelect133Ba').onchange();
-    document.getElementById('HistoListSelect152Eu').onchange();
-    document.getElementById('HistoListSelect56Co').onchange();
-    document.getElementById('HistoListSelect60Co').onchange();
-    document.getElementById('HistoListSelect66Ga').onchange();
-    document.getElementById('HistoListSelect244Cm+13C').onchange();
-  }.bind(newButton);
-  document.getElementById('histoChoiceSubmit').appendChild(newButton);
-
-  // Create the Auto-fill for development button
-  newButton = document.createElement('button');
-  newButton.setAttribute('id', 'submitHistoFilenameChoicesButton');
-  newButton.setAttribute('class', 'btn btn-default btn-lg');
-  newButton.innerHTML = "Auto-fill for development, S1723";
-  newButton.style.padding = '4px';
-  newButton.onclick = function(){
-
-    document.getElementById('HistoListSelect133Ba').value = "run20567.tar";
-    document.getElementById('HistoListSelect152Eu').value = "run20570.tar";
-    document.getElementById('HistoListSelect56Co').value = "run20573.tar";
-    document.getElementById('HistoListSelect60Co').value = "run20571.tar";
-    document.getElementById('HistoListSelect66Ga').value = "run20546.tar";
-    document.getElementById('HistoListSelect244Cm+13C').value = "exclude";
-    document.getElementById('HistoListSelect133Ba').onchange();
-    document.getElementById('HistoListSelect152Eu').onchange();
-    document.getElementById('HistoListSelect56Co').onchange();
-    document.getElementById('HistoListSelect60Co').onchange();
-    document.getElementById('HistoListSelect66Ga').onchange();
-    document.getElementById('HistoListSelect244Cm+13C').onchange();
-  }.bind(newButton);
-  document.getElementById('histoChoiceSubmit').appendChild(newButton);
-
 }
 
 function addTitlesToHistoListSelect(){

@@ -192,7 +192,7 @@ dataStore.plotStyle[0] = {                     //dygraphs style object
   pointSize: '5',
   highlightCircleSize: '7',
   strokeWidth: '0',
-  //customBars: true,
+  errorBars: true,
   legend: 'always',
   axes: { x: { valueRange: [0,2000] }, y : { valueRange: [0,400] } }
 }

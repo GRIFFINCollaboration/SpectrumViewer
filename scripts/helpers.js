@@ -1001,6 +1001,53 @@ function setupHistoListSelect(){
 }
 
 
+function addTitlesToHistoListSelect(){
+  // Add run titles to the drop-down select options for selecting histogram files.
+  // This should be set as a listener for the event 'midasFileDetailsAvailable'
+  // There are two auto methods of building the group of selects; dataStore.sourceInfo should be considered depricated and will be superceded with dataStore.histoChoiceBarContents.
+  // but both are supported here still.
+
+  var titles = [];
+
+  // Populate the histo Choice bar in apps
+  if(typeof(dataStore.histoChoiceBarContents)!="undefined"){
+
+    // loop over all selects
+    for(i=0; i<dataStore.histoChoiceBarContents.length; i++){
+      titles.push(dataStore.histoChoiceBarContents[i]);
+    }
+  }
+
+  // Populate the Selects defined through the dataStore.sourceInfo object
+  if(typeof(dataStore.sourceInfo)!="undefined"){
+
+    var keys = Object.keys(dataStore.sourceInfo);
+    // loop over all sources
+    for(i=0; i<keys.length; i++){
+      titles.push(dataStore.sourceInfo[keys[i]].title);
+    }
+  }
+
+  // Now loop over all selects to add the run titles to the options
+  for(i=0; i<titles.length; i++){
+    var thisTitle = titles[i];
+    numOptions = document.getElementById('HistoListSelect'+thisTitle).options.length;
+    for(var j=0; j<numOptions; j++){
+
+      var thisRunName = document.getElementById('HistoListSelect'+thisTitle).options[j].text.split(".")[0];
+
+      // Find the details for this run
+      // With this method subruns do not get a title added because they have an extra "_000" in their run title. Need a modified method like .includes added to .indexOf
+      var num = dataStore.midasRunList.map(function(e) { return e.RunName; }).indexOf(thisRunName);
+
+      // Only add the run title if this run number was found in the run details list
+      if(num>=0){
+        document.getElementById('HistoListSelect'+thisTitle).options[j].text = thisRunName+'.tar, '+dataStore.midasRunList[num].RunTitle;
+      }
+    }
+  }
+}
+
 function ErrorConnectingToAnalyzerServer(error){
   var string = 'Problem connecting to analyzer server: '+dataStore.spectrumServer+'<br>'+error;
   document.getElementById('messageDivText').innerHTML = string;
@@ -1263,7 +1310,7 @@ function processConfigFileForRunDetails(payload){
     'Duration': thisConfig.Analyzer[6].Midas[2].Value,
   };
 
-  // Save the Calbration data
+  // Save the Calbration data as well
   dataStore.Config = thisConfig.Analyzer[4].Calibrations;
 }
 
@@ -1637,7 +1684,7 @@ function fitSpectra(spectrum,peaks,detectorType){
   for(peakIndex=0; peakIndex<peaks.length; peakIndex++){
 
     // Determine the peak width for the fit region
-    var thisPeakWidth = Math.ceil(typicalPeakWidth(peaks[peakIndex],detectorType)*6);
+    var thisPeakWidth = Math.ceil(typicalPeakWidth(peaks[peakIndex],detectorType)*3);
 
     //set up peak fit
     dataStore.currentPeak = peakIndex;
@@ -1693,6 +1740,11 @@ function fitCallback(center, width, amplitude, intercept, slope){
   dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0] = dataStore.viewers[viewerName].FitLimitLower;
   dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1] = dataStore.viewers[viewerName].FitLimitUpper;
 
+  // Check for failed fit. The center of the Gaussian must be within the search region
+  if(center < dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0] || center > dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1]){
+    dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [NaN,NaN,NaN,NaN,NaN,NaN,NaN];
+  }
+
   //disengage fit mode buttons
   //  if( parseInt(refitPeak.getAttribute('engaged'),10) == 1){
   //    refitPeak.onclick();
@@ -1713,6 +1765,14 @@ function addFitLines(){
     return;
   }
 
+  var thisSelect = document.getElementById('refitSelect');
+  if(thisSelect != null){
+    // Set up the drop-down list of peaks available to refit
+    thisSelect.removeAttribute('disabled');
+    // Remove all options from the select
+    thisSelect.innerHTML = "";
+  }
+
   // Loop through the peaks for this spectrum
   for(i=0; i<dataStore.ROI[dataStore.currentPlot].length; i++){
     //add fit lines
@@ -1726,7 +1786,14 @@ function addFitLines(){
       dataStore.fitResults[dataStore.currentPlot][i][4]
     );
 
+    // Add this fitline to the canvas
     dataStore.viewers[viewerName].containerFit.addChild(fitLines[i]);
+
+    if(thisSelect != null){
+      //add this peak as an option to the refit select
+      var newSelect = document.createElement("select");
+      thisSelect.add( new Option("Peak "+i+", "+dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[i]+"keV", i) );
+    }
   }
 
   dataStore.viewers[viewerName].stage.update();

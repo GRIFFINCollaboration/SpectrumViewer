@@ -146,8 +146,8 @@ this.updateTable = function(){
     document.getElementById(row.id + 'Cell' + 2).innerHTML = dataStore.ComptonWalkCurves[key].yUncSeries[j];
   }
 
- // Trigger the first plot
-this.refreshDetectorPlotData(0);
+  // Trigger the first plot
+  this.refreshDetectorPlotData(0);
 };
 
 this.updateFitTable = function(){
@@ -278,8 +278,12 @@ this.refreshDetectorPlotData = function(thisDetectorIndex){
   }
   dataStore.YAxisMinValue[plotIndex][0] = min * 1.33;
 
-  dataStore.dataplotData[plotIndex] = arrangePoints(dataStore.ComptonWalkCurves[key].xSeries, [dataStore.ComptonWalkCurves[key].ySeries], flags );
-  //  dataStore.dataplotData[plotIndex] = arrangePoints(dataStore.ComptonWalkCurves[key].xSeries, [dataStore.ComptonWalkCurves[key].yUncHiLoSeries[0],dataStore.ComptonWalkCurves[key].ySeries,dataStore.ComptonWalkCurves[key].yUncHiLoSeries[1]], flags );
+  //dataStore.dataplotData[plotIndex] = arrangePoints(dataStore.ComptonWalkCurves[key].xSeries, [dataStore.ComptonWalkCurves[key].ySeries], flags );
+  dataStore.dataplotData[plotIndex] = [];
+  for(i=0; i<dataStore.ComptonWalkCurves[key].xSeries.length; i++){
+    dataStore.dataplotData[plotIndex].push([dataStore.ComptonWalkCurves[key].xSeries[i], [dataStore.ComptonWalkCurves[key].ySeries[i],dataStore.ComptonWalkCurves[key].ySigmas[i]]]);
+  }
+
   var eventString = 'updateDyData'+plotIndex;
   dispatcher({ 'data': dataStore.dataplotData[plotIndex] }, eventString);
 };

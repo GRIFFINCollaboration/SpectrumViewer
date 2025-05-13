@@ -1,0 +1,454 @@
+<link rel="stylesheet" href="newGainMatcherReport.css">
+
+<template id='newGainMatcherReport'>
+<div class='sectionWrapper item'>
+<div class='col-md-12'>
+<table id='{{id}}newGainMatcherResults' class='table newGainMatcherTable'></table>
+</div>
+</div>
+</template>
+
+<script>
+function newGainMatcherReport(wrapID,wrapID2,wrapID3){
+
+  this.wrapID = wrapID;
+  this.wrap = document.getElementById(wrapID);
+
+  this.wrapID2 = wrapID2;
+  this.wrap2 = document.getElementById(wrapID2);
+
+  this.wrapID3 = wrapID3;
+  this.wrap3 = document.getElementById(wrapID3);
+
+  // Variables to control table generation and filling
+  this.numCellsPerRow = 14;
+  this.cellHandles = ["histo","title","starttime","duration","spectrum","centroid","height","width","intercept","slope","area","areaUnc","fwhm"];
+  this.cellTitles = ["Index","Histogram Filename","Run Title","Run StartTime","Run Duration","Spectrum name",
+  "Centroid","Height","Width","Intercept (background)","Slope (background)","Area","Area Unc.","FWHM"];
+  this.cellIndex = [0,11,12,1,2,3,4,5,6,7,8,9,10,13,14,15,16,17,18,19]; // Default selections
+  this.cellIndexDefaultSelection = [0,11,12,1,2,3,4,5,6,7,8,9,10,13,14,15,16,17,18,19];
+  this.textFileNumTextColumns = 2;
+  this.writtenNumbers = ["Zero","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen","Twenty"];
+  this.textFileSeparator = [" ",",","\t",":","|"];
+  this.textFileSeparatorNames = ["space","comma","tab","colon","pipe"];
+  this.textFileSeparatorIndex = 0;
+
+  this.setup = function(){
+
+    //inject templates
+    this.wrap.innerHTML = Mustache.to_html(
+      dataStore.templates.newGainMatcherReport,
+      {
+        'id': this.wrapID,
+      }
+    );
+
+    // table has to be done as a separate template, since templates and tables don't play too nice together
+    document.getElementById(this.wrapID + 'newGainMatcherResults').innerHTML= Mustache.to_html(
+      dataStore.templates.newGainMatcherReportTable,
+      content = {
+        'id': this.wrapID
+      }
+    );
+
+    this.wrap2.innerHTML = Mustache.to_html(
+      dataStore.templates.newGainMatcherReport,
+      {
+        'id': this.wrapID2,
+      }
+    );
+
+    // table has to be done as a separate template, since templates and tables don't play too nice together
+    document.getElementById(this.wrapID2 + 'newGainMatcherResults').innerHTML= Mustache.to_html(
+      dataStore.templates.newGainMatcherFitsReportTable,
+      content = {
+        'id': this.wrapID2,
+        'detectors': dataStore.THESEdetectors
+      }
+    );
+
+    // Build Table select for selecting which detector data is displayed
+    // Add the title text
+    var newLabel = document.createElement("label");
+    newLabel.for = 'tableMenuSelect';
+    newLabel.id = 'tableMenuSelectLabel';
+    newLabel.innerHTML = 'Detector: ';
+    document.getElementById('tableMenuDiv').appendChild(newLabel);
+
+    // Create a select input for the histo file list
+    var newSelect = document.createElement("select");
+    newSelect.id = 'tableMenuSelect';
+    newSelect.name = 'tableMenuSelect';
+    newSelect.onchange = function(){
+      dataStore._newGainMatcherReport.refreshDetectorTableData(dataStore.THESEdetectors[this.value]);
+    }.bind(newSelect);
+    document.getElementById('tableMenuDiv').appendChild(newSelect);
+
+    // Add the list of detectors as the options
+    thisSelect = document.getElementById('tableMenuSelect');
+    for(var j=0; j<dataStore.THESEdetectors.length; j++){
+      thisSelect.add( new Option(dataStore.THESEdetectors[j], j) );
+    }
+
+    // Create the previous Detector button
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'previousDetButton');
+    newButton.setAttribute('class', 'btn btn-default btn-sm');
+    newButton.innerHTML = "Previous Detector";
+    newButton.style.padding = '4px';
+    newButton.onclick = function(){
+      var currentValue = parseInt(document.getElementById('tableMenuSelect').value);
+      if(currentValue==0){ currentValue=1;}
+      document.getElementById('tableMenuSelect').value = (currentValue-1);
+      dataStore._newGainMatcherReport.refreshDetectorTableData(dataStore.THESEdetectors[currentValue-1]);
+    }.bind(newButton);
+    document.getElementById('tableMenuDiv').appendChild(newButton);
+
+    // Create the next Detector button
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'nextDetButton');
+    newButton.setAttribute('class', 'btn btn-default btn-sm');
+    newButton.innerHTML = "Next Detector";
+    newButton.style.padding = '4px';
+    newButton.onclick = function(){
+      var currentValue = parseInt(document.getElementById('tableMenuSelect').value);
+      if(currentValue==document.getElementById('tableMenuSelect').options.length-1){ currentValue=parseInt(document.getElementById('tableMenuSelect').options.length)-2;
+    }
+    document.getElementById('tableMenuSelect').value = (currentValue+1);
+    dataStore._newGainMatcherReport.refreshDetectorTableData(dataStore.THESEdetectors[currentValue+1]);
+  }.bind(newButton);
+  document.getElementById('tableMenuDiv').appendChild(newButton);
+
+  // Create the view spectrum button
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'viewSpecButton');
+  newButton.setAttribute('class', 'btn btn-default btn-sm');
+  newButton.innerHTML = "View Spectrum";
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    var currentValue = dataStore.THESEdetectors[parseInt(document.getElementById('tableMenuSelect').value)];
+
+    // Select this histogram on the spectrum menu, which also displays it
+    if(!document.getElementById("plotListclosed"+dataStore.histoFileName.split(".")[0]).classList.contains("hidden")){
+    document.getElementById("plotListclosed"+dataStore.histoFileName.split(".")[0]).click();
+  }
+    var thisId = "plotList"+dataStore.histoFileName.split(".")[0]+":"+currentValue+"_Pulse_Height";
+    document.getElementById(thisId).click();
+
+    // Move to the Spectra subpages. They need to be not hidden while the templates are injected.
+    menuButtonClick(dataStore.buttonIDs[dataStore.buttonIDs.indexOf("plotRegionMenuButton")],0);
+  }.bind(newButton);
+  document.getElementById('tableMenuDiv').appendChild(newButton);
+
+};
+
+
+this.updateFitTable = function(){
+  //update the report table with whatever is currently in the dataStore
+  //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
+  //<spectrumName>: string; name of spectrum, per names from analyzer
+  //this: efficiencyFitterReport object
+  var tableID = "resultsTableRegion";
+  var indexes = [];
+
+  for(var i=0; i<dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"].length; i++){
+    indexes.push(dataStore.peaksList[dataStore.detectorType][dataStore.sourceType].indexOf(dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"][i]));
+  }
+
+  var keys = Object.keys(dataStore.THESEcalibrations);
+  for(var i=0; i<keys.length; i++){
+    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[0]])){
+      document.getElementById(tableID + keys[i] + 'chan1').innerHTML = "-";
+    }else{
+      document.getElementById(tableID + keys[i] + 'chan1').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[0]].toFixed(2);
+    }
+    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[1]])){
+      document.getElementById(tableID + keys[i] + 'chan2').innerHTML = "-";
+    }else{
+      document.getElementById(tableID + keys[i] + 'chan2').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[1]].toFixed(2);
+    }
+    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[2]])){
+      document.getElementById(tableID + keys[i] + 'chan3').innerHTML = "-";
+    }else{
+      document.getElementById(tableID + keys[i] + 'chan3').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[2]].toFixed(2);
+    }
+    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[3]])){
+      document.getElementById(tableID + keys[i] + 'chan4').innerHTML = "-";
+    }else{
+      document.getElementById(tableID + keys[i] + 'chan4').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[3]].toFixed(2);
+    }
+
+    document.getElementById(tableID + keys[i] + 'meanSD').innerHTML = dataStore.THESEcalibrations[keys[i]].residualMean.toFixed(3);
+
+    document.getElementById(tableID + keys[i] + 'quad').innerHTML = dataStore.THESEcalibrations[keys[i]]['fit'][0];
+    document.getElementById(tableID + keys[i] + 'gain').innerHTML = dataStore.THESEcalibrations[keys[i]]['fit'][1];
+    document.getElementById(tableID + keys[i] + 'offset').innerHTML = dataStore.THESEcalibrations[keys[i]]['fit'][2];
+  }
+
+  //highlight suspicious rows
+  this.whatsNormal();
+  this.highlightOutliers();
+};
+
+
+this.whatsNormal = function(){
+  //identifies the mean and SD of the calibration quad, slope and intercept across all detectors
+
+  var i, meanQuad = 0, sqMeanQuad = 0, meanSlope = 0, sqMeanSlope = 0, meanIntercept = 0, sqMeanIntercept = 0, sdQuad, sdSlope, sdIntercept,
+  keys = Object.keys(dataStore.THESEcalibrations),
+  numIntercept = 0, numSlope = 0, numQuad = 0
+
+  for(i=0; i<keys.length; i++){
+    meanQuad += dataStore.THESEcalibrations[keys[i]]['fit'][0];
+    sqMeanQuad += Math.pow(dataStore.THESEcalibrations[keys[i]]['fit'][0], 2);
+    numQuad++;
+
+    meanSlope += dataStore.THESEcalibrations[keys[i]]['fit'][1];
+    sqMeanSlope += Math.pow(dataStore.THESEcalibrations[keys[i]]['fit'][1], 2);
+    numSlope++;
+
+    meanIntercept += dataStore.THESEcalibrations[keys[i]]['fit'][2];
+    sqMeanIntercept += Math.pow(dataStore.THESEcalibrations[keys[i]]['fit'][2], 2);
+    numIntercept++;
+  }
+
+  meanIntercept /= numIntercept;
+  sqMeanIntercept /= numIntercept;
+  meanSlope /= numSlope;
+  sqMeanSlope /= numSlope;
+  meanQuad /= numQuad;
+  sqMeanQuad /= numQuad;
+
+  sdIntercept = Math.sqrt(sqMeanIntercept - Math.pow(meanIntercept,2));
+  sdSlope = Math.sqrt(sqMeanSlope - Math.pow(meanSlope,2));
+  sdQuad = Math.sqrt(sqMeanQuad - Math.pow(meanQuad,2));
+
+  dataStore.meanCalib = [meanIntercept, meanSlope, meanQuad];
+  dataStore.sdCalib = [sdIntercept, sdSlope, sdQuad];
+},
+
+this.highlightOutliers = function(){
+  //step through the fit results, and highlight table rows corresponding to wacky channels
+  //this: gainMatchReport object
+
+  var i;
+  var keys = Object.keys(dataStore.THESEcalibrations);
+  var highlightBad;
+
+  var MaxOffset = 10; // Use for HPGe and PACES and LaBr3
+  var MaxQuad = 0.00001;
+  if(dataStore.detectorType == 'RCMP'){ MaxOffset = 300;   }
+
+  for(i=0; i<keys.length; i++){
+    highlightBad=0;
+
+    // Check Offsets
+    //    if(dataStore.THESEcalibrations[keys[i]]['fit'][2] > dataStore.meanCalib[0] + dataStore.sdCalib[0]*3.5
+    //       || dataStore.THESEcalibrations[keys[i]]['fit'][2] < dataStore.meanCalib[0] - dataStore.sdCalib[0]*3.5
+    //       || Math.abs(dataStore.THESEcalibrations[keys[i]]['fit'][2]) > MaxOffset
+    //      ){ highlightBad=1; console.log(keys[i]+" failed offset"); }
+    if( Math.abs(dataStore.THESEcalibrations[keys[i]]['fit'][2]) > MaxOffset ){ highlightBad=1; console.log(keys[i]+" failed offset"); }
+
+    // Check gains
+    if( dataStore.THESEcalibrations[keys[i]]['fit'][1] > dataStore.meanCalib[1] + dataStore.sdCalib[1]*3
+    || dataStore.THESEcalibrations[keys[i]]['fit'][1] < dataStore.meanCalib[1] - dataStore.sdCalib[1]*3
+  ){ highlightBad=1; console.log(keys[i]+" failed gain"); }
+
+  // Check quadratric terms
+  if(dataStore.detectorType == "HPGe"){ // Only check the quadratic term for HPGe
+    if( dataStore.THESEcalibrations[keys[i]]['fit'][0] > dataStore.meanCalib[2] + dataStore.sdCalib[2]*3.5
+    || dataStore.THESEcalibrations[keys[i]]['fit'][0] < dataStore.meanCalib[2] - dataStore.sdCalib[2]*3.5
+    || Math.abs(dataStore.THESEcalibrations[keys[i]]['fit'][0]) > MaxQuad
+  ){ highlightBad=1; console.log(keys[i]+" failed quad"); }
+}
+
+// Check size of residuals
+if(dataStore.THESEcalibrations[keys[i]].residualMean > 0.5){ highlightBad=1; console.log(keys[i]+" failed meanSD"); }
+
+if(highlightBad){
+  // Highlight row as problematic (orange) if the parameters are not normal, and do not check the box
+  document.getElementById('resultsTableRegion' + keys[i] + 'row').setAttribute('style', 'background-color: #F28C28;');
+  document.getElementById(keys[i] + 'write').checked = false;
+}else{
+  // If all is good, check the box and do not highlight the row
+  document.getElementById('resultsTableRegion' + keys[i] + 'row').setAttribute('style', '');
+  document.getElementById(keys[i] + 'write').checked = true;
+}
+}
+},
+
+
+
+this.buildTextFile = function(){
+
+  console.log('Download initiated');
+  var tableID = "pileupCorrectionspileupCorrectionsResults";
+
+  // Write the table of results to a text file for download.
+  var textFile = '';
+
+  // Iterate through all rows of the table
+  var table = document.getElementById(tableID);
+  for (var i = 0, row; row = table.rows[i]; i++) {
+    //rows would be accessed using the "row" variable assigned in the for loop
+    for(var k=0; k<this.textFileNumTextColumns; k++){
+      if(k>0){ textFile += this.textFileSeparator[this.textFileSeparatorIndex]; }
+      textFile += row.cells[this.cellIndex[k]].innerHTML;
+    }
+    textFile += "\n";
+  }
+
+  // Create a download link
+  const textBlob = new Blob([textFile], {type: 'text/plain'});
+  URL.revokeObjectURL(window.textBlobURL);
+  const downloadLink = document.createElement('a');
+  downloadLink.href = URL.createObjectURL(textBlob);
+  downloadLink.download = 'GRIFFIN-pileupCorrections-Results.txt';
+
+  // Trigger the download
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+};
+
+
+this.refreshCoefficientsTableData = function(){
+
+  for(var i=0; i<dataStore.THESEcalibrations.length; i++){
+    var thisID = 'energyCalibratorResults'+dataStore.THESEcalibrations[i].name;
+    document.getElementById(thisID+'quad').innerHTML = dataStore.THESEcalibrations[i].fit.quad.toPrecision(6);
+    document.getElementById(thisID+'gain').innerHTML = dataStore.THESEcalibrations[i].fit.gain.toFixed(8);
+    document.getElementById(thisID+'offset').innerHTML = dataStore.THESEcalibrations[i].fit.offset.toFixed(8);
+    document.getElementById(thisID+'r2').innerHTML = dataStore.THESEcalibrations[i].fit.r2.toPrecision(10);
+    document.getElementById(thisID+'residual').innerHTML = dataStore.THESEcalibrations[i].residualMean.toFixed(3);
+  }
+
+};
+
+this.refreshDetectorTableData = function(thisDetectorKey){
+
+  var tableID = "newGainMatchernewGainMatcherResults";
+  var table = document.getElementById(tableID);
+  while(table.rows.length>1){ table.deleteRow(table.rows.length-1); }
+
+  for(var j=0; j<dataStore.THESEcalibrations[thisDetectorKey].x.length; j++){
+    var row = table.insertRow(table.rows.length);
+    var rowId = tableID+'Row-'+j;
+    row.id = rowId;
+    for(var cellIndex=0; cellIndex<4; cellIndex++){
+      var cell = row.insertCell(cellIndex);
+      cell.id = row.id + 'Cell' + cellIndex;
+    }
+    document.getElementById(rowId + 'Cell' + 0).innerHTML = dataStore.THESEcalibrations[thisDetectorKey].y[j].toFixed(2);
+    document.getElementById(rowId + 'Cell' + 1).innerHTML = dataStore.THESEcalibrations[thisDetectorKey].x[j].toFixed(2);
+    document.getElementById(rowId + 'Cell' + 2).innerHTML = dataStore.THESEcalibrations[thisDetectorKey].xEn[j].toFixed(2);
+    document.getElementById(rowId + 'Cell' + 3).innerHTML = dataStore.THESEcalibrations[thisDetectorKey].residual[j].toFixed(3);
+  }
+
+  // Add the mean and standard deviation to the top of the page
+  document.getElementById('reportCardDiv').innerHTML = "Mean of residuals = "+ dataStore.THESEcalibrations[thisDetectorKey].residualMean.toFixed(2) +
+  "keV, Variance of residuals = "+ dataStore.THESEcalibrations[thisDetectorKey].residualVar.toFixed(2)+"keV";
+
+  // Now also refresh the plot with the data from this Detector
+  this.refreshDetectorPlotData(thisDetectorKey);
+};
+
+        this.reconstructResolutionData = function(){
+            //arrange the latest resolution info for representation in the dygraph.
+
+            var i, evt, detectorIndex = [],
+            flags = [];
+            flags.fillN(0, dataStore.THESEdetectors.length)
+
+            for(i=0; i<dataStore.THESEdetectors.length; i++){
+                detectorIndex[i] = i;
+            }
+
+            dataStore.resolutionData = arrangePoints(detectorIndex, [dataStore.PeakResolution[0], dataStore.PeakResolution[1], dataStore.PeakResolution[2], dataStore.PeakResolution[3]], flags );
+            dispatcher({ 'data': dataStore.resolutionData }, 'updateDyData0');
+        },
+        
+this.refreshDetectorPlotData = function(thisDetectorKey){
+  //arrange the latest residual info for representation in the dygraph.
+
+  // Build the flags array. All zeros but needs to be the correct length
+  var plotIndex = 0; // Plot 0 is the detector results plot
+  var i, evt, dataIndex = [],
+  flags = [];
+  flags.fillN(0, dataStore.THESEcalibrations[thisDetectorKey].y.length)
+
+  // Update the Y axis scale for these data
+  var max = 0;
+  for(i=0; i<dataStore.THESEcalibrations[thisDetectorKey].residual.length; i++){
+    if(Math.abs(dataStore.THESEcalibrations[thisDetectorKey].residual[i])>max){
+      max = Math.abs(dataStore.THESEcalibrations[thisDetectorKey].residual[i]);
+    }
+  }
+  dataStore.YAxisMaxValue[plotIndex][0] = max * 1.33;
+  var min = 0;
+  for(i=0; i<dataStore.THESEcalibrations[thisDetectorKey].residual.length; i++){
+    if(dataStore.THESEcalibrations[thisDetectorKey].residual[i]<min){
+      min = dataStore.THESEcalibrations[thisDetectorKey].residual[i];
+    }
+  }
+  dataStore.YAxisMinValue[plotIndex][0] = min * 1.33;
+
+  dataStore.dataplotData[plotIndex] = arrangePoints(dataStore.THESEcalibrations[thisDetectorKey].y, [dataStore.THESEcalibrations[thisDetectorKey].residual], flags );
+  var eventString = 'updateDyData'+plotIndex;
+  dispatcher({ 'data': dataStore.dataplotData[plotIndex] }, eventString);
+};
+
+this.refreshFullPlotData = function(){
+  //arrange the latest residual info for representation in the dygraph.
+  var keys = Object.keys(dataStore.ComptonWalkCurves);
+
+  // Build the flags array. All zeros but needs to be the correct length
+  var plotIndex = 1; // Plot 0 is the detector results plot
+  var i, evt, dataIndex = [],
+  flags = [];
+  flags.fillN(0, dataStore.ComptonWalkCurves[keys[0]].xSeries.length);
+
+  // Build the Y series data
+  var ySeriesData = [];
+  for(var j=keys.length-1; j>=0; j--){
+    ySeriesData.push(dataStore.ComptonWalkCurves[keys[j]].ySeries);
+  }
+
+  // Update the Y axis scale for these data
+  var max = 0;
+  for(var j=0; j<keys.length; j++){
+    for(i=0; i<dataStore.ComptonWalkCurves[keys[j]].ySeries.length; i++){
+      if(Math.abs(dataStore.ComptonWalkCurves[keys[j]].ySeries[i])>max){
+        max = Math.abs(dataStore.ComptonWalkCurves[keys[j]].ySeries[i]);
+      }
+    }
+  }
+  dataStore.YAxisMaxValue[plotIndex][0] = max * 1.33;
+  var min = 0;
+  for(var j=0; j<keys.length; j++){
+    for(i=0; i<dataStore.ComptonWalkCurves[keys[j]].ySeries.length; i++){
+      if(dataStore.ComptonWalkCurves[keys[j]].ySeries[i]<min){
+        min = dataStore.ComptonWalkCurves[keys[j]].ySeries[i];
+      }
+    }
+  }
+  dataStore.YAxisMinValue[plotIndex][0] = min * 1.33;
+
+  dataStore.dataplotData[plotIndex] = arrangePoints(dataStore.ComptonWalkCurves[keys[0]].xSeries, ySeriesData, flags );
+  //  dataStore.dataplotData[plotIndex] = arrangePoints(dataStore.ComptonWalkCurves[key].xSeries, [dataStore.ComptonWalkCurves[key].yUncHiLoSeries[0],dataStore.ComptonWalkCurves[key].ySeries,dataStore.ComptonWalkCurves[key].yUncHiLoSeries[1]], flags );
+  var eventString = 'updateDyData'+plotIndex;
+  dispatcher({ 'data': dataStore.dataplotData[plotIndex] }, eventString);
+
+
+
+  // Update the Legend texts
+  /*
+              document.getElementById('residualP1newText').innerHTML  = 'Peak1 residuals: Mean: '+meanP1.toFixed(3)+', Standard Deviation: '+sdMeanP1.toFixed(3)+' keV';
+              document.getElementById('residualP2newText').innerHTML  = 'Peak2 residuals: Mean: '+meanP2.toFixed(3)+', Standard Deviation: '+sdMeanP2.toFixed(3)+' keV';
+              document.getElementById('residualP3newText').innerHTML  = 'Peak3 residuals: Mean: '+meanP3.toFixed(3)+', Standard Deviation: '+sdMeanP3.toFixed(3)+' keV';
+              document.getElementById('residualP4newText').innerHTML  = 'Peak4 residuals: Mean: '+meanP4.toFixed(3)+', Standard Deviation: '+sdMeanP4.toFixed(3)+' keV';
+              */
+};
+
+
+}
+</script>
