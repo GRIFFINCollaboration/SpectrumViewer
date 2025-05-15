@@ -195,8 +195,6 @@ this.updateFitTable = function(){
   this.whatsNormal();
   this.highlightOutliers();
 
-  // Now plot the resolution data
-  this.refreshResolutionPlot();
 };
 
 this.refreshResolutionPlot = function(){
@@ -493,13 +491,60 @@ this.refreshFullPlotData = function(){
 
 };
 
-this.refreshResidualsPlots = function(){
+this.refreshResidualsByPeakPlots = function(){
 
-  var containerDiv = "newGainMatcherResidualsPlots";
+  var containerDiv = "newGainMatcherResidualsByPeakPlots";
+  var xSeries = [];    // Residuals plot xSeries is detector name
+  var ySeries = [];    // Residuals plot ySeries is the residual
+  var indexes = [];
+  var keys = Object.keys(dataStore.THESEcalibrations);
+
+
+  // The THESECalibrations object only contains valid peak fitting results because it is used for the curve fitting.
+  // So we need to find the literature peak value index separately for each detector
+  for(var i=0; i<keys.length; i++){
+    indexes[i] = [];
+    for(var j=0; j<dataStore.peaksList[dataStore.detectorType][dataStore.sourceType].length; j++){
+      indexes[i].push(dataStore.THESEcalibrations[keys[i]]['y'].indexOf(dataStore.peaksList[dataStore.detectorType][dataStore.sourceType][j]));
+    }
+  }
+
+  // Loop through each peak energy and create the plot for it
+  for(var j=0; j<dataStore.peaksList[dataStore.detectorType][dataStore.sourceType].length; j++){
+    xSeries = [];    // Empty the array between plots
+    ySeries = [];    // Empty the array between plots
+    var newDiv = document.createElement('div');
+    newDiv.setAttribute('id', containerDiv+"Peak"+(j+1));
+    newDiv.setAttribute('class', 'col-md-6 plotlyDiv');
+    document.getElementById(containerDiv).appendChild(newDiv);
+
+    // Collect the data from each detector for this series
+    for(var i=0; i<keys.length; i++){
+      if(indexes[i][j]<0){ continue; } // Skip peaks that were not fit correctly
+      xSeries.push(keys[i]);
+      ySeries.push(dataStore.THESEcalibrations[keys[i]]['residual'][indexes[i][j]]);
+    }
+
+    // Set the layout options for this plot
+    var layout = {
+      autosize: true,
+      title: "Peak"+(j+1)+" "+dataStore.peaksList[dataStore.detectorType][dataStore.sourceType][j]+" keV",
+      xaxis: {title: "Detector"},
+      yaxis: {title: "Residual (keV)"},
+    };
+
+    createPlotlyScatterPlot([xSeries],[ySeries],[],layout,containerDiv+"Peak"+(j+1));
+
+  }
+
+}
+
+this.refreshResidualsByDetectorPlots = function(){
+
+  var containerDiv = "newGainMatcherResidualsByDetectorPlots";
 
   for(var i=0; i<dataStore.THESEdetectors.length; i++){
     var thisDetectorKey = dataStore.THESEdetectors[i];
-    console.log("Create plot for "+thisDetectorKey);
     var newDiv = document.createElement('div');
     newDiv.setAttribute('id', containerDiv+thisDetectorKey);
     newDiv.setAttribute('class', 'col-md-6 plotlyDiv');

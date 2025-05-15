@@ -883,9 +883,13 @@ function launchPeakFittingProcess(){
     thisKey = keys[0].split(":")[1].split("_")[0];
     dataStore._newGainMatcherReport.refreshDetectorTableData(thisKey);
 
-    // Update the table
+    // Update the tables
     dataStore._newGainMatcherReport.updateFitTable();
-    dataStore._newGainMatcherReport.refreshResidualsPlots();
+    dataStore._newGainMatcherReport.refreshResidualsByPeakPlots();
+    dataStore._newGainMatcherReport.refreshResidualsByDetectorPlots();
+
+      // Now plot the resolution data
+      dataStore._newGainMatcherReport.refreshResolutionPlot();
 
     // Reveal the download button
     document.getElementById('saveCalDiv').classList.remove('hidden');
