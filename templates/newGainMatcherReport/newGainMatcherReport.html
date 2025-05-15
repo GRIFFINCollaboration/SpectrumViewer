@@ -130,8 +130,8 @@ function newGainMatcherReport(wrapID,wrapID2,wrapID3){
 
     // Select this histogram on the spectrum menu, which also displays it
     if(!document.getElementById("plotListclosed"+dataStore.histoFileName.split(".")[0]).classList.contains("hidden")){
-    document.getElementById("plotListclosed"+dataStore.histoFileName.split(".")[0]).click();
-  }
+      document.getElementById("plotListclosed"+dataStore.histoFileName.split(".")[0]).click();
+    }
     var thisId = "plotList"+dataStore.histoFileName.split(".")[0]+":"+currentValue+"_Pulse_Height";
     document.getElementById(thisId).click();
 
@@ -150,32 +150,38 @@ this.updateFitTable = function(){
   //this: efficiencyFitterReport object
   var tableID = "resultsTableRegion";
   var indexes = [];
+  var keys = Object.keys(dataStore.THESEcalibrations);
 
-  for(var i=0; i<dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"].length; i++){
-    indexes.push(dataStore.peaksList[dataStore.detectorType][dataStore.sourceType].indexOf(dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"][i]));
+  // The THESECalibrations object only contains valid peak fitting results because it is used for the curve fitting.
+  // So we need to find the literature peak value index separately for each detector
+  for(var i=0; i<keys.length; i++){
+    indexes[i] = [];
+    for(var j=0; j<dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"].length; j++){
+      indexes[i].push(dataStore.THESEcalibrations[keys[i]]['y'].indexOf(dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"][j]));
+    }
   }
 
   var keys = Object.keys(dataStore.THESEcalibrations);
   for(var i=0; i<keys.length; i++){
-    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[0]])){
+    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][0]])){
       document.getElementById(tableID + keys[i] + 'chan1').innerHTML = "-";
     }else{
-      document.getElementById(tableID + keys[i] + 'chan1').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[0]].toFixed(2);
+      document.getElementById(tableID + keys[i] + 'chan1').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][0]].toFixed(2);
     }
-    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[1]])){
+    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][1]])){
       document.getElementById(tableID + keys[i] + 'chan2').innerHTML = "-";
     }else{
-      document.getElementById(tableID + keys[i] + 'chan2').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[1]].toFixed(2);
+      document.getElementById(tableID + keys[i] + 'chan2').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][1]].toFixed(2);
     }
-    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[2]])){
+    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][2]])){
       document.getElementById(tableID + keys[i] + 'chan3').innerHTML = "-";
     }else{
-      document.getElementById(tableID + keys[i] + 'chan3').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[2]].toFixed(2);
+      document.getElementById(tableID + keys[i] + 'chan3').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][2]].toFixed(2);
     }
-    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[3]])){
+    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][3]])){
       document.getElementById(tableID + keys[i] + 'chan4').innerHTML = "-";
     }else{
-      document.getElementById(tableID + keys[i] + 'chan4').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[3]].toFixed(2);
+      document.getElementById(tableID + keys[i] + 'chan4').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][3]].toFixed(2);
     }
 
     document.getElementById(tableID + keys[i] + 'meanSD').innerHTML = dataStore.THESEcalibrations[keys[i]].residualMean.toFixed(3);
@@ -188,8 +194,55 @@ this.updateFitTable = function(){
   //highlight suspicious rows
   this.whatsNormal();
   this.highlightOutliers();
+
+  // Now plot the resolution data
+  this.refreshResolutionPlot();
 };
 
+this.refreshResolutionPlot = function(){
+
+  var containerDiv = "newGainMatcherPlot";
+  var xSeries = [];    // Resolution plot xSeries is detector index - could it be the name???
+  var ySeries = [];    // Resolution plot ySeries is the fwhm
+  var traceNames = []; // Names/titles that will appear in the legend for each series
+  var indexes = [];
+  var keys = Object.keys(dataStore.THESEcalibrations);
+
+  // The THESECalibrations object only contains valid peak fitting results because it is used for the curve fitting.
+  // So we need to find the literature peak value index separately for each detector
+  // Only use the four peaks identified to be displayed in the Table for the resolution plot
+  for(var i=0; i<keys.length; i++){
+    indexes[i] = [];
+    for(var j=0; j<dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"].length; j++){
+      indexes[i].push(dataStore.THESEcalibrations[keys[i]]['y'].indexOf(dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"][j]));
+    }
+  }
+  // Define the name/title for each series to appear in the legend
+  for(var i=0; i<dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"].length; i++){
+    traceNames.push("Peak"+(i+1)+" "+dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"][i]+" keV");
+  }
+
+  // Define one series for each Peak from the Table.
+  for(var j=0; j<indexes[0].length; j++){
+    xSeries[j] = [];
+    ySeries[j] = [];
+    for(var i=0; i<keys.length; i++){
+      xSeries[j][i] = keys[i];  // xSeries[j][i] = i;
+      ySeries[j][i] = dataStore.THESEcalibrations[keys[i]]['fwhm'][indexes[i][j]];
+    }
+  }
+
+  // Define the layout for this plotly
+  var layout = {
+    autosize: true,
+    title: "Peak Resolution [FWHM] (keV)",
+    xaxis: {title: "Energy (keV)"},
+    yaxis: {title: "FWHM (keV)"},
+  };
+
+  // Send info to create the Plotly scatter plot
+  createPlotlyScatterPlot(xSeries,ySeries,[],layout,containerDiv,traceNames);
+}
 
 this.whatsNormal = function(){
   //identifies the mean and SD of the calibration quad, slope and intercept across all detectors
@@ -352,21 +405,21 @@ this.refreshDetectorTableData = function(thisDetectorKey){
   this.refreshDetectorPlotData(thisDetectorKey);
 };
 
-        this.reconstructResolutionData = function(){
-            //arrange the latest resolution info for representation in the dygraph.
+this.reconstructResolutionData = function(){
+  //arrange the latest resolution info for representation in the dygraph.
 
-            var i, evt, detectorIndex = [],
-            flags = [];
-            flags.fillN(0, dataStore.THESEdetectors.length)
+  var i, evt, detectorIndex = [],
+  flags = [];
+  flags.fillN(0, dataStore.THESEdetectors.length)
 
-            for(i=0; i<dataStore.THESEdetectors.length; i++){
-                detectorIndex[i] = i;
-            }
+  for(i=0; i<dataStore.THESEdetectors.length; i++){
+    detectorIndex[i] = i;
+  }
 
-            dataStore.resolutionData = arrangePoints(detectorIndex, [dataStore.PeakResolution[0], dataStore.PeakResolution[1], dataStore.PeakResolution[2], dataStore.PeakResolution[3]], flags );
-            dispatcher({ 'data': dataStore.resolutionData }, 'updateDyData0');
-        },
-        
+  dataStore.resolutionData = arrangePoints(detectorIndex, [dataStore.PeakResolution[0], dataStore.PeakResolution[1], dataStore.PeakResolution[2], dataStore.PeakResolution[3]], flags );
+  dispatcher({ 'data': dataStore.resolutionData }, 'updateDyData0');
+},
+
 this.refreshDetectorPlotData = function(thisDetectorKey){
   //arrange the latest residual info for representation in the dygraph.
 
@@ -438,17 +491,31 @@ this.refreshFullPlotData = function(){
   var eventString = 'updateDyData'+plotIndex;
   dispatcher({ 'data': dataStore.dataplotData[plotIndex] }, eventString);
 
-
-
-  // Update the Legend texts
-  /*
-              document.getElementById('residualP1newText').innerHTML  = 'Peak1 residuals: Mean: '+meanP1.toFixed(3)+', Standard Deviation: '+sdMeanP1.toFixed(3)+' keV';
-              document.getElementById('residualP2newText').innerHTML  = 'Peak2 residuals: Mean: '+meanP2.toFixed(3)+', Standard Deviation: '+sdMeanP2.toFixed(3)+' keV';
-              document.getElementById('residualP3newText').innerHTML  = 'Peak3 residuals: Mean: '+meanP3.toFixed(3)+', Standard Deviation: '+sdMeanP3.toFixed(3)+' keV';
-              document.getElementById('residualP4newText').innerHTML  = 'Peak4 residuals: Mean: '+meanP4.toFixed(3)+', Standard Deviation: '+sdMeanP4.toFixed(3)+' keV';
-              */
 };
 
+this.refreshResidualsPlots = function(){
+
+  var containerDiv = "newGainMatcherResidualsPlots";
+
+  for(var i=0; i<dataStore.THESEdetectors.length; i++){
+    var thisDetectorKey = dataStore.THESEdetectors[i];
+    console.log("Create plot for "+thisDetectorKey);
+    var newDiv = document.createElement('div');
+    newDiv.setAttribute('id', containerDiv+thisDetectorKey);
+    newDiv.setAttribute('class', 'col-md-6 plotlyDiv');
+    document.getElementById(containerDiv).appendChild(newDiv);
+
+    var layout = {
+      autosize: true,
+      title: thisDetectorKey,
+      xaxis: {title: "Energy (keV)"},
+      yaxis: {title: "Residual (keV)"},
+    };
+    //  createPlotlyScatterPlot(dataStore.THESEcalibrations[thisDetectorKey].y,dataStore.THESEcalibrations[thisDetectorKey].residual,dataStore.THESEcalibrations[thisDetectorKey].residual,layout,containerDiv+thisDetectorKey);
+    createPlotlyScatterPlot([dataStore.THESEcalibrations[thisDetectorKey].y],[dataStore.THESEcalibrations[thisDetectorKey].residual],[],layout,containerDiv+thisDetectorKey);
+  }
+
+}
 
 }
 </script>

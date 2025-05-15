@@ -302,3 +302,8 @@ div.headerContent{
 #fileElem {
   display: none;
 }
+
+.plotlyDiv {
+  width: 100%;
+  max-width: 1500px;
+}

@@ -2094,6 +2094,49 @@ function fitCOMSpectra(spectrum,peaks){
 
 
 ////////////////////
+// Plotly.js
+////////////////////
+
+  function createPlotlyScatterPlot(xSeries,ySeries,yErrSeries,layout,parentDiv,traceNames){
+    // x series data. Must be an array of arrays to allow for multiple series plot.
+    // y series data. Must be an array of arrays to allow for multiple series plot.
+    // y error series data to make y error bars. Must be an array of arrays to allow for multiple series plot.
+    // layout is passed directly. It ideally comes from a template but can include any valid plotly options.
+    // parentDiv id is the div for the plot to be inserted into
+    // traceNames is optional. Array of names/titles, one for each series that will appear in the legend
+    var data = []; // data is an array of objects required for a plotly scatter plot
+    var config =  // configuration options for plotly
+    {
+      scrollZoom: true,
+      modeBarButtonsToRemove: ['sendDataToCloud','select2d','lasso2d']
+    };
+
+    for(i=0; i<xSeries.length; i++){
+      data[i] =
+      {
+        x: xSeries[i],
+        y: ySeries[i],
+        type: 'scatter'
+      };
+      if(traceNames){ data[i]['name'] = traceNames[i]; }
+
+      // If yErrSeries is provided then activate the error bars
+      if(yErrSeries.length>0){
+        console.log("Add errorBars");
+        data[i].error_y = {
+          type: 'data',
+          array: yErrSeries[i],
+          visible: true
+        };
+      }
+    }
+
+    // Now create the Plotly plot
+    Plotly.newPlot(parentDiv, data, layout, config);
+
+  }
+
+////////////////////
 // Dygraphs
 ////////////////////
 
