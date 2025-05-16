@@ -286,9 +286,10 @@ this.highlightOutliers = function(){
   var keys = Object.keys(dataStore.THESEcalibrations);
   var highlightBad;
 
-  var MaxOffset = 10; // Use for HPGe and PACES and LaBr3
+  var MaxOffset = 10;    // Use for HPGe and PACES and LaBr3
   var MaxQuad = 0.00001;
-  if(dataStore.detectorType == 'RCMP'){ MaxOffset = 300;   }
+  var MaxResidual = 0.5; // Use 0.5keV for HPGe
+  if(dataStore.detectorType == 'RCMP'){ MaxOffset = 300; MaxResidual = 2.5; }
 
   for(i=0; i<keys.length; i++){
     highlightBad=0;
