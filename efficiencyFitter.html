@@ -79,72 +79,73 @@
 
   <!--User input for initial setup-->
   <div id='histoChoiceBar' class='col-md-12'>
-    <div id='histoChoiceDir' class='col-md-8'></div>
+  <div id='histoChoiceDir' class='col-md-8'></div>
 
-    <div class='col-md-12'>
-      <div id='histoChoice133Ba' class='col-md-4'></div>
-      <div id='histoChoice152Eu' class='col-md-4'></div>
-    </div>
-    <div class='col-md-12'>
-      <div id='histoChoice56Co' class='col-md-4'></div>
-      <div id='histoChoice60Co' class='col-md-4'></div>
-      <div id='sourceChoice60Co' class='col-md-2'></div>
-    </div>
-    <div class='col-md-12'>
-      <div id='histoChoice11Be' class='col-md-4'></div>
-    </div>
-    <div id='histoChoiceSubmit' class='col-md-12'></div>
+  <div class='col-md-12'>
+  <div id='histoChoice133Ba' class='col-md-4'></div>
+  <div id='histoChoice152Eu' class='col-md-4'></div>
+</div>
+<div class='col-md-12'>
+<div id='histoChoice56Co' class='col-md-4'></div>
+<div id='histoChoice60Co' class='col-md-4'></div>
+<div id='sourceChoice60Co' class='col-md-2'></div>
+</div>
+<div class='col-md-12'>
+<div id='histoChoice11Be' class='col-md-4'></div>
+</div>
+<div id='histoChoiceSubmit' class='col-md-12'></div>
 
-  </div>
+</div>
 
 
-  <!--Spectrum Plotting-->
-  <div id='plotRegion' class='sectionWrapper'>
-    <div id='plotWrap' class='col-md-9 plotRegion item'>
-      <div id='plottingGrid'></div>
-      <div class='col-md-8' id='plotCtrl'></div>
-      <div class='sectionWrapper refitButtons'>
-        <div class='col-md-12'>
-          <button type="button" class="btn btn-default btn-lg" id='fitLow' engaged='0'>
-            <span id='refitLoBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
-            <span id='loText'>Refit a Peak</span>
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class='col-md-2 item'>
-      <div id='plotList' style='overflow-y:scroll; height:400px;'></div>
-    </div>
-  </div>
 
-  <!--Table of calculations and results-->
-  <div id='efficiencyFitter'></div>
-
-  <!--Efficiency curve Plotting-->
-  <div id='graphSection' class='sectionWrapper'>
-    <div id='efficiencyPlotWrap' class='col-md-12'>
+<!--Spectrum Plotting-->
+<div id='plotRegion' class='sectionWrapper'>
+  <div id='plotWrap' class='col-md-9 plotRegion item'>
+    <div id='plottingGrid'></div>
+    <div class='col-md-8' id='plotCtrl'></div>
+    <div class='sectionWrapper refitButtons'>
       <div class='col-md-12'>
-        <h3>Efficiency curves:</h3>
-        <div id='efficiencyPlotAbs' class='col-md-6'></div>
-        <div id='efficiencyPlotRel' class='col-md-6'></div>
-      </div>
-      <div class='col-md-12'>
-        <h3>Efficiency curves of the individual sources:</h3>
-        <div id='efficiencyPlot133Ba' class='col-md-6'></div>
-        <div id='efficiencyPlot152Eu' class='col-md-6'></div>
-      </div>
-      <div class='col-md-12'>
-        <div id='efficiencyPlot56Co' class='col-md-6'></div>
-        <div id='efficiencyPlot60Co' class='col-md-6'></div>
-      </div>
-      <div class='col-md-12'>
-        <div id='efficiencyPlot11Be' class='col-md-6'></div>
-      </div>
-      <div class='col-md-12'>
-        <div id='addbackSelectDiv' class='col-md-6'></div>
+        <button type="button" class="btn btn-default btn-lg" id='fitLow' engaged='0'>
+          <span id='refitLoBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
+          <span id='loText'>Refit a Peak</span>
+        </button>
       </div>
     </div>
   </div>
+  <div class='col-md-2 item'>
+    <div id='plotList' style='overflow-y:scroll; height:400px;'></div>
+  </div>
+</div>
+
+<!--Table of calculations and results-->
+<div id='efficiencyFitter'></div>
+
+<!--Efficiency curve Plotting-->
+<div id='graphSection' class='sectionWrapper'>
+  <div id='efficiencyPlotWrap' class='col-md-12'>
+    <div class='col-md-12'>
+      <h3>Efficiency curves:</h3>
+      <div id='efficiencyPlotAbs' class='col-md-6'></div>
+      <div id='efficiencyPlotRel' class='col-md-6'></div>
+    </div>
+    <div class='col-md-12'>
+      <h3>Efficiency curves of the individual sources:</h3>
+      <div id='efficiencyPlot133Ba' class='col-md-6'></div>
+      <div id='efficiencyPlot152Eu' class='col-md-6'></div>
+    </div>
+    <div class='col-md-12'>
+      <div id='efficiencyPlot56Co' class='col-md-6'></div>
+      <div id='efficiencyPlot60Co' class='col-md-6'></div>
+    </div>
+    <div class='col-md-12'>
+      <div id='efficiencyPlot11Be' class='col-md-6'></div>
+    </div>
+    <div class='col-md-12'>
+      <div id='addbackSelectDiv' class='col-md-6'></div>
+    </div>
+  </div>
+</div>
 </div>
 
 <div id='foot'></div>
@@ -181,6 +182,10 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
   //don't want additional plots in this app
   deleteNode('plottingGridnewPlotButton');
 
+  // Grab the histogram list for the default directory
+  getHistoFileListFromServer();
+  getMidasFileListFromServer(); // The request for details follows this. Needed for adding run titles to selects
+
   // Inject the dismiss button to the messageDiv
   newButton = document.createElement('button');
   newButton.setAttribute('id', 'messageDivDismissButton');
@@ -209,13 +214,6 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
   }.bind(newInput);
   document.getElementById('histoChoiceDir').appendChild(newInput);
 
-  // Grab the histogram list for the default directory
-  getHistoFileListFromServer();
-  getMidasFileListFromServer(); // The request for details follows this. Needed for adding run titles to selects
-
-    // Set up event listener for adding run titles to selects
-    listener('histoChoiceBar', 'midasFileDetailsAvailable', addTitlesToHistoListSelect);
-    
   $(function () {
     $('[data-toggle="tooltip"]').tooltip()
   });

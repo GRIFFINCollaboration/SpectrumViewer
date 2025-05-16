@@ -704,6 +704,7 @@ function projectionsCallback(){
   dataStore._efficiencyFitterReport.fitAllSinglesPeaks();
 }
 
+
 function setupHistoListSelects(){
   // Remove the select if it already exists
   try{
@@ -844,6 +845,7 @@ function setupHistoListSelects(){
   document.getElementById('histoChoiceSubmit').appendChild(newButton);
 
 }
+
 
 function submitHistoFilenameChoices(){
   // this is the main setup and start of the automatic process.

@@ -913,43 +913,49 @@ function processHistoFileList(payload){
 
   // Set up the list of histo files
   setupHistoListSelect();
+
+  // EfficiencyFitter app still uses a unique function defined in efficiencyFitter.js. Note different function name 'Selects'
+  if(typeof(setupHistoListSelects)!='undefined'){ setupHistoListSelects(); }
 }
 
 
 function setupHistoListSelect(){
-  // Only proceed if this is needed.
-  if(!document.getElementById('histo-list-menu-div')){ return; }
+  // Used to populate either the histo-list-menu-div or the histoChoiceBar
 
-  // Clear the previous contents
-  document.getElementById('histo-list-menu-div').innerHTML = 'Histogram file: ';
+  // Only proceed if the histo-list-menu-div exists
+  if(document.getElementById('histo-list-menu-div')){
 
-  // Create a select input for the histo file list
-  var newSelect = document.createElement("select");
-  newSelect.id = 'HistoListSelect';
-  newSelect.name = 'HistoListSelect';
-  newSelect.onchange = function(){
-    dataStore.histoFileName = this.value;
+    // Clear the previous contents
+    document.getElementById('histo-list-menu-div').innerHTML = 'Histogram file: ';
+
+    // Create a select input for the histo file list
+    var newSelect = document.createElement("select");
+    newSelect.id = 'HistoListSelect';
+    newSelect.name = 'HistoListSelect';
+    newSelect.onchange = function(){
+      dataStore.histoFileName = this.value;
+      GetSpectrumListFromServer(dataStore.spectrumServer,processSpectrumList);
+      console.log('Histogram selected is '+dataStore.histoFileName);
+    }.bind(newSelect);
+
+    document.getElementById('histo-list-menu-div').appendChild(newSelect);
+
+    // Add the list of histo files as the options
+    thisSelect = document.getElementById('HistoListSelect');
+    thisSelect.add( new Option('Online', 'Online') );
+    for(var i=0; i<dataStore.histoFileList.length; i++){
+      thisSelect.add( new Option(dataStore.histoFileList[i], dataStore.histoFileList[i]) );
+    }
+
+    // if a Histogram file has been specified in the URL, make it the selected option
+    if(dataStore.histoFileName.length>0){
+      thisSelect.value = dataStore.histoFileName;
+    }
+
+    // Get the spectrum list for whatever is selected on startup
+    dataStore.histoFileName = document.getElementById('HistoListSelect').value;
     GetSpectrumListFromServer(dataStore.spectrumServer,processSpectrumList);
-    console.log('Histogram selected is '+dataStore.histoFileName);
-  }.bind(newSelect);
-
-  document.getElementById('histo-list-menu-div').appendChild(newSelect);
-
-  // Add the list of histo files as the options
-  thisSelect = document.getElementById('HistoListSelect');
-  thisSelect.add( new Option('Online', 'Online') );
-  for(var i=0; i<dataStore.histoFileList.length; i++){
-    thisSelect.add( new Option(dataStore.histoFileList[i], dataStore.histoFileList[i]) );
   }
-
-  // if a Histogram file has been specified in the URL, make it the selected option
-  if(dataStore.histoFileName.length>0){
-    thisSelect.value = dataStore.histoFileName;
-  }
-
-  // Get the spectrum list for whatever is selected on startup
-  dataStore.histoFileName = document.getElementById('HistoListSelect').value;
-  GetSpectrumListFromServer(dataStore.spectrumServer,processSpectrumList);
 
   // Populate the histo Choice bar in apps
   if(typeof(dataStore.histoChoiceBarContents)!="undefined"){
@@ -2097,44 +2103,44 @@ function fitCOMSpectra(spectrum,peaks){
 // Plotly.js
 ////////////////////
 
-  function createPlotlyScatterPlot(xSeries,ySeries,yErrSeries,layout,parentDiv,traceNames){
-    // x series data. Must be an array of arrays to allow for multiple series plot.
-    // y series data. Must be an array of arrays to allow for multiple series plot.
-    // y error series data to make y error bars. Must be an array of arrays to allow for multiple series plot.
-    // layout is passed directly. It ideally comes from a template but can include any valid plotly options.
-    // parentDiv id is the div for the plot to be inserted into
-    // traceNames is optional. Array of names/titles, one for each series that will appear in the legend
-    var data = []; // data is an array of objects required for a plotly scatter plot
-    var config =  // configuration options for plotly
+function createPlotlyScatterPlot(xSeries,ySeries,yErrSeries,layout,parentDiv,traceNames){
+  // x series data. Must be an array of arrays to allow for multiple series plot.
+  // y series data. Must be an array of arrays to allow for multiple series plot.
+  // y error series data to make y error bars. Must be an array of arrays to allow for multiple series plot.
+  // layout is passed directly. It ideally comes from a template but can include any valid plotly options.
+  // parentDiv id is the div for the plot to be inserted into
+  // traceNames is optional. Array of names/titles, one for each series that will appear in the legend
+  var data = []; // data is an array of objects required for a plotly scatter plot
+  var config =  // configuration options for plotly
+  {
+    scrollZoom: true,
+    modeBarButtonsToRemove: ['sendDataToCloud','select2d','lasso2d']
+  };
+
+  for(i=0; i<xSeries.length; i++){
+    data[i] =
     {
-      scrollZoom: true,
-      modeBarButtonsToRemove: ['sendDataToCloud','select2d','lasso2d']
+      x: xSeries[i],
+      y: ySeries[i],
+      type: 'scatter'
     };
+    if(traceNames){ data[i]['name'] = traceNames[i]; }
 
-    for(i=0; i<xSeries.length; i++){
-      data[i] =
-      {
-        x: xSeries[i],
-        y: ySeries[i],
-        type: 'scatter'
+    // If yErrSeries is provided then activate the error bars
+    if(yErrSeries.length>0){
+      console.log("Add errorBars");
+      data[i].error_y = {
+        type: 'data',
+        array: yErrSeries[i],
+        visible: true
       };
-      if(traceNames){ data[i]['name'] = traceNames[i]; }
-
-      // If yErrSeries is provided then activate the error bars
-      if(yErrSeries.length>0){
-        console.log("Add errorBars");
-        data[i].error_y = {
-          type: 'data',
-          array: yErrSeries[i],
-          visible: true
-        };
-      }
     }
-
-    // Now create the Plotly plot
-    Plotly.newPlot(parentDiv, data, layout, config);
-
   }
+
+  // Now create the Plotly plot
+  Plotly.newPlot(parentDiv, data, layout, config);
+
+}
 
 ////////////////////
 // Dygraphs
@@ -2781,62 +2787,62 @@ function handleDropFiles(files) {
   ([...files]).forEach(processDropFile)
 }
 
-  function setupDropArea(){
-    // Set up event listeners for the drop area
-    let dropArea = document.getElementById('drop-area');
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-      dropArea.addEventListener(eventName, preventDropDefaults, false)
-    });
+function setupDropArea(){
+  // Set up event listeners for the drop area
+  let dropArea = document.getElementById('drop-area');
+  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, preventDropDefaults, false)
+  });
 
-    ['dragenter', 'dragover'].forEach(eventName => {
-      dropArea.addEventListener(eventName, highlightDrop, false)
-    });
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropArea.addEventListener(eventName, highlightDrop, false)
+  });
 
-    ['dragleave', 'drop'].forEach(eventName => {
-      dropArea.addEventListener(eventName, unhighlightDrop, false)
-    });
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropArea.addEventListener(eventName, unhighlightDrop, false)
+  });
 
-    dropArea.addEventListener('drop', handleDrop, false)
-  }
+  dropArea.addEventListener('drop', handleDrop, false)
+}
 
 
-  function processDropFile(file){
+function processDropFile(file){
 
-    // Set the title for the uploaded file
-    document.getElementById('dropAreaTitleDiv').innerHTML = "Uploaded: \""+file.name+"\"";
+  // Set the title for the uploaded file
+  document.getElementById('dropAreaTitleDiv').innerHTML = "Uploaded: \""+file.name+"\"";
 
-    let fr = new FileReader();
+  let fr = new FileReader();
 
-    fr.onload = function(){
-      console.log(fr.result);
+  fr.onload = function(){
+    console.log(fr.result);
 
-      // Check the format is good json
+    // Check the format is good json
 
-      // Pass the script contents to the receive function
-      receiveScript(fr.result);
-      return;
+    // Pass the script contents to the receive function
+    receiveScript(fr.result);
+    return;
 
-      // Reformat the string for display with html
-      let string = fr.result.replace(/(?:\r\n|\r|\n)/g, '<br>');
+    // Reformat the string for display with html
+    let string = fr.result.replace(/(?:\r\n|\r|\n)/g, '<br>');
 
-      // Display the whole contents in the Div
-      //document.getElementById('fileContentsDiv').innerHTML = string;
+    // Display the whole contents in the Div
+    //document.getElementById('fileContentsDiv').innerHTML = string;
 
-      // Split the Cal file into the different entries
-      var arrStr = fr.result.split(/[{}]/);
+    // Split the Cal file into the different entries
+    var arrStr = fr.result.split(/[{}]/);
 
-      // Remove any extra lines; comments etc
-      for(var i=0; i<arrStr.length; i++){
-        if(!arrStr[i].includes("Name")){
-          arrStr.splice(i, 1);
-        }
+    // Remove any extra lines; comments etc
+    for(var i=0; i<arrStr.length; i++){
+      if(!arrStr[i].includes("Name")){
+        arrStr.splice(i, 1);
       }
-      //console.log(arrStr);
-
     }
+    //console.log(arrStr);
 
-    fr.readAsText(file);
   }
+
+  fr.readAsText(file);
+}
 
 ////////////////////////////
 
