@@ -237,6 +237,10 @@ div.headerContent{
     user-select: none;
 }
 
+.analyzer-table-selectable tr:hover {
+  background-color: #202452;
+}
+
 .midasFileOptionFileSizeDiv{
     position: relative;
     right: 0;
