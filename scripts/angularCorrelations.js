@@ -761,7 +761,7 @@ function initializeAngularCorrelations(){
 
     // Names of Angular correlation matrices that we need to fetch and use for GRG-GRG
     for(let i=0; i<52; i++){
-      dataStore.angularMatrices[i] = matrixNameString+i;
+      dataStore.angularMatrices[i] = matrixNameString+alwaysThisLong(i, 2);
     }
 
     // Set up GRIFFIN detectors for GRG-GRG type
@@ -803,7 +803,7 @@ function initializeAngularCorrelations(){
 
       // Names of Angular correlation matrices that we need to fetch and use for GRG-ART
       for(let i=0; i<114; i++){
-        dataStore.angularMatrices[i] = "Ge-ART_angular_bin"+i;
+        dataStore.angularMatrices[i] = "Ge-ART_angular_bin"+alwaysThisLong(i, 3);
       }
 
       // Set up GRIFFIN and ARIES detectors for GRG-ART type
@@ -863,7 +863,7 @@ function initializeAngularCorrelations(){
 
           // Names of Angular correlation matrices that we need to fetch and use for DSW-DSW
           for(let i=0; i<42; i++){
-            dataStore.angularMatrices[i] = "DSW-DSW_angular_bin"+i;
+            dataStore.angularMatrices[i] = "DSW-DSW_angular_bin"+alwaysThisLong(i, 3);
           }
 
           // Set up DESCANT detectors for DSW-DSW type

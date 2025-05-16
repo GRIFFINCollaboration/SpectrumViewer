@@ -1,506 +1,506 @@
 <html>
-    <head>
-        <title>GRIFFIN Angular Correlations</title>
-        <script src='scripts/HTMLImports.min.js' type="text/javascript"></script>
-        <script src='scripts/mustache.js' type="text/javascript"></script>
-        <script src='scripts/easeljs-0.7.0.min.js' type="text/javascript"></script>
-        <script src='scripts/dygraphs.1.1.1.min.js' type="text/javascript"></script>
-        <script src='scripts/regression.min.js' type="text/javascript"></script>
-        <script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
-        <script src='scripts/fitit.js' type="text/javascript"></script>
-        <script src="scripts/jquery1-11-3.min.js"></script>
-        <script src="scripts/bootstrap3-3-5.min.js"></script>
+<head>
+<title>GRIFFIN Angular Correlations</title>
+<script src='scripts/HTMLImports.min.js' type="text/javascript"></script>
+<script src='scripts/mustache.js' type="text/javascript"></script>
+<script src='scripts/easeljs-0.7.0.min.js' type="text/javascript"></script>
+<script src='scripts/dygraphs.1.1.1.min.js' type="text/javascript"></script>
+<script src='scripts/regression.min.js' type="text/javascript"></script>
+<script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
+<script src='scripts/fitit.js' type="text/javascript"></script>
+<script src="scripts/jquery1-11-3.min.js"></script>
+<script src="scripts/bootstrap3-3-5.min.js"></script>
 
-        <script src='scripts/helpers.js' type="text/javascript"></script>
-        <script src='scripts/angularCorrelations.js' type="text/javascript"></script>
-        <script src='scripts/angularCorrelations-helpers.js' type="text/javascript"></script>
-        <link rel="stylesheet" type="text/css" href="css/bootstrap3-3-5.min.css">
-        <link rel="stylesheet" type="text/css" href="css/custom.css">
+<script src='scripts/helpers.js' type="text/javascript"></script>
+<script src='scripts/angularCorrelations.js' type="text/javascript"></script>
+<script src='scripts/angularCorrelations-helpers.js' type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="css/bootstrap3-3-5.min.css">
+<link rel="stylesheet" type="text/css" href="css/custom.css">
 
-        <!--HTML imports-->
-        <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-        <link id='header' rel="import" href="templates/header/header.html">
-        <link id='angularCorrelationsReport' rel="import" href="templates/angularCorrelations/angularCorrelationsReport.html">
-        <link id='angularCorrelationsTable' rel="import" href="templates/angularCorrelations/angularCorrelationsReportTable.html">
-        <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
-        <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
-        <link id='plotListLite' rel="import" href="templates/plotList/plotListLite.html">
-        <link id='dataplot' rel="import" href="templates/dataplot/dataplot.html">
-        <link id='footer' rel="import" href="templates/footer/footer.html">
-    </head>
+<!--HTML imports-->
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+<link id='header' rel="import" href="templates/header/header.html">
+<link id='angularCorrelationsReport' rel="import" href="templates/angularCorrelations/angularCorrelationsReport.html">
+<link id='angularCorrelationsTable' rel="import" href="templates/angularCorrelations/angularCorrelationsReportTable.html">
+<link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
+<link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
+<link id='plotListLite' rel="import" href="templates/plotList/plotListLite.html">
+<link id='dataplot' rel="import" href="templates/dataplot/dataplot.html">
+<link id='footer' rel="import" href="templates/footer/footer.html">
+</head>
 
-    <body>
-      <div id='head'></div>
-        <div id='messageDiv' class='col-md-12'>
-          <div id='messageDivText'></div><div id='messageDivButton'></div>
-        </div>
+<body>
+<div id='head'></div>
+<div id='messageDiv' class='col-md-12'>
+<div id='messageDivText'></div><div id='messageDivButton'></div>
+</div>
 
-      <div id='histo-list-container' class='container-fluid'>
-        <div id='histo-list-server-div' class='col-md-3'></div>
-        <div id='histo-list-directory-div' class='col-md-6'>Histogram Directory: </div>
-        <div id='histo-list-menu-div' class='col-md-3'></div>
-      </div>
+<div id='histo-list-container' class='container-fluid'>
+<div id='histo-list-server-div' class='col-md-3'></div>
+<div id='histo-list-directory-div' class='col-md-6'>Histogram Directory: </div>
+<div id='histo-list-menu-div' class='col-md-3'></div>
+</div>
 
-      <div id='progressDiv' class="progress hidden" width=100%>
+<div id='progressDiv' class="progress hidden" width=100%>
 <div id='progressGGAngCorr' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">Initializing App...</div>
-      </div>
+</div>
 
-      <!-- Selection of which subsystems -->
-    	<div id='detectorChoiceBar' class='col-md-12'></div>
+<!-- Selection of which subsystems -->
+<div id='detectorChoiceBar' class='col-md-12'></div>
 
-      <!--helpful hints-->
-      <div class='col-md-6'>
-        <div id='detectorChoiceMessage' class="alert alert-warning" role="alert">
-          <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-          Select which detector systems to use for angular correlations
-        </div>
+<!--helpful hints-->
+<div class='col-md-6'>
+<div id='detectorChoiceMessage' class="alert alert-warning" role="alert">
+<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+Select which detector systems to use for angular correlations
+</div>
 
-          <div id='downloadMessage' class="alert alert-warning hidden" role="alert">
-            <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-            Initializing. Spectra are downloading, please wait...
-          </div>
+<div id='downloadMessage' class="alert alert-warning hidden" role="alert">
+<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+Initializing. Spectra are downloading, please wait...
+</div>
 
-        <div id='readyMessage' class="alert alert-warning hidden" role="alert">
-          <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-          Ready to make gamma-gamma angular correlations. Please enter the two peak energies.
-        </div>
+<div id='readyMessage' class="alert alert-warning hidden" role="alert">
+<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+Ready to make gamma-gamma angular correlations. Please enter the two peak energies.
+</div>
 
-        <div id='projectionsMessage' class="alert alert-warning hidden" role="alert">
-          <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-          Projecting the angular correlation matrices and fitting peaks.
-        </div>
+<div id='projectionsMessage' class="alert alert-warning hidden" role="alert">
+<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+Projecting the angular correlation matrices and fitting peaks.
+</div>
 
-        <div id='reviewMessage' class="alert alert-warning hidden" role="alert">
-          <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-          Review the results in the table below, and refit any troublesome peaks one at a time.
-        </div>
-      </div>
+<div id='reviewMessage' class="alert alert-warning hidden" role="alert">
+<span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+Review the results in the table below, and refit any troublesome peaks one at a time.
+</div>
+</div>
 
-            <!--user input-->
-            <div class='col-md-12'>
-                    <div id='gateInputsDiv' class="input-group hidden">
-                      <span class='input-group-addon'>Gamma-ray energies: </span>
-                      <input id="gamma1Input" value="1173" min="0" max="4095" type="number" class='black-text' disabled=true></input>
-                      <input id="gamma2Input" value="1332" min="0" max="4095" type="number" class='black-text' disabled=true></input>
-                    </div>
-                    <div class='col-md-6'>
-                    <button type="button" class="btn btn-default btn-sm" id='ggAngCorrProject' engaged='0' disabled=true>
-                      <span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Let's see it!</span>
-                    </button>
-                  </div>
-                  <div id='downloadDiv' class='col-md-6 hidden'>
-                  <button type="button" class="btn btn-primary btn-sm"  id='saveCSV'>
-                  <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Download results as CSV
-                  </button>
-                  <input id='saveCSVname' type='text' value='Ang-Corr-data.csv' width='600px'></input>
-                </div>
-            </div>
+<!--user input-->
+<div class='col-md-12'>
+<div id='gateInputsDiv' class="input-group hidden">
+<span class='input-group-addon'>Gamma-ray energies: </span>
+<input id="gamma1Input" value="1173" min="0" max="4095" type="number" class='black-text' disabled=true></input>
+<input id="gamma2Input" value="1332" min="0" max="4095" type="number" class='black-text' disabled=true></input>
+</div>
+<div class='col-md-6'>
+<button type="button" class="btn btn-default btn-sm" id='ggAngCorrProject' engaged='0' disabled=true>
+<span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Let's see it!</span>
+</button>
+</div>
+<div id='downloadDiv' class='col-md-6 hidden'>
+<button type="button" class="btn btn-primary btn-sm"  id='saveCSV'>
+<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Download results as CSV
+</button>
+<input id='saveCSVname' type='text' value='Ang-Corr-data.csv' width='600px'></input>
+</div>
+</div>
 
-      <div class='section-wrapper'>
-        <!--Spectrum Plotting-->
-        <div id='plotRegion' class='sectionWrapper'>
-          <div id='plotWrap' class='col-md-9 plotRegion item'>
-            <div id='plottingGrid'></div>
-            <div class='col-md-8' id='plotCtrl'></div>
-            <div class='sectionWrapper refitButtons'>
-              <div class='col-md-12'>
-                <button type="button" class="btn btn-default btn-lg" id='refitPeakButton' engaged='0'>
-                  <span id='refitPeakBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
-                  <span id='loText'>Refit a Peak</span>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class='col-md-2 item'>
-            <div id='plotList' style='overflow-y:scroll; height:400px;'></div>
-          </div>
-        </div>
+<div class='section-wrapper'>
+<!--Spectrum Plotting-->
+<div id='plotRegion' class='sectionWrapper'>
+<div id='plotWrap' class='col-md-9 plotRegion item'>
+<div id='plottingGrid'></div>
+<div class='col-md-8' id='plotCtrl'></div>
+<div class='sectionWrapper refitButtons'>
+<div class='col-md-12'>
+<button type="button" class="btn btn-default btn-lg" id='refitPeakButton' engaged='0'>
+<span id='refitPeakBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
+<span id='loText'>Refit a Peak</span>
+</button>
+</div>
+</div>
+</div>
+<div class='col-md-2 item'>
+<div id='plotList' style='overflow-y:scroll; height:400px;'></div>
+</div>
+</div>
 
-        <!--Table of calculations and results-->
-        <div id='angularCorrelationsReportWrap' class='sectionWrapper hidden'></div>
+<!--Table of calculations and results-->
+<div id='angularCorrelationsReportWrap' class='sectionWrapper hidden'></div>
 
-        <!--Efficiency curve Plotting-->
-        <div id='graphSection' class='sectionWrapper'>
-          <div id='angularCorrelationsPlotWrap' class='col-md-12'>
-  	        <div id='dataPlotMessage' class='col-md-12'></div>
-    	      <div id='dataPlotButtons' class='col-md-12'></div>
-            <div class='col-md-12'>
-            <div class='col-md-5'>
-  	        <div id='dataPlot0' class='col-md-12'></div>
-  	        <div id='dataPlot1' class='col-md-12'></div>
-  	        <div id='dataPlot2' class='col-md-12'></div>
-          </div>
-          <div class='col-md-7'>
-            <div id='cascadeInputs' class='col-md-12'>
-              <!-- This form taken from http://griffincollaboration.github.io/AngularCorrelationUtility/ -->
-              <form class='content' autocomplete='off'>
-                <!-- even / odd -->
-                <div>
-                  <h3>Angular Momentum Options</h3>
-                  <input type="radio" id="even" name="r-group" data-toggle="button" onchange="evenA();recalculate_L(1);recalculate_L(2);recalculate();" checked>
-                  <label class="button" for="even">Even mass</label>
-                  <input type="radio" id="odd" name="r-group" data-toggle="button" onchange="oddA();recalculate_L(1);recalculate_L(2);recalculate();">
-                  <label class="button" for="odd">Odd mass</label>
-                </div>
+<!--Efficiency curve Plotting-->
+<div id='graphSection' class='sectionWrapper'>
+<div id='angularCorrelationsPlotWrap' class='col-md-12'>
+<div id='dataPlotMessage' class='col-md-12'></div>
+<div id='dataPlotButtons' class='col-md-12'></div>
+<div class='col-md-12'>
+<div class='col-md-5'>
+<div id='dataPlot0' class='col-md-12'></div>
+<div id='dataPlot1' class='col-md-12'></div>
+<div id='dataPlot2' class='col-md-12'></div>
+</div>
+<div class='col-md-7'>
+<div id='cascadeInputs' class='col-md-12'>
+<!-- This form taken from http://griffincollaboration.github.io/AngularCorrelationUtility/ -->
+<form class='content' autocomplete='off'>
+<!-- even / odd -->
+<div>
+<h3>Angular Momentum Options</h3>
+<input type="radio" id="even" name="r-group" data-toggle="button" onchange="evenA();recalculate_L(1);recalculate_L(2);recalculate();" checked>
+<label class="button" for="even">Even mass</label>
+<input type="radio" id="odd" name="r-group" data-toggle="button" onchange="oddA();recalculate_L(1);recalculate_L(2);recalculate();">
+<label class="button" for="odd">Odd mass</label>
+</div>
 
-                <hr></hr>
+<hr></hr>
 
-                <!-- j1 -->
-                <label for="j1" class="right inline"><b>J<sub>1</sub>:</b></label>
-                <select id="j1" onchange="check_jvalues(); recalculate_L(1); recalculate();"></select>
-                <div id="l1a_value"></div>
-                <div id="l1b_value"></div>
-                <label>L<sub>1b</sub>/L<sub>1a</sub> Mixing:</label>
-                <input id='delta1-slider' type='range' min='-1' max='1' step='0.01' value='0' oninput='syncElements("delta1-slider", "mix1")' onchange='recalculate()' class='mixer'></input>
-                <input id='mix1' type='number' min='-1' max='1' step='0.01' value='0' onchange='syncElements("mix1", "delta1-slider"); recalculate();' class='mixer'></input>
+<!-- j1 -->
+<label for="j1" class="right inline"><b>J<sub>1</sub>:</b></label>
+<select id="j1" onchange="check_jvalues(); recalculate_L(1); recalculate();"></select>
+<div id="l1a_value"></div>
+<div id="l1b_value"></div>
+<label>L<sub>1b</sub>/L<sub>1a</sub> Mixing:</label>
+<input id='delta1-slider' type='range' min='-1' max='1' step='0.01' value='0' oninput='syncElements("delta1-slider", "mix1")' onchange='recalculate()' class='mixer'></input>
+<input id='mix1' type='number' min='-1' max='1' step='0.01' value='0' onchange='syncElements("mix1", "delta1-slider"); recalculate();' class='mixer'></input>
 
-                <hr></hr>
+<hr></hr>
 
-                <!-- j2 -->
-                <label for="j2" class="right inline"><b>J<sub>2</sub>:</b></label>
-                <select id="j2" onchange="check_jvalues(); recalculate_L(1); recalculate_L(2); recalculate();"></select>
-                <div id="l2a_value"></div>
-                <div id="l2b_value"></div>
-                <label>L<sub>2b</sub>/L<sub>2a</sub> Mixing:</label>
-                <input id='delta2-slider' type='range' min='-1' max='1' step='0.01' value='0' oninput='syncElements("delta2-slider", "mix2")' onchange='recalculate()' class='mixer'></input>
-                <input id='mix2' type='number' min='-1' max='1' step='0.01' value='0' onchange='syncElements("mix2", "delta2-slider"); recalculate();' class='mixer'></input>
+<!-- j2 -->
+<label for="j2" class="right inline"><b>J<sub>2</sub>:</b></label>
+<select id="j2" onchange="check_jvalues(); recalculate_L(1); recalculate_L(2); recalculate();"></select>
+<div id="l2a_value"></div>
+<div id="l2b_value"></div>
+<label>L<sub>2b</sub>/L<sub>2a</sub> Mixing:</label>
+<input id='delta2-slider' type='range' min='-1' max='1' step='0.01' value='0' oninput='syncElements("delta2-slider", "mix2")' onchange='recalculate()' class='mixer'></input>
+<input id='mix2' type='number' min='-1' max='1' step='0.01' value='0' onchange='syncElements("mix2", "delta2-slider"); recalculate();' class='mixer'></input>
 
-                <hr></hr>
+<hr></hr>
 
-                <!-- j3 -->
-                <label for="j3" class="right inline"><b>J<sub>3</sub>:</b></label>
-                <select id="j3" onchange="check_jvalues();recalculate_L(2);recalculate();"></select>
+<!-- j3 -->
+<label for="j3" class="right inline"><b>J<sub>3</sub>:</b></label>
+<select id="j3" onchange="check_jvalues();recalculate_L(2);recalculate();"></select>
 
-                <hr></hr>
-              </form>
-              <p id="error1"></p>
-          </div>
-            <div id='chiSquareReportTableDiv' class='col-md-12'>
-               <table id="chiSquareReportTable"></table>
-            </div>
-        </div>
-          </div>
-          </div>
-        </div>
+<hr></hr>
+</form>
+<p id="error1"></p>
+</div>
+<div id='chiSquareReportTableDiv' class='col-md-12'>
+<table id="chiSquareReportTable"></table>
+</div>
+</div>
+</div>
+</div>
+</div>
 
-      </div>
+</div>
 
-  </div>
+</div>
 
-        <div id='foot'></div>
+<div id='foot'></div>
 
-        <script>
-            window.addEventListener('HTMLImportsLoaded', function(e) {
+<script>
+window.addEventListener('HTMLImportsLoaded', function(e) {
 
-                dataStore._plotGrid = new plotGrid('plottingGrid');
-                dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
-                dataStore._dataplot[0] = new dataplot('dataPlot0',0);
-                dataStore._dataplot[1] = new dataplot('dataPlot1',1);
-                dataStore._dataplot[2] = new dataplot('dataPlot2',2);
+  dataStore._plotGrid = new plotGrid('plottingGrid');
+  dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
+  dataStore._dataplot[0] = new dataplot('dataPlot0',0);
+  dataStore._dataplot[1] = new dataplot('dataPlot1',1);
+  dataStore._dataplot[2] = new dataplot('dataPlot2',2);
 
-                dataStore.templates = prepareTemplates(['header', 'angularCorrelationsReport', 'angularCorrelationsTable', 'plotGrid', 'plotControl', 'plotListLite', 'dataplot', 'footer']);
+  dataStore.templates = prepareTemplates(['header', 'angularCorrelationsReport', 'angularCorrelationsTable', 'plotGrid', 'plotControl', 'plotListLite', 'dataplot', 'footer']);
 
-                setupHeader('head', 'Angular Correlations');
-                dataStore._plotGrid.setup();
-                dataStore._plotControl.setup();
-                //set up spectrum cell
-                dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]);
-                dataStore._dataplot[0].setup(0);
-                dataStore._dataplot[1].setup(1);
-                dataStore._dataplot[2].setup(2);
-                setupFooter('foot');
+  setupHeader('head', 'Angular Correlations');
+  dataStore._plotGrid.setup();
+  dataStore._plotControl.setup();
+  //set up spectrum cell
+  dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]);
+  dataStore._dataplot[0].setup(0);
+  dataStore._dataplot[1].setup(1);
+  dataStore._dataplot[2].setup(2);
+  setupFooter('foot');
 
-                //don't want additional plots in this app
-          deleteNode('plottingGridnewPlotButton');
+  //don't want additional plots in this app
+  deleteNode('plottingGridnewPlotButton');
 
-          $(function () {
-                    $('[data-toggle="tooltip"]').tooltip()
-                });
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  });
 
-                                    // Inject the dismiss button to the messageDiv
-                                    newButton = document.createElement('button');
-                                    newButton.setAttribute('id', 'messageDivDismissButton');
-                                    newButton.setAttribute('class', 'btn btn-default btn-lg');
-                                    newButton.innerHTML = "Dismiss";
-                                    //newButton.style.padding = '4px';
-                                    newButton.onclick = function(){
-                                      ClearErrorConnectingToAnalyzerServer();
-                                    }.bind(newButton);
-                                    document.getElementById('messageDivButton').appendChild(newButton);
+  // Inject the dismiss button to the messageDiv
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'messageDivDismissButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Dismiss";
+  //newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    ClearErrorConnectingToAnalyzerServer();
+  }.bind(newButton);
+  document.getElementById('messageDivButton').appendChild(newButton);
 
-                // Plug in the onchange functions
-                document.getElementById('gamma1Input').onchange = function(){
-                  dataStore.gg_ang_corr_gamma1E = this.value;
-                }.bind(document.getElementById('gamma1Input'));
-                document.getElementById('gamma2Input').onchange = function(){
-                  dataStore.gg_ang_corr_gamma2E = this.value;
-                }.bind(document.getElementById('gamma2Input'));
-                document.getElementById('ggAngCorrProject').onclick = function(){
-                 projectAngularCorrelations();
-               };
+  // Plug in the onchange functions
+  document.getElementById('gamma1Input').onchange = function(){
+    dataStore.gg_ang_corr_gamma1E = this.value;
+  }.bind(document.getElementById('gamma1Input'));
+  document.getElementById('gamma2Input').onchange = function(){
+    dataStore.gg_ang_corr_gamma2E = this.value;
+  }.bind(document.getElementById('gamma2Input'));
+  document.getElementById('ggAngCorrProject').onclick = function(){
+    projectAngularCorrelations();
+  };
 
-               // Set up the download button and input
-               //make sure the file name for CSV file download gets passed around:
-               document.getElementById('saveCSVname').onchange = function(){
-                 //set the filename to whatever the user has requested:
-                 document.getElementById('saveCSV').download = this.value;
-               }
-               // Set up the CSV file button
-               document.getElementById('saveCSV').onclick = function(){ buildCSVfile(); }
+  // Set up the download button and input
+  //make sure the file name for CSV file download gets passed around:
+  document.getElementById('saveCSVname').onchange = function(){
+    //set the filename to whatever the user has requested:
+    document.getElementById('saveCSV').download = this.value;
+  }
+  // Set up the CSV file button
+  document.getElementById('saveCSV').onclick = function(){ buildCSVfile(); }
 
-               // initial set up of angular momentum spin option dropdowns
-               // and generate initial calculation state
-               evenA();
-               check_jvalues();
-               recalculate_L(1);
-               recalculate_L(2);
-               recalculate();
+  // initial set up of angular momentum spin option dropdowns
+  // and generate initial calculation state
+  evenA();
+  check_jvalues();
+  recalculate_L(1);
+  recalculate_L(2);
+  recalculate();
 
-               // Create the Detector/subsystem choice buttons
-               for(var i=0; i<dataStore.detectorChoice.length; i++){
-                 newButton = document.createElement('button');
-                 newButton.setAttribute('id', 'detectorChoice-'+dataStore.detectorChoice[i].name);
-                 newButton.setAttribute('class', 'btn btn-default');
-                 newButton.setAttribute('engaged', '0');
-                 newButton.value = dataStore.detectorChoice[i].name;
-                 newButton.innerHTML = dataStore.detectorChoice[i].title;
-                 newButton.onclick = function(){
-                   // Save this choice in the dataStore
-                   dataStore.detectorType = this.value;
+  // Create the Detector/subsystem choice buttons
+  for(var i=0; i<dataStore.detectorChoice.length; i++){
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'detectorChoice-'+dataStore.detectorChoice[i].name);
+    newButton.setAttribute('class', 'btn btn-default');
+    newButton.setAttribute('engaged', '0');
+    newButton.value = dataStore.detectorChoice[i].name;
+    newButton.innerHTML = dataStore.detectorChoice[i].title;
+    newButton.onclick = function(){
+      // Save this choice in the dataStore
+      dataStore.detectorType = this.value;
 
-                   // Hide the other choices that were not selected
-                   for(var i=0; i<dataStore.detectorChoice.length; i++){
-                     if(dataStore.detectorChoice[i].name != this.value){
-                       document.getElementById('detectorChoice-'+dataStore.detectorChoice[i].name).classList.add('hidden');
-                     }
-                     document.getElementById('detectorChoice-'+dataStore.detectorChoice[i].name).classList.add('disabled');
-                   }
+      // Hide the other choices that were not selected
+      for(var i=0; i<dataStore.detectorChoice.length; i++){
+        if(dataStore.detectorChoice[i].name != this.value){
+          document.getElementById('detectorChoice-'+dataStore.detectorChoice[i].name).classList.add('hidden');
+        }
+        document.getElementById('detectorChoice-'+dataStore.detectorChoice[i].name).classList.add('disabled');
+      }
 
-                   // change messages and reveal progress bar and other inputs
-                   deleteNode('detectorChoiceMessage');
-                   document.getElementById('downloadMessage').classList.remove('hidden');
-                   document.getElementById('progressDiv').classList.remove('hidden');
-                   document.getElementById('gateInputsDiv').classList.remove('hidden');
+      // change messages and reveal progress bar and other inputs
+      deleteNode('detectorChoiceMessage');
+      document.getElementById('downloadMessage').classList.remove('hidden');
+      document.getElementById('progressDiv').classList.remove('hidden');
+      document.getElementById('gateInputsDiv').classList.remove('hidden');
 
-                         // Initialize this type of angular correlations
-                         // Launch the setup and histogram downloading
-                         initializeAngularCorrelations();
-          	           }.bind(newButton);
-          	           document.getElementById('detectorChoiceBar').appendChild(newButton);
-          	         }
+      // Initialize this type of angular correlations
+      // Launch the setup and histogram downloading
+      initializeAngularCorrelations();
+    }.bind(newButton);
+    document.getElementById('detectorChoiceBar').appendChild(newButton);
+  }
 
+  
 
+  // Add a button for skipping to Dygraph development work
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'PlotDevelopmentButton');
+  newButton.setAttribute('class', 'btn btn-default');
+  newButton.setAttribute('engaged', '0');
+  newButton.value = 1;
+  newButton.innerHTML = 'Dygraph Plot Development';
+  newButton.onclick = function(){
+    // Save this choice in the dataStore
+    console.log("Plot Testing Button");
+    dataStore.theseAngularBins = dataStore.quickDataX;
+    dataStore.angularBinData = dataStore.quickDataY;
+    dataStore.theseAngularBinsRadians = [];
+    uncertaintySeries = [];
+    for(var i=0; i<dataStore.quickDataX.length; i++){
+      dataStore.theseAngularBinsRadians.push(Math.cos(dataStore.quickDataX[i]*(Math.PI / 180.000)));
+      uncertaintySeries.push(dataStore.quickDataY[i]*0.02); // 2% error for all exp points as a test
+    }
+    dataStore.angularBinDataUnc = uncertaintySeries;
 
-                     // Add a button for skipping to Dygraph development work
-                     newButton = document.createElement('button');
-                     newButton.setAttribute('id', 'PlotDevelopmentButton');
-                     newButton.setAttribute('class', 'btn btn-default');
-                     newButton.setAttribute('engaged', '0');
-                     newButton.value = 1;
-                     newButton.innerHTML = 'Dygraph Plot Development';
-                     newButton.onclick = function(){
-                       // Save this choice in the dataStore
-                       console.log("Plot Testing Button");
-                       dataStore.theseAngularBins = dataStore.quickDataX;
-                       dataStore.angularBinData = dataStore.quickDataY;
-                       dataStore.theseAngularBinsRadians = [];
-                       uncertaintySeries = [];
-                       for(var i=0; i<dataStore.quickDataX.length; i++){
-                         dataStore.theseAngularBinsRadians.push(Math.cos(dataStore.quickDataX[i]*(Math.PI / 180.000)));
-                         uncertaintySeries.push(dataStore.quickDataY[i]*0.02); // 2% error for all exp points as a test
-                       }
-                       dataStore.angularBinDataUnc = uncertaintySeries;
+    var c2 = 0.102, c4=0.008; // 60Co
+    generateResidualsData(c2,c4);
+    var theorySeries = theoreticalAngularCorrelation(c2,c4, dataStore.theseAngularBinsRadians);
+    /*
+    for(var i=0; i<dataStore.angularBinData.length; i++){
+    dataStore.angularBinDataResiduals[i] = dataStore.angularBinData[i] - theorySeries[i];
+  }
+  */
 
-                       var c2 = 0.102, c4=0.008; // 60Co
-                       generateResidualsData(c2,c4);
-                       var theorySeries = theoreticalAngularCorrelation(c2,c4, dataStore.theseAngularBinsRadians);
-                       /*
-                        for(var i=0; i<dataStore.angularBinData.length; i++){
-                           dataStore.angularBinDataResiduals[i] = dataStore.angularBinData[i] - theorySeries[i];
-                        }
-*/
+  var norm = angularCorrelationRegression(dataStore.quickDataY,theorySeries);
+  //dataStore.DygraphAngCorrLineNormalization = norm;
+  console.log(norm);
 
-                       var norm = angularCorrelationRegression(dataStore.quickDataY,theorySeries);
-                       //dataStore.DygraphAngCorrLineNormalization = norm;
-                       console.log(norm);
+  //drawDygraphAngCorrLine(0,c2,c4, '#0096FF'); // Draw theory curve on data plot
+  dataStore.bestFitCoeffs = [c2,c4];  // Save these here in order to Draw best-fit theory curve on data plot in the callback
+  populateDataPlot(); // Draw data on first plot, errorbars are draw in the callback
+  populateResidualsPlot(); // Draw residuals data in residuals plot
 
-                       //drawDygraphAngCorrLine(0,c2,c4, '#0096FF'); // Draw theory curve on data plot
-                       dataStore.bestFitCoeffs = [c2,c4];  // Save these here in order to Draw best-fit theory curve on data plot in the callback
-                       populateDataPlot(); // Draw data on first plot, errorbars are draw in the callback
-                       populateResidualsPlot(); // Draw residuals data in residuals plot
+  var coEffs = [[0.102, 0.008],[-0.069, 0.0],[0.357, 1.143]];
+  for(var i=0; i<coEffs.length; i++){
 
-var coEffs = [[0.102, 0.008],[-0.069, 0.0],[0.357, 1.143]];
- for(var i=0; i<coEffs.length; i++){
+    console.log("c2,c4 = "+coEffs[i][0]+","+coEffs[i][1]);
+    thisTheory = theoreticalAngularCorrelation(coEffs[i][0],coEffs[i][1], dataStore.theseAngularBinsRadians);
+    console.log(calculateChiSquare(dataStore.quickDataY,uncertaintySeries,thisTheory));
+  }
 
-console.log("c2,c4 = "+coEffs[i][0]+","+coEffs[i][1]);
-thisTheory = theoreticalAngularCorrelation(coEffs[i][0],coEffs[i][1], dataStore.theseAngularBinsRadians);
-                       console.log(calculateChiSquare(dataStore.quickDataY,uncertaintySeries,thisTheory));
-}
+  // Declare the variables
+  var j1, j2, j3, l1a, l1b, l2a, l2b, delta1, delta2, pure=0;
 
-// Declare the variables
-var j1, j2, j3, l1a, l1b, l2a, l2b, delta1, delta2, pure=0;
+  // Grab the user input for the cascade
+  var nu=(dataStore.quickDataY.length - 2);
+  j1=parseFloat(document.getElementById('j1').value);
+  j2=parseFloat(document.getElementById('j2').value);
+  j3=parseFloat(document.getElementById('j3').value);
+  delta1 = parseFloat(document.getElementById('mix1').value);
+  delta2 = parseFloat(document.getElementById('mix2').value);
 
-// Grab the user input for the cascade
-var nu=(dataStore.quickDataY.length - 2);
-j1=parseFloat(document.getElementById('j1').value);
-j2=parseFloat(document.getElementById('j2').value);
-j3=parseFloat(document.getElementById('j3').value);
-delta1 = parseFloat(document.getElementById('mix1').value);
-delta2 = parseFloat(document.getElementById('mix2').value);
-
-// Calculate the l2 momenta
+  // Calculate the l2 momenta
   l2a = l2b = Math.abs(j2-j3);
   if(l2a<1){ l2a = l2b = 1; } // E0 is not permitted
   if((j2+j3)>l2b){ l2b++; }
 
-var chiSquareSeries = [];
-var index=0;
-for(j1=0; j1<5; j1++){
-  l1a = l1b = Math.abs(j1-j2);
-  if(l1a<1){ l1a = l1b = 1; } // E0 is not permitted
-  if((j1+j2)>l1b){ l1b++; }
-  if(l1a == l1b && l1a == l2a && l1a == l2b){ pure=1; }else{ pure=0; }
-  console.log("j1,j2,j3,l1a,l1b,l2a,l2b,d1,d2: "+j1+","+j2+","+j3+","+l1a+","+l1b+","+l2a+","+l2b+","+delta1+","+delta2);
-  delta1Series = [];
-  chiSquareSeries[index] = [];
-  var stepSize=0.01;
-  for(var atanDelta1=-1.5; atanDelta1<=1.5; atanDelta1+=stepSize){
-  if(atanDelta1>-0.01 && atanDelta1<0.01){ atanDelta1=0.0; }
-    delta1Series.push(atanDelta1.toFixed(2));
-    if(pure && atanDelta1 != 0){
-      chiSquareSeries[index].push(null);
-      continue;
+  var chiSquareSeries = [];
+  var index=0;
+  for(j1=0; j1<5; j1++){
+    l1a = l1b = Math.abs(j1-j2);
+    if(l1a<1){ l1a = l1b = 1; } // E0 is not permitted
+    if((j1+j2)>l1b){ l1b++; }
+    if(l1a == l1b && l1a == l2a && l1a == l2b){ pure=1; }else{ pure=0; }
+    console.log("j1,j2,j3,l1a,l1b,l2a,l2b,d1,d2: "+j1+","+j2+","+j3+","+l1a+","+l1b+","+l2a+","+l2b+","+delta1+","+delta2);
+    delta1Series = [];
+    chiSquareSeries[index] = [];
+    var stepSize=0.01;
+    for(var atanDelta1=-1.5; atanDelta1<=1.5; atanDelta1+=stepSize){
+      if(atanDelta1>-0.01 && atanDelta1<0.01){ atanDelta1=0.0; }
+      delta1Series.push(atanDelta1.toFixed(2));
+      if(pure && atanDelta1 != 0){
+        chiSquareSeries[index].push(null);
+        continue;
+      }
+      newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2);
+      //console.log(newCoEffs);
+      thisTheory = theoreticalAngularCorrelation(newCoEffs[0],newCoEffs[1], dataStore.theseAngularBinsRadians);
+      chiSquareSeries[index].push(calculateChiSquare(dataStore.quickDataY,uncertaintySeries,thisTheory)/nu);
     }
-    newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2);
-    //console.log(newCoEffs);
-    thisTheory = theoreticalAngularCorrelation(newCoEffs[0],newCoEffs[1], dataStore.theseAngularBinsRadians);
-    chiSquareSeries[index].push(calculateChiSquare(dataStore.quickDataY,uncertaintySeries,thisTheory)/nu);
+    index++;
   }
-  index++;
-}
-// drawDygraphAngCorrLine(0,newCoEffs[0],newCoEffs[1], '#0000FF');
-console.log([delta1Series,chiSquareSeries]);
-populateChiSquarePlot(delta1Series,chiSquareSeries);
+  // drawDygraphAngCorrLine(0,newCoEffs[0],newCoEffs[1], '#0000FF');
+  console.log([delta1Series,chiSquareSeries]);
+  populateChiSquarePlot(delta1Series,chiSquareSeries);
 
-console.log(dataStore);
+  console.log(dataStore);
 
-                     }.bind(newButton);
-                     document.getElementById('dataPlotButtons').appendChild(newButton);
+}.bind(newButton);
+document.getElementById('dataPlotButtons').appendChild(newButton);
 
-                     // Add a button for drawing lines on Dygraph for development work
-                     newButton = document.createElement('button');
-                     newButton.setAttribute('id', 'PlotDevelopmentLinesButton60Co');
-                     newButton.setAttribute('class', 'btn btn-default');
-                     newButton.setAttribute('engaged', '0');
-                     newButton.value = 1;
-                     newButton.innerHTML = 'Dygraph, Draw Lines 60Co';
-                     newButton.onclick = function(){
+// Add a button for drawing lines on Dygraph for development work
+newButton = document.createElement('button');
+newButton.setAttribute('id', 'PlotDevelopmentLinesButton60Co');
+newButton.setAttribute('class', 'btn btn-default');
+newButton.setAttribute('engaged', '0');
+newButton.value = 1;
+newButton.innerHTML = 'Dygraph, Draw Lines 60Co';
+newButton.onclick = function(){
 
-                       // Identify which graph this is
-                       var thisPlotID = 0;
-                       var c2 = 0.102, c4=0.008; // 60Co, 4-2-0
-                    //   var c2 = (0.102*0.95758), c4=(0.008*0.852553); // 60Co, 4-2-0 with attenuation
-                       //  var c2 = -0.069, c4=0.0; // 152Eu, 3-2-0
-                       //    var c2 = 0.357, c4=1.143; // 0-2-0
-                       drawDygraphAngCorrLine(thisPlotID,c2,c4, '#0096FF');
-                     }.bind(newButton);
-                     document.getElementById('dataPlotButtons').appendChild(newButton);
+  // Identify which graph this is
+  var thisPlotID = 0;
+  var c2 = 0.102, c4=0.008; // 60Co, 4-2-0
+  //   var c2 = (0.102*0.95758), c4=(0.008*0.852553); // 60Co, 4-2-0 with attenuation
+  //  var c2 = -0.069, c4=0.0; // 152Eu, 3-2-0
+  //    var c2 = 0.357, c4=1.143; // 0-2-0
+  drawDygraphAngCorrLine(thisPlotID,c2,c4, '#0096FF');
+}.bind(newButton);
+document.getElementById('dataPlotButtons').appendChild(newButton);
 
-                                          // Add a button for drawing lines on Dygraph for development work
-                                          newButton = document.createElement('button');
-                                          newButton.setAttribute('id', 'PlotDevelopmentLinesButton60Co');
-                                          newButton.setAttribute('class', 'btn btn-default');
-                                          newButton.setAttribute('engaged', '0');
-                                          newButton.value = 1;
-                                          newButton.innerHTML = 'Dygraph, Draw Lines 60Co corrected';
-                                          newButton.onclick = function(){
+// Add a button for drawing lines on Dygraph for development work
+newButton = document.createElement('button');
+newButton.setAttribute('id', 'PlotDevelopmentLinesButton60Co');
+newButton.setAttribute('class', 'btn btn-default');
+newButton.setAttribute('engaged', '0');
+newButton.value = 1;
+newButton.innerHTML = 'Dygraph, Draw Lines 60Co corrected';
+newButton.onclick = function(){
 
-                                            // Identify which graph this is
-                                            var thisPlotID = 0;
-                                            //var c2 = 0.102, c4=0.008; // 60Co, 4-2-0
-                                            var c2 = (0.102*0.95758), c4=(0.008*0.852553); // 60Co, 4-2-0 with attenuation
-                                            //  var c2 = -0.069, c4=0.0; // 152Eu, 3-2-0
-                                            //    var c2 = 0.357, c4=1.143; // 0-2-0
-                                            drawDygraphAngCorrLine(thisPlotID,c2,c4, '#0000FF');
-                                          }.bind(newButton);
-                                          document.getElementById('dataPlotButtons').appendChild(newButton);
+  // Identify which graph this is
+  var thisPlotID = 0;
+  //var c2 = 0.102, c4=0.008; // 60Co, 4-2-0
+  var c2 = (0.102*0.95758), c4=(0.008*0.852553); // 60Co, 4-2-0 with attenuation
+  //  var c2 = -0.069, c4=0.0; // 152Eu, 3-2-0
+  //    var c2 = 0.357, c4=1.143; // 0-2-0
+  drawDygraphAngCorrLine(thisPlotID,c2,c4, '#0000FF');
+}.bind(newButton);
+document.getElementById('dataPlotButtons').appendChild(newButton);
 
-                     // Add a button for drawing lines on Dygraph for development work
-                     newButton = document.createElement('button');
-                     newButton.setAttribute('id', 'PlotDevelopmentLinesButton152Eu');
-                     newButton.setAttribute('class', 'btn btn-default');
-                     newButton.setAttribute('engaged', '0');
-                     newButton.value = 1;
-                     newButton.innerHTML = 'Dygraph, Draw Lines 152Eu';
-                     newButton.onclick = function(){
+// Add a button for drawing lines on Dygraph for development work
+newButton = document.createElement('button');
+newButton.setAttribute('id', 'PlotDevelopmentLinesButton152Eu');
+newButton.setAttribute('class', 'btn btn-default');
+newButton.setAttribute('engaged', '0');
+newButton.value = 1;
+newButton.innerHTML = 'Dygraph, Draw Lines 152Eu';
+newButton.onclick = function(){
 
-                       // Identify which graph this is
-                       var thisPlotID = 0;
-                       // var c2 = 0.102, c4=0.008; // 60Co, 4-2-0
-                       var c2 = -0.069, c4=0.0; // 152Eu, 3-2-0
-                       //    var c2 = 0.357, c4=1.143; // 0-2-0
-                       drawDygraphAngCorrLine(thisPlotID,c2,c4, '#E67E22');
-                     }.bind(newButton);
-                     document.getElementById('dataPlotButtons').appendChild(newButton);
+  // Identify which graph this is
+  var thisPlotID = 0;
+  // var c2 = 0.102, c4=0.008; // 60Co, 4-2-0
+  var c2 = -0.069, c4=0.0; // 152Eu, 3-2-0
+  //    var c2 = 0.357, c4=1.143; // 0-2-0
+  drawDygraphAngCorrLine(thisPlotID,c2,c4, '#E67E22');
+}.bind(newButton);
+document.getElementById('dataPlotButtons').appendChild(newButton);
 
-                                          // Add a button for drawing lines on Dygraph for development work
-                                          newButton = document.createElement('button');
-                                          newButton.setAttribute('id', 'PlotDevelopmentLinesButton152Eu');
-                                          newButton.setAttribute('class', 'btn btn-default');
-                                          newButton.setAttribute('engaged', '0');
-                                          newButton.value = 1;
-                                          newButton.innerHTML = 'Dygraph, Draw Lines 152Eu Corrected';
-                                          newButton.onclick = function(){
+// Add a button for drawing lines on Dygraph for development work
+newButton = document.createElement('button');
+newButton.setAttribute('id', 'PlotDevelopmentLinesButton152Eu');
+newButton.setAttribute('class', 'btn btn-default');
+newButton.setAttribute('engaged', '0');
+newButton.value = 1;
+newButton.innerHTML = 'Dygraph, Draw Lines 152Eu Corrected';
+newButton.onclick = function(){
 
-                                            // Identify which graph this is
-                                            var thisPlotID = 0;
-                                            // var c2 = 0.102, c4=0.008; // 60Co, 4-2-0
-                                            var c2 = (-0.069*0.954711), c4=0.0; // 152Eu, 3-2-0
-                                            //    var c2 = 0.357, c4=1.143; // 0-2-0
-                                            drawDygraphAngCorrLine(thisPlotID,c2,c4, '#EEA667');
-                                          }.bind(newButton);
-                                          document.getElementById('dataPlotButtons').appendChild(newButton);
+  // Identify which graph this is
+  var thisPlotID = 0;
+  // var c2 = 0.102, c4=0.008; // 60Co, 4-2-0
+  var c2 = (-0.069*0.954711), c4=0.0; // 152Eu, 3-2-0
+  //    var c2 = 0.357, c4=1.143; // 0-2-0
+  drawDygraphAngCorrLine(thisPlotID,c2,c4, '#EEA667');
+}.bind(newButton);
+document.getElementById('dataPlotButtons').appendChild(newButton);
 
-                     // Add a button for drawing lines on Dygraph for development work
-                     newButton = document.createElement('button');
-                     newButton.setAttribute('id', 'PlotDevelopmentLinesButton020');
-                     newButton.setAttribute('class', 'btn btn-default');
-                     newButton.setAttribute('engaged', '0');
-                     newButton.value = 1;
-                     newButton.innerHTML = 'Dygraph, Draw Lines 0-2-0';
-                     newButton.onclick = function(){
+// Add a button for drawing lines on Dygraph for development work
+newButton = document.createElement('button');
+newButton.setAttribute('id', 'PlotDevelopmentLinesButton020');
+newButton.setAttribute('class', 'btn btn-default');
+newButton.setAttribute('engaged', '0');
+newButton.value = 1;
+newButton.innerHTML = 'Dygraph, Draw Lines 0-2-0';
+newButton.onclick = function(){
 
-                       // Identify which graph this is
-                       var thisPlotID = 0;
-                       // var c2 = 0.102, c4=0.008; // 60Co, 4-2-0
-                       // var c2 = -0.069, c4=0.0; // 152Eu, 3-2-0
-                       var c2 = 0.357, c4=1.143; // 0-2-0
-                       drawDygraphAngCorrLine(thisPlotID,c2,c4, '#BF40BF');
-                     }.bind(newButton);
-                     document.getElementById('dataPlotButtons').appendChild(newButton);
+  // Identify which graph this is
+  var thisPlotID = 0;
+  // var c2 = 0.102, c4=0.008; // 60Co, 4-2-0
+  // var c2 = -0.069, c4=0.0; // 152Eu, 3-2-0
+  var c2 = 0.357, c4=1.143; // 0-2-0
+  drawDygraphAngCorrLine(thisPlotID,c2,c4, '#BF40BF');
+}.bind(newButton);
+document.getElementById('dataPlotButtons').appendChild(newButton);
 
-                                          // Add a button for drawing lines on Dygraph for development work
-                                          newButton = document.createElement('button');
-                                          newButton.setAttribute('id', 'PlotDevelopmentLinesButton020');
-                                          newButton.setAttribute('class', 'btn btn-default');
-                                          newButton.setAttribute('engaged', '0');
-                                          newButton.value = 1;
-                                          newButton.innerHTML = 'Dygraph, Draw Lines 0-2-0 corrected';
-                                          newButton.onclick = function(){
+// Add a button for drawing lines on Dygraph for development work
+newButton = document.createElement('button');
+newButton.setAttribute('id', 'PlotDevelopmentLinesButton020');
+newButton.setAttribute('class', 'btn btn-default');
+newButton.setAttribute('engaged', '0');
+newButton.value = 1;
+newButton.innerHTML = 'Dygraph, Draw Lines 0-2-0 corrected';
+newButton.onclick = function(){
 
-                                            // Identify which graph this is
-                                            var thisPlotID = 0;
-                                            // var c2 = 0.102, c4=0.008; // 60Co, 4-2-0
-                                            // var c2 = -0.069, c4=0.0; // 152Eu, 3-2-0
-                                            var c2 = (0.357*0.957442), c4=(1.143*0.852034); // 0-2-0
-                                            drawDygraphAngCorrLine(thisPlotID,c2,c4, '#D279D2');
-                                          }.bind(newButton);
-                                          document.getElementById('dataPlotButtons').appendChild(newButton);
+  // Identify which graph this is
+  var thisPlotID = 0;
+  // var c2 = 0.102, c4=0.008; // 60Co, 4-2-0
+  // var c2 = -0.069, c4=0.0; // 152Eu, 3-2-0
+  var c2 = (0.357*0.957442), c4=(1.143*0.852034); // 0-2-0
+  drawDygraphAngCorrLine(thisPlotID,c2,c4, '#D279D2');
+}.bind(newButton);
+document.getElementById('dataPlotButtons').appendChild(newButton);
 
-            });
+});
 
-        // Trigger the initial loading sequence
-        onloadInitialSetup();
-        </script>
-    </body>
+// Trigger the initial loading sequence
+onloadInitialSetup();
+</script>
+</body>
 </html>
