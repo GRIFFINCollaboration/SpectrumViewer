@@ -311,3 +311,15 @@ div.headerContent{
   width: 100%;
   max-width: 1500px;
 }
+
+.calibrationsTable{
+  width: 100%;
+}
+
+.calibrationsRow:hover{
+  background-color: #202452;
+}
+
+.calibrationsCell{
+  width: 175px;
+}

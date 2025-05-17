@@ -37,12 +37,64 @@ function refreshConfigCalibrationsContent(){
   // Clear the report Div
   document.getElementById('currentConfigCalibrationsTableDiv').innerHTML = "";
 
-  let outputString = "";
-  for(let i=0; i<dataStore.currentCalibrations.length; i++)
-  outputString += dataStore.currentCalibrations[i].name+': '+ dataStore.currentCalibrations[i].quad+','
-  + dataStore.currentCalibrations[i].gain+','+ dataStore.currentCalibrations[i].offset + "<br>";
+  // Insert the Table and headers
+  var table = document.createElement('table');
+  table.id = "ConfigCalibrationsTable";
+  table.setAttribute('class','calibrationTable');
+  var row = table.insertRow(0);
+  row.id = "ConfigCalibrationsTable-HeaderRow";
+  row.setAttribute('class','calibrationsRow');
+  var cell1 = row.insertCell(0);
+  var cell2 = row.insertCell(1);
+  var cell3 = row.insertCell(2);
+  var cell4 = row.insertCell(3);
 
-  document.getElementById('currentConfigCalibrationsTableDiv').innerHTML = outputString;
+  cell1.setAttribute('class','calibrationsCell');
+  cell2.setAttribute('class','calibrationsCell');
+  cell3.setAttribute('class','calibrationsCell');
+  cell4.setAttribute('class','calibrationsCell');
+  cell1.innerHTML = "Name";
+  cell2.innerHTML = "Quad";
+  cell3.innerHTML = "Gain";
+  cell4.innerHTML = "Offset";
+
+  document.getElementById('currentConfigCalibrationsTableDiv').appendChild(table);
+
+
+  let outputString = "";
+  for(let i=0; i<dataStore.currentCalibrations.length; i++){
+    //  outputString += dataStore.currentCalibrations[i].name+': '+ dataStore.currentCalibrations[i].quad+','
+    //  + dataStore.currentCalibrations[i].gain+','+ dataStore.currentCalibrations[i].offset + "<br>";
+
+    row = table.insertRow(-1);
+    row.id = "ConfigCalibrationsTable-Row-"+dataStore.currentCalibrations[i].name;
+    row.setAttribute('class','calibrationsRow');
+    cell1 = row.insertCell(0);
+    cell2 = row.insertCell(1);
+    cell3 = row.insertCell(2);
+    cell4 = row.insertCell(3);
+    cell1.innerHTML = dataStore.currentCalibrations[i].name;
+    cell2.innerHTML = dataStore.currentCalibrations[i].quad;
+    cell3.innerHTML = dataStore.currentCalibrations[i].gain;
+    cell4.innerHTML = dataStore.currentCalibrations[i].offset;
+    cell5 = row.insertCell(4);
+    cell6 = row.insertCell(5);
+    cell7 = row.insertCell(6);
+    cell8 = row.insertCell(7);
+    cell5.setAttribute('class','calibrationsCell');
+    cell6.setAttribute('class','calibrationsCell');
+    cell7.setAttribute('class','calibrationsCell');
+    cell8.setAttribute('class','calibrationsCell');
+    cell5.id = "ConfigCalibrationsTable-Cell-"+dataStore.currentCalibrations[i].name+"-quad";
+    cell6.id = "ConfigCalibrationsTable-Cell-"+dataStore.currentCalibrations[i].name+"-gain";
+    cell7.id = "ConfigCalibrationsTable-Cell-"+dataStore.currentCalibrations[i].name+"-offset";
+    cell8.id = "ConfigCalibrationsTable-Cell-"+dataStore.currentCalibrations[i].name+"-TSoffset";
+  }
+
+  //  document.getElementById('currentConfigCalibrationsTableDiv').innerHTML = outputString;
+
+  // Add the Cal file contents to the Table
+  refreshConfigCalibrationsTableWithCalFile();
 }
 
 
@@ -92,6 +144,19 @@ function processDropFile(file){
     }
     //console.log(arrStr);
 
+    // Update the table header row
+    var row = document.getElementById("ConfigCalibrationsTable-HeaderRow");
+    if(row.cells.length<8){
+    cell5 = row.insertCell(4);
+    cell6 = row.insertCell(5);
+    cell7 = row.insertCell(6);
+    cell8 = row.insertCell(7);
+    cell5.innerHTML = "Quad";
+    cell6.innerHTML = "Gain";
+    cell7.innerHTML = "Offset";
+    cell8.innerHTML = "TS Offset";
+  }
+
     // Build URLs for sending to the Analyzer
     var num=0, ctr=0;
     var spectrumServer = dataStore.spectrumServer;
@@ -99,8 +164,11 @@ function processDropFile(file){
     globalsURLs = [];
     dataStore.CalibrationURLs[num] = spectrumServer + '?cmd=setCalibration';
     let outputString = "";
+    dataStore.dropFileCalibrations = {};
     // First build all Calibrations from the usual cal file entries
     for(var i=0; i<arrStr.length; i++){
+      var thisGlobalName = ""; // Clear this at the start of each new entry
+        var thisTSOffset = ""; // Clear this at the start of each new entry
       // Split one entry into its parts
       thisArrStr = arrStr[i].split('\n');
       for(var j=0; j<thisArrStr.length; j++){
@@ -136,10 +204,18 @@ function processDropFile(file){
         var thisURLString = spectrumServer + '?cmd=addGlobal&globalname=' + thisGlobalName + "&globalmin=0&globalmax=" + thisOffset;
         globalsURLs.push(thisURLString);
         outputString += thisName+': '+ thisGlobalName+','+ thisOffset + "<br>";
+        // Save this entry to the dataStore object
+        if(!dataStore.dropFileCalibrations.thisName){ dataStore.dropFileCalibrations[thisName] = { 'name':"", 'quad':0,'gain':1,'offset':0 }; }
+        dataStore.dropFileCalibrations[thisName].name = thisName;
+        dataStore.dropFileCalibrations[thisName].quad = thisGlobalName;
+        dataStore.dropFileCalibrations[thisName].gain = thisOffset;
+        dataStore.dropFileCalibrations[thisName].offset = "";
+        dataStore.dropFileCalibrations[thisName].TSoffset = "";
         continue;
       }
       //  console.log(thisName+': '+ thisQuad+','+ thisGain+','+ thisOffset);
       outputString += thisName+': '+ thisQuad+','+ thisGain+','+ thisOffset + "<br>";
+
       // Build URL here
       // Dont allow NaN to be sent to the server
       if(isNaN(thisQuad)){ thisQuad = 0.0; }
@@ -151,6 +227,16 @@ function processDropFile(file){
         num++; ctr=0;
         dataStore.CalibrationURLs[num] = spectrumServer + '?cmd=setCalibration';
       }
+
+        // Save this entry to the dataStore object
+        if(!dataStore.dropFileCalibrations.thisName){ dataStore.dropFileCalibrations[thisName] = { 'name':"", 'quad':0,'gain':1,'offset':0,'TSoffset':"" }; }
+        dataStore.dropFileCalibrations[thisName].name = thisName;
+        dataStore.dropFileCalibrations[thisName].quad = thisQuad;
+        dataStore.dropFileCalibrations[thisName].gain = thisGain;
+        dataStore.dropFileCalibrations[thisName].offset = thisOffset;
+        dataStore.dropFileCalibrations[thisName].TSoffset = thisTSOffset;
+
+
     }
 
     // Add any Globals to the end of the dataStore.CalibrationURLs list
@@ -160,12 +246,59 @@ function processDropFile(file){
 
     //  console.log(dataStore.CalibrationURLs);
 
+    // Add the Cal file contents to the Table
+    refreshConfigCalibrationsTableWithCalFile();
+
     // Reveal the button for sending these calibrations to the Analyzer
     document.getElementById('submitCalibrationsButton').classList.remove('hidden');
 
     // Display the gain coefficients in the Div
-    document.getElementById('calFileContentsDiv').innerHTML = outputString;
+    //document.getElementById('calFileContentsDiv').innerHTML = outputString;
   }
 
   fr.readAsText(file);
+}
+
+function refreshConfigCalibrationsTableWithCalFile(){
+
+  var keys = Object.keys(dataStore.dropFileCalibrations);
+
+  for(var i=0; i<keys.length; i++){
+    var thisName = keys[i];
+    var thisQuad = dataStore.dropFileCalibrations[thisName].quad;
+    var thisGain = dataStore.dropFileCalibrations[thisName].gain;
+    var thisOffset = dataStore.dropFileCalibrations[thisName].offset;
+    var thisTSOffset = dataStore.dropFileCalibrations[thisName].TSoffset;
+
+    // Update the table for this detector
+    if(document.getElementById("ConfigCalibrationsTable-Row-"+thisName) != null){
+      document.getElementById("ConfigCalibrationsTable-Cell-"+thisName+"-quad").innerHTML = thisQuad;
+      document.getElementById("ConfigCalibrationsTable-Cell-"+thisName+"-gain").innerHTML = thisGain;
+      document.getElementById("ConfigCalibrationsTable-Cell-"+thisName+"-offset").innerHTML = thisOffset;
+      document.getElementById("ConfigCalibrationsTable-Cell-"+thisName+"-TSoffset").innerHTML = thisTSOffset;
+    }else{
+      // thie detector name is not in the current config so add new rows to the bottom of the table
+      var table = document.getElementById("ConfigCalibrationsTable");
+      var row = table.insertRow(-1);
+      row.id = "ConfigCalibrationsTable-Row-"+thisName;
+      row.setAttribute('class','calibrationsRow');
+      var cell1 = row.insertCell(0);
+      var cell2 = row.insertCell(1);
+      var cell3 = row.insertCell(2);
+      var cell4 = row.insertCell(3);
+      cell1.innerHTML = thisName;
+      var cell5 = row.insertCell(4);
+      var cell6 = row.insertCell(5);
+      var cell7 = row.insertCell(6);
+      var cell8 = row.insertCell(7);
+      cell5.id = "ConfigCalibrationsTable-Cell-"+thisName+"-quad";
+      cell6.id = "ConfigCalibrationsTable-Cell-"+thisName+"-gain";
+      cell7.id = "ConfigCalibrationsTable-Cell-"+thisName+"-offset";
+      cell8.id = "ConfigCalibrationsTable-Cell-"+thisName+"-TSoffset";
+      document.getElementById("ConfigCalibrationsTable-Cell-"+thisName+"-quad").innerHTML = thisQuad;
+      document.getElementById("ConfigCalibrationsTable-Cell-"+thisName+"-gain").innerHTML = thisGain;
+      document.getElementById("ConfigCalibrationsTable-Cell-"+thisName+"-offset").innerHTML = thisOffset;
+      document.getElementById("ConfigCalibrationsTable-Cell-"+thisName+"-TSoffset").innerHTML = thisTSOffset;
+    }
+  }
 }
