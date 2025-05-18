@@ -16,7 +16,7 @@
 							The gain coefficients are taken from the version of the MIDAS Online DataBase (ODB) which is saved into the specific MIDAS file (.mid) at the start of data collection.
 							<h4>Option 2: Values from Current Config file</h4>
 							Gain coefficients can be loaded to grif-replay via the GainMatcher or this page and are stored in a current config file. These coefficients will be applied during data sorting to all files.
-							<h4>Option 3: Values from run-specific Config files stored in the MIDAS Data File Directory (Not yet implemented!!!)</h4>
+							<h4>Option 3: Values from run-specific Config files stored in the MIDAS Data File Directory</h4>
 							The gain coefficients are taken from a Config file that is saved in the MIDAS Data File Directory (json format). The Config file used for each run is the one with the filename containing the highest run number that is lower than or equal to the run being sorted. For example, if there are Config files named run500.json, run502.json and run505.json, then the following will be used when sorting runs run500 to run510.<br>
 							run500.mid will have coefficients from run500.json applied.<br>
 							run501.mid will have coefficients from run500.json applied.<br>
@@ -29,6 +29,7 @@
 							run508.mid will have coefficients from run505.json applied.<br>
 							run509.mid will have coefficients from run505.json applied.<br>
 							run510.mid will have coefficients from run505.json applied.<br>
+							Note, if no json file is found then the program defaults to using the Option 1 approach for the calibration.<br>
 						</div>
 
 						<div class='col-md-6'>
