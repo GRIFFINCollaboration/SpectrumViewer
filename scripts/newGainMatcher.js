@@ -486,29 +486,37 @@ dataStore.peaksList = {
     "133Ba": [ 30.97,80,276.4,302.85,356.01,383.85, 788.74,1435.80,2614.52],
     "152Eu": [ 39.91, 121.8, 244.7, 344.3, 778.9, 867.4, 964.0, 1112.1, 1408.0,2614.52],
     "207Bi": [ 74.97,569.70, 788.74,1063.66,1408.0,1435.80,1770.23,2614.52],
+    "Custom": [ ],
     // Only four peaks used for the results Table and plots
     "56CoTable": [122.00,846.76,1771.35,3253.42],
     "60CoTable": [ 74.97,1173.23,1332.49,2505.72],
     "133BaTable": [ 80,276.4,302.85,356.01,1435.80],
     "152EuTable": [ 121.8,344.3, 778.9, 1408.0],
-    "207BiTable": [ 74.97,569.70,1063.66,1770.23]
+    "207BiTable": [ 74.97,569.70,1063.66,1770.23],
+    "CustomTable": [ ]
   },
   "PACES": {
     "207Bi": [74.97, 481.69, 553.8, 975.65, 1047.8, 1682.22],
+    "Custom": [ ],
     // Only four peaks used for the results Table and plots
-    "207BiTable": [74.97, 481.69, 975.65, 1682.22]
+    "207BiTable": [74.97, 481.69, 975.65, 1682.22],
+    "CustomTable": [ ]
   },
   "LaBr3": {
     "60Co": [ 1173.23,1332.49 ],  // "60Co": [ 225,1173.23,1332.49,2505.72],
     //  "152Eu": [ 39.91, 121.8, 244.7, 344.3, 411.1, 778.9, 867.4, 964.0, 1112.1, 1408.0,2614.52],
+    "Custom": [ ],
     // Only four peaks used for the results Table and plots
     "60CoTable": [ 1173.23,1332.49, null, null],
-    //  "152EuTable": [ 121.8,344.3, 778.9, 1408.0]
+    //  "152EuTable": [ 121.8,344.3, 778.9, 1408.0],
+    "CustomTable": [ ]
   },
   "RCMP": {
     "Triple-Alpha": [5156.59,5485.56,5804.77],
+    "Custom": [ ],
     // Only four peaks used for the results Table and plots
-    "Triple-AlphaTable": [5156.59,5485.56,5804.77]
+    "Triple-AlphaTable": [5156.59,5485.56,5804.77],
+    "CustomTable": [ ]
   },
   "ARIES": {
     "26Na": [],
@@ -518,6 +526,7 @@ dataStore.peaksList = {
 };
 
 // Detector reference spectra
+// Reference spectra are length=2000, except for RCMP (6000)
 dataStore.referenceSpectrum = {};
 dataStore.referenceSpectrum = {
   "LaBr3": {
@@ -695,6 +704,16 @@ function launchPeakFittingProcess(){
 
     console.log(dataStore);
 
+    if(dataStore.currentTask == 'Setup'){
+      // In setup mode so if we got here it is because we are fetching a single spectrum for the reference
+      // Just plot it and quit
+      var keys = Object.keys(dataStore.rawData);
+      var plot = keys[0];
+      dataStore.viewers[dataStore.plots[0]].addData(plot, JSON.parse(JSON.stringify(dataStore.rawData[plot])) );
+      dataStore.viewers[dataStore.plots[0]].plotData();
+      return;
+    }
+
     // Set the current task to keep track of our progress
     dataStore.currentTask = 'roughGainMatch';
 
@@ -785,9 +804,10 @@ function launchPeakFittingProcess(){
       var thisRoughGainMatchedName = spectrumList[i].replace("_Pulse_Height","_Energy");
       testSpectrum = []; testSpectrum.fillN(0,dataStore.rawData[spectrumList[i]].length);
       for(j=0; j<testSpectrumLength; j++){
-        var bin = Math.round(j*optimalGain);
+        var bin = parseInt(j*optimalGain);
         if(bin>=0 && bin<testSpectrumLength){
           testSpectrum[bin] += dataStore.rawData[spectrumList[i]][j];
+        //  testSpectrum[bin+1] += parseInt(dataStore.rawData[spectrumList[i]][j]/2);
         }
       }
       dataStore.createdSpectra[thisRoughGainMatchedName] = testSpectrum; // Used in building menu

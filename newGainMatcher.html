@@ -145,6 +145,18 @@
 <div id='detectorChoiceBar' class='col-md-12'></div>
 <div id='decisionBarAuto' class='col-md-12 hidden'></div>
 
+<div id='customPeaksContainerDiv' class='col-md-12 hidden'>
+  <div class='col-md-4'>
+    <label for="customInput1dPeakEnergy" class='col-md-12'>Enter a comma-separated list of peak calibrated energies for gain-matching:</label>
+    <textarea id="customInput1dPeakEnergy" name="customInput1dPeakEnergy" rows="4" cols="50"></textarea>
+  </div>
+  <div class='col-md-4'>
+    <label for="customInput1dPeakPulseHeight" class='col-md-12'>Enter a comma-separated list of peak uncalibrated centroids:</label>
+    <textarea id="customInput1dPeakPulseHeight" name="customInput1dPeakPulseHeight" rows="4" cols="50"></textarea>
+  </div>
+  <div id='customPeaksButtonDiv' class='col-md-4'></div>
+</div>
+
 <!-- Pagination menu Div -->
 <div id='menu' class='col-md-12'></div>
 
@@ -284,10 +296,70 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
         newButton.setAttribute('engaged', '0');
         newButton.value = keys[i];
         newButton.innerHTML = '<span id=\'autoCalibBadge-'+keys[i]+'\' class=\'glyphicon glyphicon-equalizer\' aria-hidden=\'true\'></span><span id=\'autoText\'>'+keys[i]+'</span>';
-        newButton.onclick = function(){
-          setupnewGainMatcher(dataStore.detectorType,this.value);
-        }.bind(newButton);
+        if(keys[i].includes("Custom")){
+          newButton.onclick = function(){
+            document.getElementById('customPeaksContainerDiv').classList.remove('hidden');
+
+            // Fetch a single spectrum to use as the reference
+            dataStore.currentTask = 'Setup';
+            // Set the dataStore.histoFileName to this source so that constructQueries requests the correct spectrum
+            dataStore.histoFileName = dataStore.currentHistoFileName = document.getElementById('HistoListSelectGRIFFIN').value;
+            // Plug in the active spectra names for the 1d histograms
+            dataStore._plotControl.activeSpectra = [];
+            dataStore._plotControl.activeSpectra.push(dataStore.peakFitterScriptTemplate[dataStore.detectorType]['spectrumList1d'][0]);
+            dataStore._plotControl.refreshAll();
+
+          }.bind(newButton);
+        }else{
+          newButton.onclick = function(){
+            setupnewGainMatcher(dataStore.detectorType,this.value);
+          }.bind(newButton);
+        }
         document.getElementById('decisionBarAuto').appendChild(newButton);
+      }
+
+      // Add the button for the Custom peak list entry
+      if(keys.includes("Custom")){
+        document.getElementById('customPeaksButtonDiv').innerHTML = "";
+        newButton = document.createElement('button');
+        newButton.setAttribute('id', 'automaticCalibration-CustomGo');
+        newButton.setAttribute('class', 'btn btn-default');
+        newButton.setAttribute('engaged', '0');
+        newButton.value = "CustomGo";
+        newButton.innerHTML = '<span id=\'autoCalibBadge-'+'CustomGo'+'\' class=\'glyphicon glyphicon-equalizer\' aria-hidden=\'true\'></span><span id=\'autoText\'>'+'CustomGo'+'</span>';
+        newButton.onclick = function(){
+          // Save the peak list as a Custom source entry for this detector type
+          dataStore.peaksList[dataStore.detectorType]["Custom"] = [];
+          var valuesArrayEnergy = document.getElementById('customInput1dPeakEnergy').value.split(",").map(Number);
+          dataStore.peaksList[dataStore.detectorType]["Custom"] = valuesArrayEnergy;
+          dataStore.peaksList[dataStore.detectorType]["CustomTable"] = valuesArrayEnergy.slice(0,4);
+          var valuesArrayPulseHeight = document.getElementById('customInput1dPeakPulseHeight').value.split(",").map(Number);
+          console.log(dataStore);
+
+          // Construct the data array needed by regression.polynomial
+          var data = [];
+          for(j=0; j<valuesArrayEnergy.length; j++){ data.push([valuesArrayPulseHeight[j],valuesArrayEnergy[j]]); }
+          // Linear fit
+          // Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
+          var result = regression.polynomial(data, { order: 1, precision: 20 });
+          optimalGain = result.equation[0];
+          console.log("OptimalGain found to be: "+optimalGain);
+
+          // Roughly gain-match this spectrum to become the referenceSpectrum for all spectra
+          var keys = Object.keys(dataStore.rawData);
+          var testSpectrum = []; testSpectrum.fillN(0,2000);
+          for(j=0; j<testSpectrum.length; j++){
+            var bin = parseInt(j*optimalGain);
+            if(bin>0 && bin<testSpectrum.length){
+              testSpectrum[bin] += dataStore.rawData[keys[0]][j];
+            }
+          }
+          dataStore.referenceSpectrum[dataStore.detectorType]["Custom"] = testSpectrum;
+
+          // Start the auto peak fitting process
+          setupnewGainMatcher(dataStore.detectorType,"Custom");
+        }.bind(newButton);
+        document.getElementById('customPeaksButtonDiv').appendChild(newButton);
       }
 
       document.getElementById('decisionBarAuto').classList.remove('hidden');
