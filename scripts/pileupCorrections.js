@@ -1248,7 +1248,7 @@ function launchPeakFittingProcess(){
         }else{
           CAL += 'pileupk1:	1 0 0 0 0 0\n';
           CAL += 'pileupk2:	1 0 0 0 0 0\n';
-          CAL += 'pileupe1:	0 0 0 0 0 0\n';
+          CAL += 'pileupE1:	0 0 0 0 0 0\n';
         }
         CAL += 'Integration:	0\n';
         CAL += 'ENGChi2:	0\n';

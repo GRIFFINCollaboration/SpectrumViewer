@@ -807,7 +807,7 @@ function launchPeakFittingProcess(){
         var bin = parseInt(j*optimalGain);
         if(bin>=0 && bin<testSpectrumLength){
           testSpectrum[bin] += dataStore.rawData[spectrumList[i]][j];
-        //  testSpectrum[bin+1] += parseInt(dataStore.rawData[spectrumList[i]][j]/2);
+          //  testSpectrum[bin+1] += parseInt(dataStore.rawData[spectrumList[i]][j]/2);
         }
       }
       dataStore.createdSpectra[thisRoughGainMatchedName] = testSpectrum; // Used in building menu
@@ -836,11 +836,11 @@ function launchPeakFittingProcess(){
       document.getElementById('plotList'+keys[i]).onclick = function(){ dataStore._plotListLite.exclusivePlot(this.id.split('plotList')[1], dataStore.viewers[dataStore.plots[0]]); }
     }
 
-// No peaks to fit for ARIES spectra, so save the gain factors here and skip ahead
-if(dataStore.detectorType == "ARIES"){
-// Save gain to fitResults.
-// skip to fittingCallback
-}
+    // No peaks to fit for ARIES spectra, so save the gain factors here and skip ahead
+    if(dataStore.detectorType == "ARIES"){
+      // Save gain to fitResults.
+      // skip to fittingCallback
+    }
 
     // Set the current task to keep track of our progress
     dataStore.currentTask = 'SinglesFitting';
@@ -983,188 +983,277 @@ if(dataStore.detectorType == "ARIES"){
     document.getElementById('saveCalDiv').classList.remove('hidden');
 
   }
-
+  /*
   function buildCalfile(){
-    console.log('Download initiated');
+  console.log('Download initiated');
 
-    // Write the Cal file
-    CAL = '';
+  // Write the Cal file
+  CAL = '';
 
-    for(var i=0; i<dataStore.THESEdetectors.length; i++){
-      var thisKey = dataStore.THESEdetectors[i];
-      CAL += thisKey+' { \n';
-      CAL += 'Name:	'+thisKey+'\n';
-      CAL += 'Number:	'+i+'\n';
-      var thisCalibrationIndex = dataStore.Config.map(function(e) { return e.name; }).indexOf(thisKey);
-      var thisAddress = dataStore.Config[thisCalibrationIndex].address;
-      CAL += 'Address:  0x'+thisAddress.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+'\n';
-      CAL += 'Digitizer:	GRF16\n';
+  for(var i=0; i<dataStore.THESEdetectors.length; i++){
+  var thisKey = dataStore.THESEdetectors[i];
+  CAL += thisKey+' { \n';
+  CAL += 'Name:	'+thisKey+'\n';
+  CAL += 'Number:	'+i+'\n';
+  var thisCalibrationIndex = dataStore.Config.map(function(e) { return e.name; }).indexOf(thisKey);
+  var thisAddress = dataStore.Config[thisCalibrationIndex].address;
+  CAL += 'Address:  0x'+thisAddress.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+'\n';
+  CAL += 'Digitizer:	GRF16\n';
+  if( document.getElementById(thisKey+'write').checked){
+  CAL += 'EngCoeff:	'+dataStore.THESEcalibrations[thisKey]['fit'][2]+' '+dataStore.THESEcalibrations[thisKey]['fit'][1]+' '+dataStore.THESEcalibrations[thisKey]['fit'][0]+'\n';
+}else{
+CAL += 'EngCoeff:	0 1 0\n'
+}
+CAL += 'Integration:	0\n';
+CAL += 'ENGChi2:	0\n';
+CAL += 'FileInt:	0\n';
+CAL += '}\n';
+CAL += '\n';
+CAL += '//====================================//\n';
+}
+
+// Create a download link
+const textBlob = new Blob([CAL], {type: 'text/plain'});
+URL.revokeObjectURL(window.textBlobURL);
+const downloadLink = document.createElement('a');
+downloadLink.href = URL.createObjectURL(textBlob);
+downloadLink.download = document.getElementById('saveCalname').value;
+
+// Trigger the download
+document.body.appendChild(downloadLink);
+downloadLink.click();
+}
+*/
+function buildCalfile(){
+  console.log('Download initiated');
+
+  // Write the Cal file
+  CAL = '';
+
+  // Write this Cal file containing everything from the Config file that sorted this file.
+  // Just replace any coefficients that we have newly determined
+
+  for(var i=0; i<dataStore.Config.length; i++){
+    var thisKey = dataStore.Config[i].name;
+    CAL += thisKey+' { \n';
+    CAL += 'Name:	'+thisKey+'\n';
+    CAL += 'Number:	'+i+'\n';
+    CAL += 'Address:  0x'+dataStore.Config[i].address.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+'\n';
+    CAL += 'Digitizer:	GRF16\n';
+    // Energy gain matching coefficients
+    if( dataStore.THESEcalibrations[thisKey] ){
       if( document.getElementById(thisKey+'write').checked){
+        console.log("Use new energy coefficients for "+thisKey);
         CAL += 'EngCoeff:	'+dataStore.THESEcalibrations[thisKey]['fit'][2]+' '+dataStore.THESEcalibrations[thisKey]['fit'][1]+' '+dataStore.THESEcalibrations[thisKey]['fit'][0]+'\n';
       }else{
-        CAL += 'EngCoeff:	0 1 0\n'
+        console.log("Use config energy coefficients for "+thisKey+", because write not checked");
+        CAL += 'EngCoeff:	'+dataStore.Config[i].offset+' '+dataStore.Config[i].gain+' '+dataStore.Config[i].quad+'\n';
       }
-      CAL += 'Integration:	0\n';
-      CAL += 'ENGChi2:	0\n';
-      CAL += 'FileInt:	0\n';
-      CAL += '}\n';
-      CAL += '\n';
-      CAL += '//====================================//\n';
+    }else{
+      console.log("Use config energy coefficients for "+thisKey);
+      CAL += 'EngCoeff:	'+dataStore.Config[i].offset+' '+dataStore.Config[i].gain+' '+dataStore.Config[i].quad+'\n';
+    }
+    // Pileup correction parameters
+    //  if(typeof(dataStore.fitResultsParameters[thisKey]['k1']) != "undefined"){ // newly derived in pileupCorrections app
+    if( dataStore.THESEcalibrations[thisKey] ){
+      if(typeof(dataStore.THESEcalibrations[thisKey].pileupk1) != "undefined"){ // newly derived in pileupCorrections app
+        console.log("Use fitResultsParameters pileup parameters for "+thisKey);
+        CAL += 'pileupk1:	'+dataStore.fitResultsParameters[thisKey]['k1'][0]+' '+dataStore.fitResultsParameters[thisKey]['k1'][1]+' '+dataStore.fitResultsParameters[thisKey]['k1'][2];
+        CAL +=          ' '+dataStore.fitResultsParameters[thisKey]['k1'][3]+' '+dataStore.fitResultsParameters[thisKey]['k1'][4]+' '+dataStore.fitResultsParameters[thisKey]['k1'][5]+'\n';
+
+        CAL += 'pileupk2:	'+dataStore.fitResultsParameters[thisKey]['k2'][0]+' '+dataStore.fitResultsParameters[thisKey]['k2'][1]+' '+dataStore.fitResultsParameters[thisKey]['k2'][2];
+        CAL +=          ' '+dataStore.fitResultsParameters[thisKey]['k2'][3]+' '+dataStore.fitResultsParameters[thisKey]['k2'][4]+' '+dataStore.fitResultsParameters[thisKey]['k2'][5]+'\n';
+
+        CAL += 'pileupE1:	'+dataStore.fitResultsParameters[thisKey]['e1'][0]+' '+dataStore.fitResultsParameters[thisKey]['e1'][1]+' '+dataStore.fitResultsParameters[thisKey]['e1'][2];
+        CAL +=          ' '+dataStore.fitResultsParameters[thisKey]['e1'][3]+' '+dataStore.fitResultsParameters[thisKey]['e1'][4]+' '+dataStore.fitResultsParameters[thisKey]['e1'][5]+'\n';
+      }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
+        console.log("Use config pileup parameters for "+thisKey);
+        CAL += 'pileupk1:	'+dataStore.Config[i].pileupk1[0]+' '+dataStore.Config[i].pileupk1[1]+' '+dataStore.Config[i].pileupk1[2];
+        CAL +=          ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+'\n';
+
+        CAL += 'pileupk2:	'+dataStore.Config[i].pileupk2[0]+' '+dataStore.Config[i].pileupk2[1]+' '+dataStore.Config[i].pileupk2[2];
+        CAL +=          ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+'\n';
+
+        CAL += 'pileupE1:	'+dataStore.Config[i].pileupE1[0]+' '+dataStore.Config[i].pileupE1[1]+' '+dataStore.Config[i].pileupE1[2];
+        CAL +=          ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+'\n';
+      }
+    }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
+      console.log("Use config pileup parameters for "+thisKey);
+      CAL += 'pileupk1:	'+dataStore.Config[i].pileupk1[0]+' '+dataStore.Config[i].pileupk1[1]+' '+dataStore.Config[i].pileupk1[2];
+      CAL +=          ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+'\n';
+
+      CAL += 'pileupk2:	'+dataStore.Config[i].pileupk2[0]+' '+dataStore.Config[i].pileupk2[1]+' '+dataStore.Config[i].pileupk2[2];
+      CAL +=          ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+'\n';
+
+      CAL += 'pileupE1:	'+dataStore.Config[i].pileupE1[0]+' '+dataStore.Config[i].pileupE1[1]+' '+dataStore.Config[i].pileupE1[2];
+      CAL +=          ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+'\n';
+    }else{ // insert default
+      console.log("Insert default pileup parameters for "+thisKey);
+      CAL += 'pileupk1:	1 0 0 0 0 0\n';
+      CAL += 'pileupk2:	1 0 0 0 0 0\n';
+      CAL += 'pileupE1:	0 0 0 0 0 0\n';
+    }
+    CAL += 'Integration:	0\n';
+    CAL += 'ENGChi2:	0\n';
+    CAL += 'FileInt:	0\n';
+    CAL += '}\n';
+    CAL += '\n';
+    CAL += '//====================================//\n';
+  }
+
+  // Create a download link
+  const textBlob = new Blob([CAL], {type: 'text/plain'});
+  URL.revokeObjectURL(window.textBlobURL);
+  const downloadLink = document.createElement('a');
+  downloadLink.href = URL.createObjectURL(textBlob);
+  downloadLink.download = document.getElementById('saveCalname').value;
+
+  // Trigger the download
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+}
+
+function buildCSVfile(){
+  console.log('Download initiated');
+  var keys = Object.keys(dataStore.fitResults);
+  var index = 1;
+
+  // Write the table of results to a CSV file for download.
+  var CSV = '';
+
+  CSV += 'GRIFFIN Peak Fitter Results Data\n\n';
+
+  //fit results: 'plotname': [[amplitude, center, width, intercept, slope, area, FWHM], [amplitude, center, width, intercept, slope, area, FWHM]]
+
+  CSV += 'Fit Index,';
+  CSV += 'Histogram File,';
+  CSV += 'Run Title,Run StartTime,Run Duration,';
+  CSV += 'Spectrum,';
+  CSV += 'Centroid,'; //
+  CSV += 'Height,'; //
+  CSV += 'Width,'; //
+  CSV += 'Intercept (BG),'; //
+  CSV += 'Slope (BG),'; //
+  CSV += 'Area,'; //
+  CSV += 'Area Unc.,'; //
+  CSV += 'FWHM\n'; //
+  for(var i=0; i<keys.length; i++){
+    for(var j=0; j<dataStore.fitResults[keys[i]].length; j++){
+      CSV += index + ','; index++;
+      CSV += keys[i].split(":")[0] + ',';
+      CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Title + ',';
+      CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].StartTime + ',';
+      CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Duration + ',';
+      CSV += keys[i].split(":")[1] + ',';
+      CSV += dataStore.fitResults[keys[i]][j][1].toFixed(2) + ','; // Center
+      CSV += dataStore.fitResults[keys[i]][j][0].toFixed(2) + ','; // Amplitude
+      CSV += dataStore.fitResults[keys[i]][j][2].toFixed(2) + ','; // width
+      CSV += dataStore.fitResults[keys[i]][j][3].toFixed(2) + ','; // intercept
+      CSV += dataStore.fitResults[keys[i]][j][4].toFixed(2) + ','; // slope
+      CSV += dataStore.fitResults[keys[i]][j][5].toFixed(2) + ','; // area
+      CSV += Math.sqrt(dataStore.fitResults[keys[i]][j][5]).toFixed(2) + ','; // area uncertainty
+      CSV += dataStore.fitResults[keys[i]][j][6].toFixed(2) + '\n'; // FWHM
+    }
+  }
+  CSV += '\n';
+
+  // Create a download link
+  const textBlob = new Blob([CSV], {type: 'text/plain'});
+  URL.revokeObjectURL(window.textBlobURL);
+  const downloadLink = document.createElement('a');
+  downloadLink.href = URL.createObjectURL(textBlob);
+  downloadLink.download = 'GRIFFIN-peakFitter-Results.csv';
+
+  // Trigger the download
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+}
+
+function buildScriptfile(){
+  console.log('Download initiated');
+
+  // Write the contents of the json script to a file for download.
+  var JSONstring = '';
+  JSONstring = JSON.stringify(dataStore.peakFitterScript, null, 4);
+
+  // Need to purge some spectrum specific peak entries if they match All.
+
+
+  // Create a download link
+  const textBlob = new Blob([JSONstring], {type: 'text/plain'});
+  URL.revokeObjectURL(window.textBlobURL);
+  const downloadLink = document.createElement('a');
+  downloadLink.href = URL.createObjectURL(textBlob);
+  downloadLink.download = 'GRIFFIN-peakFitter-script.json';
+
+  // Trigger the download
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+}
+
+
+function updateAnalyzer(){
+
+  // For the ODB it first grabs the PSB table and then sets values only for the channels that are defined there.
+  // For the Analyzer we can get a similar list from the viewConfig command with the Histogram file as the argument.
+  // That should probably be done for the building of the initial spectrum list for gain-matching if Histogram mode is selected.
+  // Need to reformat the URLs generated here for the Analyzer
+
+  // bail out if there's no fit parameters yet
+  if(Object.keys(dataStore.fitResultsParameters).length == 0)
+  return;
+
+  var NumGe = 64;
+  var  gain =[], offset = [], quad = [];
+  var i, j=0, q, g, o, num=0, position, urls = [];
+  var crystals = ["B","G","R","W"];
+  var letter = ["A","B"];
+
+  //for every channel, update the three pileup arrays of parameters:
+  // Loop through all Ge crystals
+  for(var thisGeindex = 0; thisGeindex<NumGe; thisGeindex++){
+
+    // Start this url, a separate one for each crystal
+    urls[num]= dataStore.spectrumServer + '?cmd=setPileupCorrection';
+
+    // Create the channel name for this crystal
+    var cloverNum = Math.floor(thisGeindex/4)+1;
+    var GeName = "GRG" + alwaysThisLong(cloverNum, 2) + crystals[thisGeindex%4] + 'N00' + letter[0];
+    urls[num] += "&channelName0="+GeName;
+
+    // Add the k1 coefficients
+    urls[num] += "&pileupk10=";
+    for(var i=0; i<dataStore.fitResultsParameters[GeName]['k1'].length; i++){
+      if(i>0){ urls[num] += ",";  }
+      urls[num] += dataStore.fitResultsParameters[GeName]['k1'][i];
     }
 
-    // Create a download link
-    const textBlob = new Blob([CAL], {type: 'text/plain'});
-    URL.revokeObjectURL(window.textBlobURL);
-    const downloadLink = document.createElement('a');
-    downloadLink.href = URL.createObjectURL(textBlob);
-    downloadLink.download = document.getElementById('saveCalname').value;
-
-    // Trigger the download
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-  }
-
-  function buildCSVfile(){
-    console.log('Download initiated');
-    var keys = Object.keys(dataStore.fitResults);
-    var index = 1;
-
-    // Write the table of results to a CSV file for download.
-    var CSV = '';
-
-    CSV += 'GRIFFIN Peak Fitter Results Data\n\n';
-
-    //fit results: 'plotname': [[amplitude, center, width, intercept, slope, area, FWHM], [amplitude, center, width, intercept, slope, area, FWHM]]
-
-    CSV += 'Fit Index,';
-    CSV += 'Histogram File,';
-    CSV += 'Run Title,Run StartTime,Run Duration,';
-    CSV += 'Spectrum,';
-    CSV += 'Centroid,'; //
-    CSV += 'Height,'; //
-    CSV += 'Width,'; //
-    CSV += 'Intercept (BG),'; //
-    CSV += 'Slope (BG),'; //
-    CSV += 'Area,'; //
-    CSV += 'Area Unc.,'; //
-    CSV += 'FWHM\n'; //
-    for(var i=0; i<keys.length; i++){
-      for(var j=0; j<dataStore.fitResults[keys[i]].length; j++){
-        CSV += index + ','; index++;
-        CSV += keys[i].split(":")[0] + ',';
-        CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Title + ',';
-        CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].StartTime + ',';
-        CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Duration + ',';
-        CSV += keys[i].split(":")[1] + ',';
-        CSV += dataStore.fitResults[keys[i]][j][1].toFixed(2) + ','; // Center
-        CSV += dataStore.fitResults[keys[i]][j][0].toFixed(2) + ','; // Amplitude
-        CSV += dataStore.fitResults[keys[i]][j][2].toFixed(2) + ','; // width
-        CSV += dataStore.fitResults[keys[i]][j][3].toFixed(2) + ','; // intercept
-        CSV += dataStore.fitResults[keys[i]][j][4].toFixed(2) + ','; // slope
-        CSV += dataStore.fitResults[keys[i]][j][5].toFixed(2) + ','; // area
-        CSV += Math.sqrt(dataStore.fitResults[keys[i]][j][5]).toFixed(2) + ','; // area uncertainty
-        CSV += dataStore.fitResults[keys[i]][j][6].toFixed(2) + '\n'; // FWHM
-      }
-    }
-    CSV += '\n';
-
-    // Create a download link
-    const textBlob = new Blob([CSV], {type: 'text/plain'});
-    URL.revokeObjectURL(window.textBlobURL);
-    const downloadLink = document.createElement('a');
-    downloadLink.href = URL.createObjectURL(textBlob);
-    downloadLink.download = 'GRIFFIN-peakFitter-Results.csv';
-
-    // Trigger the download
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-  }
-
-  function buildScriptfile(){
-    console.log('Download initiated');
-
-    // Write the contents of the json script to a file for download.
-    var JSONstring = '';
-    JSONstring = JSON.stringify(dataStore.peakFitterScript, null, 4);
-
-    // Need to purge some spectrum specific peak entries if they match All.
-
-
-    // Create a download link
-    const textBlob = new Blob([JSONstring], {type: 'text/plain'});
-    URL.revokeObjectURL(window.textBlobURL);
-    const downloadLink = document.createElement('a');
-    downloadLink.href = URL.createObjectURL(textBlob);
-    downloadLink.download = 'GRIFFIN-peakFitter-script.json';
-
-    // Trigger the download
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-  }
-
-
-  function updateAnalyzer(){
-
-    // For the ODB it first grabs the PSB table and then sets values only for the channels that are defined there.
-    // For the Analyzer we can get a similar list from the viewConfig command with the Histogram file as the argument.
-    // That should probably be done for the building of the initial spectrum list for gain-matching if Histogram mode is selected.
-    // Need to reformat the URLs generated here for the Analyzer
-
-    // bail out if there's no fit parameters yet
-    if(Object.keys(dataStore.fitResultsParameters).length == 0)
-    return;
-
-    var NumGe = 64;
-    var  gain =[], offset = [], quad = [];
-    var i, j=0, q, g, o, num=0, position, urls = [];
-    var crystals = ["B","G","R","W"];
-    var letter = ["A","B"];
-
-    //for every channel, update the three pileup arrays of parameters:
-    // Loop through all Ge crystals
-    for(var thisGeindex = 0; thisGeindex<NumGe; thisGeindex++){
-
-      // Start this url, a separate one for each crystal
-      urls[num]= dataStore.spectrumServer + '?cmd=setPileupCorrection';
-
-      // Create the channel name for this crystal
-      var cloverNum = Math.floor(thisGeindex/4)+1;
-      var GeName = "GRG" + alwaysThisLong(cloverNum, 2) + crystals[thisGeindex%4] + 'N00' + letter[0];
-      urls[num] += "&channelName0="+GeName;
-
-      // Add the k1 coefficients
-      urls[num] += "&pileupk10=";
-      for(var i=0; i<dataStore.fitResultsParameters[GeName]['k1'].length; i++){
-        if(i>0){ urls[num] += ",";  }
-        urls[num] += dataStore.fitResultsParameters[GeName]['k1'][i];
-      }
-
-      // Add the k2 coefficients
-      urls[num] += "&pileupk20=";
-      for(var i=0; i<dataStore.fitResultsParameters[GeName]['k2'].length; i++){
-        if(i>0){ urls[num] += ",";  }
-        urls[num] += dataStore.fitResultsParameters[GeName]['k2'][i];
-      }
-
-      // Add the e1 offset coefficients
-      urls[num] += "&pileupE10=";
-      for(var i=0; i<dataStore.fitResultsParameters[GeName]['e1'].length; i++){
-        if(i>0){ urls[num] += ",";  }
-        urls[num] += dataStore.fitResultsParameters[GeName]['e1'][i];
-      }
-
-      num++; // move to next url, one for each crystal
-    } // end of Ge loop
-
-    //send requests
-    for(i=0; i<urls.length; i++){
-      XHR(urls[i],
-        'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
-        function(){return 0},
-        function(error){console.log(error)}
-      )
+    // Add the k2 coefficients
+    urls[num] += "&pileupk20=";
+    for(var i=0; i<dataStore.fitResultsParameters[GeName]['k2'].length; i++){
+      if(i>0){ urls[num] += ",";  }
+      urls[num] += dataStore.fitResultsParameters[GeName]['k2'][i];
     }
 
-    //get rid of the modal
-    document.getElementById('dismissAnalyzermodal').click();
+    // Add the e1 offset coefficients
+    urls[num] += "&pileupE10=";
+    for(var i=0; i<dataStore.fitResultsParameters[GeName]['e1'].length; i++){
+      if(i>0){ urls[num] += ",";  }
+      urls[num] += dataStore.fitResultsParameters[GeName]['e1'][i];
+    }
+
+    num++; // move to next url, one for each crystal
+  } // end of Ge loop
+
+  //send requests
+  for(i=0; i<urls.length; i++){
+    XHR(urls[i],
+      'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
+      function(){return 0},
+      function(error){console.log(error)}
+    )
   }
+
+  //get rid of the modal
+  document.getElementById('dismissAnalyzermodal').click();
+}
