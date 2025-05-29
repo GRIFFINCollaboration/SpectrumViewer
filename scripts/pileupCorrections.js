@@ -359,6 +359,70 @@ function setupDataStore(){
     ],
     "spectrumListProjectionsPeaks" : {
       "All":[1408],
+      "Ge00_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge01_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge02_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge03_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge04_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge05_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge06_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge07_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge08_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge09_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge10_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge11_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge12_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge13_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge14_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge15_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge16_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge17_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge18_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge19_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge20_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge21_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge22_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge23_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge24_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge25_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge26_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge27_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge28_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge29_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge30_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge31_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge32_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge33_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge34_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge35_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge36_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge37_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge38_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge39_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge40_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge41_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge42_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge43_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge44_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge45_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge46_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge47_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge48_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge49_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge50_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge51_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge52_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge53_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge54_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge55_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge56_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge57_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge58_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge59_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge60_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge61_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge62_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
+      "Ge63_PU2_E2_vs_k2_E1gated_on_Xrays":[136],
       "Ge00_PU2_E2_vs_k2_E1gated_on_1408keV":[136],
       "Ge01_PU2_E2_vs_k2_E1gated_on_1408keV":[136],
       "Ge02_PU2_E2_vs_k2_E1gated_on_1408keV":[136],
@@ -948,7 +1012,7 @@ function launchPeakFittingProcess(){
               var xValue = parseInt(thisKvalue);
 
               // yValue is the necessary correction to the Energy centroid to match the centroid from the single Hit spectrum
-              var yValue = parseFloat(singleHitEnergy/dataStore.fitResults[keys[j]][0][1]);
+              var yValue = parseFloat(singleHitEnergy/(dataStore.fitResults[keys[j]][0][1]+1272)); // 1272keV subtracted at histogram filling to reduce matrix size
 
               data.push([xValue,yValue]);
 
@@ -1003,14 +1067,13 @@ function launchPeakFittingProcess(){
         for(var thisKvalue=25; thisKvalue<380; thisKvalue+=20){
           // Kstring will be the projection values in this case.
           var Kstring = "x-"+(parseInt(thisKvalue)-5)+"-"+(parseInt(thisKvalue)+5);
-          kData.push(thisKvalue);
 
           // Format the data for this detector
           for(var j=0; j<keys.length; j++){
 
             if(keys[j].includes(matrixString) && keys[j].includes(GeString) && keys[j].includes(Kstring)){
 
-              // Omit failed peak fit results. Test the centroid for NaN.
+              // Omit failed peak fit results. Test the centroid for NaN or undefined.
               if(isNaN(dataStore.fitResults[keys[j]][0][1])){ continue; }
 
               // Save the fit results into the object for this detector
@@ -1023,6 +1086,7 @@ function launchPeakFittingProcess(){
               }
               var correctedCentroid = dataStore.fitResults[keys[j]][0][1] * correction;
 
+              kData.push(thisKvalue);
               yValue = ((singleHitEnergy-correctedCentroid)/1408.5); // This offset is a fraction of the E1 energy, here the 1408keV gate
               mData.push( yValue );  // The coefficient of the slope term of the equation
 
