@@ -1302,17 +1302,17 @@ function launchPeakFittingProcess(){
         CAL += 'EngCoeff:	'+dataStore.Config[index].offset+' '+dataStore.Config[index].gain+' '+dataStore.Config[index].quad+'\n';
         if(typeof(dataStore.fitResultsParameters[GeName]['k1']) != "undefined"){
           CAL += 'pileupk1:	'+dataStore.fitResultsParameters[GeName]['k1'][0]+' '+dataStore.fitResultsParameters[GeName]['k1'][1]+' '+dataStore.fitResultsParameters[GeName]['k1'][2];
-          CAL +=          ' '+dataStore.fitResultsParameters[GeName]['k1'][3]+' '+dataStore.fitResultsParameters[GeName]['k1'][4]+' '+dataStore.fitResultsParameters[GeName]['k1'][5]+'\n';
+          CAL +=          ' '+dataStore.fitResultsParameters[GeName]['k1'][3]+' '+dataStore.fitResultsParameters[GeName]['k1'][4]+' '+dataStore.fitResultsParameters[GeName]['k1'][5]+' '+dataStore.fitResultsParameters[GeName]['k1'][6]+'\n';
 
           CAL += 'pileupk2:	'+dataStore.fitResultsParameters[GeName]['k2'][0]+' '+dataStore.fitResultsParameters[GeName]['k2'][1]+' '+dataStore.fitResultsParameters[GeName]['k2'][2];
-          CAL +=          ' '+dataStore.fitResultsParameters[GeName]['k2'][3]+' '+dataStore.fitResultsParameters[GeName]['k2'][4]+' '+dataStore.fitResultsParameters[GeName]['k2'][5]+'\n';
+          CAL +=          ' '+dataStore.fitResultsParameters[GeName]['k2'][3]+' '+dataStore.fitResultsParameters[GeName]['k2'][4]+' '+dataStore.fitResultsParameters[GeName]['k2'][5]+' '+dataStore.fitResultsParameters[GeName]['k2'][6]+'\n';
 
           CAL += 'pileupE1:	'+dataStore.fitResultsParameters[GeName]['e1'][0]+' '+dataStore.fitResultsParameters[GeName]['e1'][1]+' '+dataStore.fitResultsParameters[GeName]['e1'][2];
-          CAL +=          ' '+dataStore.fitResultsParameters[GeName]['e1'][3]+' '+dataStore.fitResultsParameters[GeName]['e1'][4]+' '+dataStore.fitResultsParameters[GeName]['e1'][5]+'\n';
+          CAL +=          ' '+dataStore.fitResultsParameters[GeName]['e1'][3]+' '+dataStore.fitResultsParameters[GeName]['e1'][4]+' '+dataStore.fitResultsParameters[GeName]['e1'][5]+' '+dataStore.fitResultsParameters[GeName]['e1'][6]+'\n';
         }else{
-          CAL += 'pileupk1:	1 0 0 0 0 0\n';
-          CAL += 'pileupk2:	1 0 0 0 0 0\n';
-          CAL += 'pileupE1:	0 0 0 0 0 0\n';
+          CAL += 'pileupk1:	1 0 0 0 0 0 0\n';
+          CAL += 'pileupk2:	1 0 0 0 0 0 0\n';
+          CAL += 'pileupE1:	0 0 0 0 0 0 0\n';
         }
         CAL += 'Integration:	0\n';
         CAL += 'ENGChi2:	0\n';

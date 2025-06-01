@@ -147,28 +147,33 @@ function processDropFile(file){
     // Update the table header row
     var row = document.getElementById("ConfigCalibrationsTable-HeaderRow");
     if(row.cells.length<8){
-    cell5 = row.insertCell(4);
-    cell6 = row.insertCell(5);
-    cell7 = row.insertCell(6);
-    cell8 = row.insertCell(7);
-    cell5.innerHTML = "Quad";
-    cell6.innerHTML = "Gain";
-    cell7.innerHTML = "Offset";
-    cell8.innerHTML = "TS Offset";
-  }
+      cell5 = row.insertCell(4);
+      cell6 = row.insertCell(5);
+      cell7 = row.insertCell(6);
+      cell8 = row.insertCell(7);
+      cell5.innerHTML = "Quad";
+      cell6.innerHTML = "Gain";
+      cell7.innerHTML = "Offset";
+      cell8.innerHTML = "TS Offset";
+    }
 
     // Build URLs for sending to the Analyzer
-    var num=0, ctr=0;
+    var num=0, ctr=0, ctr2=0;
     var spectrumServer = dataStore.spectrumServer;
     dataStore.CalibrationURLs = []; // Reset the URLs
     globalsURLs = [];
+    pileupURLs = [];
     dataStore.CalibrationURLs[num] = spectrumServer + '?cmd=setCalibration';
     let outputString = "";
     dataStore.dropFileCalibrations = {};
     // First build all Calibrations from the usual cal file entries
     for(var i=0; i<arrStr.length; i++){
       var thisGlobalName = ""; // Clear this at the start of each new entry
-        var thisTSOffset = ""; // Clear this at the start of each new entry
+      var thisTSOffset = ""; // Clear this at the start of each new entry
+      var thisPileupk1 = []; // Clear this at the start of each new entry
+      var thisPileupk2 = []; // Clear this at the start of each new entry
+      var thisPileupE1 = []; // Clear this at the start of each new entry
+      var thisCrosstalk = []; // Clear this at the start of each new entry
       // Split one entry into its parts
       thisArrStr = arrStr[i].split('\n');
       for(var j=0; j<thisArrStr.length; j++){
@@ -183,6 +188,26 @@ function processDropFile(file){
           thisGain = parseFloat(thisArray[2]);
           thisQuad = parseFloat(thisArray[3]);
           //  console.log("Using thisArray: "+thisName+': '+ thisQuad+','+ thisGain+','+ thisOffset);
+        }
+        if(thisArrStr[j].includes("pileupk1")){
+          thisArray = thisArrStr[j].split(/\t| /);
+          thisArray = thisArray.filter(String);
+          for(var k=0; k<7; k++){ thisPileupk1.push(parseFloat(thisArray[k+1])); }
+        }
+        if(thisArrStr[j].includes("pileupk2")){
+          thisArray = thisArrStr[j].split(/\t| /);
+          thisArray = thisArray.filter(String);
+          for(var k=0; k<7; k++){ thisPileupk2.push(parseFloat(thisArray[k+1])); }
+        }
+        if(thisArrStr[j].includes("pileupE1")){
+          thisArray = thisArrStr[j].split(/\t| /);
+          thisArray = thisArray.filter(String);
+          for(var k=0; k<7; k++){ thisPileupE1.push(parseFloat(thisArray[k+1])); }
+        }
+        if(thisArrStr[j].includes("crosstalk")){
+          thisArray = thisArrStr[j].split(/\t| /);
+          thisArray = thisArray.filter(String);
+          for(var k=0; k<7; k++){ thisCrosstalk.push(parseFloat(thisArray[k+1])); }
         }
         if(thisArrStr[j].includes("TimeOffset") && thisName.includes("LBT")){
           // This is a LBT/TAC timestamp offset which will be added as a Global not a Calibration
@@ -216,7 +241,7 @@ function processDropFile(file){
       //  console.log(thisName+': '+ thisQuad+','+ thisGain+','+ thisOffset);
       outputString += thisName+': '+ thisQuad+','+ thisGain+','+ thisOffset + "<br>";
 
-      // Build URL here
+      // Build main calibration URL here
       // Dont allow NaN to be sent to the server
       if(isNaN(thisQuad)){ thisQuad = 0.0; }
       if(isNaN(thisGain)){ thisGain = 1.0; }
@@ -228,20 +253,40 @@ function processDropFile(file){
         dataStore.CalibrationURLs[num] = spectrumServer + '?cmd=setCalibration';
       }
 
-        // Save this entry to the dataStore object
-        if(!dataStore.dropFileCalibrations.thisName){ dataStore.dropFileCalibrations[thisName] = { 'name':"", 'quad':0,'gain':1,'offset':0,'TSoffset':"" }; }
-        dataStore.dropFileCalibrations[thisName].name = thisName;
-        dataStore.dropFileCalibrations[thisName].quad = thisQuad;
-        dataStore.dropFileCalibrations[thisName].gain = thisGain;
-        dataStore.dropFileCalibrations[thisName].offset = thisOffset;
-        dataStore.dropFileCalibrations[thisName].TSoffset = thisTSOffset;
+      // Build the pileup URLs if pileup coefficients are present
+      // One URL per channel as it is three arrays of six parameters
+      if(thisPileupk1.length>0){
+        var thisURLString = spectrumServer + '?cmd=setPileupCorrection&channelName0=' + thisName;
+        thisURLString += "&pileupk10=";
+        for(var k=0; k<7; k++){ if(k>0){ thisURLString += ","; } thisURLString += thisPileupk1[k]; }
+        thisURLString += "&pileupk20=";
+        for(var k=0; k<7; k++){ if(k>0){ thisURLString += ","; } thisURLString += thisPileupk2[k]; }
+        thisURLString += "&pileupE10=";
+        for(var k=0; k<7; k++){ if(k>0){ thisURLString += ","; } thisURLString += thisPileupE1[k]; }
+        pileupURLs.push(thisURLString);
+      }
 
+      // Save this entry to the dataStore object
+      if(!dataStore.dropFileCalibrations.thisName){ dataStore.dropFileCalibrations[thisName] = { 'name':"", 'quad':0,'gain':1,'offset':0,'TSoffset':"",'pileupk1':[],'pileupk2':[],'pileupE1':[] }; }
+      dataStore.dropFileCalibrations[thisName].name = thisName;
+      dataStore.dropFileCalibrations[thisName].quad = thisQuad;
+      dataStore.dropFileCalibrations[thisName].gain = thisGain;
+      dataStore.dropFileCalibrations[thisName].offset = thisOffset;
+      dataStore.dropFileCalibrations[thisName].TSoffset = thisTSOffset;
+      dataStore.dropFileCalibrations[thisName].pileupk1 = thisPileupk1;
+      dataStore.dropFileCalibrations[thisName].pileupk2 = thisPileupk2;
+      dataStore.dropFileCalibrations[thisName].pileupE1 = thisPileupE1;
 
     }
 
     // Add any Globals to the end of the dataStore.CalibrationURLs list
     for(i=0; i<globalsURLs.length; i++){
       dataStore.CalibrationURLs.push(globalsURLs[i]);
+    }
+
+    // Add any Pileup URLs to the end of the dataStore.CalibrationURLs list
+    for(i=0; i<pileupURLs.length; i++){
+      dataStore.CalibrationURLs.push(pileupURLs[i]);
     }
 
     //  console.log(dataStore.CalibrationURLs);
