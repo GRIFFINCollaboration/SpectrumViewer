@@ -518,49 +518,49 @@ function promiseURLArguments(){
       urlData[value[0]] = value[1];
     }
 
-      // Save the information to the dataStore
-      // Save the hostname and port number
-      if(urlData.backend != undefined){
-        if(urlData.backend == "localhost"){
-          dataStore.spectrumServer = 'http://'+urlData.backend+":"+urlData.port;
-        }else{
-          dataStore.spectrumServer = 'http://'+urlData.backend+'.triumf.ca:'+urlData.port;
-        }
-        dataStore.spectrumServerBackend = urlData.backend;
-        dataStore.spectrumServerPort = urlData.port;
+    // Save the information to the dataStore
+    // Save the hostname and port number
+    if(urlData.backend != undefined){
+      if(urlData.backend == "localhost"){
+        dataStore.spectrumServer = 'http://'+urlData.backend+":"+urlData.port;
       }else{
-        if(urlData.analyzerBackend == "localhost"){
-          dataStore.spectrumServer = 'http://'+urlData.analyzerBackend+":"+urlData.analyzerPort;
-        }else{
-          dataStore.spectrumServer = 'http://'+urlData.analyzerBackend+'.triumf.ca:'+urlData.analyzerPort;
-        }
-
-        // Save the information to the dataStore
-        // Save the hostname and port number for writing the ODB parameters
-        if(urlData.ODBHostBackend == "localhost"){
-          dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+":"+urlData.ODBHostPort;
-        }else{
-          dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+'.triumf.ca:'+urlData.ODBHostPort;
-        }
+        dataStore.spectrumServer = 'http://'+urlData.backend+'.triumf.ca:'+urlData.port;
+      }
+      dataStore.spectrumServerBackend = urlData.backend;
+      dataStore.spectrumServerPort = urlData.port;
+    }else{
+      if(urlData.analyzerBackend == "localhost"){
+        dataStore.spectrumServer = 'http://'+urlData.analyzerBackend+":"+urlData.analyzerPort;
+      }else{
+        dataStore.spectrumServer = 'http://'+urlData.analyzerBackend+'.triumf.ca:'+urlData.analyzerPort;
       }
 
-      // Copy the histogram URL arguments to the dataStore
-      dataStore.histoFileDirectoryPath = urlData.histoDir;
+      // Save the information to the dataStore
+      // Save the hostname and port number for writing the ODB parameters
+      if(urlData.ODBHostBackend == "localhost"){
+        dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+":"+urlData.ODBHostPort;
+      }else{
+        dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+'.triumf.ca:'+urlData.ODBHostPort;
+      }
+    }
+
+    // Copy the histogram URL arguments to the dataStore
+    dataStore.histoFileDirectoryPath = urlData.histoDir;
+    dataStore.histoFileName = urlData.histoFile;
+
+    if(dataStore.histoFileDirectoryPath==undefined){
+      // No directory for the histogram files has been provided in the URL, so we provide a default one
+      //dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms';
+      dataStore.histoFileDirectoryPath = '';
+    }
+    if(dataStore.histoFileName==undefined){
+      // No histogram filename has been provided in the URL, so we set the string back to nothing
+      dataStore.histoFileName = '';
+    }
+    if(urlData.histoFile){
       dataStore.histoFileName = urlData.histoFile;
-
-      if(dataStore.histoFileDirectoryPath==undefined){
-        // No directory for the histogram files has been provided in the URL, so we provide a default one
-        //dataStore.histoFileDirectoryPath = '/tig/grifstore0b/griffin/schedule140/Histograms';
-        dataStore.histoFileDirectoryPath = '';
-      }
-      if(dataStore.histoFileName==undefined){
-        // No histogram filename has been provided in the URL, so we set the string back to nothing
-        dataStore.histoFileName = '';
-      }
-      if(urlData.histoFile){
-        dataStore.histoFileName = urlData.histoFile;
-        dataStore.histoAutoLoad = true;
-      }
+      dataStore.histoAutoLoad = true;
+    }
 
     // resolve the promise
     resolve('Success!');
@@ -2116,6 +2116,136 @@ function fitCOMSpectra(spectrum,peaks){
 
   //dump data so it doesn't stack up
   dataStore.viewers[viewerName].removeData(spectrum);
+}
+
+////////////////////
+// Calibrations; Cal file, analyzer etc
+////////////////////
+
+function buildCalfile(){
+  console.log('Download initiated - using buildCalfile function in helper.js');
+
+  // Write the Cal file
+  CAL = '';
+
+  // Write this Cal file containing everything from the Config file that sorted this file.
+  // Just replace any coefficients that we have newly determined
+
+  for(var i=0; i<dataStore.Config.length; i++){
+    var thisKey = dataStore.Config[i].name;
+    CAL += thisKey+' { \n';
+    CAL += 'Name:	'+thisKey+'\n';
+    CAL += 'Number:	'+i+'\n';
+    CAL += 'Address:  0x'+dataStore.Config[i].address.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+'\n';
+    CAL += 'Digitizer:	GRF16\n';
+    // Energy gain matching coefficients
+    if( dataStore.THESEcalibrations[thisKey] && document.getElementById(thisKey+'write')){
+      if( document.getElementById(thisKey+'write').checked){
+        CAL += 'EngCoeff:	'+dataStore.THESEcalibrations[thisKey]['fit'][2]+' '+dataStore.THESEcalibrations[thisKey]['fit'][1]+' '+dataStore.THESEcalibrations[thisKey]['fit'][0]+'\n';
+      }else{
+        CAL += 'EngCoeff:	'+dataStore.Config[i].offset+' '+dataStore.Config[i].gain+' '+dataStore.Config[i].quad+'\n';
+      }
+    }else{
+      CAL += 'EngCoeff:	'+dataStore.Config[i].offset+' '+dataStore.Config[i].gain+' '+dataStore.Config[i].quad+'\n';
+    }
+    if(thisKey.includes("GRG")){ // Only include pileup or crosstalk parameters for HPGe channels
+      // Pileup correction parameters
+      if( dataStore.THESEcalibrations[thisKey] ){
+        if(typeof(dataStore.THESEcalibrations[thisKey].pileupk1) != "undefined"){ // newly derived in pileupCorrections app
+          CAL += 'pileupk1:	'+dataStore.THESEcalibrations[thisKey]['k1'][0]+' '+dataStore.THESEcalibrations[thisKey]['k1'][1]+' '+dataStore.THESEcalibrations[thisKey]['k1'][2];
+          CAL +=          ' '+dataStore.THESEcalibrations[thisKey]['k1'][3]+' '+dataStore.THESEcalibrations[thisKey]['k1'][4]+' '+dataStore.THESEcalibrations[thisKey]['k1'][5]+' '+dataStore.THESEcalibrations[thisKey]['k1'][6]+'\n';
+
+          CAL += 'pileupk2:	'+dataStore.THESEcalibrations[thisKey]['k2'][0]+' '+dataStore.THESEcalibrations[thisKey]['k2'][1]+' '+dataStore.THESEcalibrations[thisKey]['k2'][2];
+          CAL +=          ' '+dataStore.THESEcalibrations[thisKey]['k2'][3]+' '+dataStore.THESEcalibrations[thisKey]['k2'][4]+' '+dataStore.THESEcalibrations[thisKey]['k2'][5]+' '+dataStore.THESEcalibrations[thisKey]['k2'][6]+'\n';
+
+          CAL += 'pileupE1:	'+dataStore.THESEcalibrations[thisKey]['e1'][0]+' '+dataStore.THESEcalibrations[thisKey]['e1'][1]+' '+dataStore.THESEcalibrations[thisKey]['e1'][2];
+          CAL +=          ' '+dataStore.THESEcalibrations[thisKey]['e1'][3]+' '+dataStore.THESEcalibrations[thisKey]['e1'][4]+' '+dataStore.THESEcalibrations[thisKey]['e1'][5]+' '+dataStore.THESEcalibrations[thisKey]['e1'][6]+'\n';
+        }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
+          CAL += 'pileupk1:	'+dataStore.Config[i].pileupk1[0]+' '+dataStore.Config[i].pileupk1[1]+' '+dataStore.Config[i].pileupk1[2];
+          CAL +=          ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+' '+dataStore.Config[i].pileupk1[6]+'\n';
+
+          CAL += 'pileupk2:	'+dataStore.Config[i].pileupk2[0]+' '+dataStore.Config[i].pileupk2[1]+' '+dataStore.Config[i].pileupk2[2];
+          CAL +=          ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+' '+dataStore.Config[i].pileupk2[6]+'\n';
+
+          CAL += 'pileupE1:	'+dataStore.Config[i].pileupE1[0]+' '+dataStore.Config[i].pileupE1[1]+' '+dataStore.Config[i].pileupE1[2];
+          CAL +=          ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+' '+dataStore.Config[i].pileupE1[6]+'\n';
+        }else{ // insert default
+          CAL += 'pileupk1:	1 0 0 0 0 0 0\n';
+          CAL += 'pileupk2:	1 0 0 0 0 0 0\n';
+          CAL += 'pileupE1:	0 0 0 0 0 0 0\n';
+        }
+      }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
+        CAL += 'pileupk1:	'+dataStore.Config[i].pileupk1[0]+' '+dataStore.Config[i].pileupk1[1]+' '+dataStore.Config[i].pileupk1[2];
+        CAL +=          ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+' '+dataStore.Config[i].pileupk1[6]+'\n';
+
+        CAL += 'pileupk2:	'+dataStore.Config[i].pileupk2[0]+' '+dataStore.Config[i].pileupk2[1]+' '+dataStore.Config[i].pileupk2[2];
+        CAL +=          ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+' '+dataStore.Config[i].pileupk2[6]+'\n';
+
+        CAL += 'pileupE1:	'+dataStore.Config[i].pileupE1[0]+' '+dataStore.Config[i].pileupE1[1]+' '+dataStore.Config[i].pileupE1[2];
+        CAL +=          ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+' '+dataStore.Config[i].pileupE1[6]+'\n';
+      }else{ // insert default
+        CAL += 'pileupk1:	1 0 0 0 0 0 0\n';
+        CAL += 'pileupk2:	1 0 0 0 0 0 0\n';
+        CAL += 'pileupE1:	0 0 0 0 0 0 0\n';
+      }
+      // Crosstalk correction parameters
+      if( dataStore.THESEcalibrations[thisKey] ){
+        if(typeof(dataStore.THESEcalibrations[thisKey].crosstalk0) != "undefined"){ // newly derived in crosstalkCorrections app
+          CAL += 'crosstalk0:	'+dataStore.THESEcalibrations[thisKey]['crosstalk0'][0]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk0'][1]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk0'][2];
+          CAL +=            ' '+dataStore.THESEcalibrations[thisKey]['crosstalk0'][3]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk0'][4]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk0'][5]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk0'][6]+'\n';
+
+          CAL += 'crosstalk1:	'+dataStore.THESEcalibrations[thisKey]['crosstalk1'][0]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk1'][1]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk1'][2];
+          CAL +=            ' '+dataStore.THESEcalibrations[thisKey]['crosstalk1'][3]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk1'][4]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk1'][5]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk1'][6]+'\n';
+
+          CAL += 'crosstalk2:	'+dataStore.THESEcalibrations[thisKey]['crosstalk2'][0]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk2'][1]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk2'][2];
+          CAL +=            ' '+dataStore.THESEcalibrations[thisKey]['crosstalk2'][3]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk2'][4]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk2'][5]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk2'][6]+'\n';
+        }else if(typeof(dataStore.Config[i].crosstalk0) != "undefined"){ // take from Config file that sorted this run
+          CAL += 'crosstalk0:	'+dataStore.Config[i].crosstalk0[0]+' '+dataStore.Config[i].crosstalk0[1]+' '+dataStore.Config[i].crosstalk0[2];
+          CAL +=            ' '+dataStore.Config[i].crosstalk0[3]+' '+dataStore.Config[i].crosstalk0[4]+' '+dataStore.Config[i].crosstalk0[5]+' '+dataStore.Config[i].crosstalk0[6]+'\n';
+
+          CAL += 'crosstalk1:	'+dataStore.Config[i].crosstalk1[0]+' '+dataStore.Config[i].crosstalk1[1]+' '+dataStore.Config[i].crosstalk1[2];
+          CAL +=            ' '+dataStore.Config[i].crosstalk1[3]+' '+dataStore.Config[i].crosstalk1[4]+' '+dataStore.Config[i].crosstalk1[5]+' '+dataStore.Config[i].crosstalk1[6]+'\n';
+
+          CAL += 'crosstalk2:	'+dataStore.Config[i].crosstalk2[0]+' '+dataStore.Config[i].crosstalk2[1]+' '+dataStore.Config[i].crosstalk2[2];
+          CAL +=            ' '+dataStore.Config[i].crosstalk2[3]+' '+dataStore.Config[i].crosstalk2[4]+' '+dataStore.Config[i].crosstalk2[5]+' '+dataStore.Config[i].crosstalk2[6]+'\n';
+        }else{ // insert default
+          CAL += 'crosstalk0:	0 0 0 0 0 0 0\n';
+          CAL += 'crosstalk1:	0 0 0 0 0 0 0\n';
+          CAL += 'crosstalk2:	0 0 0 0 0 0 0\n';
+        }
+      }else if(typeof(dataStore.Config[i].crosstalk0) != "undefined"){ // take from Config file that sorted this run
+        CAL += 'crosstalk0:	'+dataStore.Config[i].crosstalk0[0]+' '+dataStore.Config[i].crosstalk0[1]+' '+dataStore.Config[i].crosstalk0[2];
+        CAL +=            ' '+dataStore.Config[i].crosstalk0[3]+' '+dataStore.Config[i].crosstalk0[4]+' '+dataStore.Config[i].crosstalk0[5]+' '+dataStore.Config[i].crosstalk0[6]+'\n';
+
+        CAL += 'crosstalk1:	'+dataStore.Config[i].crosstalk1[0]+' '+dataStore.Config[i].crosstalk1[1]+' '+dataStore.Config[i].crosstalk1[2];
+        CAL +=            ' '+dataStore.Config[i].crosstalk1[3]+' '+dataStore.Config[i].crosstalk1[4]+' '+dataStore.Config[i].crosstalk1[5]+' '+dataStore.Config[i].crosstalk1[6]+'\n';
+
+        CAL += 'crosstalk2:	'+dataStore.Config[i].crosstalk2[0]+' '+dataStore.Config[i].crosstalk2[1]+' '+dataStore.Config[i].crosstalk2[2];
+        CAL +=            ' '+dataStore.Config[i].crosstalk2[3]+' '+dataStore.Config[i].crosstalk2[4]+' '+dataStore.Config[i].crosstalk2[5]+' '+dataStore.Config[i].crosstalk2[6]+'\n';
+      }else{ // insert default
+        CAL += 'crosstalk0:	0 0 0 0 0 0 0\n';
+        CAL += 'crosstalk1:	0 0 0 0 0 0 0\n';
+        CAL += 'crosstalk2:	0 0 0 0 0 0 0\n';
+      }
+    }
+    CAL += 'Integration:	0\n';
+    CAL += 'ENGChi2:	0\n';
+    CAL += 'FileInt:	0\n';
+    CAL += '}\n';
+    CAL += '\n';
+    CAL += '//====================================//\n';
+  }
+
+  // Create a download link
+  const textBlob = new Blob([CAL], {type: 'text/plain'});
+  URL.revokeObjectURL(window.textBlobURL);
+  const downloadLink = document.createElement('a');
+  downloadLink.href = URL.createObjectURL(textBlob);
+  downloadLink.download = document.getElementById('saveCalname').value;
+
+  // Trigger the download
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
 }
 
 

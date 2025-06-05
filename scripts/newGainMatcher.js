@@ -256,7 +256,8 @@ function setupDataStore(){
 */
 
 // App specific data structures
-dataStore.THESEcalibrations = [];  // Array of objects to store together the cailbration data and results. 'detectorName':{ 'x'(pulseHeight centroids):[],'y'(literature energy):[],'residual':[],'fit':[quad,gain,offset,reduced-chi-squared]  }
+dataStore.THESEcalibrations = [];  // Array of objects to store together the cailbration data and results. 'detectorName':{ 'x'(pulseHeight centroids):[],'y'(literature energy):[],'residual':[],'fit':[quad,gain,offset,reduced-chi-squared],
+                                   //                                                                                       'pileupk1':[1 0 0 0 0 0 0], 'pileupk2':[1 0 0 0 0 0 0], 'pileupE1':[0 0 0 0 0 0 0], 'crosstalk:[0,1,0,0,0,0,0]'}
 
 // dataplot definitions
 dataStore._dataplot = [];                 // Place for all dataplot objects to be created as an array. This makes them indexable and iteratable
@@ -991,136 +992,7 @@ function launchPeakFittingProcess(){
     document.getElementById('saveCalDiv').classList.remove('hidden');
 
   }
-  /*
-  function buildCalfile(){
-  console.log('Download initiated');
-
-  // Write the Cal file
-  CAL = '';
-
-  for(var i=0; i<dataStore.THESEdetectors.length; i++){
-  var thisKey = dataStore.THESEdetectors[i];
-  CAL += thisKey+' { \n';
-  CAL += 'Name:	'+thisKey+'\n';
-  CAL += 'Number:	'+i+'\n';
-  var thisCalibrationIndex = dataStore.Config.map(function(e) { return e.name; }).indexOf(thisKey);
-  var thisAddress = dataStore.Config[thisCalibrationIndex].address;
-  CAL += 'Address:  0x'+thisAddress.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+'\n';
-  CAL += 'Digitizer:	GRF16\n';
-  if( document.getElementById(thisKey+'write').checked){
-  CAL += 'EngCoeff:	'+dataStore.THESEcalibrations[thisKey]['fit'][2]+' '+dataStore.THESEcalibrations[thisKey]['fit'][1]+' '+dataStore.THESEcalibrations[thisKey]['fit'][0]+'\n';
-}else{
-CAL += 'EngCoeff:	0 1 0\n'
-}
-CAL += 'Integration:	0\n';
-CAL += 'ENGChi2:	0\n';
-CAL += 'FileInt:	0\n';
-CAL += '}\n';
-CAL += '\n';
-CAL += '//====================================//\n';
-}
-
-// Create a download link
-const textBlob = new Blob([CAL], {type: 'text/plain'});
-URL.revokeObjectURL(window.textBlobURL);
-const downloadLink = document.createElement('a');
-downloadLink.href = URL.createObjectURL(textBlob);
-downloadLink.download = document.getElementById('saveCalname').value;
-
-// Trigger the download
-document.body.appendChild(downloadLink);
-downloadLink.click();
-}
-*/
-function buildCalfile(){
-  console.log('Download initiated');
-
-  // Write the Cal file
-  CAL = '';
-
-  // Write this Cal file containing everything from the Config file that sorted this file.
-  // Just replace any coefficients that we have newly determined
-
-  for(var i=0; i<dataStore.Config.length; i++){
-    var thisKey = dataStore.Config[i].name;
-    CAL += thisKey+' { \n';
-    CAL += 'Name:	'+thisKey+'\n';
-    CAL += 'Number:	'+i+'\n';
-    CAL += 'Address:  0x'+dataStore.Config[i].address.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+'\n';
-    CAL += 'Digitizer:	GRF16\n';
-    // Energy gain matching coefficients
-    if( dataStore.THESEcalibrations[thisKey] ){
-      if( document.getElementById(thisKey+'write').checked){
-        console.log("Use new energy coefficients for "+thisKey);
-        CAL += 'EngCoeff:	'+dataStore.THESEcalibrations[thisKey]['fit'][2]+' '+dataStore.THESEcalibrations[thisKey]['fit'][1]+' '+dataStore.THESEcalibrations[thisKey]['fit'][0]+'\n';
-      }else{
-        console.log("Use config energy coefficients for "+thisKey+", because write not checked");
-        CAL += 'EngCoeff:	'+dataStore.Config[i].offset+' '+dataStore.Config[i].gain+' '+dataStore.Config[i].quad+'\n';
-      }
-    }else{
-      console.log("Use config energy coefficients for "+thisKey);
-      CAL += 'EngCoeff:	'+dataStore.Config[i].offset+' '+dataStore.Config[i].gain+' '+dataStore.Config[i].quad+'\n';
-    }
-    // Pileup correction parameters
-    //  if(typeof(dataStore.fitResultsParameters[thisKey]['k1']) != "undefined"){ // newly derived in pileupCorrections app
-    if( dataStore.THESEcalibrations[thisKey] ){
-      if(typeof(dataStore.THESEcalibrations[thisKey].pileupk1) != "undefined"){ // newly derived in pileupCorrections app
-        console.log("Use fitResultsParameters pileup parameters for "+thisKey);
-        CAL += 'pileupk1:	'+dataStore.fitResultsParameters[thisKey]['k1'][0]+' '+dataStore.fitResultsParameters[thisKey]['k1'][1]+' '+dataStore.fitResultsParameters[thisKey]['k1'][2];
-        CAL +=          ' '+dataStore.fitResultsParameters[thisKey]['k1'][3]+' '+dataStore.fitResultsParameters[thisKey]['k1'][4]+' '+dataStore.fitResultsParameters[thisKey]['k1'][5]+'\n';
-
-        CAL += 'pileupk2:	'+dataStore.fitResultsParameters[thisKey]['k2'][0]+' '+dataStore.fitResultsParameters[thisKey]['k2'][1]+' '+dataStore.fitResultsParameters[thisKey]['k2'][2];
-        CAL +=          ' '+dataStore.fitResultsParameters[thisKey]['k2'][3]+' '+dataStore.fitResultsParameters[thisKey]['k2'][4]+' '+dataStore.fitResultsParameters[thisKey]['k2'][5]+'\n';
-
-        CAL += 'pileupE1:	'+dataStore.fitResultsParameters[thisKey]['e1'][0]+' '+dataStore.fitResultsParameters[thisKey]['e1'][1]+' '+dataStore.fitResultsParameters[thisKey]['e1'][2];
-        CAL +=          ' '+dataStore.fitResultsParameters[thisKey]['e1'][3]+' '+dataStore.fitResultsParameters[thisKey]['e1'][4]+' '+dataStore.fitResultsParameters[thisKey]['e1'][5]+'\n';
-      }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
-        console.log("Use config pileup parameters for "+thisKey);
-        CAL += 'pileupk1:	'+dataStore.Config[i].pileupk1[0]+' '+dataStore.Config[i].pileupk1[1]+' '+dataStore.Config[i].pileupk1[2];
-        CAL +=          ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+'\n';
-
-        CAL += 'pileupk2:	'+dataStore.Config[i].pileupk2[0]+' '+dataStore.Config[i].pileupk2[1]+' '+dataStore.Config[i].pileupk2[2];
-        CAL +=          ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+'\n';
-
-        CAL += 'pileupE1:	'+dataStore.Config[i].pileupE1[0]+' '+dataStore.Config[i].pileupE1[1]+' '+dataStore.Config[i].pileupE1[2];
-        CAL +=          ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+'\n';
-      }
-    }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
-      console.log("Use config pileup parameters for "+thisKey);
-      CAL += 'pileupk1:	'+dataStore.Config[i].pileupk1[0]+' '+dataStore.Config[i].pileupk1[1]+' '+dataStore.Config[i].pileupk1[2];
-      CAL +=          ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+'\n';
-
-      CAL += 'pileupk2:	'+dataStore.Config[i].pileupk2[0]+' '+dataStore.Config[i].pileupk2[1]+' '+dataStore.Config[i].pileupk2[2];
-      CAL +=          ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+'\n';
-
-      CAL += 'pileupE1:	'+dataStore.Config[i].pileupE1[0]+' '+dataStore.Config[i].pileupE1[1]+' '+dataStore.Config[i].pileupE1[2];
-      CAL +=          ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+'\n';
-    }else{ // insert default
-      console.log("Insert default pileup parameters for "+thisKey);
-      CAL += 'pileupk1:	1 0 0 0 0 0\n';
-      CAL += 'pileupk2:	1 0 0 0 0 0\n';
-      CAL += 'pileupE1:	0 0 0 0 0 0\n';
-    }
-    CAL += 'Integration:	0\n';
-    CAL += 'ENGChi2:	0\n';
-    CAL += 'FileInt:	0\n';
-    CAL += '}\n';
-    CAL += '\n';
-    CAL += '//====================================//\n';
-  }
-
-  // Create a download link
-  const textBlob = new Blob([CAL], {type: 'text/plain'});
-  URL.revokeObjectURL(window.textBlobURL);
-  const downloadLink = document.createElement('a');
-  downloadLink.href = URL.createObjectURL(textBlob);
-  downloadLink.download = document.getElementById('saveCalname').value;
-
-  // Trigger the download
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-}
-
+  
 function buildCSVfile(){
   console.log('Download initiated');
   var keys = Object.keys(dataStore.fitResults);

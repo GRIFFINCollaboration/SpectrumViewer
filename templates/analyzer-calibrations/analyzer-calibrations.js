@@ -163,6 +163,7 @@ function processDropFile(file){
     dataStore.CalibrationURLs = []; // Reset the URLs
     globalsURLs = [];
     pileupURLs = [];
+    crosstalkURLs = [];
     dataStore.CalibrationURLs[num] = spectrumServer + '?cmd=setCalibration';
     let outputString = "";
     dataStore.dropFileCalibrations = {};
@@ -173,7 +174,9 @@ function processDropFile(file){
       var thisPileupk1 = []; // Clear this at the start of each new entry
       var thisPileupk2 = []; // Clear this at the start of each new entry
       var thisPileupE1 = []; // Clear this at the start of each new entry
-      var thisCrosstalk = []; // Clear this at the start of each new entry
+      var thisCrosstalk0 = []; // Clear this at the start of each new entry
+      var thisCrosstalk1 = []; // Clear this at the start of each new entry
+      var thisCrosstalk2 = []; // Clear this at the start of each new entry
       // Split one entry into its parts
       thisArrStr = arrStr[i].split('\n');
       for(var j=0; j<thisArrStr.length; j++){
@@ -204,10 +207,20 @@ function processDropFile(file){
           thisArray = thisArray.filter(String);
           for(var k=0; k<7; k++){ thisPileupE1.push(parseFloat(thisArray[k+1])); }
         }
-        if(thisArrStr[j].includes("crosstalk")){
+        if(thisArrStr[j].includes("crosstalk0")){
           thisArray = thisArrStr[j].split(/\t| /);
           thisArray = thisArray.filter(String);
-          for(var k=0; k<7; k++){ thisCrosstalk.push(parseFloat(thisArray[k+1])); }
+          for(var k=0; k<7; k++){ thisCrosstalk0.push(parseFloat(thisArray[k+1])); }
+        }
+        if(thisArrStr[j].includes("crosstalk1")){
+          thisArray = thisArrStr[j].split(/\t| /);
+          thisArray = thisArray.filter(String);
+          for(var k=0; k<7; k++){ thisCrosstalk1.push(parseFloat(thisArray[k+1])); }
+        }
+        if(thisArrStr[j].includes("crosstalk2")){
+          thisArray = thisArrStr[j].split(/\t| /);
+          thisArray = thisArray.filter(String);
+          for(var k=0; k<7; k++){ thisCrosstalk2.push(parseFloat(thisArray[k+1])); }
         }
         if(thisArrStr[j].includes("TimeOffset") && thisName.includes("LBT")){
           // This is a LBT/TAC timestamp offset which will be added as a Global not a Calibration
@@ -266,6 +279,19 @@ function processDropFile(file){
         pileupURLs.push(thisURLString);
       }
 
+      // Build the crosstalk URLs if crosstalk coefficients are present
+      // One URL per channel as it is three arrays of six parameters
+      if(thisCrosstalk0.length>0){
+        var thisURLString = spectrumServer + '?cmd=setCrosstalkCorrection&channelName0=' + thisName;
+        thisURLString += "&crosstalk0=";
+        for(var k=0; k<7; k++){ if(k>0){ thisURLString += ","; } thisURLString += thisCrosstalk0[k]; }
+        thisURLString += "&crosstalk1=";
+        for(var k=0; k<7; k++){ if(k>0){ thisURLString += ","; } thisURLString += thisCrosstalk1[k]; }
+        thisURLString += "&crosstalk2=";
+        for(var k=0; k<7; k++){ if(k>0){ thisURLString += ","; } thisURLString += thisCrosstalk2[k]; }
+        crosstalkURLs.push(thisURLString);
+      }
+
       // Save this entry to the dataStore object
       if(!dataStore.dropFileCalibrations.thisName){ dataStore.dropFileCalibrations[thisName] = { 'name':"", 'quad':0,'gain':1,'offset':0,'TSoffset':"",'pileupk1':[],'pileupk2':[],'pileupE1':[] }; }
       dataStore.dropFileCalibrations[thisName].name = thisName;
@@ -287,6 +313,11 @@ function processDropFile(file){
     // Add any Pileup URLs to the end of the dataStore.CalibrationURLs list
     for(i=0; i<pileupURLs.length; i++){
       dataStore.CalibrationURLs.push(pileupURLs[i]);
+    }
+
+    // Add any Crosstalk URLs to the end of the dataStore.CalibrationURLs list
+    for(i=0; i<crosstalkURLs.length; i++){
+      dataStore.CalibrationURLs.push(crosstalkURLs[i]);
     }
 
     //  console.log(dataStore.CalibrationURLs);
