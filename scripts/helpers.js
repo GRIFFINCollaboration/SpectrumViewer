@@ -2191,41 +2191,44 @@ function buildCalfile(){
       // Crosstalk correction parameters
       if( dataStore.THESEcalibrations[thisKey] ){
         if(typeof(dataStore.THESEcalibrations[thisKey].crosstalk0) != "undefined"){ // newly derived in crosstalkCorrections app
-          CAL += 'crosstalk0:	'+dataStore.THESEcalibrations[thisKey]['crosstalk0'][0]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk0'][1]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk0'][2];
-          CAL +=            ' '+dataStore.THESEcalibrations[thisKey]['crosstalk0'][3]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk0'][4]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk0'][5]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk0'][6]+'\n';
-
-          CAL += 'crosstalk1:	'+dataStore.THESEcalibrations[thisKey]['crosstalk1'][0]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk1'][1]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk1'][2];
-          CAL +=            ' '+dataStore.THESEcalibrations[thisKey]['crosstalk1'][3]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk1'][4]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk1'][5]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk1'][6]+'\n';
-
-          CAL += 'crosstalk2:	'+dataStore.THESEcalibrations[thisKey]['crosstalk2'][0]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk2'][1]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk2'][2];
-          CAL +=            ' '+dataStore.THESEcalibrations[thisKey]['crosstalk2'][3]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk2'][4]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk2'][5]+' '+dataStore.THESEcalibrations[thisKey]['crosstalk2'][6]+'\n';
+          CAL += 'crosstalk0:	';
+          for(var k=0; k<16; k++){ CAL += dataStore.THESEcalibrations[thisKey]['crosstalk0'][k].toFixed(8)+' ' }
+          CAL += '\n';
+          CAL += 'crosstalk1:	';
+          for(var k=0; k<16; k++){ CAL += dataStore.THESEcalibrations[thisKey]['crosstalk1'][k].toFixed(8)+' ' }
+          CAL += '\n';
+          CAL += 'crosstalk2:	';
+          for(var k=0; k<16; k++){ CAL += dataStore.THESEcalibrations[thisKey]['crosstalk2'][k].toFixed(8)+' ' }
+          CAL += '\n';
         }else if(typeof(dataStore.Config[i].crosstalk0) != "undefined"){ // take from Config file that sorted this run
-          CAL += 'crosstalk0:	'+dataStore.Config[i].crosstalk0[0]+' '+dataStore.Config[i].crosstalk0[1]+' '+dataStore.Config[i].crosstalk0[2];
-          CAL +=            ' '+dataStore.Config[i].crosstalk0[3]+' '+dataStore.Config[i].crosstalk0[4]+' '+dataStore.Config[i].crosstalk0[5]+' '+dataStore.Config[i].crosstalk0[6]+'\n';
-
-          CAL += 'crosstalk1:	'+dataStore.Config[i].crosstalk1[0]+' '+dataStore.Config[i].crosstalk1[1]+' '+dataStore.Config[i].crosstalk1[2];
-          CAL +=            ' '+dataStore.Config[i].crosstalk1[3]+' '+dataStore.Config[i].crosstalk1[4]+' '+dataStore.Config[i].crosstalk1[5]+' '+dataStore.Config[i].crosstalk1[6]+'\n';
-
-          CAL += 'crosstalk2:	'+dataStore.Config[i].crosstalk2[0]+' '+dataStore.Config[i].crosstalk2[1]+' '+dataStore.Config[i].crosstalk2[2];
-          CAL +=            ' '+dataStore.Config[i].crosstalk2[3]+' '+dataStore.Config[i].crosstalk2[4]+' '+dataStore.Config[i].crosstalk2[5]+' '+dataStore.Config[i].crosstalk2[6]+'\n';
+          CAL += 'crosstalk0:	';
+          for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk0[k].toFixed(8)+' ' }
+          CAL += '\n';
+          CAL += 'crosstalk1:	';
+          for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk1[k].toFixed(8)+' ' }
+          CAL += '\n';
+          CAL += 'crosstalk2:	';
+          for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk2[k].toFixed(8)+' ' }
+          CAL += '\n';
         }else{ // insert default
-          CAL += 'crosstalk0:	0 0 0 0 0 0 0\n';
-          CAL += 'crosstalk1:	0 0 0 0 0 0 0\n';
-          CAL += 'crosstalk2:	0 0 0 0 0 0 0\n';
+          CAL += 'crosstalk0:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
+          CAL += 'crosstalk1:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
+          CAL += 'crosstalk2:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
         }
       }else if(typeof(dataStore.Config[i].crosstalk0) != "undefined"){ // take from Config file that sorted this run
-        CAL += 'crosstalk0:	'+dataStore.Config[i].crosstalk0[0]+' '+dataStore.Config[i].crosstalk0[1]+' '+dataStore.Config[i].crosstalk0[2];
-        CAL +=            ' '+dataStore.Config[i].crosstalk0[3]+' '+dataStore.Config[i].crosstalk0[4]+' '+dataStore.Config[i].crosstalk0[5]+' '+dataStore.Config[i].crosstalk0[6]+'\n';
-
-        CAL += 'crosstalk1:	'+dataStore.Config[i].crosstalk1[0]+' '+dataStore.Config[i].crosstalk1[1]+' '+dataStore.Config[i].crosstalk1[2];
-        CAL +=            ' '+dataStore.Config[i].crosstalk1[3]+' '+dataStore.Config[i].crosstalk1[4]+' '+dataStore.Config[i].crosstalk1[5]+' '+dataStore.Config[i].crosstalk1[6]+'\n';
-
-        CAL += 'crosstalk2:	'+dataStore.Config[i].crosstalk2[0]+' '+dataStore.Config[i].crosstalk2[1]+' '+dataStore.Config[i].crosstalk2[2];
-        CAL +=            ' '+dataStore.Config[i].crosstalk2[3]+' '+dataStore.Config[i].crosstalk2[4]+' '+dataStore.Config[i].crosstalk2[5]+' '+dataStore.Config[i].crosstalk2[6]+'\n';
+        CAL += 'crosstalk0:	';
+        for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk0[k].toFixed(8)+' ' }
+        CAL += '\n';
+        CAL += 'crosstalk1:	';
+        for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk1[k].toFixed(8)+' ' }
+        CAL += '\n';
+        CAL += 'crosstalk2:	';
+        for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk2[k].toFixed(8)+' ' }
+        CAL += '\n';
       }else{ // insert default
-        CAL += 'crosstalk0:	0 0 0 0 0 0 0\n';
-        CAL += 'crosstalk1:	0 0 0 0 0 0 0\n';
-        CAL += 'crosstalk2:	0 0 0 0 0 0 0\n';
+        CAL += 'crosstalk0:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
+        CAL += 'crosstalk1:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
+        CAL += 'crosstalk2:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
       }
     }
     CAL += 'Integration:	0\n';

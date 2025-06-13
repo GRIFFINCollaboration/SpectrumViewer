@@ -124,6 +124,7 @@ function setupDataStore(){
   dataStore.peakFitterScriptTemplate = {};
 
   // crosstalk Corrections for k1, k2 and 1st-Hit energy dependence.
+  // Matrix is now has x axis length of 768. 1 channel = 40ns. The prompt at at channel 300.
   dataStore.peakFitterScriptTemplate["crosstalkClover1Only"] = {
     "histogramFileNames" : [],
     "spectrumList1d" : [],
@@ -137,42 +138,22 @@ function setupDataStore(){
       "Crosstalk_Blue_E_vs_dt_Ge03","Crosstalk_Green_E_vs_dt_Ge03","Crosstalk_Red_E_vs_dt_Ge03"
     ],
     "spectrumListGates" : [
-      ["y",2250,2300],
-      ["y",2200,2250],
-      ["y",2150,2200],
-      ["y",2100,2150],
-      ["y",2050,2100],
-      ["y",2000,2050],
-      ["y",1950,2000],
-      ["y",1900,1950],
-      ["y",1850,1900],
-      ["y",1800,1850],
-      ["y",1750,1800],
-      ["y",1700,1750],
-      ["y",1650,1700],
-      ["y",1600,1650],
-      ["y",1550,1600],
-      ["y",1500,1550],
-      ["y",1450,1500],
-      ["y",1400,1450],
-      ["y",1350,1400],
-      ["y",1300,1350],
-      ["y",1250,1300],
-      ["y",1200,1250],
-      ["y",1150,1200],
-      ["y",1100,1150],
-      ["y",1050,1100],
-      ["y",1000,1050],
-      ["y",950,1000],
-      ["y",900,950],
-      ["y",850,900],
-      ["y",800,850],
-      ["y",750,800],
-      ["y",700,750],
-      ["y",650,700],
-      ["y",600,650],
-      ["y",550,600],
-      ["y",100,500]
+                           ["y",160,200],
+                           ["y",200,240],
+                           ["y",240,280],
+                           ["y",280,320],
+                           ["y",320,360],
+                           ["y",360,400],
+                           ["y",400,440],
+                           ["y",440,480],
+                           ["y",480,520],
+                           ["y",520,560],
+                           ["y",560,600],
+                           ["y",600,640],
+                           ["y",640,680],
+                           ["y",680,720],
+                           ["y",720,760],
+                           ["y",760,800]
     ],
     "spectrumListProjectionsPeaks" : {
       "All":[73]
@@ -266,42 +247,22 @@ function setupDataStore(){
       "Crosstalk_Blue_E_vs_dt_Ge63","Crosstalk_Green_E_vs_dt_Ge63","Crosstalk_Red_E_vs_dt_Ge63"
     ],
     "spectrumListGates" : [
-      ["y",2250,2300],
-      ["y",2200,2250],
-      ["y",2150,2200],
-      ["y",2100,2150],
-      ["y",2050,2100],
-      ["y",2000,2050],
-      ["y",1950,2000],
-      ["y",1900,1950],
-      ["y",1850,1900],
-      ["y",1800,1850],
-      ["y",1750,1800],
-      ["y",1700,1750],
-      ["y",1650,1700],
-      ["y",1600,1650],
-      ["y",1550,1600],
-      ["y",1500,1550],
-      ["y",1450,1500],
-      ["y",1400,1450],
-      ["y",1350,1400],
-      ["y",1300,1350],
-      ["y",1250,1300],
-      ["y",1200,1250],
-      ["y",1150,1200],
-      ["y",1100,1150],
-      ["y",1050,1100],
-      ["y",1000,1050],
-      ["y",950,1000],
-      ["y",900,950],
-      ["y",850,900],
-      ["y",800,850],
-      ["y",750,800],
-      ["y",700,750],
-      ["y",650,700],
-      ["y",600,650],
-      ["y",550,600],
-      ["y",100,500]
+                           ["y",160,200],
+                           ["y",200,240],
+                           ["y",240,280],
+                           ["y",280,320],
+                           ["y",320,360],
+                           ["y",360,400],
+                           ["y",400,440],
+                           ["y",440,480],
+                           ["y",480,520],
+                           ["y",520,560],
+                           ["y",560,600],
+                           ["y",600,640],
+                           ["y",640,680],
+                           ["y",680,720],
+                           ["y",720,760],
+                           ["y",760,800]
     ],
     "spectrumListProjectionsPeaks" : {
       "All":[73]
@@ -807,7 +768,6 @@ function launchPeakFittingProcess(){
           if(thisGeindex%4 == i){ continue; }
           matrixString.push("Crosstalk_" + colorString[i] + "_E_vs_dt_Ge"+ alwaysThisLong(thisGeindex,2) +"y");
         }
-        var data = [];
 
         // Get the single hit centroid energy of 1408keV peak for this crystal
         // GRG01BN00A_Energy
@@ -819,6 +779,7 @@ function launchPeakFittingProcess(){
 
         // There are three matrices associated with each crystal; crosstalk from the three other crystals in the clover
         for(var thisMatrixIndex=0; thisMatrixIndex<matrixString.length; thisMatrixIndex++){
+          var data = []; // clear the data array
           var thisColor = matrixString[thisMatrixIndex].split("_")[1];
           // Place to store this data for plotting later
           if(typeof(dataStore.fitResultsData[GeName]) == 'undefined'){
@@ -829,16 +790,16 @@ function launchPeakFittingProcess(){
           }
 
           // Get the energy centroid for this matrix that is unaffected by crosstalk
-          var thisProjectionString = "-100-500";
-          var nonCrosstalkEnergy = dataStore.fitResults[thisHistoName+":"+matrixString[thisMatrixIndex]+thisProjectionString][0][1];
+          var thisProjectionString = "-160-200";
+          var nonCrosstalkEnergy = dataStore.fitResults[thisHistoName+":"+matrixString[thisMatrixIndex]+thisProjectionString][0][1]+0.01;
           console.log("Energy of nonCrosstalk peak for "+GeName+", "+thisColor+" is "+nonCrosstalkEnergy);
 
           // Loop over projection values
-          for(var thisProjectionValue=550; thisProjectionValue<2300; thisProjectionValue+=50){
+          for(var thisProjectionValue=760; thisProjectionValue>150; thisProjectionValue-=40){
 
             // Spectrum names of the form: GeX_E_vs_k_1st_of_2hitx where X is Ge number.
             // Kstring will be the projection values in this case.
-            thisProjectionString = "-"+parseInt(thisProjectionValue)+"-"+(parseInt(thisProjectionValue)+50);
+            thisProjectionString = "-"+parseInt(thisProjectionValue)+"-"+(parseInt(thisProjectionValue)+40);
             var thisKey = thisHistoName+":"+matrixString[thisMatrixIndex]+thisProjectionString;
 
             if(!dataStore.fitResults[thisKey]){
@@ -847,22 +808,47 @@ function launchPeakFittingProcess(){
             }
             if(!dataStore.fitResults[thisKey][0][1]){
               console.log("Failed to find peak fit for "+thisKey+" in the fitResults");
+              data.push(0);
               continue;
             }
             // xValue is projection value plus 25 for center of bin.
-            var xValue = (parseInt(thisProjectionValue)+25)-2275; // 25 for centre of bin. -2275 to translate channel number to timestamp difference in presort function.
+          //  var xValue = (-1*(thisProjectionValue+25-2275)); // 25 for centre of bin. -2275 to translate channel number to timestamp difference in presort function.
 
             // yValue is the necessary correction to the Energy centroid to match the centroid which is unaffected by crosstalk
-            var yValue = parseFloat(nonCrosstalkEnergy-dataStore.fitResults[thisKey][0][1]) / 1332.492;
+          //  var yValue = parseFloat(nonCrosstalkEnergy-dataStore.fitResults[thisKey][0][1]) / 1332.492;
 
-            data.push([xValue,yValue]);
+          //  data.push([xValue,yValue]);
 
-            // Save the data for plotting later
-            dataStore.fitResultsData[GeName][thisColor].push([xValue,yValue]);
+data.push(parseFloat(nonCrosstalkEnergy-dataStore.fitResults[thisKey][0][1]) / 1332.492);
+
 
           } // end of projections loop
 
+/*
+                    // Fill some boundary data to help constrain the fitting
+                    data.push([1800,0.0001]);
+                    data.push([1850,0.0001]);
+                    data.push([1900,0.0001]);
+                    data.push([1950,0.0001]);
+                    data.push([2000,0.0001]);
+                    */
+
+
+                    // Test for NaN values and correct to defaults if they are
+                    if(data.every(isNaN)){
+                      for(i=0; i<data.length; i++){
+                        if( isNaN(data[i]) ){ data[i] = 0; }
+                      }
+                    }
+                    if(data.length != 16){
+                      console.log("Length not 16 for "+GeName+", "+thisColor+". "+data);
+                    }
+
+          // Save the data for plotting later
+          dataStore.fitResultsData[GeName][thisColor] = data;
+
           console.log(data);
+          /*
           // Perform polynomial fit of the series of y=correction factor as a function of x=k.
           // Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
           var result = regression.polynomial(data, { order: 6, precision: 20 });
@@ -872,17 +858,21 @@ function launchPeakFittingProcess(){
             dataStore.fitResultsParameters[GeName] = {};
           }
           dataStore.fitResultsParameters[GeName][thisColor] = result.equation.reverse();
-
+          console.log(result.points);
+*/
           // Save these parameters to the THESEcalibrations object used by buildCalfile and updateAnalyzer
           if(!dataStore.THESEcalibrations[GeName]){ dataStore.THESEcalibrations[GeName] = {}; }
           if(!dataStore.THESEcalibrations[GeName].crosstalk0){ dataStore.THESEcalibrations[GeName].crosstalk0 = []; dataStore.THESEcalibrations[GeName].crosstalk1 = []; dataStore.THESEcalibrations[GeName].crosstalk2 = []; }
-          dataStore.THESEcalibrations[GeName]["crosstalk"+thisMatrixIndex] = dataStore.fitResultsParameters[GeName][thisColor];
+        //  dataStore.THESEcalibrations[GeName]["crosstalk"+thisMatrixIndex] = dataStore.fitResultsParameters[GeName][thisColor];
+          dataStore.THESEcalibrations[GeName]["crosstalk"+thisMatrixIndex] = data;
 
-          // Test for NaN values and correct to defaults if they are
-          if(dataStore.fitResultsParameters[GeName][thisColor].every(isNaN)){
-            console.log("\n\n\n\n------------------------\n------------------------\n------------------------ isNaN \n------------------------\n------------------------\n------------------------\n\n\n");
-            dataStore.fitResultsParameters[GeName][thisColor] = [0.0,1.0,0.0,0.0,0.0,0.0,0.0];
-          }
+          /*
+                    // Test for NaN values and correct to defaults if they are
+                    if(dataStore.fitResultsParameters[GeName][thisColor].every(isNaN)){
+                      console.log("\n\n\n\n------------------------\n------------------------\n------------------------ isNaN \n------------------------\n------------------------\n------------------------\n\n\n");
+                      dataStore.fitResultsParameters[GeName][thisColor] = [0.0,1.0,0.0,0.0,0.0,0.0,0.0];
+                      */
+        //  }
         }
       } // end of Ge loop
 

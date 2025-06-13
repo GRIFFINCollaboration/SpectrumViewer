@@ -210,17 +210,17 @@ function processDropFile(file){
         if(thisArrStr[j].includes("crosstalk0")){
           thisArray = thisArrStr[j].split(/\t| /);
           thisArray = thisArray.filter(String);
-          for(var k=0; k<7; k++){ thisCrosstalk0.push(parseFloat(thisArray[k+1])); }
+          for(var k=0; k<16; k++){ thisCrosstalk0.push(parseFloat(thisArray[k+1])); }
         }
         if(thisArrStr[j].includes("crosstalk1")){
           thisArray = thisArrStr[j].split(/\t| /);
           thisArray = thisArray.filter(String);
-          for(var k=0; k<7; k++){ thisCrosstalk1.push(parseFloat(thisArray[k+1])); }
+          for(var k=0; k<16; k++){ thisCrosstalk1.push(parseFloat(thisArray[k+1])); }
         }
         if(thisArrStr[j].includes("crosstalk2")){
           thisArray = thisArrStr[j].split(/\t| /);
           thisArray = thisArray.filter(String);
-          for(var k=0; k<7; k++){ thisCrosstalk2.push(parseFloat(thisArray[k+1])); }
+          for(var k=0; k<16; k++){ thisCrosstalk2.push(parseFloat(thisArray[k+1])); }
         }
         if(thisArrStr[j].includes("TimeOffset") && thisName.includes("LBT")){
           // This is a LBT/TAC timestamp offset which will be added as a Global not a Calibration
@@ -235,7 +235,7 @@ function processDropFile(file){
           outputString += thisName+': '+ thisGlobalName+','+ thisTSOffset + "<br>";
         }
       }
-      if(thisName.includes("TAC_")){
+      if(thisName.includes("TAC_") && !isNaN(thisOffset)){
         // This is a TAC Offset which will be added as a Global not a Calibration
         // http://localhost:9093/?cmd=addGlobal&globalname=TAC-Offset-01-04&globalmin=-100&globalmax=-731
         var thisGlobalName = "TAC-Offset-" + alwaysThisLong(parseInt(thisGain),2) + "-" + alwaysThisLong(parseInt(thisQuad),2);
@@ -284,11 +284,11 @@ function processDropFile(file){
       if(thisCrosstalk0.length>0){
         var thisURLString = spectrumServer + '?cmd=setCrosstalkCorrection&channelName0=' + thisName;
         thisURLString += "&crosstalk0=";
-        for(var k=0; k<7; k++){ if(k>0){ thisURLString += ","; } thisURLString += thisCrosstalk0[k]; }
+        for(var k=0; k<16; k++){ if(k>0){ thisURLString += ","; } thisURLString += thisCrosstalk0[k]; }
         thisURLString += "&crosstalk1=";
-        for(var k=0; k<7; k++){ if(k>0){ thisURLString += ","; } thisURLString += thisCrosstalk1[k]; }
+        for(var k=0; k<16; k++){ if(k>0){ thisURLString += ","; } thisURLString += thisCrosstalk1[k]; }
         thisURLString += "&crosstalk2=";
-        for(var k=0; k<7; k++){ if(k>0){ thisURLString += ","; } thisURLString += thisCrosstalk2[k]; }
+        for(var k=0; k<16; k++){ if(k>0){ thisURLString += ","; } thisURLString += thisCrosstalk2[k]; }
         crosstalkURLs.push(thisURLString);
       }
 
