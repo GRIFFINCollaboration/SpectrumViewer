@@ -1,4 +1,4 @@
-////////////////////
+JSON////////////////////
 // Generic
 ////////////////////
 
@@ -2251,6 +2251,246 @@ function buildCalfile(){
   downloadLink.click();
 }
 
+function buildJSONfile(){
+  console.log('Download initiated - using buildJSONfile function in helper.js');
+
+  // Write the JSON file
+  JSON = '';
+
+  // Variable
+  JSON += "{";
+  JSON += "   \"Analyzer\" : [";
+  JSON += "      {\"Variables\" : [";
+  JSON += "      ]},";
+
+  // Gates, Histograms, Globals
+  JSON += "      {\"Gates\" : [";
+  JSON += "      ]},";
+  JSON += "      {\"Histograms\" : [";
+  JSON += "      ]},";
+  JSON += "      {\"Globals\" : [";
+  JSON += "      ]},";
+
+  // Calibrations
+  // Write this JSON file containing everything from the Config file that sorted this file.
+  // Just replace any coefficients that we have newly determined
+  JSON += "      {\"Calibrations\" : [";
+  /*
+  for(var i=0; i<dataStore.Config.length; i++){
+    var thisKey = dataStore.Config[i].name;
+    JSON += thisKey+' { \n';
+    JSON += 'Name:	'+thisKey+'\n';
+    JSON += 'Number:	'+i+'\n';
+    JSON += 'Address:  0x'+dataStore.Config[i].address.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+'\n';
+    JSON += 'Digitizer:	GRF16\n';
+    // Energy gain matching coefficients
+    if( dataStore.THESEcalibrations[thisKey] && document.getElementById(thisKey+'write')){
+      if( document.getElementById(thisKey+'write').checked){
+        JSON += 'EngCoeff:	'+dataStore.THESEcalibrations[thisKey]['fit'][2]+' '+dataStore.THESEcalibrations[thisKey]['fit'][1]+' '+dataStore.THESEcalibrations[thisKey]['fit'][0]+'\n';
+      }else{
+        JSON += 'EngCoeff:	'+dataStore.Config[i].offset+' '+dataStore.Config[i].gain+' '+dataStore.Config[i].quad+'\n';
+      }
+    }else{
+      JSON += 'EngCoeff:	'+dataStore.Config[i].offset+' '+dataStore.Config[i].gain+' '+dataStore.Config[i].quad+'\n';
+    }
+    if(thisKey.includes("GRG")){ // Only include pileup or crosstalk parameters for HPGe channels
+      // Pileup correction parameters
+      if( dataStore.THESEcalibrations[thisKey] ){
+        if(typeof(dataStore.THESEcalibrations[thisKey].pileupk1) != "undefined"){ // newly derived in pileupCorrections app
+          JSON += 'pileupk1:	'+dataStore.THESEcalibrations[thisKey]['k1'][0]+' '+dataStore.THESEcalibrations[thisKey]['k1'][1]+' '+dataStore.THESEcalibrations[thisKey]['k1'][2];
+          JSON +=          ' '+dataStore.THESEcalibrations[thisKey]['k1'][3]+' '+dataStore.THESEcalibrations[thisKey]['k1'][4]+' '+dataStore.THESEcalibrations[thisKey]['k1'][5]+' '+dataStore.THESEcalibrations[thisKey]['k1'][6]+'\n';
+
+          JSON += 'pileupk2:	'+dataStore.THESEcalibrations[thisKey]['k2'][0]+' '+dataStore.THESEcalibrations[thisKey]['k2'][1]+' '+dataStore.THESEcalibrations[thisKey]['k2'][2];
+          JSON +=          ' '+dataStore.THESEcalibrations[thisKey]['k2'][3]+' '+dataStore.THESEcalibrations[thisKey]['k2'][4]+' '+dataStore.THESEcalibrations[thisKey]['k2'][5]+' '+dataStore.THESEcalibrations[thisKey]['k2'][6]+'\n';
+
+          JSON += 'pileupE1:	'+dataStore.THESEcalibrations[thisKey]['e1'][0]+' '+dataStore.THESEcalibrations[thisKey]['e1'][1]+' '+dataStore.THESEcalibrations[thisKey]['e1'][2];
+          JSON +=          ' '+dataStore.THESEcalibrations[thisKey]['e1'][3]+' '+dataStore.THESEcalibrations[thisKey]['e1'][4]+' '+dataStore.THESEcalibrations[thisKey]['e1'][5]+' '+dataStore.THESEcalibrations[thisKey]['e1'][6]+'\n';
+        }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
+          JSON += 'pileupk1:	'+dataStore.Config[i].pileupk1[0]+' '+dataStore.Config[i].pileupk1[1]+' '+dataStore.Config[i].pileupk1[2];
+          JSON +=          ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+' '+dataStore.Config[i].pileupk1[6]+'\n';
+
+          JSON += 'pileupk2:	'+dataStore.Config[i].pileupk2[0]+' '+dataStore.Config[i].pileupk2[1]+' '+dataStore.Config[i].pileupk2[2];
+          JSON +=          ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+' '+dataStore.Config[i].pileupk2[6]+'\n';
+
+          JSON += 'pileupE1:	'+dataStore.Config[i].pileupE1[0]+' '+dataStore.Config[i].pileupE1[1]+' '+dataStore.Config[i].pileupE1[2];
+          JSON +=          ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+' '+dataStore.Config[i].pileupE1[6]+'\n';
+        }else{ // insert default
+          JSON += 'pileupk1:	1 0 0 0 0 0 0\n';
+          JSON += 'pileupk2:	1 0 0 0 0 0 0\n';
+          JSON += 'pileupE1:	0 0 0 0 0 0 0\n';
+        }
+      }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
+        JSON += 'pileupk1:	'+dataStore.Config[i].pileupk1[0]+' '+dataStore.Config[i].pileupk1[1]+' '+dataStore.Config[i].pileupk1[2];
+        JSON +=          ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+' '+dataStore.Config[i].pileupk1[6]+'\n';
+
+        JSON += 'pileupk2:	'+dataStore.Config[i].pileupk2[0]+' '+dataStore.Config[i].pileupk2[1]+' '+dataStore.Config[i].pileupk2[2];
+        JSON +=          ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+' '+dataStore.Config[i].pileupk2[6]+'\n';
+
+        JSON += 'pileupE1:	'+dataStore.Config[i].pileupE1[0]+' '+dataStore.Config[i].pileupE1[1]+' '+dataStore.Config[i].pileupE1[2];
+        JSON +=          ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+' '+dataStore.Config[i].pileupE1[6]+'\n';
+      }else{ // insert default
+        JSON += 'pileupk1:	1 0 0 0 0 0 0\n';
+        JSON += 'pileupk2:	1 0 0 0 0 0 0\n';
+        JSON += 'pileupE1:	0 0 0 0 0 0 0\n';
+      }
+      // Crosstalk correction parameters
+      if( dataStore.THESEcalibrations[thisKey] ){
+        if(typeof(dataStore.THESEcalibrations[thisKey].crosstalk0) != "undefined"){ // newly derived in crosstalkCorrections app
+          JSON += 'crosstalk0:	';
+          for(var k=0; k<16; k++){ JSON += dataStore.THESEcalibrations[thisKey]['crosstalk0'][k].toFixed(8)+' ' }
+          JSON += '\n';
+          JSON += 'crosstalk1:	';
+          for(var k=0; k<16; k++){ JSON += dataStore.THESEcalibrations[thisKey]['crosstalk1'][k].toFixed(8)+' ' }
+          JSON += '\n';
+          JSON += 'crosstalk2:	';
+          for(var k=0; k<16; k++){ JSON += dataStore.THESEcalibrations[thisKey]['crosstalk2'][k].toFixed(8)+' ' }
+          JSON += '\n';
+        }else if(typeof(dataStore.Config[i].crosstalk0) != "undefined"){ // take from Config file that sorted this run
+          JSON += 'crosstalk0:	';
+          for(var k=0; k<16; k++){ JSON += dataStore.Config[i].crosstalk0[k].toFixed(8)+' ' }
+          JSON += '\n';
+          JSON += 'crosstalk1:	';
+          for(var k=0; k<16; k++){ JSON += dataStore.Config[i].crosstalk1[k].toFixed(8)+' ' }
+          JSON += '\n';
+          JSON += 'crosstalk2:	';
+          for(var k=0; k<16; k++){ JSON += dataStore.Config[i].crosstalk2[k].toFixed(8)+' ' }
+          JSON += '\n';
+        }else{ // insert default
+          JSON += 'crosstalk0:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
+          JSON += 'crosstalk1:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
+          JSON += 'crosstalk2:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
+        }
+      }else if(typeof(dataStore.Config[i].crosstalk0) != "undefined"){ // take from Config file that sorted this run
+        JSON += 'crosstalk0:	';
+        for(var k=0; k<16; k++){ JSON += dataStore.Config[i].crosstalk0[k].toFixed(8)+' ' }
+        JSON += '\n';
+        JSON += 'crosstalk1:	';
+        for(var k=0; k<16; k++){ JSON += dataStore.Config[i].crosstalk1[k].toFixed(8)+' ' }
+        JSON += '\n';
+        JSON += 'crosstalk2:	';
+        for(var k=0; k<16; k++){ JSON += dataStore.Config[i].crosstalk2[k].toFixed(8)+' ' }
+        JSON += '\n';
+      }else{ // insert default
+        JSON += 'crosstalk0:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
+        JSON += 'crosstalk1:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
+        JSON += 'crosstalk2:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
+      }
+    }
+    JSON += 'Integration:	0\n';
+    JSON += 'ENGChi2:	0\n';
+    JSON += 'FileInt:	0\n';
+    JSON += '}\n';
+    JSON += '\n';
+    JSON += '//====================================//\n';
+  }
+  */
+  JSON += "      ]},";
+
+  // Directories
+  JSON += "          {\"Directories\" : [";
+  JSON += "             {\"name\" : \"Data\", \"Path\" : \"\"},";
+  JSON += "             {\"name\" : \"Histo\", \"Path\" : \"\"},";
+  JSON += "             {\"name\" : \"Config\", \"Path\" : \"\"}";
+  JSON += "          ]},";
+
+  // Midas
+  JSON += "          {\"Midas\" : [";
+  JSON += "             {\"name\" : \"Title\", \"Value\" : \"\"},";
+  JSON += "             {\"name\" : \"StartTime\", \"Value\" : \"0\"},";
+  JSON += "             {\"name\" : \"Duration\", \"Value\" : \"0\"}";
+  JSON += "          ]}";
+  JSON += "       ]";
+  JSON += "      }";
+
+  // Create a download link
+  const textBlob = new Blob([JSON], {type: 'text/plain'});
+  URL.revokeObjectURL(window.textBlobURL);
+  const downloadLink = document.createElement('a');
+  downloadLink.href = URL.createObjectURL(textBlob);
+  downloadLink.download = document.getElementById('saveJSONname').value;
+
+  // Trigger the download
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+}
+
+
+    function buildCSVfile(){
+      console.log('Download initiated - using buildCSVfile function in helper.js');
+      var keys = Object.keys(dataStore.fitResults);
+      var index = 1;
+
+      // Write the table of results to a CSV file for download.
+      var CSV = '';
+
+      CSV += 'GRIFFIN Peak Fitter Results Data\n\n';
+
+      //fit results: 'plotname': [[amplitude, center, width, intercept, slope, area, FWHM], [amplitude, center, width, intercept, slope, area, FWHM]]
+
+      CSV += 'Fit Index,';
+      CSV += 'Histogram File,';
+      CSV += 'Run Title,Run StartTime,Run Duration,';
+      CSV += 'Spectrum,';
+      CSV += 'Centroid,'; //
+      CSV += 'Height,'; //
+      CSV += 'Width,'; //
+      CSV += 'Intercept (BG),'; //
+      CSV += 'Slope (BG),'; //
+      CSV += 'Area,'; //
+      CSV += 'Area Unc.,'; //
+      CSV += 'FWHM\n'; //
+      for(var i=0; i<keys.length; i++){
+        for(var j=0; j<dataStore.fitResults[keys[i]].length; j++){
+          CSV += index + ','; index++;
+          CSV += keys[i].split(":")[0] + ',';
+          CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Title + ',';
+          CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].StartTime + ',';
+          CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Duration + ',';
+          CSV += keys[i].split(":")[1] + ',';
+          CSV += dataStore.fitResults[keys[i]][j][1].toFixed(2) + ','; // Center
+          CSV += dataStore.fitResults[keys[i]][j][0].toFixed(2) + ','; // Amplitude
+          CSV += dataStore.fitResults[keys[i]][j][2].toFixed(2) + ','; // width
+          CSV += dataStore.fitResults[keys[i]][j][3].toFixed(2) + ','; // intercept
+          CSV += dataStore.fitResults[keys[i]][j][4].toFixed(2) + ','; // slope
+          CSV += dataStore.fitResults[keys[i]][j][5].toFixed(2) + ','; // area
+          CSV += Math.sqrt(dataStore.fitResults[keys[i]][j][5]).toFixed(2) + ','; // area uncertainty
+          CSV += dataStore.fitResults[keys[i]][j][6].toFixed(2) + '\n'; // FWHM
+        }
+      }
+      CSV += '\n';
+
+      // Create a download link
+      const textBlob = new Blob([CSV], {type: 'text/plain'});
+      URL.revokeObjectURL(window.textBlobURL);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = URL.createObjectURL(textBlob);
+      downloadLink.download = 'GRIFFIN-peakFitter-Results.csv';
+
+      // Trigger the download
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+    }
+
+        function buildScriptfile(){
+          console.log('Download initiated');
+
+          // Write the contents of the json script to a file for download.
+          var JSONstring = '';
+          JSONstring = JSON.stringify(dataStore.peakFitterScript, null, 4);
+
+          // Need to purge some spectrum specific peak entries if they match All.
+
+          // Create a download link
+          const textBlob = new Blob([JSONstring], {type: 'text/plain'});
+          URL.revokeObjectURL(window.textBlobURL);
+          const downloadLink = document.createElement('a');
+          downloadLink.href = URL.createObjectURL(textBlob);
+          downloadLink.download = 'GRIFFIN-peakFitter-script.json';
+
+          // Trigger the download
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+        }
 
 ////////////////////
 // Plotly.js

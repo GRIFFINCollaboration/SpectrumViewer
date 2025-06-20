@@ -140,7 +140,23 @@ function setupDataStore(){
       "GRG13BN00A_Pulse_Height","GRG13GN00A_Pulse_Height","GRG13RN00A_Pulse_Height","GRG13WN00A_Pulse_Height",
       "GRG14BN00A_Pulse_Height","GRG14GN00A_Pulse_Height","GRG14RN00A_Pulse_Height","GRG14WN00A_Pulse_Height",
       "GRG15BN00A_Pulse_Height","GRG15GN00A_Pulse_Height","GRG15RN00A_Pulse_Height","GRG15WN00A_Pulse_Height",
-      "GRG16BN00A_Pulse_Height","GRG16GN00A_Pulse_Height","GRG16RN00A_Pulse_Height","GRG16WN00A_Pulse_Height"
+      "GRG16BN00A_Pulse_Height","GRG16GN00A_Pulse_Height","GRG16RN00A_Pulse_Height","GRG16WN00A_Pulse_Height",
+      "GRG01BN00B_Pulse_Height","GRG01GN00B_Pulse_Height","GRG01RN00B_Pulse_Height","GRG01WN00B_Pulse_Height",
+      "GRG02BN00B_Pulse_Height","GRG02GN00B_Pulse_Height","GRG02RN00B_Pulse_Height","GRG02WN00B_Pulse_Height",
+      "GRG03BN00B_Pulse_Height","GRG03GN00B_Pulse_Height","GRG03RN00B_Pulse_Height","GRG03WN00B_Pulse_Height",
+      "GRG04BN00B_Pulse_Height","GRG04GN00B_Pulse_Height","GRG04RN00B_Pulse_Height","GRG04WN00B_Pulse_Height",
+      "GRG05BN00B_Pulse_Height","GRG05GN00B_Pulse_Height","GRG05RN00B_Pulse_Height","GRG05WN00B_Pulse_Height",
+      "GRG06BN00B_Pulse_Height","GRG06GN00B_Pulse_Height","GRG06RN00B_Pulse_Height","GRG06WN00B_Pulse_Height",
+      "GRG07BN00B_Pulse_Height","GRG07GN00B_Pulse_Height","GRG07RN00B_Pulse_Height","GRG07WN00B_Pulse_Height",
+      "GRG08BN00B_Pulse_Height","GRG08GN00B_Pulse_Height","GRG08RN00B_Pulse_Height","GRG08WN00B_Pulse_Height",
+      "GRG09BN00B_Pulse_Height","GRG09GN00B_Pulse_Height","GRG09RN00B_Pulse_Height","GRG09WN00B_Pulse_Height",
+      "GRG10BN00B_Pulse_Height","GRG10GN00B_Pulse_Height","GRG10RN00B_Pulse_Height","GRG10WN00B_Pulse_Height",
+      "GRG11BN00B_Pulse_Height","GRG11GN00B_Pulse_Height","GRG11RN00B_Pulse_Height","GRG11WN00B_Pulse_Height",
+      "GRG12BN00B_Pulse_Height","GRG12GN00B_Pulse_Height","GRG12RN00B_Pulse_Height","GRG12WN00B_Pulse_Height",
+      "GRG13BN00B_Pulse_Height","GRG13GN00B_Pulse_Height","GRG13RN00B_Pulse_Height","GRG13WN00B_Pulse_Height",
+      "GRG14BN00B_Pulse_Height","GRG14GN00B_Pulse_Height","GRG14RN00B_Pulse_Height","GRG14WN00B_Pulse_Height",
+      "GRG15BN00B_Pulse_Height","GRG15GN00B_Pulse_Height","GRG15RN00B_Pulse_Height","GRG15WN00B_Pulse_Height",
+      "GRG16BN00B_Pulse_Height","GRG16GN00B_Pulse_Height","GRG16RN00B_Pulse_Height","GRG16WN00B_Pulse_Height"
     ], 'spectrumList1dPeaks' : { 'All':[74.97,1173.23,1332.49,2614.52] }, 'histogramFileNames' : [],
     'spectrumList2d' : [], 'spectrumListGates' : [], 'spectrumListProjectionsPeaks' : {'All':[]}},
 
@@ -992,85 +1008,6 @@ function launchPeakFittingProcess(){
     document.getElementById('saveCalDiv').classList.remove('hidden');
 
   }
-  
-function buildCSVfile(){
-  console.log('Download initiated');
-  var keys = Object.keys(dataStore.fitResults);
-  var index = 1;
-
-  // Write the table of results to a CSV file for download.
-  var CSV = '';
-
-  CSV += 'GRIFFIN Peak Fitter Results Data\n\n';
-
-  //fit results: 'plotname': [[amplitude, center, width, intercept, slope, area, FWHM], [amplitude, center, width, intercept, slope, area, FWHM]]
-
-  CSV += 'Fit Index,';
-  CSV += 'Histogram File,';
-  CSV += 'Run Title,Run StartTime,Run Duration,';
-  CSV += 'Spectrum,';
-  CSV += 'Centroid,'; //
-  CSV += 'Height,'; //
-  CSV += 'Width,'; //
-  CSV += 'Intercept (BG),'; //
-  CSV += 'Slope (BG),'; //
-  CSV += 'Area,'; //
-  CSV += 'Area Unc.,'; //
-  CSV += 'FWHM\n'; //
-  for(var i=0; i<keys.length; i++){
-    for(var j=0; j<dataStore.fitResults[keys[i]].length; j++){
-      CSV += index + ','; index++;
-      CSV += keys[i].split(":")[0] + ',';
-      CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Title + ',';
-      CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].StartTime + ',';
-      CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Duration + ',';
-      CSV += keys[i].split(":")[1] + ',';
-      CSV += dataStore.fitResults[keys[i]][j][1].toFixed(2) + ','; // Center
-      CSV += dataStore.fitResults[keys[i]][j][0].toFixed(2) + ','; // Amplitude
-      CSV += dataStore.fitResults[keys[i]][j][2].toFixed(2) + ','; // width
-      CSV += dataStore.fitResults[keys[i]][j][3].toFixed(2) + ','; // intercept
-      CSV += dataStore.fitResults[keys[i]][j][4].toFixed(2) + ','; // slope
-      CSV += dataStore.fitResults[keys[i]][j][5].toFixed(2) + ','; // area
-      CSV += Math.sqrt(dataStore.fitResults[keys[i]][j][5]).toFixed(2) + ','; // area uncertainty
-      CSV += dataStore.fitResults[keys[i]][j][6].toFixed(2) + '\n'; // FWHM
-    }
-  }
-  CSV += '\n';
-
-  // Create a download link
-  const textBlob = new Blob([CSV], {type: 'text/plain'});
-  URL.revokeObjectURL(window.textBlobURL);
-  const downloadLink = document.createElement('a');
-  downloadLink.href = URL.createObjectURL(textBlob);
-  downloadLink.download = 'GRIFFIN-peakFitter-Results.csv';
-
-  // Trigger the download
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-}
-
-function buildScriptfile(){
-  console.log('Download initiated');
-
-  // Write the contents of the json script to a file for download.
-  var JSONstring = '';
-  JSONstring = JSON.stringify(dataStore.peakFitterScript, null, 4);
-
-  // Need to purge some spectrum specific peak entries if they match All.
-
-
-  // Create a download link
-  const textBlob = new Blob([JSONstring], {type: 'text/plain'});
-  URL.revokeObjectURL(window.textBlobURL);
-  const downloadLink = document.createElement('a');
-  downloadLink.href = URL.createObjectURL(textBlob);
-  downloadLink.download = 'GRIFFIN-peakFitter-script.json';
-
-  // Trigger the download
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-}
-
 
 function updateAnalyzer(){
 
