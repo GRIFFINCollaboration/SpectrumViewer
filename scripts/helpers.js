@@ -2152,14 +2152,14 @@ function buildCalfile(){
       // Pileup correction parameters
       if( dataStore.THESEcalibrations[thisKey] ){
         if(typeof(dataStore.THESEcalibrations[thisKey].pileupk1) != "undefined"){ // newly derived in pileupCorrections app
-          CAL += 'pileupk1:	'+dataStore.THESEcalibrations[thisKey]['k1'][0]+' '+dataStore.THESEcalibrations[thisKey]['k1'][1]+' '+dataStore.THESEcalibrations[thisKey]['k1'][2];
-          CAL +=          ' '+dataStore.THESEcalibrations[thisKey]['k1'][3]+' '+dataStore.THESEcalibrations[thisKey]['k1'][4]+' '+dataStore.THESEcalibrations[thisKey]['k1'][5]+' '+dataStore.THESEcalibrations[thisKey]['k1'][6]+'\n';
+          CAL += 'pileupk1:	'+dataStore.THESEcalibrations[thisKey]['pileupk1'][0]+' '+dataStore.THESEcalibrations[thisKey]['pileupk1'][1]+' '+dataStore.THESEcalibrations[thisKey]['pileupk1'][2];
+          CAL +=          ' '+dataStore.THESEcalibrations[thisKey]['pileupk1'][3]+' '+dataStore.THESEcalibrations[thisKey]['pileupk1'][4]+' '+dataStore.THESEcalibrations[thisKey]['pileupk1'][5]+' '+dataStore.THESEcalibrations[thisKey]['pileupk1'][6]+'\n';
 
-          CAL += 'pileupk2:	'+dataStore.THESEcalibrations[thisKey]['k2'][0]+' '+dataStore.THESEcalibrations[thisKey]['k2'][1]+' '+dataStore.THESEcalibrations[thisKey]['k2'][2];
-          CAL +=          ' '+dataStore.THESEcalibrations[thisKey]['k2'][3]+' '+dataStore.THESEcalibrations[thisKey]['k2'][4]+' '+dataStore.THESEcalibrations[thisKey]['k2'][5]+' '+dataStore.THESEcalibrations[thisKey]['k2'][6]+'\n';
+          CAL += 'pileupk2:	'+dataStore.THESEcalibrations[thisKey]['pileupk2'][0]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][1]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][2];
+          CAL +=          ' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][3]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][4]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][5]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][6]+'\n';
 
-          CAL += 'pileupE1:	'+dataStore.THESEcalibrations[thisKey]['e1'][0]+' '+dataStore.THESEcalibrations[thisKey]['e1'][1]+' '+dataStore.THESEcalibrations[thisKey]['e1'][2];
-          CAL +=          ' '+dataStore.THESEcalibrations[thisKey]['e1'][3]+' '+dataStore.THESEcalibrations[thisKey]['e1'][4]+' '+dataStore.THESEcalibrations[thisKey]['e1'][5]+' '+dataStore.THESEcalibrations[thisKey]['e1'][6]+'\n';
+          CAL += 'pileupE1:	'+dataStore.THESEcalibrations[thisKey]['pileupE1'][0]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][1]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][2];
+          CAL +=          ' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][3]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][4]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][5]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][6]+'\n';
         }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
           CAL += 'pileupk1:	'+dataStore.Config[i].pileupk1[0]+' '+dataStore.Config[i].pileupk1[1]+' '+dataStore.Config[i].pileupk1[2];
           CAL +=          ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+' '+dataStore.Config[i].pileupk1[6]+'\n';
@@ -2275,45 +2275,51 @@ function buildJSONfile(){
   // Write this JSON file containing everything from the Config file that sorted this file.
   // Just replace any coefficients that we have newly determined
   JSON += "      {\"Calibrations\" : [";
-  /*
+
   for(var i=0; i<dataStore.Config.length; i++){
     var thisKey = dataStore.Config[i].name;
     JSON += thisKey+' { \n';
-    JSON += 'Name:	'+thisKey+'\n';
-    JSON += 'Number:	'+i+'\n';
-    JSON += 'Address:  0x'+dataStore.Config[i].address.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+'\n';
-    JSON += 'Digitizer:	GRF16\n';
+    JSON += '\"name\" : \"'+thisKey+'\" , ';
+    JSON += '\"address\" : 0x'+dataStore.Config[i].address.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+' , ';
+    JSON += '\"datatype\" : \"'+ -1 +'\" , ';
+
     // Energy gain matching coefficients
     if( dataStore.THESEcalibrations[thisKey] && document.getElementById(thisKey+'write')){
       if( document.getElementById(thisKey+'write').checked){
-        JSON += 'EngCoeff:	'+dataStore.THESEcalibrations[thisKey]['fit'][2]+' '+dataStore.THESEcalibrations[thisKey]['fit'][1]+' '+dataStore.THESEcalibrations[thisKey]['fit'][0]+'\n';
+        JSON += '\"offset\" : '+dataStore.THESEcalibrations[thisKey]['fit'][2]+' , ';
+        JSON += '\"gain\" : '+dataStore.THESEcalibrations[thisKey]['fit'][1]+' , ';
+        JSON += '\"quad\" : '+dataStore.THESEcalibrations[thisKey]['fit'][0]+' ';
       }else{
-        JSON += 'EngCoeff:	'+dataStore.Config[i].offset+' '+dataStore.Config[i].gain+' '+dataStore.Config[i].quad+'\n';
+        JSON += '\"offset\" : '+dataStore.Config[i].offset+' , ';
+        JSON += '\"gain\" : '+dataStore.Config[i].gain+' , ';
+        JSON += '\"quad\" : '+dataStore.Config[i].quad+' ';
       }
     }else{
-      JSON += 'EngCoeff:	'+dataStore.Config[i].offset+' '+dataStore.Config[i].gain+' '+dataStore.Config[i].quad+'\n';
+      JSON += '\"offset\" : '+dataStore.Config[i].offset+' , ';
+      JSON += '\"gain\" : '+dataStore.Config[i].gain+' , ';
+      JSON += '\"quad\" : '+dataStore.Config[i].quad+' ';
     }
     if(thisKey.includes("GRG")){ // Only include pileup or crosstalk parameters for HPGe channels
       // Pileup correction parameters
       if( dataStore.THESEcalibrations[thisKey] ){
         if(typeof(dataStore.THESEcalibrations[thisKey].pileupk1) != "undefined"){ // newly derived in pileupCorrections app
-          JSON += 'pileupk1:	'+dataStore.THESEcalibrations[thisKey]['k1'][0]+' '+dataStore.THESEcalibrations[thisKey]['k1'][1]+' '+dataStore.THESEcalibrations[thisKey]['k1'][2];
-          JSON +=          ' '+dataStore.THESEcalibrations[thisKey]['k1'][3]+' '+dataStore.THESEcalibrations[thisKey]['k1'][4]+' '+dataStore.THESEcalibrations[thisKey]['k1'][5]+' '+dataStore.THESEcalibrations[thisKey]['k1'][6]+'\n';
+          JSON += ', \"pileupk1\" : [ '+dataStore.THESEcalibrations[thisKey]['pileupk1'][0]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][1]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][2];
+          JSON +=                 ' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][3]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][4]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][5]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][6]+' ] ';
 
-          JSON += 'pileupk2:	'+dataStore.THESEcalibrations[thisKey]['k2'][0]+' '+dataStore.THESEcalibrations[thisKey]['k2'][1]+' '+dataStore.THESEcalibrations[thisKey]['k2'][2];
-          JSON +=          ' '+dataStore.THESEcalibrations[thisKey]['k2'][3]+' '+dataStore.THESEcalibrations[thisKey]['k2'][4]+' '+dataStore.THESEcalibrations[thisKey]['k2'][5]+' '+dataStore.THESEcalibrations[thisKey]['k2'][6]+'\n';
+          JSON += 'pileupk2:	'+dataStore.THESEcalibrations[thisKey]['pileupk2'][0]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][1]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][2];
+          JSON +=           ' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][3]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][4]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][5]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][6]+'\n';
 
-          JSON += 'pileupE1:	'+dataStore.THESEcalibrations[thisKey]['e1'][0]+' '+dataStore.THESEcalibrations[thisKey]['e1'][1]+' '+dataStore.THESEcalibrations[thisKey]['e1'][2];
-          JSON +=          ' '+dataStore.THESEcalibrations[thisKey]['e1'][3]+' '+dataStore.THESEcalibrations[thisKey]['e1'][4]+' '+dataStore.THESEcalibrations[thisKey]['e1'][5]+' '+dataStore.THESEcalibrations[thisKey]['e1'][6]+'\n';
+          JSON += 'pileupE1:	'+dataStore.THESEcalibrations[thisKey]['pileupE1'][0]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][1]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][2];
+          JSON +=           ' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][3]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][4]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][5]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][6]+'\n';
         }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
           JSON += 'pileupk1:	'+dataStore.Config[i].pileupk1[0]+' '+dataStore.Config[i].pileupk1[1]+' '+dataStore.Config[i].pileupk1[2];
-          JSON +=          ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+' '+dataStore.Config[i].pileupk1[6]+'\n';
+          JSON +=           ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+' '+dataStore.Config[i].pileupk1[6]+'\n';
 
           JSON += 'pileupk2:	'+dataStore.Config[i].pileupk2[0]+' '+dataStore.Config[i].pileupk2[1]+' '+dataStore.Config[i].pileupk2[2];
-          JSON +=          ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+' '+dataStore.Config[i].pileupk2[6]+'\n';
+          JSON +=           ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+' '+dataStore.Config[i].pileupk2[6]+'\n';
 
           JSON += 'pileupE1:	'+dataStore.Config[i].pileupE1[0]+' '+dataStore.Config[i].pileupE1[1]+' '+dataStore.Config[i].pileupE1[2];
-          JSON +=          ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+' '+dataStore.Config[i].pileupE1[6]+'\n';
+          JSON +=           ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+' '+dataStore.Config[i].pileupE1[6]+'\n';
         }else{ // insert default
           JSON += 'pileupk1:	1 0 0 0 0 0 0\n';
           JSON += 'pileupk2:	1 0 0 0 0 0 0\n';
@@ -2321,13 +2327,13 @@ function buildJSONfile(){
         }
       }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
         JSON += 'pileupk1:	'+dataStore.Config[i].pileupk1[0]+' '+dataStore.Config[i].pileupk1[1]+' '+dataStore.Config[i].pileupk1[2];
-        JSON +=          ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+' '+dataStore.Config[i].pileupk1[6]+'\n';
+        JSON +=           ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+' '+dataStore.Config[i].pileupk1[6]+'\n';
 
         JSON += 'pileupk2:	'+dataStore.Config[i].pileupk2[0]+' '+dataStore.Config[i].pileupk2[1]+' '+dataStore.Config[i].pileupk2[2];
-        JSON +=          ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+' '+dataStore.Config[i].pileupk2[6]+'\n';
+        JSON +=           ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+' '+dataStore.Config[i].pileupk2[6]+'\n';
 
         JSON += 'pileupE1:	'+dataStore.Config[i].pileupE1[0]+' '+dataStore.Config[i].pileupE1[1]+' '+dataStore.Config[i].pileupE1[2];
-        JSON +=          ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+' '+dataStore.Config[i].pileupE1[6]+'\n';
+        JSON +=           ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+' '+dataStore.Config[i].pileupE1[6]+'\n';
       }else{ // insert default
         JSON += 'pileupk1:	1 0 0 0 0 0 0\n';
         JSON += 'pileupk2:	1 0 0 0 0 0 0\n';
@@ -2383,7 +2389,7 @@ function buildJSONfile(){
     JSON += '\n';
     JSON += '//====================================//\n';
   }
-  */
+
   JSON += "      ]},";
 
   // Directories

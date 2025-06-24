@@ -67,6 +67,11 @@ function setupDataStore(){
   dataStore.fitResultsData = {};              // Store the data of the curve fitting, 'detector-name':{ 'k1':[[x0,y0],[x1,y1]...], 'k2':[[x0,y0],[x1,y1]...], 'e1':[[x0,y0],[x1,y1]...] }
   dataStore.fitResultsParameters = {};        // Store the parameters of the curve fitting, 'detector-name':{ 'k1':[p0,p1,p2,p3,p4,p5,p6], 'k2':[p0,p1,p2,p3,p4,p5,p6], 'e1':[p0,p1,p2,p3,p4,p5,p6] }
 
+  // Final results
+  dataStore.THESEcalibrations = [];  // Array of objects to store together the cailbration data and results. 'detectorName':{ 'x'(pulseHeight centroids):[],'y'(literature energy):[],'residual':[],'fit':[quad,gain,offset,reduced-chi-squared],
+                                     //                                                                                       'pileupk1':[1 0 0 0 0 0 0], 'pileupk2':[1 0 0 0 0 0 0], 'pileupE1':[0 0 0 0 0 0 0],
+                                     //                                                                                       'crosstalk0:[0,1,0,0,0,0,0]', 'crosstalk1:[0,1,0,0,0,0,0]', 'crosstalk2:[0,1,0,0,0,0,0]'}
+
   //custom element config
   dataStore.dataType = 'Singles';                                         //mode of operation: Singles or Addback.
 
@@ -1113,6 +1118,16 @@ function launchPeakFittingProcess(){
           }
         }
         Cstring += "},<br>\n";
+
+
+                  // Save these parameters to the THESEcalibrations object used by buildCalfile and updateAnalyzer
+                  if(!dataStore.THESEcalibrations[GeName]){ dataStore.THESEcalibrations[GeName] = {}; }
+                  if(!dataStore.THESEcalibrations[GeName].pileupk1){ dataStore.THESEcalibrations[GeName].pileupk1 = []; dataStore.THESEcalibrations[GeName].pileupk2 = []; dataStore.THESEcalibrations[GeName].pileupE1 = []; }
+                //  dataStore.THESEcalibrations[GeName]["crosstalk"+thisMatrixIndex] = dataStore.fitResultsParameters[GeName][thisColor];
+                  dataStore.THESEcalibrations[GeName].pileupk1 = dataStore.fitResultsParameters[GeName]['k1'];
+                  dataStore.THESEcalibrations[GeName].pileupk2 = dataStore.fitResultsParameters[GeName]['k2'];
+                  dataStore.THESEcalibrations[GeName].pileupE1 = dataStore.fitResultsParameters[GeName]['e1'];
+
       } // end of Ge loop
     //  document.getElementById("postProcessResults").innerHTML = Cstring + "<br>";
 
@@ -1203,7 +1218,7 @@ function launchPeakFittingProcess(){
       //get rid of the modal
       document.getElementById('dismissAnalyzermodal').click();
     }
-
+/*
     function buildCalfile(){
       console.log('Download initiated');
 
@@ -1253,7 +1268,7 @@ function launchPeakFittingProcess(){
       document.body.appendChild(downloadLink);
       downloadLink.click();
     }
-
+*/
     function postProcessPUFirst2Hit(){
       // Post processing for 2-Hit pileup, 2nd Hit correction as function of k.
       //
