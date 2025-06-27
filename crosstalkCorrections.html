@@ -246,6 +246,7 @@
 
     // Grab the histogram list for the default directory
     getHistoFileListFromServer();
+    getMidasFileListFromServer(); // The request for details follows this
 
     // Set up the CSV file button
     document.getElementById('saveCSV').onclick = function(){ buildCSVfile(); }

@@ -1,0 +1,89 @@
+<link rel="stylesheet" href="bgoHValignmentReport.css">
+
+<template id='bgoHValignmentReport'>
+<div class='sectionWrapper item'>
+<div class='col-md-12'>
+<table id='{{id}}bgoHValignmentResults' class='table bgoHValignmentTable'></table>
+</div>
+</div>
+</template>
+
+<script>
+function bgoHValignmentReport(wrapID){
+
+  this.wrapID = wrapID;
+  this.wrap = document.getElementById(wrapID);
+
+  this.setup = function(){
+
+    //inject templates
+    this.wrap.innerHTML = Mustache.to_html(
+      dataStore.templates.bgoHValignmentReport,
+      {
+        'id': this.wrapID,
+      }
+    );
+
+    // table has to be done as a separate template, since templates and tables don't play too nice together
+    document.getElementById(this.wrapID + 'bgoHValignmentResults').innerHTML= Mustache.to_html(
+      dataStore.templates.bgoHValignmentReportTable,
+      content = {
+        'id': this.wrapID
+      }
+    );
+
+  };
+
+  this.refreshTableData = function(cloverNum){
+
+    // Variables to control table generation and filling
+    cellHandles = ["detector","name","maxCountsChannel","maxCountsValue","comptonEdgeThreshold","comptonEdgeChannel","deltaV_1PMT","deltaV_2PMT"];
+
+    var tableID = "bgoHValignmentbgoHValignmentResults";
+
+    // Delete rows except for header
+    while(document.getElementById(tableID).rows.length>1){
+      document.getElementById(tableID).deleteRow(document.getElementById(tableID).rows.length-1);
+    }
+
+    var keys = [];
+    keys = buildPositionDetList(cloverNum);
+
+    for(var i=0; i<keys.length; i++){
+      var row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
+      row.id = tableID+'Row-'+ keys[i];
+      for(var cellIndex=0; cellIndex<cellHandles.length; cellIndex++){
+        var cell = row.insertCell(cellIndex);
+        cell.id = row.id + '-Cell-' + cellHandles[cellIndex];
+        cell.innerHTML = dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]];
+
+        if(cellHandles[cellIndex] == "deltaV_1PMT"){
+          if(Math.abs(dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]])<21){
+            // Change cell background to green
+            cell.setAttribute('style', 'background-color: #4CBB17;');
+          }else if(Math.abs(dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]])<81){
+            // Change cell background to orange
+            cell.setAttribute('style', 'background-color: #F28C28;');
+          } else if(Math.abs(dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]])>80){
+            // Change cell background to red
+            cell.setAttribute('style', 'background-color: #D22B2B;');
+          }
+        }
+        if(cellHandles[cellIndex] == "deltaV_2PMT"){
+          if(Math.abs(dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]])<11){
+            // Change cell background to green
+            cell.setAttribute('style', 'background-color: #4CBB17;');
+          }else if(Math.abs(dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]])<41){
+            // Change cell background to orange
+            cell.setAttribute('style', 'background-color: #F28C28;');
+          }else if(Math.abs(dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]])>40){
+            // Change cell background to red
+            cell.setAttribute('style', 'background-color: #D22B2B;');
+          }
+        }
+      }
+    }
+  };
+
+}
+</script>

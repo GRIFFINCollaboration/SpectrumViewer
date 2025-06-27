@@ -503,8 +503,8 @@ dataStore.peaksList = {
     "133Ba": [ 30.97,80,276.4,302.85,356.01,383.85, 788.74,1435.80,2614.52],
     "152Eu": [ 39.91, 121.8, 244.7, 344.3, 778.9, 867.4, 964.0, 1112.1, 1408.0,2614.52],
     "207Bi": [ 74.97,569.70, 788.74,1063.66,1408.0,1435.80,1770.23,2614.52],
-    "26Na": [ 511, 1128.89, 1808.71, 1896.78, 2541.5,4834.3],
-    "26NaS1140": [ 511, 1128.89, 1411.36,1460.83, 1808.71, 1896.78, 2132.91, 2541.5,2614.52,4834.3],
+    "26Na": [ 511, 1128.89, 1808.71, 1896.78, 2541.5,4834.61],
+    "26NaS1140": [ 511, 1128.89, 1411.36, 1808.71, 1896.78, 2132.91, 2541.5, 4834.61],
     "Custom": [ ],
     // Only four peaks used for the results Table and plots
     "56CoTable": [122.00,846.76,1771.35,3253.42],
@@ -513,7 +513,7 @@ dataStore.peaksList = {
     "152EuTable": [ 121.8,344.3, 778.9, 1408.0],
     "207BiTable": [ 74.97,569.70,1063.66,1770.23],
     "26NaTable": [ 1128.89, 1808.71, 2541.5,4834.3 ],
-    "26NaS1140Table": [ 1128.89, 1808.71, 2541.5,4834.3 ],
+    "26NaS1140Table": [ 1128.89, 1808.71, 2541.5, 4834.61 ],
     "CustomTable": [ ]
   },
   "PACES": {
@@ -579,7 +579,6 @@ dataStore.referenceSpectrum = {
 setupDataStore();
 
 function setupnewGainMatcher(detType,sourceType){
-  // This fast timing app is different from the others. We dont actually want peak fitting.
 
   // Save the choices to the dataStore
   dataStore.detectorType = detType;

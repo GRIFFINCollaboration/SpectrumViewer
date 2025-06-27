@@ -1,0 +1,283 @@
+<html>
+<head>
+  <title>GRIFFIN BGO HV Alignment</title>
+  <script src='scripts/HTMLImports.min.js' type="text/javascript"></script>
+  <script src='scripts/mustache.js' type="text/javascript"></script>
+  <script src='scripts/easeljs-0.7.0.min.js' type="text/javascript"></script>
+  <script src='scripts/dygraphs.1.1.1.min.js' type="text/javascript"></script>
+  <script src='scripts/regression.min.js' type="text/javascript"></script>
+  <script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
+  <script src='scripts/fitit.js' type="text/javascript"></script>
+  <script src="scripts/jquery1-11-3.min.js"></script>
+  <script src="scripts/bootstrap3-3-5.min.js"></script>
+
+  <script src='scripts/helpers.js' type="text/javascript"></script>
+  <script src='scripts/bgoHValignment.js' type="text/javascript"></script>
+  <link rel="stylesheet" type="text/css" href="css/bootstrap3-3-5.min.css">
+  <link rel="stylesheet" type="text/css" href="css/custom.css">
+
+  <!--HTML imports-->
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <link id='header' rel="import" href="templates/header/header.html">
+  <link id='paginationMenu' rel="import" href="templates/paginationMenu/paginationMenu.html">
+  <link id='bgoHValignmentReport' rel="import" href="templates/bgoHValignmentReport/bgoHValignmentReport.html">
+  <link id='bgoHValignmentReportTable' rel="import" href="templates/bgoHValignmentReport/bgoHValignmentReportTable.html">
+  <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
+  <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
+  <link id='plotListLite' rel="import" href="templates/plotList/plotListLite.html">
+  <link id='footer' rel="import" href="templates/footer/footer.html">
+</head>
+
+<body>
+  <div id='head'></div>
+  <div id='messageDiv' class='col-md-12'>
+    <div id='messageDivText'></div><div id='messageDivButton'></div>
+  </div>
+
+  <div id='progressDiv' class="container progress hidden">
+    <div id='bgoHValignmentProgress' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">Initializing App...
+    </div>
+  </div>
+
+  <!--helpful hints-->
+  <div class='col-md-6'>
+    <div id='welcomeMessage' class="alert alert-warning" role="alert">
+      <span class="glyphicon glyphicon-check" aria-hidden="false"></span>
+      This app will fit one or more peaks in a set of spectra for a set of histogram files, and then provide the results in a few formats. Fill in the Histogram files, spectra and peaks details in the input boxes. Alternatively a script can be uploaded to quickly fill the inputs.
+    </div>
+
+    <div id='fetchingMessage' class="alert alert-warning hidden" role="alert">
+      <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+      Spectra are downloading from the server...
+    </div>
+
+    <div id='projectionsMessage' class="alert alert-warning hidden" role="alert">
+      <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+      Projecting the 2d matrices...
+    </div>
+
+    <div id='fittingSinglesMessage' class="alert alert-warning hidden" role="alert">
+      <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+      Fitting the peaks in the 1d spectra...
+    </div>
+
+    <div id='fittingProjectionsMessage' class="alert alert-warning hidden" role="alert">
+      <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+      Fitting the peaks in the projected spectra from the 2d spectra...
+    </div>
+
+    <div id='reviewMessage' class="alert alert-warning hidden" role="alert">
+      <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+      Analysis complete. Review the results in the table below. Results can be downloaded as CSV or text files.
+    </div>
+  </div>
+
+  <!--User input for initial setup-->
+  <div id='userInputBar' class='col-md-12'>
+    <div id='histoChoiceDir' class='col-md-12'></div>
+  </div>
+  <div id='error-messages-for-drop-area' class='col-md-6 error-text'></div>
+
+  <div id="peakFitterDivContainer" class='col-md-12 hidden'>
+    <div id='inputsHistosContainerDiv' class='col-md-12'>
+      <div class='col-md-12'>
+        <label for="inputHistogramFiles" class='col-md-4'>List of Histogram files (.tar):</label>
+        <div id='histo-list-menu-div' class='col-md-4'>
+          <label for="HistoListSelect">Select files to add them:</label>
+        </div>
+        <div class='col-md-6'>
+          <textarea id="inputHistogramFiles" name="inputHistogramFiles" rows="4" cols="50"></textarea>
+        </div>
+      </div>
+    </div>
+    <div id='inputs1dContainerDiv' class='col-md-12'>
+      <div class='col-md-4'>
+        <label for="input1dSpectrumNames" class='col-md-12'>List of 1d spectra:</label>
+        <textarea id="input1dSpectrumNames" name="input1dSpectrumNames" rows="4" cols="50"></textarea>
+      </div>
+      <div class='col-md-4'>
+        <label for="input1dPeaks" class='col-md-12'>List of peaks to fit in all 1d spectra:</label>
+        <textarea id="input1dPeaks" name="input1dPeaks" rows="4" cols="50"></textarea>
+      </div>
+    </div>
+    <div id='inputs2dContainerDiv' class='col-md-12'>
+      <div class='col-md-4'>
+        <label for="input2dSpectrumNames" class='col-md-12'>List of 2d spectra:</label>
+        <textarea id="input2dSpectrumNames" name="input2dSpectrumNames" rows="4" cols="50"></textarea>
+      </div>
+      <div class='col-md-4'>
+        <label for="input2dGates" class='col-md-12'>List of gates to make projections for all 2d spectra:</label>
+        <textarea id="input2dGates" name="input2dGates" rows="4" cols="50"></textarea>
+      </div>
+      <div class='col-md-4'>
+        <label for="input2dPeaks" class='col-md-12'>List of peaks to fit in all projections:</label>
+        <textarea id="input2dPeaks" name="input2dPeaks" rows="4" cols="50"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div id='buttonsContainerDiv' class='col-md-12'>
+    <div id='launchSubmitDiv' class='col-md-6'></div>
+  </div>
+</div>
+
+<!-- Clover menu Div -->
+<div id='cloverMenu' class='col-md-12 hidden'></div>
+
+<!-- Pagination menu Div -->
+<div id='menu' class='col-md-12 hidden'></div>
+
+<!-- Spectrum Plotting -->
+<div id='plotRegion' class='sectionWrapper'>
+  <div id='plotWrapButtons' class='col-md-12'></div>
+  <div id='plotWrap' class='col-md-9 plotRegion item'>
+    <div id='plottingGrid'></div>
+    <div class='col-md-8' id='plotCtrl'></div>
+    <div class='sectionWrapper refitButtons'>
+      <div class='col-md-12'>
+        <button type="button" class="btn btn-default btn-lg" id='refitPeakButton' engaged='0'>
+          <span id='refitPeakButtonBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
+          <span id='refitPeakButtonText'>Refit a Peak</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class='col-md-2 item'>
+    <div id='plotList' style='overflow-y:scroll; height:1000px;'></div>
+  </div>
+</div>
+
+<!-- Peak-Fitting results table -->
+<div id='resultsTableRegion' class='col-md-12 hidden'>
+  <div id='bgoHValignment' class='col-md-12'></div>
+</div>
+
+<!--Table of calculations and results - per crystal corrections -->
+<div id='crystalKReportRegion' class='col-md-12 hidden'>
+  <div id='crystalKReportRegiontableMenuDiv' class='col-md-12'></div>
+  <div id='crystalKReportRegionreportCardDiv' class='col-md-6'></div>
+  <div id='crystalKReportRegionbgoHValignmentDetector' class='col-md-7'></div>
+  <div id='crystalKReportRegiondetectorReportPlot' class='col-md-5'></div>
+</div>
+<div id='crystal1stHitReportRegion' class='col-md-12 hidden'>
+  <div id='crystal1stHitReportRegiontableMenuDiv' class='col-md-12'></div>
+  <div id='crystal1stHitReportRegionreportCardDiv' class='col-md-6'></div>
+  <div id='crystal1stHitReportRegionbgoHValignmentDetector' class='col-md-7'></div>
+  <div id='crystal1stHitReportRegiondetectorReportPlot' class='col-md-5'></div>
+</div>
+
+
+<div id='foot'></div>
+
+<script>
+window.addEventListener('HTMLImportsLoaded', function(e) {
+
+  dataStore._plotGrid = new plotGrid('plottingGrid');
+  dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
+
+  dataStore.templates = prepareTemplates(['header', 'paginationMenu', 'bgoHValignmentReport', 'bgoHValignmentReportTable', 'plotGrid', 'plotControl', 'plotListLite', 'footer']);
+
+  setupHeader('head', 'BGO HV Alignment');
+  setupPaginationMenu('menu');
+  dataStore._plotGrid.setup();
+  dataStore._plotControl.setup();
+  //set up spectrum cell
+  dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]);
+  setupFooter('foot');
+
+  //don't want additional plots in this app
+  deleteNode('plottingGridnewPlotButton');
+
+  // Inject the dismiss button to the messageDiv
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'messageDivDismissButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Dismiss";
+  //newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    ClearErrorConnectingToAnalyzerServer();
+  }.bind(newButton);
+  document.getElementById('messageDivButton').appendChild(newButton);
+
+  // Create the text input for the Histogram file directory and file inputs
+  var newLabel = document.createElement("label");
+  newLabel.for = 'HistoDirectoryInput';
+  newLabel.innerHTML = 'Directory of Histogram files: ';
+  document.getElementById('histoChoiceDir').appendChild(newLabel);
+
+  newInput = document.createElement('input');
+  newInput.id = 'HistoDirectoryInput';
+  newInput.type = 'text';
+  newInput.style.width = '400px';
+  newInput.value = dataStore.histoFileDirectoryPath;
+  newInput.onchange = function(){
+    dataStore.histoFileDirectoryPath = this.value;
+    getHistoFileListFromServer();
+  }.bind(newInput);
+  document.getElementById('histoChoiceDir').appendChild(newInput);
+
+  // Grab the histogram list for the default directory
+  getHistoFileListFromServer();
+  getMidasFileListFromServer(); // The request for details follows this
+
+  // Set up the onchange functions for the textinput boxes
+  document.getElementById('inputHistogramFiles').onchange = function(){
+    receiveInputTextBoxChange(this.id,this.value);
+  }
+  document.getElementById('input1dSpectrumNames').onchange = function(){
+    receiveInputTextBoxChange(this.id,this.value);
+  }
+  document.getElementById('input1dPeaks').onchange = function(){
+    receiveInputTextBoxChange(this.id,this.value);
+  }
+  document.getElementById('input2dSpectrumNames').onchange = function(){
+    receiveInputTextBoxChange(this.id,this.value);
+  }
+  document.getElementById('input2dGates').onchange = function(){
+    receiveInputTextBoxChange(this.id,this.value);
+  }
+  document.getElementById('input2dPeaks').onchange = function(){
+    receiveInputTextBoxChange(this.id,this.value);
+  }
+
+  // Create the Clover menu buttons
+  for(var i=1; i<17; i++){
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'CloverButton'+i);
+    newButton.setAttribute('class', 'btn btn-default');
+    newButton.innerHTML = "Clover "+i;
+    newButton.value = i;
+    newButton.style.padding = '4px';
+    newButton.onclick = function(){
+
+      //set selected button active state and other non-active
+      for(var i=1; i<17; i++){ document.getElementById("CloverButton"+i).classList.remove('btn-info'); }
+      document.getElementById(this.id).classList.add('btn-info');
+
+      loadCloverPosition(this.value);
+    }.bind(newButton);
+    document.getElementById('cloverMenu').appendChild(newButton);
+  }
+
+  // Create the Launch Submit button to begin the process
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'launchSubmitButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Load Histograms";
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    dataStore.dataType = 'Fetch';
+    launchPeakFittingProcess();
+  }.bind(newButton);
+  document.getElementById('launchSubmitDiv').appendChild(newButton);
+
+  // Reveal the progress bar
+  document.getElementById('progressDiv').classList.remove('hidden');
+
+  $(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  });
+});
+</script>
+</body>
+</html>
