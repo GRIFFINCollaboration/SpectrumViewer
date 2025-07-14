@@ -308,14 +308,14 @@ this.highlightOutliers = function(){
 
   // Check quadratric terms
   if(dataStore.detectorType == "HPGe"){ // Only check the quadratic term for HPGe
-    if( dataStore.THESEcalibrations[keys[i]]['fit'][0] > dataStore.meanCalib[2] + dataStore.sdCalib[2]*3.5
-    || dataStore.THESEcalibrations[keys[i]]['fit'][0] < dataStore.meanCalib[2] - dataStore.sdCalib[2]*3.5
+    if( dataStore.THESEcalibrations[keys[i]]['fit'][0] > dataStore.meanCalib[2] + dataStore.sdCalib[2]*4
+    || dataStore.THESEcalibrations[keys[i]]['fit'][0] < dataStore.meanCalib[2] - dataStore.sdCalib[2]*4
     || Math.abs(dataStore.THESEcalibrations[keys[i]]['fit'][0]) > MaxQuad
   ){ highlightBad=1; console.log(keys[i]+" failed quad"); }
 }
 
 // Check size of residuals
-if(dataStore.THESEcalibrations[keys[i]].residualMean > 0.5){ highlightBad=1; console.log(keys[i]+" failed meanSD"); }
+if(dataStore.THESEcalibrations[keys[i]].residualMean > 0.6){ highlightBad=1; console.log(keys[i]+" failed meanSD"); }
 
 if(highlightBad){
   // Highlight row as problematic (orange) if the parameters are not normal, and do not check the box
