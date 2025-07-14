@@ -125,7 +125,7 @@ function plotControl2d(wrapID){
       dataStore.activeSpectra = event.detail.plotName;
       dataStore.activeMatrix = event.detail.plotName;
       this.activeSpectra = [event.detail.plotName];
-      dataStore.hm.plotTitle = event.detail.plotName;
+    //  dataStore.hm.plotTitle = event.detail.plotName;
 
       //demand refresh to fetch the spectrum data from the server
       this.refreshData()
@@ -140,7 +140,7 @@ function plotControl2d(wrapID){
     //this: plotControl2d object
 
     // Display info to user that the data is downloading (switched off in fetchCallback)
-    dataStore.hm.DataDownloading('on');
+    //dataStore.hm.DataDownloading('on');
 
     // activeSpectra can now include 1D Projections of 2D matrices which are created locally in the server.
     // So these need to be stripped from the requests that go to the server for updates.
@@ -376,7 +376,7 @@ function heatmapClick(evt){
   extractCutVertices();
 
   //update plot overlay
-  dataStore.hm.render();
+//  dataStore.hm.render();
 }
 
 function extractCutVertices(){
@@ -413,13 +413,14 @@ function fetchCallback(){
 
   // clear a previous color map if necessary
   try{ objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
-    dataStore.hm.colorMap[objectIndex].data = [];
+  //  dataStore.hm.colorMap[objectIndex].data = [];
     //console.log('In FetchCallback, Clear the colorMap');
   }
   catch(err){
     //console.log('In FetchCallback, No colorMap to clear')
   }
 
+/*
   // set the axis lengths for this histograms
   dataStore.hm.xmin = 0;
   dataStore.hm.ymin = 0;
@@ -429,14 +430,25 @@ function fetchCallback(){
   dataStore.hm.zmax = dataStore.activeMatrixZaxisMax;
   dataStore.hm.zminfull = 0;
   dataStore.hm.zmaxfull = dataStore.activeMatrixZaxisMax;
+*/
 
   // unpack the raw 2d spectrum to the required format
   //dataStore.hm.raw = packZ(dataStore.rawData[dataStore.activeMatrix].data2);
-  dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2,dataStore.activeMatrixXaxisLength,dataStore.activeMatrixYaxisLength,dataStore.activeMatrixZaxisMax,dataStore.activeMatrixSymmetrized,true);
+//  dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2,dataStore.activeMatrixXaxisLength,dataStore.activeMatrixYaxisLength,dataStore.activeMatrixZaxisMax,dataStore.activeMatrixSymmetrized,true);
+  dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2,dataStore.activeMatrixXaxisLength,dataStore.activeMatrixYaxisLength,dataStore.activeMatrixZaxisMax,dataStore.activeMatrixSymmetrized,false);
+  dataStore.hm._raw = dataStore.hm.raw;
 
+/*
   // make the 2d heatmap plot of this histogram
   dataStore.hm._oldraw = null; //force complete redraw
   dataStore.hm.drawData();
+*/
+
+  // Pass data to the heatmap module, https://bkatiemills.github.io/glslgraph/demo.html/scripts/heatmap.js
+  //  dense mode, {zvalues[i][j]} where each number is the z height of the i,jth bin.
+  // sparse mode, {xBins: n, yBins: n, x: [x1, x2, ...], y: [y1, y2, ...], z: [z1, z2, ...]}
+//  dataStore.hm.draw(data); // Test data which is sparse
+  dataStore.hm.draw(dataStore.hm.raw); // dataStore.hm.raw is in format dense mode
 
   // Create total projections for the two axes of the active matrix
   dispatcher({ 'gateAxis': 'x', 'gateMin': undefined, 'gateMax': undefined, 'plotNow': false }, 'requestGate');
@@ -459,7 +471,7 @@ function fetchCallback(){
   }
 
   // plug in the onclicks to the 2d heatmap
-  dataStore.hm.canvas.addEventListener('heatmap_shiftclick', heatmapClick, false);
+//  dataStore.hm.canvas.addEventListener('heatmap_shiftclick', heatmapClick, false);
 
 }
 
