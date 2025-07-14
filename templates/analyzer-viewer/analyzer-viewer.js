@@ -39,13 +39,15 @@ function buildHistosFileTable(){
   var cell3 = row.insertCell(2);
   var cell4 = row.insertCell(3);
   var cell5 = row.insertCell(4);
+  var cell6 = row.insertCell(5);
 
   // The following set the widths of the columns for the whole table
   cell1.style.width = "10%";
   cell2.style.width = "40%";
-  cell3.style.width = "20%";
-  cell4.style.width = "20%";
-  cell5.style.width = "5%";
+  cell3.style.width = "10%";
+  cell4.style.width = "10%";
+  cell5.style.width = "10%";
+  cell6.style.width = "5%";
 
   // Insert header content
   cell1.innerHTML = 'Directory: ';
@@ -53,7 +55,8 @@ function buildHistosFileTable(){
   cell3.innerHTML = '';
   cell4.innerHTML = '';
   cell5.innerHTML = '';
-  // cell5.innerHTML = '<input type=\"checkbox\" id=\"Primary-checkbox\">';
+  cell6.innerHTML = '';
+  // cell6.innerHTML = '<input type=\"checkbox\" id=\"Primary-checkbox\">';
 
   // Add a row for each Histo file in the list received from the server
   if(dataStore.histoFileList.length>0 && dataStore.histoFileList[0].length>3){
@@ -69,18 +72,21 @@ function buildHistosFileTable(){
       var cell3 = row.insertCell(2);
       var cell4 = row.insertCell(3);
       var cell5 = row.insertCell(4);
+      var cell6 = row.insertCell(5);
 
       var thisODBhostBackend = dataStore.ODBhostBackend.split('.')[0].split('//')[1];
 
       var URLStringViewer = 'https://griffincollaboration.github.io/SpectrumViewer/spectrumViewer2.html?backend='+dataStore.spectrumServerBackend+'&port='+dataStore.spectrumServerPort+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
       var URLString2DViewer = 'https://griffincollaboration.github.io/SpectrumViewer/2dSpectrumTool.html?backend='+dataStore.spectrumServerBackend+'&port='+dataStore.spectrumServerPort+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
+      var URLString2DViewerBETA = 'https://griffincollaboration.github.io/SpectrumViewer/2dSpectrumToolBETA.html?backend='+dataStore.spectrumServerBackend+'&port='+dataStore.spectrumServerPort+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
       var URLStringGainMatcher = 'https://griffincollaboration.github.io/SpectrumViewer/gainMatcher.html?analyzerBackend='+dataStore.spectrumServerBackend+'&analyzerPort='+dataStore.spectrumServerPort+'&ODBHostBackend='+thisODBhostBackend+'&ODBHostPort='+dataStore.ODBhostPort+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
 
       cell1.innerHTML = '<a href=\"'+URLString2DViewer+'\" target=\"_blank\">'+dataStore.histoFileList[num]+'</a>';
       cell1.value = dataStore.histoFileList[num].split(".")[0];  // Used to easily add the run title when available later
       // cell 2 is the run title which is added later
       cell3.innerHTML = '<a href=\"'+URLStringGainMatcher+'\" target=\"_blank\">'+'Open in GainMatcher'+'</a>';
-      cell4.innerHTML = '';
+      cell4.innerHTML = '<a href=\"'+URLString2DViewerBETA+'\" target=\"_blank\">'+'BETA-2D-Viewer'+'</a>';
+      cell5.innerHTML = '';
 
       // Create button for View Config
       newButton = document.createElement('button');
@@ -92,9 +98,9 @@ function buildHistosFileTable(){
       newButton.onclick = function(){
         viewConfigOfHisto(this.value);
       }.bind(newButton);
-      cell4.appendChild(newButton);
+      cell5.appendChild(newButton);
 
-      cell5.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.histoFileList[num]+'-checkbox'+'\" value=\"'+dataStore.histoFileList[num].trim()+'\" onclick=ToggleCheckboxOfThisHistoFile(\"histoFileTableRow-'+(num+1)+'\")>';
+      cell6.innerHTML = '<input type=\"checkbox\" id=\"'+dataStore.histoFileList[num]+'-checkbox'+'\" value=\"'+dataStore.histoFileList[num].trim()+'\" onclick=ToggleCheckboxOfThisHistoFile(\"histoFileTableRow-'+(num+1)+'\")>';
 
     }
   }else{
