@@ -3069,6 +3069,28 @@ if(generateColorMap){
 return repack2;
 }
 
+function zeroSuppressData(fullData){
+  // Return an object with only the non-zero bins included
+  // Returned object is suitable for use with https://bkatiemills.github.io/glslgraph/demo.html/scripts/heatmap.js
+  let data = {
+    xBins: fullData[0].length,
+    yBins: fullData.length,
+    x: [],
+    y: [],
+    z: []
+  };
+  for(var i=0; i<fullData.length; i++){
+    for(var j=0; j<fullData[i].length; j++){
+      if(fullData[i][j]>0){
+        data.x.push(i);
+        data.y.push(j);
+        data.z.push(fullData[i][j]);
+      }
+    }
+  }
+  return(data);
+}
+
 function trimMatrix(data,minCount){
   // Function will receive a matrix and return an array with the trailing low-count channels removed.
   // The length of each array will be reduced. Not all original row will be present.

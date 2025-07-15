@@ -437,6 +437,7 @@ function fetchCallback(){
 //  dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2,dataStore.activeMatrixXaxisLength,dataStore.activeMatrixYaxisLength,dataStore.activeMatrixZaxisMax,dataStore.activeMatrixSymmetrized,true);
   dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2,dataStore.activeMatrixXaxisLength,dataStore.activeMatrixYaxisLength,dataStore.activeMatrixZaxisMax,dataStore.activeMatrixSymmetrized,false);
   dataStore.hm._raw = dataStore.hm.raw;
+  var sparseData = zeroSuppressData(dataStore.hm.raw);
 
 /*
   // make the 2d heatmap plot of this histogram
@@ -448,7 +449,8 @@ function fetchCallback(){
   //  dense mode, {zvalues[i][j]} where each number is the z height of the i,jth bin.
   // sparse mode, {xBins: n, yBins: n, x: [x1, x2, ...], y: [y1, y2, ...], z: [z1, z2, ...]}
 //  dataStore.hm.draw(data); // Test data which is sparse
-  dataStore.hm.draw(dataStore.hm.raw); // dataStore.hm.raw is in format dense mode
+  //dataStore.hm.draw(dataStore.hm.raw); // dataStore.hm.raw is in format dense mode
+  dataStore.hm.draw(sparseData); // sparseData is in format for sparse mode
 
   // Create total projections for the two axes of the active matrix
   dispatcher({ 'gateAxis': 'x', 'gateMin': undefined, 'gateMax': undefined, 'plotNow': false }, 'requestGate');
