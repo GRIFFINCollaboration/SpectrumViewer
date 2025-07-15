@@ -238,6 +238,9 @@ function launchPeakFittingProcess(){
   // Create buttons for displaying groups of histograms
   injectButtonsForGroupDisplays();
 
+  // Create buttons for text file downloads
+  injectButtonsForTextFileDownload();
+
   // Build the menu list for default 1st clover
   dataStore.plotGroups = buildPlotListGroup(1);     //groups to arrange spectra into for dropdowns
 
@@ -297,12 +300,13 @@ function launchPeakFittingProcess(){
 };
 
 function fetchCallback(){
-var color = ["B","G","R","W"];
+  var color = ["B","G","R","W"];
 
   var keys = Object.keys(dataStore.rawData);
   for(var index=0; index<keys.length; index++){
     var detName = keys[index].split(":")[1];
-    var cloverNum = parseInt(detName.split("BGO")[0].split("Ge")[1]-1/16);
+    var cloverNum = parseInt(detName.split("BGO")[0].split("Ge")[1]-1);
+    cloverNum = parseInt(cloverNum/4)+1;
     var colorNum = ((detName.split("BGO")[0].split("Ge")[1]-1)%4);
     var channelName = "GRS" + alwaysThisLong(cloverNum,2) + color[colorNum];
     channelName += "N" + alwaysThisLong(detName.split("BGO")[1],2) + "X";
@@ -368,12 +372,12 @@ var color = ["B","G","R","W"];
   var histoName = dataStore.currentHistoFileName.split(".")[0];
   spectrumList.push(histoName+":"+dataStore.spectrumList1d[0]);
 
-    console.log(dataStore);
-    console.log("Finished");
-    console.log("Completed: "+dataStore.progressBarTasksCompleted+"/"+dataStore.progressBarNumberTasks+" = " + dataStore.ProgressValue);
+  console.log(dataStore);
+  console.log("Finished");
+  console.log("Completed: "+dataStore.progressBarTasksCompleted+"/"+dataStore.progressBarNumberTasks+" = " + dataStore.ProgressValue);
 
-    // Default load the Clover1 position
-    document.getElementById('CloverButton'+1).click();
+  // Default load the Clover1 position
+  document.getElementById('CloverButton'+1).click();
 }
 
 function injectButtonsForGroupDisplays(){
@@ -406,6 +410,25 @@ function injectButtonsForGroupDisplays(){
       plotGroupOfSpectra(spectrumList);
     }.bind(newButton);
     document.getElementById('plotWrapButtons').appendChild(newButton);
+  }
+}
+
+function injectButtonsForTextFileDownload(){
+  var buttonHTML = ["Download Textfile A","Download Textfile B","Download Textfile AB"];
+  var buttonValue = ["A","B","AB"];
+
+  // Create the buttons
+  for(var i=0; i<buttonValue.length; i++){
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', "textFileDownloadButton"+i);
+    newButton.setAttribute('class', 'btn btn-default btn-lg');
+    newButton.innerHTML = buttonHTML[i];
+    newButton.value = buttonValue[i];
+    newButton.style.padding = '4px';
+    newButton.onclick = function(){
+      buildBGOHVTextFile(this.value);
+    }.bind(newButton);
+    document.getElementById('resultsTableButtons').appendChild(newButton);
   }
 }
 
@@ -495,4 +518,41 @@ function buildPlotListGroup(cloverNum){
 
     // Trigger a redraw
     dataStore.viewers[viewerName].plotData();
+  }
+
+  function buildBGOHVTextFile(value){
+
+    console.log('Download initiated');
+    var keys = [];
+    var keyArray = [];
+    for(var i=1; i<17; i++){
+      keyArray.push(buildPositionDetList(i));
+    }
+    for(i=0; i<keyArray.length; i++){
+      keys = keys.concat(keyArray[i]);
+    }
+
+    // Write the list of Voltage changes to a file for download.
+    var TextFileString = '';
+    for(i=0; i<keys.length; i++){
+      var thisName = dataStore.THESEcalibrations[keys[i]].detector.slice(0, -1);
+      if(value.length>1){
+        TextFileString += thisName + 'A' + '\t' + dataStore.THESEcalibrations[keys[i]].deltaV_2PMT + '\n';
+        TextFileString += thisName + 'B' + '\t' + dataStore.THESEcalibrations[keys[i]].deltaV_2PMT + '\n';
+      }else{
+        TextFileString += thisName + value + '\t' + dataStore.THESEcalibrations[keys[i]].deltaV_1PMT + '\n';
+      }
+    }
+
+    // Create a download link
+    const textBlob = new Blob([TextFileString], {type: 'text/plain'});
+    URL.revokeObjectURL(window.textBlobURL);
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(textBlob);
+    downloadLink.download = 'GRIFFIN-BGO-HV-CHANGES-'+value+'.txt';
+
+    // Trigger the download
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+
   }

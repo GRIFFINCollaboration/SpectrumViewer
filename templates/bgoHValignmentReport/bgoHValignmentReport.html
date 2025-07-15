@@ -37,8 +37,7 @@ function bgoHValignmentReport(wrapID){
   this.refreshTableData = function(cloverNum){
 
     // Variables to control table generation and filling
-    cellHandles = ["detector","name","maxCountsChannel","maxCountsValue","comptonEdgeThreshold","comptonEdgeChannel","deltaV_1PMT","deltaV_2PMT"];
-
+    var cellHandles = ["detector","name","maxCountsChannel","maxCountsValue","comptonEdgeThreshold","comptonEdgeChannel","deltaV_1PMT","deltaV_2PMT"];
     var tableID = "bgoHValignmentbgoHValignmentResults";
 
     // Delete rows except for header
