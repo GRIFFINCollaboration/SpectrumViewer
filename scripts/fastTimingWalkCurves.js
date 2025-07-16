@@ -123,7 +123,7 @@ function setupDataStore(){
   dataStore.peakFitterScriptTemplate = {
     '60Co' : {'spectrumList1d' : [], 'spectrumList1dPeaks' : { 'All':[] }, 'histogramFileNames' : [],
     'spectrumList2d' : [
-      'TAC01_LBL01-00_CompWalk','TAC00_LBL00-01_CompWalk','TAC00_LBL00-02_CompWalk','TAC00_LBL00-03_CompWalk','TAC00_LBL00-04_CompWalk','TAC00_LBL00-05_CompWalk','TAC00_LBL00-06_CompWalk','TAC00_LBL00-07_CompWalk'
+      'TAC01_LBL01_00_CompWalk','TAC00_LBL00_01_CompWalk','TAC00_LBL00_02_CompWalk','TAC00_LBL00_03_CompWalk','TAC00_LBL00_04_CompWalk','TAC00_LBL00_05_CompWalk','TAC00_LBL00_06_CompWalk','TAC00_LBL00_07_CompWalk'
     ], 'spectrumListGates' : [
       ["x", 25, 50],
       ["x", 50, 75],
@@ -538,7 +538,7 @@ dataStore.YAxisMaxValue = [[0,0],[0,0]];
           if(dataStore.spectrumListProjections[i].includes("TAC01")){
             thisTAC = 0;
           }else if(dataStore.spectrumListProjections[i].includes("LBL00")){
-            thisTAC = parseInt(dataStore.spectrumListProjections[i].split("-")[1].split("_")[0]);
+            thisTAC = parseInt(dataStore.spectrumListProjections[i].split("_")[2]);
           }
           if(!walkCurveData["TAC"+thisTAC]){
             // Create the object for this TAC
@@ -552,8 +552,8 @@ dataStore.YAxisMaxValue = [[0,0],[0,0]];
             };
           }
           // Determine the index and bin
-          var thisIndex = binIndexes.indexOf(parseInt(dataStore.spectrumListProjections[i].split("-")[2]));
-          var thisBin = (parseInt(dataStore.spectrumListProjections[i].split("-")[3]) - parseInt(dataStore.spectrumListProjections[i].split("-")[2]))/2 + parseInt(dataStore.spectrumListProjections[i].split("-")[2]);
+          var thisIndex = binIndexes.indexOf(parseInt(dataStore.spectrumListProjections[i].split("-")[1]));
+          var thisBin = (parseInt(dataStore.spectrumListProjections[i].split("-")[2]) - parseInt(dataStore.spectrumListProjections[i].split("-")[1]))/2 + parseInt(dataStore.spectrumListProjections[i].split("-")[1]);
 
           // Get the results
           var thisYvalue = dataStore.fitResults[dataStore.spectrumListProjections[i]][0][1];
