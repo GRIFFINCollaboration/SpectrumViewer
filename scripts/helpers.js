@@ -2267,6 +2267,32 @@ function buildCalfile(){
     }
   }
 
+  if(dataStore.Config.length==0){
+    CAL += '// Empty Config file extracted for '+dataStore.histoFileDirectoryPath+'/'+dataStore.histoFileName+'\n';
+    CAL += '// Including only channels with newly-derived calibration';
+
+    var keys = Object.keys(dataStore.THESEcalibrations);
+    for(var i=0; i<keys.length; i++){
+      var thisKey = dataStore.THESEcalibrations[i];
+      CAL += thisKey+' { \n';
+      CAL += 'Name:	'+thisKey+'\n';
+      CAL += 'Number:	'+i+'\n';
+      //CAL += 'Address:  0x0000\n';
+      CAL += 'Digitizer:	GRF16\n';
+      if( document.getElementById(thisKey+'write').checked ){
+        CAL += 'EngCoeff:	'+dataStore.THESEcalibrations[thisKey]['fit'][2]+' '+dataStore.THESEcalibrations[thisKey]['fit'][1]+' '+dataStore.THESEcalibrations[thisKey]['fit'][0]+'\n';
+      }else{
+        CAL += 'EngCoeff:	0 1 0\n'
+      }
+      CAL += 'Integration:	0\n';
+      CAL += 'ENGChi2:	0\n';
+      CAL += 'FileInt:	0\n';
+      CAL += '}\n';
+      CAL += '\n';
+      CAL += '//====================================//\n';
+    }
+  }
+
   // Create a download link
   const textBlob = new Blob([CAL], {type: 'text/plain'});
   URL.revokeObjectURL(window.textBlobURL);
