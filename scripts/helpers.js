@@ -2265,7 +2265,7 @@ function buildCalfile(){
     }
   }
   */
-  
+
   // Create a download link
   const textBlob = new Blob([CAL], {type: 'text/plain'});
   URL.revokeObjectURL(window.textBlobURL);
@@ -3421,6 +3421,9 @@ function typicalPeakWidth(energy,detector){
   }
   if(detector == "LaBr3"){
     width = parseFloat(energy)*0.0187 + 11.247;
+  }
+  if(detector == "ARIES"){
+    width = 15;
   }
   if(detector == "RCMP"){
     width = 40;

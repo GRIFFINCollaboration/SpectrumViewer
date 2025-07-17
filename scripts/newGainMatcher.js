@@ -540,9 +540,9 @@ dataStore.peaksList = {
     "CustomTable": [ ]
   },
   "ARIES": {
-    "26Na": [],
+    "26Na": [30],
     // Only four peaks used for the results Table and plots
-    "26NaTable": []
+    "26NaTable": [30]
   }
 };
 
@@ -850,7 +850,7 @@ function launchPeakFittingProcess(){
     // Add the createdSpectra to the menu
     var keys = Object.keys(dataStore.createdSpectra);
     var histoName = dataStore.histoFileName.split(".")[0];
-    for(i=0; i<keys.length; i++){
+    for(var i=0; i<keys.length; i++){
       newMenuItem = document.createElement('li');
       newMenuItem.setAttribute('id', 'plotList'+keys[i]);
       newMenuItem.setAttribute('value', keys[i]);
@@ -860,13 +860,6 @@ function launchPeakFittingProcess(){
       document.getElementById('plotList'+keys[i]).onclick = function(){ dataStore._plotListLite.exclusivePlot(this.id.split('plotList')[1], dataStore.viewers[dataStore.plots[0]]); }
     }
 
-    // No peaks to fit for ARIES spectra, so save the gain factors here and skip ahead
-    if(dataStore.detectorType == "ARIES"){
-      // Save gain to fitResults.
-      // skip to fittingCallback
-
-      fittingCallback();
-    }
 
     // Set the current task to keep track of our progress
     dataStore.currentTask = 'SinglesFitting';
@@ -917,31 +910,17 @@ function launchPeakFittingProcess(){
     // Quadratic fit for HPGe
     var keys = Object.keys(dataStore.fitResults);
 
-    // ARIES calibrations - nothing in the dataStore.fitResults object because there are no peaks fitted.
-    // ARIES calibrations - Add the results to the THESECalibrations object differently.
-    if(keys.length < 1){
-      console.log("ARIES calibrations - nothing in the dataStore.fitResults object.");
-      console.log("ARIES calibrations - Add the results to the THESECalibrations object differently.");
-
-      var keys = Object.keys(dataStore.roughGainMatchParameters);
+    // ARIES calibrations - Insert zero channel 'fit' for ARIES spectra, to force a linear gain fit with a single 'peak'
+    if(dataStore.detectorType == "ARIES"){
       for(var i=0; i<keys.length; i++){
-        thisKey = keys[i].split(":")[1].split("_")[0];
-        if(!dataStore.THESEcalibrations[thisKey]){ dataStore.THESEcalibrations[thisKey] = {}; }
+        dataStore.fitResults[keys[i]][1] = dataStore.fitResults[keys[i]][0];
+        dataStore.fitResults[keys[i]][0] = [0,0,1,0,0,10,0];
 
-        // Collect the data for this detector into dataStore.THESEcalibrations
-        dataStore.THESEcalibrations[thisKey]['y'] = [];
-        dataStore.THESEcalibrations[thisKey]['x'] = [];
-        dataStore.THESEcalibrations[thisKey]['xEn'] = [];
-        dataStore.THESEcalibrations[thisKey]['residual'] = [];
-        dataStore.THESEcalibrations[thisKey]['residualMean'] = 0;
-        dataStore.THESEcalibrations[thisKey]['fwhm'] = [];
-        dataStore.THESEcalibrations[thisKey].residualVar = 0;
-
-        // 'fit': [quad, gain, offset, reduced-chi-square]
-        dataStore.THESEcalibrations[thisKey]['fit'] = [0.0,dataStore.roughGainMatchParameters[keys[i]],0.0,1.0];
+        if(i==0){
+          dataStore.peaksList[dataStore.detectorType][dataStore.sourceType][1] = dataStore.peaksList[dataStore.detectorType][dataStore.sourceType][0];
+          dataStore.peaksList[dataStore.detectorType][dataStore.sourceType][0] = 0;
+        }
       }
-
-      keys = []; // Zero the keys array so we skip over the next for loop
     }
 
     // Most detector calibrations are determined from peak fits.
@@ -994,7 +973,7 @@ function launchPeakFittingProcess(){
       }else{
         // Linear fit
         // Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
-        var result = regression.polynomial(data, { order: 1, precision: 20 });
+        var result = regression.polynomial(data, { order: 1, precision: 10 });
 
         // 'fit': [quad, gain, offset, reduced-chi-square]
         dataStore.THESEcalibrations[thisKey]['fit'] = [0.0,result.equation[0],result.equation[1],1.0];
