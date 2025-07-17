@@ -273,7 +273,7 @@ function setupDataStore(){
 
 // App specific data structures
 dataStore.THESEcalibrations = [];  // Array of objects to store together the cailbration data and results. 'detectorName':{ 'x'(pulseHeight centroids):[],'y'(literature energy):[],'residual':[],'fit':[quad,gain,offset,reduced-chi-squared],
-                                   //                                                                                       'pileupk1':[1 0 0 0 0 0 0], 'pileupk2':[1 0 0 0 0 0 0], 'pileupE1':[0 0 0 0 0 0 0], 'crosstalk:[0,1,0,0,0,0,0]'}
+//                                                                                       'pileupk1':[1 0 0 0 0 0 0], 'pileupk2':[1 0 0 0 0 0 0], 'pileupE1':[0 0 0 0 0 0 0], 'crosstalk:[0,1,0,0,0,0,0]'}
 
 // dataplot definitions
 dataStore._dataplot = [];                 // Place for all dataplot objects to be created as an array. This makes them indexable and iteratable
@@ -864,6 +864,8 @@ function launchPeakFittingProcess(){
     if(dataStore.detectorType == "ARIES"){
       // Save gain to fitResults.
       // skip to fittingCallback
+
+      fittingCallback();
     }
 
     // Set the current task to keep track of our progress
@@ -914,6 +916,36 @@ function launchPeakFittingProcess(){
     // Linear fit for LaBr3, PACES and RCMP
     // Quadratic fit for HPGe
     var keys = Object.keys(dataStore.fitResults);
+
+    // ARIES calibrations - nothing in the dataStore.fitResults object because there are no peaks fitted.
+    // ARIES calibrations - Add the results to the THESECalibrations object differently.
+    if(keys.length < 1){
+      console.log("ARIES calibrations - nothing in the dataStore.fitResults object.");
+      console.log("ARIES calibrations - Add the results to the THESECalibrations object differently.");
+
+      var keys = Object.keys(dataStore.roughGainMatchParameters);
+      for(var i=0; i<keys.length; i++){
+        thisKey = keys[i].split(":")[1].split("_")[0];
+        if(!dataStore.THESEcalibrations[thisKey]){ dataStore.THESEcalibrations[thisKey] = {}; }
+
+        // Collect the data for this detector into dataStore.THESEcalibrations
+        dataStore.THESEcalibrations[thisKey]['y'] = [];
+        dataStore.THESEcalibrations[thisKey]['x'] = [];
+        dataStore.THESEcalibrations[thisKey]['xEn'] = [];
+        dataStore.THESEcalibrations[thisKey]['residual'] = [];
+        dataStore.THESEcalibrations[thisKey]['residualMean'] = 0;
+        dataStore.THESEcalibrations[thisKey]['fwhm'] = [];
+        dataStore.THESEcalibrations[thisKey].residualVar = 0;
+
+        // 'fit': [quad, gain, offset, reduced-chi-square]
+        dataStore.THESEcalibrations[thisKey]['fit'] = [0.0,dataStore.roughGainMatchParameters[keys[i]],0.0,1.0];
+      }
+
+      keys = []; // Zero the keys array so we skip over the next for loop
+    }
+
+    // Most detector calibrations are determined from peak fits.
+    // Take the peak fit results from the fitResults object, perform calculations, then put results into THESEcalibrations
     for(var i=0; i<keys.length; i++){
       thisKey = keys[i].split(":")[1].split("_")[0];
       if(!dataStore.THESEcalibrations[thisKey]){ dataStore.THESEcalibrations[thisKey] = {}; }
@@ -928,8 +960,8 @@ function launchPeakFittingProcess(){
       var k=0;
       for(j=0; j<dataStore.fitResults[keys[i]].length; j++){ // loop over all peaks fitted in this spectrum
         if(isNaN(dataStore.fitResults[keys[i]][j][1])){ continue; } // exclude failed peak fits where the centroid is NaN
-        if(dataStore.fitResults[keys[i]][j][5] < 8){ continue; }   // exclude failed peak fits where the area is less than 8 counts
-        if(dataStore.fitResults[keys[i]][j][2] < 0.5){ continue; } // exclude failed peak fits where the sigma (width) is less than 0.5 channels
+        if(dataStore.fitResults[keys[i]][j][5] < 8){ continue; }    // exclude failed peak fits where the area is less than 8 counts
+        if(dataStore.fitResults[keys[i]][j][2] < 0.5){ continue; }  // exclude failed peak fits where the sigma (width) is less than 0.5 channels
         if(j>0 && (dataStore.fitResults[keys[i]][j][1]-dataStore.fitResults[keys[i]][j-1][1])<5){
           continue; // exclude peak which was matched to the previous centroid
         }
@@ -990,9 +1022,15 @@ function launchPeakFittingProcess(){
     }
 
     console.log(dataStore);
+
+    // Point to the first detector to load initial subpages content
+    if(keys.length==0){
+      keys = Object.keys(dataStore.roughGainMatchParameters);
+    }
+    thisKey = keys[0].split(":")[1].split("_")[0];
+
     // Now update the Table
     // Display the results in the table
-    thisKey = keys[0].split(":")[1].split("_")[0];
     dataStore._newGainMatcherReport.refreshDetectorTableData(thisKey);
 
     // Update the tables
@@ -1008,68 +1046,68 @@ function launchPeakFittingProcess(){
 
   }
 
-function updateAnalyzer(){
+  function updateAnalyzer(){
 
-  // For the ODB it first grabs the PSB table and then sets values only for the channels that are defined there.
-  // For the Analyzer we can get a similar list from the viewConfig command with the Histogram file as the argument.
-  // That should probably be done for the building of the initial spectrum list for gain-matching if Histogram mode is selected.
-  // Need to reformat the URLs generated here for the Analyzer
+    // For the ODB it first grabs the PSB table and then sets values only for the channels that are defined there.
+    // For the Analyzer we can get a similar list from the viewConfig command with the Histogram file as the argument.
+    // That should probably be done for the building of the initial spectrum list for gain-matching if Histogram mode is selected.
+    // Need to reformat the URLs generated here for the Analyzer
 
-  // bail out if there's no fit parameters yet
-  if(Object.keys(dataStore.fitResultsParameters).length == 0)
-  return;
+    // bail out if there's no fit parameters yet
+    if(Object.keys(dataStore.fitResultsParameters).length == 0)
+    return;
 
-  var NumGe = 64;
-  var  gain =[], offset = [], quad = [];
-  var i, j=0, q, g, o, num=0, position, urls = [];
-  var crystals = ["B","G","R","W"];
-  var letter = ["A","B"];
+    var NumGe = 64;
+    var  gain =[], offset = [], quad = [];
+    var i, j=0, q, g, o, num=0, position, urls = [];
+    var crystals = ["B","G","R","W"];
+    var letter = ["A","B"];
 
-  //for every channel, update the three pileup arrays of parameters:
-  // Loop through all Ge crystals
-  for(var thisGeindex = 0; thisGeindex<NumGe; thisGeindex++){
+    //for every channel, update the three pileup arrays of parameters:
+    // Loop through all Ge crystals
+    for(var thisGeindex = 0; thisGeindex<NumGe; thisGeindex++){
 
-    // Start this url, a separate one for each crystal
-    urls[num]= dataStore.spectrumServer + '?cmd=setPileupCorrection';
+      // Start this url, a separate one for each crystal
+      urls[num]= dataStore.spectrumServer + '?cmd=setPileupCorrection';
 
-    // Create the channel name for this crystal
-    var cloverNum = Math.floor(thisGeindex/4)+1;
-    var GeName = "GRG" + alwaysThisLong(cloverNum, 2) + crystals[thisGeindex%4] + 'N00' + letter[0];
-    urls[num] += "&channelName0="+GeName;
+      // Create the channel name for this crystal
+      var cloverNum = Math.floor(thisGeindex/4)+1;
+      var GeName = "GRG" + alwaysThisLong(cloverNum, 2) + crystals[thisGeindex%4] + 'N00' + letter[0];
+      urls[num] += "&channelName0="+GeName;
 
-    // Add the k1 coefficients
-    urls[num] += "&pileupk10=";
-    for(var i=0; i<dataStore.fitResultsParameters[GeName]['k1'].length; i++){
-      if(i>0){ urls[num] += ",";  }
-      urls[num] += dataStore.fitResultsParameters[GeName]['k1'][i];
+      // Add the k1 coefficients
+      urls[num] += "&pileupk10=";
+      for(var i=0; i<dataStore.fitResultsParameters[GeName]['k1'].length; i++){
+        if(i>0){ urls[num] += ",";  }
+        urls[num] += dataStore.fitResultsParameters[GeName]['k1'][i];
+      }
+
+      // Add the k2 coefficients
+      urls[num] += "&pileupk20=";
+      for(var i=0; i<dataStore.fitResultsParameters[GeName]['k2'].length; i++){
+        if(i>0){ urls[num] += ",";  }
+        urls[num] += dataStore.fitResultsParameters[GeName]['k2'][i];
+      }
+
+      // Add the e1 offset coefficients
+      urls[num] += "&pileupE10=";
+      for(var i=0; i<dataStore.fitResultsParameters[GeName]['e1'].length; i++){
+        if(i>0){ urls[num] += ",";  }
+        urls[num] += dataStore.fitResultsParameters[GeName]['e1'][i];
+      }
+
+      num++; // move to next url, one for each crystal
+    } // end of Ge loop
+
+    //send requests
+    for(i=0; i<urls.length; i++){
+      XHR(urls[i],
+        'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
+        function(){return 0},
+        function(error){console.log(error)}
+      )
     }
 
-    // Add the k2 coefficients
-    urls[num] += "&pileupk20=";
-    for(var i=0; i<dataStore.fitResultsParameters[GeName]['k2'].length; i++){
-      if(i>0){ urls[num] += ",";  }
-      urls[num] += dataStore.fitResultsParameters[GeName]['k2'][i];
-    }
-
-    // Add the e1 offset coefficients
-    urls[num] += "&pileupE10=";
-    for(var i=0; i<dataStore.fitResultsParameters[GeName]['e1'].length; i++){
-      if(i>0){ urls[num] += ",";  }
-      urls[num] += dataStore.fitResultsParameters[GeName]['e1'][i];
-    }
-
-    num++; // move to next url, one for each crystal
-  } // end of Ge loop
-
-  //send requests
-  for(i=0; i<urls.length; i++){
-    XHR(urls[i],
-      'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
-      function(){return 0},
-      function(error){console.log(error)}
-    )
+    //get rid of the modal
+    document.getElementById('dismissAnalyzermodal').click();
   }
-
-  //get rid of the modal
-  document.getElementById('dismissAnalyzermodal').click();
-}

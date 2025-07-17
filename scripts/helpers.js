@@ -2139,7 +2139,7 @@ function buildCalfile(){
     CAL += 'Address:  0x'+dataStore.Config[i].address.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+'\n';
     CAL += 'Digitizer:	GRF16\n';
     // Energy gain matching coefficients
-    if( dataStore.THESEcalibrations[thisKey] && document.getElementById(thisKey+'write')){
+    if( dataStore.THESEcalibrations[thisKey] && document.getElementById(thisKey+'write') ){
       if( document.getElementById(thisKey+'write').checked){
         CAL += 'EngCoeff:	'+dataStore.THESEcalibrations[thisKey]['fit'][2]+' '+dataStore.THESEcalibrations[thisKey]['fit'][1]+' '+dataStore.THESEcalibrations[thisKey]['fit'][0]+'\n';
       }else{
@@ -2239,6 +2239,33 @@ function buildCalfile(){
     CAL += '//====================================//\n';
   }
 
+/*
+  // fastTimingCalibrations app, TAC offsets - add these to the end of the Cal file if they exist
+  if(dataStore.dataStore.comboOffsets){
+
+    var tac_offset_name = [
+      "TAC_01_02", "TAC_01_03", "TAC_01_04", "TAC_01_05", "TAC_01_06", "TAC_01_07", "TAC_01_08",
+      "TAC_02_03", "TAC_02_04", "TAC_02_05", "TAC_02_06", "TAC_02_07", "TAC_02_08",
+      "TAC_03_04", "TAC_03_05", "TAC_03_06", "TAC_03_07", "TAC_03_08",
+      "TAC_04_05", "TAC_04_06", "TAC_04_07", "TAC_04_08",
+      "TAC_05_06", "TAC_05_07", "TAC_05_08",
+      "TAC_06_07", "TAC_06_08",
+      "TAC_07_08",
+      "TAC_02_01"
+    ];
+
+    // TAC_OFFSET parameters for the different LBL-LBL combinations
+    for(var i=0; i<dataStore.comboOffsets.length; i++){
+      CAL += "TAC_OFFSET"+' { \n';
+      CAL += 'Name:	'+tac_offset_name[i]+'\n';
+      CAL += 'EngCoeff:	'+dataStore.comboOffsets[i]+' '+tac_offset_name[i].split("_")[1]+' '+tac_offset_name[i].split("_")[2]+'\n';
+      CAL += '}\n';
+      CAL += '\n';
+      CAL += '//====================================//\n';
+    }
+  }
+  */
+  
   // Create a download link
   const textBlob = new Blob([CAL], {type: 'text/plain'});
   URL.revokeObjectURL(window.textBlobURL);
@@ -2421,82 +2448,82 @@ function buildJSONfile(){
 }
 
 
-    function buildCSVfile(){
-      console.log('Download initiated - using buildCSVfile function in helper.js');
-      var keys = Object.keys(dataStore.fitResults);
-      var index = 1;
+function buildCSVfile(){
+  console.log('Download initiated - using buildCSVfile function in helper.js');
+  var keys = Object.keys(dataStore.fitResults);
+  var index = 1;
 
-      // Write the table of results to a CSV file for download.
-      var CSV = '';
+  // Write the table of results to a CSV file for download.
+  var CSV = '';
 
-      CSV += 'GRIFFIN Peak Fitter Results Data\n\n';
+  CSV += 'GRIFFIN Peak Fitter Results Data\n\n';
 
-      //fit results: 'plotname': [[amplitude, center, width, intercept, slope, area, FWHM], [amplitude, center, width, intercept, slope, area, FWHM]]
+  //fit results: 'plotname': [[amplitude, center, width, intercept, slope, area, FWHM], [amplitude, center, width, intercept, slope, area, FWHM]]
 
-      CSV += 'Fit Index,';
-      CSV += 'Histogram File,';
-      CSV += 'Run Title,Run StartTime,Run Duration,';
-      CSV += 'Spectrum,';
-      CSV += 'Centroid,'; //
-      CSV += 'Height,'; //
-      CSV += 'Width,'; //
-      CSV += 'Intercept (BG),'; //
-      CSV += 'Slope (BG),'; //
-      CSV += 'Area,'; //
-      CSV += 'Area Unc.,'; //
-      CSV += 'FWHM\n'; //
-      for(var i=0; i<keys.length; i++){
-        for(var j=0; j<dataStore.fitResults[keys[i]].length; j++){
-          CSV += index + ','; index++;
-          CSV += keys[i].split(":")[0] + ',';
-          CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Title + ',';
-          CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].StartTime + ',';
-          CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Duration + ',';
-          CSV += keys[i].split(":")[1] + ',';
-          CSV += dataStore.fitResults[keys[i]][j][1].toFixed(2) + ','; // Center
-          CSV += dataStore.fitResults[keys[i]][j][0].toFixed(2) + ','; // Amplitude
-          CSV += dataStore.fitResults[keys[i]][j][2].toFixed(2) + ','; // width
-          CSV += dataStore.fitResults[keys[i]][j][3].toFixed(2) + ','; // intercept
-          CSV += dataStore.fitResults[keys[i]][j][4].toFixed(2) + ','; // slope
-          CSV += dataStore.fitResults[keys[i]][j][5].toFixed(2) + ','; // area
-          CSV += Math.sqrt(dataStore.fitResults[keys[i]][j][5]).toFixed(2) + ','; // area uncertainty
-          CSV += dataStore.fitResults[keys[i]][j][6].toFixed(2) + '\n'; // FWHM
-        }
-      }
-      CSV += '\n';
-
-      // Create a download link
-      const textBlob = new Blob([CSV], {type: 'text/plain'});
-      URL.revokeObjectURL(window.textBlobURL);
-      const downloadLink = document.createElement('a');
-      downloadLink.href = URL.createObjectURL(textBlob);
-      downloadLink.download = 'GRIFFIN-peakFitter-Results.csv';
-
-      // Trigger the download
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
+  CSV += 'Fit Index,';
+  CSV += 'Histogram File,';
+  CSV += 'Run Title,Run StartTime,Run Duration,';
+  CSV += 'Spectrum,';
+  CSV += 'Centroid,'; //
+  CSV += 'Height,'; //
+  CSV += 'Width,'; //
+  CSV += 'Intercept (BG),'; //
+  CSV += 'Slope (BG),'; //
+  CSV += 'Area,'; //
+  CSV += 'Area Unc.,'; //
+  CSV += 'FWHM\n'; //
+  for(var i=0; i<keys.length; i++){
+    for(var j=0; j<dataStore.fitResults[keys[i]].length; j++){
+      CSV += index + ','; index++;
+      CSV += keys[i].split(":")[0] + ',';
+      CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Title + ',';
+      CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].StartTime + ',';
+      CSV += dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Duration + ',';
+      CSV += keys[i].split(":")[1] + ',';
+      CSV += dataStore.fitResults[keys[i]][j][1].toFixed(2) + ','; // Center
+      CSV += dataStore.fitResults[keys[i]][j][0].toFixed(2) + ','; // Amplitude
+      CSV += dataStore.fitResults[keys[i]][j][2].toFixed(2) + ','; // width
+      CSV += dataStore.fitResults[keys[i]][j][3].toFixed(2) + ','; // intercept
+      CSV += dataStore.fitResults[keys[i]][j][4].toFixed(2) + ','; // slope
+      CSV += dataStore.fitResults[keys[i]][j][5].toFixed(2) + ','; // area
+      CSV += Math.sqrt(dataStore.fitResults[keys[i]][j][5]).toFixed(2) + ','; // area uncertainty
+      CSV += dataStore.fitResults[keys[i]][j][6].toFixed(2) + '\n'; // FWHM
     }
+  }
+  CSV += '\n';
 
-        function buildScriptfile(){
-          console.log('Download initiated');
+  // Create a download link
+  const textBlob = new Blob([CSV], {type: 'text/plain'});
+  URL.revokeObjectURL(window.textBlobURL);
+  const downloadLink = document.createElement('a');
+  downloadLink.href = URL.createObjectURL(textBlob);
+  downloadLink.download = 'GRIFFIN-peakFitter-Results.csv';
 
-          // Write the contents of the json script to a file for download.
-          var JSONstring = '';
-          JSONstring = JSON.stringify(dataStore.peakFitterScript, null, 4);
+  // Trigger the download
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+}
 
-          // Need to purge some spectrum specific peak entries if they match All.
+function buildScriptfile(){
+  console.log('Download initiated');
 
-          // Create a download link
-          const textBlob = new Blob([JSONstring], {type: 'text/plain'});
-          URL.revokeObjectURL(window.textBlobURL);
-          const downloadLink = document.createElement('a');
-          downloadLink.href = URL.createObjectURL(textBlob);
-          downloadLink.download = 'GRIFFIN-peakFitter-script.json';
+  // Write the contents of the json script to a file for download.
+  var JSONstring = '';
+  JSONstring = JSON.stringify(dataStore.peakFitterScript, null, 4);
 
-          // Trigger the download
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-        }
+  // Need to purge some spectrum specific peak entries if they match All.
+
+  // Create a download link
+  const textBlob = new Blob([JSONstring], {type: 'text/plain'});
+  URL.revokeObjectURL(window.textBlobURL);
+  const downloadLink = document.createElement('a');
+  downloadLink.href = URL.createObjectURL(textBlob);
+  downloadLink.download = 'GRIFFIN-peakFitter-script.json';
+
+  // Trigger the download
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+}
 
 ////////////////////
 // Plotly.js
