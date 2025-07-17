@@ -2145,6 +2145,9 @@ function buildCalfile(){
       }else{
         CAL += 'EngCoeff:	'+dataStore.Config[i].offset+' '+dataStore.Config[i].gain+' '+dataStore.Config[i].quad+'\n';
       }
+    }else if( dataStore.THESEcalibrations[thisKey] && (thisKey.includes("LBL") || thisKey.includes("LBT")) ){
+      // Results from fastTimingCalibrations app
+      CAL += 'EngCoeff:	'+dataStore.THESEcalibrations[thisKey]['fit'][2]+' '+dataStore.THESEcalibrations[thisKey]['fit'][1]+' '+dataStore.THESEcalibrations[thisKey]['fit'][0]+'\n';
     }else{
       CAL += 'EngCoeff:	'+dataStore.Config[i].offset+' '+dataStore.Config[i].gain+' '+dataStore.Config[i].quad+'\n';
     }
@@ -2239,9 +2242,8 @@ function buildCalfile(){
     CAL += '//====================================//\n';
   }
 
-/*
   // fastTimingCalibrations app, TAC offsets - add these to the end of the Cal file if they exist
-  if(dataStore.dataStore.comboOffsets){
+  if(dataStore.comboOffsets){
 
     var tac_offset_name = [
       "TAC_01_02", "TAC_01_03", "TAC_01_04", "TAC_01_05", "TAC_01_06", "TAC_01_07", "TAC_01_08",
@@ -2264,7 +2266,6 @@ function buildCalfile(){
       CAL += '//====================================//\n';
     }
   }
-  */
 
   // Create a download link
   const textBlob = new Blob([CAL], {type: 'text/plain'});

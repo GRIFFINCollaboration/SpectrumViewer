@@ -936,6 +936,7 @@ function launchPeakFittingProcess(){
       dataStore.THESEcalibrations[thisKey]['residual'] = [];
       dataStore.THESEcalibrations[thisKey]['residualMean'] = 0;
       dataStore.THESEcalibrations[thisKey]['fwhm'] = [];
+      dataStore.THESEcalibrations[thisKey]['residualVar'] = 0;
       var k=0;
       for(j=0; j<dataStore.fitResults[keys[i]].length; j++){ // loop over all peaks fitted in this spectrum
         if(isNaN(dataStore.fitResults[keys[i]][j][1])){ continue; } // exclude failed peak fits where the centroid is NaN
@@ -991,7 +992,6 @@ function launchPeakFittingProcess(){
       dataStore.THESEcalibrations[thisKey]['residualMean'] /= dataStore.THESEcalibrations[thisKey]['x'].length;
 
       // Now we have the mean, we can calculate the variance of the mean
-      dataStore.THESEcalibrations[thisKey].residualVar = 0;
       var mean = dataStore.THESEcalibrations[thisKey].residualMean;
       for(var j=0; j<dataStore.THESEcalibrations[thisKey].residual.length; j++){
         dataStore.THESEcalibrations[thisKey].residualVar +=

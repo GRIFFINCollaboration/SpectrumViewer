@@ -68,6 +68,11 @@ function setupDataStore(){
   dataStore.fitResultsData = {};              // Store the data of the curve fitting, 'detector-name':{ 'k1':[[x0,y0],[x1,y1]...], 'k2':[[x0,y0],[x1,y1]...], 'e1':[[x0,y0],[x1,y1]...] }
   dataStore.fitResultsParameters = {};        // Store the parameters of the curve fitting, 'detector-name':{ 'k1':[p0,p1,p2,p3,p4,p5,p6], 'k2':[p0,p1,p2,p3,p4,p5,p6], 'e1':[p0,p1,p2,p3,p4,p5,p6] }
 
+  // Final results
+  dataStore.THESEcalibrations = [];  // Array of objects to store together the cailbration data and results. 'detectorName':{ 'x'(pulseHeight centroids):[],'y'(literature energy):[],'residual':[],'fit':[quad,gain,offset,reduced-chi-squared],
+                                     //                                                                                       'pileupk1':[1 0 0 0 0 0 0], 'pileupk2':[1 0 0 0 0 0 0], 'pileupE1':[0 0 0 0 0 0 0],
+                                     //                                                                                       'crosstalk0:[0,1,0,0,0,0,0]', 'crosstalk1:[0,1,0,0,0,0,0]', 'crosstalk2:[0,1,0,0,0,0,0]'}
+
   //custom element config
   dataStore.dataType = 'Singles';                                         //mode of operation: Singles or Addback.
 
@@ -523,6 +528,7 @@ function setupDataStore(){
             if(!specList[i].includes("TAC_")){ continue; } // Only use TAC histograms in the 60Co run
             var thisKey = histoName + ":" + specList[i];
             if(!dataStore.fitResults[thisKey]){ continue; } // Bail out if there are no fit results yet
+            if(isNaN(dataStore.fitResults[thisKey][0][1])){ dataStore.fitResults[thisKey][0][1]=500; } // Set failed fit to zero offset
             dataStore.comboOffsets[index] = 500 - dataStore.fitResults[thisKey][0][1];
             if(i>0){ string += ","; }
             string += (500 - dataStore.fitResults[thisKey][0][1]).toFixed(0);
@@ -616,10 +622,24 @@ function setupDataStore(){
             dataStore.tacGain[thisTAC] = gain;
           }
 
+          // Copy the TAC gains to the THESEcalibrations object for use in buildCalfile
+          for(i=0; i<dataStore.tacGain.length; i++){
+            var thisKey = "LBT" + alwaysThisLong((i+1),1) + "XT00X";
+            if(!dataStore.THESEcalibrations[thisKey]){ dataStore.THESEcalibrations[thisKey] = {}; }
+            dataStore.THESEcalibrations[thisKey]['y'] = [];
+            dataStore.THESEcalibrations[thisKey]['x'] = [];
+            dataStore.THESEcalibrations[thisKey]['xEn'] = [];
+            dataStore.THESEcalibrations[thisKey]['residual'] = [];
+            dataStore.THESEcalibrations[thisKey]['residualMean'] = 0;
+            dataStore.THESEcalibrations[thisKey]['fwhm'] = [];
+            dataStore.THESEcalibrations[thisKey]['residualVar'] = 0;
+            // 'fit': [quad, gain, offset, reduced-chi-square]
+            dataStore.THESEcalibrations[thisKey]['fit'] = [0.0,dataStore.tacGain[i],0.0,1.0];
+          }
         }
 
         function findTacOffsets(){
-        console.log("findTacOffsets");
+          console.log("findTacOffsets");
           var spectrumList = [];
           var peaksList = {};
 
@@ -700,7 +720,7 @@ function setupDataStore(){
         }
 
         function gainMatchLBL(){
-        console.log("gainMatchLBL");
+          console.log("gainMatchLBL");
           var peaksList = {};
 
           var keys = Object.keys(dataStore.rawData);
@@ -709,7 +729,7 @@ function setupDataStore(){
             if(!keys[i].includes(document.getElementById('HistoListSelect60Co').value.split(".")[0])){
               continue;
             }
-            // Only use TAC histograms in the 60Co run
+            // Only use LBL histograms in the 60Co run
             if(!keys[i].includes("LBL")){
               continue;
             }
@@ -750,101 +770,32 @@ function setupDataStore(){
               testSpectrum[0] = testSpectrum[1];   // elimimate noise
               errorSpectrum[0] = errorSpectrum[1]; // elimimate noise
               thisChiSquare = calculateChiSquare(testSpectrum,errorSpectrum,referenceSpectrum);
-            //  thisChiSquare = calculateChiSquare(testSpectrum.slice(lowerTestBin,lengthTestBins),errorSpectrum.slice(lowerTestBin,lengthTestBins),referenceSpectrum.slice(lowerTestBin,lengthTestBins));
+              //  thisChiSquare = calculateChiSquare(testSpectrum.slice(lowerTestBin,lengthTestBins),errorSpectrum.slice(lowerTestBin,lengthTestBins),referenceSpectrum.slice(lowerTestBin,lengthTestBins));
               chiSquareSeries.push(thisChiSquare);
 
               // Decide if this is the best fit and save it if it is
               if(thisChiSquare<minChiSquare){ minChiSquare = thisChiSquare; optimalGain = gain; }
             }
             dataStore.LBLgains.push(optimalGain);
-          //  console.log(keys[i]+", best chi-square ("+minChiSquare +") at gain "+optimalGain);
-          //  console.log(chiSquareSeries);
+            //  console.log(keys[i]+", best chi-square ("+minChiSquare +") at gain "+optimalGain);
+            //  console.log(chiSquareSeries);
+          }
+
+          // Copy the LBL gains to the THESEcalibrations object for use in buildCalfile
+          for(i=0; i<dataStore.LBLgains.length; i++){
+            var thisKey = "LBL" + alwaysThisLong((i+1),1) + "XN00X";
+            if(!dataStore.THESEcalibrations[thisKey]){ dataStore.THESEcalibrations[thisKey] = {}; }
+            dataStore.THESEcalibrations[thisKey]['y'] = [];
+            dataStore.THESEcalibrations[thisKey]['x'] = [];
+            dataStore.THESEcalibrations[thisKey]['xEn'] = [];
+            dataStore.THESEcalibrations[thisKey]['residual'] = [];
+            dataStore.THESEcalibrations[thisKey]['residualMean'] = 0;
+            dataStore.THESEcalibrations[thisKey]['fwhm'] = [];
+            dataStore.THESEcalibrations[thisKey]['residualVar'] = 0;
+            // 'fit': [quad, gain, offset, reduced-chi-square]
+            dataStore.THESEcalibrations[thisKey]['fit'] = [0.0,dataStore.LBLgains[i],0.0,1.0];
           }
         }
-
-        function buildCalfile(){
-          console.log('Download initiated');
-
-          // This cal file will contain:
-          // LBL energy calibration Coefficients
-          // LBT TAC Gain coefficients
-          // TAC_OFFSET parameters for the different LBL-LBL combinations
-
-          var tac_offset_name = [
-            "TAC_01_02", "TAC_01_03", "TAC_01_04", "TAC_01_05", "TAC_01_06", "TAC_01_07", "TAC_01_08",
-            "TAC_02_03", "TAC_02_04", "TAC_02_05", "TAC_02_06", "TAC_02_07", "TAC_02_08",
-            "TAC_03_04", "TAC_03_05", "TAC_03_06", "TAC_03_07", "TAC_03_08",
-            "TAC_04_05", "TAC_04_06", "TAC_04_07", "TAC_04_08",
-            "TAC_05_06", "TAC_05_07", "TAC_05_08",
-            "TAC_06_07", "TAC_06_08",
-            "TAC_07_08",
-            "TAC_02_01"
-          ];
-
-          // Write the Cal file
-          CAL = '';
-
-          // The LBL energy calibration Coefficients
-          for(var i=0; i<dataStore.LBLgains.length; i++){
-            var thisName = "LBL" + alwaysThisLong(i+1,2) + "XN00X";
-            CAL += thisName+' { \n';
-            CAL += 'Name:	'+thisName+'\n';
-            CAL += 'Number:	'+i+'\n';
-            var thisCalibrationIndex = dataStore.Config.map(function(e) { return e.name; }).indexOf(thisName);
-            var thisAddress = dataStore.Config[thisCalibrationIndex].address;
-            CAL += 'Address:  0x'+thisAddress.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+'\n';
-            CAL += 'Digitizer:	GRF16\n';
-            CAL += 'EngCoeff:	'+0.0+' '+dataStore.LBLgains[i]+' '+0.0+'\n';
-            CAL += 'Integration:	0\n';
-            CAL += 'ENGChi2:	0\n';
-            CAL += 'FileInt:	0\n';
-            CAL += '}\n';
-            CAL += '\n';
-            CAL += '//====================================//\n';
-          }
-
-
-          // LBT TAC Gain coefficients
-          for(var i=0; i<dataStore.tacGain.length; i++){
-            var thisName = "LBT" + alwaysThisLong(i+1,2) + "XT00X";
-            CAL += thisName+' { \n';
-            CAL += 'Name:	'+thisName+'\n';
-            CAL += 'Number:	'+i+'\n';
-            var thisCalibrationIndex = dataStore.Config.map(function(e) { return e.name; }).indexOf(thisName);
-            var thisAddress = dataStore.Config[thisCalibrationIndex].address;
-            CAL += 'Address:  0x'+thisAddress.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+'\n';
-            CAL += 'Digitizer:	GRF16\n';
-            CAL += 'EngCoeff:	'+0.0+' '+dataStore.tacGain[i]+' '+0.0+'\n';
-            CAL += 'Integration:	0\n';
-            CAL += 'ENGChi2:	0\n';
-            CAL += 'FileInt:	0\n';
-            CAL += '}\n';
-            CAL += '\n';
-            CAL += '//====================================//\n';
-          }
-
-          // TAC_OFFSET parameters for the different LBL-LBL combinations
-          for(var i=0; i<dataStore.comboOffsets.length; i++){
-            CAL += "TAC_OFFSET"+' { \n';
-            CAL += 'Name:	'+tac_offset_name[i]+'\n';
-            CAL += 'EngCoeff:	'+dataStore.comboOffsets[i]+' '+tac_offset_name[i].split("_")[1]+' '+tac_offset_name[i].split("_")[2]+'\n';
-            CAL += '}\n';
-            CAL += '\n';
-            CAL += '//====================================//\n';
-          }
-
-          // Create a download link
-          const textBlob = new Blob([CAL], {type: 'text/plain'});
-          URL.revokeObjectURL(window.textBlobURL);
-          const downloadLink = document.createElement('a');
-          downloadLink.href = URL.createObjectURL(textBlob);
-          downloadLink.download = document.getElementById('saveCalname').value;
-
-          // Trigger the download
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-        }
-
 
         function updateAnalyzer(){
 
