@@ -328,8 +328,7 @@ function fetchCallback(){
         "maxCountsValue": 0,
         "comptonEdgeThreshold": 0,
         "comptonEdgeChannel": 0,
-        "deltaV_1PMT": 0,
-        "deltaV_2PMT": 0
+        "deltaV_1PMT": 0
       };
       continue;
     }
@@ -345,7 +344,6 @@ function fetchCallback(){
       }
     }
     var deltaV_1PMT = (-1*(comptonEdgeChannel - 330)/66)*10;
-    var deltaV_2PMT = (-1*(comptonEdgeChannel - 660)/66)*5;
 
     // Save these results to the THESEcalibrations object
     dataStore.THESEcalibrations[detName] = {
@@ -355,8 +353,7 @@ function fetchCallback(){
       "maxCountsValue": maxCountsValue,
       "comptonEdgeThreshold": thisThreshold,
       "comptonEdgeChannel": comptonEdgeChannel,
-      "deltaV_1PMT": deltaV_1PMT.toFixed(0),
-      "deltaV_2PMT": deltaV_2PMT.toFixed(0)
+      "deltaV_1PMT": deltaV_1PMT.toFixed(0)
     };
   }
 
@@ -414,8 +411,8 @@ function injectButtonsForGroupDisplays(){
 }
 
 function injectButtonsForTextFileDownload(){
-  var buttonHTML = ["Download Textfile A","Download Textfile B","Download Textfile AB"];
-  var buttonValue = ["A","B","AB"];
+  var buttonHTML = ["Download Textfile A","Download Textfile B"];
+  var buttonValue = ["A","B"];
 
   // Create the buttons
   for(var i=0; i<buttonValue.length; i++){
@@ -536,12 +533,7 @@ function buildPlotListGroup(cloverNum){
     var TextFileString = '';
     for(i=0; i<keys.length; i++){
       var thisName = dataStore.THESEcalibrations[keys[i]].detector.slice(0, -1);
-      if(value.length>1){
-        TextFileString += thisName + 'A' + '\t' + dataStore.THESEcalibrations[keys[i]].deltaV_2PMT + '\n';
-        TextFileString += thisName + 'B' + '\t' + dataStore.THESEcalibrations[keys[i]].deltaV_2PMT + '\n';
-      }else{
-        TextFileString += thisName + value + '\t' + dataStore.THESEcalibrations[keys[i]].deltaV_1PMT + '\n';
-      }
+      TextFileString += thisName + value + '\t' + dataStore.THESEcalibrations[keys[i]].deltaV_1PMT + '\n';
     }
 
     // Create a download link

@@ -37,7 +37,7 @@ function bgoHValignmentReport(wrapID){
   this.refreshTableData = function(cloverNum){
 
     // Variables to control table generation and filling
-    var cellHandles = ["detector","name","maxCountsChannel","maxCountsValue","comptonEdgeThreshold","comptonEdgeChannel","deltaV_1PMT","deltaV_2PMT"];
+    var cellHandles = ["detector","name","maxCountsChannel","maxCountsValue","comptonEdgeThreshold","comptonEdgeChannel","deltaV_1PMT"];
     var tableID = "bgoHValignmentbgoHValignmentResults";
 
     // Delete rows except for header
@@ -64,18 +64,6 @@ function bgoHValignmentReport(wrapID){
             // Change cell background to orange
             cell.setAttribute('style', 'background-color: #F28C28;');
           } else if(Math.abs(dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]])>80){
-            // Change cell background to red
-            cell.setAttribute('style', 'background-color: #D22B2B;');
-          }
-        }
-        if(cellHandles[cellIndex] == "deltaV_2PMT"){
-          if(Math.abs(dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]])<11){
-            // Change cell background to green
-            cell.setAttribute('style', 'background-color: #4CBB17;');
-          }else if(Math.abs(dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]])<41){
-            // Change cell background to orange
-            cell.setAttribute('style', 'background-color: #F28C28;');
-          }else if(Math.abs(dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]])>40){
             // Change cell background to red
             cell.setAttribute('style', 'background-color: #D22B2B;');
           }
