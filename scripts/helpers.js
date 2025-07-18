@@ -3136,8 +3136,8 @@ function zeroSuppressData(fullData){
   for(var i=0; i<fullData.length; i++){
     for(var j=0; j<fullData[i].length; j++){
       if(fullData[i][j]>0){
-        data.x.push(i);
-        data.y.push(j);
+        data.x.push(j);
+        data.y.push(i);
         data.z.push(fullData[i][j]);
       }
     }
