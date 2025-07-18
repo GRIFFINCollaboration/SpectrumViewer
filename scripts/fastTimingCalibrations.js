@@ -624,7 +624,7 @@ function setupDataStore(){
 
           // Copy the TAC gains to the THESEcalibrations object for use in buildCalfile
           for(i=0; i<dataStore.tacGain.length; i++){
-            var thisKey = "LBT" + alwaysThisLong((i+1),1) + "XT00X";
+            var thisKey = "LBT" + alwaysThisLong((i+1),2) + "XT00X";
             if(!dataStore.THESEcalibrations[thisKey]){ dataStore.THESEcalibrations[thisKey] = {}; }
             dataStore.THESEcalibrations[thisKey]['y'] = [];
             dataStore.THESEcalibrations[thisKey]['x'] = [];
@@ -716,7 +716,6 @@ function setupDataStore(){
 
           // Start the whole fitting routine for singles peaks
           fitPeaksInSeriesOfHistograms(spectrumList,peaksList,"TAC");
-
         }
 
         function gainMatchLBL(){
@@ -783,7 +782,7 @@ function setupDataStore(){
 
           // Copy the LBL gains to the THESEcalibrations object for use in buildCalfile
           for(i=0; i<dataStore.LBLgains.length; i++){
-            var thisKey = "LBL" + alwaysThisLong((i+1),1) + "XN00X";
+            var thisKey = "LBL" + alwaysThisLong((i+1),2) + "XN00X";
             if(!dataStore.THESEcalibrations[thisKey]){ dataStore.THESEcalibrations[thisKey] = {}; }
             dataStore.THESEcalibrations[thisKey]['y'] = [];
             dataStore.THESEcalibrations[thisKey]['x'] = [];
