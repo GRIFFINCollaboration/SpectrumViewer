@@ -277,14 +277,34 @@ constructNewSpectrumMenu();
 <script type="module">
 // Import the module for the 2d histogram viewer (heatmap). Uses an external library
 import { heatmap } from 'https://bkatiemills.github.io/glslgraph/scripts/heatmap.js';
+
+/*
+// Dark mode
 dataStore.hm = new heatmap("heatmapTarget", {
   polycallback: (polycoords)=>console.log(polycoords),
   xAxisTitle: 'x channel',
   yAxisTitle: 'y channel',
   scale: 'linear',
+  bkgColor: '#333333',
   textColor: '#999999',
   annotationColor: '#999999',
 });
+*/
+
+// Light mode
+dataStore.hm = new heatmap("heatmapTarget", {
+  polycallback: (polycoords)=>console.log(polycoords),
+  xAxisTitle: 'x channel',
+  yAxisTitle: 'y channel',
+  scale: 'linear',
+  bkgColor: 'F9FAFF',
+  textColor: '#333333',
+  annotationColor: '#333333',
+});
+
+
+
+
 </script>
 
 
