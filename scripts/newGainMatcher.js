@@ -836,92 +836,6 @@ function launchPeakFittingProcess(){
 
   }
 
-
-  function roughGainMatch(spectrumList,detType,sourceType){
-    console.log("roughGainMatch for "+detType+" with "+sourceType);
-
-    var gainRange = {
-      "HPGe": {"min": 1.0, "max": 1.5, "step":0.001}, // minimum and maximum gains to sweep over
-      "LaBr3": {"min": 0.7, "max": 2.2, "step":0.001}, // minimum and maximum gains to sweep over
-      "PACES": {"min": 0.7, "max": 0.9, "step":0.001}, // minimum and maximum gains to sweep over
-      "RCMP": {"min": 1.1, "max": 1.5, "step":0.001}, // minimum and maximum gains to sweep over
-      "ARIES": {"min": 0.2, "max": 0.4, "step":0.001}, // minimum and maximum gains to sweep over
-      "DES_Wall": {"min": 0.7, "max": 1.2, "step":0.001}, // minimum and maximum gains to sweep over
-    };
-
-    for(var i=0; i<spectrumList.length; i++){
-
-      // Update the progress bar by one task
-      updateProgressBar(1);
-
-      // Create the empty spectrum that will be a starting point for each interation
-
-      // Get the reference spectrum from the store
-      var testSpectrumLength = dataStore.referenceSpectrum[detType][sourceType].length;
-      var referenceSpectrum = dataStore.referenceSpectrum[detType][sourceType].slice(0,testSpectrumLength);
-
-      // Set the parameters for the chi-square sweep
-      var gainLowerLimit = gainRange[detType].min;
-      var gainUpperLimit = gainRange[detType].max;
-      var gainStepSize = gainRange[detType].step;
-      var minChiSquare = 100000000;
-      var chiSquareSeries = [];
-      var optimalGain = 1.0; // set here in case we dont get a minimum
-      // Scan through gain values
-      for(gain=gainLowerLimit; gain<gainUpperLimit; gain+=gainStepSize){
-        // Zero the spectra at each iteration
-        testSpectrum = []; testSpectrum.fillN(0,testSpectrumLength); // Try and match between zero and 2MeV
-        errorSpectrum = []; errorSpectrum.fillN(0,testSpectrumLength); // Try and match between zero and 2MeV
-
-        // Fill the testSpectrum by applying this gain value
-        // NOTE THIS APPROACH ONLY WORKS FOR GAIN VALUES > 1.0
-        for(j=0; j<testSpectrumLength; j++){
-          var bin = Math.round(j*gain);
-          if(bin>=0 && bin<testSpectrumLength){
-            testSpectrum[bin] += dataStore.rawData[spectrumList[i]][j];
-          }
-        }
-        // Calculate the errorSpectrum from the testSpectrum
-        for(j=0; j<testSpectrumLength; j++){ errorSpectrum[j] = Math.sqrt(testSpectrum[j]); }
-        testSpectrum[0] = 0; errorSpectrum[0] = 0; // elimimate noise
-        if(detType == "HPGe"){
-          for(j=0; j<75; j++){  // Zero the first 75 channels because they cause problems for high-threshold channels
-            testSpectrum[j] = 0; errorSpectrum[j] = 0; referenceSpectrum[j] = 0;
-          }
-        }
-
-        // Calculate the chi square value between this testSpectrum and the referenceSpectrum
-        thisChiSquare = calculateChiSquare(testSpectrum,errorSpectrum,referenceSpectrum);
-        chiSquareSeries.push(thisChiSquare);
-
-        // Decide if this is the best fit and save it if it is
-        if(thisChiSquare<minChiSquare){ minChiSquare = thisChiSquare; optimalGain = gain; }
-      }
-
-      // Save the optimal gain value in the standard place for use later
-      dataStore.roughGainMatchParameters[spectrumList[i]] = optimalGain;
-      console.log("Optimal gain for "+spectrumList[i]+": best chi-square ("+minChiSquare +") at gain "+optimalGain);
-
-      // Save the roughly gain-matched spectrum to the createdSpectra object ready for peakfitting
-      var thisRoughGainMatchedName = spectrumList[i].replace("_Pulse_Height","_Energy");
-      testSpectrum = []; testSpectrum.fillN(0,dataStore.rawData[spectrumList[i]].length);
-      for(j=0; j<testSpectrumLength; j++){
-        var bin = parseInt(j*optimalGain);
-        if(bin>=0 && bin<testSpectrumLength){
-          testSpectrum[bin] += dataStore.rawData[spectrumList[i]][j];
-          //  testSpectrum[bin+1] += parseInt(dataStore.rawData[spectrumList[i]][j]/2);
-        }
-      }
-      dataStore.createdSpectra[thisRoughGainMatchedName] = testSpectrum; // Used in building menu
-      dataStore.rawData[thisRoughGainMatchedName] = testSpectrum; // necessary for exclusivePlot
-
-      //  console.log(chiSquareSeries);
-    }
-
-    // Callback
-    roughGainMatchCallback();
-  }
-
   function roughGainMatchCallback(){
     console.log(dataStore);
 
@@ -988,7 +902,7 @@ function launchPeakFittingProcess(){
     // Quadratic fit for HPGe
     var keys = Object.keys(dataStore.fitResults);
 
-    // ARIES calibrations - Insert zero channel 'fit' for ARIES spectra, to force a linear gain fit with a single 'peak'
+    // ARIES calibrations - Insert zero channel 'fit' for ARIES spectra, to enable a linear gain fit with a single 'peak'
     if(dataStore.detectorType == "ARIES"){
       for(var i=0; i<keys.length; i++){
         dataStore.fitResults[keys[i]][1] = dataStore.fitResults[keys[i]][0];
