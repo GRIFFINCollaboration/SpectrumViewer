@@ -114,6 +114,8 @@ function plotControl2d(wrapID){
     document.getElementById('projectionsTitleDiv').classList.remove('hidden');
     document.getElementById('showXproj').classList.remove('hidden');
     document.getElementById('showYproj').classList.remove('hidden');
+    document.getElementById('showXprojZoomed').classList.remove('hidden');
+    document.getElementById('showYprojZoomed').classList.remove('hidden');
 
     //don't need plot help anymore; swap in roi help
     document.getElementById('intro-plot-picker').classList.add('hidden');
@@ -470,6 +472,8 @@ function fetchCallback(){
   if(typeof(document.getElementById('showXproj')) != 'undefined'){
     document.getElementById('showXproj').disabled = false;
     document.getElementById('showYproj').disabled = false;
+    document.getElementById('showXprojZoomed').disabled = false;
+    document.getElementById('showYprojZoomed').disabled = false;
   }
 
   // plug in the onclicks to the 2d heatmap

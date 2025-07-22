@@ -66,13 +66,15 @@
       <button id='modeBtn2d' class='btn btn-success btn-sm' onclick='toggleHeatmapMode()'>2D Heatmap</button>
       <button id='modeBtnGate' class='btn btn-default btn-sm hidden' onclick='toggleGatingMode()'>Gating</button>
     </div>
-    <div id='functionalityWrap2' class='col-md-3'>
+    <div id='functionalityWrap2' class='col-md-5'>
       <h4 id='projectionsTitleDiv' class="hidden">Projections</h4>
       <button id="showXproj" class="btn btn-default btn-sm hidden" disabled='true' type="button">Total X projection</button>
       <button id="showYproj" class="btn btn-default btn-sm hidden" disabled='true' type="button">Total Y projection</button>
+      <button id="showXprojZoomed" class="btn btn-default btn-sm hidden" disabled='true' type="button">Project onto X</button>
+      <button id="showYprojZoomed" class="btn btn-default btn-sm hidden" disabled='true' type="button">Project onto Y</button>
     </div>
 
-    <div id='updateWrapPeriodic' class='col-md-6'>
+    <div id='updateWrapPeriodic' class='col-md-4'>
       <h4>Data Fetching</h4>
       <div class="input-group input-group-sm">
         <span class="input-group-addon">Update Every:</span>
@@ -269,6 +271,34 @@ thisSelect.add( new Option(keys[i], keys[i]) );
 thisSelect.value = 'turbo';
 */
 
+// Set function for X and Y Zoom limit projection buttons
+document.getElementById('showXprojZoomed').onclick = function(){
+  if(dataStore.activeMatrix.length<1){ return; } // Bail out if no 2d matrix is loaded
+
+  // Request the projection be made and receive the plot name
+  var Xmin = dataStore.hm.xStart;
+  var Xmax = (dataStore.hm.xStart+dataStore.hm.nXbins)
+  var Ymin = dataStore.hm.yStart;
+  var Ymax = (dataStore.hm.yStart+dataStore.hm.nYbins);
+  plotName = projectXY(Xmin,Xmax,Ymin,Ymax,'x');
+
+  // Send an event to plot the new 1d projection histogram in the default 1d viewer
+  dispatcher({ 'plotName': plotName }, 'requestPlot');
+};
+document.getElementById('showYprojZoomed').onclick = function(){
+    if(dataStore.activeMatrix.length<1){ return; } // Bail out if no 2d matrix is loaded
+
+    // Request the projection be made and receive the plot name
+    var Xmin = dataStore.hm.xStart;
+    var Xmax = (dataStore.hm.xStart+dataStore.hm.nXbins)
+    var Ymin = dataStore.hm.yStart;
+    var Ymax = (dataStore.hm.yStart+dataStore.hm.nYbins);
+    plotName = projectXY(Xmin,Xmax,Ymin,Ymax,'y');
+
+    // Send an event to plot the new 1d projection histogram in the default 1d viewer
+    dispatcher({ 'plotName': plotName }, 'requestPlot');
+};
+
 // Try and inject the spectrum menu if the data is available
 constructNewSpectrumMenu();
 });
@@ -281,13 +311,13 @@ import { heatmap } from 'https://bkatiemills.github.io/glslgraph/scripts/heatmap
 /*
 // Dark mode
 dataStore.hm = new heatmap("heatmapTarget", {
-  polycallback: (polycoords)=>console.log(polycoords),
-  xAxisTitle: 'x channel',
-  yAxisTitle: 'y channel',
-  scale: 'linear',
-  bkgColor: '#333333',
-  textColor: '#999999',
-  annotationColor: '#999999',
+polycallback: (polycoords)=>console.log(polycoords),
+xAxisTitle: 'x channel',
+yAxisTitle: 'y channel',
+scale: 'linear',
+bkgColor: '#333333',
+textColor: '#999999',
+annotationColor: '#999999',
 });
 */
 

@@ -1776,90 +1776,90 @@ async function createNewProjection(axis,min,max,BG1SF,BG1Min,BG1Max,BG2SF,BG2Min
 };
 
 
-  function roughGainMatch(spectrumList,detType,sourceType){
-    console.log("roughGainMatch for "+detType+" with "+sourceType);
+function roughGainMatch(spectrumList,detType,sourceType){
+  console.log("roughGainMatch for "+detType+" with "+sourceType);
 
-    var gainRange = {
-      "HPGe": {"min": 1.0, "max": 1.5, "step":0.001}, // minimum and maximum gains to sweep over
-      "LaBr3": {"min": 0.7, "max": 2.2, "step":0.001}, // minimum and maximum gains to sweep over
-      "PACES": {"min": 0.7, "max": 0.9, "step":0.001}, // minimum and maximum gains to sweep over
-      "RCMP": {"min": 1.1, "max": 1.5, "step":0.001}, // minimum and maximum gains to sweep over
-      "ARIES": {"min": 0.2, "max": 0.4, "step":0.001}, // minimum and maximum gains to sweep over
-      "DES_Wall": {"min": 0.7, "max": 1.2, "step":0.001}, // minimum and maximum gains to sweep over
-    };
+  var gainRange = {
+    "HPGe": {"min": 1.0, "max": 1.5, "step":0.001}, // minimum and maximum gains to sweep over
+    "LaBr3": {"min": 0.7, "max": 2.2, "step":0.001}, // minimum and maximum gains to sweep over
+    "PACES": {"min": 0.7, "max": 0.9, "step":0.001}, // minimum and maximum gains to sweep over
+    "RCMP": {"min": 1.1, "max": 1.5, "step":0.001}, // minimum and maximum gains to sweep over
+    "ARIES": {"min": 0.2, "max": 0.4, "step":0.001}, // minimum and maximum gains to sweep over
+    "DES_Wall": {"min": 0.7, "max": 1.2, "step":0.001}, // minimum and maximum gains to sweep over
+  };
 
-    for(var i=0; i<spectrumList.length; i++){
+  for(var i=0; i<spectrumList.length; i++){
 
-      // Update the progress bar by one task
-      updateProgressBar(1);
+    // Update the progress bar by one task
+    updateProgressBar(1);
 
-      // Create the empty spectrum that will be a starting point for each interation
+    // Create the empty spectrum that will be a starting point for each interation
 
-      // Get the reference spectrum from the store
-      var testSpectrumLength = dataStore.referenceSpectrum[detType][sourceType].length;
-      var referenceSpectrum = dataStore.referenceSpectrum[detType][sourceType].slice(0,testSpectrumLength);
+    // Get the reference spectrum from the store
+    var testSpectrumLength = dataStore.referenceSpectrum[detType][sourceType].length;
+    var referenceSpectrum = dataStore.referenceSpectrum[detType][sourceType].slice(0,testSpectrumLength);
 
-      // Set the parameters for the chi-square sweep
-      var gainLowerLimit = gainRange[detType].min;
-      var gainUpperLimit = gainRange[detType].max;
-      var gainStepSize = gainRange[detType].step;
-      var minChiSquare = 100000000;
-      var chiSquareSeries = [];
-      var optimalGain = 1.0; // set here in case we dont get a minimum
-      // Scan through gain values
-      for(gain=gainLowerLimit; gain<gainUpperLimit; gain+=gainStepSize){
-        // Zero the spectra at each iteration
-        testSpectrum = []; testSpectrum.fillN(0,testSpectrumLength); // Try and match between zero and 2MeV
-        errorSpectrum = []; errorSpectrum.fillN(0,testSpectrumLength); // Try and match between zero and 2MeV
+    // Set the parameters for the chi-square sweep
+    var gainLowerLimit = gainRange[detType].min;
+    var gainUpperLimit = gainRange[detType].max;
+    var gainStepSize = gainRange[detType].step;
+    var minChiSquare = 100000000;
+    var chiSquareSeries = [];
+    var optimalGain = 1.0; // set here in case we dont get a minimum
+    // Scan through gain values
+    for(gain=gainLowerLimit; gain<gainUpperLimit; gain+=gainStepSize){
+      // Zero the spectra at each iteration
+      testSpectrum = []; testSpectrum.fillN(0,testSpectrumLength); // Try and match between zero and 2MeV
+      errorSpectrum = []; errorSpectrum.fillN(0,testSpectrumLength); // Try and match between zero and 2MeV
 
-        // Fill the testSpectrum by applying this gain value
-        // NOTE THIS APPROACH ONLY WORKS FOR GAIN VALUES > 1.0
-        for(j=0; j<testSpectrumLength; j++){
-          var bin = Math.round(j*gain);
-          if(bin>=0 && bin<testSpectrumLength){
-            testSpectrum[bin] += dataStore.rawData[spectrumList[i]][j];
-          }
-        }
-        // Calculate the errorSpectrum from the testSpectrum
-        for(j=0; j<testSpectrumLength; j++){ errorSpectrum[j] = Math.sqrt(testSpectrum[j]); }
-        testSpectrum[0] = 0; errorSpectrum[0] = 0; // elimimate noise
-        if(detType == "HPGe"){
-          for(j=0; j<75; j++){  // Zero the first 75 channels because they cause problems for high-threshold channels
-            testSpectrum[j] = 0; errorSpectrum[j] = 0; referenceSpectrum[j] = 0;
-          }
-        }
-
-        // Calculate the chi square value between this testSpectrum and the referenceSpectrum
-        thisChiSquare = calculateChiSquare(testSpectrum,errorSpectrum,referenceSpectrum);
-        chiSquareSeries.push(thisChiSquare);
-
-        // Decide if this is the best fit and save it if it is
-        if(thisChiSquare<minChiSquare){ minChiSquare = thisChiSquare; optimalGain = gain; }
-      }
-
-      // Save the optimal gain value in the standard place for use later
-      dataStore.roughGainMatchParameters[spectrumList[i]] = optimalGain;
-      console.log("Optimal gain for "+spectrumList[i]+": best chi-square ("+minChiSquare +") at gain "+optimalGain);
-
-      // Save the roughly gain-matched spectrum to the createdSpectra object ready for peakfitting
-      var thisRoughGainMatchedName = spectrumList[i].replace("_Pulse_Height","_Energy");
-      testSpectrum = []; testSpectrum.fillN(0,dataStore.rawData[spectrumList[i]].length);
+      // Fill the testSpectrum by applying this gain value
+      // NOTE THIS APPROACH ONLY WORKS FOR GAIN VALUES > 1.0
       for(j=0; j<testSpectrumLength; j++){
-        var bin = parseInt(j*optimalGain);
+        var bin = Math.round(j*gain);
         if(bin>=0 && bin<testSpectrumLength){
           testSpectrum[bin] += dataStore.rawData[spectrumList[i]][j];
-          //  testSpectrum[bin+1] += parseInt(dataStore.rawData[spectrumList[i]][j]/2);
         }
       }
-      dataStore.createdSpectra[thisRoughGainMatchedName] = testSpectrum; // Used in building menu
-      dataStore.rawData[thisRoughGainMatchedName] = testSpectrum; // necessary for exclusivePlot
+      // Calculate the errorSpectrum from the testSpectrum
+      for(j=0; j<testSpectrumLength; j++){ errorSpectrum[j] = Math.sqrt(testSpectrum[j]); }
+      testSpectrum[0] = 0; errorSpectrum[0] = 0; // elimimate noise
+      if(detType == "HPGe"){
+        for(j=0; j<75; j++){  // Zero the first 75 channels because they cause problems for high-threshold channels
+          testSpectrum[j] = 0; errorSpectrum[j] = 0; referenceSpectrum[j] = 0;
+        }
+      }
 
-      //  console.log(chiSquareSeries);
+      // Calculate the chi square value between this testSpectrum and the referenceSpectrum
+      thisChiSquare = calculateChiSquare(testSpectrum,errorSpectrum,referenceSpectrum);
+      chiSquareSeries.push(thisChiSquare);
+
+      // Decide if this is the best fit and save it if it is
+      if(thisChiSquare<minChiSquare){ minChiSquare = thisChiSquare; optimalGain = gain; }
     }
 
-    // Callback
-    roughGainMatchCallback();
+    // Save the optimal gain value in the standard place for use later
+    dataStore.roughGainMatchParameters[spectrumList[i]] = optimalGain;
+    console.log("Optimal gain for "+spectrumList[i]+": best chi-square ("+minChiSquare +") at gain "+optimalGain);
+
+    // Save the roughly gain-matched spectrum to the createdSpectra object ready for peakfitting
+    var thisRoughGainMatchedName = spectrumList[i].replace("_Pulse_Height","_Energy");
+    testSpectrum = []; testSpectrum.fillN(0,dataStore.rawData[spectrumList[i]].length);
+    for(j=0; j<testSpectrumLength; j++){
+      var bin = parseInt(j*optimalGain);
+      if(bin>=0 && bin<testSpectrumLength){
+        testSpectrum[bin] += dataStore.rawData[spectrumList[i]][j];
+        //  testSpectrum[bin+1] += parseInt(dataStore.rawData[spectrumList[i]][j]/2);
+      }
+    }
+    dataStore.createdSpectra[thisRoughGainMatchedName] = testSpectrum; // Used in building menu
+    dataStore.rawData[thisRoughGainMatchedName] = testSpectrum; // necessary for exclusivePlot
+
+    //  console.log(chiSquareSeries);
   }
+
+  // Callback
+  roughGainMatchCallback();
+}
 
 function fitPeaksInSeriesOfHistograms(spectra,peaks,detectorType){
   //fit all spectra to the peaks defined.
@@ -2911,6 +2911,64 @@ function projectYaxis(gateMin,gateMax,type,parentPlotname){
   }else{
     dataStore.createdSpectra[thisProjectionName] = thisProjection;
   }
+
+  return thisProjectionName;
+}
+
+function projectXY(gateMinX,gateMaxX,gateMinY,gateMaxY,axis){
+  // 2d histogram data is stored as an array of arrays; data[y][x]
+  // An x axis slice is accessed as data[0->Ylength][x] = a speciifc element of a series of arrays.
+  // A y axis bin is accessed as data[y][0->Xlengthy] = array of all x bins.
+  // Individual elements can be accessed as data[y][x].
+  // this function projects x elements between two limits across to a single array by summing the elements between gateMinY and gateMaxY rows.
+
+  // If no limits for the gate/projection are provided then make a total projection
+  if(gateMinX == undefined || gateMinX<1) gateMinX = 0;
+  if(gateMinY == undefined || gateMinY<1) gateMinY = 0;
+  if(gateMaxX == undefined){
+    gateMaxX = dataStore.hm._raw.length-1;
+  }
+  if(gateMaxY == undefined){
+    gateMaxY = dataStore.hm._raw[0].length-1;
+  }
+
+  // Set up the projection spectrum
+  var thisProjection = [];
+  for(let i=0; i<dataStore.hm._raw.length; i++){
+    thisProjection[i] = 0;
+  }
+
+  // Make the projection onto the stated axis
+  if(axis == 'y'){
+    // Set a unique name based on gate limits
+    thisProjectionName = dataStore.activeMatrix+'y-'+gateMinX+'-'+gateMaxX;
+
+    // build the Y projection from the sum of the elements between the gate min and max values of all arrays.
+    for(let i=gateMinY; i<gateMaxY; i++){
+      thisProjection[i] = dataStore.hm._raw[i].slice(gateMinX,gateMaxX).reduce((a, b) => a + b, 0);
+    }
+  }else{
+    // Set a unique name based on gate limits
+    thisProjectionName = dataStore.activeMatrix+'x-'+gateMinY+'-'+gateMaxY;
+
+    // build the projection from the sum of the arrays between the gate min and max values.
+    for(let i=gateMinX; i<=gateMaxX; i++){
+      thisRow = dataStore.hm._raw[i];
+      thisProjection = thisProjection.map(function (num, index) {
+        if(index>=gateMinY && index<gateMaxY){
+          return num + thisRow[index];
+        }
+      });
+    }
+  }
+
+  // Ensure there are no NaN entries
+  for(i=0; i<thisProjection.length; i++){
+    if(isNaN(thisProjection[i])){ thisProjection[i]=0; }
+  }
+
+  // write the created spectrum to the storage object
+  dataStore.createdSpectra[thisProjectionName] = thisProjection;
 
   return thisProjectionName;
 }
