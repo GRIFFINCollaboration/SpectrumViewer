@@ -283,20 +283,34 @@ document.getElementById('showXprojZoomed').onclick = function(){
   plotName = projectXY(Xmin,Xmax,Ymin,Ymax,'x');
 
   // Send an event to plot the new 1d projection histogram in the default 1d viewer
-  dispatcher({ 'plotName': plotName }, 'requestPlot');
+  //dispatcher({ 'plotName': plotName }, 'requestPlot');
+  // Actually, the requestPlot event triggers a fetchAll and so resets the limits of the 2D plot.
+  // We need to avoid this, so here is the desired behavior of requestPlot without the fetch.
+  toggle1DMode(); // Selects 1d viewer but create it if necessary
+  dataStore._plotControl.activeSpectra.push(plotName); // Make this projection an active spectrum
+  dataStore.viewers['Cell0'].addData(plotName, dataStore.createdSpectra[plotName]); //add data for color assignment
+  dataStore.viewers['Cell0'].plotData(null, true); // plot the data
+  dispatcher({'plotName': plotName, 'target': 'Cell0'},'addPlotRow'); // Create entry in table
+  console.log(dataStore);
 };
+
 document.getElementById('showYprojZoomed').onclick = function(){
-    if(dataStore.activeMatrix.length<1){ return; } // Bail out if no 2d matrix is loaded
+  if(dataStore.activeMatrix.length<1){ return; } // Bail out if no 2d matrix is loaded
 
-    // Request the projection be made and receive the plot name
-    var Xmin = dataStore.hm.xStart;
-    var Xmax = (dataStore.hm.xStart+dataStore.hm.nXbins)
-    var Ymin = dataStore.hm.yStart;
-    var Ymax = (dataStore.hm.yStart+dataStore.hm.nYbins);
-    plotName = projectXY(Xmin,Xmax,Ymin,Ymax,'y');
+  // Request the projection be made and receive the plot name
+  var Xmin = dataStore.hm.xStart;
+  var Xmax = (dataStore.hm.xStart+dataStore.hm.nXbins)
+  var Ymin = dataStore.hm.yStart;
+  var Ymax = (dataStore.hm.yStart+dataStore.hm.nYbins);
+  plotName = projectXY(Xmin,Xmax,Ymin,Ymax,'y');
 
-    // Send an event to plot the new 1d projection histogram in the default 1d viewer
-    dispatcher({ 'plotName': plotName }, 'requestPlot');
+  // Plot the 1d histogram projection
+  toggle1DMode(); // Selects 1d viewer but create it if necessary
+  dataStore._plotControl.activeSpectra.push(plotName); // Make this projection an active spectrum
+  dataStore.viewers['Cell0'].addData(plotName, dataStore.createdSpectra[plotName]); //add data for color assignment
+  dataStore.viewers['Cell0'].plotData(null, true); // plot the data
+  dispatcher({'plotName': plotName, 'target': 'Cell0'},'addPlotRow'); // Create entry in table
+  console.log(dataStore);
 };
 
 // Try and inject the spectrum menu if the data is available

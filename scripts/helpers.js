@@ -2952,13 +2952,10 @@ function projectXY(gateMinX,gateMaxX,gateMinY,gateMaxY,axis){
     thisProjectionName = dataStore.activeMatrix+'x-'+gateMinY+'-'+gateMaxY;
 
     // build the projection from the sum of the arrays between the gate min and max values.
-    for(let i=gateMinX; i<=gateMaxX; i++){
-      thisRow = dataStore.hm._raw[i];
-      thisProjection = thisProjection.map(function (num, index) {
-        if(index>=gateMinY && index<gateMaxY){
-          return num + thisRow[index];
-        }
-      });
+    for(let j=gateMinX; j<gateMaxX; j++){
+      for(let i=gateMinY; i<gateMaxY; i++){
+        thisProjection[j] += dataStore.hm._raw[i][j];
+      }
     }
   }
 
@@ -2966,7 +2963,7 @@ function projectXY(gateMinX,gateMaxX,gateMinY,gateMaxY,axis){
   for(i=0; i<thisProjection.length; i++){
     if(isNaN(thisProjection[i])){ thisProjection[i]=0; }
   }
-
+  
   // write the created spectrum to the storage object
   dataStore.createdSpectra[thisProjectionName] = thisProjection;
 
