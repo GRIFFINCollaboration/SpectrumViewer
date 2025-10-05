@@ -58,6 +58,10 @@
     <div id='messageDivText'></div><div id='messageDivButton'></div>
   </div>
 
+    <div id='developmentDiv' class='col-md-12'>
+      <div id='developmentDivButtons'></div>
+    </div>
+
   <!--Plotting-->
   <div id='topControls' class='col-md-12'>
     <div id='functionalityWrap' class='col-md-3'>
@@ -108,6 +112,8 @@
     <div class='col-md-3 no-pad'>
       <div id='plotControl'>
 
+        <div id='controlTarget'></div>
+        <!--
         <div id='colorPalette' class='ui-group-vertical noselect'>
           <h4 class='noselect'>Color Palette</h4>
           <div id='colorPaletteSelectDiv'></div>
@@ -122,7 +128,7 @@
           <ul id='cutPolyVertices' class='list-unstyled'></ul>
           <button class='btn btn-success btn-sm' onclick='saveCutToODB()'>Save 2D Gate Region to ODB</button>
         </div>
-
+-->
         <div id='plotCtrl1D' style='display: none'></div>
         <div id='gateCtrl1D' style='display: none'></div>
 
@@ -320,7 +326,8 @@ constructNewSpectrumMenu();
 
 <script type="module">
 // Import the module for the 2d histogram viewer (heatmap). Uses an external library
-import { heatmap } from 'https://bkatiemills.github.io/glslgraph/scripts/heatmap.js';
+//import { heatmap } from 'https://bkatiemills.github.io/glslgraph/scripts/heatmap.js';
+import { heatmap } from 'http://localhost:1234/bkatiemills/glsgraph/scripts/heatmap.js';
 
 /*
 // Dark mode
@@ -336,7 +343,7 @@ annotationColor: '#999999',
 */
 
 // Light mode
-dataStore.hm = new heatmap("heatmapTarget", {
+dataStore.hm = new heatmap("heatmapTarget","controlTarget", {
   polycallback: (polycoords)=>console.log(polycoords),
   xAxisTitle: 'x channel',
   yAxisTitle: 'y channel',

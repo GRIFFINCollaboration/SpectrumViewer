@@ -1,4 +1,4 @@
-JSON////////////////////
+////////////////////
 // Generic
 ////////////////////
 
@@ -110,6 +110,292 @@ function promiseJSONURL(url){
         mungedResponse = req.response.replace(/NULL/g,'[]');
         mungedResponse = mungedResponse.replace(/\'/g, '\"');
         resolve(JSON.parse(mungedResponse));
+      }
+      else {
+        // Otherwise reject with the status text
+        // which will hopefully be a meaningful error
+        reject(Error(req.statusText));
+      }
+    };
+
+    // Handle network errors
+    req.onerror = function() {
+      reject(Error("Network Error"));
+    };
+
+    // Make the request
+    req.send();
+  });
+}
+
+function promiseBinaryURL(url){
+  // promise to get response from <url>. Receive in binary format
+  // thanks http://www.html5rocks.com/en/tutorials/es6/promises/
+
+  // Return a new promise.
+  return new Promise(function(resolve, reject) {
+    // Do the usual XHR stuff
+    var req = new XMLHttpRequest();
+    if(dataStore.xmltimeout != undefined){
+      req.timeout = dataStore.xmltimeout;
+    }else{
+      //req.timeout = 5000; // time in milliseconds
+      req.timeout = 0; // timeout is diabled
+    }
+    req.open('GET', url);
+    req.responseType = "arraybuffer";
+
+    req.onload = function() {
+      // This is called even on 404 etc
+      // so check the status
+
+      if (req.status == 200) {
+        // Response recieved
+
+        // response parsed as binary
+        const arrayBuffer = req.response;
+        console.log("Received response from binary request:");
+
+        if (arrayBuffer) {
+          const byteArray = new Uint8Array(arrayBuffer);
+
+          // Extract the Name which has variable length. String termination is 0.
+          var nameCodes = []; var i=0;
+          while(byteArray[i]!=0 && i<81){ nameCodes[i] = byteArray[i]; i++; }
+          var name = String.fromCharCode(...nameCodes);
+          console.log("Name = "+name);
+          i++;
+          // Unpack the rest of the header (6 items). Each item is 16 bits.
+          var XaxisLength = (byteArray[i+0] << 8) | byteArray[i+1];       // "XaxisLength" // 16 bits
+          var YaxisLength = (byteArray[i+2] << 8) | byteArray[i+3];       // "YaxisLength" // 16 bits
+          var numSubmatrices = (Math.ceil(XaxisLength/16)*Math.ceil(YaxisLength/16));
+          var symmetrized = (byteArray[i+4] & 0x80) >> 7;                 // "symmetrized" // 1 bit
+          var XaxisMin = ((byteArray[i+4] & 0x7F) << 8) | byteArray[i+5]; // "XaxisMin" // 15 bits
+          var XaxisMax = (byteArray[i+6] << 8) | byteArray[i+7];          // "XaxisMax" // 16 bits
+          var transfer_method = (byteArray[i+8] & 0x80) >> 7;             // "transfer method" // 1 bit
+          var YaxisMin = ((byteArray[i+8] & 0x7F) << 8) | byteArray[i+9]; // "YaxisMin" // 15 bits
+          var YaxisMax = (byteArray[i+10] << 8) | byteArray[i+11];        // "YaxisMax" // 16 bits
+          console.log("XaxisLength = "+XaxisLength);
+          console.log("YaxisLength = "+YaxisLength);
+          console.log("symmetrized = "+symmetrized);
+          console.log("XaxisMin/Max = "+XaxisMin+", "+XaxisMax);
+          console.log("YaxisMin/Max = "+YaxisMin+", "+YaxisMax);
+          console.log("transfer method = "+transfer_method);
+          console.log(numSubmatrices+" submatrices.");
+          i+=12; // Advance i to the start of the submatrix type header word
+
+          // DEBUG
+          console.log("DEBUG FLAGS after header= "+byteArray[i]+", "+byteArray[i+1]);
+          i+=2;
+
+          var submatrixType = [];
+          if(transfer_method){
+            // Transfer method 1, submatrix type is given for all submatrices
+            console.log("Transfer Method 1 (Submatrix type for all submatrices)")
+            // Unpack the submatrix type header word
+            var thisType = 0;
+            for(var j=0; j<numSubmatrices; j++){
+              if(thisType==3){ submatrixType[j] = submatrixType[j-1]; continue; }
+              switch((j%4)){
+                case 0: thisType = (byteArray[i] & 0xC0)>>6;   break;
+                case 1: thisType = (byteArray[i] & 0x30)>>4;   break;
+                case 2: thisType = (byteArray[i] & 0x0C)>>2;   break;
+                case 3: thisType = (byteArray[i] & 0x03); i++; break;
+                default:console.log("default case of switch"); break;
+              }
+              if(thisType==3){ submatrixType[j] = submatrixType[j-1]; i++; continue; }
+              else{ submatrixType[j] = thisType; }
+            }
+            // Determine number of each submatrix type
+            var submatrixTypeCount = [0,0,0,0];
+            for(var j=0; j<submatrixType.length; j++){
+              submatrixTypeCount[submatrixType[j]]++;
+            }
+            console.log(submatrixTypeCount);
+            console.log(submatrixType);
+          }else{
+            // Transfer method 0, Submatrix id numbers are given only for non-empty submatrices
+            console.log("Transfer Method 0 (Submatrix id numbers and types)")
+            // Determine the size required to store submatrix coordinates (transfer method 0)
+            if( numSubmatrices <= 0x80 ){  coord_size = 1; } //  7-bit values (<128 = axis lengths: 176x176)
+            else if( numSubmatrices <= 0x8000   ){  coord_size = 2; } // 15-bit values (256-32,767 = axis lengths: 2896x2896)
+            else if( numSubmatrices <= 0x800000 ){  coord_size = 3; } // 23-bit values (32,768-8,388,607 = axis lengths: 46,336x46,336)
+            else if( num_submatrices <= 0x80000000 ){  coord_size = 4; } // 31-bit values (8,388,608-2,147,483,647 = axis lengths: 741,440x741,440)
+            else{ console.log("Histogram is too large!!! Requires "+numSubmatrices+" submatrices!"); return; }
+
+            //console.log("Submatrix coordinate size is "+coord_size+" bytes");
+            submatrixType.fillN(0,numSubmatrices); // Set all submatrices to zero type (empty)
+            // Unpack count of non-empty submatrices
+            var numFilledSubmatrices = 0;
+            for(m=coord_size; m>0; m--){
+              var bitshift = (8*(m-1));
+              numFilledSubmatrices = numFilledSubmatrices | (byteArray[i] << bitshift );
+              i++;
+            }
+            console.log("Number of non-empty submatrices = "+numFilledSubmatrices);
+            for(k=0; k<numFilledSubmatrices; k++){
+              thisType = (byteArray[i] & 0x80) >> 7;
+              thisCoordinate = 0;
+              for(m=coord_size; m>0; m--){
+                var bitshift = (8*(m-1));
+                if(m==coord_size){ thisCoordinate = (byteArray[i] & 0x7F ) << bitshift; }
+                else{              thisCoordinate = thisCoordinate | (byteArray[i] << bitshift ); }
+                i++;
+              }
+              //  console.log("i,k,thisType,coordinate = "+i+", "+k+", "+(thisType+1)+", "+thisCoordinate);
+              submatrixType[thisCoordinate] = (thisType+1);
+            }
+            //  console.log(submatrixType);
+          } // End of Header and submatrix types
+
+          // DEBUG
+          console.log("DEBUG FLAGS after submatrix map= "+byteArray[i]+", "+byteArray[i+1]);
+          i+=2;
+
+          // Create space for this histogram data
+          var denseData = [];
+          for(m=0; m<YaxisLength; m++){ denseData[m] = [];
+            for(k=0; k<XaxisLength; k++){ denseData[m][k] = 0; }
+          }
+          var sparseData = {
+            xBins: XaxisLength, yBins: YaxisLength,
+            x: [], y: [], z: []
+          };
+
+          // Now unpack the data
+          var subMatrixXlength = 16;
+          var subMatrixYlength = 16;
+
+          for(thisSubmatrixIndex=0; thisSubmatrixIndex<submatrixType.length; thisSubmatrixIndex++){
+            // Calculate the subMatrix Coordinates
+            var subMatrixX = (Math.floor(thisSubmatrixIndex%Math.floor(XaxisLength/subMatrixXlength)));
+            var subMatrixY = (Math.floor(thisSubmatrixIndex/Math.floor(XaxisLength/subMatrixXlength)));
+            var subMatrixXbaseCoordinate = subMatrixX*subMatrixXlength;
+            var subMatrixYbaseCoordinate = subMatrixY*subMatrixYlength;
+
+            switch(submatrixType[thisSubmatrixIndex]){
+              case 0: break; // Empty type
+              case 1: // List type
+            //  console.log("List type: "+subMatrixXbaseCoordinate+", "+subMatrixYbaseCoordinate);
+              // Header is Four 8-bit characters representing the count of each data size values; 8, 16, 24, 32 bits
+              // Coordinates given as 8-bit characters in the order of 8, 16, 24, 32 bit value sizes
+              // Data values are given in order of size type (8, 16, 24, 32 bit), in the order of the coordinates given.
+              var dataCount = [0,0,0,0]; var coordinates = [];
+              dataCount[0] = byteArray[i]; i++;
+              if(dataCount[0]<254){
+                dataCount[1] = byteArray[i]; i++;
+                if(dataCount[0]+dataCount[1]<254){
+                  dataCount[2] = byteArray[i]; i++;
+                  if(dataCount[0]+dataCount[1]+dataCount[2]<254){
+                    dataCount[3] = byteArray[i]; i++;
+                  }
+                }
+              }
+              //console.log("Data counts: "+dataCount[0]+", "+dataCount[1]+", "+dataCount[2]+", "+dataCount[3]);
+              // Extract coordinates
+              for(var m=0; m<4; m++){
+                for(j=0; j<dataCount[m]; j++){
+                  coordinates.push( byteArray[i] ); i++;
+                }
+              }
+              // Extract values
+              var index=0;
+              for(var thisSize=0; thisSize<4; thisSize++){
+                var num=thisSize+1;
+                for(j=0; j<dataCount[thisSize]; j++){
+                  thisX=subMatrixXbaseCoordinate+(coordinates[index]%subMatrixXlength);
+                  thisY=subMatrixYbaseCoordinate+parseInt(coordinates[index]/subMatrixXlength);
+                  value=0;
+                  for(m=num; m>0; m--){
+                    var bitshift = (8*(m-1));
+                    value = value | (byteArray[i] << bitshift );
+                    i++;
+                  }
+                  if(isNaN(thisX) || isNaN(thisY)){
+                    console.log("Base coordinates: "+subMatrixXbaseCoordinate+","+subMatrixYbaseCoordinate);
+                    console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value);
+                  }
+                  //console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value);
+                  if(value>0){
+                    denseData[thisY][thisX] = value; // Save dense data object
+                    sparseData.x.push(thisX); // Save sparse data object
+                    sparseData.y.push(thisY); // Save sparse data object
+                    sparseData.z.push(value); // Save sparse data object
+                    if(symmetrized){
+                      denseData[thisX][thisY] = value; // Save dense data object
+                      sparseData.x.push(thisY); // Save sparse data object
+                      sparseData.y.push(thisX); // Save sparse data object
+                      sparseData.z.push(value); // Save sparse data object
+                    }
+                  }
+                  index++;
+                }
+              }
+              break;
+              case 2: // Array type
+            //  console.log("Array type: "+subMatrixXbaseCoordinate+", "+subMatrixYbaseCoordinate);
+              // Header first which is a single 8-bit character
+              // 2 bits indicating the data size for the four subsubmatrices of 64 values each.
+              // Array types, 0 (8-bit), 1 (16-bit), 2 (24-bit), 3 (32-bit)
+              // The data values follow with the spcified size
+              var dataSize = [];
+              // Unpack the submatrix array header of data sizes
+              // Four groups of 64 values each have the stated size
+              dataSize[0] = ((byteArray[i] & 0xC0)>>6)+1;
+              dataSize[1] = ((byteArray[i] & 0x30)>>4)+1;
+              dataSize[2] = ((byteArray[i] & 0x0C)>>2)+1;
+              dataSize[3] = ((byteArray[i] & 0x03)   )+1; // Add one to each type so it is a count of characters
+              i++;
+              for(j=0; j<256; j++){ // Now unpack the data values
+                thisX=subMatrixXbaseCoordinate+(j%subMatrixXlength);
+                thisY=subMatrixYbaseCoordinate+parseInt(j/subMatrixXlength);
+                value=0;
+                for(m=dataSize[parseInt(j/64)]; m>0; m--){
+                  var bitshift = (8*(m-1));
+                  value = value | (byteArray[i] << bitshift );
+                  i++;
+                }
+              //  console.log(j+","+thisX+","+thisY+": "+value);
+                if(value>0){
+                  denseData[thisY][thisX] = value; // Save dense data object
+                  sparseData.x.push(thisX); // Save sparse data object
+                  sparseData.y.push(thisY); // Save sparse data object
+                  sparseData.z.push(value); // Save sparse data object
+                  if(symmetrized){
+                    denseData[thisX][thisY] = value; // Save dense data object
+                    sparseData.x.push(thisY); // Save sparse data object
+                    sparseData.y.push(thisX); // Save sparse data object
+                    sparseData.z.push(value); // Save sparse data object
+                  }
+                }
+              }
+              break;
+              default: console.log("Unrecognized submatrix type "+submatrixType[thisSubmatrixIndex]+" for submatrix "+thisSubmatrixIndex); break;
+            }
+          }
+        }
+
+        //keep the raw results around as an object in rawData
+        // dense mode used for projections and other tasks
+        // sparse mode used for (fast) plotting
+        // dense mode, {zvalues[i][j]} where each number is the z height of the i,jth bin.
+        // sparse mode, {xBins: n, yBins: n, x: [x1, x2, ...], y: [y1, y2, ...], z: [z1, z2, ...]}
+        // Reconstruct the 2d histogram object
+        var thisMatrix = {
+          "name" : name, "XaxisLength" : XaxisLength, "YaxisLength" : YaxisLength,
+          "symmetrized" : symmetrized,
+          "XaxisMin" : XaxisMin, "XaxisMax" : XaxisMax,
+          "YaxisMin" : YaxisMin, "YaxisMax" : YaxisMax,
+          "data2" : denseData
+        };
+        var this2dKey = dataStore.histoFileName.split('.')[0] + ':' + name;
+        dataStore.rawData[this2dKey] = thisMatrix;    //  dense mode data
+        dataStore.hm._raw = dataStore.hm.raw = denseData;
+        dataStore.sparseData[this2dKey] = sparseData; // sparse mode data
+
+        // Resolve the promise
+        fetchCallback();
+        resolve([]);
       }
       else {
         // Otherwise reject with the status text
@@ -2796,7 +3082,7 @@ function construct2dQueries(queries,keys){
     j = ((queries.length-1)*16) + (queries[queries.length-1].match(/spectrum/g) || []).length;
   }
   for(i=0; i<keys.length; i++){
-    queryString = dataStore.spectrumServer + '?cmd=callspechandler';
+    queryString = dataStore.spectrumServer + '?cmd=callbinaryspechandler';
     if(dataStore.histoFileName!=undefined){
       if(dataStore.histoFileName.length>0 && dataStore.histoFileName!='Online'){
         var HistoFileDirectory = dataStore.histoFileDirectoryPath;
@@ -2963,7 +3249,7 @@ function projectXY(gateMinX,gateMaxX,gateMinY,gateMaxY,axis){
   for(i=0; i<thisProjection.length; i++){
     if(isNaN(thisProjection[i])){ thisProjection[i]=0; }
   }
-  
+
   // write the created spectrum to the storage object
   dataStore.createdSpectra[thisProjectionName] = thisProjection;
 
