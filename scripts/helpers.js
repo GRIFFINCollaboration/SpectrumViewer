@@ -149,7 +149,21 @@ function promiseBinaryURL(url){
       // This is called even on 404 etc
       // so check the status
 
-      if (req.status == 200) {
+        if (req.status == 400) {
+          const decoder = new TextDecoder();
+          const responseString = decoder.decode(req.response);
+          console.log(responseString);
+          if(responseString.includes("Unknown Command")==true){
+            console.log("Identified that the callbinaryspechandler command is not in this server. Conclude the grif-replay server is an old version.");
+
+              var string = 'Please upgrade this instance of grif-replay to the latest version.<br>';
+              document.getElementById('messageDivText').innerHTML = string;
+              document.getElementById('messageDiv').style.display= 'block';
+
+            // Could issue a new request using the old transfer method here.
+            //var newURL = req.responseURL.replace("callbinaryspechandler","callspechandler");
+          }
+        }else if (req.status == 200) {
         // Response recieved
 
         // response parsed as binary
