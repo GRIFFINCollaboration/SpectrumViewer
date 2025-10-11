@@ -1,0 +1,40 @@
+<template id='angularCorrelationsFitsReportTable'>
+    <tr>
+        <td class='col-md-2'>Detector</td>
+        <td class='col-md-2'>Peak 1 Channel</td>
+        <td class='col-md-2'>Peak 2 Channel</td>
+        <td class='col-md-2'>Peak 3 Channel</td>
+        <td class='col-md-2'>Peak 4 Channel</td>
+        <td class='col-md-2'>Mean residual (keV)</td>
+        <td class='col-md-2'>Quad</td>
+        <td class='col-md-2'>Gain</td>
+        <td class='col-md-2'>Offset</td>
+        <td class='col-md-2 center'>Write to ODB <input id='writeAllChannels' type='checkbox' checked></input><td>
+    </tr>
+    {{# detectors}}
+        <tr id='{{id}}{{.}}row'>
+            <td id='{{id}}{{.}}name'>{{.}}</td>
+            <td id='{{id}}{{.}}chan1'>-</td>
+            <td id='{{id}}{{.}}chan2'>-</td>
+            <td id='{{id}}{{.}}chan3'>-</td>
+            <td id='{{id}}{{.}}chan4'>-</td>
+            <td id='{{id}}{{.}}meanSD'>-</td>
+            <td id='{{id}}{{.}}quad'>-</td>
+            <td id='{{id}}{{.}}gain'>-</td>
+            <td id='{{id}}{{.}}offset'>-</td>
+            <td class='center'>
+                <input id='{{.}}write' class='write-to-odb' type='checkbox' checked></input>
+            </td>
+        </tr>
+    {{/ detectors}}
+</template>
+
+
+<template id='angularCorrelationsReportTable'>
+    <tr>
+        <td class='col-md-2'>Literature Energy (keV)</td>
+        <td class='col-md-2'>Centroid (Channel)</td>
+        <td class='col-md-2'>Centroid (Energy, keV)</td>
+        <td class='col-md-2'>Residual</td>
+    </tr>
+</template>
