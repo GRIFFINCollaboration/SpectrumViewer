@@ -149,21 +149,21 @@ function promiseBinaryURL(url){
       // This is called even on 404 etc
       // so check the status
 
-        if (req.status == 400) {
-          const decoder = new TextDecoder();
-          const responseString = decoder.decode(req.response);
-          console.log(responseString);
-          if(responseString.includes("Unknown Command")==true){
-            console.log("Identified that the callbinaryspechandler command is not in this server. Conclude the grif-replay server is an old version.");
+      if (req.status == 400) {
+        const decoder = new TextDecoder();
+        const responseString = decoder.decode(req.response);
+        console.log(responseString);
+        if(responseString.includes("Unknown Command")==true){
+          console.log("Identified that the callbinaryspechandler command is not in this server. Conclude the grif-replay server is an old version.");
 
-              var string = 'Please upgrade this instance of grif-replay to the latest version.<br>';
-              document.getElementById('messageDivText').innerHTML = string;
-              document.getElementById('messageDiv').style.display= 'block';
+          var string = 'Please upgrade this instance of grif-replay to the latest version.<br>';
+          document.getElementById('messageDivText').innerHTML = string;
+          document.getElementById('messageDiv').style.display= 'block';
 
-            // Could issue a new request using the old transfer method here.
-            //var newURL = req.responseURL.replace("callbinaryspechandler","callspechandler");
-          }
-        }else if (req.status == 200) {
+          // Could issue a new request using the old transfer method here.
+          //var newURL = req.responseURL.replace("callbinaryspechandler","callspechandler");
+        }
+      }else if (req.status == 200) {
         // Response recieved
 
         // response parsed as binary
@@ -171,7 +171,8 @@ function promiseBinaryURL(url){
         console.log("Received response from binary request:");
 
         if (arrayBuffer) {
-          const byteArray = new Uint8Array(arrayBuffer);
+          var byteArray = new Uint8Array(arrayBuffer);
+          console.log("Created byteArray");
 
           // Extract the Name which has variable length. String termination is 0.
           var nameCodes = []; var i=0;
@@ -266,129 +267,15 @@ function promiseBinaryURL(url){
           console.log("DEBUG FLAGS after submatrix map= "+byteArray[i]+", "+byteArray[i+1]);
           i+=2;
 
-          // Create space for this histogram data
-          var denseData = [];
-          for(m=0; m<YaxisLength; m++){ denseData[m] = [];
-            for(k=0; k<XaxisLength; k++){ denseData[m][k] = 0; }
-          }
-          var sparseData = {
-            xBins: XaxisLength, yBins: YaxisLength,
-            x: [], y: [], z: []
-          };
-
-          // Now unpack the data
-          var subMatrixXlength = 16;
-          var subMatrixYlength = 16;
-
-          for(thisSubmatrixIndex=0; thisSubmatrixIndex<submatrixType.length; thisSubmatrixIndex++){
-            // Calculate the subMatrix Coordinates
-            var subMatrixX = (Math.floor(thisSubmatrixIndex%Math.floor(XaxisLength/subMatrixXlength)));
-            var subMatrixY = (Math.floor(thisSubmatrixIndex/Math.floor(XaxisLength/subMatrixXlength)));
-            var subMatrixXbaseCoordinate = subMatrixX*subMatrixXlength;
-            var subMatrixYbaseCoordinate = subMatrixY*subMatrixYlength;
-
-            switch(submatrixType[thisSubmatrixIndex]){
-              case 0: break; // Empty type
-              case 1: // List type
-            //  console.log("List type: "+subMatrixXbaseCoordinate+", "+subMatrixYbaseCoordinate);
-              // Header is Four 8-bit characters representing the count of each data size values; 8, 16, 24, 32 bits
-              // Coordinates given as 8-bit characters in the order of 8, 16, 24, 32 bit value sizes
-              // Data values are given in order of size type (8, 16, 24, 32 bit), in the order of the coordinates given.
-              var dataCount = [0,0,0,0]; var coordinates = [];
-              dataCount[0] = byteArray[i]; i++;
-              if(dataCount[0]<254){
-                dataCount[1] = byteArray[i]; i++;
-                if(dataCount[0]+dataCount[1]<254){
-                  dataCount[2] = byteArray[i]; i++;
-                  if(dataCount[0]+dataCount[1]+dataCount[2]<254){
-                    dataCount[3] = byteArray[i]; i++;
-                  }
-                }
-              }
-              //console.log("Data counts: "+dataCount[0]+", "+dataCount[1]+", "+dataCount[2]+", "+dataCount[3]);
-              // Extract coordinates
-              for(var m=0; m<4; m++){
-                for(j=0; j<dataCount[m]; j++){
-                  coordinates.push( byteArray[i] ); i++;
-                }
-              }
-              // Extract values
-              var index=0;
-              for(var thisSize=0; thisSize<4; thisSize++){
-                var num=thisSize+1;
-                for(j=0; j<dataCount[thisSize]; j++){
-                  thisX=subMatrixXbaseCoordinate+(coordinates[index]%subMatrixXlength);
-                  thisY=subMatrixYbaseCoordinate+parseInt(coordinates[index]/subMatrixXlength);
-                  value=0;
-                  for(m=num; m>0; m--){
-                    var bitshift = (8*(m-1));
-                    value = value | (byteArray[i] << bitshift );
-                    i++;
-                  }
-                  if(isNaN(thisX) || isNaN(thisY)){
-                    console.log("Base coordinates: "+subMatrixXbaseCoordinate+","+subMatrixYbaseCoordinate);
-                    console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value);
-                  }
-                  //console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value);
-                  if(value>0){
-                    denseData[thisY][thisX] = value; // Save dense data object
-                    sparseData.x.push(thisX); // Save sparse data object
-                    sparseData.y.push(thisY); // Save sparse data object
-                    sparseData.z.push(value); // Save sparse data object
-                    if(symmetrized){
-                      denseData[thisX][thisY] = value; // Save dense data object
-                      sparseData.x.push(thisY); // Save sparse data object
-                      sparseData.y.push(thisX); // Save sparse data object
-                      sparseData.z.push(value); // Save sparse data object
-                    }
-                  }
-                  index++;
-                }
-              }
-              break;
-              case 2: // Array type
-            //  console.log("Array type: "+subMatrixXbaseCoordinate+", "+subMatrixYbaseCoordinate);
-              // Header first which is a single 8-bit character
-              // 2 bits indicating the data size for the four subsubmatrices of 64 values each.
-              // Array types, 0 (8-bit), 1 (16-bit), 2 (24-bit), 3 (32-bit)
-              // The data values follow with the spcified size
-              var dataSize = [];
-              // Unpack the submatrix array header of data sizes
-              // Four groups of 64 values each have the stated size
-              dataSize[0] = ((byteArray[i] & 0xC0)>>6)+1;
-              dataSize[1] = ((byteArray[i] & 0x30)>>4)+1;
-              dataSize[2] = ((byteArray[i] & 0x0C)>>2)+1;
-              dataSize[3] = ((byteArray[i] & 0x03)   )+1; // Add one to each type so it is a count of characters
-              i++;
-              for(j=0; j<256; j++){ // Now unpack the data values
-                thisX=subMatrixXbaseCoordinate+(j%subMatrixXlength);
-                thisY=subMatrixYbaseCoordinate+parseInt(j/subMatrixXlength);
-                value=0;
-                for(m=dataSize[parseInt(j/64)]; m>0; m--){
-                  var bitshift = (8*(m-1));
-                  value = value | (byteArray[i] << bitshift );
-                  i++;
-                }
-              //  console.log(j+","+thisX+","+thisY+": "+value);
-                if(value>0){
-                  denseData[thisY][thisX] = value; // Save dense data object
-                  sparseData.x.push(thisX); // Save sparse data object
-                  sparseData.y.push(thisY); // Save sparse data object
-                  sparseData.z.push(value); // Save sparse data object
-                  if(symmetrized){
-                    denseData[thisX][thisY] = value; // Save dense data object
-                    sparseData.x.push(thisY); // Save sparse data object
-                    sparseData.y.push(thisX); // Save sparse data object
-                    sparseData.z.push(value); // Save sparse data object
-                  }
-                }
-              }
-              break;
-              default: console.log("Unrecognized submatrix type "+submatrixType[thisSubmatrixIndex]+" for submatrix "+thisSubmatrixIndex); break;
-            }
-          }
+          // Stop the unpacking at the end of the header for now
+        }else{
+          console.log("Error receiving response in promiseBinaryURL()");
+          console.log(req.response);
+          reject(Error("Failed to unpack binary response."));
         }
 
+
+        var payload = new Uint8Array( byteArray.slice(i) ); // Remove the header
         //keep the raw results around as an object in rawData
         // dense mode used for projections and other tasks
         // sparse mode used for (fast) plotting
@@ -400,16 +287,17 @@ function promiseBinaryURL(url){
           "symmetrized" : symmetrized,
           "XaxisMin" : XaxisMin, "XaxisMax" : XaxisMax,
           "YaxisMin" : YaxisMin, "YaxisMax" : YaxisMax,
-          "data2" : denseData
+          "submatrixType" : submatrixType,
+          "dataBinary" : payload, // Save the arrayBuffer from the end of the header here for unpacking later
+          "data2" : []                // Leave this empty, it will be filled with unpacked data
         };
         var this2dKey = dataStore.histoFileName.split('.')[0] + ':' + name;
-        dataStore.rawData[this2dKey] = thisMatrix;    //  dense mode data
-        dataStore.hm._raw = dataStore.hm.raw = denseData;
-        dataStore.sparseData[this2dKey] = sparseData; // sparse mode data
+        dataStore.rawData[this2dKey] = thisMatrix;
 
         // Resolve the promise
-        fetchCallback();
-        resolve([]);
+        //fetchCallback();
+        let resolveString = "{\"binaryName\":\""+this2dKey+"\"}";
+        resolve(JSON.parse(resolveString));
       }
       else {
         // Otherwise reject with the status text
@@ -425,6 +313,408 @@ function promiseBinaryURL(url){
 
     // Make the request
     req.send();
+  });
+}
+
+function unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse,outputDelete){
+  // Unpack the matrix data received as a binary transfer
+  // Optionally save this in three places in the required form
+
+  if(outputRaw == null){ outputRaw = false; }
+  if(outputDense == null){ outputDense = false; }
+  if(outputSparse == null){ outputSparse = false; }
+  if(outputDelete == null){ outputDelete = false; }
+  if(outputRaw==false && outputDense==false && outputSparse==false){
+    // No output requested so quit
+    console.log("No output requested for "+key+" in unpackBinaryMatrixData, so no processing done.");
+    return;
+  }
+  console.log(dataStore.rawData);
+  console.log("unpacking binary data for "+key);
+  console.log("Output flags [Raw/Dense/Sparse/Delete]: "+outputRaw+","+outputDense+","+outputSparse+","+outputDelete);
+  const byteArray = new Uint8Array(dataStore.rawData[key].dataBinary);
+  const submatrixType = dataStore.rawData[key].submatrixType;
+  var XaxisLength = dataStore.rawData[key].XaxisLength;
+  var YaxisLength = dataStore.rawData[key].YaxisLength;
+  var symmetrized = dataStore.rawData[key].symmetrized;
+  var XaxisMin = dataStore.rawData[key].XaxisMin;
+  var XaxisMax = dataStore.rawData[key].XaxisMax;
+  var YaxisMin = dataStore.rawData[key].YaxisMin;
+  var YaxisMax = dataStore.rawData[key].YaxisMax;
+  var i = 0;
+
+  /*
+  // Extract the Name which has variable length. String termination is 0.
+  var nameCodes = []; var i=0;
+  while(byteArray[i]!=0 && i<81){ nameCodes[i] = byteArray[i]; i++; }
+  var name = String.fromCharCode(...nameCodes);
+  console.log("Name = "+name);
+  i++;
+  // Unpack the rest of the header (6 items). Each item is 16 bits.
+  var XaxisLength = (byteArray[i+0] << 8) | byteArray[i+1];       // "XaxisLength" // 16 bits
+  var YaxisLength = (byteArray[i+2] << 8) | byteArray[i+3];       // "YaxisLength" // 16 bits
+  var numSubmatrices = (Math.ceil(XaxisLength/16)*Math.ceil(YaxisLength/16));
+  var symmetrized = (byteArray[i+4] & 0x80) >> 7;                 // "symmetrized" // 1 bit
+  var XaxisMin = ((byteArray[i+4] & 0x7F) << 8) | byteArray[i+5]; // "XaxisMin" // 15 bits
+  var XaxisMax = (byteArray[i+6] << 8) | byteArray[i+7];          // "XaxisMax" // 16 bits
+  var transfer_method = (byteArray[i+8] & 0x80) >> 7;             // "transfer method" // 1 bit
+  var YaxisMin = ((byteArray[i+8] & 0x7F) << 8) | byteArray[i+9]; // "YaxisMin" // 15 bits
+  var YaxisMax = (byteArray[i+10] << 8) | byteArray[i+11];        // "YaxisMax" // 16 bits
+  console.log("XaxisLength = "+XaxisLength);
+  console.log("YaxisLength = "+YaxisLength);
+  console.log("symmetrized = "+symmetrized);
+  console.log("XaxisMin/Max = "+XaxisMin+", "+XaxisMax);
+  console.log("YaxisMin/Max = "+YaxisMin+", "+YaxisMax);
+  console.log("transfer method = "+transfer_method);
+  console.log(numSubmatrices+" submatrices.");
+  i+=12; // Advance i to the start of the submatrix type header word
+
+  // DEBUG
+  console.log("DEBUG FLAGS after header= "+byteArray[i]+", "+byteArray[i+1]);
+  i+=2;
+
+  var submatrixType = [];
+  if(transfer_method){
+  // Transfer method 1, submatrix type is given for all submatrices
+  console.log("Transfer Method 1 (Submatrix type for all submatrices)")
+  // Unpack the submatrix type header word
+  var thisType = 0;
+  for(var j=0; j<numSubmatrices; j++){
+  if(thisType==3){ submatrixType[j] = submatrixType[j-1]; continue; }
+  switch((j%4)){
+  case 0: thisType = (byteArray[i] & 0xC0)>>6;   break;
+  case 1: thisType = (byteArray[i] & 0x30)>>4;   break;
+  case 2: thisType = (byteArray[i] & 0x0C)>>2;   break;
+  case 3: thisType = (byteArray[i] & 0x03); i++; break;
+  default:console.log("default case of switch"); break;
+}
+if(thisType==3){ submatrixType[j] = submatrixType[j-1]; i++; continue; }
+else{ submatrixType[j] = thisType; }
+}
+// Determine number of each submatrix type
+var submatrixTypeCount = [0,0,0,0];
+for(var j=0; j<submatrixType.length; j++){
+submatrixTypeCount[submatrixType[j]]++;
+}
+console.log(submatrixTypeCount);
+console.log(submatrixType);
+}else{
+// Transfer method 0, Submatrix id numbers are given only for non-empty submatrices
+console.log("Transfer Method 0 (Submatrix id numbers and types)")
+// Determine the size required to store submatrix coordinates (transfer method 0)
+if( numSubmatrices <= 0x80 ){  coord_size = 1; } //  7-bit values (<128 = axis lengths: 176x176)
+else if( numSubmatrices <= 0x8000   ){  coord_size = 2; } // 15-bit values (256-32,767 = axis lengths: 2896x2896)
+else if( numSubmatrices <= 0x800000 ){  coord_size = 3; } // 23-bit values (32,768-8,388,607 = axis lengths: 46,336x46,336)
+else if( num_submatrices <= 0x80000000 ){  coord_size = 4; } // 31-bit values (8,388,608-2,147,483,647 = axis lengths: 741,440x741,440)
+else{ console.log("Histogram is too large!!! Requires "+numSubmatrices+" submatrices!"); return; }
+
+//console.log("Submatrix coordinate size is "+coord_size+" bytes");
+submatrixType.fillN(0,numSubmatrices); // Set all submatrices to zero type (empty)
+// Unpack count of non-empty submatrices
+var numFilledSubmatrices = 0;
+for(m=coord_size; m>0; m--){
+var bitshift = (8*(m-1));
+numFilledSubmatrices = numFilledSubmatrices | (byteArray[i] << bitshift );
+i++;
+}
+console.log("Number of non-empty submatrices = "+numFilledSubmatrices);
+for(k=0; k<numFilledSubmatrices; k++){
+thisType = (byteArray[i] & 0x80) >> 7;
+thisCoordinate = 0;
+for(m=coord_size; m>0; m--){
+var bitshift = (8*(m-1));
+if(m==coord_size){ thisCoordinate = (byteArray[i] & 0x7F ) << bitshift; }
+else{              thisCoordinate = thisCoordinate | (byteArray[i] << bitshift ); }
+i++;
+}
+//  console.log("i,k,thisType,coordinate = "+i+", "+k+", "+(thisType+1)+", "+thisCoordinate);
+submatrixType[thisCoordinate] = (thisType+1);
+}
+//  console.log(submatrixType);
+} // End of Header and submatrix types
+
+// DEBUG
+console.log("DEBUG FLAGS after submatrix map= "+byteArray[i]+", "+byteArray[i+1]);
+i+=2;
+*/
+
+// Create space for this histogram data
+var denseData = [];
+for(m=0; m<YaxisLength; m++){ denseData[m] = [];
+  for(k=0; k<XaxisLength; k++){ denseData[m][k] = 0; }
+}
+var fourByteArray = new Uint32Array(YaxisLength*XaxisLength); // place to store the dense data format (compressed with respect to a standard array)
+var sparseData = {
+  xBins: XaxisLength, yBins: YaxisLength,
+  x: [], y: [], z: []
+};
+
+// Now unpack the data
+var subMatrixXlength = 16;
+var subMatrixYlength = 16;
+
+for(thisSubmatrixIndex=0; thisSubmatrixIndex<submatrixType.length; thisSubmatrixIndex++){
+  // Calculate the subMatrix Coordinates
+  var subMatrixX = (Math.floor(thisSubmatrixIndex%Math.floor(XaxisLength/subMatrixXlength)));
+  var subMatrixY = (Math.floor(thisSubmatrixIndex/Math.floor(XaxisLength/subMatrixXlength)));
+  var subMatrixXbaseCoordinate = subMatrixX*subMatrixXlength;
+  var subMatrixYbaseCoordinate = subMatrixY*subMatrixYlength;
+
+  switch(submatrixType[thisSubmatrixIndex]){
+    case 0: break; // Empty type
+    case 1: // List type
+    //  console.log("List type: "+subMatrixXbaseCoordinate+", "+subMatrixYbaseCoordinate);
+    // Header is Four 8-bit characters representing the count of each data size values; 8, 16, 24, 32 bits
+    // Coordinates given as 8-bit characters in the order of 8, 16, 24, 32 bit value sizes
+    // Data values are given in order of size type (8, 16, 24, 32 bit), in the order of the coordinates given.
+    var dataCount = [0,0,0,0]; var coordinates = [];
+    dataCount[0] = byteArray[i]; i++;
+    if(dataCount[0]<254){
+      dataCount[1] = byteArray[i]; i++;
+      if(dataCount[0]+dataCount[1]<254){
+        dataCount[2] = byteArray[i]; i++;
+        if(dataCount[0]+dataCount[1]+dataCount[2]<254){
+          dataCount[3] = byteArray[i]; i++;
+        }
+      }
+    }
+    //console.log("Data counts: "+dataCount[0]+", "+dataCount[1]+", "+dataCount[2]+", "+dataCount[3]);
+    // Extract coordinates
+    for(var m=0; m<4; m++){
+      for(j=0; j<dataCount[m]; j++){
+        coordinates.push( byteArray[i] ); i++;
+      }
+    }
+    // Extract values
+    var index=0;
+    for(var thisSize=0; thisSize<4; thisSize++){
+      var num=thisSize+1;
+      for(j=0; j<dataCount[thisSize]; j++){
+        thisX=subMatrixXbaseCoordinate+(coordinates[index]%subMatrixXlength);
+        thisY=subMatrixYbaseCoordinate+parseInt(coordinates[index]/subMatrixXlength);
+        value=0;
+        for(m=num; m>0; m--){
+          var bitshift = (8*(m-1));
+          value = value | (byteArray[i] << bitshift );
+          i++;
+        }
+        if(isNaN(thisX) || isNaN(thisY)){
+          console.log("Base coordinates: "+subMatrixXbaseCoordinate+","+subMatrixYbaseCoordinate);
+          console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value);
+        }
+        //console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value);
+        if(value>0){
+          denseData[thisY][thisX] = value; // Save dense data object
+          fourByteArray[(thisY*XaxisLength)+thisX] = value; // Save dense data object
+          sparseData.x.push(thisX); // Save sparse data object
+          sparseData.y.push(thisY); // Save sparse data object
+          sparseData.z.push(value); // Save sparse data object
+          if(symmetrized){
+            denseData[thisX][thisY] = value; // Save dense data object
+            fourByteArray[(thisX*XaxisLength)+thisY] = value; // Save dense data object
+            sparseData.x.push(thisY); // Save sparse data object
+            sparseData.y.push(thisX); // Save sparse data object
+            sparseData.z.push(value); // Save sparse data object
+          }
+        }
+        index++;
+      }
+    }
+    break;
+    case 2: // Array type
+    //  console.log("Array type: "+subMatrixXbaseCoordinate+", "+subMatrixYbaseCoordinate);
+    // Header first which is a single 8-bit character
+    // 2 bits indicating the data size for the four subsubmatrices of 64 values each.
+    // Array types, 0 (8-bit), 1 (16-bit), 2 (24-bit), 3 (32-bit)
+    // The data values follow with the spcified size
+    var dataSize = [];
+    // Unpack the submatrix array header of data sizes
+    // Four groups of 64 values each have the stated size
+    dataSize[0] = ((byteArray[i] & 0xC0)>>6)+1;
+    dataSize[1] = ((byteArray[i] & 0x30)>>4)+1;
+    dataSize[2] = ((byteArray[i] & 0x0C)>>2)+1;
+    dataSize[3] = ((byteArray[i] & 0x03)   )+1; // Add one to each type so it is a count of characters
+    i++;
+    for(j=0; j<256; j++){ // Now unpack the data values
+      thisX=subMatrixXbaseCoordinate+(j%subMatrixXlength);
+      thisY=subMatrixYbaseCoordinate+parseInt(j/subMatrixXlength);
+      value=0;
+      for(m=dataSize[parseInt(j/64)]; m>0; m--){
+        var bitshift = (8*(m-1));
+        value = value | (byteArray[i] << bitshift );
+        i++;
+      }
+      //  console.log(j+","+thisX+","+thisY+": "+value);
+      if(value>0){
+        denseData[thisY][thisX] = value; // Save dense data object
+        fourByteArray[(thisY*XaxisLength)+thisX] = value; // Save dense data object
+        sparseData.x.push(thisX); // Save sparse data object
+        sparseData.y.push(thisY); // Save sparse data object
+        sparseData.z.push(value); // Save sparse data object
+        if(symmetrized){
+          denseData[thisX][thisY] = value; // Save dense data object
+          fourByteArray[(thisX*XaxisLength)+thisY] = value; // Save dense data object
+          sparseData.x.push(thisY); // Save sparse data object
+          sparseData.y.push(thisX); // Save sparse data object
+          sparseData.z.push(value); // Save sparse data object
+        }
+      }
+    }
+    break;
+    default: console.log("Unrecognized submatrix type "+submatrixType[thisSubmatrixIndex]+" for submatrix "+thisSubmatrixIndex); break;
+  }
+}
+
+
+//keep the raw results around as an object in rawData
+// dense mode used for projections and other tasks
+// sparse mode used for (fast) plotting
+// dense mode, {zvalues[i][j]} where each number is the z height of the i,jth bin.
+// sparse mode, {xBins: n, yBins: n, x: [x1, x2, ...], y: [y1, y2, ...], z: [z1, z2, ...]}
+// Reconstruct the 2d histogram object
+var thisMatrix = {
+  "name" : name, "XaxisLength" : XaxisLength, "YaxisLength" : YaxisLength,
+  "symmetrized" : symmetrized,
+  "XaxisMin" : XaxisMin, "XaxisMax" : XaxisMax,
+  "YaxisMin" : YaxisMin, "YaxisMax" : YaxisMax,
+  "submatrixType" : submatrixType,
+  "dataBinary" : byteArray,
+  "data2" : denseData,
+  //"data32bit" : fourByteArray
+  //"data2" : fourByteArray
+};
+if(outputRaw){ dataStore.rawData[key].data2 = denseData; }   //  dense mode data
+if(outputDense){ dataStore.hm._raw = dataStore.hm.raw = denseData; }
+if(outputSparse){ dataStore.sparseData[key] = sparseData; } // sparse mode data
+if(outputDelete){ delete dataStore.rawData[key].dataBinary; } // delete the binaryBuffer data
+
+}
+
+async function promiseUnpackedBinaryMatrixData(key){
+  // Unpack the matrix data received as a binary transfer only to the heatmap object used by the projection functions
+
+
+  // Return a new promise.
+  return new Promise(function(resolve) {
+
+    console.log("Promise unpacking binary data for "+key);
+    const byteArray = new Uint8Array(dataStore.rawData[key].dataBinary);
+    const submatrixType = dataStore.rawData[key].submatrixType;
+    var XaxisLength = dataStore.rawData[key].XaxisLength;
+    var YaxisLength = dataStore.rawData[key].YaxisLength;
+    var symmetrized = dataStore.rawData[key].symmetrized;
+    var XaxisMin = dataStore.rawData[key].XaxisMin;
+    var XaxisMax = dataStore.rawData[key].XaxisMax;
+    var YaxisMin = dataStore.rawData[key].YaxisMin;
+    var YaxisMax = dataStore.rawData[key].YaxisMax;
+    var i = 0;
+
+    // Create space for this histogram data
+    var denseData = [];
+    for(m=0; m<YaxisLength; m++){ denseData[m] = [];
+      for(k=0; k<XaxisLength; k++){ denseData[m][k] = 0; }
+    }
+
+    // Now unpack the data
+    var subMatrixXlength = 16;
+    var subMatrixYlength = 16;
+
+    for(thisSubmatrixIndex=0; thisSubmatrixIndex<submatrixType.length; thisSubmatrixIndex++){
+      // Calculate the subMatrix Coordinates
+      var subMatrixX = (Math.floor(thisSubmatrixIndex%Math.floor(XaxisLength/subMatrixXlength)));
+      var subMatrixY = (Math.floor(thisSubmatrixIndex/Math.floor(XaxisLength/subMatrixXlength)));
+      var subMatrixXbaseCoordinate = subMatrixX*subMatrixXlength;
+      var subMatrixYbaseCoordinate = subMatrixY*subMatrixYlength;
+
+      switch(submatrixType[thisSubmatrixIndex]){
+        case 0: break; // Empty type
+        case 1: // List type
+        // Header is Four 8-bit characters representing the count of each data size values; 8, 16, 24, 32 bits
+        // Coordinates given as 8-bit characters in the order of 8, 16, 24, 32 bit value sizes
+        // Data values are given in order of size type (8, 16, 24, 32 bit), in the order of the coordinates given.
+        var dataCount = [0,0,0,0]; var coordinates = [];
+        dataCount[0] = byteArray[i]; i++;
+        if(dataCount[0]<254){
+          dataCount[1] = byteArray[i]; i++;
+          if(dataCount[0]+dataCount[1]<254){
+            dataCount[2] = byteArray[i]; i++;
+            if(dataCount[0]+dataCount[1]+dataCount[2]<254){
+              dataCount[3] = byteArray[i]; i++;
+            }
+          }
+        }
+        //console.log("Data counts: "+dataCount[0]+", "+dataCount[1]+", "+dataCount[2]+", "+dataCount[3]);
+        // Extract coordinates
+        for(var m=0; m<4; m++){
+          for(j=0; j<dataCount[m]; j++){
+            coordinates.push( byteArray[i] ); i++;
+          }
+        }
+        // Extract values
+        var index=0;
+        for(var thisSize=0; thisSize<4; thisSize++){
+          var num=thisSize+1;
+          for(j=0; j<dataCount[thisSize]; j++){
+            thisX=subMatrixXbaseCoordinate+(coordinates[index]%subMatrixXlength);
+            thisY=subMatrixYbaseCoordinate+parseInt(coordinates[index]/subMatrixXlength);
+            value=0;
+            for(m=num; m>0; m--){
+              var bitshift = (8*(m-1));
+              value = value | (byteArray[i] << bitshift );
+              i++;
+            }
+            if(isNaN(thisX) || isNaN(thisY)){
+              console.log("Base coordinates: "+subMatrixXbaseCoordinate+","+subMatrixYbaseCoordinate);
+              console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value);
+            }
+            //console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value);
+            if(value>0){
+              denseData[thisY][thisX] = value; // Save dense data object
+              if(symmetrized){ denseData[thisX][thisY] = value; } // Save dense data object
+            }
+            index++;
+          }
+        }
+        break;
+        case 2: // Array type
+        //  console.log("Array type: "+subMatrixXbaseCoordinate+", "+subMatrixYbaseCoordinate);
+        // Header first which is a single 8-bit character
+        // 2 bits indicating the data size for the four subsubmatrices of 64 values each.
+        // Array types, 0 (8-bit), 1 (16-bit), 2 (24-bit), 3 (32-bit)
+        // The data values follow with the spcified size
+        var dataSize = [];
+        // Unpack the submatrix array header of data sizes
+        // Four groups of 64 values each have the stated size
+        dataSize[0] = ((byteArray[i] & 0xC0)>>6)+1;
+        dataSize[1] = ((byteArray[i] & 0x30)>>4)+1;
+        dataSize[2] = ((byteArray[i] & 0x0C)>>2)+1;
+        dataSize[3] = ((byteArray[i] & 0x03)   )+1; // Add one to each type so it is a count of characters
+        i++;
+        for(j=0; j<256; j++){ // Now unpack the data values
+          thisX=subMatrixXbaseCoordinate+(j%subMatrixXlength);
+          thisY=subMatrixYbaseCoordinate+parseInt(j/subMatrixXlength);
+          value=0;
+          for(m=dataSize[parseInt(j/64)]; m>0; m--){
+            var bitshift = (8*(m-1));
+            value = value | (byteArray[i] << bitshift );
+            i++;
+          }
+          //  console.log(j+","+thisX+","+thisY+": "+value);
+          if(value>0){
+            denseData[thisY][thisX] = value; // Save dense data object
+            if(symmetrized){ denseData[thisX][thisY] = value; } // Save dense data object
+          }
+        }
+        break;
+        default: console.log("Unrecognized submatrix type "+submatrixType[thisSubmatrixIndex]+" for submatrix "+thisSubmatrixIndex); break;
+      }
+    }
+
+    // Save the uncompressed data to the 2d histogram object used by project functions
+    dataStore.hm._raw = denseData;
+
+    // resolve the promise
+    resolve("Success!");
   });
 }
 
@@ -1624,6 +1914,7 @@ function receiveScript(payload){
   // Actual lists of arrays and objects used in workflow
   // Lists for the histogram filenames, 1d spectrum names, peak centroids to fit in 1d spectra, 2d spectrum names, gate limits for making projections, peak centroids to fit in 2d spectra.
   dataStore.spectrumListHistoFileNames = dataStore.peakFitterScript.histogramFileNames;  // List of all the histogram files
+  dataStore.spectrumListHistoFileNames = [...new Set(dataStore.spectrumListHistoFileNames)]; // Remove duplicates
   dataStore.spectrumList1d = dataStore.peakFitterScript.spectrumList1d;
   dataStore.spectrumList1dPeaks = dataStore.peakFitterScript.spectrumList1dPeaks;   // List of all peaks to fit in the 1d spectra
   dataStore.spectrumList2d = dataStore.peakFitterScript.spectrumList2d;
@@ -1820,6 +2111,10 @@ function setupProgressBarTracking(){
   // Set up the progress bar and task list
   dataStore.progressBarNumberTasks = 0;
 
+  // Count the number of histograms to fetch
+  //dataStore.progressBarNumberTasks += (dataStore.num1dSpectra * dataStore.numRunFiles);
+  //dataStore.progressBarNumberTasks += (dataStore.num2dSpectra * dataStore.numRunFiles);
+
   // Count the number of peaks for each 1d spectrum
   if(dataStore.num1dSpectra>0){
     dataStore.progressBarNumberTasks += (dataStore.numRunFiles * dataStore.num1dSpectra * dataStore.spectrumList1dPeaks["All"].length);
@@ -1959,9 +2254,12 @@ async function createLocalMatrices(spectrumName){
 // Format for gates: 'matrixname': [[axis,gateMin,gateMax,BG1SF,BG1Min,BG1Max,BG2SF,BG2Min,BG2Max], [], ...]
 // Where BG1SF is the Scaling Factor for a projection between bins BG1Min and BG1Max which will be subtracted from the main Gate projection between bins gateMin and gateMax onto the 'axis' axis.
 // The axis,gateMin,gateMax members are required. All others are optional.
-// Upgrade: The progressbar should be updated in this function.
+// Input: compressed is a true/false selector.
+// If compressed=false the function uses the dataStore.matrix array
+// If compressed=true the function uses the promiseUnpackedBinaryMatrixData function to unpack the data
+// Input: menuGroupID is the ID of the location to add these projections to the spectrum menu (used as 'plotListplots'+menuGroupID)
 // Note: Terminates with projectionsCallback().
-function projectAllMatrices(projectionsList){
+function projectAllMatrices(projectionsList,compressed,menuGroupID){
   //make the projections for the matrix of each source based on the peaks defined.
 
   // Get the list of keys for the matrices to be projected
@@ -1979,7 +2277,13 @@ function projectAllMatrices(projectionsList){
       // Set the details for this matrix needed by the projectXaxis function
       var thisKey = matrixKeys[i].matrixName;
       dataStore.activeMatrix = thisKey;
-      dataStore.hm._raw = dataStore.matrix[thisKey].data;
+
+      if(compressed){
+        // Uncompress the matrix data for this histogram
+        await promiseUnpackedBinaryMatrixData(thisKey);
+      }else{
+        dataStore.hm._raw = dataStore.matrix[thisKey].data;
+      }
 
       // Set limits for the projections in this matrix
       var gateMin = matrixKeys[i].gateDetails[1];
@@ -2007,6 +2311,74 @@ function projectAllMatrices(projectionsList){
 
     function(){
       // This code is executed only after the full list of matrixKeys has been processed by the previous function.
+
+        // Need to move these projections into the dataStore.spectrumListProjections object
+        // Need to add these projections to the spectrum menu
+      var keys = Object.keys(dataStore.createdSpectra);
+      keys.sort();
+      var histoName = dataStore.histoFileName.split(".")[0];
+
+      for(i=0; i<keys.length; i++){
+        // Only process the newly created projections for the current histogram file
+        if(!keys[i].includes(histoName)){ continue; }
+
+        // Add this projection spectrum to the list which need to be fitted
+        dataStore.spectrumListProjections.push(keys[i]);
+
+        // Create the list of peaks to fit for this projection if it does not already exist.
+        // If it exists it is because it has unique peaks specified for it.
+        if(!dataStore.spectrumListProjectionsPeaks.hasOwnProperty(keys[i])){
+          // A key for this spectrum name does not exist.
+          dataStore.spectrumListProjectionsPeaks[keys[i]] = [];
+        }
+
+        // Add the list of peaks for this filename, if it exists
+        if(dataStore.spectrumListProjectionsPeaks.hasOwnProperty(keys[i].split(":")[0])){
+          dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks[keys[i].split(":")[0]]);
+        }
+
+        // Add the list of peaks for this 2d spectrum name, if it exists
+        if(dataStore.spectrumListProjectionsPeaks.hasOwnProperty(keys[i].split(":")[1].split("x-")[0])){
+          dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks[keys[i].split(":")[1].split("x-")[0]]);
+        }
+        if(dataStore.spectrumListProjectionsPeaks.hasOwnProperty(keys[i].split(":")[1].split("y-")[0])){
+          dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks[keys[i].split(":")[1].split("y-")[0]]);
+        }
+
+        // Add the list of peaks for this projection for all 2d spectra for all filenames, if it exists
+        // Projection list keys will start with either 'x' or 'y'
+        if(dataStore.spectrumListProjectionsPeaks.hasOwnProperty(("x-"+(keys[i].split(":")[1].split("x-")[1])))){
+          dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks[("x-"+(keys[i].split(":")[1].split("x-")[1]))]);
+        }
+        if(dataStore.spectrumListProjectionsPeaks.hasOwnProperty(("y-"+(keys[i].split(":")[1].split("y-")[1])))){
+          dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks[("y-"+(keys[i].split(":")[1].split("y-")[1]))]);
+        }
+
+        // Add the list of peaks for this specific projection name, if it exists
+        if(dataStore.spectrumListProjectionsPeaks.hasOwnProperty(keys[i].split(":")[1])){
+          dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks[keys[i].split(":")[1]]);
+        }
+
+        // Add the All peaks for projections
+        dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks["All"]);
+
+        // Remove any duplicate values. This seems to be easier than checking before pushing the other lists.
+        dataStore.spectrumListProjectionsPeaks[keys[i]] = [...new Set(dataStore.spectrumListProjectionsPeaks[keys[i]])];
+
+        // Sort the Array now we have added all peaks
+        dataStore.spectrumListProjectionsPeaks[keys[i]].sort(function(a, b){return a-b});
+
+        // Add this projection to the spectrum menu
+        newMenuItem = document.createElement('li');
+        newMenuItem.setAttribute('id', 'plotList'+keys[i]);
+        newMenuItem.setAttribute('value', keys[i]);
+        newMenuItem.setAttribute('class', 'list-group-item toggle');
+        newMenuItem.innerHTML = keys[i].split(':')[1].trim()+'<span id=\'plotListbadge'+keys[i]+'\' class=\"badge plotPresence hidden\">&#x2713;</span>';
+        document.getElementById('plotListplots'+menuGroupID).appendChild(newMenuItem);
+        document.getElementById('plotList'+keys[i]).onclick = function(){ dataStore._plotListLite.exclusivePlot(this.id.split('plotList')[1], dataStore.viewers[dataStore.plots[0]]); }
+      }
+
+      // Callback
       projectionsCallback();
 
     }.bind(this),
@@ -2303,6 +2675,27 @@ function fitCallback(center, width, amplitude, intercept, slope){
   if(center < dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0] || center > dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1]){
     dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [NaN,NaN,NaN,NaN,NaN,NaN,NaN];
   }
+
+            // Calculate uncertainty in this fit (used in angularCorrelations)
+            // Calculate the chi-square of the fitline and data
+            // Multiply the sqrt(area) with sqrt(chi^2/nu)
+            var index=0, nu, dataSeries = [], uncertaintySeries = [], fitSeries = [];
+            //  for(i=dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0]; i<dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1]; i++){
+            for(i=Math.floor(center-(3*width)); i<Math.ceil(center+(3*width)); i++){
+              dataSeries[index] = dataStore.rawData[dataStore.currentPlot][i];
+              fitSeries[index] = intercept + slope*i + amplitude*Math.exp(-1*(((i-center)*(i-center))/(2*width*width)));
+              index++;
+            }
+            nu = (index+1) - 5; // 5 parameters in the peak fit; centroid, width, height, BG slope, BG offset
+            uncertaintySeries = dataSeries.map((x) => (Math.sqrt(x)*10) );
+
+            // Fit uncertainty is the reduced Chi square of the fit, multiplied by the sqrt of the number of counts (area)
+            if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
+            if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
+            if(typeof dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = []; }
+            dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = Math.sqrt(calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu)*Math.sqrt(area);
+            console.log("fitUncertainty of "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]/area+" from "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]+" from chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)+" and reduced chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu);
+            console.log(" and sqrt(area="+area+") of "+Math.sqrt(area)+" which is ratio of "+Math.sqrt(area)/area);
 
   //disengage fit mode buttons
   //  if( parseInt(refitPeak.getAttribute('engaged'),10) == 1){

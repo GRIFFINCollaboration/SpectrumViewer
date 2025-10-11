@@ -402,17 +402,30 @@
 	          activeSpectraForQueries[i] = activeSpectraForQueries[i].split(':')[1];
 	        }
 	      }
-
-        // Build the queirie URLs for 1d histograms (plus 2d histograms if there are one per histogram file)
-	      var queries = constructQueries(activeSpectraForQueries);
+        // Also strip out the 2d histograms so we can call the binary transfer method
+        var active2dSpectraForQueries = [];
+        for(let i=0; i<dataStore.twoDimensionalSpectra.length; i++) {
+          var index = activeSpectraForQueries.indexOf(dataStore.twoDimensionalSpectra[i].split(":")[1]);
+          if (index > -1) {
+            active2dSpectraForQueries.push(activeSpectraForQueries[index]);
+            activeSpectraForQueries.splice(index, 1);
+          }
+        }
+        var queries = constructQueries(activeSpectraForQueries);
 
         // Add additional URLs for 2d histograms (one URL per 2d histogram)
-          // ensure one 2d histogram per url using the construct2dQueries function
-          if(this.active2dSpectra.length>0){
-          queries = construct2dQueries(queries,this.active2dSpectra);
-          }
+        // ensure one 2d histogram per url using the construct2dQueries function which also calls the binary transfer method
+        var queries2d = [];
+        active2dSpectraForQueries = active2dSpectraForQueries.concat(this.active2dSpectra); // Will there be duplication????
+        if(active2dSpectraForQueries.length>0){
+          queries2d = construct2dQueries([],active2dSpectraForQueries);
+        }
+    var allQueries1d = queries.map(promiseJSONURL);
+    var allQueries2d = queries2d.map(promiseBinaryURL);
+    var allQueries = allQueries1d.concat(allQueries2d);
+console.log(allQueries);
 
-	      var spectraFetched = Promise.all(queries.map(promiseJSONURL)).then(
+	      var spectraFetched = Promise.all(allQueries).then(
                     function(spectra){
                         var i, j, key, viewerKey, newKey, this2dKey;
 
@@ -428,9 +441,11 @@
 
                           if(key == 'XaxisLength' || key == 'YaxisLength' || key == 'symmetrized' || key == 'XaxisMin' || key == 'XaxisMax' || key == 'YaxisMin' || key == 'YaxisMax' || key == 'ZaxisMin' || key == 'ZaxisMax' || key == 'data2'){ continue; }
                           if(key == 'name'){
-                            // Treatment for 2d spectra - append the histoFileName to the beginning of the 'name' key only
+                            // Treatment for 2d spectra received by the old json transfer method
+                            // append the histoFileName to the beginning of the 'name' key only
                             // 'name' is the first component of the matrix element
                             // modify the spectrum name that were received from a histogram file to include it at the start
+
                                 if(dataStore.histoFileName.length>0){
                                    this2dKey = dataStore.histoFileName.split('.')[0] + ':' + JSON.parse(JSON.stringify(spectra[i]['name']));
                                   spectra[i].name = dataStore.histoFileName.split('.')[0] + ':' + spectra[i].name;
@@ -455,6 +470,14 @@
                                //keep the raw results around
                                 dataStore.rawData[this2dKey] = thisMatrix;
 
+
+                          }else if(key == 'binaryName'){
+                            // Treatment of 2d spectra received by the binary transfer method
+                            // unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse);
+                            // key is used for the dataStore.rawData object
+                            // true/false for which outputs will be generated. This can cause memory overflow is many matrices are requested
+
+                        //  unpackBinaryMatrixData(spectra[i]['binaryName'],dataStore.outputRawFlag,dataStore.outputDenseFlag,dataStore.outputSparseFlag);
                           }else{
                             // Treatment for 1d spectra - append the histoFileName to the beginning of the specturm name
 

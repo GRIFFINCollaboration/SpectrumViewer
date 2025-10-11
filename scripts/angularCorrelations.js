@@ -67,7 +67,6 @@ function setupDataStore(){
     dataStore.createdBG2Spectra = {};                                    //initialize empty object for created background (BG2) spectra
     dataStore.THESEdetectors = [];                                    //10-char codes of all possible griffin/paces detectors. Contents based on detectorChoice
     dataStore.angularMatrices = [];                                   // list of the names of the angular correlation matrices
-    dataStore.angCorrProjections = [];                                // list of the names of the projections to be fitted
     dataStore.singlesSpectra = [];                                    // list of the names of the singles spectra to be fitted
     dataStore.HPGeDistance = 145;                                    // Distance of HPGe (110,145) mm, used to determine which angles to use.
     dataStore.gatePeakEnergy = [];                                    // Peak centroid to be used as the gate in each matrix
@@ -83,6 +82,7 @@ function setupDataStore(){
     dataStore.fitResultsProjections = {};                                 //fit results of Projections: 'plotname': [[amplitude, center, width, intercept, slope], [amplitude, center, width, intercept, slope]]
 
     // Custom settings for Angular Correlations
+    dataStore.angCorrProjections = [];            // list of the names of the projections to be fitted
     dataStore.angularBinRawPeakArea = [];         // place to store the raw peak area for each angular bin
     dataStore.angularBinRawPeakAreaUnc = [];         // place to store the uncertainty in the raw peak area for each angular bin
     dataStore.angularBinTRBGPeakArea = [];         // place to store the time-random background peak area for each angular bin

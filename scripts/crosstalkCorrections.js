@@ -425,86 +425,22 @@ function launchPeakFittingProcess(){
     // Format for gates: 'matrixname': [[axis,gateMin,gateMax,BG1SF,BG1Min,BG1Max,BG2SF,BG2Min,BG2Max], [], ...]
     // Where BG1SF is the Scaling Factor for a projection between bins BG1Min and BG1Max which will be subtracted from the main Gate projection between bins gateMin and gateMax onto the 'axis' axis.
     var projectionsList = [];
-    var histoName = dataStore.histoFileName.split(".")[0] + ":";
+    var histoName = dataStore.histoFileName.split(".")[0];
     for(var i=0; i<dataStore.spectrumList2d.length; i++){
       for(var j=0; j<dataStore.spectrumListGates[dataStore.spectrumList2d[i]].length; j++){
         projectionsList.push(
           {
-            "matrixName": histoName + dataStore.spectrumList2d[i],
+            "matrixName": histoName  + ":" + dataStore.spectrumList2d[i],
             "gateDetails": dataStore.spectrumListGates[dataStore.spectrumList2d[i]][j]
           });
         }
       }
 
       // Make the projections needed from each matrix
-      projectAllMatrices(projectionsList);
+      projectAllMatrices(projectionsList,false,histoName);
     }
 
     function projectionsCallback(){
-      // Need to move these projections into the dataStore.spectrumListProjections object
-      // Need to add these projections to the spectrum menu
-      var keys = Object.keys(dataStore.createdSpectra);
-      var histoName = dataStore.histoFileName.split(".")[0];
-
-      for(i=0; i<keys.length; i++){
-        // Only process the newly created projections for the current histogram file
-        if(!keys[i].includes(histoName)){ continue; }
-
-        // Add this projection spectrum to the list which need to be fitted
-        dataStore.spectrumListProjections.push(keys[i]);
-
-        // Create the list of peaks to fit for this projection if it does not already exist.
-        // If it exists it is because it has unique peaks specified for it.
-        if(!dataStore.spectrumListProjectionsPeaks.hasOwnProperty(keys[i])){
-          // A key for this spectrum name does not exist.
-          dataStore.spectrumListProjectionsPeaks[keys[i]] = [];
-        }
-
-        // Add the list of peaks for this filename, if it exists
-        if(dataStore.spectrumListProjectionsPeaks.hasOwnProperty(keys[i].split(":")[0])){
-          dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks[keys[i].split(":")[0]]);
-        }
-
-        // Add the list of peaks for this 2d spectrum name, if it exists
-        if(dataStore.spectrumListProjectionsPeaks.hasOwnProperty(keys[i].split(":")[1].split("x-")[0])){
-          dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks[keys[i].split(":")[1].split("x-")[0]]);
-        }
-        if(dataStore.spectrumListProjectionsPeaks.hasOwnProperty(keys[i].split(":")[1].split("y-")[0])){
-          dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks[keys[i].split(":")[1].split("y-")[0]]);
-        }
-
-        // Add the list of peaks for this projection for all 2d spectra for all filenames, if it exists
-        // Projection list keys will start with either 'x' or 'y'
-        if(dataStore.spectrumListProjectionsPeaks.hasOwnProperty(("x-"+(keys[i].split(":")[1].split("x-")[1])))){
-          dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks[("x-"+(keys[i].split(":")[1].split("x-")[1]))]);
-        }
-        if(dataStore.spectrumListProjectionsPeaks.hasOwnProperty(("y-"+(keys[i].split(":")[1].split("y-")[1])))){
-          dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks[("y-"+(keys[i].split(":")[1].split("y-")[1]))]);
-        }
-
-        // Add the list of peaks for this specific projection name, if it exists
-        if(dataStore.spectrumListProjectionsPeaks.hasOwnProperty(keys[i].split(":")[1])){
-          dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks[keys[i].split(":")[1]]);
-        }
-
-        // Add the All peaks for projections
-        dataStore.spectrumListProjectionsPeaks[keys[i]].push(...dataStore.spectrumListProjectionsPeaks["All"]);
-
-        // Remove any duplicate values. This seems to be easier than checking before pushing the other lists.
-        dataStore.spectrumListProjectionsPeaks[keys[i]] = [...new Set(dataStore.spectrumListProjectionsPeaks[keys[i]])];
-
-        // Sort the Array now we have added all peaks
-        dataStore.spectrumListProjectionsPeaks[keys[i]].sort(function(a, b){return a-b});
-
-        // Add this projection to the spectrum menu
-        newMenuItem = document.createElement('li');
-        newMenuItem.setAttribute('id', 'plotList'+keys[i]);
-        newMenuItem.setAttribute('value', keys[i]);
-        newMenuItem.setAttribute('class', 'list-group-item toggle');
-        newMenuItem.innerHTML = keys[i].split(':')[1].trim()+'<span id=\'plotListbadge'+keys[i]+'\' class=\"badge plotPresence hidden\">&#x2713;</span>';
-        document.getElementById('plotListplots'+histoName).appendChild(newMenuItem);
-        document.getElementById('plotList'+keys[i]).onclick = function(){ dataStore._plotListLite.exclusivePlot(this.id.split('plotList')[1], dataStore.viewers[dataStore.plots[0]]); }
-      }
 
       // change information message
       document.getElementById('projectionsMessage').classList.add('hidden');
@@ -514,6 +450,7 @@ function launchPeakFittingProcess(){
       dataStore.currentTask = 'SinglesFitting';
 
       // Build the list of spectrum names with the histogram name appended to the start of the string so it can be used as a key
+      var histoName = dataStore.histoFileName.split(".")[0];
       var spectrumList = [];
       dataStore.spectrumList1d.forEach((element) => spectrumList.push(histoName+":"+element));
 
