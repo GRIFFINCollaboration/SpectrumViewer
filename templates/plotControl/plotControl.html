@@ -416,7 +416,7 @@
         // Add additional URLs for 2d histograms (one URL per 2d histogram)
         // ensure one 2d histogram per url using the construct2dQueries function which also calls the binary transfer method
         var queries2d = [];
-        active2dSpectraForQueries = active2dSpectraForQueries.concat(this.active2dSpectra); // Will there be duplication????
+        if(this.active2dSpectra){ active2dSpectraForQueries = active2dSpectraForQueries.concat(this.active2dSpectra); } // Will there be duplication????
         if(active2dSpectraForQueries.length>0){
           queries2d = construct2dQueries([],active2dSpectraForQueries);
         }
@@ -475,9 +475,9 @@ console.log(allQueries);
                             // Treatment of 2d spectra received by the binary transfer method
                             // unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse);
                             // key is used for the dataStore.rawData object
-                            // true/false for which outputs will be generated. This can cause memory overflow is many matrices are requested
+                            // true/false for which outputs will be generated. This can cause memory overflow if many matrices are requested
 
-                        //  unpackBinaryMatrixData(spectra[i]['binaryName'],dataStore.outputRawFlag,dataStore.outputDenseFlag,dataStore.outputSparseFlag);
+                          unpackBinaryMatrixData(spectra[i]['binaryName'],dataStore.outputRawFlag,dataStore.outputDenseFlag,dataStore.outputSparseFlag,dataStore.outputDeleteFlag);
                           }else{
                             // Treatment for 1d spectra - append the histoFileName to the beginning of the specturm name
 

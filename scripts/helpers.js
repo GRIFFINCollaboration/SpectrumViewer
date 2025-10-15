@@ -212,13 +212,13 @@ function promiseBinaryURL(url){
             for(var j=0; j<numSubmatrices; j++){
               if(thisType==3){ submatrixType[j] = submatrixType[j-1]; continue; }
               switch((j%4)){
-                case 0: thisType = (byteArray[i] & 0xC0)>>6;   break;
-                case 1: thisType = (byteArray[i] & 0x30)>>4;   break;
+                case 0: thisType = (byteArray[i] & 0xC0)>>6;   break; // NOT WORKING in this position, Ge-Ge_110mm_angular_bin04
+                case 1: thisType = (byteArray[i] & 0x30)>>4;   break; // NOT WORKING in this position, Ge-Ge_110mm_angular_bin05
                 case 2: thisType = (byteArray[i] & 0x0C)>>2;   break;
-                case 3: thisType = (byteArray[i] & 0x03); i++; break;
+                case 3: thisType = (byteArray[i] & 0x03); i++; break; // Works in this position, Ge-Ge_110mm_angular_bin01
                 default:console.log("default case of switch"); break;
               }
-              if(thisType==3){ submatrixType[j] = submatrixType[j-1]; i++; continue; }
+              if(thisType==3){ submatrixType[j] = submatrixType[j-1]; if(j%4!=3){ i++; } continue; }
               else{ submatrixType[j] = thisType; }
             }
             // Determine number of each submatrix type
@@ -226,8 +226,8 @@ function promiseBinaryURL(url){
             for(var j=0; j<submatrixType.length; j++){
               submatrixTypeCount[submatrixType[j]]++;
             }
-            console.log(submatrixTypeCount);
-            console.log(submatrixType);
+          //  console.log(submatrixTypeCount);
+          //  console.log(submatrixType);
           }else{
             // Transfer method 0, Submatrix id numbers are given only for non-empty submatrices
             console.log("Transfer Method 0 (Submatrix id numbers and types)")
@@ -343,101 +343,6 @@ function unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse,outputDel
   var YaxisMax = dataStore.rawData[key].YaxisMax;
   var i = 0;
 
-  /*
-  // Extract the Name which has variable length. String termination is 0.
-  var nameCodes = []; var i=0;
-  while(byteArray[i]!=0 && i<81){ nameCodes[i] = byteArray[i]; i++; }
-  var name = String.fromCharCode(...nameCodes);
-  console.log("Name = "+name);
-  i++;
-  // Unpack the rest of the header (6 items). Each item is 16 bits.
-  var XaxisLength = (byteArray[i+0] << 8) | byteArray[i+1];       // "XaxisLength" // 16 bits
-  var YaxisLength = (byteArray[i+2] << 8) | byteArray[i+3];       // "YaxisLength" // 16 bits
-  var numSubmatrices = (Math.ceil(XaxisLength/16)*Math.ceil(YaxisLength/16));
-  var symmetrized = (byteArray[i+4] & 0x80) >> 7;                 // "symmetrized" // 1 bit
-  var XaxisMin = ((byteArray[i+4] & 0x7F) << 8) | byteArray[i+5]; // "XaxisMin" // 15 bits
-  var XaxisMax = (byteArray[i+6] << 8) | byteArray[i+7];          // "XaxisMax" // 16 bits
-  var transfer_method = (byteArray[i+8] & 0x80) >> 7;             // "transfer method" // 1 bit
-  var YaxisMin = ((byteArray[i+8] & 0x7F) << 8) | byteArray[i+9]; // "YaxisMin" // 15 bits
-  var YaxisMax = (byteArray[i+10] << 8) | byteArray[i+11];        // "YaxisMax" // 16 bits
-  console.log("XaxisLength = "+XaxisLength);
-  console.log("YaxisLength = "+YaxisLength);
-  console.log("symmetrized = "+symmetrized);
-  console.log("XaxisMin/Max = "+XaxisMin+", "+XaxisMax);
-  console.log("YaxisMin/Max = "+YaxisMin+", "+YaxisMax);
-  console.log("transfer method = "+transfer_method);
-  console.log(numSubmatrices+" submatrices.");
-  i+=12; // Advance i to the start of the submatrix type header word
-
-  // DEBUG
-  console.log("DEBUG FLAGS after header= "+byteArray[i]+", "+byteArray[i+1]);
-  i+=2;
-
-  var submatrixType = [];
-  if(transfer_method){
-  // Transfer method 1, submatrix type is given for all submatrices
-  console.log("Transfer Method 1 (Submatrix type for all submatrices)")
-  // Unpack the submatrix type header word
-  var thisType = 0;
-  for(var j=0; j<numSubmatrices; j++){
-  if(thisType==3){ submatrixType[j] = submatrixType[j-1]; continue; }
-  switch((j%4)){
-  case 0: thisType = (byteArray[i] & 0xC0)>>6;   break;
-  case 1: thisType = (byteArray[i] & 0x30)>>4;   break;
-  case 2: thisType = (byteArray[i] & 0x0C)>>2;   break;
-  case 3: thisType = (byteArray[i] & 0x03); i++; break;
-  default:console.log("default case of switch"); break;
-}
-if(thisType==3){ submatrixType[j] = submatrixType[j-1]; i++; continue; }
-else{ submatrixType[j] = thisType; }
-}
-// Determine number of each submatrix type
-var submatrixTypeCount = [0,0,0,0];
-for(var j=0; j<submatrixType.length; j++){
-submatrixTypeCount[submatrixType[j]]++;
-}
-console.log(submatrixTypeCount);
-console.log(submatrixType);
-}else{
-// Transfer method 0, Submatrix id numbers are given only for non-empty submatrices
-console.log("Transfer Method 0 (Submatrix id numbers and types)")
-// Determine the size required to store submatrix coordinates (transfer method 0)
-if( numSubmatrices <= 0x80 ){  coord_size = 1; } //  7-bit values (<128 = axis lengths: 176x176)
-else if( numSubmatrices <= 0x8000   ){  coord_size = 2; } // 15-bit values (256-32,767 = axis lengths: 2896x2896)
-else if( numSubmatrices <= 0x800000 ){  coord_size = 3; } // 23-bit values (32,768-8,388,607 = axis lengths: 46,336x46,336)
-else if( num_submatrices <= 0x80000000 ){  coord_size = 4; } // 31-bit values (8,388,608-2,147,483,647 = axis lengths: 741,440x741,440)
-else{ console.log("Histogram is too large!!! Requires "+numSubmatrices+" submatrices!"); return; }
-
-//console.log("Submatrix coordinate size is "+coord_size+" bytes");
-submatrixType.fillN(0,numSubmatrices); // Set all submatrices to zero type (empty)
-// Unpack count of non-empty submatrices
-var numFilledSubmatrices = 0;
-for(m=coord_size; m>0; m--){
-var bitshift = (8*(m-1));
-numFilledSubmatrices = numFilledSubmatrices | (byteArray[i] << bitshift );
-i++;
-}
-console.log("Number of non-empty submatrices = "+numFilledSubmatrices);
-for(k=0; k<numFilledSubmatrices; k++){
-thisType = (byteArray[i] & 0x80) >> 7;
-thisCoordinate = 0;
-for(m=coord_size; m>0; m--){
-var bitshift = (8*(m-1));
-if(m==coord_size){ thisCoordinate = (byteArray[i] & 0x7F ) << bitshift; }
-else{              thisCoordinate = thisCoordinate | (byteArray[i] << bitshift ); }
-i++;
-}
-//  console.log("i,k,thisType,coordinate = "+i+", "+k+", "+(thisType+1)+", "+thisCoordinate);
-submatrixType[thisCoordinate] = (thisType+1);
-}
-//  console.log(submatrixType);
-} // End of Header and submatrix types
-
-// DEBUG
-console.log("DEBUG FLAGS after submatrix map= "+byteArray[i]+", "+byteArray[i+1]);
-i+=2;
-*/
-
 // Create space for this histogram data
 var denseData = [];
 for(m=0; m<YaxisLength; m++){ denseData[m] = [];
@@ -460,10 +365,23 @@ for(thisSubmatrixIndex=0; thisSubmatrixIndex<submatrixType.length; thisSubmatrix
   var subMatrixXbaseCoordinate = subMatrixX*subMatrixXlength;
   var subMatrixYbaseCoordinate = subMatrixY*subMatrixYlength;
 
+  if(i>=byteArray.length){
+    // Reached the end of the data, but not necessarily the end of the submatrices if the remainder are empty, lets check
+    for(var j=thisSubmatrixIndex; j<submatrixType.length; j++){
+      if(submatrixType[j]!=0){
+        console.log("PROBLEM: Reached the end of the data but not all remaining submatrices are Empty type!!");
+       console.log("i="+i+" for byteArray length of "+byteArray.length);
+       console.log("thisSubmatrixIndex="+thisSubmatrixIndex+", j="+j+" with length "+submatrixType.length);
+       console.log(submatrixType);
+      }
+    }
+    break;
+  }
+
   switch(submatrixType[thisSubmatrixIndex]){
     case 0: break; // Empty type
     case 1: // List type
-    //  console.log("List type: "+subMatrixXbaseCoordinate+", "+subMatrixYbaseCoordinate);
+  //  console.log("List type ["+thisSubmatrixIndex+"]: ["+subMatrixXbaseCoordinate+"-"+(subMatrixXbaseCoordinate+16)+"], ["+subMatrixYbaseCoordinate+"-"+(subMatrixYbaseCoordinate+16)+"]");
     // Header is Four 8-bit characters representing the count of each data size values; 8, 16, 24, 32 bits
     // Coordinates given as 8-bit characters in the order of 8, 16, 24, 32 bit value sizes
     // Data values are given in order of size type (8, 16, 24, 32 bit), in the order of the coordinates given.
@@ -478,7 +396,14 @@ for(thisSubmatrixIndex=0; thisSubmatrixIndex<submatrixType.length; thisSubmatrix
         }
       }
     }
-    //console.log("Data counts: "+dataCount[0]+", "+dataCount[1]+", "+dataCount[2]+", "+dataCount[3]);
+    if(dataCount[0] == undefined){
+      console.log("dataCount[0] = undefined");
+      console.log("i="+i+" for byteArray length of "+byteArray.length);
+      continue;
+    }
+  //  console.log("Data counts: "+dataCount[0]+", "+dataCount[1]+", "+dataCount[2]+", "+dataCount[3]);
+  //  var debug=0;
+    if(dataCount[1]>0){ debug=1; }
     // Extract coordinates
     for(var m=0; m<4; m++){
       for(j=0; j<dataCount[m]; j++){
@@ -502,7 +427,7 @@ for(thisSubmatrixIndex=0; thisSubmatrixIndex<submatrixType.length; thisSubmatrix
           console.log("Base coordinates: "+subMatrixXbaseCoordinate+","+subMatrixYbaseCoordinate);
           console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value);
         }
-        //console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value);
+      //  if(debug){ console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value); }
         if(value>0){
           denseData[thisY][thisX] = value; // Save dense data object
           fourByteArray[(thisY*XaxisLength)+thisX] = value; // Save dense data object
@@ -522,7 +447,7 @@ for(thisSubmatrixIndex=0; thisSubmatrixIndex<submatrixType.length; thisSubmatrix
     }
     break;
     case 2: // Array type
-    //  console.log("Array type: "+subMatrixXbaseCoordinate+", "+subMatrixYbaseCoordinate);
+    //console.log("Array type: ["+subMatrixXbaseCoordinate+"-"+(subMatrixXbaseCoordinate+16)+"], ["+subMatrixYbaseCoordinate+"-"+(subMatrixYbaseCoordinate+16)+"]");
     // Header first which is a single 8-bit character
     // 2 bits indicating the data size for the four subsubmatrices of 64 values each.
     // Array types, 0 (8-bit), 1 (16-bit), 2 (24-bit), 3 (32-bit)
@@ -565,7 +490,6 @@ for(thisSubmatrixIndex=0; thisSubmatrixIndex<submatrixType.length; thisSubmatrix
   }
 }
 
-
 //keep the raw results around as an object in rawData
 // dense mode used for projections and other tasks
 // sparse mode used for (fast) plotting
@@ -584,7 +508,12 @@ var thisMatrix = {
   //"data2" : fourByteArray
 };
 if(outputRaw){ dataStore.rawData[key].data2 = denseData; }   //  dense mode data
-if(outputDense){ dataStore.hm._raw = dataStore.hm.raw = denseData; }
+if(outputDense){ // Used in projection functions
+  if(!dataStore.hm._raw){ dataStore.hm._raw = []; }
+  if(!dataStore.hm.raw){ dataStore.hm.raw = []; }
+  dataStore.hm._raw = denseData;
+  dataStore.hm.raw  = denseData;
+}
 if(outputSparse){ dataStore.sparseData[key] = sparseData; } // sparse mode data
 if(outputDelete){ delete dataStore.rawData[key].dataBinary; } // delete the binaryBuffer data
 
@@ -2265,6 +2194,8 @@ function projectAllMatrices(projectionsList,compressed,menuGroupID){
   // Get the list of keys for the matrices to be projected
   matrixKeys = projectionsList;
 
+  dataStore.activeMatrix = ""; // reset the active matrix before the first projection
+
   releaser(
     async function(i){
 
@@ -2276,13 +2207,17 @@ function projectAllMatrices(projectionsList,compressed,menuGroupID){
 
       // Set the details for this matrix needed by the projectXaxis function
       var thisKey = matrixKeys[i].matrixName;
-      dataStore.activeMatrix = thisKey;
 
-      if(compressed){
-        // Uncompress the matrix data for this histogram
-        await promiseUnpackedBinaryMatrixData(thisKey);
-      }else{
-        dataStore.hm._raw = dataStore.matrix[thisKey].data;
+      // Only uncompress or copy the data in if the activeMatrix has changed since the previous projection
+      if(dataStore.activeMatrix != thisKey){
+        dataStore.activeMatrix = thisKey;
+
+        if(compressed){
+          // Uncompress the matrix data for this histogram
+          await promiseUnpackedBinaryMatrixData(thisKey);
+        }else{
+          dataStore.hm._raw = dataStore.matrix[thisKey].data;
+        }
       }
 
       // Set limits for the projections in this matrix
@@ -2312,8 +2247,8 @@ function projectAllMatrices(projectionsList,compressed,menuGroupID){
     function(){
       // This code is executed only after the full list of matrixKeys has been processed by the previous function.
 
-        // Need to move these projections into the dataStore.spectrumListProjections object
-        // Need to add these projections to the spectrum menu
+      // Need to move these projections into the dataStore.spectrumListProjections object
+      // Need to add these projections to the spectrum menu
       var keys = Object.keys(dataStore.createdSpectra);
       keys.sort();
       var histoName = dataStore.histoFileName.split(".")[0];
@@ -2676,26 +2611,27 @@ function fitCallback(center, width, amplitude, intercept, slope){
     dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [NaN,NaN,NaN,NaN,NaN,NaN,NaN];
   }
 
-            // Calculate uncertainty in this fit (used in angularCorrelations)
-            // Calculate the chi-square of the fitline and data
-            // Multiply the sqrt(area) with sqrt(chi^2/nu)
-            var index=0, nu, dataSeries = [], uncertaintySeries = [], fitSeries = [];
-            //  for(i=dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0]; i<dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1]; i++){
-            for(i=Math.floor(center-(3*width)); i<Math.ceil(center+(3*width)); i++){
-              dataSeries[index] = dataStore.rawData[dataStore.currentPlot][i];
-              fitSeries[index] = intercept + slope*i + amplitude*Math.exp(-1*(((i-center)*(i-center))/(2*width*width)));
-              index++;
-            }
-            nu = (index+1) - 5; // 5 parameters in the peak fit; centroid, width, height, BG slope, BG offset
-            uncertaintySeries = dataSeries.map((x) => (Math.sqrt(x)*10) );
+  // Calculate uncertainty in this fit (used in angularCorrelations)
+  // Calculate the chi-square of the fitline and data
+  // Multiply the sqrt(area) with sqrt(chi^2/nu)
+  var index=0, nu, dataSeries = [], uncertaintySeries = [], fitSeries = [];
+  //  for(i=dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0]; i<dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1]; i++){
+  for(i=Math.floor(center-(3*width)); i<Math.ceil(center+(3*width)); i++){
+    dataSeries[index] = dataStore.rawData[dataStore.currentPlot][i];
+    fitSeries[index] = intercept + slope*i + amplitude*Math.exp(-1*(((i-center)*(i-center))/(2*width*width)));
+    index++;
+  }
+  nu = (index+1) - 5; // 5 parameters in the peak fit; centroid, width, height, BG slope, BG offset
+  uncertaintySeries = dataSeries.map((x) => (Math.sqrt(x)*10) );
 
-            // Fit uncertainty is the reduced Chi square of the fit, multiplied by the sqrt of the number of counts (area)
-            if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
-            if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
-            if(typeof dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = []; }
-            dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = Math.sqrt(calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu)*Math.sqrt(area);
-            console.log("fitUncertainty of "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]/area+" from "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]+" from chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)+" and reduced chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu);
-            console.log(" and sqrt(area="+area+") of "+Math.sqrt(area)+" which is ratio of "+Math.sqrt(area)/area);
+  // Fit uncertainty is the reduced Chi square of the fit, multiplied by the sqrt of the number of counts (area)
+  if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
+  if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
+  if(typeof dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = []; }
+  dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = Math.sqrt(calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu)*Math.sqrt(area);
+  console.log(dataStore.currentPlot + ", peak " + dataStore.currentPeak);
+  console.log("fitUncertainty of "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]/area+" from "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]+" from chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)+" and reduced chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu);
+  console.log(" and sqrt(area="+area+") of "+Math.sqrt(area)+" which is ratio of "+Math.sqrt(area)/area);
 
   //disengage fit mode buttons
   //  if( parseInt(refitPeak.getAttribute('engaged'),10) == 1){

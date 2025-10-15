@@ -1667,7 +1667,7 @@ function initializeAngularCorrelations(){
       function populateDataPlot(){
         // First determine the residuals by applying the calibration coefficients to the fitted centroid, then comparing it to the literature energy.
         // Save the residuals data to the dataStore, then
-        //arrange the latest residual info for representation in the dygraph.
+        // arrange the latest residual info for representation in the dygraph.
 
         // Find the plot id for this source
         var thisPlotID = 0;

@@ -22,6 +22,10 @@ function setupDataStore(){
     "raw2": [0],
     "closeMenuOnclick": true,                                   //don't keep the plot menu open onclick (can only plot one at a time anyway)
     "pageTitle": '2D Spectrum Tool',
+    "outputRawFlag": true,                                    // When true binary Matrix data will be unpacked to the rawData.data2 array
+    "outputDenseFlag": true,                                 // When true binary Matrix data will be unpacked to the dataStore.hm._raw and dataStore.hm.raw arrays
+    "outputSparseFlag": true,                                // When true binary Matrix data will be unpacked to the sparseData object
+    "outputDeleteFlag": false,                                 // When true the original arrayBuffer will be deleted from dataStore.rawData
 
 
     // 1D viewer things
@@ -120,7 +124,7 @@ function plotControl2d(wrapID){
 
     //don't need plot help anymore; swap in roi help
     document.getElementById('intro-plot-picker').classList.add('hidden');
-  //  document.getElementById('intro-shift-click').classList.remove('hidden');
+    //  document.getElementById('intro-shift-click').classList.remove('hidden');
 
     // We only want to fetch the data from the server if it is a newly opened matrix, otherwise just replot
     if(event.detail.plotName != dataStore.activeSpectra){
@@ -168,44 +172,54 @@ function plotControl2d(wrapID){
     // Add additional URLs for 2d histograms (one URL per 2d histogram)
     // ensure one 2d histogram per url using the construct2dQueries function which also calls the binary transfer method
     var queries2d = [];
+    if(this.active2dSpectra){ active2dSpectraForQueries = active2dSpectraForQueries.concat(this.active2dSpectra); } // Will there be duplication????
     if(active2dSpectraForQueries.length>0){
       queries2d = construct2dQueries([],active2dSpectraForQueries);
     }
-var allQueries = queries.map(promiseJSONURL);
-    allQueries.concat(queries2d.map(promiseBinaryURL));
+    var allQueries1d = queries.map(promiseJSONURL);
+    var allQueries2d = queries2d.map(promiseBinaryURL);
+    var allQueries = allQueries1d.concat(allQueries2d);
 
     if(dataStore.activeSpectra){
-      Promise.all(allQueries).then(
-      function(spectra){
+      var spectraFetched = Promise.all(allQueries).then(
+        function(spectra){
 
-        // THE FOLLOWING ONLY NEEDED FOR JSON TRANSFER OF 2d HISTOGRAMS...
-        // We just skip to the fetchback
-        /*
-        // This is for 2d spectra
-        // Need to change this away from [0] and find the correct index number to use
+          // THE FOLLOWING ONLY NEEDED FOR JSON TRANSFER OF 2d HISTOGRAMS...
+          // We just skip to the fetchback
+          /*
+          // This is for 2d spectra
+          // Need to change this away from [0] and find the correct index number to use
 
-        // modify the spectrum name that were received from a histogram file to include it at the start
-        if(dataStore.histoFileName.length>0){
+          // modify the spectrum name that were received from a histogram file to include it at the start
+          if(dataStore.histoFileName.length>0){
           var this2dKey = dataStore.histoFileName.split('.')[0] + ':' + JSON.parse(JSON.stringify(spectra[0]['name']));
           spectra[0].name = dataStore.histoFileName.split('.')[0] + ':' + spectra[0].name;
         }else{
-          this2dKey = JSON.parse(JSON.stringify(spectra[0]['name']));
-        }
-
-        //keep the raw results around
-        dataStore.rawData[this2dKey] = JSON.parse(JSON.stringify(spectra[0]));
-
-        dataStore.raw2 = dataStore.rawData[dataStore.activeMatrix].data2;
-        dataStore.activeMatrixXaxisLength = dataStore.rawData[dataStore.activeMatrix].XaxisLength;
-        dataStore.activeMatrixYaxisLength = dataStore.rawData[dataStore.activeMatrix].YaxisLength;
-        dataStore.activeMatrixZaxisMax = dataStore.rawData[dataStore.activeMatrix].ZaxisMax;
-        dataStore.activeMatrixSymmetrized = dataStore.rawData[dataStore.activeMatrix].symmetrized;
-        */
-
-      //  fetchCallback();
+        this2dKey = JSON.parse(JSON.stringify(spectra[0]['name']));
       }
-    )
-  }
+
+      //keep the raw results around
+      dataStore.rawData[this2dKey] = JSON.parse(JSON.stringify(spectra[0]));
+
+      dataStore.raw2 = dataStore.rawData[dataStore.activeMatrix].data2;
+      dataStore.activeMatrixXaxisLength = dataStore.rawData[dataStore.activeMatrix].XaxisLength;
+      dataStore.activeMatrixYaxisLength = dataStore.rawData[dataStore.activeMatrix].YaxisLength;
+      dataStore.activeMatrixZaxisMax = dataStore.rawData[dataStore.activeMatrix].ZaxisMax;
+      dataStore.activeMatrixSymmetrized = dataStore.rawData[dataStore.activeMatrix].symmetrized;
+      */
+
+      // Treatment of 2d spectra received by the binary transfer method
+      // unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse);
+      // key is used for the dataStore.rawData object
+      // true/false for which outputs will be generated. This can cause memory overflow if many matrices are requested
+      for(var i=0; i<spectra.length; i++){
+        unpackBinaryMatrixData(spectra[i]['binaryName'],dataStore.outputRawFlag,dataStore.outputDenseFlag,dataStore.outputSparseFlag,dataStore.outputDeleteFlag);
+      }
+
+      fetchCallback();
+    }
+  )
+}
 }
 
 this.routeNewGate = function(event){
@@ -383,7 +397,7 @@ function heatmapClick(evt){
   }
 
   // don't need plot click help anymore
-//  document.getElementById('intro-shift-click').classList.add('hidden');
+  //  document.getElementById('intro-shift-click').classList.add('hidden');
 
   // expand UI
   li.innerHTML = Mustache.to_html(
@@ -423,6 +437,7 @@ function extractCutVertices(){
 
 function fetchCallback(){
   //runs after every time the histogram is updated
+  console.log("fetchCallback defined in 2dSpectrumToolBETA.js");
 
   // replot everything for the 1d viewer
   for(viewerKey in dataStore.viewers){
