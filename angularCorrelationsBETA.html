@@ -23,7 +23,8 @@
   <link id='paginationMenu' rel="import" href="templates/paginationMenu/paginationMenu.html">
   <link id='angularCorrelationsReport' rel="import" href="templates/angularCorrelationsBETA/angularCorrelationsReport.html">
   <link id='angularCorrelationsReportTable' rel="import" href="templates/angularCorrelationsBETA/angularCorrelationsReportTable.html">
-  <link id='angularCorrelationsFitsReportTable' rel="import" href="templates/angularCorrelationsBETA/angularCorrelationsReportTable.html">
+  <link id='angularCorrelationsDataReportTable' rel="import" href="templates/angularCorrelationsBETA/angularCorrelationsReportTable.html">
+  <link id='angularCorrelationsWeightsReportTable' rel="import" href="templates/angularCorrelationsBETA/angularCorrelationsReportTable.html">
   <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
   <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
   <link id='plotListLite' rel="import" href="templates/plotList/plotListLite.html">
@@ -200,7 +201,11 @@
 </div>
 
 <!-- Peak-Fitting results table -->
-<div id='resultsTableRegion' class='col-md-12 hidden'>
+<div id='resultsDataTableRegion' class='col-md-12 hidden'>
+  <div id='angularCorrelationsFits' class='col-md-12'></div>
+</div>
+
+<div id='resultsWeightTableRegion' class='col-md-12 hidden'>
   <div id='angularCorrelationsFits' class='col-md-12'></div>
 </div>
 
@@ -231,7 +236,7 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
   dataStore._plotGrid = new plotGrid('plottingGrid');
   dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
 
-  dataStore.templates = prepareTemplates(['header', 'paginationMenu', 'angularCorrelationsReport', 'angularCorrelationsReportTable', 'angularCorrelationsFitsReportTable', 'plotGrid', 'plotControl', 'plotListLite', 'dataplot', 'footer']);
+  dataStore.templates = prepareTemplates(['header', 'paginationMenu', 'angularCorrelationsReport', 'angularCorrelationsDataReportTable', 'angularCorrelationsWeightsReportTable', 'plotGrid', 'plotControl', 'plotListLite', 'dataplot', 'footer']);
 
   setupHeader('head', 'Angular Correlations');
   setupPaginationMenu('menu');

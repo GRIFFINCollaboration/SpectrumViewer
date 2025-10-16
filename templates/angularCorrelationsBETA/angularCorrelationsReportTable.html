@@ -1,30 +1,46 @@
-<template id='angularCorrelationsFitsReportTable'>
+<template id='angularCorrelationsDataReportTable'>
     <tr>
-        <td class='col-md-2'>Detector</td>
-        <td class='col-md-2'>Peak 1 Channel</td>
-        <td class='col-md-2'>Peak 2 Channel</td>
-        <td class='col-md-2'>Peak 3 Channel</td>
-        <td class='col-md-2'>Peak 4 Channel</td>
-        <td class='col-md-2'>Mean residual (keV)</td>
-        <td class='col-md-2'>Quad</td>
-        <td class='col-md-2'>Gain</td>
-        <td class='col-md-2'>Offset</td>
-        <td class='col-md-2 center'>Write to ODB <input id='writeAllChannels' type='checkbox' checked></input><td>
+        <td class='col-md-1'>Index</td>
+        <td class='col-md-1'>Ang. Diff.</td>
+        <td class='col-md-1'>Num. Pairs</td>
+        <td class='col-md-1'>Weight</td>
+        <td class='col-md-2'>Raw Counts</td>
+        <td class='col-md-2'>Raw Bkg</td>
+        <td class='col-md-2'>Corrected Area</td>
+        <td class='col-md-2'>Ang. Corr. Value</td>
+    </tr>
+    {{# detectors}}
+        <tr id='{{id}}{{.}}row'>
+            <td id='{{id}}{{.}}index'>-</td>
+            <td id='{{id}}{{.}}angle'>-</td>
+            <td id='{{id}}{{.}}pairs'>-</td>
+            <td id='{{id}}{{.}}weight'>-</td>
+            <td id='{{id}}{{.}}rawData'>-</td>
+            <td id='{{id}}{{.}}rawBkg'>-</td>
+            <td id='{{id}}{{.}}area'>-</td>
+            <td id='{{id}}{{.}}value'>-</td>
+        </tr>
+    {{/ detectors}}
+</template>
+
+
+<template id='angularCorrelationsWeightsReportTable'>
+    <tr>
+        <td class='col-md-2'>Crystal Name</td>
+        <td class='col-md-2'>Crystal Index</td>
+        <td class='col-md-2'>Energy 1</td>
+        <td class='col-md-2'>Area 1</td>
+        <td class='col-md-2'>Energy 2</td>
+        <td class='col-md-2'>Area 2</td>
     </tr>
     {{# detectors}}
         <tr id='{{id}}{{.}}row'>
             <td id='{{id}}{{.}}name'>{{.}}</td>
-            <td id='{{id}}{{.}}chan1'>-</td>
-            <td id='{{id}}{{.}}chan2'>-</td>
-            <td id='{{id}}{{.}}chan3'>-</td>
-            <td id='{{id}}{{.}}chan4'>-</td>
-            <td id='{{id}}{{.}}meanSD'>-</td>
-            <td id='{{id}}{{.}}quad'>-</td>
-            <td id='{{id}}{{.}}gain'>-</td>
-            <td id='{{id}}{{.}}offset'>-</td>
-            <td class='center'>
-                <input id='{{.}}write' class='write-to-odb' type='checkbox' checked></input>
-            </td>
+            <td id='{{id}}{{.}}id'>-</td>
+            <td id='{{id}}{{.}}energy1'>-</td>
+            <td id='{{id}}{{.}}area1'>-</td>
+            <td id='{{id}}{{.}}energy2'>-</td>
+            <td id='{{id}}{{.}}area2'>-</td>
         </tr>
     {{/ detectors}}
 </template>

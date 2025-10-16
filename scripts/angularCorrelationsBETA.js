@@ -140,7 +140,8 @@ function setupDataStore(){
       "GRG15BN00A_Energy","GRG15GN00A_Energy","GRG15RN00A_Energy","GRG15WN00A_Energy", "GRG16BN00A_Energy","GRG16GN00A_Energy","GRG16RN00A_Energy","GRG16WN00A_Energy"
     ], 'spectrumList1dPeaks' : { 'All':[] }, 'histogramFileNames' : [],
     'spectrumList2d' : [
-      "Ge-Ge_145mm_angular_bin01","Ge-Ge_145mm_angular_bin02","Ge-Ge_145mm_angular_bin03","Ge-Ge_145mm_angular_bin04",
+      "Ge-Ge_145mm_angular_bin00",
+        "Ge-Ge_145mm_angular_bin01","Ge-Ge_145mm_angular_bin02","Ge-Ge_145mm_angular_bin03","Ge-Ge_145mm_angular_bin04",
 
       "Ge-Ge_145mm_angular_bin05","Ge-Ge_145mm_angular_bin06","Ge-Ge_145mm_angular_bin07","Ge-Ge_145mm_angular_bin08","Ge-Ge_145mm_angular_bin09",
       "Ge-Ge_145mm_angular_bin10","Ge-Ge_145mm_angular_bin11","Ge-Ge_145mm_angular_bin12","Ge-Ge_145mm_angular_bin13","Ge-Ge_145mm_angular_bin14",
@@ -167,7 +168,7 @@ function setupDataStore(){
       "GRG15BN00A_Energy","GRG15GN00A_Energy","GRG15RN00A_Energy","GRG15WN00A_Energy", "GRG16BN00A_Energy","GRG16GN00A_Energy","GRG16RN00A_Energy","GRG16WN00A_Energy"
     ], 'spectrumList1dPeaks' : { 'All':[] }, 'histogramFileNames' : [],
     'spectrumList2d' : [
-      "Ge-Ge_110mm_angular_bin01","Ge-Ge_110mm_angular_bin02","Ge-Ge_110mm_angular_bin03","Ge-Ge_110mm_angular_bin04",
+      "Ge-Ge_110mm_angular_bin00","Ge-Ge_110mm_angular_bin01","Ge-Ge_110mm_angular_bin02","Ge-Ge_110mm_angular_bin03","Ge-Ge_110mm_angular_bin04",
       "Ge-Ge_110mm_angular_bin05","Ge-Ge_110mm_angular_bin06","Ge-Ge_110mm_angular_bin07","Ge-Ge_110mm_angular_bin08","Ge-Ge_110mm_angular_bin09",
       "Ge-Ge_110mm_angular_bin10","Ge-Ge_110mm_angular_bin11","Ge-Ge_110mm_angular_bin12","Ge-Ge_110mm_angular_bin13","Ge-Ge_110mm_angular_bin14",
       "Ge-Ge_110mm_angular_bin15","Ge-Ge_110mm_angular_bin16","Ge-Ge_110mm_angular_bin17","Ge-Ge_110mm_angular_bin18","Ge-Ge_110mm_angular_bin19",
@@ -239,9 +240,9 @@ function setupDataStore(){
   // graphSection = plot of per detector the PH vs Lit en with Fit and a residuals pane
   // graphSection = plot of all the residuals for specific peak
   // Variables for Pagination menu buttons
-  dataStore.buttonNames = ["Spectra", "Individual detector results", "Results overview table", "Residuals Plots"];  // Names to appear on the buttons
-  dataStore.buttonIDs = ["plotRegionMenuButton", "tableRegionMenuButton", "graphRegionMenuButton", "dataPlotRegionMenuButton"];    // IDs for the buttons
-  dataStore.buttonPages = ["plotRegion", "detectorReportRegion", "resultsTableRegion","resultsPlotRegion"];                 // Pages (div IDs) to be associated with the buttons
+  dataStore.buttonNames = ["Spectra", "Individual detector results", "Ang Corr Data Overview table", "Ang Corr Weights Overview table", "Ang Corr Plots"];  // Names to appear on the buttons
+  dataStore.buttonIDs = ["plotRegionMenuButton", "detReportRegionMenuButton", "dataTableRegionMenuButton", "weightTableRegionMenuButton", "dataPlotRegionMenuButton"];    // IDs for the buttons
+  dataStore.buttonPages = ["plotRegion", "detectorReportRegion", "resultsDataTableRegion", "resultsWeightTableRegion","resultsPlotRegion"];                 // Pages (div IDs) to be associated with the buttons
 
   // Generate THESEdetectors object.
   dataStore.numberOfClovers = 16;
@@ -708,6 +709,8 @@ dataStore.ge_angles_110mm = [
 
     // Get the user input on histogramFileNames
     thisScript.histogramFileNames.push(document.getElementById('HistoListSelectGRIFFIN').value);
+    dataStore.histoFileName = document.getElementById('HistoListSelectGRIFFIN').value;
+    dataStore.currentHistoFileName = document.getElementById('HistoListSelectGRIFFIN').value;
 
     // Setup the peak-fitting script from the template
     receiveScript(JSON.stringify(thisScript));
@@ -844,7 +847,7 @@ dataStore.ge_angles_110mm = [
         dataStore._plotListLite.setup();
 
         // Generate the angularCorrelations report table
-        dataStore._angularCorrelationsReport = new angularCorrelationsReport('angularCorrelations','resultsTableRegion');
+        dataStore._angularCorrelationsReport = new angularCorrelationsReport('angularCorrelations','resultsDataTableRegion','resultsWeightTableRegion');
         dataStore._angularCorrelationsReport.setup();
 
         // Generate the plot
@@ -1206,6 +1209,10 @@ dataStore.ge_angles_110mm = [
   //      document.getElementById('dataPlotMessage').innerHTML = "Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0)+", mean peak area in an individual angular bin = "+(sumAngularBinAreas/51).toFixed(0);
         console.log("Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0)+", mean peak area in an individual angular bin = "+(sumAngularBinAreas/51).toFixed(0));
 
+                // Show the download button
+                document.getElementById('downloadDiv').classList.remove('hidden');
+return;
+
         // Trigger the Chi square plot generation and obtain the best fit
         var bestFitCoeffs = generateChiSquareData();
         console.log(bestFitCoeffs);
@@ -1223,8 +1230,6 @@ dataStore.ge_angles_110mm = [
         // Write the results to the Table
         updateChiSquareResultsTable();
 
-        // Show the download button
-        document.getElementById('downloadDiv').classList.remove('hidden');
       }
 
       function generateResidualsData(c2,c4){

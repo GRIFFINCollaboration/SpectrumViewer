@@ -58,14 +58,30 @@ function angularCorrelationsReport(wrapID,wrapID2,wrapID3){
       }
     );
 
+        this.wrap3.innerHTML = Mustache.to_html(
+          dataStore.templates.angularCorrelationsReport,
+          {
+            'id': this.wrapID3,
+          }
+        );
+
     // table has to be done as a separate template, since templates and tables don't play too nice together
     document.getElementById(this.wrapID2 + 'angularCorrelationsResults').innerHTML= Mustache.to_html(
-      dataStore.templates.angularCorrelationsFitsReportTable,
+      dataStore.templates.angularCorrelationsDataReportTable,
       content = {
         'id': this.wrapID2,
-        'detectors': dataStore.THESEdetectors
+        'detectors': dataStore.theseAngularBins
       }
     );
+
+        // table has to be done as a separate template, since templates and tables don't play too nice together
+        document.getElementById(this.wrapID3 + 'angularCorrelationsResults').innerHTML= Mustache.to_html(
+          dataStore.templates.angularCorrelationsWeightsReportTable,
+          content = {
+            'id': this.wrapID3,
+            'detectors': dataStore.THESEdetectors
+          }
+        );
 
     // Build Table select for selecting which detector data is displayed
     // Add the title text

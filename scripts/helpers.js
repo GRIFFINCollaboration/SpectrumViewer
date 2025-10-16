@@ -294,6 +294,9 @@ function promiseBinaryURL(url){
         var this2dKey = dataStore.histoFileName.split('.')[0] + ':' + name;
         dataStore.rawData[this2dKey] = thisMatrix;
 
+        // Update the progress bar by one task
+        updateProgressBar(1);
+
         // Resolve the promise
         //fetchCallback();
         let resolveString = "{\"binaryName\":\""+this2dKey+"\"}";
