@@ -141,7 +141,7 @@ function setupDataStore(){
     ], 'spectrumList1dPeaks' : { 'All':[] }, 'histogramFileNames' : [],
     'spectrumList2d' : [
       "Ge-Ge_145mm_angular_bin00",
-        "Ge-Ge_145mm_angular_bin01","Ge-Ge_145mm_angular_bin02","Ge-Ge_145mm_angular_bin03","Ge-Ge_145mm_angular_bin04",
+      "Ge-Ge_145mm_angular_bin01","Ge-Ge_145mm_angular_bin02","Ge-Ge_145mm_angular_bin03","Ge-Ge_145mm_angular_bin04",
 
       "Ge-Ge_145mm_angular_bin05","Ge-Ge_145mm_angular_bin06","Ge-Ge_145mm_angular_bin07","Ge-Ge_145mm_angular_bin08","Ge-Ge_145mm_angular_bin09",
       "Ge-Ge_145mm_angular_bin10","Ge-Ge_145mm_angular_bin11","Ge-Ge_145mm_angular_bin12","Ge-Ge_145mm_angular_bin13","Ge-Ge_145mm_angular_bin14",
@@ -1140,15 +1140,20 @@ dataStore.ge_angles_110mm = [
 
           // Collect the singles peak areas from the fitResults object
           for(i=0; i<dataStore.singlesSpectra.length; i++){
+
             var thisSinglesKey = dataStore.singlesSpectra[i];
             dataStore.singlesPeakArea[i] = [0,0]; // initialize this element
             dataStore.singlesPeakAreaUnc[i] = [0,0]; // initialize this element
+
+            if( !isNaN(dataStore.fitResults[thisSinglesKey][0][5]))
             dataStore.singlesPeakArea[i][0] = dataStore.fitResults[thisSinglesKey][0][5]; // the fit energy peak
+            if( !isNaN(dataStore.fitResults[thisSinglesKey][1][5]))
             dataStore.singlesPeakArea[i][1] = dataStore.fitResults[thisSinglesKey][1][5]; // the gate energy peak
             dataStore.singlesPeakAreaUnc[i][0] = dataStore.fitUncertainty[thisSinglesKey][0]; // the fit energy peak
             dataStore.singlesPeakAreaUnc[i][1] = dataStore.fitUncertainty[thisSinglesKey][1]; // the gate energy peak
-            sumSinglesAreas[0] += dataStore.fitResults[thisSinglesKey][0][5]; // the fit energy peak
-            sumSinglesAreas[1] += dataStore.fitResults[thisSinglesKey][1][5]; // the gate energy peak
+
+            sumSinglesAreas[0] += dataStore.singlesPeakArea[i][0]; // the fit energy peak
+            sumSinglesAreas[1] += dataStore.singlesPeakArea[i][1]; // the gate energy peak
             sumSinglesAreasUnc[0] += (dataStore.fitUncertainty[thisSinglesKey][0]*dataStore.fitUncertainty[thisSinglesKey][0]); // the fit energy peak
             sumSinglesAreasUnc[1] += (dataStore.fitUncertainty[thisSinglesKey][1]*dataStore.fitUncertainty[thisSinglesKey][1]); // the gate energy peak
           }
@@ -1164,7 +1169,11 @@ dataStore.ge_angles_110mm = [
 
           // Calculate the weighting factors from singles peak areas of all crystals involved in each angular bin
           for(i=0; i<64; i++){
+            //if(   isNaN(dataStore.singlesPeakArea[i][0]) || isNaN(dataStore.singlesPeakArea[i][1])
+            //||    isNaN(dataStore.singlesPeakAreaUnc[i][0]) || isNaN(dataStore.singlesPeakAreaUnc[i][1]) ){ continue; }
             for(var j=0; j<64; j++){
+              //  if(   isNaN(dataStore.singlesPeakArea[j][0]) || isNaN(dataStore.singlesPeakArea[j][1])
+              //  ||    isNaN(dataStore.singlesPeakAreaUnc[j][0]) || isNaN(dataStore.singlesPeakAreaUnc[j][1]) ){ continue; }
               var angleIndex = dataStore.theseGeAngles[i][j];
               dataStore.angularBinWeight[angleIndex] += (dataStore.singlesPeakArea[i][0]/sumSinglesAreas[0])*(dataStore.singlesPeakArea[j][1]/sumSinglesAreas[1]) * 0.5;
               dataStore.angularBinWeight[angleIndex] += (dataStore.singlesPeakArea[j][0]/sumSinglesAreas[0])*(dataStore.singlesPeakArea[i][1]/sumSinglesAreas[1]) * 0.5;
@@ -1206,24 +1215,25 @@ dataStore.ge_angles_110mm = [
         console.log(dataStore.angularBinDataUnc);
 
         // Report the statistics of this correlation
-  //      document.getElementById('dataPlotMessage').innerHTML = "Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0)+", mean peak area in an individual angular bin = "+(sumAngularBinAreas/51).toFixed(0);
+        //      document.getElementById('dataPlotMessage').innerHTML = "Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0)+", mean peak area in an individual angular bin = "+(sumAngularBinAreas/51).toFixed(0);
         console.log("Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0)+", mean peak area in an individual angular bin = "+(sumAngularBinAreas/51).toFixed(0));
 
-                // Show the download button
-                document.getElementById('downloadDiv').classList.remove('hidden');
-return;
+        // The main angular correlation plot
+        dataStore._angularCorrelationsReport.refreshAngCorrPlot();
+
+        // Populate the results table for the angular correlation and weights data
+        dataStore._angularCorrelationsReport.updateDataTable();
+        dataStore._angularCorrelationsReport.updateWeightTable();
+
+        // Show the angular correlations plot when finished
+        document.getElementById("dataPlotRegionMenuButton").click();
+        return;
 
         // Trigger the Chi square plot generation and obtain the best fit
         var bestFitCoeffs = generateChiSquareData();
         console.log(bestFitCoeffs);
         dataStore.bestFitCoeffs = bestFitCoeffs;  // Save these here in order to Draw best-fit theory curve on data plot in the callback
         //drawDygraphAngCorrLine(0,bestFitCoeffs[0],bestFitCoeffs[1], '#0096FF'); // Draw best-fit theory curve on data plot
-
-        // Plot the experimental data
-        populateDataPlot();
-
-        // Plot the residuals plot
-        generateResidualsData(bestFitCoeffs[0],bestFitCoeffs[1]);
 
         var thisTimeout = setTimeout(populateResidualsPlot,50);
 
@@ -1520,27 +1530,27 @@ return;
             CSV += dataStore.angularBinTRBGPeakArea[i] + ',';
             CSV += dataStore.angularBinTRBGFactor[i] + ',';
             CSV += dataStore.angularBinPeakArea[i] + ',';
-            CSV += Math.sqrt(dataStore.angularBinPeakArea[i]) + ',';
+            CSV += dataStore.angularBinPeakAreaUnc[i] + ',';
             CSV += dataStore.angularBinWeight[i] + ',';
             CSV += dataStore.normalizationFactor + ',';
             CSV += dataStore.angularBinData[i] + ',';
-            CSV += '-' + ', , ,';
+            CSV += dataStore.angularBinDataUnc[i] + ', , ,';
             CSV += i + ',';
             CSV += dataStore.fitPeakEnergies[1] + ',';
             CSV += dataStore.singlesPeakArea[i-1][1] + ',';
-            CSV += Math.sqrt(dataStore.singlesPeakArea[i-1][1]) + ',';
+            CSV += dataStore.singlesPeakAreaUnc[i-1][1] + ',';
             CSV += dataStore.fitPeakEnergies[0] + ',';
             CSV += dataStore.singlesPeakArea[i-1][0] + ',';
-            CSV += Math.sqrt(dataStore.singlesPeakArea[i-1][0]) + '\n';
+            CSV += dataStore.singlesPeakAreaUnc[i-1][0] + '\n';
           }else{
             CSV += ' , , , , , , , , , , , , , , ,';
             CSV += i + ',';
             CSV += dataStore.fitPeakEnergies[1] + ',';
             CSV += dataStore.singlesPeakArea[i-1][1] + ',';
-            CSV += Math.sqrt(dataStore.singlesPeakArea[i-1][1]) + ',';
+            CSV += dataStore.singlesPeakAreaUnc[i-1][1] + ',';
             CSV += dataStore.fitPeakEnergies[0] + ',';
             CSV += dataStore.singlesPeakArea[i-1][0] + ',';
-            CSV += Math.sqrt(dataStore.singlesPeakArea[i-1][0]) + '\n';
+            CSV += dataStore.singlesPeakAreaUnc[i-1][0] + '\n';
           }
 
         }
@@ -1550,7 +1560,7 @@ return;
         URL.revokeObjectURL(window.textBlobURL);
         const downloadLink = document.createElement('a');
         downloadLink.href = URL.createObjectURL(textBlob);
-        downloadLink.download = document.getElementById('saveCSVname').value;
+        downloadLink.download = "GRIFFIN-Gamma-Gamma-Angular-Correlation.csv";
 
         // Trigger the download
         document.body.appendChild(downloadLink);

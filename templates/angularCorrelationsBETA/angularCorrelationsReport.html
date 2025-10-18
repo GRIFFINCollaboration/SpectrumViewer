@@ -58,30 +58,30 @@ function angularCorrelationsReport(wrapID,wrapID2,wrapID3){
       }
     );
 
-        this.wrap3.innerHTML = Mustache.to_html(
-          dataStore.templates.angularCorrelationsReport,
-          {
-            'id': this.wrapID3,
-          }
-        );
+    this.wrap3.innerHTML = Mustache.to_html(
+      dataStore.templates.angularCorrelationsReport,
+      {
+        'id': this.wrapID3,
+      }
+    );
 
     // table has to be done as a separate template, since templates and tables don't play too nice together
     document.getElementById(this.wrapID2 + 'angularCorrelationsResults').innerHTML= Mustache.to_html(
       dataStore.templates.angularCorrelationsDataReportTable,
       content = {
         'id': this.wrapID2,
-        'detectors': dataStore.theseAngularBins
+        'detectors': Array(52).fill(0).map((_, i) => i + 1)
       }
     );
 
-        // table has to be done as a separate template, since templates and tables don't play too nice together
-        document.getElementById(this.wrapID3 + 'angularCorrelationsResults').innerHTML= Mustache.to_html(
-          dataStore.templates.angularCorrelationsWeightsReportTable,
-          content = {
-            'id': this.wrapID3,
-            'detectors': dataStore.THESEdetectors
-          }
-        );
+    // table has to be done as a separate template, since templates and tables don't play too nice together
+    document.getElementById(this.wrapID3 + 'angularCorrelationsResults').innerHTML= Mustache.to_html(
+      dataStore.templates.angularCorrelationsWeightsReportTable,
+      content = {
+        'id': this.wrapID3,
+        'detectors': dataStore.THESEdetectors
+      }
+    );
 
     // Build Table select for selecting which detector data is displayed
     // Add the title text
@@ -159,103 +159,129 @@ function angularCorrelationsReport(wrapID,wrapID2,wrapID3){
 };
 
 
-this.updateFitTable = function(){
+this.updateDataTable = function(){
+  console.log("updateDataTable");
   //update the report table with whatever is currently in the dataStore
   //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
   //<spectrumName>: string; name of spectrum, per names from analyzer
   //this: efficiencyFitterReport object
-  var tableID = "resultsTableRegion";
-  var indexes = [];
-  var keys = Object.keys(dataStore.THESEcalibrations);
+  var tableID = "resultsDataTableRegion";
 
-  // The THESECalibrations object only contains valid peak fitting results because it is used for the curve fitting.
-  // So we need to find the literature peak value index separately for each detector
-  for(var i=0; i<keys.length; i++){
-    indexes[i] = [];
-    for(var j=0; j<dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"].length; j++){
-      indexes[i].push(dataStore.THESEcalibrations[keys[i]]['y'].indexOf(dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"][j]));
-    }
-  }
-
-  var keys = Object.keys(dataStore.THESEcalibrations);
-  for(var i=0; i<keys.length; i++){
-    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][0]])){
-      document.getElementById(tableID + keys[i] + 'chan1').innerHTML = "-";
-    }else{
-      document.getElementById(tableID + keys[i] + 'chan1').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][0]].toFixed(2);
-    }
-    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][1]])){
-      document.getElementById(tableID + keys[i] + 'chan2').innerHTML = "-";
-    }else{
-      document.getElementById(tableID + keys[i] + 'chan2').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][1]].toFixed(2);
-    }
-    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][2]])){
-      document.getElementById(tableID + keys[i] + 'chan3').innerHTML = "-";
-    }else{
-      document.getElementById(tableID + keys[i] + 'chan3').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][2]].toFixed(2);
-    }
-    if(isNaN(dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][3]])){
-      document.getElementById(tableID + keys[i] + 'chan4').innerHTML = "-";
-    }else{
-      document.getElementById(tableID + keys[i] + 'chan4').innerHTML = dataStore.THESEcalibrations[keys[i]]['x'][indexes[i][3]].toFixed(2);
-    }
-
-    document.getElementById(tableID + keys[i] + 'meanSD').innerHTML = dataStore.THESEcalibrations[keys[i]].residualMean.toFixed(3);
-
-    document.getElementById(tableID + keys[i] + 'quad').innerHTML = dataStore.THESEcalibrations[keys[i]]['fit'][0];
-    document.getElementById(tableID + keys[i] + 'gain').innerHTML = dataStore.THESEcalibrations[keys[i]]['fit'][1];
-    document.getElementById(tableID + keys[i] + 'offset').innerHTML = dataStore.THESEcalibrations[keys[i]]['fit'][2];
+  for(var i=0; i<dataStore.angularBinData.length; i++){
+    document.getElementById(tableID + (i+1) + 'index').innerHTML = i;
+    document.getElementById(tableID + (i+1) + 'angle').innerHTML = dataStore.theseAngularBins[i];
+    document.getElementById(tableID + (i+1) + 'pairs').innerHTML = dataStore.numCrystalPairs[i];
+    document.getElementById(tableID + (i+1) + 'weight').innerHTML = dataStore.angularBinWeight[i].toFixed(5);
+    document.getElementById(tableID + (i+1) + 'rawData').innerHTML = dataStore.angularBinRawPeakArea[i];
+    document.getElementById(tableID + (i+1) + 'rawBkg').innerHTML = dataStore.angularBinTRBGPeakArea[i];
+    document.getElementById(tableID + (i+1) + 'area').innerHTML = parseInt(dataStore.angularBinPeakArea[i]);
+    document.getElementById(tableID + (i+1) + 'value').innerHTML = dataStore.angularBinData[i].toFixed(4);
   }
 
   //highlight suspicious rows
-  this.whatsNormal();
-  this.highlightOutliers();
+  //  this.whatsNormal();
+  //this.highlightOutliers();
 
 };
 
-this.refreshResolutionPlot = function(){
+this.updateWeightTable = function(){
+  console.log("updateDataTable");
+  //update the report table with whatever is currently in the dataStore
+  //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
+  //<spectrumName>: string; name of spectrum, per names from analyzer
+  //this: efficiencyFitterReport object
+  var tableID = "resultsWeightTableRegion";
 
-  var containerDiv = "angularCorrelationsPlot";
-  var xSeries = [];    // Resolution plot xSeries is detector index - could it be the name???
-  var ySeries = [];    // Resolution plot ySeries is the fwhm
-  var traceNames = []; // Names/titles that will appear in the legend for each series
-  var indexes = [];
-  var keys = Object.keys(dataStore.THESEcalibrations);
-
-  // The THESECalibrations object only contains valid peak fitting results because it is used for the curve fitting.
-  // So we need to find the literature peak value index separately for each detector
-  // Only use the four peaks identified to be displayed in the Table for the resolution plot
-  for(var i=0; i<keys.length; i++){
-    indexes[i] = [];
-    for(var j=0; j<dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"].length; j++){
-      indexes[i].push(dataStore.THESEcalibrations[keys[i]]['y'].indexOf(dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"][j]));
-    }
+  for(var i=0; i<dataStore.THESEdetectors.length; i++){
+    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'id').innerHTML = i;
+    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy1').innerHTML = dataStore.fitPeakEnergies[1];
+    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area1').innerHTML = dataStore.singlesPeakArea[i][1];
+    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy2').innerHTML = dataStore.fitPeakEnergies[0];
+    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area2').innerHTML = dataStore.singlesPeakArea[i][0];
   }
+
+  //highlight suspicious rows
+  //  this.whatsNormal();
+  //this.highlightOutliers();
+
+};
+
+this.refreshAngCorrPlot = function(){
+  console.log("refreshAngCorrPlot");
+  // Use a Plotly stacked-subplots-with-a-shared-x-axis for Ang Corr data with residuals below.
+  // https://plotly.com/javascript/subplots/#stacked-subplots-with-a-shared-x-axis
+
+  var parentDiv = "angularCorrelationsDataPlot";
+  var data = []; // data is an array of objects required for a plotly scatter plot
+  var xSeries = [];    // Ang Corr Data plot xSeries is cos(theta) - same for residuals axis
+  var yDataSeries = [];   // Ang Corr Data plot ySeries is Ang Corr values
+  var yResSeries = [];    // Ang Corr Residuals plot ySeries is Ang Corr residuals
+  var yErrSeries = [[],[]];
+  //var traceNames = ['Residuals','Angular Correlation Data']; // Names/titles that will appear in the legend for each series
+  var config =  // configuration options for plotly
+  {
+    scrollZoom: true,
+    modeBarButtonsToRemove: ['sendDataToCloud','select2d','lasso2d']
+  };
+
   // Define the name/title for each series to appear in the legend
-  for(var i=0; i<dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"].length; i++){
-    traceNames.push("Peak"+(i+1)+" "+dataStore.peaksList[dataStore.detectorType][dataStore.sourceType+"Table"][i]+" keV");
-  }
-
-  // Define one series for each Peak from the Table.
-  for(var j=0; j<indexes[0].length; j++){
-    xSeries[j] = [];
-    ySeries[j] = [];
-    for(var i=0; i<keys.length; i++){
-      xSeries[j][i] = keys[i];  // xSeries[j][i] = i;
-      ySeries[j][i] = dataStore.THESEcalibrations[keys[i]]['fwhm'][indexes[i][j]];
+  for(var i=0; i<dataStore.angularBinData.length; i++){
+    if(isFinite(dataStore.theseAngularBins[i]) && isFinite(dataStore.angularBinData[i]) && dataStore.angularBinData[i]>0){
+      xSeries.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
+      yDataSeries.push(dataStore.angularBinData[i]);
+      yResSeries.push(dataStore.angularBinData[i]*0.02);
+      yErrSeries[0].push(dataStore.angularBinDataUnc[i]);
+      yErrSeries[1].push(dataStore.angularBinDataUnc[i]);
+      //  traceNames.push(i+", "+dataStore.theseAngularBins[i].toFixed(1)+" degrees, "+Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)).toFixed(3));
     }
   }
+
+  data[0] = {
+    x: xSeries,
+    y: yResSeries,
+    xaxis: 'x1',
+    yaxis: 'y1',
+    name: 'Residuals',
+    mode: 'markers',
+    type: 'scatter',
+    error_y : {
+      type: 'data',
+      array: yErrSeries[0],
+      visible: true
+    }
+  };
+  data[1] = {
+    x: xSeries,
+    y: yDataSeries,
+    xaxis: 'x2',
+    yaxis: 'y2',
+    name: 'Angular Correlation Data',
+    mode: 'markers',
+    type: 'scatter',
+    error_y : {
+      type: 'data',
+      array: yErrSeries[1],
+      visible: true
+    }
+  };
 
   // Define the layout for this plotly
   var layout = {
-    autosize: true,
-    title: "Peak Resolution [FWHM] (keV)",
-    xaxis: {title: "Energy (keV)"},
-    yaxis: {title: "FWHM (keV)"},
+    //  autosize: true,
+    width: 700,                                // Default is 700px
+    height: 450,                                // Default is 450px
+    title: "Gamma-gamma angular correlation",
+    xaxis:  {domain: [0, 1],       anchor: 'y1', title: "cos(theta)"},
+    yaxis:  {domain: [0, 0.25],    anchor: 'x1', title: "Residual"},
+    xaxis2: {domain: [0, 1],    anchor: 'y2', showticklabels: false},
+    yaxis2: {domain: [0.3, 1],    anchor: 'x2', title: "Normalized counts"},
+    legend: {traceorder: 'reversed'},
   };
 
-  // Send info to create the Plotly scatter plot
-  createPlotlyScatterPlot(xSeries,ySeries,[],layout,containerDiv,traceNames);
+  // Usual behavior is to call this function, but here we want a stacked graph.
+  //  createPlotlyScatterPlot([xSeries,xSeries],[yDataSeries,yResSeries],[],layout,containerDiv,traceNames);
+  // Now create the Plotly plot
+  Plotly.newPlot(parentDiv, data, layout, config);
 }
 
 this.whatsNormal = function(){

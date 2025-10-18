@@ -2584,18 +2584,36 @@ function fitCallback(center, width, amplitude, intercept, slope){
   var viewerName = dataStore.plots[0];
 
   // Calculate peak area here
-  var grossArea = 0,
-  netArea = 0,
-  integral = 0,
+  var integral = 0,
   functionVals = [],
   i, x, sigmas = 5, stepSize = 0.01;
   //calculate peak area in excess of background, for <sigmas> up and down.
   for(i=0; i<2*sigmas*width/stepSize; i++){
-    x = center - sigmas*width + i*stepSize
-    functionVals.push( gauss(amplitude, center, width, x)*stepSize )
-    integral = functionVals.integrate()
+    x = center - sigmas*width + i*stepSize;
+    functionVals.push( gauss(amplitude, center, width, x)*stepSize );
+    integral = functionVals.integrate();
   }
   var area = parseInt(integral.toFixed(0));
+
+  // Calculate the variance of the peak area
+  // Equal to the sum of the variance in the Gross peak area and background areas
+  functionVals = [];
+  for(i=0; i<2*sigmas*width/stepSize; i++){
+    x = center - sigmas*width + i*stepSize;
+    functionVals.push( ((slope*x)+intercept)*stepSize );
+    integral = functionVals.integrate();
+  }
+  var bkgArea = parseInt(integral.toFixed(0));
+  var grossArea = area + bkgArea;
+  var bkgAreaVariance = Math.sqrt(bkgArea);
+  var grossAreaVariance = Math.sqrt(grossArea);
+  var areaVariance = grossAreaVariance+bkgAreaVariance;
+  if(isNaN(areaVariance)){ areaVariance=1; } // used as a denominator
+  console.log("fitCallback "+[center, width, amplitude, intercept, slope]);
+  console.log("Bkg Area   = "+bkgArea+"("+bkgAreaVariance+")");
+  console.log("Gross Area = "+grossArea+"("+grossAreaVariance+")");
+  console.log("Net Area   = "+area+"("+areaVariance+"), raw sqrt = "+Math.sqrt(area));
+
 
   // Calculate the Full Width at Half Maximum (FWHM) here
   var fwhm = (width*2.35);
@@ -2614,6 +2632,7 @@ function fitCallback(center, width, amplitude, intercept, slope){
     dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [NaN,NaN,NaN,NaN,NaN,NaN,NaN];
   }
 
+/*
   // Calculate uncertainty in this fit (used in angularCorrelations)
   // Calculate the chi-square of the fitline and data
   // Multiply the sqrt(area) with sqrt(chi^2/nu)
@@ -2626,15 +2645,18 @@ function fitCallback(center, width, amplitude, intercept, slope){
   }
   nu = (index+1) - 5; // 5 parameters in the peak fit; centroid, width, height, BG slope, BG offset
   uncertaintySeries = dataSeries.map((x) => (Math.sqrt(x)*10) );
+  */
 
-  // Fit uncertainty is the reduced Chi square of the fit, multiplied by the sqrt of the number of counts (area)
+  // Fit uncertainty is the sum of the variance in the Gross peak area and background areas. Those variance are both sqrt(number of counts)
   if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
   if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
   if(typeof dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = []; }
-  dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = Math.sqrt(calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu)*Math.sqrt(area);
-  console.log(dataStore.currentPlot + ", peak " + dataStore.currentPeak);
-  console.log("fitUncertainty of "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]/area+" from "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]+" from chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)+" and reduced chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu);
-  console.log(" and sqrt(area="+area+") of "+Math.sqrt(area)+" which is ratio of "+Math.sqrt(area)/area);
+  dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = areaVariance;
+    // Fit uncertainty is the reduced Chi square of the fit, multiplied by the sqrt of the number of counts (area)
+//  dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = Math.sqrt(calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu)*Math.sqrt(area);
+//  console.log(dataStore.currentPlot + ", peak " + dataStore.currentPeak);
+//  console.log("fitUncertainty of "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]/area+" from "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]+" from chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)+" and reduced chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu);
+//  console.log(" and sqrt(area="+area+") of "+Math.sqrt(area)+" which is ratio of "+Math.sqrt(area)/area);
 
   //disengage fit mode buttons
   //  if( parseInt(refitPeak.getAttribute('engaged'),10) == 1){
@@ -3278,6 +3300,7 @@ function createPlotlyScatterPlot(xSeries,ySeries,yErrSeries,layout,parentDiv,tra
   // y series data. Must be an array of arrays to allow for multiple series plot.
   // y error series data to make y error bars. Must be an array of arrays to allow for multiple series plot.
   // layout is passed directly. It ideally comes from a template but can include any valid plotly options.
+  // See https://plotly.com/javascript/configuration-options/
   // parentDiv id is the div for the plot to be inserted into
   // traceNames is optional. Array of names/titles, one for each series that will appear in the legend
   var data = []; // data is an array of objects required for a plotly scatter plot
@@ -3292,6 +3315,7 @@ function createPlotlyScatterPlot(xSeries,ySeries,yErrSeries,layout,parentDiv,tra
     {
       x: xSeries[i],
       y: ySeries[i],
+      mode: 'markers',
       type: 'scatter'
     };
     if(traceNames){ data[i]['name'] = traceNames[i]; }

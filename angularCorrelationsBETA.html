@@ -170,11 +170,10 @@
       <span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Let's see it!</span>
     </button>
   </div>
-  <div id='downloadDiv' class='col-md-6 hidden'>
-    <button type="button" class="btn btn-primary btn-sm"  id='saveCSV'>
-      <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Download results as CSV
+  <div id='plotDevelopmentDiv' class='col-md-6'>
+    <button type="button" class="btn btn-primary btn-sm"  id='plotDevelopment'>
+      <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> plotDevelopment
     </button>
-    <input id='saveCSVname' type='text' value='Ang-Corr-data.csv' width='600px'></input>
   </div>
 </div>
 
@@ -219,13 +218,8 @@
 
 <!-- Plot of all curves together -->
 <div id='resultsPlotRegion' class='col-md-12'>
-  <div id='angularCorrelationsPlot' class='col-md-12 plotlyDiv'></div>
-  <div id='angularCorrelationsResidualsByPeakPlots' class='col-md-12 plotlyDiv'>
-    <h3>These new calibration coefficients for each peak:</h3>
-  </div>
-  <div id='angularCorrelationsResidualsByDetectorPlots' class='col-md-12 plotlyDiv'>
-    <h3>These new calibration coefficients for each detector:</h3>
-  </div>
+  <div id='angularCorrelationsDataPlot' class='col-md-6 plotlyDiv'></div>
+  <div id='angularCorrelationsChiSqPlot' class='col-md-6 plotlyDiv'></div>
 </div>
 
 <div id='foot'></div>
@@ -292,6 +286,15 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
   }.bind(document.getElementById('gamma2Input'));
   document.getElementById('ggAngCorrProject').onclick = function(){
     launchAngularCorrelations();
+  };
+  document.getElementById('plotDevelopment').onclick = function(){
+    dataStore.angularBinData = [-0.20935139271944703, -Infinity, 0.8162436228248587, 1.0066919901003908, 1.0131270447919414, 1.0049390465779062, 1.0374220560677405, 1.0578295655616166, 1.0397326331581143, 1.0590823485017005, 1.0477490937595226, 1.0766340178330733, 1.0666637582707679, 1.0771274466649152, 1.0821583612591557, 1.0638310908123902, 1.0777410147380688, 1.0845592436522866, 1.0944530489469404, 1.092294552319735, 1.0986633999568065, 1.1051387771093797, 1.0686841501942386, 1.0918642042086681, 1.0932146356975732, 1.1006346453984073, 1.0931931478250247, 1.096083815596698, 1.0990211286845442, 1.0937719283633642, 1.0939594120025817, 1.090526020860387, 1.101397489046885, 1.0779456783075085, 1.083994978608917, 1.0894117502514002, 1.0788449144182424, 1.0513410657259945, 1.0636925069417886, 1.0591175036370015, 1.0685253754311927, 1.0534415383630873, 1.058029838162174, 1.0450397565232226, 1.0444638649075793, 1.0434813418471416, 1.0053007931156175, 1.023362364391266, 1.0078590787163217, 0.9965241109182077, 0.9943410166178226, 0.973101589043212];
+    dataStore.angularBinDataUnc = [-2.3219908274682432e-7, NaN, 0.028041969863244857, 0.031396952970602354, 0.032158204919192294, 0.031756561068986625, 0.033069505763937156, 0.03340323883264668, 0.028609415297454817, 0.028919608835585083, 0.03327976307914477, 0.03423356057728488, 0.029066670766281985, 0.03449246843621891, 0.02869924753970316, 0.029203742540354526, 0.029256809209112514, 0.02894313923594345, 0.029618350536035325, 0.034598295736518285, 0.03451654274139704, 0.029510280584672338, 0.029316741860350545, 0.029550783373209787, 0.029363989731277212, 0.03464858277034879, 0.034505692913906656, 0.029782838384016224, 0.02952466659199145, 0.02936546361343681, 0.02993270461591724, 0.02970325456745676, 0.03417697384394432, 0.029402456687060395, 0.029272544143448712, 0.029424210032125742, 0.02889958915925657, 0.028357131768455737, 0.03401916103196275, 0.028858537162492866, 0.034235058648634215, 0.03324254753142931, 0.028733814403369695, 0.028864448782280193, 0.033341679902351075, 0.03315372234252822, 0.027801609017017732, 0.03224681329385903, 0.03199944315252352, 0.027572285977611785, 0.031503754219991485, 0.03128181506146501];
+
+    document.getElementById('menu').classList.remove('hidden');
+    document.getElementById("dataPlotRegionMenuButton").click();
+    dataStore._angularCorrelationsReport.refreshAngCorrPlot();
+    dataStore._angularCorrelationsReport.refreshTestPlot();
   };
 
   // initial set up of angular momentum spin option dropdowns
