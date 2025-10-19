@@ -226,8 +226,8 @@ function promiseBinaryURL(url){
             for(var j=0; j<submatrixType.length; j++){
               submatrixTypeCount[submatrixType[j]]++;
             }
-          //  console.log(submatrixTypeCount);
-          //  console.log(submatrixType);
+            //  console.log(submatrixTypeCount);
+            //  console.log(submatrixType);
           }else{
             // Transfer method 0, Submatrix id numbers are given only for non-empty submatrices
             console.log("Transfer Method 0 (Submatrix id numbers and types)")
@@ -346,91 +346,133 @@ function unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse,outputDel
   var YaxisMax = dataStore.rawData[key].YaxisMax;
   var i = 0;
 
-// Create space for this histogram data
-var denseData = [];
-for(m=0; m<YaxisLength; m++){ denseData[m] = [];
-  for(k=0; k<XaxisLength; k++){ denseData[m][k] = 0; }
-}
-var fourByteArray = new Uint32Array(YaxisLength*XaxisLength); // place to store the dense data format (compressed with respect to a standard array)
-var sparseData = {
-  xBins: XaxisLength, yBins: YaxisLength,
-  x: [], y: [], z: []
-};
-
-// Now unpack the data
-var subMatrixXlength = 16;
-var subMatrixYlength = 16;
-
-for(thisSubmatrixIndex=0; thisSubmatrixIndex<submatrixType.length; thisSubmatrixIndex++){
-  // Calculate the subMatrix Coordinates
-  var subMatrixX = (Math.floor(thisSubmatrixIndex%Math.floor(XaxisLength/subMatrixXlength)));
-  var subMatrixY = (Math.floor(thisSubmatrixIndex/Math.floor(XaxisLength/subMatrixXlength)));
-  var subMatrixXbaseCoordinate = subMatrixX*subMatrixXlength;
-  var subMatrixYbaseCoordinate = subMatrixY*subMatrixYlength;
-
-  if(i>=byteArray.length){
-    // Reached the end of the data, but not necessarily the end of the submatrices if the remainder are empty, lets check
-    for(var j=thisSubmatrixIndex; j<submatrixType.length; j++){
-      if(submatrixType[j]!=0){
-        console.log("PROBLEM: Reached the end of the data but not all remaining submatrices are Empty type!!");
-       console.log("i="+i+" for byteArray length of "+byteArray.length);
-       console.log("thisSubmatrixIndex="+thisSubmatrixIndex+", j="+j+" with length "+submatrixType.length);
-       console.log(submatrixType);
-      }
-    }
-    break;
+  // Create space for this histogram data
+  var denseData = [];
+  for(m=0; m<YaxisLength; m++){ denseData[m] = [];
+    for(k=0; k<XaxisLength; k++){ denseData[m][k] = 0; }
   }
+  var fourByteArray = new Uint32Array(YaxisLength*XaxisLength); // place to store the dense data format (compressed with respect to a standard array)
+  var sparseData = {
+    xBins: XaxisLength, yBins: YaxisLength,
+    x: [], y: [], z: []
+  };
 
-  switch(submatrixType[thisSubmatrixIndex]){
-    case 0: break; // Empty type
-    case 1: // List type
-  //  console.log("List type ["+thisSubmatrixIndex+"]: ["+subMatrixXbaseCoordinate+"-"+(subMatrixXbaseCoordinate+16)+"], ["+subMatrixYbaseCoordinate+"-"+(subMatrixYbaseCoordinate+16)+"]");
-    // Header is Four 8-bit characters representing the count of each data size values; 8, 16, 24, 32 bits
-    // Coordinates given as 8-bit characters in the order of 8, 16, 24, 32 bit value sizes
-    // Data values are given in order of size type (8, 16, 24, 32 bit), in the order of the coordinates given.
-    var dataCount = [0,0,0,0]; var coordinates = [];
-    dataCount[0] = byteArray[i]; i++;
-    if(dataCount[0]<254){
-      dataCount[1] = byteArray[i]; i++;
-      if(dataCount[0]+dataCount[1]<254){
-        dataCount[2] = byteArray[i]; i++;
-        if(dataCount[0]+dataCount[1]+dataCount[2]<254){
-          dataCount[3] = byteArray[i]; i++;
+  // Now unpack the data
+  var subMatrixXlength = 16;
+  var subMatrixYlength = 16;
+
+  for(thisSubmatrixIndex=0; thisSubmatrixIndex<submatrixType.length; thisSubmatrixIndex++){
+    // Calculate the subMatrix Coordinates
+    var subMatrixX = (Math.floor(thisSubmatrixIndex%Math.floor(XaxisLength/subMatrixXlength)));
+    var subMatrixY = (Math.floor(thisSubmatrixIndex/Math.floor(XaxisLength/subMatrixXlength)));
+    var subMatrixXbaseCoordinate = subMatrixX*subMatrixXlength;
+    var subMatrixYbaseCoordinate = subMatrixY*subMatrixYlength;
+
+    if(i>=byteArray.length){
+      // Reached the end of the data, but not necessarily the end of the submatrices if the remainder are empty, lets check
+      for(var j=thisSubmatrixIndex; j<submatrixType.length; j++){
+        if(submatrixType[j]!=0){
+          console.log("PROBLEM: Reached the end of the data but not all remaining submatrices are Empty type!!");
+          console.log("i="+i+" for byteArray length of "+byteArray.length);
+          console.log("thisSubmatrixIndex="+thisSubmatrixIndex+", j="+j+" with length "+submatrixType.length);
+          console.log(submatrixType);
         }
       }
+      break;
     }
-    if(dataCount[0] == undefined){
-      console.log("dataCount[0] = undefined");
-      console.log("i="+i+" for byteArray length of "+byteArray.length);
-      continue;
-    }
-  //  console.log("Data counts: "+dataCount[0]+", "+dataCount[1]+", "+dataCount[2]+", "+dataCount[3]);
-  //  var debug=0;
-    if(dataCount[1]>0){ debug=1; }
-    // Extract coordinates
-    for(var m=0; m<4; m++){
-      for(j=0; j<dataCount[m]; j++){
-        coordinates.push( byteArray[i] ); i++;
+
+    switch(submatrixType[thisSubmatrixIndex]){
+      case 0: break; // Empty type
+      case 1: // List type
+      //  console.log("List type ["+thisSubmatrixIndex+"]: ["+subMatrixXbaseCoordinate+"-"+(subMatrixXbaseCoordinate+16)+"], ["+subMatrixYbaseCoordinate+"-"+(subMatrixYbaseCoordinate+16)+"]");
+      // Header is Four 8-bit characters representing the count of each data size values; 8, 16, 24, 32 bits
+      // Coordinates given as 8-bit characters in the order of 8, 16, 24, 32 bit value sizes
+      // Data values are given in order of size type (8, 16, 24, 32 bit), in the order of the coordinates given.
+      var dataCount = [0,0,0,0]; var coordinates = [];
+      dataCount[0] = byteArray[i]; i++;
+      if(dataCount[0]<254){
+        dataCount[1] = byteArray[i]; i++;
+        if(dataCount[0]+dataCount[1]<254){
+          dataCount[2] = byteArray[i]; i++;
+          if(dataCount[0]+dataCount[1]+dataCount[2]<254){
+            dataCount[3] = byteArray[i]; i++;
+          }
+        }
       }
-    }
-    // Extract values
-    var index=0;
-    for(var thisSize=0; thisSize<4; thisSize++){
-      var num=thisSize+1;
-      for(j=0; j<dataCount[thisSize]; j++){
-        thisX=subMatrixXbaseCoordinate+(coordinates[index]%subMatrixXlength);
-        thisY=subMatrixYbaseCoordinate+parseInt(coordinates[index]/subMatrixXlength);
+      if(dataCount[0] == undefined){
+        console.log("dataCount[0] = undefined");
+        console.log("i="+i+" for byteArray length of "+byteArray.length);
+        continue;
+      }
+      //  console.log("Data counts: "+dataCount[0]+", "+dataCount[1]+", "+dataCount[2]+", "+dataCount[3]);
+      //  var debug=0;
+      if(dataCount[1]>0){ debug=1; }
+      // Extract coordinates
+      for(var m=0; m<4; m++){
+        for(j=0; j<dataCount[m]; j++){
+          coordinates.push( byteArray[i] ); i++;
+        }
+      }
+      // Extract values
+      var index=0;
+      for(var thisSize=0; thisSize<4; thisSize++){
+        var num=thisSize+1;
+        for(j=0; j<dataCount[thisSize]; j++){
+          thisX=subMatrixXbaseCoordinate+(coordinates[index]%subMatrixXlength);
+          thisY=subMatrixYbaseCoordinate+parseInt(coordinates[index]/subMatrixXlength);
+          value=0;
+          for(m=num; m>0; m--){
+            var bitshift = (8*(m-1));
+            value = value | (byteArray[i] << bitshift );
+            i++;
+          }
+          if(isNaN(thisX) || isNaN(thisY)){
+            console.log("Base coordinates: "+subMatrixXbaseCoordinate+","+subMatrixYbaseCoordinate);
+            console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value);
+          }
+          //  if(debug){ console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value); }
+          if(value>0){
+            denseData[thisY][thisX] = value; // Save dense data object
+            fourByteArray[(thisY*XaxisLength)+thisX] = value; // Save dense data object
+            sparseData.x.push(thisX); // Save sparse data object
+            sparseData.y.push(thisY); // Save sparse data object
+            sparseData.z.push(value); // Save sparse data object
+            if(symmetrized){
+              denseData[thisX][thisY] = value; // Save dense data object
+              fourByteArray[(thisX*XaxisLength)+thisY] = value; // Save dense data object
+              sparseData.x.push(thisY); // Save sparse data object
+              sparseData.y.push(thisX); // Save sparse data object
+              sparseData.z.push(value); // Save sparse data object
+            }
+          }
+          index++;
+        }
+      }
+      break;
+      case 2: // Array type
+      //console.log("Array type: ["+subMatrixXbaseCoordinate+"-"+(subMatrixXbaseCoordinate+16)+"], ["+subMatrixYbaseCoordinate+"-"+(subMatrixYbaseCoordinate+16)+"]");
+      // Header first which is a single 8-bit character
+      // 2 bits indicating the data size for the four subsubmatrices of 64 values each.
+      // Array types, 0 (8-bit), 1 (16-bit), 2 (24-bit), 3 (32-bit)
+      // The data values follow with the spcified size
+      var dataSize = [];
+      // Unpack the submatrix array header of data sizes
+      // Four groups of 64 values each have the stated size
+      dataSize[0] = ((byteArray[i] & 0xC0)>>6)+1;
+      dataSize[1] = ((byteArray[i] & 0x30)>>4)+1;
+      dataSize[2] = ((byteArray[i] & 0x0C)>>2)+1;
+      dataSize[3] = ((byteArray[i] & 0x03)   )+1; // Add one to each type so it is a count of characters
+      i++;
+      for(j=0; j<256; j++){ // Now unpack the data values
+        thisX=subMatrixXbaseCoordinate+(j%subMatrixXlength);
+        thisY=subMatrixYbaseCoordinate+parseInt(j/subMatrixXlength);
         value=0;
-        for(m=num; m>0; m--){
+        for(m=dataSize[parseInt(j/64)]; m>0; m--){
           var bitshift = (8*(m-1));
           value = value | (byteArray[i] << bitshift );
           i++;
         }
-        if(isNaN(thisX) || isNaN(thisY)){
-          console.log("Base coordinates: "+subMatrixXbaseCoordinate+","+subMatrixYbaseCoordinate);
-          console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value);
-        }
-      //  if(debug){ console.log(j+","+coordinates[index]+","+thisX+","+thisY+": "+value); }
+        //  console.log(j+","+thisX+","+thisY+": "+value);
         if(value>0){
           denseData[thisY][thisX] = value; // Save dense data object
           fourByteArray[(thisY*XaxisLength)+thisX] = value; // Save dense data object
@@ -445,80 +487,38 @@ for(thisSubmatrixIndex=0; thisSubmatrixIndex<submatrixType.length; thisSubmatrix
             sparseData.z.push(value); // Save sparse data object
           }
         }
-        index++;
       }
+      break;
+      default: console.log("Unrecognized submatrix type "+submatrixType[thisSubmatrixIndex]+" for submatrix "+thisSubmatrixIndex); break;
     }
-    break;
-    case 2: // Array type
-    //console.log("Array type: ["+subMatrixXbaseCoordinate+"-"+(subMatrixXbaseCoordinate+16)+"], ["+subMatrixYbaseCoordinate+"-"+(subMatrixYbaseCoordinate+16)+"]");
-    // Header first which is a single 8-bit character
-    // 2 bits indicating the data size for the four subsubmatrices of 64 values each.
-    // Array types, 0 (8-bit), 1 (16-bit), 2 (24-bit), 3 (32-bit)
-    // The data values follow with the spcified size
-    var dataSize = [];
-    // Unpack the submatrix array header of data sizes
-    // Four groups of 64 values each have the stated size
-    dataSize[0] = ((byteArray[i] & 0xC0)>>6)+1;
-    dataSize[1] = ((byteArray[i] & 0x30)>>4)+1;
-    dataSize[2] = ((byteArray[i] & 0x0C)>>2)+1;
-    dataSize[3] = ((byteArray[i] & 0x03)   )+1; // Add one to each type so it is a count of characters
-    i++;
-    for(j=0; j<256; j++){ // Now unpack the data values
-      thisX=subMatrixXbaseCoordinate+(j%subMatrixXlength);
-      thisY=subMatrixYbaseCoordinate+parseInt(j/subMatrixXlength);
-      value=0;
-      for(m=dataSize[parseInt(j/64)]; m>0; m--){
-        var bitshift = (8*(m-1));
-        value = value | (byteArray[i] << bitshift );
-        i++;
-      }
-      //  console.log(j+","+thisX+","+thisY+": "+value);
-      if(value>0){
-        denseData[thisY][thisX] = value; // Save dense data object
-        fourByteArray[(thisY*XaxisLength)+thisX] = value; // Save dense data object
-        sparseData.x.push(thisX); // Save sparse data object
-        sparseData.y.push(thisY); // Save sparse data object
-        sparseData.z.push(value); // Save sparse data object
-        if(symmetrized){
-          denseData[thisX][thisY] = value; // Save dense data object
-          fourByteArray[(thisX*XaxisLength)+thisY] = value; // Save dense data object
-          sparseData.x.push(thisY); // Save sparse data object
-          sparseData.y.push(thisX); // Save sparse data object
-          sparseData.z.push(value); // Save sparse data object
-        }
-      }
-    }
-    break;
-    default: console.log("Unrecognized submatrix type "+submatrixType[thisSubmatrixIndex]+" for submatrix "+thisSubmatrixIndex); break;
   }
-}
 
-//keep the raw results around as an object in rawData
-// dense mode used for projections and other tasks
-// sparse mode used for (fast) plotting
-// dense mode, {zvalues[i][j]} where each number is the z height of the i,jth bin.
-// sparse mode, {xBins: n, yBins: n, x: [x1, x2, ...], y: [y1, y2, ...], z: [z1, z2, ...]}
-// Reconstruct the 2d histogram object
-var thisMatrix = {
-  "name" : name, "XaxisLength" : XaxisLength, "YaxisLength" : YaxisLength,
-  "symmetrized" : symmetrized,
-  "XaxisMin" : XaxisMin, "XaxisMax" : XaxisMax,
-  "YaxisMin" : YaxisMin, "YaxisMax" : YaxisMax,
-  "submatrixType" : submatrixType,
-  "dataBinary" : byteArray,
-  "data2" : denseData,
-  //"data32bit" : fourByteArray
-  //"data2" : fourByteArray
-};
-if(outputRaw){ dataStore.rawData[key].data2 = denseData; }   //  dense mode data
-if(outputDense){ // Used in projection functions
-  if(!dataStore.hm._raw){ dataStore.hm._raw = []; }
-  if(!dataStore.hm.raw){ dataStore.hm.raw = []; }
-  dataStore.hm._raw = denseData;
-  dataStore.hm.raw  = denseData;
-}
-if(outputSparse){ dataStore.sparseData[key] = sparseData; } // sparse mode data
-if(outputDelete){ delete dataStore.rawData[key].dataBinary; } // delete the binaryBuffer data
+  //keep the raw results around as an object in rawData
+  // dense mode used for projections and other tasks
+  // sparse mode used for (fast) plotting
+  // dense mode, {zvalues[i][j]} where each number is the z height of the i,jth bin.
+  // sparse mode, {xBins: n, yBins: n, x: [x1, x2, ...], y: [y1, y2, ...], z: [z1, z2, ...]}
+  // Reconstruct the 2d histogram object
+  var thisMatrix = {
+    "name" : name, "XaxisLength" : XaxisLength, "YaxisLength" : YaxisLength,
+    "symmetrized" : symmetrized,
+    "XaxisMin" : XaxisMin, "XaxisMax" : XaxisMax,
+    "YaxisMin" : YaxisMin, "YaxisMax" : YaxisMax,
+    "submatrixType" : submatrixType,
+    "dataBinary" : byteArray,
+    "data2" : denseData,
+    //"data32bit" : fourByteArray
+    //"data2" : fourByteArray
+  };
+  if(outputRaw){ dataStore.rawData[key].data2 = denseData; }   //  dense mode data
+  if(outputDense){ // Used in projection functions
+    if(!dataStore.hm._raw){ dataStore.hm._raw = []; }
+    if(!dataStore.hm.raw){ dataStore.hm.raw = []; }
+    dataStore.hm._raw = denseData;
+    dataStore.hm.raw  = denseData;
+  }
+  if(outputSparse){ dataStore.sparseData[key] = sparseData; } // sparse mode data
+  if(outputDelete){ delete dataStore.rawData[key].dataBinary; } // delete the binaryBuffer data
 
 }
 
@@ -877,6 +877,39 @@ function RCS(data, theory, parameters){
 
 function gauss(amplitude, center, width, x){
   return amplitude*Math.exp(-1*(x-center)*(x-center)/2/width/width);
+}
+
+
+function bracketNotationString(value, uncertainty){
+  //  Formats a value and its uncertainty into bracket notation where
+  // the value in the brackets is the uncertainty the last digits of the value
+  // value (float): The measured value.
+  // uncertainty (float): The uncertainty in the measurement.
+
+  // Determine number of decimal places based on the uncertainty
+  var numDecimalPlaces = 0
+  if(Number(uncertainty)>0){
+    var val = Number(uncertainty);
+    var uncertaintyString = new String(uncertainty);
+    var absolute = Number(uncertaintyString.split(".")[0]);
+    var remainderString = uncertaintyString.split(".")[1];
+    var remainder = Math.abs(val) % 1;
+    if(remainderString != undefined){
+      numDecimalPlaces = remainderString.length;
+    }
+}
+
+// Round the value and uncertainty to the appropriate decimal places
+roundedValue = (Number(value)).toFixed(numDecimalPlaces);
+roundedUncertainty = (Number(uncertainty)).toFixed(numDecimalPlaces);
+
+// Convert uncertainty to its integer representation for bracket notation
+// This involves shifting the decimal point based on num_decimal_places
+uncertainty_in_last_digits = parseInt(roundedUncertainty * Math.pow(10,numDecimalPlaces));
+
+// Return the formatted value and uncertainty
+if(roundedValue ==0 && roundedUncertainty==0){ return "0"; }
+return roundedValue+"("+uncertainty_in_last_digits+")";
 }
 
 // attach the .equals method to Array's prototype to call it on any array
@@ -2632,36 +2665,36 @@ function fitCallback(center, width, amplitude, intercept, slope){
     dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [NaN,NaN,NaN,NaN,NaN,NaN,NaN];
   }
 
-/*
+  /*
   // Calculate uncertainty in this fit (used in angularCorrelations)
   // Calculate the chi-square of the fitline and data
   // Multiply the sqrt(area) with sqrt(chi^2/nu)
   var index=0, nu, dataSeries = [], uncertaintySeries = [], fitSeries = [];
   //  for(i=dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0]; i<dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1]; i++){
   for(i=Math.floor(center-(3*width)); i<Math.ceil(center+(3*width)); i++){
-    dataSeries[index] = dataStore.rawData[dataStore.currentPlot][i];
-    fitSeries[index] = intercept + slope*i + amplitude*Math.exp(-1*(((i-center)*(i-center))/(2*width*width)));
-    index++;
-  }
-  nu = (index+1) - 5; // 5 parameters in the peak fit; centroid, width, height, BG slope, BG offset
-  uncertaintySeries = dataSeries.map((x) => (Math.sqrt(x)*10) );
-  */
+  dataSeries[index] = dataStore.rawData[dataStore.currentPlot][i];
+  fitSeries[index] = intercept + slope*i + amplitude*Math.exp(-1*(((i-center)*(i-center))/(2*width*width)));
+  index++;
+}
+nu = (index+1) - 5; // 5 parameters in the peak fit; centroid, width, height, BG slope, BG offset
+uncertaintySeries = dataSeries.map((x) => (Math.sqrt(x)*10) );
+*/
 
-  // Fit uncertainty is the sum of the variance in the Gross peak area and background areas. Those variance are both sqrt(number of counts)
-  if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
-  if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
-  if(typeof dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = []; }
-  dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = areaVariance;
-    // Fit uncertainty is the reduced Chi square of the fit, multiplied by the sqrt of the number of counts (area)
+// Fit uncertainty is the sum of the variance in the Gross peak area and background areas. Those variance are both sqrt(number of counts)
+if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
+if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
+if(typeof dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = []; }
+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = areaVariance;
+// Fit uncertainty is the reduced Chi square of the fit, multiplied by the sqrt of the number of counts (area)
 //  dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = Math.sqrt(calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu)*Math.sqrt(area);
 //  console.log(dataStore.currentPlot + ", peak " + dataStore.currentPeak);
 //  console.log("fitUncertainty of "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]/area+" from "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]+" from chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)+" and reduced chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu);
 //  console.log(" and sqrt(area="+area+") of "+Math.sqrt(area)+" which is ratio of "+Math.sqrt(area)/area);
 
-  //disengage fit mode buttons
-  //  if( parseInt(refitPeak.getAttribute('engaged'),10) == 1){
-  //    refitPeak.onclick();
-  //  }
+//disengage fit mode buttons
+//  if( parseInt(refitPeak.getAttribute('engaged'),10) == 1){
+//    refitPeak.onclick();
+//  }
 }
 
 function addFitLines(){

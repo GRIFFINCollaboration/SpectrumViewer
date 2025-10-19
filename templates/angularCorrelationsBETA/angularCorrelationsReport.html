@@ -175,7 +175,7 @@ this.updateDataTable = function(){
     document.getElementById(tableID + (i+1) + 'rawData').innerHTML = dataStore.angularBinRawPeakArea[i];
     document.getElementById(tableID + (i+1) + 'rawBkg').innerHTML = dataStore.angularBinTRBGPeakArea[i];
     document.getElementById(tableID + (i+1) + 'area').innerHTML = parseInt(dataStore.angularBinPeakArea[i]);
-    document.getElementById(tableID + (i+1) + 'value').innerHTML = dataStore.angularBinData[i].toFixed(4);
+    document.getElementById(tableID + (i+1) + 'value').innerHTML = bracketNotationString(dataStore.angularBinData[i].toFixed(4),dataStore.angularBinDataUnc[i].toFixed(4));
   }
 
   //highlight suspicious rows
@@ -195,9 +195,11 @@ this.updateWeightTable = function(){
   for(var i=0; i<dataStore.THESEdetectors.length; i++){
     document.getElementById(tableID + dataStore.THESEdetectors[i] + 'id').innerHTML = i;
     document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy1').innerHTML = dataStore.fitPeakEnergies[1];
-    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area1').innerHTML = dataStore.singlesPeakArea[i][1];
+    //document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area1').innerHTML = dataStore.singlesPeakArea[i][1];
+    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area1').innerHTML = bracketNotationString(dataStore.singlesPeakArea[i][1],parseInt(dataStore.singlesPeakAreaUnc[i][1]));
     document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy2').innerHTML = dataStore.fitPeakEnergies[0];
-    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area2').innerHTML = dataStore.singlesPeakArea[i][0];
+//    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area2').innerHTML = dataStore.singlesPeakArea[i][0];
+    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area2').innerHTML = bracketNotationString(dataStore.singlesPeakArea[i][0],parseInt(dataStore.singlesPeakAreaUnc[i][0]));
   }
 
   //highlight suspicious rows

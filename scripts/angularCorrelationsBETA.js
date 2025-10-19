@@ -692,7 +692,6 @@ dataStore.ge_angles_110mm = [
     150.857, 158.095, 164.558, 180.000];
     dataStore.quickDataY = [1.2, 1.1649445679515484, 1.16404404173609, 1.1534194212971343, 1.1487646735942079, 1.1319730562416195, 1.0855024174242622, 1.0955483598820324, 1.0967150537881445, 1.07477819459717, 1.0670033719253225, 1.0350595775621638, 1.0632547565661457, 1.054290250774924, 1.0397650722247835, 1.0464194928300574, 1.0382793697970039, 1.0345761445428245, 1.0213096453001547, 1.033750779388556, 1.0526274019670399, 1.0135505676433754, 1.022872761287112, 1.0229782483214198, 1.024272823171905, 1.0127807217310842, 1.0259485750877826, 1.010741956012306, 1.014006851101479, 1.0337180827684103, 1.0085204602351001, 1.0315913337747054, 1.045413973136467, 1.0273662602169433, 1.0239243794524204, 1.0302119450801877, 1.045204729193273, 1.0494111870868919, 1.0468512616814172, 1.0468137786650362, 1.0688584627515472, 1.0621886640362925, 1.0848967001474858, 1.086446504807811, 1.0831054060283596, 1.1116666070843002, 1.1222843879096187, 1.1243680235895794, 1.1433331260031783, 1.1398908022870562, 1.189665641136618, 1.2];
 
-
   } // end of setupDataStore()
   setupDataStore();
 
@@ -1205,6 +1204,8 @@ dataStore.ge_angles_110mm = [
             // + ((dataStore.normalizationFactorUnc/dataStore.normalizationFactor) * (dataStore.normalizationFactorUnc/dataStore.normalizationFactor))
           )
           * dataStore.angularBinData[i];
+          if(!isFinite(dataStore.angularBinData[i])){ dataStore.angularBinData[i] = 0.0; }
+          if(isNaN(dataStore.angularBinDataUnc[i])){ dataStore.angularBinDataUnc[i] = 0; }
           console.log(dataStore.theseAngularBins[i]+","+dataStore.angularBinData[i]+","+dataStore.angularBinDataUnc[i]);
           console.log("Error from "+dataStore.angularBinPeakAreaUnc[i]+"/"+dataStore.angularBinPeakArea[i]+"="+(dataStore.angularBinPeakAreaUnc[i]/dataStore.angularBinPeakArea[i])+", "+dataStore.angularBinWeightUnc[i]+"/"+dataStore.angularBinWeight[i]+"="+(dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i])+", "+dataStore.normalizationFactorUnc+"/"+dataStore.normalizationFactor+"="+(dataStore.normalizationFactorUnc/dataStore.normalizationFactor) );
           if(dataStore.angularBinData[i]<min){ min=dataStore.angularBinData[i]; }
