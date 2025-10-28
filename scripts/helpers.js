@@ -295,7 +295,9 @@ function promiseBinaryURL(url){
         dataStore.rawData[this2dKey] = thisMatrix;
 
         // Update the progress bar by one task
-        updateProgressBar(1);
+        if(dataStore.progressBarKey != undefined){
+          updateProgressBar(1);
+        }
 
         // Resolve the promise
         //fetchCallback();
@@ -897,19 +899,23 @@ function bracketNotationString(value, uncertainty){
     if(remainderString != undefined){
       numDecimalPlaces = remainderString.length;
     }
-}
+  }
 
-// Round the value and uncertainty to the appropriate decimal places
-roundedValue = (Number(value)).toFixed(numDecimalPlaces);
-roundedUncertainty = (Number(uncertainty)).toFixed(numDecimalPlaces);
+  // Round the value and uncertainty to the appropriate decimal places
+  roundedValue = (Number(value)).toFixed(numDecimalPlaces);
+  roundedUncertainty = (Number(uncertainty)).toFixed(numDecimalPlaces);
 
-// Convert uncertainty to its integer representation for bracket notation
-// This involves shifting the decimal point based on num_decimal_places
-uncertainty_in_last_digits = parseInt(roundedUncertainty * Math.pow(10,numDecimalPlaces));
+  // Convert uncertainty to its integer representation for bracket notation
+  // This involves shifting the decimal point based on num_decimal_places
+  uncertainty_in_last_digits = parseInt(roundedUncertainty * Math.pow(10,numDecimalPlaces));
 
-// Return the formatted value and uncertainty
-if(roundedValue ==0 && roundedUncertainty==0){ return "0"; }
-return roundedValue+"("+uncertainty_in_last_digits+")";
+  if(isNaN(roundedValue)){
+    console.log("breakpoint on NaN");
+  }
+  // Return the formatted value and uncertainty
+  if(roundedValue ==0 && roundedUncertainty==0){ return "0"; }
+  //  return roundedValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"("+uncertainty_in_last_digits+")";
+  return roundedValue+"("+uncertainty_in_last_digits+")";
 }
 
 // attach the .equals method to Array's prototype to call it on any array
@@ -2613,7 +2619,6 @@ function fitCallback(center, width, amplitude, intercept, slope){
   //<intercept>: number; intercept of linear background beneath peak
   //<slope>: number; slope of linear background
 
-  var refitPeak = document.getElementById('refitPeakButton');
   var viewerName = dataStore.plots[0];
 
   // Calculate peak area here
@@ -2627,6 +2632,7 @@ function fitCallback(center, width, amplitude, intercept, slope){
     integral = functionVals.integrate();
   }
   var area = parseInt(integral.toFixed(0));
+  if(!isFinite(area)){ area=0; }
 
   // Calculate the variance of the peak area
   // Equal to the sum of the variance in the Gross peak area and background areas
@@ -2641,12 +2647,7 @@ function fitCallback(center, width, amplitude, intercept, slope){
   var bkgAreaVariance = Math.sqrt(bkgArea);
   var grossAreaVariance = Math.sqrt(grossArea);
   var areaVariance = grossAreaVariance+bkgAreaVariance;
-  if(isNaN(areaVariance)){ areaVariance=1; } // used as a denominator
-  console.log("fitCallback "+[center, width, amplitude, intercept, slope]);
-  console.log("Bkg Area   = "+bkgArea+"("+bkgAreaVariance+")");
-  console.log("Gross Area = "+grossArea+"("+grossAreaVariance+")");
-  console.log("Net Area   = "+area+"("+areaVariance+"), raw sqrt = "+Math.sqrt(area));
-
+  if(!isFinite(areaVariance)){ areaVariance=1; } // used as a denominator
 
   // Calculate the Full Width at Half Maximum (FWHM) here
   var fwhm = (width*2.35);
@@ -2665,36 +2666,19 @@ function fitCallback(center, width, amplitude, intercept, slope){
     dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [NaN,NaN,NaN,NaN,NaN,NaN,NaN];
   }
 
-  /*
-  // Calculate uncertainty in this fit (used in angularCorrelations)
-  // Calculate the chi-square of the fitline and data
-  // Multiply the sqrt(area) with sqrt(chi^2/nu)
-  var index=0, nu, dataSeries = [], uncertaintySeries = [], fitSeries = [];
-  //  for(i=dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0]; i<dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1]; i++){
-  for(i=Math.floor(center-(3*width)); i<Math.ceil(center+(3*width)); i++){
-  dataSeries[index] = dataStore.rawData[dataStore.currentPlot][i];
-  fitSeries[index] = intercept + slope*i + amplitude*Math.exp(-1*(((i-center)*(i-center))/(2*width*width)));
-  index++;
-}
-nu = (index+1) - 5; // 5 parameters in the peak fit; centroid, width, height, BG slope, BG offset
-uncertaintySeries = dataSeries.map((x) => (Math.sqrt(x)*10) );
-*/
+  // Fit uncertainty is the sum of the variance in the Gross peak area and background areas. Those variance are both sqrt(number of counts)
+  if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
+  if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
+  if(typeof dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = []; }
+  dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = areaVariance;
 
-// Fit uncertainty is the sum of the variance in the Gross peak area and background areas. Those variance are both sqrt(number of counts)
-if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
-if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
-if(typeof dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = []; }
-dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = areaVariance;
-// Fit uncertainty is the reduced Chi square of the fit, multiplied by the sqrt of the number of counts (area)
-//  dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = Math.sqrt(calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu)*Math.sqrt(area);
-//  console.log(dataStore.currentPlot + ", peak " + dataStore.currentPeak);
-//  console.log("fitUncertainty of "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]/area+" from "+dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak]+" from chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)+" and reduced chi-square of "+calculateChiSquare(dataSeries,uncertaintySeries,fitSeries)/nu);
-//  console.log(" and sqrt(area="+area+") of "+Math.sqrt(area)+" which is ratio of "+Math.sqrt(area)/area);
-
-//disengage fit mode buttons
-//  if( parseInt(refitPeak.getAttribute('engaged'),10) == 1){
-//    refitPeak.onclick();
-//  }
+  //disengage fit mode button in apps which use this
+  var refitButton = document.getElementById('refitButton');
+  if(refitButton != null){
+    if( parseInt(refitButton.getAttribute('engaged'),10) == 1){
+      refitButton.onclick();
+    }
+  }
 }
 
 function addFitLines(){
@@ -2707,16 +2691,15 @@ function addFitLines(){
 
   // Bail out of no fitResults yet
   if(!dataStore.fitResults[dataStore.currentPlot]){
-    //  console.log('No fitResults yet for '+dataStore.currentPlot+' in addFitLines so bailing out');
     return;
   }
 
-  var thisSelect = document.getElementById('refitSelect');
-  if(thisSelect != null){
+  var refitSelect = document.getElementById('refitSelect');
+  if(refitSelect != null){
     // Set up the drop-down list of peaks available to refit
-    thisSelect.removeAttribute('disabled');
+    refitSelect.removeAttribute('disabled');
     // Remove all options from the select
-    thisSelect.innerHTML = "";
+    refitSelect.innerHTML = "";
   }
 
   // Loop through the peaks for this spectrum
@@ -2734,16 +2717,75 @@ function addFitLines(){
 
     // Add this fitline to the canvas
     dataStore.viewers[viewerName].containerFit.addChild(fitLines[i]);
-
-    if(thisSelect != null){
-      //add this peak as an option to the refit select
-      var newSelect = document.createElement("select");
-      thisSelect.add( new Option("Peak "+i+", "+dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[i]+"keV", i) );
+  }
+  
+  // Add this peak as an option to the refit select in apps which have this
+  if(refitSelect != null){
+    var newSelect = document.createElement("select");
+    if(dataStore.peakFitterScript.spectrumList1dPeaks[dataStore.currentPlot]){
+      for(i=0; i<dataStore.peakFitterScript.spectrumList1dPeaks[dataStore.currentPlot].length; i++){
+        refitSelect.add( new Option("Peak "+(i+1)+", "+dataStore.peakFitterScript.spectrumList1dPeaks[dataStore.currentPlot][i]+"keV", i) );
+      }
     }
+    if(dataStore.peakFitterScript.spectrumListProjectionsPeaks[dataStore.currentPlot]){
+      for(i=0; i<dataStore.peakFitterScript.spectrumListProjectionsPeaks[dataStore.currentPlot].length; i++){
+        refitSelect.add( new Option("Peak "+(i+1)+", "+dataStore.peakFitterScript.spectrumListProjectionsPeaks[dataStore.currentPlot][i]+"keV", i) );
+      }
+    }
+  }
+  // Enable the refit button in apps which have this
+  var refitButton = document.getElementById('refitButton');
+  if(refitButton != null){
+    refitButton.removeAttribute("disabled");
   }
 
   dataStore.viewers[viewerName].stage.update();
 }
+
+
+function toggleRefitMode(){
+  // Many apps benefit from special refit controls for convenience
+  // This is only activated after peaks have already been fitted once
+  // Get user input from the select for which peak is to be refit
+  // Remove the old fit results from fitResults
+  // Enter fit mode
+  // Modify the refit button element
+  // OR smoothly exit refit mode
+  console.log("toggleRefitMode in helpers");
+
+  var viewerName = dataStore.plots[0];
+  var refitButton = document.getElementById('refitButton');
+  var refitSelect = document.getElementById('refitSelect');
+
+  // Only continue if we are in an app with the refit options set up correctly
+  if(refitButton == null || refitSelect == null){ return; }
+
+  if(parseInt(refitButton.getAttribute('engaged'),10) == 0){
+
+    // Set the peak index in the datastore
+    dataStore.currentPeak = document.getElementById('refitSelect').value;
+
+    // Enter fit mode
+    dataStore.viewers[viewerName].setupFitMode();
+
+    // Modify the refit button
+    refitButton.setAttribute('engaged', 1);
+    document.getElementById('refitButtonBadge').classList.add('red-text');
+  }
+  else{
+    // Leave fit mode
+    dataStore.viewers[viewerName].leaveFitMode();
+
+    // Modify the refit button
+    refitButton.setAttribute('engaged', 0);
+    document.getElementById('refitButtonBadge').classList.remove('red-text');
+
+    // Callback if defined
+    if(dataStore.refitCallback){ dataStore.refitCallback(); }
+  }
+
+}
+
 
 function fitCOMInSeriesOfHistograms(spectra,peaks){
   //fit Centre-Of-Mass in all regions in all spectra defined.

@@ -1,6 +1,7 @@
 <link rel="stylesheet" href="angularCorrelationsReport.css">
 
 <template id='angularCorrelationsReport'>
+<div id='dataTableMessage' class='col-md-12'></div>
 <div class='sectionWrapper item'>
 <div class='col-md-12'>
 <table id='{{id}}angularCorrelationsResults' class='table angularCorrelationsTable'></table>
@@ -9,16 +10,16 @@
 </template>
 
 <script>
-function angularCorrelationsReport(wrapID,wrapID2,wrapID3){
-
-  this.wrapID = wrapID;
-  this.wrap = document.getElementById(wrapID);
+function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
 
   this.wrapID2 = wrapID2;
   this.wrap2 = document.getElementById(wrapID2);
 
   this.wrapID3 = wrapID3;
   this.wrap3 = document.getElementById(wrapID3);
+
+  this.wrapID4 = wrapID4;
+  this.wrap4 = document.getElementById(wrapID4);
 
   // Variables to control table generation and filling
   this.numCellsPerRow = 14;
@@ -36,21 +37,6 @@ function angularCorrelationsReport(wrapID,wrapID2,wrapID3){
   this.setup = function(){
 
     //inject templates
-    this.wrap.innerHTML = Mustache.to_html(
-      dataStore.templates.angularCorrelationsReport,
-      {
-        'id': this.wrapID,
-      }
-    );
-
-    // table has to be done as a separate template, since templates and tables don't play too nice together
-    document.getElementById(this.wrapID + 'angularCorrelationsResults').innerHTML= Mustache.to_html(
-      dataStore.templates.angularCorrelationsReportTable,
-      content = {
-        'id': this.wrapID
-      }
-    );
-
     this.wrap2.innerHTML = Mustache.to_html(
       dataStore.templates.angularCorrelationsReport,
       {
@@ -65,12 +51,19 @@ function angularCorrelationsReport(wrapID,wrapID2,wrapID3){
       }
     );
 
+    this.wrap4.innerHTML = Mustache.to_html(
+      dataStore.templates.angularCorrelationsReport,
+      {
+        'id': this.wrapID4,
+      }
+    );
+
     // table has to be done as a separate template, since templates and tables don't play too nice together
     document.getElementById(this.wrapID2 + 'angularCorrelationsResults').innerHTML= Mustache.to_html(
       dataStore.templates.angularCorrelationsDataReportTable,
       content = {
         'id': this.wrapID2,
-        'detectors': Array(52).fill(0).map((_, i) => i + 1)
+        'detectors': Array(51).fill(0).map((_, i) => i + 1)
       }
     );
 
@@ -83,529 +76,339 @@ function angularCorrelationsReport(wrapID,wrapID2,wrapID3){
       }
     );
 
-    // Build Table select for selecting which detector data is displayed
-    // Add the title text
-    var newLabel = document.createElement("label");
-    newLabel.for = 'tableMenuSelect';
-    newLabel.id = 'tableMenuSelectLabel';
-    newLabel.innerHTML = 'Detector: ';
-    document.getElementById('tableMenuDiv').appendChild(newLabel);
-
-    // Create a select input for the histo file list
-    var newSelect = document.createElement("select");
-    newSelect.id = 'tableMenuSelect';
-    newSelect.name = 'tableMenuSelect';
-    newSelect.onchange = function(){
-      dataStore._angularCorrelationsReport.refreshDetectorTableData(dataStore.THESEdetectors[this.value]);
-    }.bind(newSelect);
-    document.getElementById('tableMenuDiv').appendChild(newSelect);
-
-    // Add the list of detectors as the options
-    thisSelect = document.getElementById('tableMenuSelect');
-    for(var j=0; j<dataStore.THESEdetectors.length; j++){
-      thisSelect.add( new Option(dataStore.THESEdetectors[j], j) );
-    }
-
-    // Create the previous Detector button
-    newButton = document.createElement('button');
-    newButton.setAttribute('id', 'previousDetButton');
-    newButton.setAttribute('class', 'btn btn-default btn-sm');
-    newButton.innerHTML = "Previous Detector";
-    newButton.style.padding = '4px';
-    newButton.onclick = function(){
-      var currentValue = parseInt(document.getElementById('tableMenuSelect').value);
-      if(currentValue==0){ currentValue=1;}
-      document.getElementById('tableMenuSelect').value = (currentValue-1);
-      dataStore._angularCorrelationsReport.refreshDetectorTableData(dataStore.THESEdetectors[currentValue-1]);
-    }.bind(newButton);
-    document.getElementById('tableMenuDiv').appendChild(newButton);
-
-    // Create the next Detector button
-    newButton = document.createElement('button');
-    newButton.setAttribute('id', 'nextDetButton');
-    newButton.setAttribute('class', 'btn btn-default btn-sm');
-    newButton.innerHTML = "Next Detector";
-    newButton.style.padding = '4px';
-    newButton.onclick = function(){
-      var currentValue = parseInt(document.getElementById('tableMenuSelect').value);
-      if(currentValue==document.getElementById('tableMenuSelect').options.length-1){ currentValue=parseInt(document.getElementById('tableMenuSelect').options.length)-2;
-    }
-    document.getElementById('tableMenuSelect').value = (currentValue+1);
-    dataStore._angularCorrelationsReport.refreshDetectorTableData(dataStore.THESEdetectors[currentValue+1]);
-  }.bind(newButton);
-  document.getElementById('tableMenuDiv').appendChild(newButton);
-
-  // Create the view spectrum button
-  newButton = document.createElement('button');
-  newButton.setAttribute('id', 'viewSpecButton');
-  newButton.setAttribute('class', 'btn btn-default btn-sm');
-  newButton.innerHTML = "View Spectrum";
-  newButton.style.padding = '4px';
-  newButton.onclick = function(){
-    var currentValue = dataStore.THESEdetectors[parseInt(document.getElementById('tableMenuSelect').value)];
-
-    // Select this histogram on the spectrum menu, which also displays it
-    if(!document.getElementById("plotListclosed"+dataStore.histoFileName.split(".")[0]).classList.contains("hidden")){
-      document.getElementById("plotListclosed"+dataStore.histoFileName.split(".")[0]).click();
-    }
-    var thisId = "plotList"+dataStore.histoFileName.split(".")[0]+":"+currentValue+"_Pulse_Height";
-    document.getElementById(thisId).click();
-
-    // Move to the Spectra subpages. They need to be not hidden while the templates are injected.
-    menuButtonClick(dataStore.buttonIDs[dataStore.buttonIDs.indexOf("plotRegionMenuButton")],0);
-  }.bind(newButton);
-  document.getElementById('tableMenuDiv').appendChild(newButton);
-
-};
-
-
-this.updateDataTable = function(){
-  console.log("updateDataTable");
-  //update the report table with whatever is currently in the dataStore
-  //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
-  //<spectrumName>: string; name of spectrum, per names from analyzer
-  //this: efficiencyFitterReport object
-  var tableID = "resultsDataTableRegion";
-
-  for(var i=0; i<dataStore.angularBinData.length; i++){
-    document.getElementById(tableID + (i+1) + 'index').innerHTML = i;
-    document.getElementById(tableID + (i+1) + 'angle').innerHTML = dataStore.theseAngularBins[i];
-    document.getElementById(tableID + (i+1) + 'pairs').innerHTML = dataStore.numCrystalPairs[i];
-    document.getElementById(tableID + (i+1) + 'weight').innerHTML = dataStore.angularBinWeight[i].toFixed(5);
-    document.getElementById(tableID + (i+1) + 'rawData').innerHTML = dataStore.angularBinRawPeakArea[i];
-    document.getElementById(tableID + (i+1) + 'rawBkg').innerHTML = dataStore.angularBinTRBGPeakArea[i];
-    document.getElementById(tableID + (i+1) + 'area').innerHTML = parseInt(dataStore.angularBinPeakArea[i]);
-    document.getElementById(tableID + (i+1) + 'value').innerHTML = bracketNotationString(dataStore.angularBinData[i].toFixed(4),dataStore.angularBinDataUnc[i].toFixed(4));
-  }
-
-  //highlight suspicious rows
-  //  this.whatsNormal();
-  //this.highlightOutliers();
-
-};
-
-this.updateWeightTable = function(){
-  console.log("updateDataTable");
-  //update the report table with whatever is currently in the dataStore
-  //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
-  //<spectrumName>: string; name of spectrum, per names from analyzer
-  //this: efficiencyFitterReport object
-  var tableID = "resultsWeightTableRegion";
-
-  for(var i=0; i<dataStore.THESEdetectors.length; i++){
-    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'id').innerHTML = i;
-    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy1').innerHTML = dataStore.fitPeakEnergies[1];
-    //document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area1').innerHTML = dataStore.singlesPeakArea[i][1];
-    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area1').innerHTML = bracketNotationString(dataStore.singlesPeakArea[i][1],parseInt(dataStore.singlesPeakAreaUnc[i][1]));
-    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy2').innerHTML = dataStore.fitPeakEnergies[0];
-//    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area2').innerHTML = dataStore.singlesPeakArea[i][0];
-    document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area2').innerHTML = bracketNotationString(dataStore.singlesPeakArea[i][0],parseInt(dataStore.singlesPeakAreaUnc[i][0]));
-  }
-
-  //highlight suspicious rows
-  //  this.whatsNormal();
-  //this.highlightOutliers();
-
-};
-
-this.refreshAngCorrPlot = function(){
-  console.log("refreshAngCorrPlot");
-  // Use a Plotly stacked-subplots-with-a-shared-x-axis for Ang Corr data with residuals below.
-  // https://plotly.com/javascript/subplots/#stacked-subplots-with-a-shared-x-axis
-
-  var parentDiv = "angularCorrelationsDataPlot";
-  var data = []; // data is an array of objects required for a plotly scatter plot
-  var xSeries = [];    // Ang Corr Data plot xSeries is cos(theta) - same for residuals axis
-  var yDataSeries = [];   // Ang Corr Data plot ySeries is Ang Corr values
-  var yResSeries = [];    // Ang Corr Residuals plot ySeries is Ang Corr residuals
-  var yErrSeries = [[],[]];
-  //var traceNames = ['Residuals','Angular Correlation Data']; // Names/titles that will appear in the legend for each series
-  var config =  // configuration options for plotly
-  {
-    scrollZoom: true,
-    modeBarButtonsToRemove: ['sendDataToCloud','select2d','lasso2d']
   };
 
-  // Define the name/title for each series to appear in the legend
-  for(var i=0; i<dataStore.angularBinData.length; i++){
-    if(isFinite(dataStore.theseAngularBins[i]) && isFinite(dataStore.angularBinData[i]) && dataStore.angularBinData[i]>0){
-      xSeries.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
-      yDataSeries.push(dataStore.angularBinData[i]);
-      yResSeries.push(dataStore.angularBinData[i]*0.02);
-      yErrSeries[0].push(dataStore.angularBinDataUnc[i]);
-      yErrSeries[1].push(dataStore.angularBinDataUnc[i]);
-      //  traceNames.push(i+", "+dataStore.theseAngularBins[i].toFixed(1)+" degrees, "+Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)).toFixed(3));
-    }
-  }
+  this.updateDataTable = function(){
+    console.log("updateDataTable");
+    console.log(dataStore.angularBinExcludeList);
+    //update the report table with whatever is currently in the dataStore
+    //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
+    //<spectrumName>: string; name of spectrum, per names from analyzer
+    //this: efficiencyFitterReport object
+    var tableID = "resultsDataTableRegion";
 
-  data[0] = {
-    x: xSeries,
-    y: yResSeries,
-    xaxis: 'x1',
-    yaxis: 'y1',
-    name: 'Residuals',
-    mode: 'markers',
-    type: 'scatter',
-    error_y : {
-      type: 'data',
-      array: yErrSeries[0],
-      visible: true
+    for(var i=1; i<dataStore.angularBinData.length; i++){
+      document.getElementById(tableID + i + 'index').innerHTML = (i-1);
+      document.getElementById(tableID + i + 'angle').innerHTML = dataStore.theseAngularBins[i].toFixed(1);
+      document.getElementById(tableID + i + 'angleATAN').innerHTML = Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)).toFixed(3);
+      document.getElementById(tableID + i + 'pairs').innerHTML = dataStore.numCrystalPairs[i];
+      document.getElementById(tableID + i + 'weight').innerHTML = bracketNotationString(dataStore.angularBinWeight[i].toFixed(5),dataStore.angularBinWeightUnc[i].toFixed(5));
+      document.getElementById(tableID + i + 'rawData').innerHTML = bracketNotationString(parseInt(dataStore.angularBinRawPeakArea[i]),parseInt(dataStore.angularBinRawPeakAreaUnc[i]));
+      document.getElementById(tableID + i + 'rawBkg').innerHTML = bracketNotationString(parseInt(dataStore.angularBinTRBGPeakArea[i]),parseInt(dataStore.angularBinTRBGPeakAreaUnc[i]));
+      document.getElementById(tableID + i + 'area').innerHTML = bracketNotationString(parseInt(dataStore.angularBinPeakArea[i]),parseInt(dataStore.angularBinPeakAreaUnc[i]));
+      document.getElementById(tableID + i + 'value').innerHTML = bracketNotationString(dataStore.angularBinData[i].toFixed(4),dataStore.angularBinDataUnc[i].toFixed(4));
+      var checkParent = document.getElementById(tableID + i + 'exclude');
+      checkParent.innerHTML = "";
+      newInput = document.createElement('input');
+      newInput.id = + 'excludeBin'+i;
+      newInput.type = 'checkbox';
+      newInput.value = i;
+      newInput.onchange = function(){
+        toggleExcludeList(this.value);
+      }.bind(newInput);
+      if(dataStore.angularBinExcludeList.includes(i)){ newInput.checked = true; }
+      checkParent.appendChild(newInput);
     }
-  };
-  data[1] = {
-    x: xSeries,
-    y: yDataSeries,
-    xaxis: 'x2',
-    yaxis: 'y2',
-    name: 'Angular Correlation Data',
-    mode: 'markers',
-    type: 'scatter',
-    error_y : {
-      type: 'data',
-      array: yErrSeries[1],
-      visible: true
-    }
+
+    //highlight suspicious rows
+    //  this.whatsNormal();
+    //this.highlightOutliers();
+
   };
 
-  // Define the layout for this plotly
-  var layout = {
-    //  autosize: true,
-    width: 700,                                // Default is 700px
-    height: 450,                                // Default is 450px
-    title: "Gamma-gamma angular correlation",
-    xaxis:  {domain: [0, 1],       anchor: 'y1', title: "cos(theta)"},
-    yaxis:  {domain: [0, 0.25],    anchor: 'x1', title: "Residual"},
-    xaxis2: {domain: [0, 1],    anchor: 'y2', showticklabels: false},
-    yaxis2: {domain: [0.3, 1],    anchor: 'x2', title: "Normalized counts"},
-    legend: {traceorder: 'reversed'},
+  this.updateWeightTable = function(){
+    console.log("updateWeightTable");
+    //update the report table with whatever is currently in the dataStore
+    //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
+    //<spectrumName>: string; name of spectrum, per names from analyzer
+    //this: efficiencyFitterReport object
+    var tableID = "resultsWeightTableRegion";
+
+    for(var i=0; i<dataStore.THESEdetectors.length; i++){
+      document.getElementById(tableID + dataStore.THESEdetectors[i] + 'id').innerHTML = i;
+      document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy1').innerHTML = dataStore.fitPeakEnergies[1];
+      document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area1').innerHTML = bracketNotationString(dataStore.singlesPeakArea[i][1],parseInt(dataStore.singlesPeakAreaUnc[i][1]));
+      document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy2').innerHTML = dataStore.fitPeakEnergies[0];
+      document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area2').innerHTML = bracketNotationString(dataStore.singlesPeakArea[i][0],parseInt(dataStore.singlesPeakAreaUnc[i][0]));
+    }
+
+    //highlight suspicious rows
+    //  this.whatsNormal();
+    //this.highlightOutliers();
+
   };
 
-  // Usual behavior is to call this function, but here we want a stacked graph.
-  //  createPlotlyScatterPlot([xSeries,xSeries],[yDataSeries,yResSeries],[],layout,containerDiv,traceNames);
-  // Now create the Plotly plot
-  Plotly.newPlot(parentDiv, data, layout, config);
-}
+  this.refreshAngCorrPlot = function(){
+    console.log("refreshAngCorrPlot");
+    console.log(dataStore.angularBinExcludeList);
+    // Use a Plotly stacked-subplots-with-a-shared-x-axis for Ang Corr data with residuals below.
+    // https://plotly.com/javascript/subplots/#stacked-subplots-with-a-shared-x-axis
 
-this.whatsNormal = function(){
-  //identifies the mean and SD of the calibration quad, slope and intercept across all detectors
+    var parentDiv = "angularCorrelationsDataPlot";
+    var data = []; // data is an array of objects required for a plotly scatter plot
+    var xSeries = [];    // Ang Corr Data plot xSeries is cos(theta) - same for residuals axis
+    var yDataSeries = [];   // Ang Corr Data plot ySeries is Ang Corr values
+    var yResSeries = [];    // Ang Corr Residuals plot ySeries is Ang Corr residuals
+    var yErrSeries = [[],[]];
+    var config =  // configuration options for plotly
+    {
+      scrollZoom: true,
+      modeBarButtonsToRemove: ['sendDataToCloud','select2d','lasso2d']
+    };
 
-  var i, meanQuad = 0, sqMeanQuad = 0, meanSlope = 0, sqMeanSlope = 0, meanIntercept = 0, sqMeanIntercept = 0, sdQuad, sdSlope, sdIntercept,
-  keys = Object.keys(dataStore.THESEcalibrations),
-  numIntercept = 0, numSlope = 0, numQuad = 0
-
-  for(i=0; i<keys.length; i++){
-    meanQuad += dataStore.THESEcalibrations[keys[i]]['fit'][0];
-    sqMeanQuad += Math.pow(dataStore.THESEcalibrations[keys[i]]['fit'][0], 2);
-    numQuad++;
-
-    meanSlope += dataStore.THESEcalibrations[keys[i]]['fit'][1];
-    sqMeanSlope += Math.pow(dataStore.THESEcalibrations[keys[i]]['fit'][1], 2);
-    numSlope++;
-
-    meanIntercept += dataStore.THESEcalibrations[keys[i]]['fit'][2];
-    sqMeanIntercept += Math.pow(dataStore.THESEcalibrations[keys[i]]['fit'][2], 2);
-    numIntercept++;
-  }
-
-  meanIntercept /= numIntercept;
-  sqMeanIntercept /= numIntercept;
-  meanSlope /= numSlope;
-  sqMeanSlope /= numSlope;
-  meanQuad /= numQuad;
-  sqMeanQuad /= numQuad;
-
-  sdIntercept = Math.sqrt(sqMeanIntercept - Math.pow(meanIntercept,2));
-  sdSlope = Math.sqrt(sqMeanSlope - Math.pow(meanSlope,2));
-  sdQuad = Math.sqrt(sqMeanQuad - Math.pow(meanQuad,2));
-
-  dataStore.meanCalib = [meanIntercept, meanSlope, meanQuad];
-  dataStore.sdCalib = [sdIntercept, sdSlope, sdQuad];
-},
-
-this.highlightOutliers = function(){
-  //step through the fit results, and highlight table rows corresponding to wacky channels
-  //this: gainMatchReport object
-
-  var i;
-  var keys = Object.keys(dataStore.THESEcalibrations);
-  var highlightBad;
-
-  var MaxOffset = 10;    // Use for HPGe and PACES and LaBr3
-  var MaxQuad = 0.00001;
-  var MaxResidual = 0.5; // Use 0.5keV for HPGe
-  if(dataStore.detectorType == 'RCMP'){ MaxOffset = 300; MaxResidual = 2.5; }
-
-  for(i=0; i<keys.length; i++){
-    highlightBad=0;
-
-    // Check Offsets
-    //    if(dataStore.THESEcalibrations[keys[i]]['fit'][2] > dataStore.meanCalib[0] + dataStore.sdCalib[0]*3.5
-    //       || dataStore.THESEcalibrations[keys[i]]['fit'][2] < dataStore.meanCalib[0] - dataStore.sdCalib[0]*3.5
-    //       || Math.abs(dataStore.THESEcalibrations[keys[i]]['fit'][2]) > MaxOffset
-    //      ){ highlightBad=1; console.log(keys[i]+" failed offset"); }
-    if( Math.abs(dataStore.THESEcalibrations[keys[i]]['fit'][2]) > MaxOffset ){ highlightBad=1; console.log(keys[i]+" failed offset"); }
-
-    // Check gains
-    if( dataStore.THESEcalibrations[keys[i]]['fit'][1] > dataStore.meanCalib[1] + dataStore.sdCalib[1]*3
-    || dataStore.THESEcalibrations[keys[i]]['fit'][1] < dataStore.meanCalib[1] - dataStore.sdCalib[1]*3
-  ){ highlightBad=1; console.log(keys[i]+" failed gain"); }
-
-  // Check quadratric terms
-  if(dataStore.detectorType == "HPGe"){ // Only check the quadratic term for HPGe
-    if( dataStore.THESEcalibrations[keys[i]]['fit'][0] > dataStore.meanCalib[2] + dataStore.sdCalib[2]*4
-    || dataStore.THESEcalibrations[keys[i]]['fit'][0] < dataStore.meanCalib[2] - dataStore.sdCalib[2]*4
-    || Math.abs(dataStore.THESEcalibrations[keys[i]]['fit'][0]) > MaxQuad
-  ){ highlightBad=1; console.log(keys[i]+" failed quad"); }
-}
-
-// Check size of residuals
-if(dataStore.THESEcalibrations[keys[i]].residualMean > 0.6){ highlightBad=1; console.log(keys[i]+" failed meanSD"); }
-
-if(highlightBad){
-  // Highlight row as problematic (orange) if the parameters are not normal, and do not check the box
-  document.getElementById('resultsTableRegion' + keys[i] + 'row').setAttribute('style', 'background-color: #F28C28;');
-  document.getElementById(keys[i] + 'write').checked = false;
-}else{
-  // If all is good, check the box and do not highlight the row
-  document.getElementById('resultsTableRegion' + keys[i] + 'row').setAttribute('style', '');
-  document.getElementById(keys[i] + 'write').checked = true;
-}
-}
-},
-
-
-
-this.buildTextFile = function(){
-
-  console.log('Download initiated');
-  var tableID = "pileupCorrectionspileupCorrectionsResults";
-
-  // Write the table of results to a text file for download.
-  var textFile = '';
-
-  // Iterate through all rows of the table
-  var table = document.getElementById(tableID);
-  for (var i = 0, row; row = table.rows[i]; i++) {
-    //rows would be accessed using the "row" variable assigned in the for loop
-    for(var k=0; k<this.textFileNumTextColumns; k++){
-      if(k>0){ textFile += this.textFileSeparator[this.textFileSeparatorIndex]; }
-      textFile += row.cells[this.cellIndex[k]].innerHTML;
+    // Define the data for each series
+    for(var i=0; i<dataStore.angularBinData.length; i++){
+      if(isFinite(dataStore.theseAngularBins[i]) && isFinite(dataStore.angularBinData[i]) && dataStore.angularBinData[i]>0 && !dataStore.angularBinExcludeList.includes(i) ){
+        xSeries.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
+        yDataSeries.push(dataStore.angularBinData[i]);
+        yResSeries.push(dataStore.angularBinDataResiduals[i]);
+        yErrSeries[0].push(dataStore.angularBinDataUnc[i]);
+        yErrSeries[1].push(dataStore.angularBinDataUnc[i]);
+      }
     }
-    textFile += "\n";
+
+    data[0] = {
+      x: xSeries,
+      y: yResSeries,
+      xaxis: 'x1',
+      yaxis: 'y1',
+      name: 'Residuals',
+      mode: 'markers',
+      type: 'scatter',
+      error_y : {
+        type: 'data',
+        array: yErrSeries[0],
+        visible: true
+      }
+    };
+    data[2] = {
+      x: xSeries,
+      y: yDataSeries,
+      xaxis: 'x2',
+      yaxis: 'y2',
+      name: 'Angular Correlation Data',
+      mode: 'markers',
+      type: 'scatter',
+      error_y : {
+        type: 'data',
+        array: yErrSeries[1],
+        visible: true
+      }
+    };
+    data[1] = {
+      x: dataStore.theseAngularBinsRadians,
+      y: dataStore.displayLineData,
+      xaxis: 'x2',
+      yaxis: 'y2',
+      name: dataStore.displayLineName,
+      mode: 'line'
+    };
+
+    // Define the layout for this plotly
+    var layout = {
+      autosize: true,
+      width: 700,                                // Default is 700px
+      height: 450,                                // Default is 450px
+      title: "Gamma-gamma angular correlation",
+      xaxis:  {domain: [0, 1],       anchor: 'y1', title: "cos(\u03B8)", showline: false, zeroline: false, range: [-1.1,1.1]},
+      yaxis:  {domain: [0, 0.25],    anchor: 'x1', title: "Residual", showline: false, zeroline: false},
+      xaxis2: {domain: [0, 1],    anchor: 'y2', showticklabels: false, showline: false, zeroline: false, range: [-1.1,1.1]},
+      yaxis2: {domain: [0.3, 1],    anchor: 'x2', title: "Normalized counts", showline: false, zeroline: false},
+      legend: {traceorder: 'reversed'},
+      annotations: [{ // Chi-square answer on the plot for the line shown
+        text: dataStore.displayLineTitle,
+        font: {
+          size: 15,
+          color: 'rgb(116, 101, 130)',
+        },
+        showarrow: false, // Hides the arrow pointing to the annotation
+        align: 'center',
+        x: 0.5, // Centers the annotation horizontally
+        y: 0.95, // Positions the annotation at the top of the plot area
+        xref: 'paper', // References the entire plot area (0 to 1)
+        yref: 'paper', // References the entire plot area (0 to 1)
+      }],
+      shapes:[ // Box around the panels
+        {
+          type: 'rect',
+          xref: 'paper', // Reference the entire plot width
+          x0: 0,
+          x1: 1,
+          yref: 'paper', // Reference the entire plot width
+          y0: 0,
+          y1: 1,
+          line:{
+            color: 'black',
+            width: 1
+          }
+        },
+        {
+          type: 'line',
+          xref: 'paper', // Reference the entire plot width
+          x0: 0,
+          x1: 1,
+          yref: 'paper', // Reference the entire plot width
+          y0: 0.275,
+          y1: 0.275,
+          line:{
+            color: 'black',
+            width: 1
+          }
+        }
+      ]
+    };
+
+    // Usual behavior is to call this function, but here we want a stacked graph.
+    //  createPlotlyScatterPlot([xSeries,xSeries],[yDataSeries,yResSeries],[],layout,containerDiv,traceNames);
+    // Now create the Plotly plot
+    Plotly.newPlot(parentDiv, data, layout, config);
   }
 
-  // Create a download link
-  const textBlob = new Blob([textFile], {type: 'text/plain'});
-  URL.revokeObjectURL(window.textBlobURL);
-  const downloadLink = document.createElement('a');
-  downloadLink.href = URL.createObjectURL(textBlob);
-  downloadLink.download = 'GRIFFIN-pileupCorrections-Results.txt';
 
-  // Trigger the download
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-};
+  this.updateChiSquareResultsTable = function(){
+    console.log("updateChiSquareResultsTable");
+    //$("chiSquareReportTable tbody tr").remove();
+    //  chiSquareReportTable
+    var results = dataStore.minimaDetails;
+    var keys = Object.keys(results);
+    keys.sort();
+    var tableID = "chiSquareReportTableDivangularCorrelationsResults";
+    var cellHandles = ["j1","ChiSq","atan","delta","c2","c4","beta","gamma","a2","a4","display"];
 
+    // Need to delete all table rows and create them again.
+    var numRows = document.getElementById(tableID).rows.length;
+    for(var i=0; i<numRows; i++){
+      document.getElementById(tableID).deleteRow(0);
+    }
 
-this.refreshCoefficientsTableData = function(){
-
-  for(var i=0; i<dataStore.THESEcalibrations.length; i++){
-    var thisID = 'energyCalibratorResults'+dataStore.THESEcalibrations[i].name;
-    document.getElementById(thisID+'quad').innerHTML = dataStore.THESEcalibrations[i].fit.quad.toPrecision(6);
-    document.getElementById(thisID+'gain').innerHTML = dataStore.THESEcalibrations[i].fit.gain.toFixed(8);
-    document.getElementById(thisID+'offset').innerHTML = dataStore.THESEcalibrations[i].fit.offset.toFixed(8);
-    document.getElementById(thisID+'r2').innerHTML = dataStore.THESEcalibrations[i].fit.r2.toPrecision(10);
-    document.getElementById(thisID+'residual').innerHTML = dataStore.THESEcalibrations[i].residualMean.toFixed(3);
-  }
-
-};
-
-this.refreshDetectorTableData = function(thisDetectorKey){
-
-  var tableID = "angularCorrelationsangularCorrelationsResults";
-  var table = document.getElementById(tableID);
-  while(table.rows.length>1){ table.deleteRow(table.rows.length-1); }
-
-  for(var j=0; j<dataStore.THESEcalibrations[thisDetectorKey].x.length; j++){
-    var row = table.insertRow(table.rows.length);
-    var rowId = tableID+'Row-'+j;
-    row.id = rowId;
-    for(var cellIndex=0; cellIndex<4; cellIndex++){
+    // Column titles row
+    var rowID = "title";
+    var row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
+    row.id = tableID+rowID;
+    // Create the cells for this row
+    for(var cellIndex=0; cellIndex<cellHandles.length; cellIndex++){
       var cell = row.insertCell(cellIndex);
-      cell.id = row.id + 'Cell' + cellIndex;
+      cell.id = row.id + cellHandles[cellIndex];
     }
-    document.getElementById(rowId + 'Cell' + 0).innerHTML = dataStore.THESEcalibrations[thisDetectorKey].y[j].toFixed(2);
-    document.getElementById(rowId + 'Cell' + 1).innerHTML = dataStore.THESEcalibrations[thisDetectorKey].x[j].toFixed(2);
-    document.getElementById(rowId + 'Cell' + 2).innerHTML = dataStore.THESEcalibrations[thisDetectorKey].xEn[j].toFixed(2);
-    document.getElementById(rowId + 'Cell' + 3).innerHTML = dataStore.THESEcalibrations[thisDetectorKey].residual[j].toFixed(3);
-  }
+    // Fill the contents for the title row
+    document.getElementById(row.id + 'j1').innerHTML = "j\u2081";
+    document.getElementById(row.id + 'ChiSq').innerHTML = "\u{1D6D8}\u00B2/NDF";
+    document.getElementById(row.id + 'atan').innerHTML = "atan(\u03B4\u2081)";
+    document.getElementById(row.id + 'delta').innerHTML = "\u03B4";
+    document.getElementById(row.id + 'c2').innerHTML = "c\u2082";
+    document.getElementById(row.id + 'c4').innerHTML = "c\u2084";
+    document.getElementById(row.id + 'beta').innerHTML = "\u03B2";
+    document.getElementById(row.id + 'gamma').innerHTML = "\u03B3";
+    document.getElementById(row.id + 'a2').innerHTML = "a\u2082";
+    document.getElementById(row.id + 'a4').innerHTML = "a\u2084";
+    document.getElementById(row.id + 'display').innerHTML = "Display";
 
-  // Add the mean and standard deviation to the top of the page
-  document.getElementById('reportCardDiv').innerHTML = "Mean of residuals = "+ dataStore.THESEcalibrations[thisDetectorKey].residualMean.toFixed(2) +
-  "keV, Variance of residuals = "+ dataStore.THESEcalibrations[thisDetectorKey].residualVar.toFixed(2)+"keV";
-
-  // Now also refresh the plot with the data from this Detector
-  this.refreshDetectorPlotData(thisDetectorKey);
-};
-
-this.reconstructResolutionData = function(){
-  //arrange the latest resolution info for representation in the dygraph.
-
-  var i, evt, detectorIndex = [],
-  flags = [];
-  flags.fillN(0, dataStore.THESEdetectors.length)
-
-  for(i=0; i<dataStore.THESEdetectors.length; i++){
-    detectorIndex[i] = i;
-  }
-
-  dataStore.resolutionData = arrangePoints(detectorIndex, [dataStore.PeakResolution[0], dataStore.PeakResolution[1], dataStore.PeakResolution[2], dataStore.PeakResolution[3]], flags );
-  dispatcher({ 'data': dataStore.resolutionData }, 'updateDyData0');
-},
-
-this.refreshDetectorPlotData = function(thisDetectorKey){
-  //arrange the latest residual info for representation in the dygraph.
-
-  // Build the flags array. All zeros but needs to be the correct length
-  var plotIndex = 0; // Plot 0 is the detector results plot
-  var i, evt, dataIndex = [],
-  flags = [];
-  flags.fillN(0, dataStore.THESEcalibrations[thisDetectorKey].y.length)
-
-  // Update the Y axis scale for these data
-  var max = 0;
-  for(i=0; i<dataStore.THESEcalibrations[thisDetectorKey].residual.length; i++){
-    if(Math.abs(dataStore.THESEcalibrations[thisDetectorKey].residual[i])>max){
-      max = Math.abs(dataStore.THESEcalibrations[thisDetectorKey].residual[i]);
-    }
-  }
-  dataStore.YAxisMaxValue[plotIndex][0] = max * 1.33;
-  var min = 0;
-  for(i=0; i<dataStore.THESEcalibrations[thisDetectorKey].residual.length; i++){
-    if(dataStore.THESEcalibrations[thisDetectorKey].residual[i]<min){
-      min = dataStore.THESEcalibrations[thisDetectorKey].residual[i];
-    }
-  }
-  dataStore.YAxisMinValue[plotIndex][0] = min * 1.33;
-
-  dataStore.dataplotData[plotIndex] = arrangePoints(dataStore.THESEcalibrations[thisDetectorKey].y, [dataStore.THESEcalibrations[thisDetectorKey].residual], flags );
-  var eventString = 'updateDyData'+plotIndex;
-  dispatcher({ 'data': dataStore.dataplotData[plotIndex] }, eventString);
-};
-
-this.refreshFullPlotData = function(){
-  //arrange the latest residual info for representation in the dygraph.
-  var keys = Object.keys(dataStore.ComptonWalkCurves);
-
-  // Build the flags array. All zeros but needs to be the correct length
-  var plotIndex = 1; // Plot 0 is the detector results plot
-  var i, evt, dataIndex = [],
-  flags = [];
-  flags.fillN(0, dataStore.ComptonWalkCurves[keys[0]].xSeries.length);
-
-  // Build the Y series data
-  var ySeriesData = [];
-  for(var j=keys.length-1; j>=0; j--){
-    ySeriesData.push(dataStore.ComptonWalkCurves[keys[j]].ySeries);
-  }
-
-  // Update the Y axis scale for these data
-  var max = 0;
-  for(var j=0; j<keys.length; j++){
-    for(i=0; i<dataStore.ComptonWalkCurves[keys[j]].ySeries.length; i++){
-      if(Math.abs(dataStore.ComptonWalkCurves[keys[j]].ySeries[i])>max){
-        max = Math.abs(dataStore.ComptonWalkCurves[keys[j]].ySeries[i]);
+    // Loop through all results of the chi-square fitting
+    for(i=0; i<keys.length; i++){
+      rowID = keys[i];
+      // Create new row for each result if one does not exist already
+      var row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
+      row.id = tableID+rowID;
+      // Create the cells for this row
+      for(var cellIndex=0; cellIndex<cellHandles.length; cellIndex++){
+        var cell = row.insertCell(cellIndex);
+        cell.id = row.id + cellHandles[cellIndex];
+        if(keys[i] == dataStore.bestFitKey){ cell.classList.add("heavy-text"); }
       }
+
+      // Fill the contents for this row
+      if(keys[i][keys[i].length-1]=="1"){ document.getElementById(row.id + 'j1').innerHTML = results[keys[i]].series; }
+      document.getElementById(row.id + 'ChiSq').innerHTML = results[keys[i]].chiSquare;
+      document.getElementById(row.id + 'atan').innerHTML = results[keys[i]].atanDelta1;
+      document.getElementById(row.id + 'delta').innerHTML = bracketNotationString(results[keys[i]].Delta1,results[keys[i]].Delta1Unc);
+      document.getElementById(row.id + 'c2').innerHTML = results[keys[i]].bestFitCoeffsC[0].toFixed(4);
+      document.getElementById(row.id + 'c4').innerHTML = results[keys[i]].bestFitCoeffsC[1].toFixed(4);
+      document.getElementById(row.id + 'beta').innerHTML = results[keys[i]].beta;
+      document.getElementById(row.id + 'gamma').innerHTML = results[keys[i]].gamma;
+      document.getElementById(row.id + 'a2').innerHTML = results[keys[i]].bestFitCoeffsA[0].toFixed(4);
+      document.getElementById(row.id + 'a4').innerHTML = results[keys[i]].bestFitCoeffsA[1].toFixed(4);
+
+      // Insert the display button
+      newButton = document.createElement('button');
+      newButton.setAttribute('id', 'display-'+results[keys[i]].series);
+      newButton.setAttribute('class', 'btn btn-default');
+      newButton.value = keys[i];
+      newButton.innerHTML = "Plot this result";
+      newButton.onclick = function(){
+        dataStore.displayLineData = theoreticalAngularCorrelation(dataStore.minimaDetails[this.value].bestFitCoeffsA[0],dataStore.minimaDetails[this.value].bestFitCoeffsA[1], dataStore.theseAngularBinsRadians);
+        dataStore.displayLineName = "Local minimum, "+this.value.split("-")[0]+", \u03B4 = "+dataStore.minimaDetails[this.value].Delta1;
+        dataStore.displayLineTitle = "\u{1D6D8}\u00B2/NDF = "+dataStore.minimaDetails[this.value].chiSquare;
+        generateResidualsData(dataStore.minimaDetails[this.value].bestFitCoeffsA[0],dataStore.minimaDetails[this.value].bestFitCoeffsA[1]);
+        dataStore._angularCorrelationsReport.refreshAngCorrPlot();
+      }.bind(newButton);
+      document.getElementById(row.id + 'display').appendChild(newButton);
     }
-  }
-  dataStore.YAxisMaxValue[plotIndex][0] = max * 1.33;
-  var min = 0;
-  for(var j=0; j<keys.length; j++){
-    for(i=0; i<dataStore.ComptonWalkCurves[keys[j]].ySeries.length; i++){
-      if(dataStore.ComptonWalkCurves[keys[j]].ySeries[i]<min){
-        min = dataStore.ComptonWalkCurves[keys[j]].ySeries[i];
-      }
-    }
-  }
-  dataStore.YAxisMinValue[plotIndex][0] = min * 1.33;
-
-  dataStore.dataplotData[plotIndex] = arrangePoints(dataStore.ComptonWalkCurves[keys[0]].xSeries, ySeriesData, flags );
-  //  dataStore.dataplotData[plotIndex] = arrangePoints(dataStore.ComptonWalkCurves[key].xSeries, [dataStore.ComptonWalkCurves[key].yUncHiLoSeries[0],dataStore.ComptonWalkCurves[key].ySeries,dataStore.ComptonWalkCurves[key].yUncHiLoSeries[1]], flags );
-  var eventString = 'updateDyData'+plotIndex;
-  dispatcher({ 'data': dataStore.dataplotData[plotIndex] }, eventString);
-
-};
-
-this.refreshResidualsByPeakPlots = function(){
-
-  var containerDiv = "angularCorrelationsResidualsByPeakPlots";
-  var xSeries = [];    // Residuals plot xSeries is detector name
-  var ySeries = [];    // Residuals plot ySeries is the residual
-  var indexes = [];
-  var keys = Object.keys(dataStore.THESEcalibrations);
 
 
-  // The THESECalibrations object only contains valid peak fitting results because it is used for the curve fitting.
-  // So we need to find the literature peak value index separately for each detector
-  for(var i=0; i<keys.length; i++){
-    indexes[i] = [];
-    for(var j=0; j<dataStore.peaksList[dataStore.detectorType][dataStore.sourceType].length; j++){
-      indexes[i].push(dataStore.THESEcalibrations[keys[i]]['y'].indexOf(dataStore.peaksList[dataStore.detectorType][dataStore.sourceType][j]));
-    }
   }
 
-  // Loop through each peak energy and create the plot for it
-  for(var j=0; j<dataStore.peaksList[dataStore.detectorType][dataStore.sourceType].length; j++){
-    xSeries = [];    // Empty the array between plots
-    ySeries = [];    // Empty the array between plots
-    var newDiv = document.createElement('div');
-    newDiv.setAttribute('id', containerDiv+"Peak"+(j+1));
-    newDiv.setAttribute('class', 'col-md-6 plotlyDiv');
-    document.getElementById(containerDiv).appendChild(newDiv);
+  this.populateChiSquarePlot = function(){
+    console.log("populateChiSquarePlot");
+    // data comes from dataStore.delta1Series and dataStore.chiSquareSeries
+    // which are populated in generateChiSquareData()
 
-    // Collect the data from each detector for this series
-    for(var i=0; i<keys.length; i++){
-      if(indexes[i][j]<0){ continue; } // Skip peaks that were not fit correctly
-      xSeries.push(keys[i]);
-      ySeries.push(dataStore.THESEcalibrations[keys[i]]['residual'][indexes[i][j]]);
+    var containerDiv = "angularCorrelationsChiSqPlot";
+    var xSeries = [];    // Chi-square plot xSeries is atan( delta ) where delta is mixing ratio
+    var ySeries = [];    // Chi-square plot ySeries is the Chi-square value
+    var traceNames = []; // Names/titles that will appear in the legend for each series
+
+    // Define the name/title for each series to appear in the legend
+    for(var i=0; i<dataStore.minimaDetails.length; i++){
+      traceNames.push(dataStore.minimaDetails.series[i]);
     }
 
-    // Set the layout options for this plot
+    // Define one series for each chi-squared curve.
+    for(var j=0; j<dataStore.delta1Series.length; j++){
+      xSeries[j] = dataStore.delta1Series[j];
+      ySeries[j] = dataStore.chiSquareSeries[j];
+      traceNames[j] = dataStore.chiSqLabelSeries[j];
+    }
+
+    // Define the layout for this plotly
     var layout = {
       autosize: true,
-      title: "Peak"+(j+1)+" "+dataStore.peaksList[dataStore.detectorType][dataStore.sourceType][j]+" keV",
-      xaxis: {title: "Detector"},
-      yaxis: {title: "Residual (keV)"},
+      title: "\u{1D6D8}\u00B2 distributions",
+      xaxis: {title: "atan(\u03B4)", showline: false, zeroline: false},
+      yaxis: {title: "\u{1D6D8}\u00B2/NDF", type: "log", showline: false, zeroline: false},
+      shapes:[ // Box around the panels
+        {
+          type: 'rect',
+          xref: 'paper', // Reference the entire plot width
+          x0: 0,
+          x1: 1,
+          yref: 'paper', // Reference the entire plot width
+          y0: 0,
+          y1: 1,
+          line:{
+            color: 'black',
+            width: 1
+          }
+        },
+        { // Line for the critical value
+          type: 'line',
+          xref: 'paper', // Reference the entire plot width
+          x0: 0,
+          x1: 1,
+          yref: 'y', // Reference the y-axis data
+          y0: dataStore.criticalValue, // The y-value where the line will be drawn
+          y1: dataStore.criticalValue,
+          line: {
+            color: 'black',
+            width: 1
+          }
+        }
+      ]
     };
 
-    createPlotlyScatterPlot([xSeries],[ySeries],[],layout,containerDiv+"Peak"+(j+1));
-
+    // Send info to create the Plotly scatter plot
+    createPlotlyScatterPlot(xSeries,ySeries,[],layout,containerDiv,traceNames);
   }
 
-}
-
-this.refreshResidualsByDetectorPlots = function(){
-
-  var containerDiv = "angularCorrelationsResidualsByDetectorPlots";
-
-  for(var i=0; i<dataStore.THESEdetectors.length; i++){
-    var thisDetectorKey = dataStore.THESEdetectors[i];
-    var newDiv = document.createElement('div');
-    newDiv.setAttribute('id', containerDiv+thisDetectorKey);
-    newDiv.setAttribute('class', 'col-md-6 plotlyDiv');
-    document.getElementById(containerDiv).appendChild(newDiv);
-
-    var layout = {
-      autosize: true,
-      title: thisDetectorKey,
-      xaxis: {title: "Energy (keV)"},
-      yaxis: {title: "Residual (keV)"},
-    };
-    //  createPlotlyScatterPlot(dataStore.THESEcalibrations[thisDetectorKey].y,dataStore.THESEcalibrations[thisDetectorKey].residual,dataStore.THESEcalibrations[thisDetectorKey].residual,layout,containerDiv+thisDetectorKey);
-    createPlotlyScatterPlot([dataStore.THESEcalibrations[thisDetectorKey].y],[dataStore.THESEcalibrations[thisDetectorKey].residual],[],layout,containerDiv+thisDetectorKey);
-  }
-
-}
 
 }
 </script>

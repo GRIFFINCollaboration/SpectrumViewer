@@ -14,6 +14,7 @@
 
   <script src='scripts/helpers.js' type="text/javascript"></script>
   <script src='scripts/angularCorrelationsBETA.js' type="text/javascript"></script>
+  <script src='scripts/angularCorrelations-helpers.js' type="text/javascript"></script>
   <link rel="stylesheet" type="text/css" href="css/bootstrap3-3-5.min.css">
   <link rel="stylesheet" type="text/css" href="css/custom.css">
 
@@ -25,6 +26,7 @@
   <link id='angularCorrelationsReportTable' rel="import" href="templates/angularCorrelationsBETA/angularCorrelationsReportTable.html">
   <link id='angularCorrelationsDataReportTable' rel="import" href="templates/angularCorrelationsBETA/angularCorrelationsReportTable.html">
   <link id='angularCorrelationsWeightsReportTable' rel="import" href="templates/angularCorrelationsBETA/angularCorrelationsReportTable.html">
+  <link id='angularCorrelationsChiSquareReportTable' rel="import" href="templates/angularCorrelationsBETA/angularCorrelationsReportTable.html">
   <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
   <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
   <link id='plotListLite' rel="import" href="templates/plotList/plotListLite.html">
@@ -159,21 +161,77 @@
 </div>
 
 <!--user input-->
-<div id='gateInputsParentDiv' class='col-md-12 hidden'>
-  <div id='gateInputsDiv' class="input-group">
-    <span class='input-group-addon'>Gamma-ray energies: </span>
-    <input id="gamma1Input" value="1173" min="0" max="4095" type="number" class='black-text'></input>
-    <input id="gamma2Input" value="1332" min="0" max="4095" type="number" class='black-text'></input>
+
+<div id='userInputParentDiv' class='col-md-12 hidden'>
+  <div id='gateInputsParentDiv' class='col-md-6 hidden'>
+    <h3>Gate and Peak Details</h3>
+    <div id='gateInputsDiv' class="input-group">
+      <span class='input-group-addon'>Gamma-ray energies: </span>
+      <input id="gamma1Input" value="1173" min="0" max="4095" type="number" class='black-text'></input>
+      <input id="gamma2Input" value="1332" min="0" max="4095" type="number" class='black-text'></input>
+    </div>
+    <div class='col-md-6'>
+      <button type="button" class="btn btn-default btn-sm" id='ggAngCorrProject' engaged='0'>
+        <span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Let's see it!</span>
+      </button>
+    </div>
   </div>
-  <div class='col-md-6'>
-    <button type="button" class="btn btn-default btn-sm" id='ggAngCorrProject' engaged='0'>
-      <span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Let's see it!</span>
-    </button>
-  </div>
-  <div id='plotDevelopmentDiv' class='col-md-6'>
-    <button type="button" class="btn btn-primary btn-sm"  id='plotDevelopment'>
-      <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> plotDevelopment
-    </button>
+
+  <div id='cascadeInputsDiv' class='col-md-4 hidden'>
+    <div id='cascadeInputs' class='col-md-12'>
+      <!-- This form taken from http://griffincollaboration.github.io/AngularCorrelationUtility/ -->
+      <form class='content' autocomplete='off'>
+        <!-- even / odd -->
+        <div>
+          <h3>Angular Momentum Options</h3>
+          <input type="radio" id="even" name="r-group" data-toggle="button" onchange="evenA();recalculate_L(1);recalculate_L(2);recalculate();" checked>
+          <label class="button" for="even">Even mass</label>
+          <input type="radio" id="odd" name="r-group" data-toggle="button" onchange="oddA();recalculate_L(1);recalculate_L(2);recalculate();">
+          <label class="button" for="odd">Odd mass</label>
+        </div>
+
+        <hr></hr>
+
+        <!-- j1 -->
+        <label for="j1" class="right inline"><b>J<sub>1</sub>:</b></label>
+        <select id="j1" onchange="check_jvalues(); recalculate_L(1); recalculate();"></select>
+        <div id="l1a_value"></div>
+        <div id="l1b_value"></div>
+        <label>L<sub>1b</sub>/L<sub>1a</sub> Mixing:</label>
+        <input id='delta1-slider' type='range' min='-1' max='1' step='0.01' value='0' oninput='syncElements("delta1-slider", "mix1")' onchange='recalculate()' class='mixer'></input>
+        <input id='mix1' type='number' min='-1' max='1' step='0.01' value='0' onchange='syncElements("mix1", "delta1-slider"); recalculate();' class='mixer'></input>
+
+        <hr></hr>
+
+        <!-- j2 -->
+        <label for="j2" class="right inline"><b>J<sub>2</sub>:</b></label>
+        <select id="j2" onchange="check_jvalues(); recalculate_L(1); recalculate_L(2); recalculate();"></select>
+        <div id="l2a_value"></div>
+        <div id="l2b_value"></div>
+        <label>L<sub>2b</sub>/L<sub>2a</sub> Mixing:</label>
+        <input id='delta2-slider' type='range' min='-1' max='1' step='0.01' value='0' oninput='syncElements("delta2-slider", "mix2")' onchange='recalculate()' class='mixer'></input>
+        <input id='mix2' type='number' min='-1' max='1' step='0.01' value='0' onchange='syncElements("mix2", "delta2-slider"); recalculate();' class='mixer'></input>
+
+        <hr></hr>
+
+        <!-- j3 -->
+        <label for="j3" class="right inline"><b>J<sub>3</sub>:</b></label>
+        <select id="j3" onchange="check_jvalues();recalculate_L(2);recalculate();"></select>
+
+        <hr></hr>
+        <label for="confidence_limit_value" class="right inline"><b>Desired confidence limit:</b></label>
+        <div id="confidenceLimitValueDiv">
+          <label for="99CL" class="right inline">99%</label>
+          <input id='99CL' name='confidenceLimitValue' type='radio' value='2' checked></input>
+          <label for="95CL" class="right inline">95%</label>
+          <input id='95CL' name='confidenceLimitValue' type='radio' value='1'></input>
+          <label for="90CL" class="right inline">90%</label>
+          <input id='90CL' name='confidenceLimitValue' type='radio' value='0'></input>
+        </div>
+        <hr></hr>
+      </form>
+      <p id="error1"></p>
+    </div>
   </div>
 </div>
 
@@ -187,9 +245,10 @@
     <div class='col-md-8' id='plotCtrl'></div>
     <div class='sectionWrapper refitButtons'>
       <div class='col-md-12'>
-        <button type="button" class="btn btn-default btn-lg" id='refitPeakButton' engaged='0'>
-          <span id='refitPeakButtonBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
-          <span id='refitPeakButtonText'>Refit a Peak</span>
+        <select id="refitSelect"></select>
+        <button type="button" class="btn btn-default btn-lg" id='refitButton' engaged='0'>
+          <span id='refitButtonBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
+          <span id='refitButtonText'>Refit this Peak</span>
         </button>
       </div>
     </div>
@@ -199,7 +258,7 @@
   </div>
 </div>
 
-<!-- Peak-Fitting results table -->
+<!-- Peak-Fitting results tables -->
 <div id='resultsDataTableRegion' class='col-md-12 hidden'>
   <div id='angularCorrelationsFits' class='col-md-12'></div>
 </div>
@@ -208,18 +267,15 @@
   <div id='angularCorrelationsFits' class='col-md-12'></div>
 </div>
 
-<!--Table of calculations and results-->
-<div id='detectorReportRegion' class='col-md-12'>
-  <div id='tableMenuDiv' class='col-md-12'></div>
-  <div id='reportCardDiv' class='col-md-12'></div>
-  <div id='angularCorrelations' class='col-md-6'></div>
-  <div id='detectorReportPlot' class='col-md-6'></div>
-</div>
-
-<!-- Plot of all curves together -->
+<!-- Plots -->
 <div id='resultsPlotRegion' class='col-md-12'>
+  <div id='dataPlotMessage' class='col-md-12'></div>
   <div id='angularCorrelationsDataPlot' class='col-md-6 plotlyDiv'></div>
   <div id='angularCorrelationsChiSqPlot' class='col-md-6 plotlyDiv'></div>
+  <div id='chiSquareReportTableDiv' class='row justify-content-center'>
+    <h3>Results of chi-square analysis:</h3>
+    <table id="chiSquareReportTable"></table>
+  </div>
 </div>
 
 <div id='foot'></div>
@@ -287,25 +343,18 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
   document.getElementById('ggAngCorrProject').onclick = function(){
     launchAngularCorrelations();
   };
-  document.getElementById('plotDevelopment').onclick = function(){
-    dataStore.angularBinData = [-0.20935139271944703, -Infinity, 0.8162436228248587, 1.0066919901003908, 1.0131270447919414, 1.0049390465779062, 1.0374220560677405, 1.0578295655616166, 1.0397326331581143, 1.0590823485017005, 1.0477490937595226, 1.0766340178330733, 1.0666637582707679, 1.0771274466649152, 1.0821583612591557, 1.0638310908123902, 1.0777410147380688, 1.0845592436522866, 1.0944530489469404, 1.092294552319735, 1.0986633999568065, 1.1051387771093797, 1.0686841501942386, 1.0918642042086681, 1.0932146356975732, 1.1006346453984073, 1.0931931478250247, 1.096083815596698, 1.0990211286845442, 1.0937719283633642, 1.0939594120025817, 1.090526020860387, 1.101397489046885, 1.0779456783075085, 1.083994978608917, 1.0894117502514002, 1.0788449144182424, 1.0513410657259945, 1.0636925069417886, 1.0591175036370015, 1.0685253754311927, 1.0534415383630873, 1.058029838162174, 1.0450397565232226, 1.0444638649075793, 1.0434813418471416, 1.0053007931156175, 1.023362364391266, 1.0078590787163217, 0.9965241109182077, 0.9943410166178226, 0.973101589043212];
-    dataStore.angularBinDataUnc = [-2.3219908274682432e-7, NaN, 0.028041969863244857, 0.031396952970602354, 0.032158204919192294, 0.031756561068986625, 0.033069505763937156, 0.03340323883264668, 0.028609415297454817, 0.028919608835585083, 0.03327976307914477, 0.03423356057728488, 0.029066670766281985, 0.03449246843621891, 0.02869924753970316, 0.029203742540354526, 0.029256809209112514, 0.02894313923594345, 0.029618350536035325, 0.034598295736518285, 0.03451654274139704, 0.029510280584672338, 0.029316741860350545, 0.029550783373209787, 0.029363989731277212, 0.03464858277034879, 0.034505692913906656, 0.029782838384016224, 0.02952466659199145, 0.02936546361343681, 0.02993270461591724, 0.02970325456745676, 0.03417697384394432, 0.029402456687060395, 0.029272544143448712, 0.029424210032125742, 0.02889958915925657, 0.028357131768455737, 0.03401916103196275, 0.028858537162492866, 0.034235058648634215, 0.03324254753142931, 0.028733814403369695, 0.028864448782280193, 0.033341679902351075, 0.03315372234252822, 0.027801609017017732, 0.03224681329385903, 0.03199944315252352, 0.027572285977611785, 0.031503754219991485, 0.03128181506146501];
-
-    document.getElementById('menu').classList.remove('hidden');
-    document.getElementById("dataPlotRegionMenuButton").click();
-    dataStore._angularCorrelationsReport.refreshAngCorrPlot();
-    dataStore._angularCorrelationsReport.refreshTestPlot();
-  };
 
   // initial set up of angular momentum spin option dropdowns
   // and generate initial calculation state
-  /*
   evenA();
   check_jvalues();
   recalculate_L(1);
   recalculate_L(2);
   recalculate();
-  */
+
+  // Set up the refit button
+  document.getElementById('refitButton').onclick = function(){ toggleRefitMode(); }
+  document.getElementById('refitButton').disabled = true; // Disabled until there are peaks to refit
 
   // Set up the CSV file button
   document.getElementById('saveCSV').onclick = function(){ buildCSVfile(); }

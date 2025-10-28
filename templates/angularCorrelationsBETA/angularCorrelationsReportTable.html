@@ -1,56 +1,50 @@
 <template id='angularCorrelationsDataReportTable'>
-    <tr>
-        <td class='col-md-1'>Index</td>
-        <td class='col-md-1'>Ang. Diff.</td>
-        <td class='col-md-1'>Num. Pairs</td>
-        <td class='col-md-1'>Weight</td>
-        <td class='col-md-2'>Raw Counts</td>
-        <td class='col-md-2'>Raw Bkg</td>
-        <td class='col-md-2'>Corrected Area</td>
-        <td class='col-md-2'>Ang. Corr. Value</td>
-    </tr>
-    {{# detectors}}
-        <tr id='{{id}}{{.}}row'>
-            <td id='{{id}}{{.}}index'>-</td>
-            <td id='{{id}}{{.}}angle'>-</td>
-            <td id='{{id}}{{.}}pairs'>-</td>
-            <td id='{{id}}{{.}}weight'>-</td>
-            <td id='{{id}}{{.}}rawData'>-</td>
-            <td id='{{id}}{{.}}rawBkg'>-</td>
-            <td id='{{id}}{{.}}area'>-</td>
-            <td id='{{id}}{{.}}value'>-</td>
-        </tr>
-    {{/ detectors}}
+  <tr>
+    <td class='col-md-1'>Index</td>
+    <td class='col-md-1'>Ang. Diff.</td>
+    <td class='col-md-1'>Ang. Diff.</td>
+    <td class='col-md-1'>Num. Pairs</td>
+    <td class='col-md-1'>Weight</td>
+    <td class='col-md-1'>Raw Counts</td>
+    <td class='col-md-1'>Raw Bkg</td>
+    <td class='col-md-1'>Corrected Area</td>
+    <td class='col-md-1'>Ang. Corr. Value</td>
+    <td class='col-md-1'>Exclude</td>
+  </tr>
+  {{# detectors}}
+  <tr id='{{id}}{{.}}row'>
+    <td id='{{id}}{{.}}index'>-</td>
+    <td id='{{id}}{{.}}angle'>-</td>
+    <td id='{{id}}{{.}}angleATAN'>-</td>
+    <td id='{{id}}{{.}}pairs'>-</td>
+    <td id='{{id}}{{.}}weight'>-</td>
+    <td id='{{id}}{{.}}rawData'>-</td>
+    <td id='{{id}}{{.}}rawBkg'>-</td>
+    <td id='{{id}}{{.}}area'>-</td>
+    <td id='{{id}}{{.}}value'>-</td>
+    <td id='{{id}}{{.}}exclude'></td>
+  </tr>
+  {{/ detectors}}
 </template>
 
 
 <template id='angularCorrelationsWeightsReportTable'>
-    <tr>
-        <td class='col-md-2'>Crystal Name</td>
-        <td class='col-md-2'>Crystal Index</td>
-        <td class='col-md-2'>Energy 1</td>
-        <td class='col-md-2'>Area 1</td>
-        <td class='col-md-2'>Energy 2</td>
-        <td class='col-md-2'>Area 2</td>
-    </tr>
-    {{# detectors}}
-        <tr id='{{id}}{{.}}row'>
-            <td id='{{id}}{{.}}name'>{{.}}</td>
-            <td id='{{id}}{{.}}id'>-</td>
-            <td id='{{id}}{{.}}energy1'>-</td>
-            <td id='{{id}}{{.}}area1'>-</td>
-            <td id='{{id}}{{.}}energy2'>-</td>
-            <td id='{{id}}{{.}}area2'>-</td>
-        </tr>
-    {{/ detectors}}
-</template>
-
-
-<template id='angularCorrelationsReportTable'>
-    <tr>
-        <td class='col-md-2'>Literature Energy (keV)</td>
-        <td class='col-md-2'>Centroid (Channel)</td>
-        <td class='col-md-2'>Centroid (Energy, keV)</td>
-        <td class='col-md-2'>Residual</td>
-    </tr>
+  <tr>
+    <td class='col-md-2'>Crystal Name</td>
+    <td class='col-md-2'>Crystal Index</td>
+    <td class='col-md-2'>Energy 1</td>
+    <td class='col-md-2'>Area 1</td>
+    <td class='col-md-2'>Energy 2</td>
+    <td class='col-md-2'>Area 2</td>
+  </tr>
+  {{# detectors}}
+  <tr id='{{id}}{{.}}row'>
+    <td id='{{id}}{{.}}name'>{{.}}</td>
+    <td id='{{id}}{{.}}id'>-</td>
+    <td id='{{id}}{{.}}energy1'>-</td>
+    <td id='{{id}}{{.}}area1'>-</td>
+    <td id='{{id}}{{.}}energy2'>-</td>
+    <td id='{{id}}{{.}}area2'>-</td>
+  </tr>
+  {{/ detectors}}
 </template>

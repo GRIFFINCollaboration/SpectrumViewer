@@ -478,6 +478,7 @@ function fetchCallback(){
   if(dataStore.sparseData.hasOwnProperty(dataStore.activeMatrix)){
     console.log("The sparseData object already exists!");
     dataStore.hm.draw(dataStore.sparseData[dataStore.activeMatrix]); // Plot it
+    dataStore.hm.setMeta({plotTitle: dataStore.activeMatrix}); // Update titles
   }else{
     console.log("Need to create the sparseData object");
     // unpack the raw 2d spectrum to the required format

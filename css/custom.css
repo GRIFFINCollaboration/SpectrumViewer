@@ -69,6 +69,10 @@ div.ui-subgroup{
   display: flex;
 }
 
+.heavy-text {
+font-weight: bold;
+}
+
 input[type="number"] {
     width: 6em;
 }
