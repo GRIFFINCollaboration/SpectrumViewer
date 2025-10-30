@@ -157,6 +157,7 @@ function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
     };
 
     // Define the data for each series
+    var centralDataSum = 0, count=0, subtitleYposition = 0.95;
     for(var i=0; i<dataStore.angularBinData.length; i++){
       if(isFinite(dataStore.theseAngularBins[i]) && isFinite(dataStore.angularBinData[i]) && dataStore.angularBinData[i]>0 && !dataStore.angularBinExcludeList.includes(i) ){
         xSeries.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
@@ -164,7 +165,14 @@ function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
         yResSeries.push(dataStore.angularBinDataResiduals[i]);
         yErrSeries[0].push(dataStore.angularBinDataUnc[i]);
         yErrSeries[1].push(dataStore.angularBinDataUnc[i]);
+        if(dataStore.theseAngularBins[i]>80 && dataStore.theseAngularBins[i]<100){ centralDataSum += dataStore.angularBinData[i]; count++; }
       }
+    }
+    var centralDataMean = centralDataSum/count;
+    if(centralDataMean>1){ // Place plot subtitle at bottom of panel
+       subtitleYposition = 0.4;
+    }else{ // Place plot subtitle at top of panel
+       subtitleYposition = 0.95;
     }
 
     data[0] = {
@@ -214,7 +222,7 @@ function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
       yaxis:  {domain: [0, 0.25],    anchor: 'x1', title: "Residual", showline: false, zeroline: false},
       xaxis2: {domain: [0, 1],    anchor: 'y2', showticklabels: false, showline: false, zeroline: false, range: [-1.1,1.1]},
       yaxis2: {domain: [0.3, 1],    anchor: 'x2', title: "Normalized counts", showline: false, zeroline: false},
-      legend: {traceorder: 'reversed'},
+      legend: {traceorder: 'reversed', size: 15},
       annotations: [{ // Chi-square answer on the plot for the line shown
         text: dataStore.displayLineTitle,
         font: {
@@ -224,7 +232,7 @@ function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
         showarrow: false, // Hides the arrow pointing to the annotation
         align: 'center',
         x: 0.5, // Centers the annotation horizontally
-        y: 0.95, // Positions the annotation at the top of the plot area
+        y: subtitleYposition, // Positions the annotation at the top of the plot area. 0.95 for top, 0.4 for bottom
         xref: 'paper', // References the entire plot area (0 to 1)
         yref: 'paper', // References the entire plot area (0 to 1)
       }],
@@ -375,6 +383,9 @@ function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
       title: "\u{1D6D8}\u00B2 distributions",
       xaxis: {title: "atan(\u03B4)", showline: false, zeroline: false},
       yaxis: {title: "\u{1D6D8}\u00B2/NDF", type: "log", showline: false, zeroline: false},
+    //  xaxis: {title: {text: "atan(\u03B4)", font: { size: 15 }}, showline: false, zeroline: false},
+    //  yaxis: {title: {text: "atan(\u03B4)", font: { size: 15 }}, type: "log", showline: false, zeroline: false},
+      legend: {size: 15},
       shapes:[ // Box around the panels
         {
           type: 'rect',

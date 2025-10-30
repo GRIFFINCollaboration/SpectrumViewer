@@ -2429,12 +2429,12 @@ function roughGainMatch(spectrumList,detType,sourceType){
   console.log("roughGainMatch for "+detType+" with "+sourceType);
 
   var gainRange = {
-    "HPGe": {"min": 1.0, "max": 1.5, "step":0.001}, // minimum and maximum gains to sweep over
-    "LaBr3": {"min": 0.7, "max": 2.2, "step":0.001}, // minimum and maximum gains to sweep over
-    "PACES": {"min": 0.7, "max": 0.9, "step":0.001}, // minimum and maximum gains to sweep over
-    "RCMP": {"min": 1.1, "max": 1.5, "step":0.001}, // minimum and maximum gains to sweep over
-    "ARIES": {"min": 0.2, "max": 0.4, "step":0.001}, // minimum and maximum gains to sweep over
-    "DES_Wall": {"min": 0.7, "max": 1.2, "step":0.001}, // minimum and maximum gains to sweep over
+    "HPGe":     {"min": 1.0, "max": 1.5, "step":0.001, "threshold":75}, // minimum and maximum gains to sweep over
+    "LaBr3":    {"min": 0.7, "max": 2.6, "step":0.001, "threshold":400}, // minimum and maximum gains to sweep over
+    "PACES":    {"min": 0.7, "max": 0.9, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
+    "RCMP":     {"min": 1.1, "max": 1.5, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
+    "ARIES":    {"min": 0.2, "max": 0.4, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
+    "DES_Wall": {"min": 0.7, "max": 1.2, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
   };
 
   for(var i=0; i<spectrumList.length; i++){
@@ -2452,6 +2452,7 @@ function roughGainMatch(spectrumList,detType,sourceType){
     var gainLowerLimit = gainRange[detType].min;
     var gainUpperLimit = gainRange[detType].max;
     var gainStepSize = gainRange[detType].step;
+    var threshold = gainRange[detType].threshold;
     var minChiSquare = 100000000;
     var chiSquareSeries = [];
     var optimalGain = 1.0; // set here in case we dont get a minimum
@@ -2472,10 +2473,10 @@ function roughGainMatch(spectrumList,detType,sourceType){
       // Calculate the errorSpectrum from the testSpectrum
       for(j=0; j<testSpectrumLength; j++){ errorSpectrum[j] = Math.sqrt(testSpectrum[j]); }
       testSpectrum[0] = 0; errorSpectrum[0] = 0; // elimimate noise
-      if(detType == "HPGe"){
-        for(j=0; j<75; j++){  // Zero the first 75 channels because they cause problems for high-threshold channels
-          testSpectrum[j] = 0; errorSpectrum[j] = 0; referenceSpectrum[j] = 0;
-        }
+
+      // Zero the lowest channels because they cause problems for high-threshold channels
+      for(j=0; j<threshold; j++){
+        testSpectrum[j] = 0; errorSpectrum[j] = 0; referenceSpectrum[j] = 0;
       }
 
       // Calculate the chi square value between this testSpectrum and the referenceSpectrum
@@ -2718,7 +2719,7 @@ function addFitLines(){
     // Add this fitline to the canvas
     dataStore.viewers[viewerName].containerFit.addChild(fitLines[i]);
   }
-  
+
   // Add this peak as an option to the refit select in apps which have this
   if(refitSelect != null){
     var newSelect = document.createElement("select");
