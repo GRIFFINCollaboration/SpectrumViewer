@@ -68,6 +68,11 @@ function setupDataStore(){
   dataStore.hm = {};                                                 //object for 2d matrix stuff
   dataStore.hm._raw = [0];                                                 //buffer for raw matrix data
   dataStore.createdSpectra = {};                                       //initialize empty object for created spectra
+  dataStore.outputRawFlag = false;                                    // When true binary Matrix data will be unpacked to the rawData.data2 array
+  dataStore.outputDenseFlag = false;                                 // When true binary Matrix data will be unpacked to the dataStore.hm._raw and dataStore.hm.raw arrays
+  dataStore.outputSparseFlag = false;                                // When true binary Matrix data will be unpacked to the sparseData object
+  dataStore.outputDeleteFlag = false;                                 // When true the original arrayBuffer will be deleted from dataStore.rawData
+
   //fitting
   dataStore.mode = 'auto';                                              //mode of operation: manual (user defined search regions) or auto (predefined search regions).
   dataStore.ROI = [];                                                     //regions of interest (singles) to look for peaks in: dataStore.ROI[sourceKey][crystalIndex][peakIndex] = [low bin, high bin]
@@ -275,6 +280,7 @@ dataStore.spectrumListProjections = {};                           // List of all
 dataStore.spectrumListProjectionsPeaks = {};                      // List of peaks to fit for each projection from the 180degree coincidence matrix
 dataStore.progressBarNumberTasks = 0;                             // Total count of tasks (spectra to fetch, projections to make, peaks to fit) for use with the progress bar
 dataStore.progressBarTasksCompleted =0;                           // Number of tasks completed so far for use with the progress bar
+dataStore.refitCallback = function(){ setTimeout(dataStore._energyCalibratorReport.postFittingTasks(), 1000); }  // callback function for after a peak refit
 
 dataStore.cellIndex = dataStore.plots.length;
 

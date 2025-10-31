@@ -331,12 +331,12 @@ function unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse,outputDel
   if(outputDelete == null){ outputDelete = false; }
   if(outputRaw==false && outputDense==false && outputSparse==false){
     // No output requested so quit
-    console.log("No output requested for "+key+" in unpackBinaryMatrixData, so no processing done.");
+    //console.log("No output requested for "+key+" in unpackBinaryMatrixData, so no processing done.");
     return;
   }
-  console.log(dataStore.rawData);
-  console.log("unpacking binary data for "+key);
-  console.log("Output flags [Raw/Dense/Sparse/Delete]: "+outputRaw+","+outputDense+","+outputSparse+","+outputDelete);
+//  console.log(dataStore.rawData);
+//  console.log("unpacking binary data for "+key);
+//  console.log("Output flags [Raw/Dense/Sparse/Delete]: "+outputRaw+","+outputDense+","+outputSparse+","+outputDelete);
   const byteArray = new Uint8Array(dataStore.rawData[key].dataBinary);
   const submatrixType = dataStore.rawData[key].submatrixType;
   var XaxisLength = dataStore.rawData[key].XaxisLength;
@@ -531,7 +531,6 @@ async function promiseUnpackedBinaryMatrixData(key){
   // Return a new promise.
   return new Promise(function(resolve) {
 
-    console.log("Promise unpacking binary data for "+key);
     const byteArray = new Uint8Array(dataStore.rawData[key].dataBinary);
     const submatrixType = dataStore.rawData[key].submatrixType;
     var XaxisLength = dataStore.rawData[key].XaxisLength;
@@ -2519,7 +2518,7 @@ function fitPeaksInSeriesOfHistograms(spectra,peaks,detectorType){
 
     // Get the list of keys
     var i, keys = spectra,
-    buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
+    buffer = dataStore.currentPlot; //keep track of whatever was originally plotted so we can return to it
 
     //dump data so there is one displayed at a time
     dataStore.viewers[dataStore.plots[0]].removeData(dataStore.currentPlot);

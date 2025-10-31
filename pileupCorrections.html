@@ -180,9 +180,10 @@
       <div class='col-md-8' id='plotCtrl'></div>
       <div class='sectionWrapper refitButtons'>
         <div class='col-md-12'>
-          <button type="button" class="btn btn-default btn-lg" id='refitPeakButton' engaged='0'>
-            <span id='refitPeakButtonBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
-            <span id='refitPeakButtonText'>Refit a Peak</span>
+          <select id="refitSelect"></select>
+          <button type="button" class="btn btn-default btn-lg" id='refitButton' engaged='0'>
+            <span id='refitButtonBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
+            <span id='refitButtonText'>Refit this Peak</span>
           </button>
         </div>
       </div>
@@ -207,7 +208,7 @@
   <div id='crystal1stHitReportRegion' class='col-md-12 hidden'>
     <div id='crystal1stHitReportRegiontableMenuDiv' class='col-md-12'></div>
     <div id='crystal1stHitReportRegionreportCardDiv' class='col-md-6'></div>
-    <div id='crystal1stHitReportRegionpileupCorrectionsDetector' class='col-md-7'></div>
+    <div id='crystal1stHitReportRegionpileupCorrectionsDetector' class='col-md-12'></div>
     <div id='crystal1stHitReportRegiondetectorReportPlot' class='col-md-5'></div>
   </div>
 
@@ -286,6 +287,10 @@
     // Grab the histogram list for the default directory
     getHistoFileListFromServer();
 
+    // Set up the refit button
+    document.getElementById('refitButton').onclick = function(){ toggleRefitMode(); }
+    document.getElementById('refitButton').disabled = true; // Disabled until there are peaks to refit
+
     // Set up the CSV file button
     document.getElementById('saveCSV').onclick = function(){ buildCSVfile(); }
 
@@ -300,7 +305,7 @@
 
     // Set up the Cal file button
     document.getElementById('saveCal').onclick = function(){ buildCalfile(); }
-    
+
     // Set up the pileup post-process button
     document.getElementById('postProcessFirstButton').onclick = function(){ postProcessPUFirstHit(); }
     document.getElementById('postProcessFirst2Button').onclick = function(){ postProcessPUFirst2Hit(); }

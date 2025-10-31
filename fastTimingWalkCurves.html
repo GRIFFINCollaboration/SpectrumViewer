@@ -156,9 +156,10 @@
     <div class='col-md-8' id='plotCtrl'></div>
     <div class='sectionWrapper refitButtons'>
       <div class='col-md-12'>
-        <button type="button" class="btn btn-default btn-lg" id='refitPeakButton' engaged='0'>
-          <span id='refitPeakButtonBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
-          <span id='refitPeakButtonText'>Refit a Peak</span>
+        <select id="refitSelect"></select>
+        <button type="button" class="btn btn-default btn-lg" id='refitButton' engaged='0'>
+          <span id='refitButtonBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
+          <span id='refitButtonText'>Refit this Peak</span>
         </button>
       </div>
     </div>
@@ -173,17 +174,17 @@
   <div id='fastTimingWalkCurvesFits' class='col-md-12'></div>
 </div>
 
-                <!--Table of calculations and results-->
-              <div id='detectorReportRegion' class='col-md-12'>
-                 <div id='tableMenuDiv' class='col-md-12'></div>
-                 <div id='fastTimingWalkCurves' class='col-md-4'></div>
-                 <div id='detectorReportPlot' class='col-md-8'></div>
-              </div>
+<!--Table of calculations and results-->
+<div id='detectorReportRegion' class='col-md-12'>
+  <div id='tableMenuDiv' class='col-md-12'></div>
+  <div id='fastTimingWalkCurves' class='col-md-4'></div>
+  <div id='detectorReportPlot' class='col-md-8'></div>
+</div>
 
-              <!-- Plot of all curves together -->
-              <div id='resultsPlotRegion' class='col-md-12'>
-                <div id='fastTimingWalkCurvesPlot' class='col-md-12'></div>
-              </div>
+<!-- Plot of all curves together -->
+<div id='resultsPlotRegion' class='col-md-12'>
+  <div id='fastTimingWalkCurvesPlot' class='col-md-12'></div>
+</div>
 
 <!--Table of calculations and results - per crystal corrections -->
 <div id='crystalKReportRegion' class='col-md-12 hidden'>
@@ -250,6 +251,10 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
 
   // Grab the histogram list for the default directory
   getHistoFileListFromServer();
+
+  // Set up the refit button
+  document.getElementById('refitButton').onclick = function(){ toggleRefitMode(); }
+  document.getElementById('refitButton').disabled = true; // Disabled until there are peaks to refit
 
   // Set up the CSV file button
   document.getElementById('saveCSV').onclick = function(){ buildCSVfile(); }

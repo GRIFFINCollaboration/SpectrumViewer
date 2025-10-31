@@ -384,6 +384,12 @@ this.addFitLines = function(){
     thisSelect.add( new Option("Peak "+i+", "+dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[i]+"keV", i) );
   }
 
+    // Enable the refit button in apps which have this
+    var refitButton = document.getElementById('refitButton');
+    if(refitButton != null){
+      refitButton.removeAttribute("disabled");
+    }
+
   dataStore.viewers[viewerName].stage.update();
 },
 
@@ -428,6 +434,14 @@ this.fitCallback = function(center, width, amplitude, intercept, slope){
   var thisPeakIndex = dataStore.THESEcalibrations[dataStore.currentDetector].y.indexOf(dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[dataStore.currentPeak]);
   dataStore.THESEcalibrations[dataStore.currentDetector].xPH[thisPeakIndex] = thisPulseHeight;
 
+    //disengage fit mode button in apps which use this
+    var refitButton = document.getElementById('refitButton');
+    if(refitButton != null){
+      if( parseInt(refitButton.getAttribute('engaged'),10) == 1){
+        refitButton.onclick();
+      }
+    }
+    
   if(dataStore.currentTask == "Finished"){
     // This is a refit of a peak, so trigger recalculation of coefficients and table updates
     this.fitEnergyCalibrationData(dataStore.currentDetector);

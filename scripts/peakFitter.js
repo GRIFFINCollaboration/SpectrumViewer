@@ -47,6 +47,10 @@ function setupDataStore(){
   dataStore.matrix = [];                                                 //buffer for objects containing the uncompressed matrix data
   dataStore.hm = {};                                                 //object for 2d matrix stuff
   dataStore.hm._raw = [];                                                 //buffer for raw matrix data
+  dataStore.outputRawFlag = false;                                    // When true binary Matrix data will be unpacked to the rawData.data2 array
+  dataStore.outputDenseFlag = false;                                 // When true binary Matrix data will be unpacked to the dataStore.hm._raw and dataStore.hm.raw arrays
+  dataStore.outputSparseFlag = false;                                // When true binary Matrix data will be unpacked to the sparseData object
+  dataStore.outputDeleteFlag = false;                                 // When true the original arrayBuffer will be deleted from dataStore.rawData
   dataStore.activeMatrix = '';                                         // keep track of the current 2d spectrum
   dataStore.activeMatrixXaxisLength = 16;
   dataStore.activeMatrixYaxisLength = 16;
@@ -71,6 +75,7 @@ function setupDataStore(){
   dataStore.progressBarKey = "peakFitterProgress";                        // id of the Div with class = "progress-bar ..."
   dataStore.progressBarNumberTasks = 0;                             // Total count of tasks (spectra to fetch, projections to make, peaks to fit) for use with the progress bar
   dataStore.progressBarTasksCompleted = 0;                           // Number of tasks completed so far for use with the progress bar
+  dataStore.refitCallback = function(){ setTimeout(dataStore._peakFitterReport.updateTable(), 1000); }  // callback function for after a peak refit
 
   // Script configuration - all are arrays used only as user input
   // The 'peakFitterScript' can be provided by the user as an upload and will be copied into this 'dataStore.peakFitterScript' object
@@ -173,8 +178,8 @@ function launchPeakFittingProcess(){
   console.log("Begin the auto process...");
 
 
-    // Set up the progress tracking
-    setupProgressBarTracking();
+  // Set up the progress tracking
+  setupProgressBarTracking();
 
   ////////////////
   // Set up the menus, reports and display objects
@@ -259,15 +264,8 @@ function launchPeakFittingProcess(){
 
     // Create the objects for each matrix in the local storage
     // createAllLocalMatrices(listOfMatrices,callback);
-    createAllLocalMatrices(dataStore.spectrumList2d,createAllLocalMatricesCallback);
+    //  createAllLocalMatrices(dataStore.spectrumList2d,createAllLocalMatricesCallback);
 
-  }
-
-  function createAllLocalMatricesCallback(){
-
-    // Now change the DOM in preparation for peak inputs needed for projections
-    console.log("\n=======================================================createAllLocalMatricesCallback");
-    console.log("finished unpacking");
     console.log(dataStore);
 
     // change information message
@@ -296,7 +294,8 @@ function launchPeakFittingProcess(){
       }
 
       // Make the projections needed from each matrix
-      projectAllMatrices(projectionsList,false,histoName);
+      projectAllMatrices(projectionsList,true,histoName);
+
     }
 
     function projectionsCallback(){
@@ -353,10 +352,6 @@ function launchPeakFittingProcess(){
         return;
       }
 
-
-      // Organize the results from this file into the table
-      //  populateReportTable();
-
       // If we have not recieved the histograms from all files yet, request the histograms from the next filename
       if(dataStore.histoFileName != dataStore.spectrumListHistoFileNames[dataStore.spectrumListHistoFileNames.length-1]){
         dataStore.histoFileName = dataStore.spectrumListHistoFileNames[dataStore.spectrumListHistoFileNames.indexOf(dataStore.histoFileName)+1];
@@ -387,7 +382,6 @@ function launchPeakFittingProcess(){
       // Reveal the download buttons
       document.getElementById('saveCSVDiv').classList.remove('hidden');
       document.getElementById('saveScriptDiv').classList.remove('hidden');
-      document.getElementById('postProcessDiv').classList.remove('hidden');
 
       // change information message
       document.getElementById('fittingProjectionsMessage').classList.add('hidden');
@@ -396,180 +390,25 @@ function launchPeakFittingProcess(){
       // Display the results in the table
       dataStore._peakFitterReport.updateTable();
 
+      // Set up the refit button for the displayed spectrum
+      // Add the peaks as an option to the refit select in apps which have this
+      if(refitSelect != null){
+        var newSelect = document.createElement("select");
+        if(dataStore.peakFitterScript.spectrumList1dPeaks[dataStore.currentPlot]){
+          for(i=0; i<dataStore.peakFitterScript.spectrumList1dPeaks[dataStore.currentPlot].length; i++){
+            refitSelect.add( new Option("Peak "+(i+1)+", "+dataStore.peakFitterScript.spectrumList1dPeaks[dataStore.currentPlot][i]+"keV", i) );
+          }
+        }
+        if(dataStore.peakFitterScript.spectrumListProjectionsPeaks[dataStore.currentPlot]){
+          for(i=0; i<dataStore.peakFitterScript.spectrumListProjectionsPeaks[dataStore.currentPlot].length; i++){
+            refitSelect.add( new Option("Peak "+(i+1)+", "+dataStore.peakFitterScript.spectrumListProjectionsPeaks[dataStore.currentPlot][i]+"keV", i) );
+          }
+        }
+      }
+      refitButton.removeAttribute("disabled");
+
       console.log(dataStore);
       console.log("Finished");
       console.log("Completed: "+dataStore.progressBarTasksCompleted+"/"+dataStore.progressBarNumberTasks+" = " + dataStore.ProgressValue);
 
-    }
-
-    function postProcessPUFirstHit(){
-      // Post processing for 2-Hit pileup, 1st Hit correction as function of k.
-      //
-      // Perform 6th order polynomial fit of correction factor as function of k.
-      // Result is function describing correction factor as function of k.
-      console.log("\n\n==============================\n  Post-processing for pile-up, k dependance correction...\n\n");
-
-      var keys = Object.keys(dataStore.fitResults);
-      if(typeof(dataStore.fitResults["run29578-no-2ndHit-Correction:single_hit"]) != "undefined"){
-        var singleHitEnergy = dataStore.fitResults["run29578-no-2ndHit-Correction:single_hit"][0][1]; // Get the single hit centroid energy of 1332keV peak
-      }else{
-        var singleHitEnergy = dataStore.fitResults["run29572:single_hit"][0][1]; // Get the single hit centroid energy of 1408keV peak
-      }
-
-
-      var thisGeindex = 1; // Eventually will be a loop here over all Ge
-      var GeNum = 1;
-      //var GeString = "Ge" + alwaysThisLong(GeNum, 2);
-      var GeString = "Ge" + GeNum;
-      var matrixString = "_E_vs_k_1st_of_2hitx";
-      var data = [];
-      for(var thisKvalue=5; thisKvalue<380; thisKvalue+=20){
-
-        // Spectrum names of the form: GeX_E_vs_k_1st_of_2hitx where X is Ge number.
-        // Kstring will be the projection values in this case.
-        var Kstring = "x-"+(parseInt(thisKvalue)-5)+"-"+(parseInt(thisKvalue)+5);
-
-        for(var j=0; j<keys.length; j++){
-
-          if(keys[j].includes(matrixString) && keys[j].includes(GeString) && keys[j].includes(Kstring)){
-            // xValue is k value.
-            var xValue = parseInt(thisKvalue);
-
-            // yValue is the necessary correction to the Energy centroid to match the centroid from the single Hit spectrum
-            var yValue = parseFloat(1.0-(dataStore.fitResults[keys[j]][0][1]/singleHitEnergy)+1.0);
-
-            data.push([xValue,yValue]);
-          }
-        }
-      }
-
-      // Add the single hit data point. This seems to be important.
-      data.push([379,1.0]);
-
-      console.log(data);
-      // Perform 6th order polynomial fit of the series of y=correction factor as a function of x=k.
-      // Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
-      const result = regression.polynomial(data, { order: 6, precision: 20 });
-
-      console.log(result.equation);
-      console.log(result.string);       //  A string representation of the equation
-
-      // Save the Cstring.
-      // An array of the parameters for this HPGe
-      var Cmstring = "{"
-      for(var i=result.equation.length-1; i>=0; i--){ Cmstring += result.equation[i]; if(i>0){ Cmstring += ","; } }
-      Cmstring += "},";
-
-      var Ccstring = "{"
-      for(var i=result.equation.length-1; i>=0; i--){ Ccstring += result.equation[i]; if(i>0){ Ccstring += ","; } }
-      Ccstring += "},";
-
-      console.log(Cmstring);
-      console.log(Ccstring);
-    }
-
-
-    function postProcessPUSecondHit(){
-      // Post processing for 2-Hit pileup, energy2 vs energy1 as function of k.
-      //
-      // Perform linear fit of each series of projections for each 2d spectrum.
-      // Result y=mx+c where y = correction to E2, x=E1, m=gradient for this k value, c=intercept for this k value.
-      //
-      // Perform 6th order polynomial fit of m and c coefficients of the above.
-      // Result is function describing m and c as function of k.
-      //
-      var kData = [];
-      var mData = [];
-      var cData = [];
-
-      var keys = Object.keys(dataStore.fitResults);
-      if(typeof(dataStore.fitResults["run29578:single_hit"]) != "undefined"){
-        var singleHitEnergy = dataStore.fitResults["run29578:single_hit"][1][1]; // Get the single hit centroid energy of 1332keV peak
-      }else if(typeof(dataStore.fitResults["run29572:single_hit"]) != "undefined"){
-        var singleHitEnergy = dataStore.fitResults["run29572:single_hit"][0][1]; // Get the single hit centroid energy of 1332keV peak
-      }else{
-        var singleHitEnergy = dataStore.fitResults["run29543-k-dependance-corrected:single_hit"][0][1]; // Get the single hit centroid energy of 1408keV peak
-      }
-
-      // Perform linear fit of each series of projections for each 2d spectrum.
-      // Result y=mx+c where y = correction to E2, x=E1, m=gradient for this k value, c=intercept for this k value.
-      var thisGeindex = 1; // Eventually will be a loop here over all Ge
-      var GeNum = 1;
-      var GeString = "Ge" + alwaysThisLong(GeNum, 2);
-      for(var thisKvalue=10; thisKvalue<380; thisKvalue+=20){
-
-        var Kstring = "k"+thisKvalue+"x";
-        kData.push(thisKvalue);
-
-        // Format the data for this detector
-        var data = [];
-
-        for(var j=0; j<keys.length; j++){
-
-          if(keys[j].includes(Kstring)){
-
-            // Omit failed peak fit results. Test the centroid for NaN.
-            if(isNaN(dataStore.fitResults[keys[j]][0][1])){ continue; }
-
-            // xValue is the E1 energy. Calculate from gate in the projection name
-            var tail = keys[j].split(Kstring)[1];
-            tail = tail.substr(1);
-            var xValue = parseInt(tail.split("-")[1]-tail.split("-")[0]/2);
-
-            // yValue is the correction required to E2, derived from the centroid of this fit
-            var yValue = parseFloat(1.0-(dataStore.fitResults[keys[j]][0][1]/singleHitEnergy)+1.0);
-
-            data.push([xValue,yValue]);
-          }
-        }
-
-        // Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
-        const result = regression.polynomial(data, { order: 1, precision: 20 });
-
-        // Save the fit results into the object for this detector
-        mData.push(result.equation[0]);  // The coefficient of the slope term of the equation
-        cData.push(result.equation[1]);  // The coefficient of the offset term of the equation
-      }
-
-      console.log(kData);
-      console.log(mData);
-      console.log(cData);
-
-      // Perform 6th order polynomial fit of each series of m and c as a function of k.
-      console.log("Now fit the m coefficient as a function of k");
-      var data = [];
-      for(var i=0; i<kData.length; i++){
-        data.push([kData[i],mData[i]]);
-      }
-
-      // Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
-      const result_m = regression.polynomial(data, { order: 6, precision: 20 });
-
-      console.log(result_m.equation);
-      console.log(result_m.string);       //  A string representation of the equation
-
-      console.log("Now fit the c coefficient as a function of k");
-      var data = [];
-      for(var i=0; i<kData.length; i++){
-        data.push([kData[i],cData[i]]);
-      }
-
-      // Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
-      const result_c = regression.polynomial(data, { order: 6, precision: 20 });
-
-      console.log(result_c.equation);
-      console.log(result_c.string);       //  A string representation of the equation
-
-      // Save the Cstring.
-      // An array of the parameters for this HPGe
-      var Cmstring = "{"
-      for(var i=result_m.equation.length-1; i>=0; i--){ Cmstring += result_m.equation[i]; if(i>0){ Cmstring += ","; } }
-      Cmstring += "},";
-
-      var Ccstring = "{"
-      for(var i=result_c.equation.length-1; i>=0; i--){ Ccstring += result_c.equation[i]; if(i>0){ Ccstring += ","; } }
-      Ccstring += "},";
-
-      console.log(Cmstring);
-      console.log(Ccstring);
     }

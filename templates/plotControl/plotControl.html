@@ -1,819 +1,820 @@
 <link rel="stylesheet" href="plotControl.css"/>
 
 <template id='plotControl'>
-    {{# vertical}}
-        <button class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" title="Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. {{#scaling}} <br><br> X-Scale: Relable the x-axis via x scale, unit and title; for example, if 1 bin = 10 keV, set x scale/bin to 10, x unit to keV, and x title to Energy. {{/scaling}} <br><br> Axis control and new data will affect any plot with its 'Active Window' checkbox set; hold shift while clicking checkbox to activate multiple windows simultaneously. <br><br> Add a new plot: click the '+' below the existing plots." data-placement="auto left" data-container="body">Plotting Help</button>
+{{# vertical}}
+<button class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" title="Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. {{#scaling}} <br><br> X-Scale: Relable the x-axis via x scale, unit and title; for example, if 1 bin = 10 keV, set x scale/bin to 10, x unit to keV, and x title to Energy. {{/scaling}} <br><br> Axis control and new data will affect any plot with its 'Active Window' checkbox set; hold shift while clicking checkbox to activate multiple windows simultaneously. <br><br> Add a new plot: click the '+' below the existing plots." data-placement="auto left" data-container="body">Plotting Help</button>
 
-        <div id="plotControlForm">
+<div id="plotControlForm">
 
-            <div class='ui-group-vertical'>
-                <span id='cursorReport'>Cursor x: - y: -</span>
-            </div>
+<div class='ui-group-vertical'>
+<span id='cursorReport'>Cursor x: - y: -</span>
+</div>
 
-            <div class='ui-group-vertical'>
-                <h4>X-axis Control for spectrum</h4>
+<div class='ui-group-vertical'>
+<h4>X-axis Control for spectrum</h4>
 
-                <div class="input-group">
-                    <span class='input-group-addon'>min x</span>
-                    <input id="minX" value="0" type="number" class='black-text'></input>
-                </div>
+<div class="input-group">
+<span class='input-group-addon'>min x</span>
+<input id="minX" value="0" type="number" class='black-text'></input>
+</div>
 
-                <div class="input-group">
-                    <span class='input-group-addon'>max x</span>
-                    <input id="maxX" value="2048" type="number" class='black-text'></input>
-                </div>
+<div class="input-group">
+<span class='input-group-addon'>max x</span>
+<input id="maxX" value="2048" type="number" class='black-text'></input>
+</div>
 
-                <div class="input-group">
-                    <span class='input-group-addon'>Scroll</span>
-                    <div class='btn-group' roll='group'>
-                        <button class="btn btn-default" id="bigLeft" type="button">⇇</button>
-                        <button class="btn btn-default" id="littleLeft" type="button">←</button>
-                        <button class="btn btn-default" id="littleRight" type="button">→</button>
-                        <button class="btn btn-default" id="bigRight" type="button">⇉</button>
-                    </div>
-                </div>
+<div class="input-group">
+<span class='input-group-addon'>Scroll</span>
+<div class='btn-group' roll='group'>
+<button class="btn btn-default" id="bigLeft" type="button">⇇</button>
+<button class="btn btn-default" id="littleLeft" type="button">←</button>
+<button class="btn btn-default" id="littleRight" type="button">→</button>
+<button class="btn btn-default" id="bigRight" type="button">⇉</button>
+</div>
+</div>
 
-                <div class="input-group">
-                    <span class='input-group-addon'>History</span>
-                    <div class='btn-group btn-group-sm' roll='group'>
-                        <button class="btn btn-default" id="prev" type="button">Previous</button>
-                        <button class="btn btn-default" id="next" type="button">Next</button>
-                    </div>
-                </div>
+<div class="input-group">
+<span class='input-group-addon'>History</span>
+<div class='btn-group btn-group-sm' roll='group'>
+<button class="btn btn-default" id="prev" type="button">Previous</button>
+<button class="btn btn-default" id="next" type="button">Next</button>
+</div>
+</div>
 
-                {{#scaling}}
-                    <div class="input-group">
-                        <span class='input-group-addon'>x scale/bin</span>
-                        <input id="xScale" value="1" type="number" min="0" step:"any" class='black-text'></input>
-                    </div>
+{{#scaling}}
+<div class="input-group">
+<span class='input-group-addon'>x scale/bin</span>
+<input id="xScale" value="1" type="number" min="0" step:"any" class='black-text'></input>
+</div>
 
-                    <div class="input-group">
-                        <span class='input-group-addon'>x unit</span>
-                        <input id="xUnit" value="" type="text" class='black-text' placeholder="keV, ns, ..."></input>
-                    </div>
+<div class="input-group">
+<span class='input-group-addon'>x unit</span>
+<input id="xUnit" value="" type="text" class='black-text' placeholder="keV, ns, ..."></input>
+</div>
 
-                    <div class="input-group">
-                        <span class='input-group-addon'>x title</span>
-                        <input id="xTitle" value="Channel" type="text" class='black-text'></input>
-                    </div>
-                {{/scaling}}
+<div class="input-group">
+<span class='input-group-addon'>x title</span>
+<input id="xTitle" value="Channel" type="text" class='black-text'></input>
+</div>
+{{/scaling}}
 
-                <div class="btn-group" role="group" aria-label="...">
-                    <button class="btn btn-default btn-sm" id="unzoom" type="button">Unzoom</button>
-                    {{# waveformSnap}}
-                        <button class="btn btn-default btn-sm" id="snapWaveform" type="button">Snap To Wvfrm.</button>
-                    {{/ waveformSnap}}
-                </div>
+<div class="btn-group" role="group" aria-label="...">
+<button class="btn btn-default btn-sm" id="unzoom" type="button">Unzoom</button>
+{{# waveformSnap}}
+<button class="btn btn-default btn-sm" id="snapWaveform" type="button">Snap To Wvfrm.</button>
+{{/ waveformSnap}}
+</div>
 
-            </div>
+</div>
 
-            <div class='ui-group-vertical'>
-                <h4>Y-axis Control for spectrum</h4>
+<div class='ui-group-vertical'>
+<h4>Y-axis Control for spectrum</h4>
 
-                <div id="logToggleWrap"  class='UIchunk btn-group btn-group-sm' roll='group'>
-                    <button id='linearY'class="btn btn-default scale-y active" type="button" value='linear'>Linear</button>
-                    <button id='logY'class="btn btn-default scale-y" type="button" value='log'>Log</button>
-                </div>
-            </div>
+<div id="logToggleWrap"  class='UIchunk btn-group btn-group-sm' roll='group'>
+<button id='linearY'class="btn btn-default scale-y active" type="button" value='linear'>Linear</button>
+<button id='logY'class="btn btn-default scale-y" type="button" value='log'>Log</button>
+</div>
+</div>
 
-            {{# doUpdates}}
-                <div id='updateWrap' class='ui-group-vertical'>
-                    <h4>Data Fetching</h4>
-                    <div class="input-group">
-                        <span class='input-group-addon'>Update Every:</span>
-                        <select id="upOptions" class='form-control'>
-                            <option value="1000">1 s</option>
-                            <option value="2000" selected="selected">2 s</option>
-                            <option value="3000">3 s</option>
-                            <option value="5000">5 s</option>
-                            <option value="10000">10 s</option>
-                            <option value="-1">never</option>
-                        </select>
-                    </div>
+{{# doUpdates}}
+<div id='updateWrap' class='ui-group-vertical'>
+<h4>Data Fetching</h4>
+<div class="input-group">
+<span class='input-group-addon'>Update Every:</span>
+<select id="upOptions" class='form-control'>
+<option value="1000">1 s</option>
+<option value="2000" selected="selected">2 s</option>
+<option value="3000">3 s</option>
+<option value="5000">5 s</option>
+<option value="10000">10 s</option>
+<option value="-1">never</option>
+</select>
+</div>
 
-                    <button id="upNow" class="btn btn-default" type="button">Update Now</button>
-                </div>
-            {{/ doUpdates}}
+<button id="upNow" class="btn btn-default" type="button">Update Now</button>
+</div>
+{{/ doUpdates}}
 
-        </div>
-    {{/ vertical}}
+</div>
+{{/ vertical}}
 
-    {{# horizontal}}
-        <span id='cursorReport'>Cursor x: - y: -</span>
-        <div id="plotControlForm" class='horizontal'>
-            <div class='col-md-3 ui-group-horizontal'>
-                <h4>Y-axis Control</h4>
+{{# horizontal}}
+<span id='cursorReport'>Cursor x: - y: -</span>
+<div id="plotControlForm" class='horizontal'>
+<div class='col-md-3 ui-group-horizontal'>
+<h4>Y-axis Control</h4>
 
-                <div id="logToggleWrap"  class='UIchunk btn-group btn-group-sm' roll='group'>
-                    <button id='linearY'class="btn btn-default scale-y active" type="button" value='linear'>Linear</button>
-                    <button id='logY'class="btn btn-default scale-y" type="button" value='log'>Log</button>
-                </div>
+<div id="logToggleWrap"  class='UIchunk btn-group btn-group-sm' roll='group'>
+<button id='linearY'class="btn btn-default scale-y active" type="button" value='linear'>Linear</button>
+<button id='logY'class="btn btn-default scale-y" type="button" value='log'>Log</button>
+</div>
 
-                <button style='margin-top:1em;' class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" title="Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. <br><br> Axis control and new data will affect any plot with its 'Active Window' checkbox set; hold shift while clicking checkbox to activate multiple windows simultaneously. <br><br> Add a new plot: click the '+' below the existing plots." data-placement="auto left" data-container="body">Plotting Help</button>
+<button style='margin-top:1em;' class="btn btn-info" data-trigger="hover" data-html="true" data-toggle="tooltip" title="Zoom: Click and drag or single-click on either side of the window to zoom to. <br><br> Unzoom: Double-click. <br><br> Axis control and new data will affect any plot with its 'Active Window' checkbox set; hold shift while clicking checkbox to activate multiple windows simultaneously. <br><br> Add a new plot: click the '+' below the existing plots." data-placement="auto left" data-container="body">Plotting Help</button>
 
-                {{# doUpdates}}
-                    <div id='updateWrap' class='ui-group-horizontal'>
-                        <h4>Data Fetching</h4>
-                        <div class="input-group">
-                            <span class='input-group-addon'>Update Every:</span>
-                            <select id="upOptions" class='form-control'>
-                                <option value="1000">1 s</option>
-                                <option value="2000" selected="selected">2 s</option>
-                                <option value="3000">3 s</option>
-                                <option value="5000">5 s</option>
-                                <option value="10000">10 s</option>
-                                <option value="-1">never</option>
-                            </select>
-                        </div>
+{{# doUpdates}}
+<div id='updateWrap' class='ui-group-horizontal'>
+<h4>Data Fetching</h4>
+<div class="input-group">
+<span class='input-group-addon'>Update Every:</span>
+<select id="upOptions" class='form-control'>
+<option value="1000">1 s</option>
+<option value="2000" selected="selected">2 s</option>
+<option value="3000">3 s</option>
+<option value="5000">5 s</option>
+<option value="10000">10 s</option>
+<option value="-1">never</option>
+</select>
+</div>
 
-                        <button id="upNow" class="btn btn-default" type="button">Update Now</button>
-                    </div>
-                {{/ doUpdates}}
-            </div>
+<button id="upNow" class="btn btn-default" type="button">Update Now</button>
+</div>
+{{/ doUpdates}}
+</div>
 
-            <div class='col-md-9 ui-group-horizontal'>
-                <h4>X-axis Control</h4>
+<div class='col-md-9 ui-group-horizontal'>
+<h4>X-axis Control</h4>
 
-                <div class='col-md-4'>
-                    <div class="input-group">
-                        <span class='input-group-addon'>min x</span>
-                        <input id="minX" value="0" type="number" class='black-text small-input'></input>
-                    </div>
+<div class='col-md-4'>
+<div class="input-group">
+<span class='input-group-addon'>min x</span>
+<input id="minX" value="0" type="number" class='black-text small-input'></input>
+</div>
 
-                    <div class="input-group">
-                        <span class='input-group-addon'>max x</span>
-                        <input id="maxX" value="2048" type="number" class='black-text small-input'></input>
-                    </div>
-                </div>
+<div class="input-group">
+<span class='input-group-addon'>max x</span>
+<input id="maxX" value="2048" type="number" class='black-text small-input'></input>
+</div>
+</div>
 
-                <div class='col-md-6'>
-                    <div class="input-group">
-                        <span class='input-group-addon'>Scroll</span>
-                        <div class='btn-group no-wrap' roll='group'>
-                            <button class="btn btn-default" id="bigLeft" type="button">⇇</button>
-                            <button class="btn btn-default" id="littleLeft" type="button">←</button>
-                            <button class="btn btn-default" id="littleRight" type="button">→</button>
-                            <button class="btn btn-default" id="bigRight" type="button">⇉</button>
-                        </div>
-                    </div>
+<div class='col-md-6'>
+<div class="input-group">
+<span class='input-group-addon'>Scroll</span>
+<div class='btn-group no-wrap' roll='group'>
+<button class="btn btn-default" id="bigLeft" type="button">⇇</button>
+<button class="btn btn-default" id="littleLeft" type="button">←</button>
+<button class="btn btn-default" id="littleRight" type="button">→</button>
+<button class="btn btn-default" id="bigRight" type="button">⇉</button>
+</div>
+</div>
 
-                    <div class="input-group">
-                        <span class='input-group-addon'>History</span>
-                        <div class='btn-group btn-group-sm' roll='group'>
-                            <button class="btn btn-default" id="prev" type="button">Previous</button>
-                            <button class="btn btn-default" id="next" type="button">Next</button>
-                        </div>
-                    </div>
-                </div>
+<div class="input-group">
+<span class='input-group-addon'>History</span>
+<div class='btn-group btn-group-sm' roll='group'>
+<button class="btn btn-default" id="prev" type="button">Previous</button>
+<button class="btn btn-default" id="next" type="button">Next</button>
+</div>
+</div>
+</div>
 
-                <div class='col-md-2'>
-                    <div class='input-group'>
-                        <div class="btn-group" role="group" aria-label="...">
-                            <button class="btn btn-default btn-sm" id="unzoom" type="button">Unzoom</button>
-                            {{# waveformSnap}}
-                                <button class="btn btn-default btn-sm" id="snapWaveform" type="button">Snap To Wvfrm.</button>
-                            {{/ waveformSnap}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    {{/ horizontal}}
+<div class='col-md-2'>
+<div class='input-group'>
+<div class="btn-group" role="group" aria-label="...">
+<button class="btn btn-default btn-sm" id="unzoom" type="button">Unzoom</button>
+{{# waveformSnap}}
+<button class="btn btn-default btn-sm" id="snapWaveform" type="button">Snap To Wvfrm.</button>
+{{/ waveformSnap}}
+</div>
+</div>
+</div>
+</div>
+</div>
+{{/ horizontal}}
 </template>
 
 
 <script>
-    function plotControl(wrapID, config){
+function plotControl(wrapID, config){
 
-        this.wrapID = wrapID;
-        this.wrap = document.getElementById(wrapID);
-        this.config = config;
+  this.wrapID = wrapID;
+  this.wrap = document.getElementById(wrapID);
+  this.config = config;
 
-        this.setup = function(){
+  this.setup = function(){
 
-            var i, j, linY, logY;
-            //inject template
-            this.wrap.innerHTML = Mustache.to_html(
-                dataStore.templates.plotControl,
-                {
-                    'id': this.wrapID,
-                    'waveformSnap': dataStore.waveformSnap,
-                    'scaling': dataStore.scaling,
-                    'doUpdates': dataStore.doUpdates,
-                    'vertical': this.config == 'vertical',
-                    'horizontal': this.config == 'horizontal'
-                }
-            )
+    var i, j, linY, logY;
+    //inject template
+    this.wrap.innerHTML = Mustache.to_html(
+      dataStore.templates.plotControl,
+      {
+        'id': this.wrapID,
+        'waveformSnap': dataStore.waveformSnap,
+        'scaling': dataStore.scaling,
+        'doUpdates': dataStore.doUpdates,
+        'vertical': this.config == 'vertical',
+        'horizontal': this.config == 'horizontal'
+      }
+    )
 
-            // set up custom listeners
-            listener(this.wrapID, 'requestPlot', this.routeNewPlot.bind(this));
-            listener(this.wrapID, 'attachCell', this.attachCell.bind(this));
-            listener(this.wrapID, 'newCell', this.setupNewCell.bind(this));
-            listener(this.wrapID, 'deleteCell', this.deleteCell.bind(this));
+    // set up custom listeners
+    listener(this.wrapID, 'requestPlot', this.routeNewPlot.bind(this));
+    listener(this.wrapID, 'attachCell', this.attachCell.bind(this));
+    listener(this.wrapID, 'newCell', this.setupNewCell.bind(this));
+    listener(this.wrapID, 'deleteCell', this.deleteCell.bind(this));
 
-            //keep a list of canvases to point at
-            this.targets = JSON.parse(JSON.stringify(dataStore.plots));
+    //keep a list of canvases to point at
+    this.targets = JSON.parse(JSON.stringify(dataStore.plots));
 
-            //keep a list of 1d spectra to poll (can contain 2d histograms but only one per filename, use active2dSpectra for any additional)
-            this.activeSpectra = [];
+    //keep a list of 1d spectra to poll (can contain 2d histograms but only one per filename, use active2dSpectra for any additional)
+    this.activeSpectra = [];
 
-            //keep a list of 2d spectra to poll
-            this.active2dSpectra = [];
+    //keep a list of 2d spectra to poll
+    this.active2dSpectra = [];
 
-            //UI callbacks:
-            //x-range control:
-            document.getElementById('minX').onchange = this.updateAllXranges.bind(this);
-            document.getElementById('maxX').onchange = this.updateAllXranges.bind(this);
-            //x-scale control:
-            if(document.getElementById('xScale')){
-                document.getElementById('xScale').onchange = this.updateAllXscale.bind(this);
-                document.getElementById('xUnit').onchange = this.updateAllXscale.bind(this);
-                document.getElementById('xTitle').onchange = this.updateAllXscale.bind(this);
-            }
+    //UI callbacks:
+    //x-range control:
+    document.getElementById('minX').onchange = this.updateAllXranges.bind(this);
+    document.getElementById('maxX').onchange = this.updateAllXranges.bind(this);
+    //x-scale control:
+    if(document.getElementById('xScale')){
+      document.getElementById('xScale').onchange = this.updateAllXscale.bind(this);
+      document.getElementById('xUnit').onchange = this.updateAllXscale.bind(this);
+      document.getElementById('xTitle').onchange = this.updateAllXscale.bind(this);
+    }
 
 
-            //x scroll:
-            document.getElementById('bigLeft').onclick = this.scrollAllSpectra.bind(this, -100);
-            document.getElementById('littleLeft').onclick = this.scrollAllSpectra.bind(this, -1);
-            document.getElementById('littleRight').onclick = this.scrollAllSpectra.bind(this, 1);
-            document.getElementById('bigRight').onclick = this.scrollAllSpectra.bind(this, 100);
+    //x scroll:
+    document.getElementById('bigLeft').onclick = this.scrollAllSpectra.bind(this, -100);
+    document.getElementById('littleLeft').onclick = this.scrollAllSpectra.bind(this, -1);
+    document.getElementById('littleRight').onclick = this.scrollAllSpectra.bind(this, 1);
+    document.getElementById('bigRight').onclick = this.scrollAllSpectra.bind(this, 100);
 
-            //prev / next x range buttons
-            document.getElementById('prev').onclick = this.cycleXlimits.bind(this, -1);
-            document.getElementById('next').onclick = this.cycleXlimits.bind(this,  1);
+    //prev / next x range buttons
+    document.getElementById('prev').onclick = this.cycleXlimits.bind(this, -1);
+    document.getElementById('next').onclick = this.cycleXlimits.bind(this,  1);
 
-            //unzoom button
-            document.getElementById('unzoom').onclick = this.unzoomAllSpectra.bind(this);
+    //unzoom button
+    document.getElementById('unzoom').onclick = this.unzoomAllSpectra.bind(this);
 
-            //plug in the waveform snap buttion
-            if(dataStore.waveformSnap)
-                document.getElementById('snapWaveform').onclick = this.snapAll.bind(this);
+    //plug in the waveform snap buttion
+    if(dataStore.waveformSnap)
+    document.getElementById('snapWaveform').onclick = this.snapAll.bind(this);
 
-            //lin-log toggle
-            linY = document.getElementById('linearY');
-            logY = document.getElementById('logY');
-            linY.onclick = this.setAllAxes.bind(this, 'linear');
-            logY.onclick = this.setAllAxes.bind(this, 'log');
+    //lin-log toggle
+    linY = document.getElementById('linearY');
+    logY = document.getElementById('logY');
+    linY.onclick = this.setAllAxes.bind(this, 'linear');
+    logY.onclick = this.setAllAxes.bind(this, 'log');
 
-            //data refresh - note all plots live on the same refresh cycle.
-            if(document.getElementById('updateWrap')){
-                //update interval select
-                document.getElementById('upOptions').onchange = this.startRefreshLoop.bind(document.getElementById('upOptions'), this);
-                //update now button
-                document.getElementById('upNow').onclick = this.refreshAll.bind(this);
+    //data refresh - note all plots live on the same refresh cycle.
+    if(document.getElementById('updateWrap')){
+      //update interval select
+      document.getElementById('upOptions').onchange = this.startRefreshLoop.bind(document.getElementById('upOptions'), this);
+      //update now button
+      document.getElementById('upNow').onclick = this.refreshAll.bind(this);
 
-                //set the refresh loop going
-                this.startRefreshLoop.bind(document.getElementById('upOptions'), this)();
-            }
+      //set the refresh loop going
+      this.startRefreshLoop.bind(document.getElementById('upOptions'), this)();
+    }
 
+  }
+
+  /////////////////////
+  // data routing
+  /////////////////////
+
+  this.routeNewPlot = function(event){
+    //catch a requestPlot event, do appropriate things with it.
+    //<event>: event; requestPlot custom event
+    //this: plotControl object
+
+    var i, evt;
+
+    // Any requests for 2d objects must be rejected here, they are handled elsewhere
+    try{ // use try because the dataStore.2dSpectra array may not exist
+      if(dataStore.twoDimensionalSpectra.includes(event.detail.plotName)){
+        // The plot requested is a 2d matrix but this viewer can only handle 1d
+        return;
+      }
+    }
+    catch(err){
+      // Nothing to do if there are no 2d spectra
+    }
+
+    // Decide which viewer and target to use
+    if(event.detail.target == 'UpperViewer' || event.detail.target == 'LowerViewer'){
+      if(typeof toggleGatingMode === "function") {
+        toggleGatingMode();
+        document.getElementById('modeBtnGate').classList.remove('hidden');
+      }
+
+      // Activate the Gating viewer requested
+      if(event.detail.target == 'UpperViewer'){
+        document.getElementById('gatingGridUpperUpperViewer' + 'attachAxis').checked = true;
+      }
+      if(event.detail.target == 'LowerViewer'){
+        document.getElementById('gatingGridLowerLowerViewer' + 'attachAxis').checked = true;
+      }
+
+    }else{
+      if(typeof toggle1DMode === "function") {
+        // if using the mixed 1d and 2d viewers, ensure we are using the 1d viewer for this 1d histogram
+        toggle1DMode();
+      }
+    }
+
+    //update list of spectra to poll
+    if(this.activeSpectra.indexOf(event.detail.plotName) == -1)
+    this.activeSpectra.push(event.detail.plotName);
+
+    // Set the appropriate Viewer and targets
+    if(typeof(event.detail.target) != 'undefined'){
+      // direct this plot exclusively to the specified viewer and target
+
+      // remove any other spectra if its the UpperViewer
+      if(event.detail.target == 'UpperViewer'){
+        dataStore.viewers[event.detail.target].plotBuffer = {};
+      }
+
+      //if new, send an event to the auxilary control table so it can update itself
+      if(typeof(dataStore.viewers[event.detail.target].plotBuffer[event.detail.plotName]) == 'undefined'){
+
+        // if the plot request points specifically to the Gating viewer then these are locally created spectra
+        //add data now so row adder can find its color assignment, and avoid a refreshAll
+        dataStore.viewers[event.detail.target].addData(event.detail.plotName, dataStore.createdSpectra[event.detail.plotName]);
+
+        dispatcher(
+          {
+            'plotName': event.detail.plotName,
+            'target': event.detail.target
+          },
+          'addPlotRow'
+        )
+
+      } else {
+        // if the plot request points specifically to the Gating viewer then these are locally created spectra
+        dataStore.viewers[event.detail.target].addData(event.detail.plotName, dataStore.createdSpectra[event.detail.plotName]);
+      }
+
+      // Trigger the plotting of the spectrum data
+      dataStore.viewers[event.detail.target].plotData(null, true);
+
+      // avoid a refreshAll and fetchCallback by returning here
+      return;
+    }else{
+      // pass this plot to all active viewers and targets
+      for(i=0; i<this.targets.length; i++){
+
+        //if new, send an event to the auxilary control table so it can update itself
+        if(!dataStore.viewers[this.targets[i]].plotBuffer[event.detail.plotName]){
+
+          //add data now so row adder can find its color assignment
+          dataStore.viewers[this.targets[i]].addData(event.detail.plotName, [0]);
+
+          dispatcher(
+            {
+              'plotName': event.detail.plotName,
+              'target': this.targets[i]
+            },
+            'addPlotRow'
+          )
+
+        } else {
+          //add a dummy spectrum to all active plots
+          dataStore.viewers[this.targets[i]].addData(event.detail.plotName, [0]);
         }
+      }
+    }
 
-        /////////////////////
-        // data routing
-        /////////////////////
+    //demand refresh
+    this.refreshAll()
+  }
 
-        this.routeNewPlot = function(event){
-            //catch a requestPlot event, do appropriate things with it.
-            //<event>: event; requestPlot custom event
-            //this: plotControl object
+  this.refreshAll = function(){
+    //refresh all spectra & odb parameters
+    //this: plotControl object
 
-            var i, evt;
+    var thisRawData = {};
 
-            // Any requests for 2d objects must be rejected here, they are handled elsewhere
-            try{ // use try because the dataStore.2dSpectra array may not exist
-                 if(dataStore.twoDimensionalSpectra.includes(event.detail.plotName)){
-                     // The plot requested is a 2d matrix but this viewer can only handle 1d
-                   return;
-                  }
-            }
-            catch(err){
-             // Nothing to do if there are no 2d spectra
-            }
+    // activeSpectra can now include 1D Projections of 2D matrices which are created locally in the browser.
+    // So these need to be stripped from the requests that go to the server for updates.
+    var activeSpectraForQueries = this.activeSpectra;
+    for(let key in dataStore.createdSpectra) {
+      const index = activeSpectraForQueries.indexOf(key);
+      if (index > -1) {
+        activeSpectraForQueries.splice(index, 1);
+      }
+    }
 
-            // Decide which viewer and target to use
-            if(event.detail.target == 'UpperViewer' || event.detail.target == 'LowerViewer'){
-            if(typeof toggleGatingMode === "function") {
-               toggleGatingMode();
-               document.getElementById('modeBtnGate').classList.remove('hidden');
-             }
-
-               // Activate the Gating viewer requested
-               if(event.detail.target == 'UpperViewer'){
-               document.getElementById('gatingGridUpperUpperViewer' + 'attachAxis').checked = true;
-             }
-             if(event.detail.target == 'LowerViewer'){
-               document.getElementById('gatingGridLowerLowerViewer' + 'attachAxis').checked = true;
-             }
-
-            }else{
-            if(typeof toggle1DMode === "function") {
-               // if using the mixed 1d and 2d viewers, ensure we are using the 1d viewer for this 1d histogram
-               toggle1DMode();
-            }
-          }
-
-            //update list of spectra to poll
-            if(this.activeSpectra.indexOf(event.detail.plotName) == -1)
-                this.activeSpectra.push(event.detail.plotName);
-
-            // Set the appropriate Viewer and targets
-            if(typeof(event.detail.target) != 'undefined'){
-                              // direct this plot exclusively to the specified viewer and target
-
-                              // remove any other spectra if its the UpperViewer
-                              if(event.detail.target == 'UpperViewer'){
-                                dataStore.viewers[event.detail.target].plotBuffer = {};
-                              }
-
-                              //if new, send an event to the auxilary control table so it can update itself
-                              if(typeof(dataStore.viewers[event.detail.target].plotBuffer[event.detail.plotName]) == 'undefined'){
-
-                                  // if the plot request points specifically to the Gating viewer then these are locally created spectra
-                                  //add data now so row adder can find its color assignment, and avoid a refreshAll
-                                  dataStore.viewers[event.detail.target].addData(event.detail.plotName, dataStore.createdSpectra[event.detail.plotName]);
-
-                                  dispatcher(
-                                      {
-                                          'plotName': event.detail.plotName,
-                                          'target': event.detail.target
-                                      },
-                                      'addPlotRow'
-                                  )
-
-                              } else {
-                                  // if the plot request points specifically to the Gating viewer then these are locally created spectra
-                                  dataStore.viewers[event.detail.target].addData(event.detail.plotName, dataStore.createdSpectra[event.detail.plotName]);
-                              }
-
-                              // Trigger the plotting of the spectrum data
-                              dataStore.viewers[event.detail.target].plotData(null, true);
-
-                              // avoid a refreshAll and fetchCallback by returning here
-                              return;
-            }else{
-              // pass this plot to all active viewers and targets
-            for(i=0; i<this.targets.length; i++){
-
-                //if new, send an event to the auxilary control table so it can update itself
-                if(!dataStore.viewers[this.targets[i]].plotBuffer[event.detail.plotName]){
-
-                    //add data now so row adder can find its color assignment
-                    dataStore.viewers[this.targets[i]].addData(event.detail.plotName, [0]);
-
-                    dispatcher(
-                        {
-                            'plotName': event.detail.plotName,
-                            'target': this.targets[i]
-                        },
-                        'addPlotRow'
-                    )
-
-                } else {
-                    //add a dummy spectrum to all active plots
-                    dataStore.viewers[this.targets[i]].addData(event.detail.plotName, [0]);
-                }
-            }
-          }
-
-            //demand refresh
-            this.refreshAll()
+    // the spectrum names of activeSpectra can now include histogram names if they were received from a histogram file.
+    // These need to be stripped before requests go to the server.
+    for(var i=0; i<activeSpectraForQueries.length; i++){
+      if(activeSpectraForQueries[i].includes(':')){
+        activeSpectraForQueries[i] = activeSpectraForQueries[i].split(':')[1];
+      }
+    }
+    // Also strip out the 2d histograms so we can call the binary transfer method
+    var active2dSpectraForQueries = [];
+    if(dataStore.twoDimensionalSpectra){
+      for(let i=0; i<dataStore.twoDimensionalSpectra.length; i++) {
+        var index = activeSpectraForQueries.indexOf(dataStore.twoDimensionalSpectra[i].split(":")[1]);
+        if (index > -1) {
+          active2dSpectraForQueries.push(activeSpectraForQueries[index]);
+          activeSpectraForQueries.splice(index, 1);
         }
+      }
+    }
+    var queries = constructQueries(activeSpectraForQueries);
 
-        this.refreshAll = function(){
-            //refresh all spectra & odb parameters
-            //this: plotControl object
-
-	      var thisRawData = {};
-
-	      // activeSpectra can now include 1D Projections of 2D matrices which are created locally in the browser.
-	      // So these need to be stripped from the requests that go to the server for updates.
-	      var activeSpectraForQueries = this.activeSpectra;
-	      for(let key in dataStore.createdSpectra) {
-	        const index = activeSpectraForQueries.indexOf(key);
-	        if (index > -1) {
-	          activeSpectraForQueries.splice(index, 1);
-	        }
-	      }
-
-	      // the spectrum names of activeSpectra can now include histogram names if they were received from a histogram file.
-	      // These need to be stripped before requests go to the server.
-	      for(var i=0; i<activeSpectraForQueries.length; i++){
-	        if(activeSpectraForQueries[i].includes(':')){
-	          activeSpectraForQueries[i] = activeSpectraForQueries[i].split(':')[1];
-	        }
-	      }
-        // Also strip out the 2d histograms so we can call the binary transfer method
-        var active2dSpectraForQueries = [];
-        for(let i=0; i<dataStore.twoDimensionalSpectra.length; i++) {
-          var index = activeSpectraForQueries.indexOf(dataStore.twoDimensionalSpectra[i].split(":")[1]);
-          if (index > -1) {
-            active2dSpectraForQueries.push(activeSpectraForQueries[index]);
-            activeSpectraForQueries.splice(index, 1);
-          }
-        }
-        var queries = constructQueries(activeSpectraForQueries);
-
-        // Add additional URLs for 2d histograms (one URL per 2d histogram)
-        // ensure one 2d histogram per url using the construct2dQueries function which also calls the binary transfer method
-        var queries2d = [];
-        if(this.active2dSpectra){ active2dSpectraForQueries = active2dSpectraForQueries.concat(this.active2dSpectra); } // Will there be duplication????
-        if(active2dSpectraForQueries.length>0){
-          queries2d = construct2dQueries([],active2dSpectraForQueries);
-        }
+    // Add additional URLs for 2d histograms (one URL per 2d histogram)
+    // ensure one 2d histogram per url using the construct2dQueries function which also calls the binary transfer method
+    var queries2d = [];
+    if(this.active2dSpectra){ active2dSpectraForQueries = active2dSpectraForQueries.concat(this.active2dSpectra); } // Will there be duplication????
+    if(active2dSpectraForQueries.length>0){
+      queries2d = construct2dQueries([],active2dSpectraForQueries);
+    }
     var allQueries1d = queries.map(promiseJSONURL);
     var allQueries2d = queries2d.map(promiseBinaryURL);
     var allQueries = allQueries1d.concat(allQueries2d);
-console.log(allQueries);
 
-	      var spectraFetched = Promise.all(allQueries).then(
-                    function(spectra){
-                        var i, j, key, viewerKey, newKey, this2dKey;
+    var spectraFetched = Promise.all(allQueries).then(
+      function(spectra){
+        var i, j, key, viewerKey, newKey, this2dKey;
 
-                        // Clear all previous saved spectra
-                       // dataStore.rawData = {};
+        // Clear all previous saved spectra
+        // dataStore.rawData = {};
 
-	                // distribute the spectra data received from the analyzer to the appropriate places
-                        // loop through spectra where each element can be up to 16 histograms
-                        for(i=0; i<spectra.length; i++){
+        // distribute the spectra data received from the analyzer to the appropriate places
+        // loop through spectra where each element can be up to 16 histograms
+        for(i=0; i<spectra.length; i++){
 
-                        // Loop through the keys of this spectrum element where each key is a histogram (or components of a 2d matrix)
-                            for(key in spectra[i]){
+          // Loop through the keys of this spectrum element where each key is a histogram (or components of a 2d matrix)
+          for(key in spectra[i]){
 
-                          if(key == 'XaxisLength' || key == 'YaxisLength' || key == 'symmetrized' || key == 'XaxisMin' || key == 'XaxisMax' || key == 'YaxisMin' || key == 'YaxisMax' || key == 'ZaxisMin' || key == 'ZaxisMax' || key == 'data2'){ continue; }
-                          if(key == 'name'){
-                            // Treatment for 2d spectra received by the old json transfer method
-                            // append the histoFileName to the beginning of the 'name' key only
-                            // 'name' is the first component of the matrix element
-                            // modify the spectrum name that were received from a histogram file to include it at the start
+            if(key == 'XaxisLength' || key == 'YaxisLength' || key == 'symmetrized' || key == 'XaxisMin' || key == 'XaxisMax' || key == 'YaxisMin' || key == 'YaxisMax' || key == 'ZaxisMin' || key == 'ZaxisMax' || key == 'data2'){ continue; }
+            if(key == 'name'){
+              // Treatment for 2d spectra received by the old json transfer method
+              // append the histoFileName to the beginning of the 'name' key only
+              // 'name' is the first component of the matrix element
+              // modify the spectrum name that were received from a histogram file to include it at the start
 
-                                if(dataStore.histoFileName.length>0){
-                                   this2dKey = dataStore.histoFileName.split('.')[0] + ':' + JSON.parse(JSON.stringify(spectra[i]['name']));
-                                  spectra[i].name = dataStore.histoFileName.split('.')[0] + ':' + spectra[i].name;
-                                  }else{
-                                   this2dKey = JSON.parse(JSON.stringify(spectra[i]['name']));
-                                  }
+              if(dataStore.histoFileName.length>0){
+                this2dKey = dataStore.histoFileName.split('.')[0] + ':' + JSON.parse(JSON.stringify(spectra[i]['name']));
+                spectra[i].name = dataStore.histoFileName.split('.')[0] + ':' + spectra[i].name;
+              }else{
+                this2dKey = JSON.parse(JSON.stringify(spectra[i]['name']));
+              }
 
-                                  // Reconstruct the 2d histogram object
-                                   var thisMatrix = {
-                                       "name" : JSON.parse(JSON.stringify(spectra[i]['name'])),
-                                       "XaxisLength" : JSON.parse(JSON.stringify(spectra[i]['XaxisLength'])),
-                                       "YaxisLength" : JSON.parse(JSON.stringify(spectra[i]['YaxisLength'])),
-                                       "symmetrized" : JSON.parse(JSON.stringify(spectra[i]['symmetrized'])),
-                                       "XaxisMin" : JSON.parse(JSON.stringify(spectra[i]['XaxisMin'])),
-                                       "XaxisMax" : JSON.parse(JSON.stringify(spectra[i]['XaxisMax'])),
-                                       "YaxisMin" : JSON.parse(JSON.stringify(spectra[i]['YaxisMin'])),
-                                       "YaxisMax" : JSON.parse(JSON.stringify(spectra[i]['YaxisMax'])),
-                                       "ZaxisMin" : JSON.parse(JSON.stringify(spectra[i]['ZaxisMin'])),
-                                       "ZaxisMax" : JSON.parse(JSON.stringify(spectra[i]['ZaxisMax'])),
-                                       "data2" : JSON.parse(JSON.stringify(spectra[i]['data2']))
-                                   };
-                               //keep the raw results around
-                                dataStore.rawData[this2dKey] = thisMatrix;
+              // Reconstruct the 2d histogram object
+              var thisMatrix = {
+                "name" : JSON.parse(JSON.stringify(spectra[i]['name'])),
+                "XaxisLength" : JSON.parse(JSON.stringify(spectra[i]['XaxisLength'])),
+                "YaxisLength" : JSON.parse(JSON.stringify(spectra[i]['YaxisLength'])),
+                "symmetrized" : JSON.parse(JSON.stringify(spectra[i]['symmetrized'])),
+                "XaxisMin" : JSON.parse(JSON.stringify(spectra[i]['XaxisMin'])),
+                "XaxisMax" : JSON.parse(JSON.stringify(spectra[i]['XaxisMax'])),
+                "YaxisMin" : JSON.parse(JSON.stringify(spectra[i]['YaxisMin'])),
+                "YaxisMax" : JSON.parse(JSON.stringify(spectra[i]['YaxisMax'])),
+                "ZaxisMin" : JSON.parse(JSON.stringify(spectra[i]['ZaxisMin'])),
+                "ZaxisMax" : JSON.parse(JSON.stringify(spectra[i]['ZaxisMax'])),
+                "data2" : JSON.parse(JSON.stringify(spectra[i]['data2']))
+              };
+              //keep the raw results around
+              dataStore.rawData[this2dKey] = thisMatrix;
 
 
-                          }else if(key == 'binaryName'){
-                            // Treatment of 2d spectra received by the binary transfer method
-                            // unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse);
-                            // key is used for the dataStore.rawData object
-                            // true/false for which outputs will be generated. This can cause memory overflow if many matrices are requested
+            }else if(key == 'binaryName'){
+              // Treatment of 2d spectra received by the binary transfer method
+              // unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse);
+              // key is used for the dataStore.rawData object
+              // true/false for which outputs will be generated. This can cause memory overflow if many matrices are requested
 
-                          unpackBinaryMatrixData(spectra[i]['binaryName'],dataStore.outputRawFlag,dataStore.outputDenseFlag,dataStore.outputSparseFlag,dataStore.outputDeleteFlag);
-                          }else{
-                            // Treatment for 1d spectra - append the histoFileName to the beginning of the specturm name
+              unpackBinaryMatrixData(spectra[i]['binaryName'],dataStore.outputRawFlag,dataStore.outputDenseFlag,dataStore.outputSparseFlag,dataStore.outputDeleteFlag);
+            }else{
+              // Treatment for 1d spectra - append the histoFileName to the beginning of the specturm name
 
-                               //keep the raw results around
-                                dataStore.rawData[key] = JSON.parse(JSON.stringify(spectra[i][key]));
-                               // thisRawData = JSON.parse(JSON.stringify(spectra[i][key]));
+              //keep the raw results around
+              dataStore.rawData[key] = JSON.parse(JSON.stringify(spectra[i][key]));
+              // thisRawData = JSON.parse(JSON.stringify(spectra[i][key]));
 
-                                // modify any spectrum names that were received from a histogram file to include it at the start
-                                if(dataStore.histoFileName.length>0 && !key.includes(':')){
-                                  newKey = dataStore.histoFileName.split('.')[0] + ':' + key;
-                                  delete Object.assign(dataStore.rawData, {[newKey]: dataStore.rawData[key] })[key];
-                                }else{ newKey = key; }
+              // modify any spectrum names that were received from a histogram file to include it at the start
+              if(dataStore.histoFileName.length>0 && !key.includes(':')){
+                newKey = dataStore.histoFileName.split('.')[0] + ':' + key;
+                delete Object.assign(dataStore.rawData, {[newKey]: dataStore.rawData[key] })[key];
+              }else{ newKey = key; }
 
-                                //repopulate all spectra that use this spectrum
-                                for(viewerKey in dataStore.viewers){
-                                   if(dataStore.viewers[viewerKey].plotBuffer[newKey]){
-                                     dataStore.viewers[viewerKey].addData(newKey, dataStore.rawData[newKey]);
-                                    }
-                                }
-                            }
-                         }
-                      }
-
-                        // Add in the data from any created spectra (projections of 2d objects)
-                            for(key in dataStore.createdSpectra){
-                                //repopulate all spectra that use this spectrum
-                                for(viewerKey in dataStore.viewers){
-                                    if(dataStore.viewers[viewerKey].plotBuffer[key]){
-                                        dataStore.viewers[viewerKey].addData(key, dataStore.createdSpectra[key]);
-                                    }
-                                }
-                            }
-                    }
-                );
-
-            if(dataStore.ODBrequests.length>0){
-                spectraFetched = spectraFetched.then(
-                    dataStore.ODBrequests.map(promiseScript)
-                )
-            }
-
-            spectraFetched.then(
-                function(){
-                    if(typeof fetchCallback === "function"){
-                        fetchCallback();
-                    }
+              //repopulate all spectra that use this spectrum
+              for(viewerKey in dataStore.viewers){
+                if(dataStore.viewers[viewerKey].plotBuffer[newKey]){
+                  dataStore.viewers[viewerKey].addData(newKey, dataStore.rawData[newKey]);
                 }
-            )
-        }
-
-        this.startRefreshLoop = function(controlElement){
-            //sets the refresh loop as a callback to changing the selector menu.
-            //<controlElement>: plotControl element
-            //this: select element (or anything with a .value of time in ms)
-
-            var period = parseInt(this.value,10); //in miliseconds
-
-            clearInterval(dataStore.dataRefreshLoop);
-            if(period != -1)
-                dataStore.dataRefreshLoop = setInterval(controlElement.refreshAll.bind(controlElement), period );
-
-        }
-
-        this.setupNewCell = function(event){
-            // response to a newCell event: plug in interaction callbacks and attach the cell by default
-
-            this.configureCell(event.detail.cellName);
-            this.attachCell();
-        }
-
-        this.configureCell = function(id){
-            //per plot control configuration
-            //<id>: string; plot label from dataStore.plots
-            //this: plotControl object
-
-            //plug in cursor reporting
-            dataStore.viewers[id].mouseMoveCallback = this.cursorReporting.bind(this);
-
-            //send plot limit changes back to the control panel
-            dataStore.viewers[id].chooseLimitsCallback = this.updateRangeSelector.bind(this, id)
-        }
-
-        this.attachCell = function(event){
-            //update the list of plot cells attached to the control
-            //<event>: event; attachCell custom event
-            //this: plotControl object
-
-            var i,
-                activeToggles = document.getElementsByClassName('activeWindowFlag'),
-                state;
-
-            this.targets = []
-
-            for(i=0; i<activeToggles.length; i++){
-                if(activeToggles[i].checked){
-                    this.targets.push(activeToggles[i].value)
-                }
+              }
             }
-
-            //set the UI to something sensible based on the new attachment state
-            this.updateRangeSelector();
+          }
         }
 
-        this.deleteCell = function(event){
-            //respond to a deleteCell event
-            //<event>: event; deleteCell custom event
-            //this: plotControl object
-
-            var index = this.targets.indexOf(event.detail.cellName);
-            if(index != -1)
-                this.targets.splice(index);
-
-        }
-
-        //////////////////
-        // misc
-        //////////////////
-
-        this.cursorReporting = function(x,y){
-            //report cursor positions
-            //<x>: number; bin number under cursor
-            //<y>: number; counts position under cursor
-            //this: plotControl object
-
-            var X = '-', Y = '-';
-
-            if(typeof x == 'number' && !isNaN(x) )
-                X = x>10000? x.toExponential(3) : x;
-            if(typeof y == 'number' && !isNaN(y) )
-                Y = y>10000? y.toExponential(3) : y;
-
-            document.getElementById('cursorReport').innerHTML = 'Cursor: x: ' + X + ' y: ' + Y
-        }
-
-        /////////////////////////////
-        // x-range management
-        /////////////////////////////
-
-        this.updateAllXranges = function(){
-            //update the x-ranges of all active plots based on the text box inputs
-            //this: plotControl object
-            var i;
-
-            for(i=0; i<this.targets.length; i++){
-                this.updatePlotRange(this.targets[i]);
+        // Add in the data from any created spectra (projections of 2d objects)
+        for(key in dataStore.createdSpectra){
+          //repopulate all spectra that use this spectrum
+          for(viewerKey in dataStore.viewers){
+            if(dataStore.viewers[viewerKey].plotBuffer[key]){
+              dataStore.viewers[viewerKey].addData(key, dataStore.createdSpectra[key]);
             }
+          }
         }
+      }
+    );
 
-        this.updatePlotRange = function(plot){
-            //update the plot ranges for the named plot onchange of the x-range input fields
-            //<plot>: string; name of plot to update, from dataStore.plots
-            //this: plotControl object
-            var xMin = document.getElementById('minX'),
-                xMax = document.getElementById('maxX'),
-                x0 = parseInt(xMin.value,10),
-                x1 = parseInt(xMax.value,10);
-
-            if(this.manageXvalidity()){
-
-                dataStore.viewers[plot].XaxisLimitMin = x0;
-                dataStore.viewers[plot].XaxisLimitMax = x1;
-
-                dataStore.viewers[plot].plotData();
-            }
-        }
-
-        this.updateAllXscale = function(){
-            //update the x-scale of all active plots based on the text box inputs
-            //this: plotControl object
-            var i;
-
-            for(i=0; i<this.targets.length; i++){
-                this.updatePlotScale(this.targets[i]);
-            }
-        }
-
-        this.updatePlotScale = function(plot){
-            //update the plot scale for the named plot onchange of the x-scale input fields
-            //<plot>: string; name of plot to update, from dataStore.plots
-            //this: plotControl object
-            var xScale = parseInt(document.getElementById('xScale').value,10),
-                xUnit = document.getElementById('xUnit').value,
-                xTitle = document.getElementById('xTitle').value;
-
-            dataStore.viewers[plot].unitsPerTick = xScale;
-            dataStore.viewers[plot].unitName = xUnit;
-            dataStore.viewers[plot].xAxisTitle = xTitle;
-
-            dataStore.viewers[plot].plotData();
-
-        }
-
-        this.updateRangeSelector = function(){
-            //update the UI when plot limits are changed
-            //if multiple plots are active, track the settings of the last one
-            //<plot>: string; name of plot to update, from dataStore.plots
-            //this: plotControl object
-
-            var target = this.targets[this.targets.length-1],
-                state = dataStore.viewers[target].AxisType == 1 ? 'log' : 'linear';
-
-            if(document.activeElement.id != 'minX')
-                document.getElementById('minX').value = dataStore.viewers[target].XaxisLimitMin;
-            if(document.activeElement.id != 'maxX')
-                document.getElementById('maxX').value = dataStore.viewers[target].XaxisLimitMax;
-            if(document.getElementById('xScale')){
-                document.getElementById('xScale').value = dataStore.viewers[target].unitsPerTick;
-                document.getElementById('xUnit').value = dataStore.viewers[target].unitName;
-                document.getElementById('xTitle').value = dataStore.viewers[target].xAxisTitle;
-            }
-            document.getElementById(state + 'Y').classList.add('active');
-            document.getElementById( (state=='linear' ? 'log':'linear') + 'Y').classList.remove('active');
-
-            this.manageXvalidity();
-        }
-
-        this.manageXvalidity = function(){
-            //check that x min < x max, and complain otherwise.
-            //this: plotControl object
-
-            var xMin = document.getElementById('minX'),
-                xMax = document.getElementById('maxX');
-
-            var x0 = parseInt(xMin.value,10);
-            var x1 = parseInt(xMax.value,10);
-
-            if(x1 <= x0){
-                xMin.setCustomValidity("minimum value of x must be less than maximum value of x.");
-                xMax.setCustomValidity("minimum value of x must be less than maximum value of x.");
-                return false
-            }
-
-            xMin.setCustomValidity("");
-            xMax.setCustomValidity("");
-
-            return true
-        }
-
-        this.scrollAllSpectra = function(scrollDistance){
-            //scroll the x-ranges of all active plots based via the scroll buttons
-            //<scrollDistance>: number; bins to scroll to the right
-            //this: plotControl object
-            var i;
-
-            for(i=0; i<this.targets.length; i++){
-                dataStore.viewers[this.targets[i]].scrollSpectra.bind(dataStore.viewers[this.targets[i]], scrollDistance)();
-            }
-        }
-
-        this.unzoomAllSpectra = function(){
-            //unzoom the x-ranges of all active plots based via the scroll buttons
-            //this: plotControl object
-            var i;
-
-            for(i=0; i<this.targets.length; i++){
-                dataStore.viewers[this.targets[i]].unzoom.bind(dataStore.viewers[this.targets[i]])();
-            }
-        }
-
-        this.cycleXlimits = function(step){
-            //<step>: number; how many steps to take forward in xrange history
-            //this: plotControl object
-            var i;
-            for(i=0; i<this.targets.length; i++){
-                dataStore.viewers[this.targets[i]].restoreLimits.bind(dataStore.viewers[this.targets[i]], step)();
-            }
-
-        }
-
-        /////////////////////
-        // y axis control
-        /////////////////////
-
-        this.snapAll = function(){
-            //snap all active spectra to waveform lock mode
-            //this: plotControl object
-            var i;
-
-            for(i=0; i<this.targets.length; i++){
-                this.waveformSnap(this.targets[i]);
-            }
-        }
-
-        this.waveformSnap = function(plot){
-            //toggle the snap to waveform state on the requested plot
-            //<plot>: string; name of plot to update, from dataStore.plots
-            //this: plotControl object
-
-            if(dataStore.viewers[plot].waveformLock){
-                dataStore.viewers[plot].demandXmin = null;
-                dataStore.viewers[plot].demandXmax = null;
-                dataStore.viewers[plot].demandYmin = null;
-                dataStore.viewers[plot].demandYmax = null;
-                dataStore.viewers[plot].chooseLimitsCallback = this.updateRangeSelector.bind(this, plot);
-                dataStore.viewers[plot].yAxisTitle = 'Counts';
-                dataStore.viewers[plot].unzoom();
-                dataStore.viewers[plot].waveformLock = 0;
-            } else {
-                dataStore.viewers[plot].demandXmin = 0;
-                dataStore.viewers[plot].demandXmax = dataStore.viewers[plot].longestHist()
-                dataStore.viewers[plot].demandYmin = Math.max(0, dataStore.viewers[plot].minY - (dataStore.viewers[plot].maxY - dataStore.viewers[plot].minY)*0.1);
-                dataStore.viewers[plot].demandYmax = dataStore.viewers[plot].maxY + (dataStore.viewers[plot].maxY - dataStore.viewers[plot].minY)*0.1;
-                dataStore.viewers[plot].chooseLimitsCallback = function(plot){
-                    //set some demand values for the y axis and rerun the limit calculation
-                    var rerun = dataStore.viewers[plot].demandYmin == null;
-                    //keep x updated
-                    dataStore.viewers[plot].demandXmin = 0;
-                    dataStore.viewers[plot].demandXmax = dataStore.viewers[plot].longestHist()
-                    //bracket y around min and max
-                    dataStore.viewers[plot].demandYmin = Math.max(0, dataStore.viewers[plot].minY - (dataStore.viewers[plot].maxY - dataStore.viewers[plot].minY)*0.1);
-                    dataStore.viewers[plot].demandYmax = dataStore.viewers[plot].maxY + (dataStore.viewers[plot].maxY - dataStore.viewers[plot].minY)*0.1;
-                    //fix the limits with these demand values
-                    if(rerun) dataStore.viewers[plot].chooseLimits();
-                    dataStore.viewers[plot].demandYmin = null;
-                    dataStore.viewers[plot].demandYmax = null;
-                }.bind(null, plot);
-                dataStore.viewers[plot].yAxisTitle = 'Waveform Level (Snapped)';
-                dataStore.viewers[plot].plotData();
-                dataStore.viewers[plot].waveformLock = 1;
-            }
-        }
-
-        this.setAllAxes = function(state){
-            //set the y axis state of every active plot
-            //<state>: string; 'linear' or 'log'.
-            //this: plotControl object
-
-            var i;
-
-            for(i=0; i<this.targets.length; i++){
-                dataStore.viewers[this.targets[i]].setAxisType(state);
-            }
-
-            //manage button state
-            document.getElementById(state + 'Y').classList.add('active');
-            document.getElementById( (state=='linear' ? 'log':'linear') + 'Y').classList.remove('active');
-        }
+    if(dataStore.ODBrequests.length>0){
+      spectraFetched = spectraFetched.then(
+        dataStore.ODBrequests.map(promiseScript)
+      )
     }
+
+    spectraFetched.then(
+      function(){
+        if(typeof fetchCallback === "function"){
+          fetchCallback();
+        }
+      }
+    )
+  }
+
+  this.startRefreshLoop = function(controlElement){
+    //sets the refresh loop as a callback to changing the selector menu.
+    //<controlElement>: plotControl element
+    //this: select element (or anything with a .value of time in ms)
+
+    var period = parseInt(this.value,10); //in miliseconds
+
+    clearInterval(dataStore.dataRefreshLoop);
+    if(period != -1)
+    dataStore.dataRefreshLoop = setInterval(controlElement.refreshAll.bind(controlElement), period );
+
+  }
+
+  this.setupNewCell = function(event){
+    // response to a newCell event: plug in interaction callbacks and attach the cell by default
+
+    this.configureCell(event.detail.cellName);
+    this.attachCell();
+  }
+
+  this.configureCell = function(id){
+    //per plot control configuration
+    //<id>: string; plot label from dataStore.plots
+    //this: plotControl object
+
+    //plug in cursor reporting
+    dataStore.viewers[id].mouseMoveCallback = this.cursorReporting.bind(this);
+
+    //send plot limit changes back to the control panel
+    dataStore.viewers[id].chooseLimitsCallback = this.updateRangeSelector.bind(this, id)
+  }
+
+  this.attachCell = function(event){
+    //update the list of plot cells attached to the control
+    //<event>: event; attachCell custom event
+    //this: plotControl object
+
+    var i,
+    activeToggles = document.getElementsByClassName('activeWindowFlag'),
+    state;
+
+    this.targets = []
+
+    for(i=0; i<activeToggles.length; i++){
+      if(activeToggles[i].checked){
+        this.targets.push(activeToggles[i].value)
+      }
+    }
+
+    //set the UI to something sensible based on the new attachment state
+    this.updateRangeSelector();
+  }
+
+  this.deleteCell = function(event){
+    //respond to a deleteCell event
+    //<event>: event; deleteCell custom event
+    //this: plotControl object
+
+    var index = this.targets.indexOf(event.detail.cellName);
+    if(index != -1)
+    this.targets.splice(index);
+
+  }
+
+  //////////////////
+  // misc
+  //////////////////
+
+  this.cursorReporting = function(x,y){
+    //report cursor positions
+    //<x>: number; bin number under cursor
+    //<y>: number; counts position under cursor
+    //this: plotControl object
+
+    var X = '-', Y = '-';
+
+    if(typeof x == 'number' && !isNaN(x) )
+    X = x>10000? x.toExponential(3) : x;
+    if(typeof y == 'number' && !isNaN(y) )
+    Y = y>10000? y.toExponential(3) : y;
+
+    document.getElementById('cursorReport').innerHTML = 'Cursor: x: ' + X + ' y: ' + Y
+  }
+
+  /////////////////////////////
+  // x-range management
+  /////////////////////////////
+
+  this.updateAllXranges = function(){
+    //update the x-ranges of all active plots based on the text box inputs
+    //this: plotControl object
+    var i;
+
+    for(i=0; i<this.targets.length; i++){
+      this.updatePlotRange(this.targets[i]);
+    }
+  }
+
+  this.updatePlotRange = function(plot){
+    //update the plot ranges for the named plot onchange of the x-range input fields
+    //<plot>: string; name of plot to update, from dataStore.plots
+    //this: plotControl object
+    var xMin = document.getElementById('minX'),
+    xMax = document.getElementById('maxX'),
+    x0 = parseInt(xMin.value,10),
+    x1 = parseInt(xMax.value,10);
+
+    if(this.manageXvalidity()){
+
+      dataStore.viewers[plot].XaxisLimitMin = x0;
+      dataStore.viewers[plot].XaxisLimitMax = x1;
+
+      dataStore.viewers[plot].plotData();
+    }
+  }
+
+  this.updateAllXscale = function(){
+    //update the x-scale of all active plots based on the text box inputs
+    //this: plotControl object
+    var i;
+
+    for(i=0; i<this.targets.length; i++){
+      this.updatePlotScale(this.targets[i]);
+    }
+  }
+
+  this.updatePlotScale = function(plot){
+    //update the plot scale for the named plot onchange of the x-scale input fields
+    //<plot>: string; name of plot to update, from dataStore.plots
+    //this: plotControl object
+    var xScale = parseInt(document.getElementById('xScale').value,10),
+    xUnit = document.getElementById('xUnit').value,
+    xTitle = document.getElementById('xTitle').value;
+
+    dataStore.viewers[plot].unitsPerTick = xScale;
+    dataStore.viewers[plot].unitName = xUnit;
+    dataStore.viewers[plot].xAxisTitle = xTitle;
+
+    dataStore.viewers[plot].plotData();
+
+  }
+
+  this.updateRangeSelector = function(){
+    //update the UI when plot limits are changed
+    //if multiple plots are active, track the settings of the last one
+    //<plot>: string; name of plot to update, from dataStore.plots
+    //this: plotControl object
+
+    var target = this.targets[this.targets.length-1],
+    state = dataStore.viewers[target].AxisType == 1 ? 'log' : 'linear';
+
+    if(document.activeElement.id != 'minX')
+    document.getElementById('minX').value = dataStore.viewers[target].XaxisLimitMin;
+    if(document.activeElement.id != 'maxX')
+    document.getElementById('maxX').value = dataStore.viewers[target].XaxisLimitMax;
+    if(document.getElementById('xScale')){
+      document.getElementById('xScale').value = dataStore.viewers[target].unitsPerTick;
+      document.getElementById('xUnit').value = dataStore.viewers[target].unitName;
+      document.getElementById('xTitle').value = dataStore.viewers[target].xAxisTitle;
+    }
+    document.getElementById(state + 'Y').classList.add('active');
+    document.getElementById( (state=='linear' ? 'log':'linear') + 'Y').classList.remove('active');
+
+    this.manageXvalidity();
+  }
+
+  this.manageXvalidity = function(){
+    //check that x min < x max, and complain otherwise.
+    //this: plotControl object
+
+    var xMin = document.getElementById('minX'),
+    xMax = document.getElementById('maxX');
+
+    var x0 = parseInt(xMin.value,10);
+    var x1 = parseInt(xMax.value,10);
+
+    if(x1 <= x0){
+      xMin.setCustomValidity("minimum value of x must be less than maximum value of x.");
+      xMax.setCustomValidity("minimum value of x must be less than maximum value of x.");
+      return false
+    }
+
+    xMin.setCustomValidity("");
+    xMax.setCustomValidity("");
+
+    return true
+  }
+
+  this.scrollAllSpectra = function(scrollDistance){
+    //scroll the x-ranges of all active plots based via the scroll buttons
+    //<scrollDistance>: number; bins to scroll to the right
+    //this: plotControl object
+    var i;
+
+    for(i=0; i<this.targets.length; i++){
+      dataStore.viewers[this.targets[i]].scrollSpectra.bind(dataStore.viewers[this.targets[i]], scrollDistance)();
+    }
+  }
+
+  this.unzoomAllSpectra = function(){
+    //unzoom the x-ranges of all active plots based via the scroll buttons
+    //this: plotControl object
+    var i;
+
+    for(i=0; i<this.targets.length; i++){
+      dataStore.viewers[this.targets[i]].unzoom.bind(dataStore.viewers[this.targets[i]])();
+    }
+  }
+
+  this.cycleXlimits = function(step){
+    //<step>: number; how many steps to take forward in xrange history
+    //this: plotControl object
+    var i;
+    for(i=0; i<this.targets.length; i++){
+      dataStore.viewers[this.targets[i]].restoreLimits.bind(dataStore.viewers[this.targets[i]], step)();
+    }
+
+  }
+
+  /////////////////////
+  // y axis control
+  /////////////////////
+
+  this.snapAll = function(){
+    //snap all active spectra to waveform lock mode
+    //this: plotControl object
+    var i;
+
+    for(i=0; i<this.targets.length; i++){
+      this.waveformSnap(this.targets[i]);
+    }
+  }
+
+  this.waveformSnap = function(plot){
+    //toggle the snap to waveform state on the requested plot
+    //<plot>: string; name of plot to update, from dataStore.plots
+    //this: plotControl object
+
+    if(dataStore.viewers[plot].waveformLock){
+      dataStore.viewers[plot].demandXmin = null;
+      dataStore.viewers[plot].demandXmax = null;
+      dataStore.viewers[plot].demandYmin = null;
+      dataStore.viewers[plot].demandYmax = null;
+      dataStore.viewers[plot].chooseLimitsCallback = this.updateRangeSelector.bind(this, plot);
+      dataStore.viewers[plot].yAxisTitle = 'Counts';
+      dataStore.viewers[plot].unzoom();
+      dataStore.viewers[plot].waveformLock = 0;
+    } else {
+      dataStore.viewers[plot].demandXmin = 0;
+      dataStore.viewers[plot].demandXmax = dataStore.viewers[plot].longestHist()
+      dataStore.viewers[plot].demandYmin = Math.max(0, dataStore.viewers[plot].minY - (dataStore.viewers[plot].maxY - dataStore.viewers[plot].minY)*0.1);
+      dataStore.viewers[plot].demandYmax = dataStore.viewers[plot].maxY + (dataStore.viewers[plot].maxY - dataStore.viewers[plot].minY)*0.1;
+      dataStore.viewers[plot].chooseLimitsCallback = function(plot){
+        //set some demand values for the y axis and rerun the limit calculation
+        var rerun = dataStore.viewers[plot].demandYmin == null;
+        //keep x updated
+        dataStore.viewers[plot].demandXmin = 0;
+        dataStore.viewers[plot].demandXmax = dataStore.viewers[plot].longestHist()
+        //bracket y around min and max
+        dataStore.viewers[plot].demandYmin = Math.max(0, dataStore.viewers[plot].minY - (dataStore.viewers[plot].maxY - dataStore.viewers[plot].minY)*0.1);
+        dataStore.viewers[plot].demandYmax = dataStore.viewers[plot].maxY + (dataStore.viewers[plot].maxY - dataStore.viewers[plot].minY)*0.1;
+        //fix the limits with these demand values
+        if(rerun) dataStore.viewers[plot].chooseLimits();
+        dataStore.viewers[plot].demandYmin = null;
+        dataStore.viewers[plot].demandYmax = null;
+      }.bind(null, plot);
+      dataStore.viewers[plot].yAxisTitle = 'Waveform Level (Snapped)';
+      dataStore.viewers[plot].plotData();
+      dataStore.viewers[plot].waveformLock = 1;
+    }
+  }
+
+  this.setAllAxes = function(state){
+    //set the y axis state of every active plot
+    //<state>: string; 'linear' or 'log'.
+    //this: plotControl object
+
+    var i;
+
+    for(i=0; i<this.targets.length; i++){
+      dataStore.viewers[this.targets[i]].setAxisType(state);
+    }
+
+    //manage button state
+    document.getElementById(state + 'Y').classList.add('active');
+    document.getElementById( (state=='linear' ? 'log':'linear') + 'Y').classList.remove('active');
+  }
+}
 </script>

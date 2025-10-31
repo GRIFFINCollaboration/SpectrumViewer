@@ -52,6 +52,10 @@ function setupDataStore(){
   dataStore.matrix = [];                                                 //buffer for objects containing the uncompressed matrix data
   dataStore.hm = {};                                                 //object for 2d matrix stuff
   dataStore.hm._raw = [];                                                 //buffer for raw matrix data
+  dataStore.outputRawFlag = false;                                    // When true binary Matrix data will be unpacked to the rawData.data2 array
+  dataStore.outputDenseFlag = false;                                 // When true binary Matrix data will be unpacked to the dataStore.hm._raw and dataStore.hm.raw arrays
+  dataStore.outputSparseFlag = false;                                // When true binary Matrix data will be unpacked to the sparseData object
+  dataStore.outputDeleteFlag = false;                                 // When true the original arrayBuffer will be deleted from dataStore.rawData
   dataStore.activeMatrix = '';                                         // keep track of the current 2d spectrum
   dataStore.activeMatrixXaxisLength = 16;
   dataStore.activeMatrixYaxisLength = 16;
@@ -83,6 +87,7 @@ function setupDataStore(){
   dataStore.progressBarKey = "crosstalkCorrectionsProgress";                        // id of the Div with class = "progress-bar ..."
   dataStore.progressBarNumberTasks = 0;                             // Total count of tasks (spectra to fetch, projections to make, peaks to fit) for use with the progress bar
   dataStore.progressBarTasksCompleted = 0;                           // Number of tasks completed so far for use with the progress bar
+  dataStore.refitCallback = function(){ setTimeout(postProcessCrosstalkCorrections(), 1000); }  // callback function for after a peak refit
 
   // Script configuration - all are arrays used only as user input
   // The 'peakFitterScript' can be provided by the user as an upload and will be copied into this 'dataStore.peakFitterScript' object
@@ -403,44 +408,40 @@ function launchPeakFittingProcess(){
   };
 
   function fetchCallback(){
-    // Create the objects for each matrix in the local storage
-    // createAllLocalMatrices(listOfMatrices,callback);
-    createAllLocalMatrices(dataStore.spectrumList2d,createAllLocalMatricesCallback);
 
+        // change information message
+        document.getElementById('fetchingMessage').classList.add('hidden');
+        document.getElementById('projectionsMessage').classList.remove('hidden');
+
+        // Set the current task to keep track of our progress
+        dataStore.currentTask = 'Projections';
+
+        // Create projectionsList for the input of the function projectAllMatrices(projectionsList)
+        // projectionsList is an array of objects.
+        // Each object contains the "matrixName" which is a valid key for the dataStore.matrix array.
+        // Each object also contains the "gateDetails" which is an array of gates specific to that 2d spectrum.
+        // Format for gates: 'matrixname': [[axis,gateMin,gateMax,BG1SF,BG1Min,BG1Max,BG2SF,BG2Min,BG2Max], [], ...]
+        // Where BG1SF is the Scaling Factor for a projection between bins BG1Min and BG1Max which will be subtracted from the main Gate projection between bins gateMin and gateMax onto the 'axis' axis.
+        var projectionsList = [];
+        var histoName = dataStore.histoFileName.split(".")[0];
+        for(var i=0; i<dataStore.spectrumList2d.length; i++){
+          for(var j=0; j<dataStore.spectrumListGates[dataStore.spectrumList2d[i]].length; j++){
+            projectionsList.push(
+              {
+                "matrixName": histoName  + ":" + dataStore.spectrumList2d[i],
+                "gateDetails": dataStore.spectrumListGates[dataStore.spectrumList2d[i]][j]
+              });
+            }
+          }
+
+          // Make the projections needed from each matrix
+          projectAllMatrices(projectionsList,true,histoName);
   }
 
-  function createAllLocalMatricesCallback(){
-
-    // change information message
-    document.getElementById('fetchingMessage').classList.add('hidden');
-    document.getElementById('projectionsMessage').classList.remove('hidden');
-
-    // Set the current task to keep track of our progress
-    dataStore.currentTask = 'Projections';
-
-    // Create projectionsList for the input of the function projectAllMatrices(projectionsList)
-    // projectionsList is an array of objects.
-    // Each object contains the "matrixName" which is a valid key for the dataStore.matrix array.
-    // Each object also contains the "gateDetails" which is an array of gates specific to that 2d spectrum.
-    // Format for gates: 'matrixname': [[axis,gateMin,gateMax,BG1SF,BG1Min,BG1Max,BG2SF,BG2Min,BG2Max], [], ...]
-    // Where BG1SF is the Scaling Factor for a projection between bins BG1Min and BG1Max which will be subtracted from the main Gate projection between bins gateMin and gateMax onto the 'axis' axis.
-    var projectionsList = [];
-    var histoName = dataStore.histoFileName.split(".")[0];
-    for(var i=0; i<dataStore.spectrumList2d.length; i++){
-      for(var j=0; j<dataStore.spectrumListGates[dataStore.spectrumList2d[i]].length; j++){
-        projectionsList.push(
-          {
-            "matrixName": histoName  + ":" + dataStore.spectrumList2d[i],
-            "gateDetails": dataStore.spectrumListGates[dataStore.spectrumList2d[i]][j]
-          });
-        }
-      }
-
-      // Make the projections needed from each matrix
-      projectAllMatrices(projectionsList,false,histoName);
-    }
-
     function projectionsCallback(){
+
+console.log("===============projectionsCallback()================");
+console.log(dataStore);
 
       // change information message
       document.getElementById('projectionsMessage').classList.add('hidden');

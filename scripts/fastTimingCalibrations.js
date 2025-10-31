@@ -53,6 +53,10 @@ function setupDataStore(){
   dataStore.matrix = [];                                                 //buffer for objects containing the uncompressed matrix data
   dataStore.hm = {};                                                 //object for 2d matrix stuff
   dataStore.hm._raw = [];                                                 //buffer for raw matrix data
+  dataStore.outputRawFlag = false;                                    // When true binary Matrix data will be unpacked to the rawData.data2 array
+  dataStore.outputDenseFlag = false;                                 // When true binary Matrix data will be unpacked to the dataStore.hm._raw and dataStore.hm.raw arrays
+  dataStore.outputSparseFlag = false;                                // When true binary Matrix data will be unpacked to the sparseData object
+  dataStore.outputDeleteFlag = false;                                 // When true the original arrayBuffer will be deleted from dataStore.rawData
   dataStore.activeMatrix = '';                                         // keep track of the current 2d spectrum
   dataStore.activeMatrixXaxisLength = 16;
   dataStore.activeMatrixYaxisLength = 16;
@@ -86,6 +90,7 @@ function setupDataStore(){
   dataStore.progressBarKey = "fastTimingCalibrationsProgress";  // id of the Div with class = "progress-bar ..."
   dataStore.progressBarNumberTasks = 0;                             // Total count of tasks (spectra to fetch, projections to make, peaks to fit) for use with the progress bar
   dataStore.progressBarTasksCompleted = 0;                           // Number of tasks completed so far for use with the progress bar
+
 
   // Script configuration - all are arrays used only as user input
   // The 'peakFitterScript' can be provided by the user as an upload and will be copied into this 'dataStore.peakFitterScript' object

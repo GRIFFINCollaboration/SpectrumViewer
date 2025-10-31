@@ -91,6 +91,7 @@ function setupDataStore(){
   dataStore.progressBarKey = "angularCorrelationsProgress";  // id of the Div with class = "progress-bar ..."
   dataStore.progressBarNumberTasks = 0;                             // Total count of tasks (spectra to fetch, projections to make, peaks to fit) for use with the progress bar
   dataStore.progressBarTasksCompleted = 0;                           // Number of tasks completed so far for use with the progress bar
+  dataStore.refitCallback = function(){ setTimeout(processAngularCorrelationData(), 1000); }  // callback function for after a peak refit
 
   // Script configuration - all are arrays used only as user input
   // The 'peakFitterScript' can be provided by the user as an upload and will be copied into this 'dataStore.peakFitterScript' object
@@ -299,7 +300,6 @@ function setupDataStore(){
   dataStore.displayLineData = [];              // Data for the line drawn on the Ang Corr Data plot. Initiallty it will be best fit but can be different
   dataStore.displayLineName = [];              // Name for the line drawn on the Ang Corr Data plot. Initiallty it will be best fit but can be different
   dataStore.displayLineTitle = ""; // Text to be shown as a subtitle on the data plot
-  dataStore.refitCallback = function(){ setTimeout(processAngularCorrelationData(), 1000); }  // callback function for after a peak refit
 
   dataStore.theseAngularBins = [];   // At initalization the appropriate 110/145mm data will be copied into here
   dataStore.theseAngularBinsRadians = []; // angular bins in radians rather than degrees
