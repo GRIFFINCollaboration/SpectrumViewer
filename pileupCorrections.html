@@ -286,6 +286,10 @@
 
     // Grab the histogram list for the default directory
     getHistoFileListFromServer();
+    getMidasFileListFromServer(); // The request for details follows this. Needed for adding run titles to selects
+
+    // Set up event listener for adding run titles to selects
+    listener('histoChoiceDir', 'midasFileDetailsAvailable', addTitlesToHistoListSelect);
 
     // Set up the refit button
     document.getElementById('refitButton').onclick = function(){ toggleRefitMode(); }

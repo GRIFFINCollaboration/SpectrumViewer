@@ -440,9 +440,6 @@ function launchPeakFittingProcess(){
 
     function projectionsCallback(){
 
-console.log("===============projectionsCallback()================");
-console.log(dataStore);
-
       // change information message
       document.getElementById('projectionsMessage').classList.add('hidden');
       document.getElementById('fittingSinglesMessage').classList.remove('hidden');

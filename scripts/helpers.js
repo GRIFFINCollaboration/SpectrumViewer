@@ -168,17 +168,17 @@ function promiseBinaryURL(url){
 
         // response parsed as binary
         const arrayBuffer = req.response;
-        console.log("Received response from binary request:");
+        //  console.log("Received response from binary request:");
 
         if (arrayBuffer) {
           var byteArray = new Uint8Array(arrayBuffer);
-          console.log("Created byteArray");
+          //  console.log("Created byteArray");
 
           // Extract the Name which has variable length. String termination is 0.
           var nameCodes = []; var i=0;
           while(byteArray[i]!=0 && i<81){ nameCodes[i] = byteArray[i]; i++; }
           var name = String.fromCharCode(...nameCodes);
-          console.log("Name = "+name);
+          //    console.log("Name = "+name);
           i++;
           // Unpack the rest of the header (6 items). Each item is 16 bits.
           var XaxisLength = (byteArray[i+0] << 8) | byteArray[i+1];       // "XaxisLength" // 16 bits
@@ -190,23 +190,23 @@ function promiseBinaryURL(url){
           var transfer_method = (byteArray[i+8] & 0x80) >> 7;             // "transfer method" // 1 bit
           var YaxisMin = ((byteArray[i+8] & 0x7F) << 8) | byteArray[i+9]; // "YaxisMin" // 15 bits
           var YaxisMax = (byteArray[i+10] << 8) | byteArray[i+11];        // "YaxisMax" // 16 bits
-          console.log("XaxisLength = "+XaxisLength);
-          console.log("YaxisLength = "+YaxisLength);
-          console.log("symmetrized = "+symmetrized);
-          console.log("XaxisMin/Max = "+XaxisMin+", "+XaxisMax);
-          console.log("YaxisMin/Max = "+YaxisMin+", "+YaxisMax);
-          console.log("transfer method = "+transfer_method);
-          console.log(numSubmatrices+" submatrices.");
+          //    console.log("XaxisLength = "+XaxisLength);
+          //    console.log("YaxisLength = "+YaxisLength);
+          //    console.log("symmetrized = "+symmetrized);
+          //    console.log("XaxisMin/Max = "+XaxisMin+", "+XaxisMax);
+          //    console.log("YaxisMin/Max = "+YaxisMin+", "+YaxisMax);
+          //    console.log("transfer method = "+transfer_method);
+          //    console.log(numSubmatrices+" submatrices.");
           i+=12; // Advance i to the start of the submatrix type header word
 
           // DEBUG
-          console.log("DEBUG FLAGS after header= "+byteArray[i]+", "+byteArray[i+1]);
+          //    console.log("DEBUG FLAGS after header= "+byteArray[i]+", "+byteArray[i+1]);
           i+=2;
 
           var submatrixType = [];
           if(transfer_method){
             // Transfer method 1, submatrix type is given for all submatrices
-            console.log("Transfer Method 1 (Submatrix type for all submatrices)")
+            //      console.log("Transfer Method 1 (Submatrix type for all submatrices)")
             // Unpack the submatrix type header word
             var thisType = 0;
             for(var j=0; j<numSubmatrices; j++){
@@ -230,7 +230,7 @@ function promiseBinaryURL(url){
             //  console.log(submatrixType);
           }else{
             // Transfer method 0, Submatrix id numbers are given only for non-empty submatrices
-            console.log("Transfer Method 0 (Submatrix id numbers and types)")
+            //      console.log("Transfer Method 0 (Submatrix id numbers and types)")
             // Determine the size required to store submatrix coordinates (transfer method 0)
             if( numSubmatrices <= 0x80 ){  coord_size = 1; } //  7-bit values (<128 = axis lengths: 176x176)
             else if( numSubmatrices <= 0x8000   ){  coord_size = 2; } // 15-bit values (256-32,767 = axis lengths: 2896x2896)
@@ -264,7 +264,7 @@ function promiseBinaryURL(url){
           } // End of Header and submatrix types
 
           // DEBUG
-          console.log("DEBUG FLAGS after submatrix map= "+byteArray[i]+", "+byteArray[i+1]);
+          //  console.log("DEBUG FLAGS after submatrix map= "+byteArray[i]+", "+byteArray[i+1]);
           i+=2;
 
           // Stop the unpacking at the end of the header for now
@@ -334,9 +334,9 @@ function unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse,outputDel
     //console.log("No output requested for "+key+" in unpackBinaryMatrixData, so no processing done.");
     return;
   }
-//  console.log(dataStore.rawData);
-//  console.log("unpacking binary data for "+key);
-//  console.log("Output flags [Raw/Dense/Sparse/Delete]: "+outputRaw+","+outputDense+","+outputSparse+","+outputDelete);
+  //  console.log(dataStore.rawData);
+  //  console.log("unpacking binary data for "+key);
+  //  console.log("Output flags [Raw/Dense/Sparse/Delete]: "+outputRaw+","+outputDense+","+outputSparse+","+outputDelete);
   const byteArray = new Uint8Array(dataStore.rawData[key].dataBinary);
   const submatrixType = dataStore.rawData[key].submatrixType;
   var XaxisLength = dataStore.rawData[key].XaxisLength;
