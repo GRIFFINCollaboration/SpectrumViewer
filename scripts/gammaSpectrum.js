@@ -1025,6 +1025,7 @@ function spectrumViewer(canvasID){
 		for(key in this.activeGateLines){
 			this.shadeGateBins(this.activeGateLines[key].Color,this.activeGateLines[key].LimitLower,this.activeGateLines[key].LimitUpper,this.activeGateLines[key].Target);
 		}
+		this.stage.update();
 	}
 
 	this.bkgShape = function(x, amplitude, center, width, intercept, slope){

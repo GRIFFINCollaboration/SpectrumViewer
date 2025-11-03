@@ -282,10 +282,10 @@ document.getElementById('showXprojZoomed').onclick = function(){
   if(dataStore.activeMatrix.length<1){ return; } // Bail out if no 2d matrix is loaded
 
   // Request the projection be made and receive the plot name
-  var Xmin = dataStore.hm.xStart;
-  var Xmax = (dataStore.hm.xStart+dataStore.hm.nXbins)
-  var Ymin = dataStore.hm.yStart;
-  var Ymax = (dataStore.hm.yStart+dataStore.hm.nYbins);
+  var Xmin = dataStore.hm.currentXaxisMinValue;
+  var Xmax = dataStore.hm.currentXaxisMaxValue;
+  var Ymin = dataStore.hm.currentYaxisMinValue;
+  var Ymax = dataStore.hm.currentYaxisMaxValue;
   plotName = projectXY(Xmin,Xmax,Ymin,Ymax,'x');
 
   // Send an event to plot the new 1d projection histogram in the default 1d viewer
@@ -304,10 +304,10 @@ document.getElementById('showYprojZoomed').onclick = function(){
   if(dataStore.activeMatrix.length<1){ return; } // Bail out if no 2d matrix is loaded
 
   // Request the projection be made and receive the plot name
-  var Xmin = dataStore.hm.xStart;
-  var Xmax = (dataStore.hm.xStart+dataStore.hm.nXbins)
-  var Ymin = dataStore.hm.yStart;
-  var Ymax = (dataStore.hm.yStart+dataStore.hm.nYbins);
+  var Xmin = dataStore.hm.currentXaxisMinValue;
+  var Xmax = dataStore.hm.currentXaxisMaxValue;
+  var Ymin = dataStore.hm.currentYaxisMinValue;
+  var Ymax = dataStore.hm.currentYaxisMaxValue;
   plotName = projectXY(Xmin,Xmax,Ymin,Ymax,'y');
 
   // Plot the 1d histogram projection
