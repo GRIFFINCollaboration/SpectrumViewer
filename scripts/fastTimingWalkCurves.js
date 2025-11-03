@@ -64,6 +64,7 @@ function setupDataStore(){
   dataStore.createdSpectra = {};                                       //initialize empty object for created spectra
   dataStore.createdBG1Spectra = {};                                    //initialize empty object for created background (BG1) spectra
   dataStore.createdBG2Spectra = {};                                    //initialize empty object for created background (BG2) spectra
+  dataStore.transferMethod = "binary";   // json or binary method for receiving 2d histograms
 
   //fitting
   dataStore.ROI = {};                                                   //regions of interest to look for peaks in: 'plotname': [[low bin, high bin], [low bin, high bin], ...]

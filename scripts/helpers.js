@@ -152,6 +152,7 @@ function promiseBinaryURL(url){
       if (req.status == 400) {
         const decoder = new TextDecoder();
         const responseString = decoder.decode(req.response);
+        console.log(req.statusText);
         console.log(responseString);
         if(responseString.includes("Unknown Command")==true){
           console.log("Identified that the callbinaryspechandler command is not in this server. Conclude the grif-replay server is an old version.");
@@ -163,6 +164,9 @@ function promiseBinaryURL(url){
           // Could issue a new request using the old transfer method here.
           //var newURL = req.responseURL.replace("callbinaryspechandler","callspechandler");
         }
+          // Reject the promise with the status text
+          // which will hopefully be a meaningful error
+          reject(Error(req.statusText));
       }else if (req.status == 200) {
         // Response recieved
 

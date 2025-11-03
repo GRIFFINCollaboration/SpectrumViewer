@@ -21,7 +21,7 @@ function spectrumViewer(canvasID){
 	this.stage.addChild(this.containerAnnotations);
 	this.stage.addChild(this.containerFit);
 	this.stage.addChild(this.containerGate);
-	
+
 	//axes & drawing
 	this.fontScale = Math.min(Math.max(this.canvas.width / 50, 10), 16); // 10 < fontScale < 16
 	this.context.font = this.fontScale + 'px Arial';
@@ -324,7 +324,7 @@ function spectrumViewer(canvasID){
 			}
 			// Check if there is a baseline associated with this spectrum
 			if(typeof(this.baselines[thisSpec]) != 'undefined'){
-				for(i=0; i<dataStore.baselines[thisSpec].length; i++){
+				for(i=0; i<this.baselines[thisSpec].length; i++){
 					subtractions[thisSpec][i] += this.baselines[thisSpec][i];
 				}
 			}
@@ -535,6 +535,7 @@ function spectrumViewer(canvasID){
 	//choose appropriate axis limits: default will fill the plot area, but can be overridden with this.demandXmin etc.
 	this.chooseLimits = function(){
 		var thisSpec, minYvalue, maxYvalue,
+		thisBuffer = [],
 		originalMinX = this.XaxisLimitMin,
 		originalMaxX = this.XaxisLimitMax;
 
@@ -552,16 +553,27 @@ function spectrumViewer(canvasID){
 			//Find the maximum X value from the size of the data
 			this.XaxisLimitAbsMax = Math.max(this.XaxisLimitAbsMax, this.plotBuffer[thisSpec].length);
 
-			// Find minimum and maximum Y value in the part of the spectrum to be displayed
-			if(Math.min.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)))<minYvalue){
-				minYvalue=Math.min.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)));
+			// Zero this buffer that will be tested
+			thisBuffer = [];
+			thisBuffer = this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax));
+
+			// Check if there is a baseline associated with this spectrum
+			if(typeof(this.baselines[thisSpec]) != 'undefined'){
+				for(i=0; i<thisBuffer.length; i++){
+					thisBuffer[i] = this.plotBuffer[thisSpec][Math.floor(this.XaxisLimitMin)+i] - this.baselines[thisSpec][Math.floor(this.XaxisLimitMin)+i];
+				}
 			}
-			if(Math.max.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)))>maxYvalue){
-				maxYvalue=Math.max.apply(Math, this.plotBuffer[thisSpec].slice(Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)));
+
+			// Find minimum and maximum Y value in the part of the spectrum to be displayed
+			if(Math.min.apply(Math, thisBuffer)<minYvalue){
+				minYvalue=Math.min.apply(Math, thisBuffer);
+			}
+			if(Math.max.apply(Math, thisBuffer)>maxYvalue){
+				maxYvalue=Math.max.apply(Math, thisBuffer);
 			}
 
 			// Find the sum of everything in the current x range
-			data = this.plotBuffer[thisSpec].slice(  Math.floor(this.XaxisLimitMin),Math.floor(this.XaxisLimitMax)   );
+			data = thisBuffer;
 			totalEntries = 0;
 			for(j=0; j<data.length; j++ ){
 				totalEntries += data[j];

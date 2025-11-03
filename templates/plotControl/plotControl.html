@@ -383,6 +383,10 @@ function plotControl(wrapID, config){
     //refresh all spectra & odb parameters
     //this: plotControl object
 
+    if(!dataStore.transferMethod){
+      dataStore.transferMethod = "binary"; // Default to the binary transfer method for 2d histograms
+    }
+
     var thisRawData = {};
 
     // activeSpectra can now include 1D Projections of 2D matrices which are created locally in the browser.
@@ -423,7 +427,13 @@ function plotControl(wrapID, config){
       queries2d = construct2dQueries([],active2dSpectraForQueries);
     }
     var allQueries1d = queries.map(promiseJSONURL);
-    var allQueries2d = queries2d.map(promiseBinaryURL);
+
+    if(dataStore.transferMethod == "binary"){
+      var allQueries2d = queries2d.map(promiseBinaryURL);
+    }else{ // json method
+      queries2d = queries2d.map(item => { return item.replace("callbinaryspechandler","callspechandler"); });
+      var allQueries2d = queries2d.map(promiseJSONURL);
+    }
     var allQueries = allQueries1d.concat(allQueries2d);
 
     var spectraFetched = Promise.all(allQueries).then(
@@ -512,7 +522,14 @@ function plotControl(wrapID, config){
           }
         }
       }
-    );
+    ).catch((error) => {
+      console.log("Caught error from Promise.all in plotControl refreshAll.");
+      console.error(error.message);
+      // Change to the json transfer method and try again
+      dataStore.transferMethod = "json";
+      dataStore._plotControl.refreshAll();
+      return;
+    });
 
     if(dataStore.ODBrequests.length>0){
       spectraFetched = spectraFetched.then(
