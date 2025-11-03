@@ -17,10 +17,15 @@ function setupDataStore(){
     "spectrumServer": 'http://grifstore0.triumf.ca:9093',          //host:port to pull raw spectra from
     "backendHost": 'grifstore0',                                   //host:port to pull raw spectra from
     "rawData" : {},                                               //buffer for raw spectrum data
+    "sparseData" : {},                                            //buffer for raw data in sparse data mode
     "raw": [0],
     "raw2": [0],
     "closeMenuOnclick": true,                                   //don't keep the plot menu open onclick (can only plot one at a time anyway)
     "pageTitle": '2D Spectrum Tool',
+    "outputRawFlag": true,                                    // When true binary Matrix data will be unpacked to the rawData.data2 array
+    "outputDenseFlag": true,                                 // When true binary Matrix data will be unpacked to the dataStore.hm._raw and dataStore.hm.raw arrays
+    "outputSparseFlag": true,                                // When true binary Matrix data will be unpacked to the sparseData object
+    "outputDeleteFlag": false,                                 // When true the original arrayBuffer will be deleted from dataStore.rawData
 
 
     // 1D viewer things
@@ -114,10 +119,12 @@ function plotControl2d(wrapID){
     document.getElementById('projectionsTitleDiv').classList.remove('hidden');
     document.getElementById('showXproj').classList.remove('hidden');
     document.getElementById('showYproj').classList.remove('hidden');
+    document.getElementById('showXprojZoomed').classList.remove('hidden');
+    document.getElementById('showYprojZoomed').classList.remove('hidden');
 
     //don't need plot help anymore; swap in roi help
     document.getElementById('intro-plot-picker').classList.add('hidden');
-    document.getElementById('intro-shift-click').classList.remove('hidden');
+    //  document.getElementById('intro-shift-click').classList.remove('hidden');
 
     // We only want to fetch the data from the server if it is a newly opened matrix, otherwise just replot
     if(event.detail.plotName != dataStore.activeSpectra){
@@ -125,7 +132,7 @@ function plotControl2d(wrapID){
       dataStore.activeSpectra = event.detail.plotName;
       dataStore.activeMatrix = event.detail.plotName;
       this.activeSpectra = [event.detail.plotName];
-      dataStore.hm.plotTitle = event.detail.plotName;
+      //  dataStore.hm.plotTitle = event.detail.plotName;
 
       //demand refresh to fetch the spectrum data from the server
       this.refreshData()
@@ -140,7 +147,7 @@ function plotControl2d(wrapID){
     //this: plotControl2d object
 
     // Display info to user that the data is downloading (switched off in fetchCallback)
-    dataStore.hm.DataDownloading('on');
+    //dataStore.hm.DataDownloading('on');
 
     // activeSpectra can now include 1D Projections of 2D matrices which are created locally in the server.
     // So these need to be stripped from the requests that go to the server for updates.
@@ -151,35 +158,68 @@ function plotControl2d(wrapID){
         activeSpectraForQueries.splice(index, 1);
       }
     }
+    // Also strip out the 2d histograms so we can call the binary transfer method
+    var active2dSpectraForQueries = [];
+    for(let i=0; i<dataStore.twoDimensionalSpectra.length; i++) {
+      var index = activeSpectraForQueries.indexOf(dataStore.twoDimensionalSpectra[i].split(":")[1]);
+      if (index > -1) {
+        active2dSpectraForQueries.push(activeSpectraForQueries[index]);
+        activeSpectraForQueries.splice(index, 1);
+      }
+    }
     var queries = constructQueries(activeSpectraForQueries);
 
-    if(dataStore.activeSpectra){
-      Promise.all(queries.map(promiseJSONURL)
-    ).then(
-      function(spectra){
-        // This is for 2d spectra
-        // Need to change this away from [0] and find the correct index number to use
+    // Add additional URLs for 2d histograms (one URL per 2d histogram)
+    // ensure one 2d histogram per url using the construct2dQueries function which also calls the binary transfer method
+    var queries2d = [];
+    if(this.active2dSpectra){ active2dSpectraForQueries = active2dSpectraForQueries.concat(this.active2dSpectra); } // Will there be duplication????
+    if(active2dSpectraForQueries.length>0){
+      queries2d = construct2dQueries([],active2dSpectraForQueries);
+    }
+    var allQueries1d = queries.map(promiseJSONURL);
+    var allQueries2d = queries2d.map(promiseBinaryURL);
+    var allQueries = allQueries1d.concat(allQueries2d);
 
-        // modify the spectrum name that were received from a histogram file to include it at the start
-        if(dataStore.histoFileName.length>0){
+    if(dataStore.activeSpectra){
+      var spectraFetched = Promise.all(allQueries).then(
+        function(spectra){
+
+          // THE FOLLOWING ONLY NEEDED FOR JSON TRANSFER OF 2d HISTOGRAMS...
+          // We just skip to the fetchback
+          /*
+          // This is for 2d spectra
+          // Need to change this away from [0] and find the correct index number to use
+
+          // modify the spectrum name that were received from a histogram file to include it at the start
+          if(dataStore.histoFileName.length>0){
           var this2dKey = dataStore.histoFileName.split('.')[0] + ':' + JSON.parse(JSON.stringify(spectra[0]['name']));
           spectra[0].name = dataStore.histoFileName.split('.')[0] + ':' + spectra[0].name;
         }else{
-          this2dKey = JSON.parse(JSON.stringify(spectra[0]['name']));
-        }
-
-        //keep the raw results around
-        dataStore.rawData[this2dKey] = JSON.parse(JSON.stringify(spectra[0]));
-
-        dataStore.raw2 = dataStore.rawData[dataStore.activeMatrix].data2;
-        dataStore.activeMatrixXaxisLength = dataStore.rawData[dataStore.activeMatrix].XaxisLength;
-        dataStore.activeMatrixYaxisLength = dataStore.rawData[dataStore.activeMatrix].YaxisLength;
-        dataStore.activeMatrixZaxisMax = dataStore.rawData[dataStore.activeMatrix].ZaxisMax;
-        dataStore.activeMatrixSymmetrized = dataStore.rawData[dataStore.activeMatrix].symmetrized;
-        fetchCallback();
+        this2dKey = JSON.parse(JSON.stringify(spectra[0]['name']));
       }
-    )
-  }
+
+      //keep the raw results around
+      dataStore.rawData[this2dKey] = JSON.parse(JSON.stringify(spectra[0]));
+
+      dataStore.raw2 = dataStore.rawData[dataStore.activeMatrix].data2;
+      dataStore.activeMatrixXaxisLength = dataStore.rawData[dataStore.activeMatrix].XaxisLength;
+      dataStore.activeMatrixYaxisLength = dataStore.rawData[dataStore.activeMatrix].YaxisLength;
+      dataStore.activeMatrixZaxisMax = dataStore.rawData[dataStore.activeMatrix].ZaxisMax;
+      dataStore.activeMatrixSymmetrized = dataStore.rawData[dataStore.activeMatrix].symmetrized;
+      */
+
+      // Treatment of 2d spectra received by the binary transfer method
+      // unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse);
+      // key is used for the dataStore.rawData object
+      // true/false for which outputs will be generated. This can cause memory overflow if many matrices are requested
+      for(var i=0; i<spectra.length; i++){
+        unpackBinaryMatrixData(spectra[i]['binaryName'],dataStore.outputRawFlag,dataStore.outputDenseFlag,dataStore.outputSparseFlag,dataStore.outputDeleteFlag);
+      }
+
+      fetchCallback();
+    }
+  )
+}
 }
 
 this.routeNewGate = function(event){
@@ -261,8 +301,9 @@ function toggleHeatmapMode(){
 
   // display spectra as a 2D heatmap and show controls
   document.getElementById('plotWrap2D').style.display = "block";
-  document.getElementById('colorPalette').style.display = "block";
-  document.getElementById('cutBounds').style.display = "block";
+  //document.getElementById('colorPalette').style.display = "block";
+  //document.getElementById('cutBounds').style.display = "block";
+  document.getElementById('controlTarget').style.display = "block";
 
   // Toggle the mode buttons
   document.getElementById('modeBtn1d').classList.remove('btn-success');
@@ -276,8 +317,9 @@ function toggleHeatmapMode(){
 function toggle1DMode(){
   // hide all 2D heatmap viewers and controls
   document.getElementById('plotWrap2D').style.display = "none";
-  document.getElementById('colorPalette').style.display = "none";
-  document.getElementById('cutBounds').style.display = "none";
+  //document.getElementById('colorPalette').style.display = "none";
+  //document.getElementById('cutBounds').style.display = "none";
+  document.getElementById('controlTarget').style.display = "none";
 
   // hide all unneeded 1D viewer
   document.getElementById('plotWrap1DGating').style.display = "none";
@@ -312,8 +354,9 @@ function toggle1DMode(){
 function toggleGatingMode(){
   // hide all 2D heatmap viewers and controls
   document.getElementById('plotWrap2D').style.display = "none";
-  document.getElementById('colorPalette').style.display = "none";
-  document.getElementById('cutBounds').style.display = "none";
+  //document.getElementById('colorPalette').style.display = "none";
+  //document.getElementById('cutBounds').style.display = "none";
+  document.getElementById('controlTarget').style.display = "none";
 
   // hide all unneeded 1D viewer
   document.getElementById('plotWrap1D').style.display = "none";
@@ -354,7 +397,7 @@ function heatmapClick(evt){
   }
 
   // don't need plot click help anymore
-  document.getElementById('intro-shift-click').classList.add('hidden');
+  //  document.getElementById('intro-shift-click').classList.add('hidden');
 
   // expand UI
   li.innerHTML = Mustache.to_html(
@@ -376,7 +419,7 @@ function heatmapClick(evt){
   extractCutVertices();
 
   //update plot overlay
-  dataStore.hm.render();
+  //  dataStore.hm.render();
 }
 
 function extractCutVertices(){
@@ -401,7 +444,6 @@ function fetchCallback(){
   }
 
   // The rest of this fetchCallback is only for 2d spectra, so if there are not any active then we can bail out here
-
   var numOf2dActive=0;
   for(let key in dataStore.twoDimensionalSpectra) {
     const index = dataStore._plotControl.activeSpectra.indexOf(key);
@@ -413,13 +455,14 @@ function fetchCallback(){
 
   // clear a previous color map if necessary
   try{ objectIndex = this.colorMap.map(e => e.matrix).indexOf(dataStore.activeMatrix);
-    dataStore.hm.colorMap[objectIndex].data = [];
+    //  dataStore.hm.colorMap[objectIndex].data = [];
     //console.log('In FetchCallback, Clear the colorMap');
   }
   catch(err){
     //console.log('In FetchCallback, No colorMap to clear')
   }
 
+  /*
   // set the axis lengths for this histograms
   dataStore.hm.xmin = 0;
   dataStore.hm.ymin = 0;
@@ -429,14 +472,34 @@ function fetchCallback(){
   dataStore.hm.zmax = dataStore.activeMatrixZaxisMax;
   dataStore.hm.zminfull = 0;
   dataStore.hm.zmaxfull = dataStore.activeMatrixZaxisMax;
+  */
 
-  // unpack the raw 2d spectrum to the required format
-  //dataStore.hm.raw = packZ(dataStore.rawData[dataStore.activeMatrix].data2);
-  dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2,dataStore.activeMatrixXaxisLength,dataStore.activeMatrixYaxisLength,dataStore.activeMatrixZaxisMax,dataStore.activeMatrixSymmetrized,true);
-
+  if(dataStore.sparseData.hasOwnProperty(dataStore.activeMatrix)){
+    console.log("The sparseData object already exists!");
+    dataStore.hm.draw(dataStore.sparseData[dataStore.activeMatrix]); // Plot it
+    dataStore.hm.setMeta({plotTitle: dataStore.activeMatrix}); // Update titles
+  }else{
+    console.log("Need to create the sparseData object");
+    // unpack the raw 2d spectrum to the required format
+    //dataStore.hm.raw = packZ(dataStore.rawData[dataStore.activeMatrix].data2);
+    //  dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2,dataStore.activeMatrixXaxisLength,dataStore.activeMatrixYaxisLength,dataStore.activeMatrixZaxisMax,dataStore.activeMatrixSymmetrized,true);
+    dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2,dataStore.activeMatrixXaxisLength,dataStore.activeMatrixYaxisLength,dataStore.activeMatrixZaxisMax,dataStore.activeMatrixSymmetrized,false);
+    dataStore.hm._raw = dataStore.hm.raw;
+    var sparseData = zeroSuppressData(dataStore.hm.raw);
+    dataStore.hm.draw(sparseData); // sparseData is in format for sparse mode
+  }
+  /*
   // make the 2d heatmap plot of this histogram
   dataStore.hm._oldraw = null; //force complete redraw
   dataStore.hm.drawData();
+  */
+
+  // Pass data to the heatmap module, https://bkatiemills.github.io/glslgraph/demo.html/scripts/heatmap.js
+  //  dense mode, {zvalues[i][j]} where each number is the z height of the i,jth bin.
+  // sparse mode, {xBins: n, yBins: n, x: [x1, x2, ...], y: [y1, y2, ...], z: [z1, z2, ...]}
+  //  dataStore.hm.draw(data); // Test data which is sparse
+  //dataStore.hm.draw(dataStore.hm.raw); // dataStore.hm.raw is in format dense mode
+  //  dataStore.hm.draw(sparseData); // sparseData is in format for sparse mode
 
   // Create total projections for the two axes of the active matrix
   dispatcher({ 'gateAxis': 'x', 'gateMin': undefined, 'gateMax': undefined, 'plotNow': false }, 'requestGate');
@@ -456,10 +519,12 @@ function fetchCallback(){
   if(typeof(document.getElementById('showXproj')) != 'undefined'){
     document.getElementById('showXproj').disabled = false;
     document.getElementById('showYproj').disabled = false;
+    document.getElementById('showXprojZoomed').disabled = false;
+    document.getElementById('showYprojZoomed').disabled = false;
   }
 
   // plug in the onclicks to the 2d heatmap
-  dataStore.hm.canvas.addEventListener('heatmap_shiftclick', heatmapClick, false);
+  //  dataStore.hm.canvas.addEventListener('heatmap_shiftclick', heatmapClick, false);
 
 }
 
