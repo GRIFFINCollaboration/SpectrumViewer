@@ -2,231 +2,257 @@
 
 <template id='analyzer-viewer'>
 
-  <div class='section-wrapper'>
-    <div class='col-md-12 pan' id='Viewer-Viewer'>
-      <h2>Analyzer Spectrum Viewer</h2>
-      <div id='Viewer'>
+<div class='section-wrapper'>
+<div class='col-md-12 pan' id='Viewer-Viewer'>
+<h2>Analyzer Spectrum Viewer</h2>
+<div id='Viewer'>
 
-        <div id="HistoFilesTableContainerDiv">
-          <div class='col-md-12'>
-            <div class='col-md-6'>
-            <div class='row'>
-              <div class='col-md-4'><h5 id="histoDirViewerDiv">Histogram File Directory:</h5></div>
-              <div class='col-md-8' id='HistoDirectoryInputDivViewer'></div>
-            </div>
-            <div class='row'>
-              <div class='col-md-4'><h5>Filename for Summed Histogram file:</h5></div>
-              <div class='col-md-8' id='HistoSumFilenameInputDiv'></div>
-            </div>
-          </div>
-          <div id='launchAppsDiv' class='col-md-6'>
-            <h4>Data Analysis Tools:</h4>
-          </div>
-        </div>
-          <div id='AnalyzerViewerDiv'></div>
-          <div class='container-fluid'>
-            <div id='submitDivSum' class='col-md-6'></div>
-          </div>
-          <table id="HistoFilesTable" class='analyzer-table-selectable'></table>
-        </div>
-      </div>
-    </div>
-  </div>
+<div id="HistoFilesTableContainerDiv">
+<div class='col-md-12'>
+<div class='col-md-6'>
+<div class='row'>
+<div class='col-md-4'><h5 id="histoDirViewerDiv">Histogram File Directory:</h5></div>
+<div class='col-md-8' id='HistoDirectoryInputDivViewer'></div>
+</div>
+<div class='row'>
+<div class='col-md-4'><h5>Filename for Summed Histogram file:</h5></div>
+<div class='col-md-8' id='HistoSumFilenameInputDiv'></div>
+</div>
+</div>
+<div id='launchAppsDiv' class='col-md-6'>
+<h4>Data Analysis Tools:</h4>
+</div>
+</div>
+<div id='AnalyzerViewerDiv'></div>
+<div class='container-fluid'>
+<div id='submitDivSum' class='col-md-6'></div>
+</div>
+<table id="HistoFilesTable" class='analyzer-table-selectable'></table>
+</div>
+</div>
+</div>
+</div>
 
-  <div id="alertSumModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
+<div id="alertSumModal" class="modal fade" role="dialog">
+<div class="modal-dialog">
 
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Error</h4>
-        </div>
-        <div class="modal-body">
-          <p>Please select at least two histogram files to sum together.</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
-        </div>
-      </div>
+<!-- Modal content-->
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Error</h4>
+</div>
+<div class="modal-body">
+<p>Please select at least two histogram files to sum together.</p>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+</div>
+</div>
 
-    </div>
-  </div>
+</div>
+</div>
 
-  <div id="viewConfigModal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+<div id="viewConfigModal" class="modal fade" role="dialog">
+<div class="modal-dialog modal-lg modal-dialog-centered">
 
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title" id="viewConfigModalTitle">Configuration</h4>
-        </div>
-        <div class="modal-body">
-          <div id="viewConfigModalContent"></div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
-        </div>
-      </div>
+<!-- Modal content-->
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title" id="viewConfigModalTitle">Configuration</h4>
+</div>
+<div class="modal-body">
+<div id="viewConfigModalContent"></div>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+</div>
+</div>
 
-    </div>
-  </div>
+</div>
+</div>
 
-  <button type='button' class='btn invisible' id='alertSumModalButton' data-toggle='modal' data-target='#alertSumModal'>Info</button>
-  <button type='button' class='btn invisible' id='viewConfigModalButton' data-toggle='modal' data-target='#viewConfigModal'>View Config</button>
+<button type='button' class='btn invisible' id='alertSumModalButton' data-toggle='modal' data-target='#alertSumModal'>Info</button>
+<button type='button' class='btn invisible' id='viewConfigModalButton' data-toggle='modal' data-target='#viewConfigModal'>View Config</button>
 
 </template>
 
 <script>
-  function setupAnalyzerViewer(wrapperID){
-    document.getElementById(wrapperID).innerHTML = "";
-    document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-viewer'], {});
+function setupAnalyzerViewer(wrapperID){
+  document.getElementById(wrapperID).innerHTML = "";
+  document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-viewer'], {});
 
-    // Create the text input for the Histogram file directory
-    newInput = document.createElement('input');
-    newInput.id = 'HistoDirectoryInputViewer';
-    newInput.type = 'text';
-    newInput.className = 'analyzer-input-text';
-    newInput.value = dataStore.histoFileDirectoryPath;
-    newInput.onchange = function(){
-      dataStore.histoFileDirectoryPath = this.value;
-      document.getElementById('HistoDirectoryInputSorting').value = this.value;
-      getHistoFileListFromServer();
+  // Create the text input for the Histogram file directory
+  newInput = document.createElement('input');
+  newInput.id = 'HistoDirectoryInputViewer';
+  newInput.type = 'text';
+  newInput.className = 'analyzer-input-text';
+  newInput.value = dataStore.histoFileDirectoryPath;
+  newInput.onchange = function(){
+    dataStore.histoFileDirectoryPath = this.value;
+    document.getElementById('HistoDirectoryInputSorting').value = this.value;
+    getHistoFileListFromServer();
 
-    }.bind(newInput);
-    document.getElementById('HistoDirectoryInputDivViewer').appendChild(newInput);
+  }.bind(newInput);
+  document.getElementById('HistoDirectoryInputDivViewer').appendChild(newInput);
 
-    // Create the text input for the Histogram Sum filename
-    newInput = document.createElement('input');
-    newInput.id = 'HistoSumFilenameInput';
-    newInput.type = 'text';
-    newInput.className = 'analyzer-input-text';
-    newInput.value = dataStore.histoSumFilename;
-    newInput.onchange = function(){
-      dataStore.histoSumFilename = this.value;
-    }.bind(newInput);
-    document.getElementById('HistoSumFilenameInputDiv').appendChild(newInput);
+  // Create the text input for the Histogram Sum filename
+  newInput = document.createElement('input');
+  newInput.id = 'HistoSumFilenameInput';
+  newInput.type = 'text';
+  newInput.className = 'analyzer-input-text';
+  newInput.value = dataStore.histoSumFilename;
+  newInput.onchange = function(){
+    dataStore.histoSumFilename = this.value;
+  }.bind(newInput);
+  document.getElementById('HistoSumFilenameInputDiv').appendChild(newInput);
 
-    // Create Submit button for summing histograms
-    newButton = document.createElement('button');
-    newButton.setAttribute('id', 'submitSumHistosButton');
-    newButton.setAttribute('class', 'btn btn-default btn-lg');
-    newButton.innerHTML = "Sum selected Histogram files together";
-    newButton.style.padding = '4px';
-    newButton.onclick = function(){
-      submitHistoFileSumRequestToServer();
-    }.bind(newButton);
-    document.getElementById('submitDivSum').appendChild(newButton);
+  // Create Submit button for summing histograms
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'submitSumHistosButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Sum selected Histogram files together";
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    submitHistoFileSumRequestToServer();
+  }.bind(newButton);
+  document.getElementById('submitDivSum').appendChild(newButton);
 
-        // Create refresh button for the histogram directory
-        newButton = document.createElement('button');
-        newButton.setAttribute('id', 'refreshViewerHistoDir');
-        newButton.setAttribute('class', 'btn btn-default btn-sm');
-        newButton.innerHTML = "<span class=\"glyphicon glyphicon-refresh\"></span>";
-        newButton.style.padding = '4px';
-        newButton.onclick = function(){
-          getHistoFileListFromServer();
-        }.bind(newButton);
-        document.getElementById('histoDirViewerDiv').appendChild(newButton);
+  // Create refresh button for the histogram directory
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'refreshViewerHistoDir');
+  newButton.setAttribute('class', 'btn btn-default btn-sm');
+  newButton.innerHTML = "<span class=\"glyphicon glyphicon-refresh\"></span>";
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    getHistoFileListFromServer();
+  }.bind(newButton);
+  document.getElementById('histoDirViewerDiv').appendChild(newButton);
 
-    // Create button for launching Peak Fitter app
-    newButton = document.createElement('button');
-    newButton.setAttribute('id', 'launchPeakFitButton');
-    newButton.setAttribute('class', 'btn btn-default btn-lg');
-    newButton.innerHTML = "Launch Peak Fitter";
-    document.getElementById('launchAppsDiv').style.textAlign = 'right';
-    newButton.style.padding = '4px';
-    newButton.onclick = function(){
-      var url = "https://griffincollaboration.github.io/SpectrumViewer/peakFitter.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
-      window.open(url);
-    }.bind(newButton);
-    document.getElementById('launchAppsDiv').appendChild(newButton);
+  // Create button for launching Peak Fitter app
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'launchPeakFitButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Launch Peak Fitter";
+  document.getElementById('launchAppsDiv').style.textAlign = 'right';
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    var url = "https://griffincollaboration.github.io/SpectrumViewer/peakFitter.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
+    window.open(url);
+  }.bind(newButton);
+  document.getElementById('launchAppsDiv').appendChild(newButton);
 
-            // Create button for launching new gainMatcher app
-            newButton = document.createElement('button');
-            newButton.setAttribute('id', 'launchNewGMButton');
-            newButton.setAttribute('class', 'btn btn-default btn-lg');
-            newButton.innerHTML = "Launch newGainMatcher";
-            document.getElementById('launchAppsDiv').style.textAlign = 'right';
-            newButton.style.padding = '4px';
-            newButton.onclick = function(){
-              var url = "https://griffincollaboration.github.io/SpectrumViewer/newGainMatcher.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
-              window.open(url);
-            }.bind(newButton);
-            document.getElementById('launchAppsDiv').appendChild(newButton);
+  // Create button for launching new gainMatcher app
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'launchNewGMButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Launch newGainMatcher";
+  document.getElementById('launchAppsDiv').style.textAlign = 'right';
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    var url = "https://griffincollaboration.github.io/SpectrumViewer/newGainMatcher.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
+    window.open(url);
+  }.bind(newButton);
+  document.getElementById('launchAppsDiv').appendChild(newButton);
 
-                    // Create button for launching Energy Calibrator app
-                    newButton = document.createElement('button');
-                    newButton.setAttribute('id', 'launchEnCalButton');
-                    newButton.setAttribute('class', 'btn btn-default btn-lg');
-                    newButton.innerHTML = "Launch Energy Calibrator";
-                    document.getElementById('launchAppsDiv').style.textAlign = 'right';
-                    newButton.style.padding = '4px';
-                    newButton.onclick = function(){
-                      var url = "https://griffincollaboration.github.io/SpectrumViewer/energyCalibrator.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
-                      window.open(url);
-                    }.bind(newButton);
-                    document.getElementById('launchAppsDiv').appendChild(newButton);
+  // Create button for launching Energy Calibrator app
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'launchEnCalButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Launch Energy Calibrator";
+  document.getElementById('launchAppsDiv').style.textAlign = 'right';
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    var url = "https://griffincollaboration.github.io/SpectrumViewer/energyCalibrator.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
+    window.open(url);
+  }.bind(newButton);
+  document.getElementById('launchAppsDiv').appendChild(newButton);
 
-                // Create button for launching fastTimingCalibrations app
-                newButton = document.createElement('button');
-                newButton.setAttribute('id', 'launchFTCalButton');
-                newButton.setAttribute('class', 'btn btn-default btn-lg');
-                newButton.innerHTML = "Launch Fast-Timing Calibrations";
-                document.getElementById('launchAppsDiv').style.textAlign = 'right';
-                newButton.style.padding = '4px';
-                newButton.onclick = function(){
-                  var url = "https://griffincollaboration.github.io/SpectrumViewer/fastTimingCalibrations.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
-                  window.open(url);
-                }.bind(newButton);
-                document.getElementById('launchAppsDiv').appendChild(newButton);
+  // Create button for launching fastTimingCalibrations app
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'launchFTCalButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Launch Fast-Timing Calibrations";
+  document.getElementById('launchAppsDiv').style.textAlign = 'right';
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    var url = "https://griffincollaboration.github.io/SpectrumViewer/fastTimingCalibrations.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
+    window.open(url);
+  }.bind(newButton);
+  document.getElementById('launchAppsDiv').appendChild(newButton);
 
-                        // Create button for launching fastTimingWalkCurves app
-                        newButton = document.createElement('button');
-                        newButton.setAttribute('id', 'launchFTCalButton');
-                        newButton.setAttribute('class', 'btn btn-default btn-lg');
-                        newButton.innerHTML = "Launch Fast-Timing Walk Curves";
-                        document.getElementById('launchAppsDiv').style.textAlign = 'right';
-                        newButton.style.padding = '4px';
-                        newButton.onclick = function(){
-                          var url = "https://griffincollaboration.github.io/SpectrumViewer/fastTimingWalkCurves.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
-                          window.open(url);
-                        }.bind(newButton);
-                        document.getElementById('launchAppsDiv').appendChild(newButton);
+  // Create button for launching fastTimingWalkCurves app
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'launchFTCalButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Launch Fast-Timing Walk Curves";
+  document.getElementById('launchAppsDiv').style.textAlign = 'right';
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    var url = "https://griffincollaboration.github.io/SpectrumViewer/fastTimingWalkCurves.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
+    window.open(url);
+  }.bind(newButton);
+  document.getElementById('launchAppsDiv').appendChild(newButton);
 
-    // Create button for launching Efficiency Fitter app
-    newButton = document.createElement('button');
-    newButton.setAttribute('id', 'launchEffFitButton');
-    newButton.setAttribute('class', 'btn btn-default btn-lg');
-    newButton.innerHTML = "Launch Efficiency Fitter";
-    document.getElementById('launchAppsDiv').style.textAlign = 'right';
-    newButton.style.padding = '4px';
-    newButton.onclick = function(){
-      var url = "https://griffincollaboration.github.io/SpectrumViewer/efficiencyFitter.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
-      window.open(url);
-    }.bind(newButton);
-    document.getElementById('launchAppsDiv').appendChild(newButton);
+  // Create button for launching Efficiency Fitter app
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'launchEffFitButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Launch Efficiency Fitter";
+  document.getElementById('launchAppsDiv').style.textAlign = 'right';
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    var url = "https://griffincollaboration.github.io/SpectrumViewer/efficiencyFitter.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
+    window.open(url);
+  }.bind(newButton);
+  document.getElementById('launchAppsDiv').appendChild(newButton);
 
-        // Create button for launching pileup corrections app
-        newButton = document.createElement('button');
-        newButton.setAttribute('id', 'launchPUButton');
-        newButton.setAttribute('class', 'btn btn-default btn-lg');
-        newButton.innerHTML = "Launch Pileup Corrections";
-        document.getElementById('launchAppsDiv').style.textAlign = 'right';
-        newButton.style.padding = '4px';
-        newButton.onclick = function(){
-          var url = "https://griffincollaboration.github.io/SpectrumViewer/pileupCorrections.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
-          window.open(url);
-        }.bind(newButton);
-        document.getElementById('launchAppsDiv').appendChild(newButton);
+  // Create button for launching pileup corrections app
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'launchPUButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Launch Pileup Corrections";
+  document.getElementById('launchAppsDiv').style.textAlign = 'right';
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    var url = "https://griffincollaboration.github.io/SpectrumViewer/pileupCorrections.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
+    window.open(url);
+  }.bind(newButton);
+  document.getElementById('launchAppsDiv').appendChild(newButton);
 
-    // set up event listeners
-    listener(wrapperID, 'requestViewerRefresh', setupViewerContent);
-    listener(wrapperID, 'midasFileDetailsAvailable', addFileDetailsToHistosTable);
+  // Create button for launching crosstalk corrections app
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'launchPUButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Launch Crosstalk Corrections";
+  document.getElementById('launchAppsDiv').style.textAlign = 'right';
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    var url = "https://griffincollaboration.github.io/SpectrumViewer/crosstalkCorrections.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
+    window.open(url);
+  }.bind(newButton);
+  document.getElementById('launchAppsDiv').appendChild(newButton);
+  
+  // Create button for launching angularCorrelations corrections app
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'launchPUButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Launch Angular Correlations";
+  document.getElementById('launchAppsDiv').style.textAlign = 'right';
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    var url = "https://griffincollaboration.github.io/SpectrumViewer/angularCorrelations.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
+    window.open(url);
+  }.bind(newButton);
+  document.getElementById('launchAppsDiv').appendChild(newButton);
 
-    // Set up the content of this sub page
-    setupViewerContent();
+  // set up event listeners
+  listener(wrapperID, 'requestViewerRefresh', setupViewerContent);
+  listener(wrapperID, 'midasFileDetailsAvailable', addFileDetailsToHistosTable);
 
-  }
+  // Set up the content of this sub page
+  setupViewerContent();
+
+}
 </script>
