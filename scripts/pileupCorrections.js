@@ -739,14 +739,11 @@ function launchPeakFittingProcess(){
       document.getElementById('fittingProjectionsMessage').classList.add('hidden');
       document.getElementById('reviewMessage').classList.remove('hidden');
 
-      // Display the results in the table
-      dataStore._pileupCorrectionsReport.updateTable();
-
       console.log(dataStore);
       console.log("Finished");
       console.log("Completed: "+dataStore.progressBarTasksCompleted+"/"+dataStore.progressBarNumberTasks+" = " + dataStore.ProgressValue);
 
-      // Reveal the post-processing buttons nad report div
+      // Reveal the post-processing buttons and report div
       document.getElementById('postProcessDiv').classList.remove('hidden');
 
       // Launch the post-processing
@@ -759,6 +756,9 @@ function launchPeakFittingProcess(){
       // Perform 6th order polynomial fit of correction factor as function of k.
       // Result is function describing correction factor as function of k.
 
+      // Display the results in the table
+      dataStore._pileupCorrectionsReport.updateTable();
+      
       // Inject the report card templates and setup
       var NumGe=64;
 

@@ -90,7 +90,7 @@ function setupDataStore(){
   dataStore.progressBarKey = "fastTimingCalibrationsProgress";  // id of the Div with class = "progress-bar ..."
   dataStore.progressBarNumberTasks = 0;                             // Total count of tasks (spectra to fetch, projections to make, peaks to fit) for use with the progress bar
   dataStore.progressBarTasksCompleted = 0;                           // Number of tasks completed so far for use with the progress bar
-
+  dataStore.refitCallback = function(){ setTimeout(fittingCallback(), 1000); }  // callback function for after a peak refit
 
   // Script configuration - all are arrays used only as user input
   // The 'peakFitterScript' can be provided by the user as an upload and will be copied into this 'dataStore.peakFitterScript' object
@@ -243,7 +243,9 @@ function setupDataStore(){
 
 
       // Set up the progress tracking
-      setupProgressBarTracking();
+      //setupProgressBarTracking();
+      // Manually set the task list for the progress bar (Hack because peakFitterScript not invoked yet)
+      dataStore.progressBarNumberTasks = 53;
 
       ////////////////
       // Set up the menus, reports and display objects
@@ -319,380 +321,345 @@ function setupDataStore(){
       };
 
       function fetchCallback(){
-        // Create the objects for each matrix in the local storage
-        // createAllLocalMatrices(listOfMatrices,callback);
-        createAllLocalMatrices(dataStore.spectrumList2d,createAllLocalMatricesCallback);
-
-      }
-
-      function createAllLocalMatricesCallback(){
-
         // change information message
         document.getElementById('fetchingMessage').classList.add('hidden');
-        document.getElementById('projectionsMessage').classList.remove('hidden');
+        document.getElementById('fittingSinglesMessage').classList.remove('hidden');
 
-        // Set the current task to keep track of our progress
-        dataStore.currentTask = 'Projections';
+        // Here most apps would initiate the peak-fitting process with a function call to fitPeaksInSeriesOfHistograms
+        // This app is different. Instead we will call the custom functions to process the Time Calibrator spectra and the LaBr3 calibration
 
-        // Create projectionsList for the input of the function projectAllMatrices(projectionsList)
-        // projectionsList is an array of objects.
-        // Each object contains the "matrixName" which is a valid key for the dataStore.matrix array.
-        // Each object also contains the "gateDetails" which is an array of gates specific to that 2d spectrum.
-        // Format for gates: 'matrixname': [[axis,gateMin,gateMax,BG1SF,BG1Min,BG1Max,BG2SF,BG2Min,BG2Max], [], ...]
-        // Where BG1SF is the Scaling Factor for a projection between bins BG1Min and BG1Max which will be subtracted from the main Gate projection between bins gateMin and gateMax onto the 'axis' axis.
-        var projectionsList = [];
-        var histoName = dataStore.histoFileName.split(".")[0];
-        for(var i=0; i<dataStore.spectrumList2d.length; i++){
-          for(var j=0; j<dataStore.spectrumListGates[dataStore.spectrumList2d[i]].length; j++){
-            projectionsList.push(
-              {
-                "matrixName": histoName  + ":" + dataStore.spectrumList2d[i],
-                "gateDetails": dataStore.spectrumListGates[dataStore.spectrumList2d[i]][j]
-              });
-            }
-          }
+        if(dataStore.currentJob == 'timeCalibrator'){
+          findTacCalibration(); // Find the gain of the TACs using the time calibrator run
 
-          // Make the projections needed from each matrix
-          projectAllMatrices(projectionsList,false,histoName);
-        }
+          // Advance to the next job
+          dataStore.currentJob = '60Co';
 
-        function projectionsCallback(){
-          console.log("projectionsCallback with job "+dataStore.currentJob);
+          // Grab the template peak-fitting script to a local copy here
+          var thisScript = {};
+          thisScript = dataStore.peakFitterScriptTemplate['60Co'];
 
-          // change information message
-          document.getElementById('projectionsMessage').classList.add('hidden');
-          document.getElementById('fittingSinglesMessage').classList.remove('hidden');
+          // Get the user input on histogramFileNames
+          thisScript.histogramFileNames.push(document.getElementById('HistoListSelect60Co').value);
 
-          // Here most apps would initiate the peak-fitting process with a function call to fitPeaksInSeriesOfHistograms
-          // This app is different. Instead we will call the custom functions to process the Time Calibrator spectra and the LaBr3 calibration
+          // Setup the peak-fitting script from the template
+          receiveScript(JSON.stringify(thisScript));
 
-          if(dataStore.currentJob == 'timeCalibrator'){
-            findTacCalibration(); // Find the gain of the TACs using the time calibrator run
+          // Request the Config for this histogram to get the addresses needed for building the Cal file
+          viewConfigOfHisto(document.getElementById('HistoListSelect60Co').value);
 
-            // Advance to the next job
-            dataStore.currentJob = '60Co';
+          // Start the automatic process
+          launchPeakFittingProcess();
 
-            // Grab the template peak-fitting script to a local copy here
-            var thisScript = {};
-            thisScript = dataStore.peakFitterScriptTemplate['60Co'];
-
-            // Get the user input on histogramFileNames
-            thisScript.histogramFileNames.push(document.getElementById('HistoListSelect60Co').value);
-
-            // Setup the peak-fitting script from the template
-            receiveScript(JSON.stringify(thisScript));
-
-            // Request the Config for this histogram to get the addresses needed for building the Cal file
-            viewConfigOfHisto(document.getElementById('HistoListSelect60Co').value);
-
-            // Start the automatic process
-            launchPeakFittingProcess();
-
-          }else if(dataStore.currentJob == '60Co'){
-            console.log(dataStore);
-            findTacOffsets(); // Find the offset of the TAC for each LaBr combination using the 60Co run
-
-            // Build the list of spectrum names with the histogram name appended to the start of the string so it can be used as a key
-            var histoName = dataStore.histoFileName.split(".")[0];
-            var spectrumList = [];
-            dataStore.spectrumList1d.forEach((element) => { if(element.includes("LBL")){spectrumList.push(histoName+":"+element);} });
-
-            // Perform a rough gainMatching to a reference spectrum ahead of the whole fitting routine for singles peaks
-            //  roughGainMatch(spectrumList,"HPGe","60Co");
-            roughGainMatch(spectrumList,"LaBr3","60Co");
-
-          }else{
-            console.log('All fitting is complete. Now put it together.');
-          }
-        }
-
-        function roughGainMatchCallback(){
+        }else if(dataStore.currentJob == '60Co'){
           console.log(dataStore);
-
-          // Add the createdSpectra to the menu
-          var keys = Object.keys(dataStore.createdSpectra);
-          var histoName = dataStore.histoFileName.split(".")[0];
-          for(var i=0; i<keys.length; i++){
-            newMenuItem = document.createElement('li');
-            newMenuItem.setAttribute('id', 'plotList'+keys[i]);
-            newMenuItem.setAttribute('value', keys[i]);
-            newMenuItem.setAttribute('class', 'list-group-item toggle');
-            newMenuItem.innerHTML = keys[i].split(':')[1].trim()+'<span id=\'plotListbadge'+keys[i]+'\' class=\"badge plotPresence hidden\">&#x2713;</span>';
-            document.getElementById('plotListplots'+histoName).appendChild(newMenuItem);
-            document.getElementById('plotList'+keys[i]).onclick = function(){ dataStore._plotListLite.exclusivePlot(this.id.split('plotList')[1], dataStore.viewers[dataStore.plots[0]]); }
-          }
-
-          // Set the current task to keep track of our progress
-          dataStore.currentTask = 'SinglesFitting';
+          findTacOffsets(); // Find the offset of the TAC for each LaBr combination using the 60Co run
 
           // Build the list of spectrum names with the histogram name appended to the start of the string so it can be used as a key
           var histoName = dataStore.histoFileName.split(".")[0];
           var spectrumList = [];
           dataStore.spectrumList1d.forEach((element) => { if(element.includes("LBL")){spectrumList.push(histoName+":"+element);} });
 
-          // Build the peaks list
-          var peaksList = {};
-          for(i=0; i<spectrumList.length; i++){
-            peaksList[spectrumList[i]] = [];
+          // Perform a rough gainMatching to a reference spectrum ahead of the whole fitting routine for singles peaks
+          //  roughGainMatch(spectrumList,"HPGe","60Co");
+          roughGainMatch(spectrumList,"LaBr3","60Co");
 
-            // Save the rough peak centroids for the _Pulse_Height histograms, corrected using the optimalGain
-            peaksList[spectrumList[i]].push(1173/dataStore.roughGainMatchParameters[spectrumList[i]]);
-            peaksList[spectrumList[i]].push(1332/dataStore.roughGainMatchParameters[spectrumList[i]]);
-          }
+        }else{
+          console.log('All fitting is complete. Now put it together.');
+        }
+      }
 
-          // Start the whole fitting routine for singles peaks
-          fitPeaksInSeriesOfHistograms(spectrumList,peaksList,"LaBr3");
+      function roughGainMatchCallback(){
+        console.log(dataStore);
 
+        // Add the createdSpectra to the menu
+        var keys = Object.keys(dataStore.createdSpectra);
+        var histoName = dataStore.histoFileName.split(".")[0];
+        for(var i=0; i<keys.length; i++){
+          newMenuItem = document.createElement('li');
+          newMenuItem.setAttribute('id', 'plotList'+keys[i]);
+          newMenuItem.setAttribute('value', keys[i]);
+          newMenuItem.setAttribute('class', 'list-group-item toggle');
+          newMenuItem.innerHTML = keys[i].split(':')[1].trim()+'<span id=\'plotListbadge'+keys[i]+'\' class=\"badge plotPresence hidden\">&#x2713;</span>';
+          document.getElementById('plotListplots'+histoName).appendChild(newMenuItem);
+          document.getElementById('plotList'+keys[i]).onclick = function(){ dataStore._plotListLite.exclusivePlot(this.id.split('plotList')[1], dataStore.viewers[dataStore.plots[0]]); }
         }
 
-        function fittingCallback(){
-          // All fitting has now been completed
-          console.log("fittingCallback");
+        // Set the current task to keep track of our progress
+        dataStore.currentTask = 'SinglesFitting';
 
-          // We now have gain and have found the peak centroids for the TACs.
-          // Use peak centroid to calculate the offset values for each LBL-LBL combination.
+        // Build the list of spectrum names with the histogram name appended to the start of the string so it can be used as a key
+        var histoName = dataStore.histoFileName.split(".")[0];
+        var spectrumList = [];
+        dataStore.spectrumList1d.forEach((element) => { if(element.includes("LBL")){spectrumList.push(histoName+":"+element);} });
 
-          var histoName = dataStore.currentHistoFileName.split(".")[0];
-          var specList = dataStore.peakFitterScriptTemplate["60Co"].spectrumList1d;
-          var index=0;
-          dataStore.comboOffsets.fillN(0,29);
+        // Build the peaks list
+        var peaksList = {};
+        for(i=0; i<spectrumList.length; i++){
+          peaksList[spectrumList[i]] = [];
 
-          for(var i=0; i<specList.length; i++){
-            var thisKey = histoName + ":" + specList[i];
-            if(!dataStore.fitResults[thisKey]){ continue; } // Bail out if there are no fit results yet
+          // Save the rough peak centroids for the _Pulse_Height histograms, corrected using the optimalGain
+          peaksList[spectrumList[i]].push(1173/dataStore.roughGainMatchParameters[spectrumList[i]]);
+          peaksList[spectrumList[i]].push(1332/dataStore.roughGainMatchParameters[spectrumList[i]]);
 
-            // LaBr3 - make a linear fit for the two fitted peaks
-            if(specList[i].includes("LBL")){
-              var peaksList = [1173,1332];
-              var thisCalKey = specList[i].split("_")[0];
-              if(!dataStore.THESEcalibrations[thisCalKey]){ dataStore.THESEcalibrations[thisCalKey] = {}; }
-              dataStore.THESEcalibrations[thisCalKey]['y'] = [];
-              dataStore.THESEcalibrations[thisCalKey]['x'] = [];
-              dataStore.THESEcalibrations[thisCalKey]['xEn'] = [];
-              dataStore.THESEcalibrations[thisCalKey]['residual'] = [];
-              dataStore.THESEcalibrations[thisCalKey]['residualMean'] = 0;
-              dataStore.THESEcalibrations[thisCalKey]['fwhm'] = [];
-              dataStore.THESEcalibrations[thisCalKey]['residualVar'] = 0;
-              var data = [];
-              var k=0;
-              for(j=0; j<dataStore.fitResults[thisKey].length; j++){ // loop over all peaks fitted in this spectrum
-                if(isNaN(dataStore.fitResults[thisKey][j][1])){ continue; } // exclude failed peak fits where the centroid is NaN
-                if(dataStore.fitResults[thisKey][j][5] < 8){ continue; }    // exclude failed peak fits where the area is less than 8 counts
-                if(dataStore.fitResults[thisKey][j][2] < 0.5){ continue; }  // exclude failed peak fits where the sigma (width) is less than 0.5 channels
-                if(j>0 && (dataStore.fitResults[thisKey][j][1]-dataStore.fitResults[thisKey][j-1][1])<5){
-                  continue; // exclude peak which was matched to the previous centroid
-                }
-                if(j<(dataStore.fitResults[thisKey].length-2) && (dataStore.fitResults[thisKey][j+1][1]-dataStore.fitResults[thisKey][j][1])<5){
-                  continue; // exclude peak which was matched to the next centroid
-                }
+          // Also save to the peakFitterScript for populating the reftiButton select
+          dataStore.peakFitterScript.spectrumList1dPeaks[spectrumList[i]] = [1173,1332];
+        }
 
-                // Remember peak centroid and literature energy
-                // Remember the fwhm for the resolution plot
-                dataStore.THESEcalibrations[thisCalKey]['x'][k] = dataStore.fitResults[thisKey][j][1]; // [1] is centroid
-                dataStore.THESEcalibrations[thisCalKey]['y'][k] = peaksList[j];
-                dataStore.THESEcalibrations[thisCalKey]['fwhm'][k] = dataStore.fitResults[thisKey][j][6]; // [6] is fwhm
-                // Construct the data array needed by regression.polynomial
-                data.push([dataStore.THESEcalibrations[thisCalKey]['x'][k],dataStore.THESEcalibrations[thisCalKey]['y'][k]]);
-                k++;
+        // Start the whole fitting routine for singles peaks
+        fitPeaksInSeriesOfHistograms(spectrumList,peaksList,"LaBr3");
+
+      }
+
+      function fittingCallback(){
+        // All fitting has now been completed
+        console.log("fittingCallback");
+
+        // We now have gain and have found the peak centroids for the TACs.
+        // Use peak centroid to calculate the offset values for each LBL-LBL combination.
+
+        var histoName = dataStore.currentHistoFileName.split(".")[0];
+        var specList = dataStore.peakFitterScriptTemplate["60Co"].spectrumList1d;
+        var index=0;
+        dataStore.comboOffsets.fillN(0,29);
+
+        for(var i=0; i<specList.length; i++){
+          var thisKey = histoName + ":" + specList[i];
+          if(!dataStore.fitResults[thisKey]){ continue; } // Bail out if there are no fit results yet
+
+          // LaBr3 - make a linear fit for the two fitted peaks
+          if(specList[i].includes("LBL")){
+            var peaksList = [1173,1332];
+            var thisCalKey = specList[i].split("_")[0];
+            if(!dataStore.THESEcalibrations[thisCalKey]){ dataStore.THESEcalibrations[thisCalKey] = {}; }
+            dataStore.THESEcalibrations[thisCalKey]['y'] = [];
+            dataStore.THESEcalibrations[thisCalKey]['x'] = [];
+            dataStore.THESEcalibrations[thisCalKey]['xEn'] = [];
+            dataStore.THESEcalibrations[thisCalKey]['residual'] = [];
+            dataStore.THESEcalibrations[thisCalKey]['residualMean'] = 0;
+            dataStore.THESEcalibrations[thisCalKey]['fwhm'] = [];
+            dataStore.THESEcalibrations[thisCalKey]['residualVar'] = 0;
+            var data = [];
+            var k=0;
+            for(j=0; j<dataStore.fitResults[thisKey].length; j++){ // loop over all peaks fitted in this spectrum
+              if(isNaN(dataStore.fitResults[thisKey][j][1])){ continue; } // exclude failed peak fits where the centroid is NaN
+              if(dataStore.fitResults[thisKey][j][5] < 8){ continue; }    // exclude failed peak fits where the area is less than 8 counts
+              if(dataStore.fitResults[thisKey][j][2] < 0.5){ continue; }  // exclude failed peak fits where the sigma (width) is less than 0.5 channels
+              if(j>0 && (dataStore.fitResults[thisKey][j][1]-dataStore.fitResults[thisKey][j-1][1])<5){
+                continue; // exclude peak which was matched to the previous centroid
+              }
+              if(j<(dataStore.fitResults[thisKey].length-2) && (dataStore.fitResults[thisKey][j+1][1]-dataStore.fitResults[thisKey][j][1])<5){
+                continue; // exclude peak which was matched to the next centroid
               }
 
-                // Perform Linear fit
-                // Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
-                var result = regression.polynomial(data, { order: 1, precision: 10 });
-                // 'fit': [quad, gain, offset, reduced-chi-square]
-                dataStore.THESEcalibrations[thisCalKey]['fit'] = [0.0,result.equation[0],result.equation[1],1.0];
+              // Remember peak centroid and literature energy
+              // Remember the fwhm for the resolution plot
+              dataStore.THESEcalibrations[thisCalKey]['x'][k] = dataStore.fitResults[thisKey][j][1]; // [1] is centroid
+              dataStore.THESEcalibrations[thisCalKey]['y'][k] = peaksList[j];
+              dataStore.THESEcalibrations[thisCalKey]['fwhm'][k] = dataStore.fitResults[thisKey][j][6]; // [6] is fwhm
+              // Construct the data array needed by regression.polynomial
+              data.push([dataStore.THESEcalibrations[thisCalKey]['x'][k],dataStore.THESEcalibrations[thisCalKey]['y'][k]]);
+              k++;
             }
 
-
-            // Now calculate the TAC offsets
-            if(!specList[i].includes("TAC_")){ continue; } // Only use TAC histograms in the 60Co run
-            if(isNaN(dataStore.fitResults[thisKey][0][1])){ dataStore.fitResults[thisKey][0][1]=500; } // Set failed fit to zero offset
-            dataStore.comboOffsets[index] = 500 - dataStore.fitResults[thisKey][0][1];
-            index++;
-          }
-
-          // Now we are done.
-          // Reveal the download buttons
-          document.getElementById('saveCalDiv').classList.remove('hidden');
-          //  document.getElementById('saveCSVDiv').classList.remove('hidden');
-          //  document.getElementById('saveScriptDiv').classList.remove('hidden');
-
-          // change information message
-          document.getElementById('fittingSinglesMessage').classList.add('hidden');
-          document.getElementById('fittingProjectionsMessage').classList.add('hidden');
-          document.getElementById('reviewMessage').classList.remove('hidden');
-
-          // Display the results in the table
-          //  dataStore._pileupCorrectionsReport.updateTable();
-
-          console.log(dataStore);
-          console.log("Finished");
-          console.log("Completed: "+dataStore.progressBarTasksCompleted+"/"+dataStore.progressBarNumberTasks+" = " + dataStore.ProgressValue);
-
-          // Reveal the post-processing buttons and report div
-          //document.getElementById('postProcessDiv').classList.remove('hidden');
-
-          // Launch the post-processing...
-
-        }
-
-        function postProcessTacCalibration(){
-          console.log("postProcessTacCalibration");
-
-          var keys = Object.keys(dataStore.rawData);
-          for(var i=0; i<keys.length; i++){
-            // Only use histograms in the 60Co run
-            if(!keys[i].includes(document.getElementById('HistoListSelect60Co').value.split(".")[0])){
-              continue;
-            }
-            // Calibrate the offset correction values
-            var thisCentroid = dataStore.fitResults[keys[i]][1].toFixed(1);
-          }
-        }
-
-        function findTacCalibration(){
-          // The time calibrator produces a picket fence of peaks in the spectrum at well-known time differences.
-          // Here we will first find the 5 peaks, then perform the linear calibration to 10 picoseconds per channel
-          console.log("findTacCalibration");
-
-          var keys = Object.keys(dataStore.rawData);
-          for(var i=0; i<keys.length; i++){
-            // Only use time calibrator runs
-            if(!keys[i].includes(document.getElementById('HistoListSelectTimeCalibrator').value.split(".")[0])){
-              continue;
-            }
-            // Only use TAC histograms in the 60Co run
-            if(!keys[i].includes("LBT")){
-              continue;
-            }
-
-            // We expect to find 5 or 6 peaks within the TAC range in a 16834 channel spectrum
-            // The 1st peak is around channel zero and is unreliable so we will ignore it
-            // The 6th peak is often clipping the ADC range and is unreliable so we will ignore it
-            // So we will find 4 peaks
-            // Split the spectrum into 4 sections and find the peak within each section
-            var start = 1200; // skip the region around channel zero
-            var sectionLength = 2805; // 16834 / 6 = 2805 channels per section
-            for(var section=0; section<4; section++){
-              var thisLowerLimit = start+(section*sectionLength);
-              var thisUpperLimit = thisLowerLimit+sectionLength;
-              var thisSectionData = dataStore.rawData[keys[i]].slice(thisLowerLimit,thisUpperLimit);
-
-              if(!dataStore.timeCalibratorPeaks[keys[i]]){ dataStore.timeCalibratorPeaks[keys[i]] = []; }
-              //dataStore.timeCalibratorPeaks[keys[i]].push(thisSectionData.indexOf(Math.max(thisSectionData)));
-              var maxValue = 0; var index=-1;
-              for(k=0; k<thisSectionData.length; k++){
-                if(isNaN(thisSectionData[k])){ continue; }
-                if(thisSectionData[k]>maxValue){ maxValue = thisSectionData[k]; index = k+thisLowerLimit; }
-              }
-
-              dataStore.timeCalibratorPeaks[keys[i]].push(index);
-            }
-
-            var gain = (dataStore.timeCalibratorPeaks[keys[i]][dataStore.timeCalibratorPeaks[keys[i]].length-1] - dataStore.timeCalibratorPeaks[keys[i]][0]) / ((dataStore.timeCalibratorPeaks[keys[i]].length-1)*dataStore.timeCalibratorPeriod);
-
-            if(!dataStore.tacCalibration[keys[i]]){ dataStore.tacCalibration[keys[i]] = []; }
-            dataStore.tacCalibration[keys[i]][0] = gain;
-
-            var thisTAC = (Number(keys[i].split("LBT")[1].split("X")[0]))-1;
-            dataStore.tacGain[thisTAC] = gain;
-          }
-
-          // Copy the TAC gains to the THESEcalibrations object for use in buildCalfile
-          for(i=0; i<dataStore.tacGain.length; i++){
-            var thisKey = "LBT" + alwaysThisLong((i+1),2) + "XT00X";
-            if(!dataStore.THESEcalibrations[thisKey]){ dataStore.THESEcalibrations[thisKey] = {}; }
-            dataStore.THESEcalibrations[thisKey]['y'] = [];
-            dataStore.THESEcalibrations[thisKey]['x'] = [];
-            dataStore.THESEcalibrations[thisKey]['xEn'] = [];
-            dataStore.THESEcalibrations[thisKey]['residual'] = [];
-            dataStore.THESEcalibrations[thisKey]['residualMean'] = 0;
-            dataStore.THESEcalibrations[thisKey]['fwhm'] = [];
-            dataStore.THESEcalibrations[thisKey]['residualVar'] = 0;
+            // Perform Linear fit
+            // Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
+            var result = regression.polynomial(data, { order: 1, precision: 10 });
             // 'fit': [quad, gain, offset, reduced-chi-square]
-            dataStore.THESEcalibrations[thisKey]['fit'] = [0.0,dataStore.tacGain[i],0.0,1.0];
-          }
-        }
-
-        function findTacOffsets(){
-          console.log("findTacOffsets");
-          var spectrumList = [];
-          var peaksList = {};
-
-          var keys = Object.keys(dataStore.rawData);
-          for(var i=0; i<keys.length; i++){
-            // Only use histograms in the 60Co run
-            if(!keys[i].includes(document.getElementById('HistoListSelect60Co').value.split(".")[0])){
-              continue;
-            }
-            // Only use TAC histograms in the 60Co run
-            if(!keys[i].includes("TAC_")){
-              continue;
-            }
-
-            // Add this histogram to the list of spectrum names (used as a key)
-            spectrumList.push(keys[i]);
-
-            // Create the calibrated TAC spectrum using the gain coefficient
-            var thisTAC = Number(keys[i].split("TAC_")[1].split("_")[0]);
-            var calibratedSpectrum = [];
-            calibratedSpectrum.fillN(0,8192);
-            for(j=0; j<dataStore.rawData[keys[i]].length; j++){
-              calibratedSpectrum[Math.floor(j*dataStore.tacGain[thisTAC])] += dataStore.rawData[keys[i]][j];
-            }
-            dataStore.rawData[keys[i]] = calibratedSpectrum; // Change the raw spectrum to the calibrated spectrum
-
-            // We expect to find 1 peak within the TAC range for each LBL-LBL combo
-            // There is often a spike at the overflow channel which needs to be excluded
-            var thisLowerLimit = 15;
-            j=calibratedSpectrum.length-1;
-            while(j>0 && calibratedSpectrum[j]<1){ j--; }
-            if(j>3000){ var thisUpperLimit = j-100; }else{ var thisUpperLimit = 3000; };
-            var thisSectionData = calibratedSpectrum.slice(thisLowerLimit,thisUpperLimit);
-
-            if(!dataStore.rawTACPeaks[keys[i]]){ dataStore.rawTACPeaks[keys[i]] = []; }
-
-            // Find the maximum bin which is close to peak centre
-            var maxValue = 0; var maxIndex=-1; var index;
-            for(k=0; k<thisSectionData.length; k++){
-              if(isNaN(thisSectionData[k])){ continue; }
-              if(thisSectionData[k]>maxValue){ maxValue = thisSectionData[k]; maxIndex = index = k+thisLowerLimit; }
-            }
-
-            // Save the max bin locally for guessing the peak centroid
-            peaksList[keys[i]] = [];
-            peaksList[keys[i]].push(index);
-
-            // Find the rough FWHM
-            index = maxIndex-thisLowerLimit;
-            while(thisSectionData[index]>maxValue/2){ index--; }
-            var ROIlowerLimit = maxIndex - (maxIndex-index)*5;
-            var ROIupperLimit = maxIndex + (maxIndex-index)*5;
-
-            // Reduce the sectionData to just the peak Region of Interest
-            thisSectionData = calibratedSpectrum.slice(ROIlowerLimit,ROIupperLimit);
-
-            // Find the centre of mass of this peak
-            var sum = sumProducts = 0;
-            for(k=0; k<thisSectionData.length; k++){
-              if(isNaN(thisSectionData[k])){ continue; }
-              sum += thisSectionData[k];
-              sumProducts += thisSectionData[k] * (k+ROIlowerLimit);
-            }
-            var mean = sumProducts / sum;
-
-            dataStore.rawTACPeaks[keys[i]].push(mean);
+            dataStore.THESEcalibrations[thisCalKey]['fit'] = [0.0,result.equation[0],result.equation[1],1.0];
           }
 
-          // Now do fitting of these TAC Peaks
 
-          //set the x axis valueRange
-          document.getElementById('maxX').value = 16000;
-          document.getElementById('maxX').onchange();
-
-          // Start the whole fitting routine for singles peaks
-          fitPeaksInSeriesOfHistograms(spectrumList,peaksList,"TAC");
+          // Now calculate the TAC offsets
+          if(!specList[i].includes("TAC_")){ continue; } // Only use TAC histograms in the 60Co run
+          if(isNaN(dataStore.fitResults[thisKey][0][1])){ dataStore.fitResults[thisKey][0][1]=500; } // Set failed fit to zero offset
+          dataStore.comboOffsets[index] = 500 - dataStore.fitResults[thisKey][0][1];
+          index++;
         }
+
+        // Now we are done.
+        // Reveal the download buttons
+        document.getElementById('saveCalDiv').classList.remove('hidden');
+        //  document.getElementById('saveCSVDiv').classList.remove('hidden');
+        //  document.getElementById('saveScriptDiv').classList.remove('hidden');
+
+        // change information message
+        document.getElementById('fittingSinglesMessage').classList.add('hidden');
+        document.getElementById('fittingProjectionsMessage').classList.add('hidden');
+        document.getElementById('reviewMessage').classList.remove('hidden');
+
+        // Display the results in the table
+        //  dataStore._pileupCorrectionsReport.updateTable();
+
+        console.log(dataStore);
+        console.log("Finished");
+        console.log("Completed: "+dataStore.progressBarTasksCompleted+"/"+dataStore.progressBarNumberTasks+" = " + dataStore.ProgressValue);
+
+        // Reveal the post-processing buttons and report div
+        //document.getElementById('postProcessDiv').classList.remove('hidden');
+
+        // Launch the post-processing...
+
+      }
+
+      function postProcessTacCalibration(){
+        console.log("postProcessTacCalibration");
+
+        var keys = Object.keys(dataStore.rawData);
+        for(var i=0; i<keys.length; i++){
+          // Only use histograms in the 60Co run
+          if(!keys[i].includes(document.getElementById('HistoListSelect60Co').value.split(".")[0])){
+            continue;
+          }
+          // Calibrate the offset correction values
+          var thisCentroid = dataStore.fitResults[keys[i]][1].toFixed(1);
+        }
+      }
+
+      function findTacCalibration(){
+        // The time calibrator produces a picket fence of peaks in the spectrum at well-known time differences.
+        // Here we will first find the 5 peaks, then perform the linear calibration to 10 picoseconds per channel
+        console.log("findTacCalibration");
+
+        var keys = Object.keys(dataStore.rawData);
+        for(var i=0; i<keys.length; i++){
+          // Only use time calibrator runs
+          if(!keys[i].includes(document.getElementById('HistoListSelectTimeCalibrator').value.split(".")[0])){
+            continue;
+          }
+          // Only use TAC histograms in the 60Co run
+          if(!keys[i].includes("LBT")){
+            continue;
+          }
+
+          // We expect to find 5 or 6 peaks within the TAC range in a 16834 channel spectrum
+          // The 1st peak is around channel zero and is unreliable so we will ignore it
+          // The 6th peak is often clipping the ADC range and is unreliable so we will ignore it
+          // So we will find 4 peaks
+          // Split the spectrum into 4 sections and find the peak within each section
+          var start = 1200; // skip the region around channel zero
+          var sectionLength = 2805; // 16834 / 6 = 2805 channels per section
+          for(var section=0; section<4; section++){
+            var thisLowerLimit = start+(section*sectionLength);
+            var thisUpperLimit = thisLowerLimit+sectionLength;
+            var thisSectionData = dataStore.rawData[keys[i]].slice(thisLowerLimit,thisUpperLimit);
+
+            if(!dataStore.timeCalibratorPeaks[keys[i]]){ dataStore.timeCalibratorPeaks[keys[i]] = []; }
+            //dataStore.timeCalibratorPeaks[keys[i]].push(thisSectionData.indexOf(Math.max(thisSectionData)));
+            var maxValue = 0; var index=-1;
+            for(k=0; k<thisSectionData.length; k++){
+              if(isNaN(thisSectionData[k])){ continue; }
+              if(thisSectionData[k]>maxValue){ maxValue = thisSectionData[k]; index = k+thisLowerLimit; }
+            }
+
+            dataStore.timeCalibratorPeaks[keys[i]].push(index);
+          }
+
+          var gain = (dataStore.timeCalibratorPeaks[keys[i]][dataStore.timeCalibratorPeaks[keys[i]].length-1] - dataStore.timeCalibratorPeaks[keys[i]][0]) / ((dataStore.timeCalibratorPeaks[keys[i]].length-1)*dataStore.timeCalibratorPeriod);
+
+          if(!dataStore.tacCalibration[keys[i]]){ dataStore.tacCalibration[keys[i]] = []; }
+          dataStore.tacCalibration[keys[i]][0] = gain;
+
+          var thisTAC = (Number(keys[i].split("LBT")[1].split("X")[0]))-1;
+          dataStore.tacGain[thisTAC] = gain;
+        }
+
+        // Copy the TAC gains to the THESEcalibrations object for use in buildCalfile
+        for(i=0; i<dataStore.tacGain.length; i++){
+          var thisKey = "LBT" + alwaysThisLong((i+1),2) + "XT00X";
+          if(!dataStore.THESEcalibrations[thisKey]){ dataStore.THESEcalibrations[thisKey] = {}; }
+          dataStore.THESEcalibrations[thisKey]['y'] = [];
+          dataStore.THESEcalibrations[thisKey]['x'] = [];
+          dataStore.THESEcalibrations[thisKey]['xEn'] = [];
+          dataStore.THESEcalibrations[thisKey]['residual'] = [];
+          dataStore.THESEcalibrations[thisKey]['residualMean'] = 0;
+          dataStore.THESEcalibrations[thisKey]['fwhm'] = [];
+          dataStore.THESEcalibrations[thisKey]['residualVar'] = 0;
+          // 'fit': [quad, gain, offset, reduced-chi-square]
+          dataStore.THESEcalibrations[thisKey]['fit'] = [0.0,dataStore.tacGain[i],0.0,1.0];
+        }
+      }
+
+      function findTacOffsets(){
+        console.log("findTacOffsets");
+        var spectrumList = [];
+        var peaksList = {};
+
+        var keys = Object.keys(dataStore.rawData);
+        for(var i=0; i<keys.length; i++){
+          // Only use histograms in the 60Co run
+          if(!keys[i].includes(document.getElementById('HistoListSelect60Co').value.split(".")[0])){
+            continue;
+          }
+          // Only use TAC histograms in the 60Co run
+          if(!keys[i].includes("TAC_")){
+            continue;
+          }
+
+          // Add this histogram to the list of spectrum names (used as a key)
+          spectrumList.push(keys[i]);
+
+          // Create the calibrated TAC spectrum using the gain coefficient
+          var thisTAC = Number(keys[i].split("TAC_")[1].split("_")[0]);
+          var calibratedSpectrum = [];
+          calibratedSpectrum.fillN(0,8192);
+          for(j=0; j<dataStore.rawData[keys[i]].length; j++){
+            calibratedSpectrum[Math.floor(j*dataStore.tacGain[thisTAC])] += dataStore.rawData[keys[i]][j];
+          }
+          dataStore.rawData[keys[i]] = calibratedSpectrum; // Change the raw spectrum to the calibrated spectrum
+
+          // We expect to find 1 peak within the TAC range for each LBL-LBL combo
+          // There is often a spike at the overflow channel which needs to be excluded
+          var thisLowerLimit = 15;
+          j=calibratedSpectrum.length-1;
+          while(j>0 && calibratedSpectrum[j]<1){ j--; }
+          if(j>3000){ var thisUpperLimit = j-100; }else{ var thisUpperLimit = 3000; };
+          var thisSectionData = calibratedSpectrum.slice(thisLowerLimit,thisUpperLimit);
+
+          if(!dataStore.rawTACPeaks[keys[i]]){ dataStore.rawTACPeaks[keys[i]] = []; }
+
+          // Find the maximum bin which is close to peak centre
+          var maxValue = 0; var maxIndex=-1; var index;
+          for(k=0; k<thisSectionData.length; k++){
+            if(isNaN(thisSectionData[k])){ continue; }
+            if(thisSectionData[k]>maxValue){ maxValue = thisSectionData[k]; maxIndex = index = k+thisLowerLimit; }
+          }
+
+          // Save the max bin locally for guessing the peak centroid
+          peaksList[keys[i]] = [];
+          peaksList[keys[i]].push(index);
+          // Also save to the peakFitterScript for populating the reftiButton select
+          dataStore.peakFitterScript.spectrumList1dPeaks[keys[i]][0] = index;
+
+          // Find the rough FWHM
+          index = maxIndex-thisLowerLimit;
+          while(thisSectionData[index]>maxValue/2){ index--; }
+          var ROIlowerLimit = maxIndex - (maxIndex-index)*5;
+          var ROIupperLimit = maxIndex + (maxIndex-index)*5;
+
+          // Reduce the sectionData to just the peak Region of Interest
+          thisSectionData = calibratedSpectrum.slice(ROIlowerLimit,ROIupperLimit);
+
+          // Find the centre of mass of this peak
+          var sum = sumProducts = 0;
+          for(k=0; k<thisSectionData.length; k++){
+            if(isNaN(thisSectionData[k])){ continue; }
+            sum += thisSectionData[k];
+            sumProducts += thisSectionData[k] * (k+ROIlowerLimit);
+          }
+          var mean = sumProducts / sum;
+
+          dataStore.rawTACPeaks[keys[i]].push(mean);
+        }
+
+        // Now do fitting of these TAC Peaks
+
+        //set the x axis valueRange
+        document.getElementById('maxX').value = 16000;
+        document.getElementById('maxX').onchange();
+
+        // Start the whole fitting routine for singles peaks
+        fitPeaksInSeriesOfHistograms(spectrumList,peaksList,"TAC");
+      }
 
       function updateAnalyzer(){
 

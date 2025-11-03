@@ -135,6 +135,7 @@ this.createTextFileOptionInputs = function(){
     //<spectrumName>: string; name of spectrum, per names from analyzer
     //this: efficiencyFitterReport object
     var tableID = "peakFitterpeakFitterResults";
+    var row;
 
     var keys = Object.keys(dataStore.fitResults);
     for(var i=0; i<keys.length; i++){
@@ -142,13 +143,13 @@ this.createTextFileOptionInputs = function(){
       for(var j=0; j<dataStore.fitResults[keys[i]].length; j++){
         // if a row for this peak does not exist in the table then create it
         if(!document.getElementById(tableID+'Row-'+ keys[i]+'-Peak-'+ j)){
-          var row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
+          row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
           row.id = tableID+'Row-'+ keys[i]+'-Peak-'+ j;
           for(var cellIndex=0; cellIndex<this.numCellsPerRow; cellIndex++){
             var cell = row.insertCell(cellIndex);
             cell.id = row.id + 'Cell' + this.cellHandles[cellIndex];
           }
-        }
+        }else{ row = document.getElementById(tableID+'Row-'+ keys[i]+'-Peak-'+ j); }
 
         document.getElementById(row.id + 'Cell' + this.cellHandles[0]).innerHTML = row.rowIndex;
         document.getElementById(row.id + 'Cell' + this.cellHandles[1]).innerHTML = keys[i].split(":")[0];

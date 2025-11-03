@@ -168,6 +168,7 @@ function pileupCorrectionsReport(wrapID,wrapID2,wrapID3){
     //this: efficiencyFitterReport object
     console.log(dataStore);
     var tableID = "pileupCorrectionspileupCorrectionsResults";
+    var row;
 
     var keys = Object.keys(dataStore.fitResults);
     for(var i=0; i<keys.length; i++){
@@ -175,13 +176,13 @@ function pileupCorrectionsReport(wrapID,wrapID2,wrapID3){
       for(var j=0; j<dataStore.fitResults[keys[i]].length; j++){
         // if a row for this peak does not exist in the table then create it
         if(!document.getElementById(tableID+'Row-'+ keys[i]+'-Peak-'+ j)){
-          var row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
+          row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
           row.id = tableID+'Row-'+ keys[i]+'-Peak-'+ j;
           for(var cellIndex=0; cellIndex<this.numCellsPerRow; cellIndex++){
             var cell = row.insertCell(cellIndex);
             cell.id = row.id + 'Cell' + this.cellHandles[cellIndex];
           }
-        }
+        }else{ row = document.getElementById(tableID+'Row-'+ keys[i]+'-Peak-'+ j); }
 
         document.getElementById(row.id + 'Cell' + this.cellHandles[0]).innerHTML = row.rowIndex;
         document.getElementById(row.id + 'Cell' + this.cellHandles[1]).innerHTML = keys[i].split(":")[0];
@@ -211,6 +212,7 @@ function pileupCorrectionsReport(wrapID,wrapID2,wrapID3){
     var tableID = "crystalKReportRegionpileupCorrectionsDetectorpileupCorrectionsCoefficientsResults";
     var numCellsPerRow = 9;
     var paramKeys = ["k1","k2","e1"];
+    var row;
 
     var keys = Object.keys(dataStore.fitResultsParameters);
     for(var i=0; i<keys.length; i++){
@@ -219,13 +221,13 @@ function pileupCorrectionsReport(wrapID,wrapID2,wrapID3){
         // if a row for this detector does not exist in the table then create it, with the rows for all three correction factors
         if(!document.getElementById(tableID+'Row-'+ keys[i] + '-' + paramKeys[k])){
           // Create the row
-          var row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
+          row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
           row.id = tableID+'Row-'+ keys[i] +'-'+paramKeys[k];
           for(var cellIndex=0; cellIndex<numCellsPerRow; cellIndex++){
             var cell = row.insertCell(cellIndex);
             cell.id = row.id + 'Cell' + this.cellHandlesCoefficients[cellIndex];
           }
-        }
+        }else{ row = document.getElementById(tableID+'Row-'+ keys[i] + '-' + paramKeys[k]); }
 
         // Fill the rows with values
         if(k==0){ document.getElementById(row.id + 'Cell' + this.cellHandlesCoefficients[0]).innerHTML = keys[i]; }

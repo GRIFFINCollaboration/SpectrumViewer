@@ -857,6 +857,10 @@ function launchPeakFittingProcess(){
     // Set the current task to keep track of our progress
     dataStore.currentTask = 'SinglesFitting';
 
+    // change information message
+    document.getElementById('roughGainMatchMessage').classList.add('hidden');
+    document.getElementById('fittingSinglesMessage').classList.remove('hidden');
+
     // Build the list of spectrum names with the histogram name appended to the start of the string so it can be used as a key
     var histoName = dataStore.histoFileName.split(".")[0];
     var spectrumList = [];
@@ -885,7 +889,7 @@ function launchPeakFittingProcess(){
     document.getElementById('saveScriptDiv').classList.remove('hidden');
 
     // change information message
-    document.getElementById('fittingProjectionsMessage').classList.add('hidden');
+    document.getElementById('fittingSinglesMessage').classList.add('hidden');
     document.getElementById('reviewMessage').classList.remove('hidden');
 
     console.log(dataStore);

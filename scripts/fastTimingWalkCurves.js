@@ -324,6 +324,9 @@ dataStore.YAxisMaxValue = [[0,0],[0,0]];
       // Draw the search region
       dataStore.viewers[dataStore.plots[0]].plotData();
 
+      // Hide the subpages. They need to be not hidden while the templates are injected.
+      menuButtonClick(dataStore.buttonIDs[0],0);
+
       ////////////////
       // Now set up for the start of the process
       ////////////////
@@ -431,7 +434,7 @@ dataStore.YAxisMaxValue = [[0,0],[0,0]];
         document.getElementById('saveScriptDiv').classList.remove('hidden');
 
         // change information message
-        document.getElementById('fittingProjectionsMessage').classList.add('hidden');
+        document.getElementById('fittingSinglesMessage').classList.add('hidden');
         document.getElementById('reviewMessage').classList.remove('hidden');
 
                 // Display the results in the table

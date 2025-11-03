@@ -984,9 +984,9 @@ function setupDataStore(){
                 var thisUncert = Math.sqrt( uncert1 + uncert2 + uncert3 + uncert4 + uncert5 + uncert6) * dataStore.angularBinWeight[angleIndex];
                 //  var uncertSum = uncert1 + uncert2 + uncert3 + uncert4 + uncert5 + uncert6;
                 var uncertSum = uncert1 + uncert2 + uncert3 + uncert4;// + uncert5 + uncert6;
-                console.log("This pair contribution ["+i+","+j+"]");
-                console.log("Relative contributions: "+(uncert1/uncertSum)+", "+(uncert2/uncertSum)+", "+(uncert3/uncertSum)+", "+(uncert4/uncertSum)+", "+(uncert5/uncertSum)+", "+(uncert6/uncertSum));
-                console.log("Value, uncertainty = "+dataStore.angularBinWeight[angleIndex]+", "+thisUncert+" which is "+((thisUncert/dataStore.angularBinWeight[angleIndex])*100)+"%");
+              //  console.log("This pair contribution ["+i+","+j+"]");
+              //  console.log("Relative contributions: "+(uncert1/uncertSum)+", "+(uncert2/uncertSum)+", "+(uncert3/uncertSum)+", "+(uncert4/uncertSum)+", "+(uncert5/uncertSum)+", "+(uncert6/uncertSum));
+              //  console.log("Value, uncertainty = "+dataStore.angularBinWeight[angleIndex]+", "+thisUncert+" which is "+((thisUncert/dataStore.angularBinWeight[angleIndex])*100)+"%");
                 // Sum the squared contributions to include the uncertainty in the peak areas for this pair combination to the running sum
                 // However, we are adding them in quadrature for each pair. So here we sum the squares
                 // When all are collected then they will be sqrt.

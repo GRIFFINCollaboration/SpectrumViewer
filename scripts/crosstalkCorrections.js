@@ -513,9 +513,6 @@ function launchPeakFittingProcess(){
       document.getElementById('fittingProjectionsMessage').classList.add('hidden');
       document.getElementById('reviewMessage').classList.remove('hidden');
 
-      // Display the results in the table
-      dataStore._crosstalkCorrectionsReport.updateTable();
-
       console.log(dataStore);
       console.log("Finished");
       console.log("Completed: "+dataStore.progressBarTasksCompleted+"/"+dataStore.progressBarNumberTasks+" = " + dataStore.ProgressValue);
@@ -602,6 +599,9 @@ function launchPeakFittingProcess(){
       //
       // Perform 6th order polynomial fit of correction factor as function of time between hits.
       // Result is function describing correction factor as function of time between hits.
+      
+      // Display the results in the table
+      dataStore._crosstalkCorrectionsReport.updateTable();
 
       // Inject the report card templates and setup
       var NumGe=64;

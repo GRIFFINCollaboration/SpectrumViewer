@@ -164,9 +164,9 @@ function promiseBinaryURL(url){
           // Could issue a new request using the old transfer method here.
           //var newURL = req.responseURL.replace("callbinaryspechandler","callspechandler");
         }
-          // Reject the promise with the status text
-          // which will hopefully be a meaningful error
-          reject(Error(req.statusText));
+        // Reject the promise with the status text
+        // which will hopefully be a meaningful error
+        reject(Error(req.statusText));
       }else if (req.status == 200) {
         // Response recieved
 
@@ -251,7 +251,7 @@ function promiseBinaryURL(url){
               numFilledSubmatrices = numFilledSubmatrices | (byteArray[i] << bitshift );
               i++;
             }
-            console.log("Number of non-empty submatrices = "+numFilledSubmatrices);
+            //console.log("Number of non-empty submatrices = "+numFilledSubmatrices);
             for(k=0; k<numFilledSubmatrices; k++){
               thisType = (byteArray[i] & 0x80) >> 7;
               thisCoordinate = 0;
@@ -2523,6 +2523,7 @@ function fitPeaksInSeriesOfHistograms(spectra,peaks,detectorType){
     // Get the list of keys
     var i, keys = spectra,
     buffer = dataStore.currentPlot; //keep track of whatever was originally plotted so we can return to it
+    if(buffer == undefined){ buffer = spectra[0]; }
 
     //dump data so there is one displayed at a time
     dataStore.viewers[dataStore.plots[0]].removeData(dataStore.currentPlot);
@@ -2554,6 +2555,13 @@ function fitPeaksInSeriesOfHistograms(spectra,peaks,detectorType){
         //set up fit line re-drawing
         dataStore.viewers[dataStore.plots[0]].drawCallback = addFitLines;
 
+        //Return to the spectrum that was originally plotted
+        // Also triggers the filling of the refitButton select and enables the button
+        dataStore.currentPlot = buffer;
+        dataStore.viewers[dataStore.plots[0]].plotData() //kludge to update limits, could be nicer
+        dataStore.viewers[dataStore.plots[0]].fitTarget = buffer;
+        dataStore._plotListLite.exclusivePlot(buffer, dataStore.viewers[dataStore.plots[0]]);
+
         // Callback
         fittingCallback();
 
@@ -2578,7 +2586,7 @@ function fitSpectra(spectrum,peaks,detectorType){
   dataStore.currentPlot = spectrum;
   dataStore.viewers[viewerName].plotData() //kludge to update limits, could be nicer
   dataStore.viewers[viewerName].fitTarget = spectrum;
-  dataStore._plotListLite.exclusivePlot(spectrum, dataStore.viewers[dataStore.plots[0]]);
+  dataStore._plotListLite.exclusivePlot(spectrum, dataStore.viewers[viewerName]);
 
   //locate the spectrum in the dataStore
   if(spectrum in dataStore.createdSpectra){ // true if spectrum is a key of createdSpectra
@@ -2693,7 +2701,7 @@ function addFitLines(){
 
   dataStore.viewers[viewerName].containerFit.removeAllChildren();
 
-  // Bail out of no fitResults yet
+  // Bail out if no fitResults yet
   if(!dataStore.fitResults[dataStore.currentPlot]){
     return;
   }
@@ -2754,8 +2762,7 @@ function toggleRefitMode(){
   // Remove the old fit results from fitResults
   // Enter fit mode
   // Modify the refit button element
-  // OR smoothly exit refit mode
-  console.log("toggleRefitMode in helpers");
+  // OR call addFitlines then smoothly exit refit mode
 
   var viewerName = dataStore.plots[0];
   var refitButton = document.getElementById('refitButton');
@@ -2780,6 +2787,9 @@ function toggleRefitMode(){
     // Leave fit mode
     dataStore.viewers[viewerName].leaveFitMode();
 
+    // Trigger the addFitLines so that old peak fits are also removed
+    addFitLines();
+
     // Modify the refit button
     refitButton.setAttribute('engaged', 0);
     document.getElementById('refitButtonBadge').classList.remove('red-text');
@@ -2799,10 +2809,14 @@ function fitCOMInSeriesOfHistograms(spectra,peaks){
 
     // Get the list of keys
     var i, keys = spectra,
-    buffer = dataStore.currentPlot //keep track of whatever was originally plotted so we can return to it
+    buffer = dataStore.currentPlot; //keep track of whatever was originally plotted so we can return to it
+    if(buffer == undefined){ buffer = spectra[0]; }
 
     //dump data so there is one displayed at a time
     dataStore.viewers[dataStore.plots[0]].removeData(dataStore.currentPlot);
+
+    //set up fit callbacks
+    dataStore.viewers[dataStore.plots[0]].fitCallback = fitCOMCallback;
 
     releaser(
       function(i){
@@ -2827,6 +2841,13 @@ function fitCOMInSeriesOfHistograms(spectra,peaks){
         var evt;
         //set up fit line re-drawing
         dataStore.viewers[dataStore.plots[0]].drawCallback = addFitLines;
+
+        //Return to the spectrum that was originally plotted
+        // Also triggers the filling of the refitButton select and enables the button
+        dataStore.currentPlot = buffer;
+        dataStore.viewers[dataStore.plots[0]].plotData() //kludge to update limits, could be nicer
+        dataStore.viewers[dataStore.plots[0]].fitTarget = buffer;
+        dataStore._plotListLite.exclusivePlot(buffer, dataStore.viewers[dataStore.plots[0]]);
 
         // Callback
         fittingCOMCallback();
@@ -2934,6 +2955,17 @@ function fitCOMSpectra(spectrum,peaks){
 
   //dump data so it doesn't stack up
   dataStore.viewers[viewerName].removeData(spectrum);
+}
+
+function fitCOMCallback(){
+  // callback for the Center-Of-Mass (COM) fitting
+  //disengage fit mode button in apps which use this
+  var refitButton = document.getElementById('refitButton');
+  if(refitButton != null){
+    if( parseInt(refitButton.getAttribute('engaged'),10) == 1){
+      refitButton.onclick();
+    }
+  }
 }
 
 ////////////////////
