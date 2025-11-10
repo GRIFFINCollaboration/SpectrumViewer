@@ -982,8 +982,8 @@ function setupDataStore(){
                 var uncert5 = (sumSinglesAreasUnc[0]/sumSinglesAreas[0]) * (sumSinglesAreasUnc[0]/sumSinglesAreas[0]);
                 var uncert6 = (sumSinglesAreasUnc[1]/sumSinglesAreas[1]) * (sumSinglesAreasUnc[1]/sumSinglesAreas[1]);
                 var thisUncert = Math.sqrt( uncert1 + uncert2 + uncert3 + uncert4 + uncert5 + uncert6) * dataStore.angularBinWeight[angleIndex];
-                //  var uncertSum = uncert1 + uncert2 + uncert3 + uncert4 + uncert5 + uncert6;
-                var uncertSum = uncert1 + uncert2 + uncert3 + uncert4;// + uncert5 + uncert6;
+                var uncertSum = uncert1 + uncert2 + uncert3 + uncert4 + uncert5 + uncert6;
+              //  var uncertSum = uncert1 + uncert2 + uncert3 + uncert4;// + uncert5 + uncert6;
               //  console.log("This pair contribution ["+i+","+j+"]");
               //  console.log("Relative contributions: "+(uncert1/uncertSum)+", "+(uncert2/uncertSum)+", "+(uncert3/uncertSum)+", "+(uncert4/uncertSum)+", "+(uncert5/uncertSum)+", "+(uncert6/uncertSum));
               //  console.log("Value, uncertainty = "+dataStore.angularBinWeight[angleIndex]+", "+thisUncert+" which is "+((thisUncert/dataStore.angularBinWeight[angleIndex])*100)+"%");
@@ -1004,6 +1004,7 @@ function setupDataStore(){
 
               // The uncertainty in the weighting factor of the angular bins is the uncertainties in the peak areas added in quadrature. So here we sqrt the sum of these.
               dataStore.angularBinWeightUnc[i] =  Math.sqrt(dataStore.angularBinWeightUnc[i]);
+            //  dataStore.angularBinWeightUnc[i] =  Math.sqrt(dataStore.angularBinWeightUnc[i]) * 1.3; // Reduction factor for unknown reason! HACK!!!!
               console.log("Final Weight["+i+"] Value, uncertainty = "+dataStore.angularBinWeight[i]+", "+dataStore.angularBinWeightUnc[i]+" which is "+((dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[angleIndex])*100)+"%");
 
               // Calculate the angular correlation data value

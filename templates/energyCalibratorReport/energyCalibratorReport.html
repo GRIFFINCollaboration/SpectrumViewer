@@ -429,6 +429,7 @@ this.fitCallback = function(center, width, amplitude, intercept, slope){
   var b = dataStore.sourceInfo[dataStore.currentSource].Config[thisCalibrationIndex].gain;
   var c = dataStore.sourceInfo[dataStore.currentSource].Config[thisCalibrationIndex].offset;
   c -= center;
+  if(a==0){ a = 1.0E-12; }
   var thisPulseHeight = (-1.0*b + Math.sqrt(b*b - (4*a*c))) / (2.0*a);
 
   var thisPeakIndex = dataStore.THESEcalibrations[dataStore.currentDetector].y.indexOf(dataStore.sourceInfo[dataStore.currentSource].literaturePeaks[dataStore.currentPeak]);
@@ -441,7 +442,7 @@ this.fitCallback = function(center, width, amplitude, intercept, slope){
         refitButton.onclick();
       }
     }
-    
+
   if(dataStore.currentTask == "Finished"){
     // This is a refit of a peak, so trigger recalculation of coefficients and table updates
     this.fitEnergyCalibrationData(dataStore.currentDetector);
