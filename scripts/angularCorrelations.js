@@ -983,10 +983,10 @@ function setupDataStore(){
                 var uncert6 = (sumSinglesAreasUnc[1]/sumSinglesAreas[1]) * (sumSinglesAreasUnc[1]/sumSinglesAreas[1]);
                 var thisUncert = Math.sqrt( uncert1 + uncert2 + uncert3 + uncert4 + uncert5 + uncert6) * dataStore.angularBinWeight[angleIndex];
                 var uncertSum = uncert1 + uncert2 + uncert3 + uncert4 + uncert5 + uncert6;
-              //  var uncertSum = uncert1 + uncert2 + uncert3 + uncert4;// + uncert5 + uncert6;
-              //  console.log("This pair contribution ["+i+","+j+"]");
-              //  console.log("Relative contributions: "+(uncert1/uncertSum)+", "+(uncert2/uncertSum)+", "+(uncert3/uncertSum)+", "+(uncert4/uncertSum)+", "+(uncert5/uncertSum)+", "+(uncert6/uncertSum));
-              //  console.log("Value, uncertainty = "+dataStore.angularBinWeight[angleIndex]+", "+thisUncert+" which is "+((thisUncert/dataStore.angularBinWeight[angleIndex])*100)+"%");
+                //  var uncertSum = uncert1 + uncert2 + uncert3 + uncert4;// + uncert5 + uncert6;
+                //  console.log("This pair contribution ["+i+","+j+"]");
+                //  console.log("Relative contributions: "+(uncert1/uncertSum)+", "+(uncert2/uncertSum)+", "+(uncert3/uncertSum)+", "+(uncert4/uncertSum)+", "+(uncert5/uncertSum)+", "+(uncert6/uncertSum));
+                //  console.log("Value, uncertainty = "+dataStore.angularBinWeight[angleIndex]+", "+thisUncert+" which is "+((thisUncert/dataStore.angularBinWeight[angleIndex])*100)+"%");
                 // Sum the squared contributions to include the uncertainty in the peak areas for this pair combination to the running sum
                 // However, we are adding them in quadrature for each pair. So here we sum the squares
                 // When all are collected then they will be sqrt.
@@ -1004,7 +1004,7 @@ function setupDataStore(){
 
               // The uncertainty in the weighting factor of the angular bins is the uncertainties in the peak areas added in quadrature. So here we sqrt the sum of these.
               dataStore.angularBinWeightUnc[i] =  Math.sqrt(dataStore.angularBinWeightUnc[i]);
-            //  dataStore.angularBinWeightUnc[i] =  Math.sqrt(dataStore.angularBinWeightUnc[i]) * 1.3; // Reduction factor for unknown reason! HACK!!!!
+              //  dataStore.angularBinWeightUnc[i] =  Math.sqrt(dataStore.angularBinWeightUnc[i]) * 1.3; // Reduction factor for unknown reason! HACK!!!!
               console.log("Final Weight["+i+"] Value, uncertainty = "+dataStore.angularBinWeight[i]+", "+dataStore.angularBinWeightUnc[i]+" which is "+((dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[angleIndex])*100)+"%");
 
               // Calculate the angular correlation data value
@@ -1023,7 +1023,13 @@ function setupDataStore(){
           }
 
           // Set the number of degrees of freedom used in the reduced chi-square calculation
-          dataStore.numDegreesOfFreedom = dataStore.angularBinData.length - dataStore.angularBinExcludeList.length - 2; // Number of data points minus two parameters to fit (c1,c4)
+          dataStore.angularBinEmptyCount = 0;
+          for(i=0; i<dataStore.angularBinData.length; i++){ if(dataStore.angularBinData[i]==0 && dataStore.angularBinExcludeList.indexOf(i)<0){ dataStore.angularBinEmptyCount++; } }
+          dataStore.numDegreesOfFreedom = dataStore.angularBinData.length - dataStore.angularBinExcludeList.length - dataStore.angularBinEmptyCount - 2; // Number of data points minus two parameters to fit (c1,c4)
+
+console.log(dataStore.angularBinData);
+console.log(dataStore.angularBinExcludeList);
+console.log("Number of degrees of Freedom = "+dataStore.angularBinData.length + " - "+ dataStore.angularBinExcludeList.length + " - "+ dataStore.angularBinEmptyCount+ " - 2 = "+dataStore.numDegreesOfFreedom);
 
           // Set the confidence level value used in the plotting of the reduced chi-square calculation
           var optionsCL = document.getElementsByName('confidenceLimitValue');
@@ -1038,9 +1044,9 @@ function setupDataStore(){
           console.log("Critical Value of "+dataStore.criticalValue+" from "+dataStore.criticalChiSquareValueTable[thisConfidenceLimit][dataStore.numDegreesOfFreedom-1]+" / "+dataStore.numDegreesOfFreedom);
 
           // Report the statistics of this correlation
-          document.getElementById('dataTableMessage').innerHTML = "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>"
+          document.getElementById('dataTableMessage').innerHTML = "<h4>"+dataStore.histoFileName+"</h4>"+ "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>"
           +"<h4>Normalization factor (Sum of Corrected Areas) = "+bracketNotationString(dataStore.normalizationFactor.toFixed(2),dataStore.normalizationFactorUnc)+"</h4>";
-          document.getElementById('dataPlotMessage').innerHTML = "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>";
+          document.getElementById('dataPlotMessage').innerHTML = "<h4>"+dataStore.histoFileName+"</h4>"+ "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>";
           console.log("Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0)+", mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0));
           document.getElementById('dataPlotMessage').innerHTML += "<h4>"+"The Critical Value for "+dataStore.numDegreesOfFreedom+" degrees of freedom is \u{1D6D8}\u00B2/NDF="+dataStore.criticalValue+"."+"</h4>";
 
