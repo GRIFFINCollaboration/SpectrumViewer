@@ -147,7 +147,7 @@ function buildMidasFileTable(){
     var row = document.getElementById("MidFilesTable").insertRow(document.getElementById("MidFilesTable").rows.length);
     row.id = 'midasRunTableRow-'+(num+1);
     row.onclick = function(e){
-      if(e.shiftKey) { selectMultipleRows(this.id);
+      if(e.shiftKey) { selectMultipleRowsMidas(this.id);
       }else{ ToggleCheckboxOfThisMIDASFile(this.id); }
     };
 
@@ -270,7 +270,7 @@ function expandSubrunList(RowID){
     var row = document.getElementById("MidFilesTable").insertRow(subRowID);
     row.id = 'midasSubRunTableRow-'+RowID+'-'+(num+1);
     row.onclick = function(e){
-      if(e.shiftKey) { selectMultipleRows(this.id);
+      if(e.shiftKey) { selectMultipleRowsMidas(this.id);
       }else{ ToggleCheckboxOfThisMIDASFile(this.id); }
     };
 
@@ -387,12 +387,16 @@ function ToggleCheckboxOfThisMIDASFile(rowID){
 
 }
 
-function selectMultipleRows(thisRowID){
+function selectMultipleRowsMidas(thisRowID){
   // called on shiftclick of rows in the midas data file table
 
   var firstRowID = dataStore.midasTableLastRowClicked;
 
-  if(parseInt(thisRowID.split('-')[1])<parseInt(firstRowID.split('-')[1])){ firstRowID = thisRowID; thisRowID = dataStore.midasTableLastRowClicked; }
+  if(parseInt(thisRowID.split('-')[1])<parseInt(firstRowID.split('-')[1])){
+    firstRowID = thisRowID; thisRowID = dataStore.midasTableLastRowClicked;
+    ToggleCheckboxOfThisMIDASFile(firstRowID);
+    ToggleCheckboxOfThisMIDASFile(thisRowID);
+  }
   console.log('Clicked rows are '+firstRowID.split('-')[1]+' and '+thisRowID.split('-')[1]);
   console.log('Clicked rows are '+firstRowID+' and '+thisRowID);
 

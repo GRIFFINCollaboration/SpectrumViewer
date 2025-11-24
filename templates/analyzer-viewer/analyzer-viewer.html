@@ -43,7 +43,7 @@
 <h4 class="modal-title">Error</h4>
 </div>
 <div class="modal-body">
-<p>Please select at least two histogram files to sum together.</p>
+<p>Please select at least two histogram files to sum together (Shift-click to select multiple at once).</p>
 </div>
 <div class="modal-footer">
 <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
@@ -116,6 +116,17 @@ function setupAnalyzerViewer(wrapperID){
   newButton.style.padding = '4px';
   newButton.onclick = function(){
     submitHistoFileSumRequestToServer();
+  }.bind(newButton);
+
+    // Create Submit button for BETA LIST summing histograms
+  document.getElementById('submitDivSum').appendChild(newButton);
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'submitSumHistosButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "BETA Sum selected Histogram files together";
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    submitHistoListOfFilesSumRequestToServer();
   }.bind(newButton);
   document.getElementById('submitDivSum').appendChild(newButton);
 
@@ -233,7 +244,7 @@ function setupAnalyzerViewer(wrapperID){
     window.open(url);
   }.bind(newButton);
   document.getElementById('launchAppsDiv').appendChild(newButton);
-  
+
   // Create button for launching angularCorrelations corrections app
   newButton = document.createElement('button');
   newButton.setAttribute('id', 'launchPUButton');

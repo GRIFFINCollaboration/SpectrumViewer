@@ -4471,9 +4471,12 @@ function angularCorrelationRegression(dataX,dataY) {
   }
 
   // calculate the parameters
-  var b = (sum_y / sum_x);
+  //var b = (sum_y / sum_x);
+//  var slope = ((num*sum_xy) - (sum_x*sum_y)) / ((num*sum_x2) - (sum_x*sum_x));
+var slope = 1;
+var offset = (sum_y-(slope*sum_x)) / num;
 
-  return(b);
+  return(offset*-1.0);
 };
 
 // Calculate the chi-squared between two series. First series is data, second series is model.

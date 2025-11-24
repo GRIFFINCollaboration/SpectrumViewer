@@ -54,6 +54,7 @@ function setupDataStore(){
     dataStore.midasFileList = { "Names" : [], "Sizes" : [], "Titles" : []};  // place to store the list of midas files available to sort which is provided by the server
     dataStore.midasRunList = {};                               // place to store the list of midas runs available to sort which is provided by the server
     dataStore.midasTableLastRowClicked = 1;                    // place to remember the last row number clicked with a single mouse click
+    dataStore.histoTableLastRowClicked = 1;                    // place to remember the last row number clicked with a single mouse click
     dataStore.CalibrationSource = 'midas';                     // selection the source of calibrations to be applied in the submitted sort job (either midas or config)
     dataStore.CalibrationURLs = [];                     // Array of URLs containing the latest calibration coefficients to communicate to the analyzer
     dataStore.dropFileCalibrations = {};                // Place to store the Cal file contents being uploaded

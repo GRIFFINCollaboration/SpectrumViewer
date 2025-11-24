@@ -3,11 +3,11 @@
 ////////////////////////////
 
 function setupViewerContent(){
-    // function to refresh the content of the Viewer subpage
-    // Called when there is new content available
+  // function to refresh the content of the Viewer subpage
+  // Called when there is new content available
 
-    // Build the content of the table from the Histogram list that was already received from the server
-    buildHistosFileTable();
+  // Build the content of the table from the Histogram list that was already received from the server
+  buildHistosFileTable();
 
 }
 
@@ -16,14 +16,14 @@ function setupViewerContent(){
 /////////////////
 
 function fetchCallback(){
-    //fires after all data has been updated
+  //fires after all data has been updated
 
-    var i,
-        keys = Object.keys(dataStore.viewers);
+  var i,
+  keys = Object.keys(dataStore.viewers);
 
-    for(i=0; i<keys.length; i++){
-        dataStore.viewers[keys[i]].plotData(null, true);
-    }
+  for(i=0; i<keys.length; i++){
+    dataStore.viewers[keys[i]].plotData(null, true);
+  }
 }
 
 function buildHistosFileTable(){
@@ -64,7 +64,8 @@ function buildHistosFileTable(){
       var row = document.getElementById("HistoFilesTable").insertRow(document.getElementById("HistoFilesTable").rows.length);
       row.id = 'histoFileTableRow-'+(num+1);
       row.onclick = function(e){
-        ToggleCheckboxOfThisHistoFile(this.id);
+        if(e.shiftKey) { selectMultipleRowsHisto(this.id);
+        }else{ ToggleCheckboxOfThisHistoFile(this.id); }
       };
 
       var cell1 = row.insertCell(0);
@@ -137,150 +138,236 @@ function addFileDetailsToHistosTable(){
 }
 
 function ToggleCheckboxOfAllHistoFiles(state){
-    // Toggle the status of the checkbox for all Histo files in the list
-    if(state){ color='#2e3477'; }else{ color = '#191C40'; }
-    for(var i=0; i<dataStore.histoFileList.length; i++){
-	document.getElementById(dataStore.histoFileList[i]+'-checkbox').checked = state;
-	document.getElementById('histoFileTableRow-'+(i+1)).style.backgroundColor = color;
-    }
+  // Toggle the status of the checkbox for all Histo files in the list
+  if(state){ color='#2e3477'; }else{ color = '#191C40'; }
+  for(var i=0; i<dataStore.histoFileList.length; i++){
+    document.getElementById(dataStore.histoFileList[i]+'-checkbox').checked = state;
+    document.getElementById('histoFileTableRow-'+(i+1)).style.backgroundColor = color;
+  }
 }
 
 function ToggleCheckboxOfThisHistoFile(rowID){
-    // Toggle the status of the checkbox for this row in the list, and highlight it
-    // Works for Runs or subrun files
+  // Toggle the status of the checkbox for this row in the list, and highlight it
+  // Works for Runs or subrun files
 
-    var thisRowID = rowID;
-    var RunID = parseInt(rowID.split('-')[1])-1;
+  var thisRowID = rowID;
+  var RunID = parseInt(rowID.split('-')[1])-1;
+  dataStore.histoTableLastRowClicked = rowID;
 
-    // Find the current state of the checkbox so we can toggle it
-    thisCheckbox = document.getElementById(dataStore.histoFileList[RunID]+'-checkbox');
+  // Find the current state of the checkbox so we can toggle it
+  thisCheckbox = document.getElementById(dataStore.histoFileList[RunID]+'-checkbox');
 
-    // Find the state of the checkbox and toggle the state
-    state = thisCheckbox.checked;
-    if(state){ state=false; color = '#191C40'; }else{ state=true; color='#2e3477'; }
+  // Find the state of the checkbox and toggle the state
+  state = thisCheckbox.checked;
+  if(state){ state=false; color = '#191C40'; }else{ state=true; color='#2e3477'; }
 
-    // Toggle the color of the row
-    document.getElementById(thisRowID).style.backgroundColor = color;
+  // Toggle the color of the row
+  document.getElementById(thisRowID).style.backgroundColor = color;
 
-    // Toggle the state of the checkbox
-    thisCheckbox.checked = state;
+  // Toggle the state of the checkbox
+  thisCheckbox.checked = state;
+
+}
+
+function selectMultipleRowsHisto(thisRowID){
+  // called on shiftclick of rows in the histogram file table
+
+  var firstRowID = dataStore.histoTableLastRowClicked;
+
+  if(parseInt(thisRowID.split('-')[1])<parseInt(firstRowID.split('-')[1])){
+    firstRowID = thisRowID; thisRowID = dataStore.histoTableLastRowClicked;
+    ToggleCheckboxOfThisHistoFile(firstRowID);
+    ToggleCheckboxOfThisHistoFile(thisRowID);
+  }
+  console.log('Clicked rows are '+firstRowID.split('-')[1]+' and '+thisRowID.split('-')[1]);
+  console.log('Clicked rows are '+firstRowID+' and '+thisRowID);
+
+  var table = document.getElementById("HistoFilesTable");
+
+  // Iterate through all rows of the MIDAS data file table and click those between the two identified rows
+  var toggleThis = false;
+  for (var i = 1, row; row = table.rows[i]; i++) {
+    // if toggling is active then toggle this row
+    if(toggleThis){
+      console.log(row.id);
+      ToggleCheckboxOfThisHistoFile(row.id);
+    }
+
+    // Find the first row id and then activate toggling
+    if(row.id == firstRowID){
+      toggleThis = true;
+    }
+
+    // Find the last row id, deactivate toggling and exit
+    if(row.id == thisRowID){
+      toggleThis = false;
+      return;
+    }
+  }
 
 }
 
 function submitHistoFileSumRequestToServer(){
-    console.log('submitHistoFileSumRequestToServer');
-    // Build a URL from the list of selected files and the sum histogram filename. Then submit ot the server
+  console.log('submitHistoFileSumRequestToServer');
+  // Build a URL from the list of selected files and the sum histogram filename. Then submit ot the server
 
 
-	// Format check for the data file
-    HistoFileDirectory = dataStore.histoFileDirectoryPath;
-    if(HistoFileDirectory[HistoFileDirectory.length]!='/'){
-	HistoFileDirectory += '/';
+  // Format check for the data file
+  HistoFileDirectory = dataStore.histoFileDirectoryPath;
+  if(HistoFileDirectory[HistoFileDirectory.length]!='/'){
+    HistoFileDirectory += '/';
+  }
+
+  var url = dataStore.spectrumServer + '/?cmd=sumHistos';
+  url += '&outputfilename='+HistoFileDirectory+dataStore.histoSumFilename;
+
+  var num=0;
+  for(var i=(dataStore.histoFileList.length-1); i>=0; i--){
+    if(document.getElementById(dataStore.histoFileList[i]+'-checkbox').checked == true){
+      url += '&filename'+num+'='+HistoFileDirectory+dataStore.histoFileList[i].trim();
+      num++;
     }
+  }
 
-    var url = dataStore.spectrumServer + '/?cmd=sumHistos';
-    url += '&outputfilename='+HistoFileDirectory+dataStore.histoSumFilename;
+  console.log('sumHistos, URL for analyzer server: '+url);
 
-    var num=0;
-	for(var i=(dataStore.histoFileList.length-1); i>=0; i--){
-	    if(document.getElementById(dataStore.histoFileList[i]+'-checkbox').checked == true){
-		url += '&filename'+num+'='+HistoFileDirectory+dataStore.histoFileList[i].trim();
-		num++;
-	    }
-	}
+  if(num>1){
+    // Send the request
+    XHR(url,
+      'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
+      function(){return 0},
+      function(error){console.log(error)}
+    );
 
-    console.log('sumHistos, URL for analyzer server: '+url);
+    // Uncheck all the files
+    ToggleCheckboxOfAllHistoFiles(false);
+  }else{
+    // Please select at least two histogram files to sum together
+    document.getElementById('alertSumModalButton').click();
+  }
 
-    if(num>1){
-	// Send the request
-        XHR(url,
-            'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
-            function(){return 0},
-            function(error){console.log(error)}
-           );
+}
 
-	// Uncheck all the files
-	ToggleCheckboxOfAllHistoFiles(false);
-    }else{
-	// Please select at least two histogram files to sum together
-	document.getElementById('alertSumModalButton').click();
+function submitHistoListOfFilesSumRequestToServer(){
+  console.log('submitHistoListOfFilesSumRequestToServer');
+  // Build a URL from the list of selected files and the sum histogram filename. Then submit to the server
+
+  // Format check for the directory path
+  HistoFileDirectory = dataStore.histoFileDirectoryPath;
+  if(HistoFileDirectory[HistoFileDirectory.length]!='/'){
+    HistoFileDirectory += '/';
+  }
+
+  // Build the list of files
+  var num=0;
+  var fileList = "";
+  for(var i=(dataStore.histoFileList.length-1); i>=0; i--){
+    if(document.getElementById(dataStore.histoFileList[i]+'-checkbox').checked == true){
+      if(num>0){ fileList += ',' }
+      fileList += dataStore.histoFileList[i].trim().split(".")[0];
+      num++;
     }
+  }
+
+  // Build the first part of the url
+  var url = dataStore.spectrumServer + '/?cmd=sumHistoList';
+  url += '&outputfilename='+HistoFileDirectory+dataStore.histoSumFilename;
+  url += '&inputDirectory='+HistoFileDirectory;
+  url += '&count='+num;
+  url += '&filenames='+fileList;
+
+  console.log('sumHistos, URL for analyzer server: '+url);
+
+  if(num>1){
+    // Send the request
+    XHR(url,
+      'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
+      function(){return 0},
+      function(error){console.log(error)}
+    );
+
+    // Uncheck all the files
+    ToggleCheckboxOfAllHistoFiles(false);
+  }else{
+    // Please select at least two histogram files to sum together
+    document.getElementById('alertSumModalButton').click();
+  }
 
 }
 
 function viewConfigOfHisto(histo){
-    console.log('View config of Histogram '+histo);
+  console.log('View config of Histogram '+histo);
 
-    // Format check for the data file
-    HistoFileDirectory = dataStore.histoFileDirectoryPath;
-    if(HistoFileDirectory[HistoFileDirectory.length]!='/'){
-	HistoFileDirectory += '/';
-    }
-    filename = HistoFileDirectory + histo;
+  // Format check for the data file
+  HistoFileDirectory = dataStore.histoFileDirectoryPath;
+  if(HistoFileDirectory[HistoFileDirectory.length]!='/'){
+    HistoFileDirectory += '/';
+  }
+  filename = HistoFileDirectory + histo;
 
-    // Change the title of the modal for displaying the content
-    document.getElementById('viewConfigModalTitle').innerHTML = 'Configuration of Histogram File, ' + filename;
+  // Change the title of the modal for displaying the content
+  document.getElementById('viewConfigModalTitle').innerHTML = 'Configuration of Histogram File, ' + filename;
 
-    // get the config file from the server/ODB for this histogram
-    url = dataStore.spectrumServer + '/?cmd=viewConfig' + '&filename=' + filename;
-    XHR(url, "Problem getting Config file for "+ filename +" from analyzer server", processConfigFileForDisplay, function(error){ErrorConnectingToAnalyzerServer(error)});
+  // get the config file from the server/ODB for this histogram
+  url = dataStore.spectrumServer + '/?cmd=viewConfig' + '&filename=' + filename;
+  XHR(url, "Problem getting Config file for "+ filename +" from analyzer server", processConfigFileForDisplay, function(error){ErrorConnectingToAnalyzerServer(error)});
 
 }
 
 function processConfigFileForDisplay(payload){
 
-	// Unpack the response from the server into a local variable
-	console.log(payload);
-    var thisConfig = JSON.parse(payload);
-	console.log(thisConfig);
+  // Unpack the response from the server into a local variable
+  console.log(payload);
+  var thisConfig = JSON.parse(payload);
+  console.log(thisConfig);
 
-    var content = '';
+  var content = '';
 
-    // Unpack Directories content
-    content += '<h4>Directories:</h4>';
-	for(var i=0; i<thisConfig.Analyzer[5].Directories.length; i++){
-	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[5].Directories[i]) + '</p>';
-	}
+  // Unpack Directories content
+  content += '<h4>Directories:</h4>';
+  for(var i=0; i<thisConfig.Analyzer[5].Directories.length; i++){
+    content += '<p>' + JSON.stringify(thisConfig.Analyzer[5].Directories[i]) + '</p>';
+  }
 
-    // Unpack Midas content
-    content += '<h4>Midas:</h4>';
-	for(var i=0; i<thisConfig.Analyzer[6].Midas.length; i++){
-	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[6].Midas[i]) + '</p>';
-	}
+  // Unpack Midas content
+  content += '<h4>Midas:</h4>';
+  for(var i=0; i<thisConfig.Analyzer[6].Midas.length; i++){
+    content += '<p>' + JSON.stringify(thisConfig.Analyzer[6].Midas[i]) + '</p>';
+  }
 
-    // Unpack Global content
-    content += '<h4>Globals:</h4>';
-	for(var i=0; i<thisConfig.Analyzer[3].Globals.length; i++){
-	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[3].Globals[i]) + '</p>';
-	}
+  // Unpack Global content
+  content += '<h4>Globals:</h4>';
+  for(var i=0; i<thisConfig.Analyzer[3].Globals.length; i++){
+    content += '<p>' + JSON.stringify(thisConfig.Analyzer[3].Globals[i]) + '</p>';
+  }
 
-    // Unpack Gate content
-    content += '<h4>Gates:</h4>';
-	for(var i=0; i<thisConfig.Analyzer[1].Gates.length; i++){
-	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[1].Gates[i]) + '</p>';
-	}
+  // Unpack Gate content
+  content += '<h4>Gates:</h4>';
+  for(var i=0; i<thisConfig.Analyzer[1].Gates.length; i++){
+    content += '<p>' + JSON.stringify(thisConfig.Analyzer[1].Gates[i]) + '</p>';
+  }
 
-    // Unpack Histogram content
-    content += '<h4>Histograms:</h4>';
-	for(var i=0; i<thisConfig.Analyzer[2].Histograms.length; i++){
-	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[2].Histograms[i]) + '</p>';
-	}
+  // Unpack Histogram content
+  content += '<h4>Histograms:</h4>';
+  for(var i=0; i<thisConfig.Analyzer[2].Histograms.length; i++){
+    content += '<p>' + JSON.stringify(thisConfig.Analyzer[2].Histograms[i]) + '</p>';
+  }
 
-    // Unpack Calibrations content
-    content += '<h4>Calibrations:</h4>';
-	for(var i=0; i<thisConfig.Analyzer[4].Calibrations.length; i++){
-	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[4].Calibrations[i]) + '</p>';
-	}
+  // Unpack Calibrations content
+  content += '<h4>Calibrations:</h4>';
+  for(var i=0; i<thisConfig.Analyzer[4].Calibrations.length; i++){
+    content += '<p>' + JSON.stringify(thisConfig.Analyzer[4].Calibrations[i]) + '</p>';
+  }
 
-    // Unpack Variables content
-    content += '<h4>Sort Variables:</h4>';
-	for(var i=0; i<thisConfig.Analyzer[0].Variables.length; i++){
-	    content += '<p>' + JSON.stringify(thisConfig.Analyzer[0].Variables[i]) + '</p>';
-	}
+  // Unpack Variables content
+  content += '<h4>Sort Variables:</h4>';
+  for(var i=0; i<thisConfig.Analyzer[0].Variables.length; i++){
+    content += '<p>' + JSON.stringify(thisConfig.Analyzer[0].Variables[i]) + '</p>';
+  }
 
-    // Inject the content
-    document.getElementById('viewConfigModalContent').innerHTML = content;
+  // Inject the content
+  document.getElementById('viewConfigModalContent').innerHTML = content;
 
-    // Open the modal
-    document.getElementById('viewConfigModalButton').click();
+  // Open the modal
+  document.getElementById('viewConfigModalButton').click();
 }

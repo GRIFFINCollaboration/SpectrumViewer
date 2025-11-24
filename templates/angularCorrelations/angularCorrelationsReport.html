@@ -92,7 +92,7 @@ function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
       document.getElementById(tableID + i + 'angle').innerHTML = dataStore.theseAngularBins[i].toFixed(1);
       document.getElementById(tableID + i + 'angleATAN').innerHTML = Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)).toFixed(3);
       document.getElementById(tableID + i + 'pairs').innerHTML = dataStore.numCrystalPairs[i];
-      document.getElementById(tableID + i + 'weight').innerHTML = bracketNotationString(dataStore.angularBinWeight[i].toFixed(5),dataStore.angularBinWeightUnc[i].toFixed(5));
+      document.getElementById(tableID + i + 'weight').innerHTML = bracketNotationString(dataStore.angularBinWeight[i].toFixed(6),dataStore.angularBinWeightUnc[i].toFixed(6));
       document.getElementById(tableID + i + 'rawData').innerHTML = bracketNotationString(parseInt(dataStore.angularBinRawPeakArea[i]),parseInt(dataStore.angularBinRawPeakAreaUnc[i]));
       document.getElementById(tableID + i + 'rawBkg').innerHTML = bracketNotationString(parseInt(dataStore.angularBinTRBGPeakArea[i]),parseInt(dataStore.angularBinTRBGPeakAreaUnc[i]));
       document.getElementById(tableID + i + 'area').innerHTML = bracketNotationString(parseInt(dataStore.angularBinPeakArea[i]),parseInt(dataStore.angularBinPeakAreaUnc[i]));
@@ -104,6 +104,7 @@ function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
       newInput.type = 'checkbox';
       newInput.value = i;
       newInput.onchange = function(){
+        dataStore.currentTask = "exclude";
         toggleExcludeList(this.value);
       }.bind(newInput);
       if(dataStore.angularBinExcludeList.includes(i)){ newInput.checked = true; }
@@ -158,8 +159,10 @@ function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
 
     // Define the data for each series
     var centralDataSum = 0, count=0, subtitleYposition = 0.95;
+    /*
     for(var i=0; i<dataStore.angularBinData.length; i++){
       if(isFinite(dataStore.theseAngularBins[i]) && isFinite(dataStore.angularBinData[i]) && dataStore.angularBinData[i]>0 && !dataStore.angularBinExcludeList.includes(i) ){
+        xSeries.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
         xSeries.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
         yDataSeries.push(dataStore.angularBinData[i]);
         yResSeries.push(dataStore.angularBinDataResiduals[i]);
@@ -168,11 +171,22 @@ function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
         if(dataStore.theseAngularBins[i]>80 && dataStore.theseAngularBins[i]<100){ centralDataSum += dataStore.angularBinData[i]; count++; }
       }
     }
+*/
+
+    for(var i=0; i<dataStore.expAngBinData.length; i++){
+        xSeries.push(dataStore.expAngBinRadians[i]);
+        yDataSeries.push(dataStore.expAngBinData[i]);
+        yResSeries.push(dataStore.angularBinDataResiduals[i]);
+        yErrSeries[0].push(dataStore.expAngBinDataUnc[i]);
+        yErrSeries[1].push(dataStore.expAngBinDataUnc[i]);
+        if(dataStore.expAngBinRadians[i]>-0.25 && dataStore.expAngBinRadians[i]<0.25){ centralDataSum += dataStore.expAngBinData[i]; count++; }
+    }
+
     var centralDataMean = centralDataSum/count;
     if(centralDataMean>1){ // Place plot subtitle at bottom of panel
-       subtitleYposition = 0.4;
+      subtitleYposition = 0.4;
     }else{ // Place plot subtitle at top of panel
-       subtitleYposition = 0.95;
+      subtitleYposition = 0.95;
     }
 
     data[0] = {
@@ -204,7 +218,7 @@ function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
       }
     };
     data[1] = {
-      x: dataStore.theseAngularBinsRadians,
+      x: dataStore.expAngFineBinRadians,
       y: dataStore.displayLineData,
       xaxis: 'x2',
       yaxis: 'y2',
@@ -343,7 +357,11 @@ function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
       newButton.value = keys[i];
       newButton.innerHTML = "Plot this result";
       newButton.onclick = function(){
-        dataStore.displayLineData = theoreticalAngularCorrelation(dataStore.minimaDetails[this.value].bestFitCoeffsA[0],dataStore.minimaDetails[this.value].bestFitCoeffsA[1], dataStore.theseAngularBinsRadians);
+        var thisTheory = theoreticalAngularCorrelation(dataStore.minimaDetails[this.value].bestFitCoeffsA[0],dataStore.minimaDetails[this.value].bestFitCoeffsA[1], dataStore.expAngBinRadians); // x series matching data for determining offset
+        var thisOffset = angularCorrelationRegression(dataStore.expAngBinData,thisTheory);
+        thisTheory = theoreticalAngularCorrelation(dataStore.minimaDetails[this.value].bestFitCoeffsA[0],dataStore.minimaDetails[this.value].bestFitCoeffsA[1], dataStore.expAngFineBinRadians); // fine x series for the actual plot
+        for(var i=0; i<thisTheory.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
+        dataStore.displayLineData = thisTheory;
         dataStore.displayLineName = "Local minimum, "+this.value.split("-")[0]+", \u03B4 = "+dataStore.minimaDetails[this.value].Delta1;
         dataStore.displayLineTitle = "\u{1D6D8}\u00B2/NDF = "+dataStore.minimaDetails[this.value].chiSquare;
         generateResidualsData(dataStore.minimaDetails[this.value].bestFitCoeffsA[0],dataStore.minimaDetails[this.value].bestFitCoeffsA[1]);
@@ -383,8 +401,8 @@ function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
       title: "\u{1D6D8}\u00B2 distributions",
       xaxis: {title: "atan(\u03B4)", showline: false, zeroline: false},
       yaxis: {title: "\u{1D6D8}\u00B2/NDF", type: "log", showline: false, zeroline: false},
-    //  xaxis: {title: {text: "atan(\u03B4)", font: { size: 15 }}, showline: false, zeroline: false},
-    //  yaxis: {title: {text: "atan(\u03B4)", font: { size: 15 }}, type: "log", showline: false, zeroline: false},
+      //  xaxis: {title: {text: "atan(\u03B4)", font: { size: 15 }}, showline: false, zeroline: false},
+      //  yaxis: {title: {text: "atan(\u03B4)", font: { size: 15 }}, type: "log", showline: false, zeroline: false},
       legend: {size: 15},
       shapes:[ // Box around the panels
         {
