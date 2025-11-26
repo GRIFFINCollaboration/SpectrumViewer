@@ -231,7 +231,10 @@ function submitHistoFileSumRequestToServer(){
 
   console.log('sumHistos, URL for analyzer server: '+url);
 
-  if(num>1){
+    if(num>200){
+      // Please select less than 200 histogram files to sum together
+      document.getElementById('alertSumMaxModalButton').click();
+    }else if(num>1){
     // Send the request
     XHR(url,
       'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
@@ -243,7 +246,7 @@ function submitHistoFileSumRequestToServer(){
     ToggleCheckboxOfAllHistoFiles(false);
   }else{
     // Please select at least two histogram files to sum together
-    document.getElementById('alertSumModalButton').click();
+    document.getElementById('alertSumMinModalButton').click();
   }
 
 }

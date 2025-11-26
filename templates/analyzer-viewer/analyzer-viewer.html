@@ -33,21 +33,41 @@
 </div>
 </div>
 
-<div id="alertSumModal" class="modal fade" role="dialog">
+<div id="alertSumMinModal" class="modal fade" role="dialog">
 <div class="modal-dialog">
 
 <!-- Modal content-->
 <div class="modal-content">
-<div class="modal-header">
-<button type="button" class="close" data-dismiss="modal">&times;</button>
-<h4 class="modal-title">Error</h4>
+ <div class="modal-header">
+ <button type="button" class="close" data-dismiss="modal">&times;</button>
+ <h4 class="modal-title">Error</h4>
+ </div>
+ <div class="modal-body">
+  <p>Please select at least two histogram files to sum together (Shift-click to select multiple at once).</p>
+ </div>
+ <div class="modal-footer">
+  <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+ </div>
 </div>
-<div class="modal-body">
-<p>Please select at least two histogram files to sum together (Shift-click to select multiple at once).</p>
+
 </div>
-<div class="modal-footer">
-<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
 </div>
+
+<div id="alertSumMaxModal" class="modal fade" role="dialog">
+<div class="modal-dialog">
+
+<!-- Modal content-->
+<div class="modal-content">
+ <div class="modal-header">
+ <button type="button" class="close" data-dismiss="modal">&times;</button>
+ <h4 class="modal-title">Error</h4>
+ </div>
+ <div class="modal-body">
+  <p>Please select less than 200 histogram files to sum together (Shift-click to select multiple at once).</p>
+ </div>
+ <div class="modal-footer">
+  <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+ </div>
 </div>
 
 </div>
@@ -118,7 +138,7 @@ function setupAnalyzerViewer(wrapperID){
     submitHistoFileSumRequestToServer();
   }.bind(newButton);
 
-    // Create Submit button for BETA LIST summing histograms
+  // Create Submit button for BETA LIST summing histograms
   document.getElementById('submitDivSum').appendChild(newButton);
   newButton = document.createElement('button');
   newButton.setAttribute('id', 'submitSumHistosButton');
@@ -176,6 +196,19 @@ function setupAnalyzerViewer(wrapperID){
   newButton.style.padding = '4px';
   newButton.onclick = function(){
     var url = "https://griffincollaboration.github.io/SpectrumViewer/energyCalibrator.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
+    window.open(url);
+  }.bind(newButton);
+  document.getElementById('launchAppsDiv').appendChild(newButton);
+
+  // Create button for launching BGO HV Alignment app
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'launchEnCalButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Launch BGO HV Alignment";
+  document.getElementById('launchAppsDiv').style.textAlign = 'right';
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    var url = "https://griffincollaboration.github.io/SpectrumViewer/bgoHValignment.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
     window.open(url);
   }.bind(newButton);
   document.getElementById('launchAppsDiv').appendChild(newButton);
