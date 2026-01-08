@@ -934,7 +934,7 @@ function loadData(DAQ){
 
 function updateAnalyzer(){
 
-  // For the ODB it first grabs the PSB table and then sets values only for the channels that are defined there.
+  // For the ODB it first grabs the PSC table and then sets values only for the channels that are defined there.
   // For the Analyzer we can get a similar list from the viewConfig command with the Histogram file as the argument.
   // That should probably be done for the building of the initial spectrum list for gain-matching if Histogram mode is selected.
   // Need to reformat the URLs generated here for the Analyzer

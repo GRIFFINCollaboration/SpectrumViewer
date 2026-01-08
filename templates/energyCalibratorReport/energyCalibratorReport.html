@@ -491,7 +491,7 @@ this.fitEnergyCalibrationData = function(thisDetector){
 
   // Also save the address which is needed in the Cal file
   // Need to find a source that was not excluded.
-  // Just use whatever is in the first position in the object becasue excluded sources have been deleted.
+  // Just use whatever is in the first position in the object because excluded sources have been deleted.
   var keys = Object.keys(dataStore.sourceInfo);
   var thisSource = dataStore.sourceInfo[keys[0]].title;
   var thisCalibrationIndex = dataStore.sourceInfo[thisSource].Config.map(function(e) { return e.name; }).indexOf(dataStore.THESEdetectors[thisDetector]);

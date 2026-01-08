@@ -113,6 +113,17 @@ function sendCalibrationsToAnalyzer(){
 
 }
 
+function toggleODBwrite(){
+  //toggle odb writing permission (in the modal)
+
+  var allowed = document.getElementById('yesDefinitelyWriteODB').checked
+
+  if(allowed)
+  document.getElementById('writeToODB').removeAttribute('disabled');
+  else
+  document.getElementById('writeToODB').setAttribute('disabled', true);
+}
+
 function processDropFile(file){
 
   // Clear the report Div
@@ -325,8 +336,9 @@ function processDropFile(file){
     // Add the Cal file contents to the Table
     refreshConfigCalibrationsTableWithCalFile();
 
-    // Reveal the button for sending these calibrations to the Analyzer
+    // Reveal the button for sending these calibrations to the Analyzer or ODB
     document.getElementById('submitCalibrationsButton').classList.remove('hidden');
+    document.getElementById('writeToODBmodalCall').classList.remove('hidden');
 
     // Display the gain coefficients in the Div
     //document.getElementById('calFileContentsDiv').innerHTML = outputString;

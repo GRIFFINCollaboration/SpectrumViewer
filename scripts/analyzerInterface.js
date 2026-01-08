@@ -44,7 +44,7 @@ function setupDataStore(){
     dataStore.pageTitle = 'Analyzer Interface';               //header title
     //dataStore.spectrumServer = '';                            // [added in GetURLArguments()] analyzer url + port number
     dataStore.ODBhost = 'http://grifstore1.triumf.ca:8081';   // mhttpd server
-    dataStore.ODBhostBackend = 'http://grifstore1.triumf.ca';   // mhttpd server
+    dataStore.ODBhostBackend = 'grifstore1';   // mhttpd server
     dataStore.ODBhostPort = '8081';   // mhttpd server
 
     // Sorting Status variables

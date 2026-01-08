@@ -75,7 +75,7 @@ function buildHistosFileTable(){
       var cell5 = row.insertCell(4);
       var cell6 = row.insertCell(5);
 
-      var thisODBhostBackend = dataStore.ODBhostBackend.split('.')[0].split('//')[1];
+      var thisODBhostBackend = dataStore.ODBhostBackend;
 
       var URLStringViewer = 'https://griffincollaboration.github.io/SpectrumViewer/spectrumViewer2.html?backend='+dataStore.spectrumServerBackend+'&port='+dataStore.spectrumServerPort+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];
       var URLString2DViewer = 'https://griffincollaboration.github.io/SpectrumViewer/2dSpectrumTool.html?backend='+dataStore.spectrumServerBackend+'&port='+dataStore.spectrumServerPort+'&histoDir='+dataStore.histoFileDirectoryPath+'&histoFile='+dataStore.histoFileList[num];

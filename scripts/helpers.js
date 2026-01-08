@@ -167,6 +167,32 @@ function promiseBinaryURL(url){
         // Reject the promise with the status text
         // which will hopefully be a meaningful error
         reject(Error(req.statusText));
+      }else if (req.status == 404) {
+        // This histogram does not exist
+        // Enter a NULL instance of this matrix to dataStore.rawData and resolve the promise
+        var histoName = req.statusText.split(":")[1];
+        var thisMatrix = {
+          "name" : histoName,
+          "XaxisLength" : 0, "YaxisLength" :  0,
+          "symmetrized" : 0,
+          "XaxisMin" : 0, "XaxisMax" : 0,
+          "YaxisMin" : 0, "YaxisMax" : 0,
+          "submatrixType" : 0,
+          "dataBinary" : [], // Save the arrayBuffer from the end of the header here for unpacking later
+          "data2" : []                // Leave this empty, it will be filled with unpacked data
+        };
+        var this2dKey = dataStore.histoFileName.split('.')[0] + ':' + histoName;
+        dataStore.rawData[this2dKey] = thisMatrix;
+
+        // Update the progress bar by one task
+        if(dataStore.progressBarKey != undefined){
+          updateProgressBar(1);
+        }
+
+        // Resolve the promise
+        let resolveString = "{\"binaryName\":\""+this2dKey+"\"}";
+        resolve(JSON.parse(resolveString));
+
       }else if (req.status == 200) {
         // Response recieved
 
@@ -1037,8 +1063,12 @@ function GetURLArguments(callback){
     // Save the hostname and port number for writing the ODB parameters
     if(urlData.ODBHostBackend == "localhost"){
       dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+":"+urlData.ODBHostPort;
+      dataStore.ODBhostBackend = urlData.ODBHostBackend;
+      dataStore.ODBhostPort = urlData.ODBHostPort;
     }else{
       dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+'.triumf.ca:'+urlData.ODBHostPort;
+      dataStore.ODBhostBackend = urlData.ODBHostBackend;
+      dataStore.ODBhostPort = urlData.ODBHostPort;
     }
   }
 
@@ -1103,8 +1133,12 @@ function promiseURLArguments(){
       // Save the hostname and port number for writing the ODB parameters
       if(urlData.ODBHostBackend == "localhost"){
         dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+":"+urlData.ODBHostPort;
+        dataStore.ODBhostBackend = urlData.ODBHostBackend;
+        dataStore.ODBhostPort = urlData.ODBHostPort;
       }else{
         dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+'.triumf.ca:'+urlData.ODBHostPort;
+        dataStore.ODBhostBackend = urlData.ODBHostBackend;
+        dataStore.ODBhostPort = urlData.ODBHostPort;
       }
     }
 
@@ -2604,7 +2638,7 @@ function fitSpectra(spectrum,peaks,detectorType){
   for(peakIndex=0; peakIndex<peaks.length; peakIndex++){
 
     // Determine the peak width for the fit region
-    var thisPeakWidth = Math.ceil(typicalPeakWidth(peaks[peakIndex],detectorType)*3);
+    var thisPeakWidth = Math.ceil(typicalPeakWidth(peaks[peakIndex],detectorType)*5);
 
     //set up peak fit
     dataStore.currentPeak = peakIndex;
@@ -3324,6 +3358,57 @@ function buildJSONfile(){
   downloadLink.click();
 }
 
+
+function sendCalibrationsToODB(obj){
+
+  console.log("sendCalibrationsToODB");
+  console.log(obj);
+
+  var channel = obj[0].chan,
+  gain = obj[1].gain,
+  offset = obj[2].offset,
+  quad = obj[3].quadratic,
+  i, q, g, o, urls = [];
+
+  //for every channel currently in the odb, update the quads, gains and offsets:
+  for(i=0; i<channel.length; i++){
+    if( channel[i] in dataStore.dropFileCalibrations ){
+      q = dataStore.dropFileCalibrations[channel[i]].quad;
+      g = dataStore.dropFileCalibrations[channel[i]].gain;
+      o = dataStore.dropFileCalibrations[channel[i]].offset;
+      q = isNumeric(q) ? q : 0;
+      quad[i] = q;
+      g = isNumeric(g) ? g : 1;
+      gain[i] = g;
+      o = isNumeric(o) ? o : 0;
+      offset[i] = o;
+    }
+  }
+
+  //turn gain and offset arrays into csv strings
+  quad = JSON.stringify(quad).slice(1,-1)
+  gain = JSON.stringify(gain).slice(1,-1)
+  offset = JSON.stringify(offset).slice(1,-1)
+
+  //construct urls to set ODB parameters
+  urls[0] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/PSC/quadratic[*]&value='+quad;
+  urls[1] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/PSC/gain[*]&value='+gain;
+  urls[2] = dataStore.ODBhost + '?cmd=jset&odb=DAQ/PSC/offset[*]&value='+offset;
+
+  //send requests
+  for(i=0; i<urls.length; i++){
+    XHR(urls[i],
+      'check ODB - response rejected. This will happen despite successful ODB write if this app is served from anywhere other than the same host and port as MIDAS (ie, as a custom page).',
+      function(){return 0},
+      function(error){
+        //console.log(error);
+      }
+    )
+  }
+
+    //get rid of the modal
+    document.getElementById('dismissODBmodal').click();
+}
 
 function buildCSVfile(){
   console.log('Download initiated - using buildCSVfile function in helper.js');
@@ -4472,9 +4557,9 @@ function angularCorrelationRegression(dataX,dataY) {
 
   // calculate the parameters
   //var b = (sum_y / sum_x);
-//  var slope = ((num*sum_xy) - (sum_x*sum_y)) / ((num*sum_x2) - (sum_x*sum_x));
-var slope = 1;
-var offset = (sum_y-(slope*sum_x)) / num;
+  //  var slope = ((num*sum_xy) - (sum_x*sum_y)) / ((num*sum_x2) - (sum_x*sum_x));
+  var slope = 1;
+  var offset = (sum_y-(slope*sum_x)) / num;
 
   return(offset*-1.0);
 };
