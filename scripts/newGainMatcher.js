@@ -1019,6 +1019,7 @@ function launchPeakFittingProcess(){
 
     // Reveal the download button
     document.getElementById('saveCalDiv').classList.remove('hidden');
+    document.getElementById('saveJSONDiv').classList.remove('hidden');
 
   }
 

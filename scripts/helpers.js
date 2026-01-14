@@ -3079,23 +3079,23 @@ function buildCalfile(){
       if( dataStore.THESEcalibrations[thisKey] ){
         if(typeof(dataStore.THESEcalibrations[thisKey].crosstalk0) != "undefined"){ // newly derived in crosstalkCorrections app
           CAL += 'crosstalk0:	';
-          for(var k=0; k<16; k++){ CAL += dataStore.THESEcalibrations[thisKey]['crosstalk0'][k].toFixed(8)+' ' }
+          for(var k=0; k<16; k++){ CAL += dataStore.THESEcalibrations[thisKey]['crosstalk0'][k].toFixed(6)+' ' }
           CAL += '\n';
           CAL += 'crosstalk1:	';
-          for(var k=0; k<16; k++){ CAL += dataStore.THESEcalibrations[thisKey]['crosstalk1'][k].toFixed(8)+' ' }
+          for(var k=0; k<16; k++){ CAL += dataStore.THESEcalibrations[thisKey]['crosstalk1'][k].toFixed(6)+' ' }
           CAL += '\n';
           CAL += 'crosstalk2:	';
-          for(var k=0; k<16; k++){ CAL += dataStore.THESEcalibrations[thisKey]['crosstalk2'][k].toFixed(8)+' ' }
+          for(var k=0; k<16; k++){ CAL += dataStore.THESEcalibrations[thisKey]['crosstalk2'][k].toFixed(6)+' ' }
           CAL += '\n';
         }else if(typeof(dataStore.Config[i].crosstalk0) != "undefined"){ // take from Config file that sorted this run
           CAL += 'crosstalk0:	';
-          for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk0[k].toFixed(8)+' ' }
+          for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk0[k].toFixed(6)+' ' }
           CAL += '\n';
           CAL += 'crosstalk1:	';
-          for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk1[k].toFixed(8)+' ' }
+          for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk1[k].toFixed(6)+' ' }
           CAL += '\n';
           CAL += 'crosstalk2:	';
-          for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk2[k].toFixed(8)+' ' }
+          for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk2[k].toFixed(6)+' ' }
           CAL += '\n';
         }else{ // insert default
           CAL += 'crosstalk0:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
@@ -3104,13 +3104,13 @@ function buildCalfile(){
         }
       }else if(typeof(dataStore.Config[i].crosstalk0) != "undefined"){ // take from Config file that sorted this run
         CAL += 'crosstalk0:	';
-        for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk0[k].toFixed(8)+' ' }
+        for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk0[k].toFixed(6)+' ' }
         CAL += '\n';
         CAL += 'crosstalk1:	';
-        for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk1[k].toFixed(8)+' ' }
+        for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk1[k].toFixed(6)+' ' }
         CAL += '\n';
         CAL += 'crosstalk2:	';
-        for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk2[k].toFixed(8)+' ' }
+        for(var k=0; k<16; k++){ CAL += dataStore.Config[i].crosstalk2[k].toFixed(6)+' ' }
         CAL += '\n';
       }else{ // insert default
         CAL += 'crosstalk0:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
@@ -3190,168 +3190,164 @@ function buildCalfile(){
 }
 
 function buildJSONfile(){
-  console.log('Download initiated - using buildJSONfile function in helper.js');
+  console.log('Download initiated - using buildJSONfile function in helpers.js');
 
   // Write the JSON file
   JSON = '';
 
   // Variable
-  JSON += "{";
-  JSON += "   \"Analyzer\" : [";
-  JSON += "      {\"Variables\" : [";
-  JSON += "      ]},";
+  JSON += "{\n";
+  JSON += "   \"Analyzer\" : [\n";
+  JSON += "      {\"Variables\" : [\n";
+  JSON += "      ]},\n";
 
   // Gates, Histograms, Globals
-  JSON += "      {\"Gates\" : [";
-  JSON += "      ]},";
-  JSON += "      {\"Histograms\" : [";
-  JSON += "      ]},";
-  JSON += "      {\"Globals\" : [";
-  JSON += "      ]},";
+  JSON += "      {\"Gates\" : [\n";
+  JSON += "      ]},\n";
+  JSON += "      {\"Histograms\" : [\n";
+  JSON += "      ]},\n";
+  JSON += "      {\"Globals\" : [\n";
+  JSON += "      ]},\n";
 
   // Calibrations
   // Write this JSON file containing everything from the Config file that sorted this file.
   // Just replace any coefficients that we have newly determined
-  JSON += "      {\"Calibrations\" : [";
+  JSON += "      {\"Calibrations\" : [\n";
 
   for(var i=0; i<dataStore.Config.length; i++){
     var thisKey = dataStore.Config[i].name;
-    JSON += thisKey+' { \n';
-    JSON += '\"name\" : \"'+thisKey+'\" , ';
-    JSON += '\"address\" : 0x'+dataStore.Config[i].address.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+' , ';
-    JSON += '\"datatype\" : \"'+ -1 +'\" , ';
+    JSON += '         {';
+    JSON += '\"name\": \"'+thisKey+'\" , ';
+  //  JSON += '\"address\": 0x'+dataStore.Config[i].address.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+' , ';
+    JSON += '\"address\": '+dataStore.Config[i].address+' , ';
+    JSON += '\"datatype\": '+ -1 +' , ';
 
     // Energy gain matching coefficients
-    if( dataStore.THESEcalibrations[thisKey] && document.getElementById(thisKey+'write')){
-      if( document.getElementById(thisKey+'write').checked){
-        JSON += '\"offset\" : '+dataStore.THESEcalibrations[thisKey]['fit'][2]+' , ';
-        JSON += '\"gain\" : '+dataStore.THESEcalibrations[thisKey]['fit'][1]+' , ';
-        JSON += '\"quad\" : '+dataStore.THESEcalibrations[thisKey]['fit'][0]+' ';
+    if( dataStore.THESEcalibrations[thisKey] ){
+      if( !isNaN(dataStore.THESEcalibrations[thisKey]['fit'][2]) && !isNaN(dataStore.THESEcalibrations[thisKey]['fit'][1]) && !isNaN(dataStore.THESEcalibrations[thisKey]['fit'][0]) && document.getElementById(thisKey+'write').checked){
+        JSON += '\"offset\": '+dataStore.THESEcalibrations[thisKey]['fit'][2].toFixed(6)+' , ';
+        JSON += '\"gain\": '+dataStore.THESEcalibrations[thisKey]['fit'][1].toFixed(6)+' , ';
+        JSON += '\"quad\": '+dataStore.THESEcalibrations[thisKey]['fit'][0]+' ';
       }else{
-        JSON += '\"offset\" : '+dataStore.Config[i].offset+' , ';
-        JSON += '\"gain\" : '+dataStore.Config[i].gain+' , ';
-        JSON += '\"quad\" : '+dataStore.Config[i].quad+' ';
+        JSON += '\"offset\": '+dataStore.Config[i].offset+' , ';
+        JSON += '\"gain\": '+dataStore.Config[i].gain+' , ';
+        JSON += '\"quad\": '+dataStore.Config[i].quad+' ';
       }
     }else{
-      JSON += '\"offset\" : '+dataStore.Config[i].offset+' , ';
-      JSON += '\"gain\" : '+dataStore.Config[i].gain+' , ';
-      JSON += '\"quad\" : '+dataStore.Config[i].quad+' ';
+      JSON += '\"offset\": '+dataStore.Config[i].offset+' , ';
+      JSON += '\"gain\": '+dataStore.Config[i].gain+' , ';
+      JSON += '\"quad\": '+dataStore.Config[i].quad+' ';
     }
     if(thisKey.includes("GRG")){ // Only include pileup or crosstalk parameters for HPGe channels
       // Pileup correction parameters
       if( dataStore.THESEcalibrations[thisKey] ){
         if(typeof(dataStore.THESEcalibrations[thisKey].pileupk1) != "undefined"){ // newly derived in pileupCorrections app
-          JSON += ', \"pileupk1\" : [ '+dataStore.THESEcalibrations[thisKey]['pileupk1'][0]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][1]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][2];
-          JSON +=                 ' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][3]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][4]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][5]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][6]+' ] ';
+          JSON += ', \"pileupk1\":[ '+dataStore.THESEcalibrations[thisKey]['pileupk1'][0]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][1]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][2];
+          JSON +=                 ' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][3]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][4]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][5]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][6]+' ]';
 
-          JSON += 'pileupk2:	'+dataStore.THESEcalibrations[thisKey]['pileupk2'][0]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][1]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][2];
-          JSON +=           ' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][3]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][4]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][5]+' '+dataStore.THESEcalibrations[thisKey]['pileupk2'][6]+'\n';
+          JSON += ', \"pileupk2\":[ '+dataStore.THESEcalibrations[thisKey]['pileupk2'][0]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][1]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][2];
+          JSON +=           ' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][3]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][4]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][5]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][6]+' ]';
 
-          JSON += 'pileupE1:	'+dataStore.THESEcalibrations[thisKey]['pileupE1'][0]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][1]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][2];
-          JSON +=           ' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][3]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][4]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][5]+' '+dataStore.THESEcalibrations[thisKey]['pileupE1'][6]+'\n';
+          JSON += ', \"pileupE1\":[ '+dataStore.THESEcalibrations[thisKey]['pileupE1'][0]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][1]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][2];
+          JSON +=           ' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][3]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][4]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][5]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][6]+' ]';
         }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
-          JSON += 'pileupk1:	'+dataStore.Config[i].pileupk1[0]+' '+dataStore.Config[i].pileupk1[1]+' '+dataStore.Config[i].pileupk1[2];
-          JSON +=           ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+' '+dataStore.Config[i].pileupk1[6]+'\n';
+          JSON += ', \"pileupk1\":[ '+dataStore.Config[i].pileupk1[0]+' , '+dataStore.Config[i].pileupk1[1]+' , '+dataStore.Config[i].pileupk1[2];
+          JSON +=           ' , '+dataStore.Config[i].pileupk1[3]+' , '+dataStore.Config[i].pileupk1[4]+' , '+dataStore.Config[i].pileupk1[5]+' , '+dataStore.Config[i].pileupk1[6]+' ]';
 
-          JSON += 'pileupk2:	'+dataStore.Config[i].pileupk2[0]+' '+dataStore.Config[i].pileupk2[1]+' '+dataStore.Config[i].pileupk2[2];
-          JSON +=           ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+' '+dataStore.Config[i].pileupk2[6]+'\n';
+          JSON += ', \"pileupk2\":[ '+dataStore.Config[i].pileupk2[0]+' , '+dataStore.Config[i].pileupk2[1]+' , '+dataStore.Config[i].pileupk2[2];
+          JSON +=           ' , '+dataStore.Config[i].pileupk2[3]+' , '+dataStore.Config[i].pileupk2[4]+' , '+dataStore.Config[i].pileupk2[5]+' , '+dataStore.Config[i].pileupk2[6]+' ]';
 
-          JSON += 'pileupE1:	'+dataStore.Config[i].pileupE1[0]+' '+dataStore.Config[i].pileupE1[1]+' '+dataStore.Config[i].pileupE1[2];
-          JSON +=           ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+' '+dataStore.Config[i].pileupE1[6]+'\n';
+          JSON += ', \"pileupE1\":[ '+dataStore.Config[i].pileupE1[0]+' , '+dataStore.Config[i].pileupE1[1]+' , '+dataStore.Config[i].pileupE1[2];
+          JSON +=           ' , '+dataStore.Config[i].pileupE1[3]+' , '+dataStore.Config[i].pileupE1[4]+' , '+dataStore.Config[i].pileupE1[5]+' , '+dataStore.Config[i].pileupE1[6]+' ]';
         }else{ // insert default
-          JSON += 'pileupk1:	1 0 0 0 0 0 0\n';
-          JSON += 'pileupk2:	1 0 0 0 0 0 0\n';
-          JSON += 'pileupE1:	0 0 0 0 0 0 0\n';
+          JSON += ', \"pileupk1\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
+          JSON += ', \"pileupk2\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
+          JSON += ', \"pileupE1\":[ 0 , 0 , 0 , 0 , 0 , 0 , 0 ]';
         }
       }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
-        JSON += 'pileupk1:	'+dataStore.Config[i].pileupk1[0]+' '+dataStore.Config[i].pileupk1[1]+' '+dataStore.Config[i].pileupk1[2];
-        JSON +=           ' '+dataStore.Config[i].pileupk1[3]+' '+dataStore.Config[i].pileupk1[4]+' '+dataStore.Config[i].pileupk1[5]+' '+dataStore.Config[i].pileupk1[6]+'\n';
+        JSON += ', \"pileupk1\":[ '+dataStore.Config[i].pileupk1[0]+' , '+dataStore.Config[i].pileupk1[1]+' , '+dataStore.Config[i].pileupk1[2];
+        JSON +=           ' , '+dataStore.Config[i].pileupk1[3]+' , '+dataStore.Config[i].pileupk1[4]+' , '+dataStore.Config[i].pileupk1[5]+' , '+dataStore.Config[i].pileupk1[6]+' ]';
 
-        JSON += 'pileupk2:	'+dataStore.Config[i].pileupk2[0]+' '+dataStore.Config[i].pileupk2[1]+' '+dataStore.Config[i].pileupk2[2];
-        JSON +=           ' '+dataStore.Config[i].pileupk2[3]+' '+dataStore.Config[i].pileupk2[4]+' '+dataStore.Config[i].pileupk2[5]+' '+dataStore.Config[i].pileupk2[6]+'\n';
+        JSON += ', \"pileupk2\":[ '+dataStore.Config[i].pileupk2[0]+' , '+dataStore.Config[i].pileupk2[1]+' , '+dataStore.Config[i].pileupk2[2];
+        JSON +=           ' , '+dataStore.Config[i].pileupk2[3]+' , '+dataStore.Config[i].pileupk2[4]+' , '+dataStore.Config[i].pileupk2[5]+' , '+dataStore.Config[i].pileupk2[6]+' ]';
 
-        JSON += 'pileupE1:	'+dataStore.Config[i].pileupE1[0]+' '+dataStore.Config[i].pileupE1[1]+' '+dataStore.Config[i].pileupE1[2];
-        JSON +=           ' '+dataStore.Config[i].pileupE1[3]+' '+dataStore.Config[i].pileupE1[4]+' '+dataStore.Config[i].pileupE1[5]+' '+dataStore.Config[i].pileupE1[6]+'\n';
+        JSON += ', \"pileupE1\":[ '+dataStore.Config[i].pileupE1[0]+' , '+dataStore.Config[i].pileupE1[1]+' , '+dataStore.Config[i].pileupE1[2];
+        JSON +=           ' , '+dataStore.Config[i].pileupE1[3]+' , '+dataStore.Config[i].pileupE1[4]+' , '+dataStore.Config[i].pileupE1[5]+' , '+dataStore.Config[i].pileupE1[6]+' ]';
       }else{ // insert default
-        JSON += 'pileupk1:	1 0 0 0 0 0 0\n';
-        JSON += 'pileupk2:	1 0 0 0 0 0 0\n';
-        JSON += 'pileupE1:	0 0 0 0 0 0 0\n';
+        JSON += ', \"pileupk1\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
+        JSON += ', \"pileupk2\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
+        JSON += ', \"pileupE1\":[ 0 , 0 , 0 , 0 , 0 , 0 , 0 ]';
       }
       // Crosstalk correction parameters
       if( dataStore.THESEcalibrations[thisKey] ){
         if(typeof(dataStore.THESEcalibrations[thisKey].crosstalk0) != "undefined"){ // newly derived in crosstalkCorrections app
-          JSON += 'crosstalk0:	';
-          for(var k=0; k<16; k++){ JSON += dataStore.THESEcalibrations[thisKey]['crosstalk0'][k].toFixed(8)+' ' }
-          JSON += '\n';
-          JSON += 'crosstalk1:	';
-          for(var k=0; k<16; k++){ JSON += dataStore.THESEcalibrations[thisKey]['crosstalk1'][k].toFixed(8)+' ' }
-          JSON += '\n';
-          JSON += 'crosstalk2:	';
-          for(var k=0; k<16; k++){ JSON += dataStore.THESEcalibrations[thisKey]['crosstalk2'][k].toFixed(8)+' ' }
-          JSON += '\n';
+          JSON += ', \"crosstalk0\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.THESEcalibrations[thisKey]['crosstalk0'][k].toFixed(6); }
+          JSON += ' ]';
+          JSON += ', \"crosstalk1\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.THESEcalibrations[thisKey]['crosstalk1'][k].toFixed(6); }
+          JSON += ' ]';
+          JSON += ', \"crosstalk2\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.THESEcalibrations[thisKey]['crosstalk2'][k].toFixed(6); }
+          JSON += ' ]';
         }else if(typeof(dataStore.Config[i].crosstalk0) != "undefined"){ // take from Config file that sorted this run
-          JSON += 'crosstalk0:	';
-          for(var k=0; k<16; k++){ JSON += dataStore.Config[i].crosstalk0[k].toFixed(8)+' ' }
-          JSON += '\n';
-          JSON += 'crosstalk1:	';
-          for(var k=0; k<16; k++){ JSON += dataStore.Config[i].crosstalk1[k].toFixed(8)+' ' }
-          JSON += '\n';
-          JSON += 'crosstalk2:	';
-          for(var k=0; k<16; k++){ JSON += dataStore.Config[i].crosstalk2[k].toFixed(8)+' ' }
-          JSON += '\n';
+          JSON += ', \"crosstalk0\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.Config[i].crosstalk0[k].toFixed(6); }
+          JSON += ' ]';
+          JSON += ', \"crosstalk1\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.Config[i].crosstalk1[k].toFixed(6); }
+          JSON += ' ]';
+          JSON += ', \"crosstalk2\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.Config[i].crosstalk2[k].toFixed(6); }
+          JSON += ' ]';
         }else{ // insert default
-          JSON += 'crosstalk0:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
-          JSON += 'crosstalk1:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
-          JSON += 'crosstalk2:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
+          JSON += ', \"crosstalk0\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+          JSON += ', \"crosstalk1\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+          JSON += ', \"crosstalk2\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
         }
       }else if(typeof(dataStore.Config[i].crosstalk0) != "undefined"){ // take from Config file that sorted this run
-        JSON += 'crosstalk0:	';
-        for(var k=0; k<16; k++){ JSON += dataStore.Config[i].crosstalk0[k].toFixed(8)+' ' }
-        JSON += '\n';
-        JSON += 'crosstalk1:	';
-        for(var k=0; k<16; k++){ JSON += dataStore.Config[i].crosstalk1[k].toFixed(8)+' ' }
-        JSON += '\n';
-        JSON += 'crosstalk2:	';
-        for(var k=0; k<16; k++){ JSON += dataStore.Config[i].crosstalk2[k].toFixed(8)+' ' }
-        JSON += '\n';
+        JSON += ', \"crosstalk0\":[ ';
+        for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.Config[i].crosstalk0[k].toFixed(6); }
+        JSON += ' ]';
+        JSON += ', \"crosstalk1\":[ ';
+        for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.Config[i].crosstalk1[k].toFixed(6); }
+        JSON += ' ]';
+        JSON += ', \"crosstalk2\":[ ';
+        for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.Config[i].crosstalk2[k].toFixed(6); }
+        JSON += ' ]';
       }else{ // insert default
-        JSON += 'crosstalk0:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
-        JSON += 'crosstalk1:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
-        JSON += 'crosstalk2:	0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n';
+        JSON += ', \"crosstalk0\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+        JSON += ', \"crosstalk1\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+        JSON += ', \"crosstalk2\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
       }
     }
-    JSON += 'Integration:	0\n';
-    JSON += 'ENGChi2:	0\n';
-    JSON += 'FileInt:	0\n';
-    JSON += '}\n';
-    JSON += '\n';
-    JSON += '//====================================//\n';
+    JSON += '},\n';
   }
 
-  JSON += "      ]},";
+  JSON += "      ]},\n";
 
   // Directories
-  JSON += "          {\"Directories\" : [";
-  JSON += "             {\"name\" : \"Data\", \"Path\" : \"\"},";
-  JSON += "             {\"name\" : \"Histo\", \"Path\" : \"\"},";
-  JSON += "             {\"name\" : \"Config\", \"Path\" : \"\"}";
-  JSON += "          ]},";
+  JSON += "          {\"Directories\" : [\n";
+  JSON += "             {\"name\" : \"Data\", \"Path\" : \"\"},\n";
+  JSON += "             {\"name\" : \"Histo\", \"Path\" : \"\"},\n";
+  JSON += "             {\"name\" : \"Config\", \"Path\" : \"\"}\n";
+  JSON += "          ]},\n";
 
   // Midas
-  JSON += "          {\"Midas\" : [";
-  JSON += "             {\"name\" : \"Title\", \"Value\" : \"\"},";
-  JSON += "             {\"name\" : \"StartTime\", \"Value\" : \"0\"},";
-  JSON += "             {\"name\" : \"Duration\", \"Value\" : \"0\"}";
-  JSON += "          ]}";
-  JSON += "       ]";
-  JSON += "      }";
+  JSON += "          {\"Midas\" : [\n";
+  JSON += "             {\"name\" : \"Title\", \"Value\" : \"\"},\n";
+  JSON += "             {\"name\" : \"StartTime\", \"Value\" : \"0\"},\n";
+  JSON += "             {\"name\" : \"Duration\", \"Value\" : \"0\"}\n";
+  JSON += "          ]}\n";
+  JSON += "       ]\n";
+  JSON += "}\n";
 
   // Create a download link
   const textBlob = new Blob([JSON], {type: 'text/plain'});
   URL.revokeObjectURL(window.textBlobURL);
   const downloadLink = document.createElement('a');
   downloadLink.href = URL.createObjectURL(textBlob);
-  downloadLink.download = document.getElementById('saveJSONname').value;
+  downloadLink.download = dataStore.histoFileName.split(".")[0]+".json";
 
   // Trigger the download
   document.body.appendChild(downloadLink);
