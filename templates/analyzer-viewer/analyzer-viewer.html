@@ -128,22 +128,12 @@ function setupAnalyzerViewer(wrapperID){
   }.bind(newInput);
   document.getElementById('HistoSumFilenameInputDiv').appendChild(newInput);
 
-  // Create Submit button for summing histograms
-  newButton = document.createElement('button');
-  newButton.setAttribute('id', 'submitSumHistosButton');
-  newButton.setAttribute('class', 'btn btn-default btn-lg');
-  newButton.innerHTML = "Sum selected Histogram files together";
-  newButton.style.padding = '4px';
-  newButton.onclick = function(){
-    submitHistoFileSumRequestToServer();
-  }.bind(newButton);
-
-  // Create Submit button for BETA LIST summing histograms
+  // Create Submit button for LIST summing histograms
   document.getElementById('submitDivSum').appendChild(newButton);
   newButton = document.createElement('button');
   newButton.setAttribute('id', 'submitSumHistosButton');
   newButton.setAttribute('class', 'btn btn-default btn-lg');
-  newButton.innerHTML = "BETA Sum selected Histogram files together";
+  newButton.innerHTML = "Sum selected Histogram files together";
   newButton.style.padding = '4px';
   newButton.onclick = function(){
     submitHistoListOfFilesSumRequestToServer();
