@@ -1,0 +1,85 @@
+<link rel="stylesheet" href="analysisOverviewReport.css">
+
+<template id='analysisOverviewReportContents'>
+<h3>{{title}}</h3>
+<div class='reportText' id='{{id}}-activeChans'></div>
+<div class='reportText' id='{{id}}-rates'></div>
+<div class='reportText' id='{{id}}-highCounters'></div>
+<div class='reportText' id='{{id}}-lowCounters'></div>
+<div id={{id}}-plotly-Div></div>
+</template>
+
+<template id='analysisOverviewReport'>
+<div class='sectionWrapper item'>
+<div class='col-md-12'>
+<table id='{{id}}analysisOverviewResults' class='table analysisOverviewTable'></table>
+</div>
+</div>
+</template>
+
+<script>
+function analysisOverviewReport(wrapID){
+
+  this.wrapID = wrapID;
+  this.wrap = document.getElementById(wrapID);
+
+  this.setup = function(){
+
+    //inject templates
+    this.wrap.innerHTML = Mustache.to_html(
+      dataStore.templates.analysisOverviewReport,
+      {
+        'id': this.wrapID,
+      }
+    );
+
+    // table has to be done as a separate template, since templates and tables don't play too nice together
+    document.getElementById(this.wrapID + 'analysisOverviewResults').innerHTML= Mustache.to_html(
+      dataStore.templates.analysisOverviewReportTable,
+      content = {
+        'id': this.wrapID
+      }
+    );
+
+  };
+
+  this.refreshTableData = function(cloverNum){
+
+    // Variables to control table generation and filling
+    var cellHandles = ["detector","name","maxCountsChannel","maxCountsValue","comptonEdgeThreshold","comptonEdgeChannel","deltaV_1PMT"];
+    var tableID = "analysisOverviewanalysisOverviewResults";
+
+    // Delete rows except for header
+    while(document.getElementById(tableID).rows.length>1){
+      document.getElementById(tableID).deleteRow(document.getElementById(tableID).rows.length-1);
+    }
+
+    var keys = [];
+    keys = buildPositionDetList(cloverNum);
+
+    for(var i=0; i<keys.length; i++){
+      var row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
+      row.id = tableID+'Row-'+ keys[i];
+      for(var cellIndex=0; cellIndex<cellHandles.length; cellIndex++){
+        var cell = row.insertCell(cellIndex);
+        cell.id = row.id + '-Cell-' + cellHandles[cellIndex];
+        cell.innerHTML = dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]];
+
+        if(cellHandles[cellIndex] == "deltaV_1PMT"){
+          if(Math.abs(dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]])<21){
+            // Change cell background to green
+            cell.setAttribute('style', 'background-color: #4CBB17;');
+          }else if(Math.abs(dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]])<81){
+            // Change cell background to orange
+            cell.setAttribute('style', 'background-color: #F28C28;');
+          } else if(Math.abs(dataStore.THESEcalibrations[keys[i]][cellHandles[cellIndex]])>80){
+            // Change cell background to red
+            cell.setAttribute('style', 'background-color: #D22B2B;');
+          }
+        }
+      }
+    }
+  };
+
+}
+</script>

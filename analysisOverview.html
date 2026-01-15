@@ -1,0 +1,65 @@
+<html>
+<head>
+  <title>GRIFFIN Analysis Overview</title>
+  <script src='scripts/HTMLImports.min.js' type="text/javascript"></script>
+  <script src='scripts/mustache.js' type="text/javascript"></script>
+  <script src='scripts/easeljs-0.7.0.min.js' type="text/javascript"></script>
+  <script src='scripts/dygraphs.1.1.1.min.js' type="text/javascript"></script>
+  <script src='scripts/regression.min.js' type="text/javascript"></script>
+  <script src='scripts/gammaSpectrum.js' type="text/javascript"></script>
+  <script src='scripts/fitit.js' type="text/javascript"></script>
+  <script src="scripts/jquery1-11-3.min.js"></script>
+  <script src="scripts/bootstrap3-3-5.min.js"></script>
+  <script src="scripts/plotly-1.5.0.min.js"></script>
+
+  <script src='scripts/helpers.js' type="text/javascript"></script>
+  <script src='scripts/analysisOverview.js' type="text/javascript"></script>
+  <link rel="stylesheet" type="text/css" href="css/bootstrap3-3-5.min.css">
+  <link rel="stylesheet" type="text/css" href="css/custom.css">
+
+  <!--HTML imports-->
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <link id='header' rel="import" href="templates/header/header.html">
+  <link id='paginationMenu' rel="import" href="templates/paginationMenu/paginationMenu.html">
+  <link id='analysisOverviewReportContents' rel="import" href="templates/analysisOverviewReport/analysisOverviewReport.html">
+  <link id='analysisOverviewReport' rel="import" href="templates/analysisOverviewReport/analysisOverviewReport.html">
+  <link id='analysisOverviewReportTable' rel="import" href="templates/analysisOverviewReport/analysisOverviewReportTable.html">
+  <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
+  <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
+  <link id='plotListLite' rel="import" href="templates/plotList/plotListLite.html">
+  <link id='footer' rel="import" href="templates/footer/footer.html">
+</head>
+
+<body>
+  <div id='head'></div>
+  <div id='messageDiv' class='col-md-12'>
+    <div id='messageDivText'></div><div id='messageDivButton'></div>
+  </div>
+
+  <div id='progressDiv' class="container progress hidden">
+    <div id='analysisOverviewProgress' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">Initializing App...
+    </div>
+  </div>
+
+  <div id='widget-title' class='col-md-10 widget'>
+    <h1 id='widget-title-header'>Run number: Run Title</h1>
+    <h3 id='widget-title-times'>Start time to End time. Duration: --s</h3>
+    <div id='widget-title-ancillaries' class='col-md-12 container'></div>
+    <div id='widget-title-problems' class='col-md-11 widget'></div>
+  </div>
+
+  <div id='widget-cycles' class='col-md-10 widget'>
+    <h3>Data rate through this run:</h3>
+    <div id='widget-cycles-plotly' class='col-md-6 report'>
+    </div>
+  </div>
+
+  <div class='hidden' id='plotCtrl'></div>
+  <div id='foot'></div>
+
+  <script>
+
+  </script>
+</body>
+
+</html>
