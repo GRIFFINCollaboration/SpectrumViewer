@@ -88,7 +88,7 @@ function angularCorrelationsReport(wrapID2,wrapID3,wrapID4){
     var tableID = "resultsDataTableRegion";
 
     for(var i=1; i<dataStore.angularBinData.length; i++){
-      document.getElementById(tableID + i + 'index').innerHTML = (i-1);
+      document.getElementById(tableID + i + 'index').innerHTML = (i);
       document.getElementById(tableID + i + 'angle').innerHTML = dataStore.theseAngularBins[i].toFixed(1);
       document.getElementById(tableID + i + 'angleATAN').innerHTML = Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)).toFixed(3);
       document.getElementById(tableID + i + 'pairs').innerHTML = dataStore.numCrystalPairs[i];

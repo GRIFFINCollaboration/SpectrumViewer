@@ -2657,6 +2657,7 @@ function fitSpectra(spectrum,peaks,detectorType){
 
 
 function fitCallback(center, width, amplitude, intercept, slope){
+  console.log("fitcallback in helpers.js");
   //after fitting, log the fit results, as well as any modification made to the ROI by the fitting algortihm
   //also update table
   //<center>: number; center of gaussian peak
@@ -2694,6 +2695,9 @@ function fitCallback(center, width, amplitude, intercept, slope){
   var grossAreaVariance = Math.sqrt(grossArea);
   var areaVariance = grossAreaVariance+bkgAreaVariance;
   if(!isFinite(areaVariance)){ areaVariance=1; } // used as a denominator
+//  console.log("Peak fit:");
+//  console.log([center, width, amplitude, intercept, slope]);
+//  console.log([grossArea, bkgArea, area, bkgAreaVariance, grossAreaVariance, areaVariance]);
 
   // Calculate the Full Width at Half Maximum (FWHM) here
   var fwhm = (width*2.35);
