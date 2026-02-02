@@ -167,9 +167,19 @@
     <h3>Gate and Peak Details</h3>
     <div id='gateInputsDiv' class="input-group">
       <span class='input-group-addon'>Gamma-ray energies: </span>
+      <div class='col-md-6'>
       <input id="gamma1Input" value="1173" min="0" max="4095" type="number" class='black-text'></input>
-      <input id="gamma2Input" value="1332" min="0" max="4095" type="number" class='black-text'></input>
+        <button type="button" class="btn btn-default btn-sm" id='gamma1SetLimits' engaged='0'>
+          <span id='gamma1SetLimitsBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Set Limits with Mouse</span>
+        </button>
     </div>
+    <div class='col-md-6'>
+      <input id="gamma2Input" value="1332" min="0" max="4095" type="number" class='black-text'></input>
+        <button type="button" class="btn btn-default btn-sm" id='gamma2SetLimits' engaged='0'>
+          <span id='gamma2SetLimitsBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Set Limits with Mouse</span>
+        </button>
+    </div>
+  </div>
     <div class='col-md-6'>
       <button type="button" class="btn btn-default btn-sm" id='ggAngCorrProject' engaged='0'>
         <span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Let's see it!</span>
@@ -219,6 +229,7 @@
         <select id="j3" onchange="check_jvalues();recalculate_L(2);recalculate();"></select>
 
         <hr></hr>
+        <div class='col-md-5'>
         <label for="confidence_limit_value" class="right inline"><b>Desired confidence limit:</b></label>
         <div id="confidenceLimitValueDiv">
           <label for="99CL" class="right inline">99%</label>
@@ -228,6 +239,13 @@
           <label for="90CL" class="right inline">90%</label>
           <input id='90CL' name='confidenceLimitValue' type='radio' value='0'></input>
         </div>
+      </div>
+      <div class='col-md-7'>
+        <label for="confidence_limit_value" class="right inline"><b>Systematic uncertainty (added in quadrature to each data point):</b></label>
+        <div id="systematicUncertaintyValueDiv">
+        <input id='sysUnc' type='number' min='0' max='10' step='0.1' value='0' onchange='dataStore.systematicUncertainty=(this.value/100)'></input>%
+      </div>
+      </div>
         <hr></hr>
       </form>
       <p id="error1"></p>
@@ -341,7 +359,20 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
     dataStore.gg_ang_corr_gamma2E = this.value;
   }.bind(document.getElementById('gamma2Input'));
   document.getElementById('ggAngCorrProject').onclick = function(){
+    dataStore.viewers[dataStore.plots[0]].clearFits(); // Clear the fits that were made during Limit setting.
     launchAngularCorrelations();
+  };
+  document.getElementById('gamma1SetLimits').onclick = function(){
+      dataStore.viewers[dataStore.plots[0]].setAppLimitsCallback = dataStore.setAppLimitsCallback;
+      delete dataStore.appLimitsStore["gateLimits"];
+      dataStore.viewers[dataStore.plots[0]].setupSetAppLimitsMode("gateLimits");
+      document.getElementById('gamma1SetLimitsBadge').classList.add('red-text')
+  };
+  document.getElementById('gamma2SetLimits').onclick = function(){
+      dataStore.viewers[dataStore.plots[0]].setAppLimitsCallback = dataStore.setAppLimitsCallback;
+      delete dataStore.appLimitsStore["peakLimits"];
+      dataStore.viewers[dataStore.plots[0]].setupSetAppLimitsMode("peakLimits");
+      document.getElementById('gamma1SetLimitsBadge').classList.add('red-text')
   };
 
   // initial set up of angular momentum spin option dropdowns

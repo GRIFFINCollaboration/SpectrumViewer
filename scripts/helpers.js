@@ -2548,8 +2548,21 @@ function roughGainMatch(spectrumList,detType,sourceType){
   roughGainMatchCallback();
 }
 
-function fitPeaksInSeriesOfHistograms(spectra,peaks,detectorType){
+function fitPeaksInSeriesOfHistograms(spectra,peaks,detectorType,limits){
   //fit all spectra to the peaks defined.
+  // spectra is an array of 1d histogram keys for use with plotBuffer of the viewer
+  // peaks is an object with the spectrum name as the key containing an array of peak centroids to be fitted
+  // detectorType is used with typicalPeakWidth()
+  // limits is optional. It is an array of arrays where the index corresponds to the index of peaks. The array is of the lower and upper bound for the ROI.
+
+  // limits is optional. Create it here if it was not provided
+  if(limits == undefined){
+    limits = [];
+    for(var j=0; j<peaks.length; j++){
+      limits[j] = [-1,-1];
+    }
+  }
+  // LIMITS IS NOT YET USED PAST THIS POINT!!!!!
 
   // Return a new promise.
   return new Promise(function(resolve, reject) {
@@ -2695,9 +2708,9 @@ function fitCallback(center, width, amplitude, intercept, slope){
   var grossAreaVariance = Math.sqrt(grossArea);
   var areaVariance = grossAreaVariance+bkgAreaVariance;
   if(!isFinite(areaVariance)){ areaVariance=1; } // used as a denominator
-//  console.log("Peak fit:");
-//  console.log([center, width, amplitude, intercept, slope]);
-//  console.log([grossArea, bkgArea, area, bkgAreaVariance, grossAreaVariance, areaVariance]);
+  //  console.log("Peak fit:");
+  //  console.log([center, width, amplitude, intercept, slope]);
+  //  console.log([grossArea, bkgArea, area, bkgAreaVariance, grossAreaVariance, areaVariance]);
 
   // Calculate the Full Width at Half Maximum (FWHM) here
   var fwhm = (width*2.35);
@@ -3222,7 +3235,7 @@ function buildJSONfile(){
     var thisKey = dataStore.Config[i].name;
     JSON += '         {';
     JSON += '\"name\": \"'+thisKey+'\" , ';
-  //  JSON += '\"address\": 0x'+dataStore.Config[i].address.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+' , ';
+    //  JSON += '\"address\": 0x'+dataStore.Config[i].address.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+' , ';
     JSON += '\"address\": '+dataStore.Config[i].address+' , ';
     JSON += '\"datatype\": '+ -1 +' , ';
 
@@ -3406,8 +3419,8 @@ function sendCalibrationsToODB(obj){
     )
   }
 
-    //get rid of the modal
-    document.getElementById('dismissODBmodal').click();
+  //get rid of the modal
+  document.getElementById('dismissODBmodal').click();
 }
 
 function buildCSVfile(){

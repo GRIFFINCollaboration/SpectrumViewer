@@ -124,6 +124,18 @@ function setupDataStore(){
   dataStore.num2dSpectra = 0;
   dataStore.num2dGates = 0;
   dataStore.num2dPeaks = 0;
+  dataStore.appLimitsStore = {}; // A place to store the limits, and centroid, set by mouse clicks on a spectrum
+  dataStore.setAppLimitsCallback = function(){
+                                              if(dataStore.appLimitsStore["gateLimits"]){
+                                                  dataStore.gg_ang_corr_gamma1E = document.getElementById('gamma1Input').value = dataStore.appLimitsStore["gateLimits"].Centroid;
+                                                  document.getElementById('gamma1SetLimitsBadge').classList.remove('red-text');
+                                                }
+                                                if(dataStore.appLimitsStore["peakLimits"]){
+                                                  dataStore.gg_ang_corr_gamma2E = document.getElementById('gamma2Input').value = dataStore.appLimitsStore["peakLimits"].Centroid;
+                                                  document.getElementById('gamma2SetLimitsBadge').classList.remove('red-text');
+                                                }
+                                                console.log(dataStore);
+                                              };
 
   dataStore.plots = ['Spectra'];                                          //names of plotGrid cells and spectrumViewer objects
   dataStore.cellIndex = dataStore.plots.length;
@@ -293,6 +305,7 @@ function setupDataStore(){
   dataStore.angularBinExcludeList = [];       // place to store list of indexes for angular bins that will be excluded from plots and fitting
   dataStore.angularBinData = [];             // place to store the data value for each angular bin. raw area * bin weight * Normalization
   dataStore.angularBinDataUnc = [];          // place to store the data value uncertainty for each angular bin. raw area * bin weight * Normalization
+  dataStore.systematicUncertainty = 0.0;     // a systematic uncertainty to add in quadrature to the angularBinDataUnc
   dataStore.angularBinDataResiduals = [];    // place to store the residuals of the data vs best fit
   dataStore.singlesPeakArea = [];            // place to store the peak areas from each angular bin
   dataStore.singlesPeakAreaUnc = [];            // place to store the peak areas from each angular bin
@@ -738,7 +751,6 @@ function setupDataStore(){
 
           // Set up the gating details for the projections
           var axisLength = dataStore.rawData[thisScript.histogramFileNames[0].split(".")[0] + ":" + dataStore.spectrumList2d[0]].XaxisMax - 1;
-          //thisScript.spectrumListGates.push(["x",0,axisLength,undefined,undefined,undefined,undefined]); // Total projection
           thisScript.spectrumListGates.push(["x",undefined,undefined,undefined,undefined,undefined,undefined]); // Total projection
           thisScript.spectrumListGates.push(["x",gateMin,gateMax,BG1Min,BG1Max,BG2Min,BG2Max]); // Gate defined by user input
 
@@ -753,6 +765,17 @@ function setupDataStore(){
 
           // Set up the progress tracking
           setupProgressBarTracking();
+
+          // Enable onchange functions which now trigger recalculations
+          document.getElementsByName('confidenceLimitValue').onchange = function(){
+            console.log("confidenceLimitValue onchange function");
+              processAngularCorrelationData();
+          };
+          document.getElementById('sysUnc').onclick = function(){
+            console.log("sysUnc onchange function");
+              dataStore.systematicUncertainty=(this.value/100);
+              processAngularCorrelationData();
+          };
 
           // Create projectionsList for the input of the function projectAllMatrices(projectionsList,compressed)
           // projectionsList is an array of objects.
@@ -1055,8 +1078,10 @@ function setupDataStore(){
               + ((dataStore.normalizationFactorUnc/dataStore.normalizationFactor) * (dataStore.normalizationFactorUnc/dataStore.normalizationFactor))
               //+ (0.1 * 0.1) // Include a systematic uncertainty of 10% to account for detector positioning inaccuracy, large or asymmetric source distribution, etc.
               //  + (0.05 * 0.05) // Include a systematic uncertainty of 5% to account for detector positioning inaccuracy, large or asymmetric source distribution, etc.
-                + (0.04 * 0.04) // Include a systematic uncertainty of 4% to account for detector positioning inaccuracy, large or asymmetric source distribution, etc.
+              //  + (0.04 * 0.04) // Include a systematic uncertainty of 4% to account for detector positioning inaccuracy, large or asymmetric source distribution, etc.
               //+ (0.02 * 0.02) // Include a systematic uncertainty of 2% to account for detector positioning inaccuracy, large or asymmetric source distribution, etc.
+              //+ (0.015 * 0.015) // Include a systematic uncertainty of 1.5% to account for detector positioning inaccuracy, large or asymmetric source distribution, etc.
+              + (dataStore.systematicUncertainty*dataStore.systematicUncertainty) // Include a systematic uncertainty set by user input
             )
             /*
             dataStore.angularBinDataUnc[i] = dataStore.angularBinData[i]

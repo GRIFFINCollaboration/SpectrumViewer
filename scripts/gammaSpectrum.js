@@ -14,13 +14,13 @@ function spectrumViewer(canvasID){
 	this.containerPersistentOverlay = new createjs.Container(); //layer for persistent overlay features
 	this.containerAnnotations = new createjs.Container(); //layer for annotations
 	this.containerFit = new createjs.Container(); //layer for fit curves
-	this.containerGate = new createjs.Container(); //layer for gate curves, lines and shading
+	this.containerGate = new createjs.Container(); //layer for gate curves, lines and shading, app Limits
 	this.stage.addChild(this.containerMain);
 	this.stage.addChild(this.containerOverlay);
 	this.stage.addChild(this.containerPersistentOverlay);
 	this.stage.addChild(this.containerAnnotations);
-	this.stage.addChild(this.containerFit);
 	this.stage.addChild(this.containerGate);
+	this.stage.addChild(this.containerFit);
 
 	//axes & drawing
 	this.fontScale = Math.min(Math.max(this.canvas.width / 50, 10), 16); // 10 < fontScale < 16
@@ -105,6 +105,16 @@ function spectrumViewer(canvasID){
 	this.gateMask.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin).lt(this.leftMargin, this.topMargin).lt(this.canvas.width - this.rightMargin, this.topMargin).lt(this.canvas.width-this.rightMargin, this.canvas.height - this.bottomMargin).closePath();
 	this.containerGate.mask = this.gateMask;
 	this.activeGateLines = {} //object containing gate regions to repaint
+
+	// set App Limits - used to set limits by clicks on a spectra and return the limits to the app for additional setup
+	this.setAppLimitsKeyName = ""; //name of the key to save the App limits object to in the dataStore.Limits array
+	this.setAppLimitsActive = false; //has the spectrum had limits set since the last repaint?
+	this.setAppLimitsModeEngage = false; //are we currently setting limits for an App for this spectrum?
+	this.setAppLimitsLimitLower = -1; // limits
+	this.setAppLimitsLimitUpper = -1;
+	this.setAppLimitsColor = '#00BFFF';
+	this.setAppLimitsCallback = function(){}; //callback to run after new App Limits are set
+	this.setAppLimitsLines = {} //object containing appLimits regions to repaint
 
 	//cursors
 	this.cursorX = 0; //x-bin of cursor
@@ -455,7 +465,7 @@ function spectrumViewer(canvasID){
 			redline.graphics.mt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.canvas.height - this.bottomMargin);
 			redline.graphics.lt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.topMargin);
 			this.containerPersistentOverlay.addChild(redline);
-		} else if(this.clickBounds[0] == 'abort' && !this.fitModeEngage && !this.gateModeEngage){
+		} else if(this.clickBounds[0] == 'abort' && !this.fitModeEngage && !this.gateModeEngage && !this.setAppLimitsModeEngage){
 			this.clickBounds = [];
 		} else if(this.clickBounds.length == 2 ){
 			this.clickBounds = [];
@@ -470,12 +480,20 @@ function spectrumViewer(canvasID){
 				this.clickBounds = [];
 			}
 			//gate mode
-			if(this.gateModeEngage){
+			else if(this.gateModeEngage){
 				this.GateLimitLower = Math.min(this.clickBounds[0], this.clickBounds[1]);
 				this.GateLimitUpper = Math.max(this.clickBounds[0], this.clickBounds[1]);
 				this.gateData(dataStore.gateTarget);
 				this.clickBounds = [];
-			} else {  //zoom mode
+			}
+			//setAppLimits mode
+			else if(this.setAppLimitsModeEngage){
+				this.setAppLimitsLimitLower = Math.min(this.clickBounds[0], this.clickBounds[1]);
+				this.setAppLimitsLimitUpper = Math.max(this.clickBounds[0], this.clickBounds[1]);
+				this.setAppLimits(this.fitTarget);
+				this.clickBounds = [];
+			}
+			else {  //zoom mode
 				//use the mouse drag function to achieve the same effect for clicking:
 				this.XMouseLimitxMin = this.clickBounds[0];
 				this.XMouseLimitxMax = this.clickBounds[1];
@@ -656,7 +674,6 @@ function spectrumViewer(canvasID){
 
 	//set up for fit mode, replaces old requestfitlimits
 	this.setupFitMode = function(){
-
 		this.fitModeEngage = 1;
 		this.FitLimitLower=-1;
 		this.FitLimitUpper=-1;
@@ -671,7 +688,6 @@ function spectrumViewer(canvasID){
 
 	//set up for gate mode
 	this.setupGateMode = function(){
-
 		this.gateModeEngage = 1;
 		this.GateLimitLower=-1;
 		this.GateLimitUpper=-1;
@@ -682,6 +698,18 @@ function spectrumViewer(canvasID){
 		this.gateModeEngage = 0;
 		this.GateLimitLower=-1;
 		this.GateLimitUpper=-1;
+	};
+
+	//set up for setAppLimits mode
+	this.setupSetAppLimitsMode = function(key){
+		this.fitTarget = this.gateTarget = Object.keys(this.plotBuffer)[0];
+		this.setAppLimitsKeyName = key;
+		this.setAppLimitsModeEngage = 1;
+	};
+
+	//abandon setAppLimits mode without setting limits
+	this.leaveSetAppLimitsMode = function(){
+		this.setAppLimitsModeEngage = 0;
 	};
 
 	//stick a gaussian on top of the spectrum fitKey between the fit limits
@@ -968,6 +996,61 @@ function spectrumViewer(canvasID){
 		this.gateCallback();
 	};
 
+	// Set limits in spectrum 'target' and save them to the standard place in dataStore
+	this.setAppLimits = function(target){
+
+		//suspend the refresh
+		window.clearTimeout(this.refreshHandler);
+
+    // Set all targets the same. Might cause problems with the radios in aux Plot Control
+		this.gateTarget = this.fitTarget = target;
+
+		// ensure limits are sensible
+		if(this.setAppLimitsLimitLower<0) this.setAppLimitsLimitLower=0;
+		if(this.setAppLimitsLimitUpper>this.XaxisLimitAbsMax) this.setAppLimitsLimitUpper = this.XaxisLimitAbsMax;
+
+		// Find the maximum bin within the limits
+		var centroid = this.setAppLimitsLimitLower;
+		var max = 0;
+		for(var i=this.setAppLimitsLimitLower; i<this.setAppLimitsLimitUpper; i++){
+			if(this.plotBuffer[target][i] > max){ centroid = i; max = this.plotBuffer[target][i]; }
+		}
+
+		// save these limits to the dataStore object
+		dataStore.appLimitsStore[this.setAppLimitsKeyName] = {
+			'Centroid': centroid,
+			'LimitLower': this.setAppLimitsLimitLower,
+			'LimitUpper': this.setAppLimitsLimitUpper,
+			'Target': target,
+		};
+
+		// Draw the AppLimits on the spectrum
+		this.containerPersistentOverlay.removeAllChildren();
+		this.shadeGateBins(this.setAppLimitsColor,this.setAppLimitsLimitLower,this.setAppLimitsLimitUpper,target);
+		this.stage.update();
+
+		// Remember this AppLimits region for redrawing later
+		this.setAppLimitsLines[target + 'Limits' + (Math.round(this.setAppLimitsLimitUpper-this.setAppLimitsLimitLower)+this.setAppLimitsLimitLower)] = {
+			'Color': this.setAppLimitsColor,
+			'LimitLower': this.setAppLimitsLimitLower,
+			'LimitUpper': this.setAppLimitsLimitUpper,
+			'Target': target,
+		}
+
+		// prepare to exit setAppLimits mode
+		this.setAppLimitsActive=1;
+		this.setAppLimitsModeEngage = 0;
+
+// Now also call fitData to fit a peak inside these app Limits
+		this.FitLimitLower =  this.setAppLimitsLimitLower;
+		this.FitLimitUpper = this.setAppLimitsLimitUpper;
+		this.fitData(target);
+
+		console.log(dataStore);
+		// callback
+		this.setAppLimitsCallback();
+	};
+
 	this.addFitLine = function(lowerLimit, nPoints, amplitude, center, width, intercept, slope){
 		//returns a createjs.Shape representing a background fit with the given parameters
 
@@ -1025,6 +1108,9 @@ function spectrumViewer(canvasID){
 		for(key in this.activeGateLines){
 			this.shadeGateBins(this.activeGateLines[key].Color,this.activeGateLines[key].LimitLower,this.activeGateLines[key].LimitUpper,this.activeGateLines[key].Target);
 		}
+		for(key in this.setAppLimitsLines){
+			this.shadeGateBins(this.setAppLimitsLines[key].Color,this.setAppLimitsLines[key].LimitLower,this.setAppLimitsLines[key].LimitUpper,this.setAppLimitsLines[key].Target);
+		}
 		this.stage.update();
 	}
 
@@ -1050,6 +1136,8 @@ function spectrumViewer(canvasID){
 		this.containerGate.removeAllChildren();
 		this.activeGateLines = {};
 		this.gated = false;
+		this.setAppLimitsLines = {};
+		this.setAppLimitsActive = false;
 		this.stage.update();
 
 		if(callback)
@@ -1189,7 +1277,7 @@ function spectrumViewer(canvasID){
 	}
 
 	//calculate second derrivatives of spectrum; return as array
-	//note first and last entry will be null, can't caluclate derivatives on edges.
+	//note first and last entry will be null, can't calculate derivatives on edges.
 	this.concavity = function(spectrum){
 		var i, concavity = [null], slope = []
 
@@ -1464,7 +1552,7 @@ function spectrumViewer(canvasID){
 		this.mouseMoveCallback(xBin, Math.max(yBin,0) );
 
 		//change cursor to indicate draggable region:
-		if(this.fitModeEngage || this.gateModeEngage){
+		if(this.fitModeEngage || this.gateModeEngage || this.setAppLimitsModeEngage){
 			if( y < (this.canvas.height - this.bottomMargin) )
 			document.body.style.cursor = 's-resize';
 			else
