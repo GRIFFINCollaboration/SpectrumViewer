@@ -16,6 +16,7 @@ function setupDataStore(){
     var descantCodes = []
     var ogsCodes = []
     var rcmpCodes = []
+    var qedCodes = []
 
     //generate GRIFFFIN detector nomenclature codes
     for(i=1; i<17; i++){
@@ -107,6 +108,18 @@ function setupDataStore(){
             rcmpCodes.push('RCS' + alwaysThisLong(i,2) + 'XN'+ alwaysThisLong(j,2) +'X');
 	}
     }
+
+        //generate QED detector nomenclature codes
+        for(i=1; i<=6; i++){
+    	for(j=0; j<32; j++){
+                qedCodes.push('QED' + alwaysThisLong(i,2) + 'XP'+ alwaysThisLong(j,2) +'X');
+    	}
+        }
+        for(i=1; i<=6; i++){
+    	for(j=0; j<32; j++){
+                qedCodes.push('QED' + alwaysThisLong(i,2) + 'XN'+ alwaysThisLong(j,2) +'X');
+    	}
+        }
 
     //declare top level groups
     var topGroups = [
@@ -521,6 +534,34 @@ function setupDataStore(){
                     "subname": "Waveform",
                     "id": "RCSwaveform",
                     "items": rcmpCodes.map(function(c){return c + '_Waveform'})
+                }
+            ]
+        },
+
+        {
+          "name": "QED",
+            "id": "QED",
+            "color": '#367FA9',
+            "subGroups": [
+                {
+                    "subname": "Energy",
+                    "id": "QEDenergy",
+                    "items": qedCodes.map(function(c){return c + '_Energy'})
+                },
+                {
+                    "subname": "Time",
+                    "id": "QEDtime",
+                    "items": qedCodes.map(function(c){return c + '_Time'})
+                },
+                {
+                    "subname": "Pulse Height",
+                    "id": "QEDpulseHeight",
+                    "items": qedCodes.map(function(c){return c + '_Pulse_Height'})
+                },
+                {
+                    "subname": "Waveform",
+                    "id": "QEDwaveform",
+                    "items": qedCodes.map(function(c){return c + '_Waveform'})
                 }
             ]
         }
