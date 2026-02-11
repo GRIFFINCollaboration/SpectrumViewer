@@ -216,7 +216,7 @@ function submitHistoFileSumRequestToServer(){
 
   // Format check for the data file
   HistoFileDirectory = dataStore.histoFileDirectoryPath;
-  if(HistoFileDirectory[HistoFileDirectory.length]!='/'){
+  if(HistoFileDirectory[HistoFileDirectory.length-1]!='/'){
     HistoFileDirectory += '/';
   }
 
@@ -259,7 +259,7 @@ function submitHistoListOfFilesSumRequestToServer(){
 
   // Format check for the directory path
   HistoFileDirectory = dataStore.histoFileDirectoryPath;
-  if(HistoFileDirectory[HistoFileDirectory.length]!='/'){
+  if(HistoFileDirectory[HistoFileDirectory.length-1]!='/'){
     HistoFileDirectory += '/';
   }
 
@@ -305,7 +305,7 @@ function viewConfigOfHisto(histo){
 
   // Format check for the data file
   HistoFileDirectory = dataStore.histoFileDirectoryPath;
-  if(HistoFileDirectory[HistoFileDirectory.length]!='/'){
+  if(HistoFileDirectory[HistoFileDirectory.length-1]!='/'){
     HistoFileDirectory += '/';
   }
   filename = HistoFileDirectory + histo;
