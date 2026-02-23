@@ -2471,6 +2471,7 @@ function roughGainMatch(spectrumList,detType,sourceType){
     "PACES":    {"min": 0.7, "max": 0.9, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
     "RCMP":     {"min": 1.1, "max": 1.5, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
     "ARIES":    {"min": 0.2, "max": 0.4, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
+    "QED":      {"min": 0.05, "max": 0.8, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
     "DES_Wall": {"min": 0.7, "max": 1.2, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
   };
 
@@ -2558,8 +2559,8 @@ function fitPeaksInSeriesOfHistograms(spectra,peaks,detectorType,limits){
   // limits is optional. Create it here if it was not provided
   if(limits == undefined){
     limits = [];
-    for(var j=0; j<peaks.length; j++){
-      limits[j] = [-1,-1];
+    for(var j=0; j<peaks.All.length; j++){
+      limits.push([-1,-1]);
     }
   }
   // LIMITS IS NOT YET USED PAST THIS POINT!!!!!
@@ -2594,7 +2595,7 @@ function fitPeaksInSeriesOfHistograms(spectra,peaks,detectorType,limits){
         updateProgressBar(thesePeaks.length);
 
         // Call the fitting routine
-        fitSpectra(thisKey,thesePeaks,detectorType)
+        fitSpectra(thisKey,thesePeaks,detectorType,limits)
       }.bind(this),
 
       function(){
@@ -2622,9 +2623,19 @@ function fitPeaksInSeriesOfHistograms(spectra,peaks,detectorType,limits){
 }
 
 
-function fitSpectra(spectrum,peaks,detectorType){
+function fitSpectra(spectrum,peaks,detectorType,limits){
   //redo the fits for the named spectrum.
   //<spectrum>: string; name of spectrum, per names from analyzer
+  // detectorType is used for the typicalPeakWidth() function for setting ROI
+  // limits is optional. It is an array of arrays where the index corresponds to the index of peaks. The array is of the lower and upper bound for the ROI.
+
+  // limits is optional. Create it here if it was not provided
+  if(limits == undefined){
+    limits = [];
+    for(var j=0; j<peaks.All.length; j++){
+      limits.push([-1,-1]);
+    }
+  }
 
   var peakIndex = 0;
   var viewerName = dataStore.plots[0];
@@ -2658,9 +2669,17 @@ function fitSpectra(spectrum,peaks,detectorType){
     if(!dataStore.ROI[dataStore.currentPlot]){ dataStore.ROI[dataStore.currentPlot] =[]; }
     if(!dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak]){ dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak] = []; }
     dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0] = parseInt(peaks[peakIndex] - thisPeakWidth);
+    if(limits[peakIndex][0]>0){
+      if(dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0]<limits[peakIndex][0]){ dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0] = limits[peakIndex][0]; }
+    }
     dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1] = parseInt(peaks[peakIndex] + thisPeakWidth);
+    if(limits[peakIndex][1]>0){
+      if(dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1]>limits[peakIndex][1]){ dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1] = limits[peakIndex][1]; }
+    }
     dataStore.viewers[viewerName].FitLimitLower = peaks[peakIndex] - thisPeakWidth;
     dataStore.viewers[viewerName].FitLimitUpper = peaks[peakIndex] + thisPeakWidth;
+    if(limits[peakIndex][0]>0){ dataStore.viewers[viewerName].FitBoundaryLower = limits[peakIndex][0]; }
+    if(limits[peakIndex][1]>0){ dataStore.viewers[viewerName].FitBoundaryUpper = limits[peakIndex][1]; }
     dataStore.viewers[viewerName].fitData(spectrum, 0);
   }
 
@@ -2723,6 +2742,10 @@ function fitCallback(center, width, amplitude, intercept, slope){
   // DO WE NEED ROI ANY MORE? Yes, for addFitLines
   dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0] = dataStore.viewers[viewerName].FitLimitLower;
   dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1] = dataStore.viewers[viewerName].FitLimitUpper;
+
+  // Reset the fitBoundaries in preparation for refits etc
+  dataStore.viewers[viewerName].FitBoundaryLower = -1;
+  dataStore.viewers[viewerName].FitBoundaryUpper = -1;
 
   // Check for failed fit. The center of the Gaussian must be within the search region
   if(center < dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0] || center > dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1]){
@@ -4458,6 +4481,9 @@ function typicalPeakWidth(energy,detector){
     width = 15;
   }
   if(detector == "RCMP"){
+    width = 40;
+  }
+  if(detector == "QED"){
     width = 40;
   }
   if(detector == "TAC"){

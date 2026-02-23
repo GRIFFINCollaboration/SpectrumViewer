@@ -77,8 +77,10 @@ function spectrumViewer(canvasID){
 	this.fitTarget = null //id of the spectrum to fit to
 	this.fitted = false; //has the spectrum been fit since the last repaint?
 	this.fitModeEngage = false; //are we currently fitting the spectrum?
-	this.FitLimitLower = -1; //fitting limits
+	this.FitLimitLower = -1; //fitting limits within which the fit is performed.
 	this.FitLimitUpper = -1;
+	this.FitBoundaryLower = -1; //fitting limits
+	this.FitBoundaryUpper = -1;
 	this.fitCallback = function(){}; //callback to run after fitting, arguments are (center, width, amplitude, linear background intercept, slope)
 	this.MLfit = true; //do a maximum likelihood fit for putting gaussians on peaks; otherwise fit just estimates gaussian form mode and half-max
 	// mask so fits only appear in plot area (ie don't overflow the axes)
@@ -728,6 +730,8 @@ function spectrumViewer(canvasID){
 
 		if(this.FitLimitLower<0) this.FitLimitLower=0;
 		if(this.FitLimitUpper>this.XaxisLimitAbsMax) this.FitLimitUpper = this.XaxisLimitAbsMax;
+		if(this.FitBoundaryLower>0 && this.FitLimitLower<this.FitBoundaryLower){ this.FitLimitLower=this.FitBoundaryLower; }
+		if(this.FitBoundaryUpper>0 && this.FitLimitUpper>this.FitBoundaryUpper){ this.FitLimitUpper=this.FitBoundaryUpper; } 
 
 		//old method just sticks a hat on the peak; use this as initial guess
 		max=1;
@@ -802,6 +806,8 @@ function spectrumViewer(canvasID){
 		if( (!max || !cent || !width || width<0) && retries<10){
 			this.FitLimitLower--;
 			this.FitLimitUpper++;
+			if(this.FitBoundaryLower>0 && this.FitLimitLower<this.FitBoundaryLower){ this.FitLimitLower=this.FitBoundaryLower; }
+			if(this.FitBoundaryUpper>0 && this.FitLimitUpper>this.FitBoundaryUpper){ this.FitLimitUpper=this.FitBoundaryUpper; }
 			this.fitData(fitKey, retries+1);
 			return
 		}

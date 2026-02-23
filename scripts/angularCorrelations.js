@@ -126,16 +126,18 @@ function setupDataStore(){
   dataStore.num2dPeaks = 0;
   dataStore.appLimitsStore = {}; // A place to store the limits, and centroid, set by mouse clicks on a spectrum
   dataStore.setAppLimitsCallback = function(){
-                                              if(dataStore.appLimitsStore["gateLimits"]){
-                                                  dataStore.gg_ang_corr_gamma1E = document.getElementById('gamma1Input').value = dataStore.appLimitsStore["gateLimits"].Centroid;
-                                                  document.getElementById('gamma1SetLimitsBadge').classList.remove('red-text');
-                                                }
-                                                if(dataStore.appLimitsStore["peakLimits"]){
-                                                  dataStore.gg_ang_corr_gamma2E = document.getElementById('gamma2Input').value = dataStore.appLimitsStore["peakLimits"].Centroid;
-                                                  document.getElementById('gamma2SetLimitsBadge').classList.remove('red-text');
-                                                }
-                                                console.log(dataStore);
-                                              };
+    if(dataStore.appLimitsStore["gateLimits"]){
+      dataStore.gg_ang_corr_gamma1E = document.getElementById('gamma1Input').value = dataStore.appLimitsStore["gateLimits"].Centroid;
+      document.getElementById('gamma1SetLimitsBadge').classList.remove('red-text');
+      dataStore.appLimitsStore[dataStore.appLimitsStore["gateLimits"].Centroid] = dataStore.appLimitsStore["gateLimits"];
+    }
+    if(dataStore.appLimitsStore["peakLimits"]){
+      dataStore.gg_ang_corr_gamma2E = document.getElementById('gamma2Input').value = dataStore.appLimitsStore["peakLimits"].Centroid;
+      document.getElementById('gamma2SetLimitsBadge').classList.remove('red-text');
+      dataStore.appLimitsStore[dataStore.appLimitsStore["peakLimits"].Centroid] = dataStore.appLimitsStore["peakLimits"];
+    }
+    console.log(dataStore);
+  };
 
   dataStore.plots = ['Spectra'];                                          //names of plotGrid cells and spectrumViewer objects
   dataStore.cellIndex = dataStore.plots.length;
@@ -769,12 +771,12 @@ function setupDataStore(){
           // Enable onchange functions which now trigger recalculations
           document.getElementsByName('confidenceLimitValue').onchange = function(){
             console.log("confidenceLimitValue onchange function");
-              processAngularCorrelationData();
+            processAngularCorrelationData();
           };
-          document.getElementById('sysUnc').onclick = function(){
+          document.getElementById('sysUnc').onchange = function(){
             console.log("sysUnc onchange function");
-              dataStore.systematicUncertainty=(this.value/100);
-              processAngularCorrelationData();
+            dataStore.systematicUncertainty=(this.value/100);
+            processAngularCorrelationData();
           };
 
           // Create projectionsList for the input of the function projectAllMatrices(projectionsList,compressed)
@@ -848,8 +850,16 @@ function setupDataStore(){
             dataStore.spectrumList1d.forEach((element) => spectrumList.push(histoName+":"+element));
             dataStore.singlesSpectra = spectrumList;
 
+            // Use Limits if any were set through mouse clicks
+            var limits = [];
+            for(var i=0; i<dataStore.spectrumList1dPeaks.All.length; i++){
+              limits[i] = [-1,-1];
+              if(dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitLower){ limits[i][0] = dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitLower; }
+              if(dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitUpper){ limits[i][1] = dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitUpper; }
+            }
+
             // Start the whole fitting routine for singles peaks
-            fitPeaksInSeriesOfHistograms(spectrumList,dataStore.spectrumList1dPeaks,"HPGe");
+            fitPeaksInSeriesOfHistograms(spectrumList,dataStore.spectrumList1dPeaks,"HPGe",limits);
           }
 
           function fittingCallback(){
@@ -861,8 +871,16 @@ function setupDataStore(){
               // Set the current task to keep track of our progress
               dataStore.currentTask = 'ProjectionsFitting';
 
+              // Use Limits if any were set through mouse clicks
+              var limits = [];
+              for(var i=0; i<dataStore.spectrumListProjectionsPeaks.All.length; i++){
+                limits[i] = [-1,-1];
+                if(dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitLower){ limits[i][0] = dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitLower; }
+                if(dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitUpper){ limits[i][1] = dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitUpper; }
+              }
+
               // Start the fitting routine for projections peaks for this run file
-              fitPeaksInSeriesOfHistograms(dataStore.spectrumListProjections,dataStore.spectrumListProjectionsPeaks,"HPGe");
+              fitPeaksInSeriesOfHistograms(dataStore.spectrumListProjections,dataStore.spectrumListProjectionsPeaks,"HPGe",limits);
               return;
             }
 
@@ -1189,6 +1207,7 @@ function setupDataStore(){
           var newCoEffs = [];       // Coefficients [c2,c4]. Theoretical and uncorrected for finite element size.
           var correctedCoEffs = []; // Coefficients [a2,a4]. Corrected for finite element size.
           var localMinima = [[]];   // An array of minima indexes for each j value.
+          var localMinimaKeys = []; // An array of minima keys for each j value (they may not start from 0).
           var thisOffset = 0.0; // Offset to align theory with data
           // Declare the variables
           var j1, j2, j3, l1a, l1b, l2a, l2b, delta1, delta2;
@@ -1254,7 +1273,7 @@ function setupDataStore(){
           // Determine the chi-square of the fit of this corrected-theory curve with the experimental data.
           // Find the minima in the chi-squared distribution for each j value.
           index=0;
-          for(j1=0; j1<5; j1++){
+          for(j1=(j2-2); j1<(j2+3); j1++){
             l1a = l1b = Math.abs(j1-j2);
             if(l1a<1){ l1a = l1b = 1; } // E0 is not permitted
             if((j1+j2)>l1b){ l1b++; }
@@ -1282,6 +1301,7 @@ function setupDataStore(){
                   thisChiSquare = calculateChiSquare(expAngBinData,expAngBinDataUnc,thisTheory)/dataStore.numDegreesOfFreedom;
                   dataStore.chiSquareSeries[index].push(thisChiSquare);
                   var minimaKey = "j="+j1+"-1"; // Only one solution for pure case
+                  localMinimaKeys[index] = j1;
                   dataStore.minimaDetails[minimaKey] = {
                     'series': "j="+j1,
                     'params': [j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2],
@@ -1348,16 +1368,17 @@ function setupDataStore(){
 
             // Now we have the full chi-square series for this j value
             // Locate the primary and secondary minimum for this j value
-            if(pure){ index++; continue; } // Pure multipolarity only have one solution which was already recorded
+            if(pure){ localMinimaKeys[index] = j1; index++; continue; } // Pure multipolarity only have one solution which was already recorded
             var previousGradient = 1;
             var gradient = 1;
-            if(!localMinima[index]){ localMinima[index] = []; }
+            if(!localMinima[index]){ localMinima[index] = []; localMinimaKeys[index] = j1; }
             for(i=1; i<dataStore.delta1Series[index].length; i++){
               previousGradient = gradient;
               if(dataStore.chiSquareSeries[index][i]<dataStore.chiSquareSeries[index][i-1]){ gradient = -1; }else{ gradient = 1; }
               if(previousGradient<gradient){ // The gradient changed from negative to positive so we have found a minimum
                 console.log("j="+j1+" minimum found at ["+i+"], delta="+dataStore.delta1Series[index][i]+", chi-square="+dataStore.chiSquareSeries[index][i]);
                 localMinima[index].push(i-1);
+                localMinimaKeys[index] = j1;
               }
             }
 
@@ -1367,8 +1388,7 @@ function setupDataStore(){
           // Sort the arrays so the primary minimum is always first
           for(i=0; i<localMinima.length; i++){
             if(localMinima[i].length>1){
-              if(localMinima[i][1]>localMinima[i][0])
-              {
+              if(localMinima[i][1]>localMinima[i][0]){
                 j=localMinima[i][0];
                 localMinima[i][0] = localMinima[i][1];
                 localMinima[i][1] = j;
@@ -1379,7 +1399,7 @@ function setupDataStore(){
           // Find the uncertainty for each chi-square minimum
           for(i=0; i<localMinima.length; i++){
             for(j=0; j<localMinima[i].length; j++){
-              minimaKey = "j="+i+"-1";
+              minimaKey = "j="+localMinimaKeys[i]+"-1";
               var theseParams = dataStore.minimaDetails[minimaKey].params;
               if(dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(3) != dataStore.minimaDetails[minimaKey].chiSquare){
                 console.log("Must be second minimum: "+dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(4)+" not equal to "+dataStore.minimaDetails[minimaKey].chiSquare+", for atan(delta)="+dataStore.minimaDetails[minimaKey].atanDelta1);
@@ -1388,7 +1408,7 @@ function setupDataStore(){
                 newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(theseParams[0],theseParams[1],theseParams[2],theseParams[3],theseParams[4],theseParams[5],theseParams[6],theseParams[7],theseParams[8]);
                 correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
                 correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
-                minimaKey = "j="+i+"-2";
+                minimaKey = "j="+localMinimaKeys[i]+"-2";
                 dataStore.minimaDetails[minimaKey] = {
                   'series': "j="+i,
                   'params': theseParams,
