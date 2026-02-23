@@ -769,15 +769,25 @@ function setupDataStore(){
           setupProgressBarTracking();
 
           // Enable onchange functions which now trigger recalculations
-          document.getElementsByName('confidenceLimitValue').onchange = function(){
-            console.log("confidenceLimitValue onchange function");
-            processAngularCorrelationData();
-          };
           document.getElementById('sysUnc').onchange = function(){
             console.log("sysUnc onchange function");
             dataStore.systematicUncertainty=(this.value/100);
             processAngularCorrelationData();
           };
+          var optionsCL = document.getElementsByName('confidenceLimitValue');
+          for(var i = 0; i < optionsCL.length; i++){
+            optionsCL[i].onclick = function(){
+              console.log("confidenceLimitValue onclick function");
+              processAngularCorrelationData();
+            };
+          }
+          var optionsTR = document.getElementsByName('time_random_select_value');
+          for(var i = 0; i < optionsTR.length; i++){
+            optionsTR[i].onclick = function(){
+              console.log("time_random_select_value onclick function");
+              processAngularCorrelationData();
+            };
+          }
 
           // Create projectionsList for the input of the function projectAllMatrices(projectionsList,compressed)
           // projectionsList is an array of objects.
@@ -921,6 +931,19 @@ function setupDataStore(){
               dataStore.angularBinExcludeList.push(0);
             }
 
+            // Set if Time-Random Background Subtraction will be performed
+            // 2 = Auto for each angular bin = only if the time-random background contribution is greater than 3% of the raw peak value.
+            // 1 = Always subtract Time-Random Background
+            // 0 = Never subtract Time-Random Background
+            var thisTimeRandomOption = 2;
+            var optionsTR = document.getElementsByName('time_random_select_value');
+            for(var i = 0; i < optionsTR.length; i++){
+              if(optionsTR[i].checked){
+                thisTimeRandomOption = optionsTR[i].value;
+              }
+            }
+            console.log("Time-Random Background subtraction setting = "+thisTimeRandomOption);
+
             // Collect the angular bin peak areas
             // This list contains both total projection and peak-gated projection
             // Exclude the zero angular bin as it is the same detector
@@ -954,16 +977,23 @@ function setupDataStore(){
 
               // Subtract time-random coincidence from the raw peak area
               // Only subtract time-random contribution if it is greater than 3% of the raw peak area
-              if(dataStore.angularBinTRBGPeakArea[index] / dataStore.angularBinRawPeakArea[index] > 0.03){
+              if(thisTimeRandomOption == 1){ // thisTimeRandomOption = 1 for always
                 dataStore.angularBinPeakArea[index] = parseInt(dataStore.angularBinRawPeakArea[index] - (dataStore.angularBinTRBGPeakArea[index] * dataStore.angularBinTRBGFactor[index]));
                 // Reduce the uncertainty for the normalized TRBG peak area by the same factor
                 var uncert = (dataStore.angularBinTRBGPeakAreaUnc[index] * dataStore.angularBinTRBGFactor[index]);
                 // Add in quadrature the uncertainties for the two peak areas
                 dataStore.angularBinPeakAreaUnc[index] = parseInt( Math.sqrt( uncert*uncert + dataStore.angularBinRawPeakAreaUnc[index]*dataStore.angularBinRawPeakAreaUnc[index] ) );
-              }else{
+              }else if(thisTimeRandomOption == 2 && dataStore.angularBinTRBGPeakArea[index] / dataStore.angularBinRawPeakArea[index] > 0.03){ // thisTimeRandomOption == 2 auto and >3% contribution
+                dataStore.angularBinPeakArea[index] = parseInt(dataStore.angularBinRawPeakArea[index] - (dataStore.angularBinTRBGPeakArea[index] * dataStore.angularBinTRBGFactor[index]));
+                // Reduce the uncertainty for the normalized TRBG peak area by the same factor
+                var uncert = (dataStore.angularBinTRBGPeakAreaUnc[index] * dataStore.angularBinTRBGFactor[index]);
+                // Add in quadrature the uncertainties for the two peak areas
+                dataStore.angularBinPeakAreaUnc[index] = parseInt( Math.sqrt( uncert*uncert + dataStore.angularBinRawPeakAreaUnc[index]*dataStore.angularBinRawPeakAreaUnc[index] ) );
+              }else{ // thisTimeRandomOption = 0 for never, or 2 auto and <3% contribution
                 dataStore.angularBinPeakArea[index] = parseInt(dataStore.angularBinRawPeakArea[index]);
                 dataStore.angularBinPeakAreaUnc[index] = parseInt(dataStore.angularBinRawPeakAreaUnc[index]);
               }
+              console.log("Time-Random Background subtraction setting = "+thisTimeRandomOption);
               console.log(index+" Ang bin Peak Area Unc: Final:"+dataStore.angularBinPeakAreaUnc[index]+"/"+dataStore.angularBinPeakArea[index]+" = "+dataStore.angularBinPeakAreaUnc[index]/dataStore.angularBinPeakArea[index]);
               console.log(index+" from: Raw: "+dataStore.angularBinRawPeakAreaUnc[index]+"/"+dataStore.angularBinRawPeakArea[index]+"="+dataStore.angularBinRawPeakAreaUnc[index]/dataStore.angularBinRawPeakArea[index]);
               console.log(index+" and "+"TRBG: "+dataStore.angularBinTRBGPeakAreaUnc[index]+"/"+dataStore.angularBinTRBGPeakArea[index]+"="+dataStore.angularBinTRBGPeakAreaUnc[index]/dataStore.angularBinTRBGPeakArea[index]);

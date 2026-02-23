@@ -228,23 +228,37 @@
         <label for="j3" class="right inline"><b>J<sub>3</sub>:</b></label>
         <select id="j3" onchange="check_jvalues();recalculate_L(2);recalculate();"></select>
 
+                <hr></hr>
+                <div class='col-md-5'>
+                <label for="confidence_limit_value" class="right inline"><b>Desired confidence limit:</b></label>
+                <div id="confidenceLimitValueDiv">
+                  <label for="99CL" class="right inline">99%</label>
+                  <input id='99CL' name='confidenceLimitValue' type='radio' value='2' checked></input>
+                  <label for="95CL" class="right inline">95%</label>
+                  <input id='95CL' name='confidenceLimitValue' type='radio' value='1'></input>
+                  <label for="90CL" class="right inline">90%</label>
+                  <input id='90CL' name='confidenceLimitValue' type='radio' value='0'></input>
+                </div>
+              </div>
+              <div class='col-md-7'>
+                <label for="sysUnc" class="right inline"><b>Systematic uncertainty (added in quadrature to each data point):</b></label>
+                <div id="systematicUncertaintyValueDiv">
+                <input id='sysUnc' type='number' min='0' max='10' step='0.1' value='0' onchange='dataStore.systematicUncertainty=(this.value/100)'></input>%
+              </div>
+              </div>
+
         <hr></hr>
+
         <div class='col-md-5'>
-        <label for="confidence_limit_value" class="right inline"><b>Desired confidence limit:</b></label>
-        <div id="confidenceLimitValueDiv">
-          <label for="99CL" class="right inline">99%</label>
-          <input id='99CL' name='confidenceLimitValue' type='radio' value='2' checked></input>
-          <label for="95CL" class="right inline">95%</label>
-          <input id='95CL' name='confidenceLimitValue' type='radio' value='1'></input>
-          <label for="90CL" class="right inline">90%</label>
-          <input id='90CL' name='confidenceLimitValue' type='radio' value='0'></input>
+        <label for="time_random_select_value" class="right inline"><b>Subtract time-random background:</b></label>
+        <div id="timeRandomSelectValueDiv">
+          <label for="TR_Auto" class="right inline">Auto (if >3%)</label>
+          <input id='TR_Auto' name='time_random_select_value' type='radio' value='2' checked></input>
+          <label for="TR_Yes" class="right inline">Always</label>
+          <input id='TR_Yes' name='time_random_select_value' type='radio' value='1'></input>
+          <label for="TR_No" class="right inline">Never</label>
+          <input id='TR_No' name='time_random_select_value' type='radio' value='0'></input>
         </div>
-      </div>
-      <div class='col-md-7'>
-        <label for="confidence_limit_value" class="right inline"><b>Systematic uncertainty (added in quadrature to each data point):</b></label>
-        <div id="systematicUncertaintyValueDiv">
-        <input id='sysUnc' type='number' min='0' max='10' step='0.1' value='0' onchange='dataStore.systematicUncertainty=(this.value/100)'></input>%
-      </div>
       </div>
         <hr></hr>
       </form>
