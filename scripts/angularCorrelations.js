@@ -864,10 +864,14 @@ function setupDataStore(){
             var limits = [];
             for(var i=0; i<dataStore.spectrumList1dPeaks.All.length; i++){
               limits[i] = [-1,-1];
-              if(dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitLower){ limits[i][0] = dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitLower; }
-              if(dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitUpper){ limits[i][1] = dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitUpper; }
+              if(dataStore.appLimitsStore != undefined){
+                if(dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]] != undefined){
+                  if(dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitLower){ limits[i][0] = dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitLower; }
+                  if(dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitUpper){ limits[i][1] = dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitUpper; }
+                }
+              }
             }
-
+            
             // Start the whole fitting routine for singles peaks
             fitPeaksInSeriesOfHistograms(spectrumList,dataStore.spectrumList1dPeaks,"HPGe",limits);
           }
@@ -885,8 +889,12 @@ function setupDataStore(){
               var limits = [];
               for(var i=0; i<dataStore.spectrumListProjectionsPeaks.All.length; i++){
                 limits[i] = [-1,-1];
-                if(dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitLower){ limits[i][0] = dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitLower; }
-                if(dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitUpper){ limits[i][1] = dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitUpper; }
+                if(dataStore.appLimitsStore != undefined){
+                  if(dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]] != undefined){
+                    if(dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitLower){ limits[i][0] = dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitLower; }
+                    if(dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitUpper){ limits[i][1] = dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitUpper; }
+                  }
+                }
               }
 
               // Start the fitting routine for projections peaks for this run file
