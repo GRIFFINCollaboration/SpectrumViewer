@@ -928,6 +928,9 @@ function setupDataStore(){
             console.log("processAngularCorrelationData()");
             console.log(dataStore);
 
+            // Reset all warnings
+            document.getElementById("dataPlotWarnings").innerHTML = "";
+
             // Initialize the sums as zero
             var sumAngularBinAreas = 0;
             var sumSinglesAreas = [0,0];

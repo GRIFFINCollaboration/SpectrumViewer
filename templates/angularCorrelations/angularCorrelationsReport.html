@@ -109,6 +109,8 @@
               cell.id = row.id + 'Cell' + this.cellHandles[cellIndex];
             }
           }else{ row = document.getElementById(tableID+'Row-'+ keys[i]+'-Peak-'+ j); }
+          document.getElementById(row.id).setAttribute('style', 'background-color: \"\";');
+
 
           document.getElementById(row.id + 'Cell' + this.cellHandles[0]).innerHTML = row.rowIndex;
           document.getElementById(row.id + 'Cell' + this.cellHandles[1]).innerHTML = keys[i].split(":")[1];
@@ -126,6 +128,7 @@
             if(keys[i].includes("angular")){ // Only issue warning here for the angular bin spectra (singles handled in the other function)
               if(dataStore.rawData[keys[i]].reduce((sum, currentValue) => sum + currentValue, 0) > 100 )
               // only issue warning for active crystals
+              if(keys[i].includes("bin00")){ continue; }
               issueWarning=1;
             }
           }
@@ -185,12 +188,13 @@
         var meanCounts = [0,0], issueWarning=0;
 
         for(var i=0; i<dataStore.THESEdetectors.length; i++){
+          document.getElementById(tableID + dataStore.THESEdetectors[i] + 'row').setAttribute('style', 'background-color: \"\";');
           document.getElementById(tableID + dataStore.THESEdetectors[i] + 'id').innerHTML = i;
           document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy1').innerHTML = dataStore.fitPeakEnergies[1];
           document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area1').innerHTML = bracketNotationString(dataStore.singlesPeakArea[i][1],parseInt(dataStore.singlesPeakAreaUnc[i][1]));
           document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy2').innerHTML = dataStore.fitPeakEnergies[0];
           document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area2').innerHTML = bracketNotationString(dataStore.singlesPeakArea[i][0],parseInt(dataStore.singlesPeakAreaUnc[i][0]));
-
+          
           meanCounts[0] += dataStore.singlesPeakArea[i][1];
           meanCounts[1] += dataStore.singlesPeakArea[i][0];
         }
