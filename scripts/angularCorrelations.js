@@ -268,9 +268,9 @@ function setupDataStore(){
   // graphSection = plot of per detector the PH vs Lit en with Fit and a residuals pane
   // graphSection = plot of all the residuals for specific peak
   // Variables for Pagination menu buttons
-  dataStore.buttonNames = ["Spectra", "Ang Corr Data Overview table", "Ang Corr Weights Overview table", "Ang Corr Plots"];  // Names to appear on the buttons
-  dataStore.buttonIDs = ["plotRegionMenuButton", "dataTableRegionMenuButton", "weightTableRegionMenuButton", "dataPlotRegionMenuButton"];    // IDs for the buttons
-  dataStore.buttonPages = ["plotRegion", "resultsDataTableRegion", "resultsWeightTableRegion","resultsPlotRegion"];                 // Pages (div IDs) to be associated with the buttons
+  dataStore.buttonNames = ["Spectra", "Peak Fits", "Ang Corr Data Overview table", "Ang Corr Weights Overview table", "Ang Corr Plots"];  // Names to appear on the buttons
+  dataStore.buttonIDs = ["plotRegionMenuButton", "fitsTableRegionMenuButton", "dataTableRegionMenuButton", "weightTableRegionMenuButton", "dataPlotRegionMenuButton"];    // IDs for the buttons
+  dataStore.buttonPages = ["plotRegion", "resultsFitsTableRegion", "resultsDataTableRegion", "resultsWeightTableRegion","resultsPlotRegion"];                 // Pages (div IDs) to be associated with the buttons
 
   // Generate THESEdetectors object.
   dataStore.numberOfClovers = 16;
@@ -657,7 +657,7 @@ function setupDataStore(){
           dataStore._plotListLite.setup();
 
           // Generate the angularCorrelations report table
-          dataStore._angularCorrelationsReport = new angularCorrelationsReport('resultsDataTableRegion','resultsWeightTableRegion','chiSquareReportTableDiv');
+          dataStore._angularCorrelationsReport = new angularCorrelationsReport('resultsDataTableRegion','resultsWeightTableRegion','chiSquareReportTableDiv','resultsFitsTableRegion');
           dataStore._angularCorrelationsReport.setup();
 
           // Draw the search region
@@ -871,7 +871,7 @@ function setupDataStore(){
                 }
               }
             }
-            
+
             // Start the whole fitting routine for singles peaks
             fitPeaksInSeriesOfHistograms(spectrumList,dataStore.spectrumList1dPeaks,"HPGe",limits);
           }
@@ -1184,6 +1184,7 @@ function setupDataStore(){
         // Populate the results table for the angular correlation and weights data
         dataStore._angularCorrelationsReport.updateDataTable();
         dataStore._angularCorrelationsReport.updateWeightTable();
+        dataStore._angularCorrelationsReport.updateFitsTable();
 
         // Promise to generate the chi-squared data and then populate the tables and plots
         let dataPromise = new Promise(function(resolve, reject) {

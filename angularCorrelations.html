@@ -26,6 +26,7 @@
   <link id='angularCorrelationsReportTable' rel="import" href="templates/angularCorrelations/angularCorrelationsReportTable.html">
   <link id='angularCorrelationsDataReportTable' rel="import" href="templates/angularCorrelations/angularCorrelationsReportTable.html">
   <link id='angularCorrelationsWeightsReportTable' rel="import" href="templates/angularCorrelations/angularCorrelationsReportTable.html">
+  <link id='angularCorrelationsFitsReportTable' rel="import" href="templates/angularCorrelations/angularCorrelationsReportTable.html">
   <link id='angularCorrelationsChiSquareReportTable' rel="import" href="templates/angularCorrelations/angularCorrelationsReportTable.html">
   <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
   <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
@@ -291,6 +292,10 @@
 </div>
 
 <!-- Peak-Fitting results tables -->
+<div id='resultsFitsTableRegion' class='col-md-12 hidden'>
+  <div id='angularCorrelationsFits' class='col-md-12'></div>
+</div>
+
 <div id='resultsDataTableRegion' class='col-md-12 hidden'>
   <div id='angularCorrelationsFits' class='col-md-12'></div>
 </div>
@@ -319,7 +324,7 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
   dataStore._plotGrid = new plotGrid('plottingGrid');
   dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
 
-  dataStore.templates = prepareTemplates(['header', 'paginationMenu', 'angularCorrelationsReport', 'angularCorrelationsDataReportTable', 'angularCorrelationsWeightsReportTable', 'plotGrid', 'plotControl', 'plotListLite', 'dataplot', 'footer']);
+  dataStore.templates = prepareTemplates(['header', 'paginationMenu', 'angularCorrelationsReport', 'angularCorrelationsDataReportTable', 'angularCorrelationsWeightsReportTable', 'angularCorrelationsFitsReportTable', 'plotGrid', 'plotControl', 'plotListLite', 'dataplot', 'footer']);
 
   setupHeader('head', 'Angular Correlations');
   setupPaginationMenu('menu');
