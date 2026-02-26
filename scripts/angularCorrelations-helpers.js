@@ -56,13 +56,14 @@ function recalculate_L(transition){
 
 function check_jvalues(){
 
-  var j1 = parseFloat(document.getElementById("j1").value);
-  j2 = parseFloat(document.getElementById("j2").value),
-  j3 = parseFloat(document.getElementById("j3").value),
+//  var j1 = parseFloat(document.getElementById("j1").value);
+  var j2 = parseFloat(document.getElementById("j2").value),
+  j3 = parseFloat(document.getElementById("j3").value);
 
   document.getElementById("error1").innerHTML = "";
 
-  if (j2==0 && (j1==0 || j3==0)){
+  //  if (j2==0 && (j1==0 || j3==0)){
+      if (j2==0 && j3==0){
     j2 = 1;
     document.getElementById("j2").value = 1;
     alert("No 0 to 0 transitions allowed. Setting J2 to 1");
@@ -71,23 +72,23 @@ function check_jvalues(){
 
 function recalculate(){
 
-  var j1 = parseFloat(document.getElementById("j1").value),
-  j2 = parseFloat(document.getElementById("j2").value),
+  //var j1 = parseFloat(document.getElementById("j1").value),
+  var j2 = parseFloat(document.getElementById("j2").value),
   j3 = parseFloat(document.getElementById("j3").value),
 
-  l1a = parseFloat($('input[name="l1a"]:checked').val()),
-  l1b = parseFloat($('input[name="l1b"]:checked').val()),
+//  l1a = parseFloat($('input[name="l1a"]:checked').val()),
+//  l1b = parseFloat($('input[name="l1b"]:checked').val()),
   l2a = parseFloat($('input[name="l2a"]:checked').val()),
   l2b = parseFloat($('input[name="l2b"]:checked').val()),
 
-  d1 = parseFloat($('#mix1').val()),
+//  d1 = parseFloat($('#mix1').val()),
   d2 = parseFloat($('#mix2').val()),
   i, j, row,
-  noL1mix = false,
+  //noL1mix = false,
   noL2mix = false,
   min = dataStore.minMix,
   max = dataStore.maxMix;
-
+/*
   if (l1a==l1b){
     noL1mix = true;
     if (d1!=0){
@@ -100,6 +101,7 @@ function recalculate(){
   } else {
     $('#delta1-slider').removeAttr('disabled');
   }
+  */
   if (l2a==l2b){
     noL2mix = true;
     if (d2!=0){
@@ -113,6 +115,7 @@ function recalculate(){
     $('#delta2-slider').removeAttr('disabled');
   }
 
+/*
   //a2 and a4 plots
   //generate data
 
@@ -135,6 +138,7 @@ function recalculate(){
       dataStore.a4[i][j] = dataStore.A4[i]*dataStore.B4[j];
     }
   }
+  */
 
 };
 
@@ -430,7 +434,7 @@ function calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b
 
     var select, option, i, spin;
 
-    for(spin = 1; spin<4; spin++){
+    for(spin = 2; spin<4; spin++){
       select = document.getElementById('j'+spin);
       select.innerHTML = '';
       for (i = 0;i<10;i++){
@@ -441,7 +445,7 @@ function calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b
       }
     }
 
-    document.getElementById("j1").value = 4;
+    //document.getElementById("j1").value = 4;
     document.getElementById("j2").value = 2;
     document.getElementById("j3").value = 0;
   };
@@ -449,7 +453,7 @@ function calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b
   function oddA(){
     var select, option, i, spin;
 
-    for(spin = 1; spin<4; spin++){
+    for(spin = 2; spin<4; spin++){
       select = document.getElementById('j'+spin);
       select.innerHTML = '';
       for (i = 0;i<10;i++){
@@ -463,7 +467,7 @@ function calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b
       }
     }
 
-    document.getElementById("j1").value = 2.5;
+  //  document.getElementById("j1").value = 2.5;
     document.getElementById("j2").value = 1.5;
     document.getElementById("j3").value = 0.5;
   };

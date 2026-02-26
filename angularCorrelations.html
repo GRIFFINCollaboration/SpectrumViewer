@@ -41,7 +41,7 @@
     <div id='messageDivText'></div><div id='messageDivButton'></div>
   </div>
 
-  <div id='progressDiv' class="container progress hidden">
+  <div id='progressDiv' class="container progress">
     <div id='angularCorrelationsProgress' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">Initializing App...
     </div>
   </div>
@@ -164,59 +164,55 @@
 <!--user input-->
 
 <div id='userInputParentDiv' class='col-md-12 hidden'>
-  <div id='gateInputsParentDiv' class='col-md-6 hidden'>
+  <div id='gateInputsParentDiv' class='col-md-3 hidden'>
     <h3>Gate and Peak Details</h3>
     <div id='gateInputsDiv' class="input-group">
-      <span class='input-group-addon'>Gamma-ray energies: </span>
-      <div class='col-md-6'>
-      <input id="gamma1Input" value="1173" min="0" max="4095" type="number" class='black-text'></input>
+      <div class='col-md-12'>
+        <label for="gamma1Input" class="right inline"><b>Peak1 Energy:</b></label>
+        <input id="gamma1Input" value="1173" min="0" max="4095" type="number" class='black-text'></input>
         <button type="button" class="btn btn-default btn-sm" id='gamma1SetLimits' engaged='0'>
           <span id='gamma1SetLimitsBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Set Limits with Mouse</span>
         </button>
-    </div>
-    <div class='col-md-6'>
-      <input id="gamma2Input" value="1332" min="0" max="4095" type="number" class='black-text'></input>
+      </div>
+      <div class='col-md-12'>
+        <label for="gamma2Input" class="right inline"><b>Peak2 Energy:</b></label>
+        <input id="gamma2Input" value="1332" min="0" max="4095" type="number" class='black-text'></input>
         <button type="button" class="btn btn-default btn-sm" id='gamma2SetLimits' engaged='0'>
           <span id='gamma2SetLimitsBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Set Limits with Mouse</span>
         </button>
+      </div>
     </div>
-  </div>
-    <div class='col-md-6'>
+    <div class='col-md-12'>
+      <label for="peakGateChoiceInput" class="right inline"><b>Peak used as gate:</b></label>
+      <select id="peakGateChoiceInput">
+        <option value=1 selected>Peak 1</option>
+        <option value=2>Peak 2</option>
+      </select>
+    </div>
+    <div class='col-md-12'>
       <button type="button" class="btn btn-default btn-sm" id='ggAngCorrProject' engaged='0'>
-        <span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Let's see it!</span>
+        <span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Launch the peak fitting</span>
       </button>
     </div>
   </div>
 
-  <div id='cascadeInputsDiv' class='col-md-4 hidden'>
+
+  <div id='cascadeInputsDiv' class='col-md-3 hidden'>
     <div id='cascadeInputs' class='col-md-12'>
       <!-- This form taken from http://griffincollaboration.github.io/AngularCorrelationUtility/ -->
       <form class='content' autocomplete='off'>
         <!-- even / odd -->
         <div>
           <h3>Angular Momentum Options</h3>
-          <input type="radio" id="even" name="r-group" data-toggle="button" onchange="evenA();recalculate_L(1);recalculate_L(2);recalculate();" checked>
-          <label class="button" for="even">Even mass</label>
-          <input type="radio" id="odd" name="r-group" data-toggle="button" onchange="oddA();recalculate_L(1);recalculate_L(2);recalculate();">
-          <label class="button" for="odd">Odd mass</label>
         </div>
 
-        <hr></hr>
-
-        <!-- j1 -->
-        <label for="j1" class="right inline"><b>J<sub>1</sub>:</b></label>
-        <select id="j1" onchange="check_jvalues(); recalculate_L(1); recalculate();"></select>
-        <div id="l1a_value"></div>
-        <div id="l1b_value"></div>
-        <label>L<sub>1b</sub>/L<sub>1a</sub> Mixing:</label>
-        <input id='delta1-slider' type='range' min='-1' max='1' step='0.01' value='0' oninput='syncElements("delta1-slider", "mix1")' onchange='recalculate()' class='mixer'></input>
-        <input id='mix1' type='number' min='-1' max='1' step='0.01' value='0' onchange='syncElements("mix1", "delta1-slider"); recalculate();' class='mixer'></input>
+        <div><b>J<sub>1</sub></b> and <b>L<sub>1b</sub>/L<sub>1a</sub> Mixing</b> will be determined.</div><div id="j1OptionsDiv"></div>
 
         <hr></hr>
 
         <!-- j2 -->
         <label for="j2" class="right inline"><b>J<sub>2</sub>:</b></label>
-        <select id="j2" onchange="check_jvalues(); recalculate_L(1); recalculate_L(2); recalculate();"></select>
+        <select id="j2" onchange="check_jvalues(); recalculate_L(2); recalculate();"></select>
         <div id="l2a_value"></div>
         <div id="l2b_value"></div>
         <label>L<sub>2b</sub>/L<sub>2a</sub> Mixing:</label>
@@ -226,31 +222,53 @@
         <hr></hr>
 
         <!-- j3 -->
-        <label for="j3" class="right inline"><b>J<sub>3</sub>:</b></label>
-        <select id="j3" onchange="check_jvalues();recalculate_L(2);recalculate();"></select>
+        <div class="col-md-6">
+          <label for="j3" class="right inline"><b>J<sub>3</sub>:</b></label>
+          <select id="j3" onchange="check_jvalues();recalculate_L(2);recalculate();"></select>
+        </div>
 
-                <hr></hr>
-                <div class='col-md-5'>
-                <label for="confidence_limit_value" class="right inline"><b>Desired confidence limit:</b></label>
-                <div id="confidenceLimitValueDiv">
-                  <label for="99CL" class="right inline">99%</label>
-                  <input id='99CL' name='confidenceLimitValue' type='radio' value='2' checked></input>
-                  <label for="95CL" class="right inline">95%</label>
-                  <input id='95CL' name='confidenceLimitValue' type='radio' value='1'></input>
-                  <label for="90CL" class="right inline">90%</label>
-                  <input id='90CL' name='confidenceLimitValue' type='radio' value='0'></input>
-                </div>
-              </div>
-              <div class='col-md-7'>
-                <label for="sysUnc" class="right inline"><b>Systematic uncertainty (added in quadrature to each data point):</b></label>
-                <div id="systematicUncertaintyValueDiv">
-                <input id='sysUnc' type='number' min='0' max='10' step='0.1' value='0' onchange='dataStore.systematicUncertainty=(this.value/100)'></input>%
-              </div>
-              </div>
+        <div class="col-md-6">
+          <input type="radio" id="even" name="r-group" data-toggle="button" onchange="evenA();recalculate_L(2);recalculate();" checked>
+          <label class="button" for="even">Even mass</label>
+          <input type="radio" id="odd" name="r-group" data-toggle="button" onchange="oddA();recalculate_L(2);recalculate();">
+          <label class="button" for="odd">Odd mass</label>
+        </div>
 
         <hr></hr>
+      </form>
+      <p id="error1"></p>
+    </div>
+  </div>
 
-        <div class='col-md-5'>
+
+  <div id='analysisInputsDiv' class='col-md-4 hidden'>
+
+    <div class='col-md-12'>
+      <form class='content' autocomplete='off'>
+        <h3>Analysis Control Options</h3>
+        <label for="confidence_limit_value" class="right inline"><b>Desired confidence limit:</b></label>
+        <div id="confidenceLimitValueDiv">
+          <label for="99CL" class="right inline">99%</label>
+          <input id='99CL' name='confidenceLimitValue' type='radio' value='2' checked></input>
+          <label for="95CL" class="right inline">95%</label>
+          <input id='95CL' name='confidenceLimitValue' type='radio' value='1'></input>
+          <label for="90CL" class="right inline">90%</label>
+          <input id='90CL' name='confidenceLimitValue' type='radio' value='0'></input>
+        </div>
+      </div>
+
+      <hr></hr>
+
+      <div class='col-md-10'>
+        <label for="sysUnc" class="right inline"><b>Systematic uncertainty (added in quadrature to each data point):</b></label>
+        <div id="systematicUncertaintyValueDiv">
+          <input id='sysUnc' type='number' min='0' max='10' step='0.1' value='0' onchange='dataStore.systematicUncertainty=(this.value/100)'></input>%
+        </div>
+      </div>
+
+      <hr></hr>
+
+      <div class='col-md-10'>
         <label for="time_random_select_value" class="right inline"><b>Subtract time-random background:</b></label>
         <div id="timeRandomSelectValueDiv">
           <label for="TR_Auto" class="right inline">Auto (if >3%)</label>
@@ -261,11 +279,11 @@
           <input id='TR_No' name='time_random_select_value' type='radio' value='0'></input>
         </div>
       </div>
-        <hr></hr>
-      </form>
-      <p id="error1"></p>
-    </div>
+
+      <hr></hr>
+    </form>
   </div>
+
 </div>
 
 <!-- Pagination menu Div -->
@@ -372,34 +390,39 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
   listener('histoChoiceBar', 'midasFileDetailsAvailable', addTitlesToHistoListSelect);
 
   // Plug in the onchange functions
+
   document.getElementById('gamma1Input').onchange = function(){
     dataStore.gg_ang_corr_gamma1E = this.value;
   }.bind(document.getElementById('gamma1Input'));
+
   document.getElementById('gamma2Input').onchange = function(){
     dataStore.gg_ang_corr_gamma2E = this.value;
   }.bind(document.getElementById('gamma2Input'));
+
   document.getElementById('ggAngCorrProject').onclick = function(){
     dataStore.viewers[dataStore.plots[0]].clearFits(); // Clear the fits that were made during Limit setting.
     launchAngularCorrelations();
   };
+
   document.getElementById('gamma1SetLimits').onclick = function(){
-      dataStore.viewers[dataStore.plots[0]].setAppLimitsCallback = dataStore.setAppLimitsCallback;
-      delete dataStore.appLimitsStore["gateLimits"];
-      dataStore.viewers[dataStore.plots[0]].setupSetAppLimitsMode("gateLimits");
-      document.getElementById('gamma1SetLimitsBadge').classList.add('red-text')
+    dataStore.viewers[dataStore.plots[0]].setAppLimitsCallback = dataStore.setAppLimitsCallback;
+    delete dataStore.appLimitsStore["gateLimits"];
+    dataStore.viewers[dataStore.plots[0]].setupSetAppLimitsMode("gateLimits");
+    document.getElementById('gamma1SetLimitsBadge').classList.add('red-text')
   };
+
   document.getElementById('gamma2SetLimits').onclick = function(){
-      dataStore.viewers[dataStore.plots[0]].setAppLimitsCallback = dataStore.setAppLimitsCallback;
-      delete dataStore.appLimitsStore["peakLimits"];
-      dataStore.viewers[dataStore.plots[0]].setupSetAppLimitsMode("peakLimits");
-      document.getElementById('gamma1SetLimitsBadge').classList.add('red-text')
+    dataStore.viewers[dataStore.plots[0]].setAppLimitsCallback = dataStore.setAppLimitsCallback;
+    delete dataStore.appLimitsStore["peakLimits"];
+    dataStore.viewers[dataStore.plots[0]].setupSetAppLimitsMode("peakLimits");
+    document.getElementById('gamma1SetLimitsBadge').classList.add('red-text')
   };
 
   // initial set up of angular momentum spin option dropdowns
   // and generate initial calculation state
   evenA();
   check_jvalues();
-  recalculate_L(1);
+  //recalculate_L(1);
   recalculate_L(2);
   recalculate();
 
@@ -426,9 +449,6 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
     }.bind(newButton);
     document.getElementById('detectorChoiceBar').appendChild(newButton);
   }
-
-  // Reveal the progress bar
-  document.getElementById('progressDiv').classList.remove('hidden');
 
   // Hide the subpage menu for now
   document.getElementById('menu').classList.add('hidden');

@@ -314,6 +314,8 @@ function setupDataStore(){
   dataStore.numCrystalPairs = [];            // place to store the number of crystal pairs for each angular bin
   dataStore.numDegreesOfFreedom = [];          // place to store the number of degrees of freedom for the chi-square fits
   dataStore.criticalValue = 0.0;             // place to store the current critical chi-square value
+  dataStore.criticalLevel = 2;               // place to store the current critical value confidence Level index number
+  dataStore.criticalLevelStrings = ["90%","95%","99%"];             // place to store the current critical value confidence Level strings
   dataStore.criticalChiSquareValueTable =            // Critical chi-square values for 90%, 95% and 99% confidence levels. index is (NDF-1). https://www.itl.nist.gov/div898/handbook/eda/section3/eda3674.htm
   [[2.706,4.605,6.251,7.779,9.236,10.645,12.017,13.362,14.684,15.987,17.275,18.549,19.812,21.064,22.307,23.542,24.769,25.989,27.204,28.412,29.615,30.813,32.007,33.196,34.382,35.563,36.741,37.916,39.087,40.256,41.422,42.585,43.745,44.903,46.059,47.212,48.363,49.513,50.66,51.805,52.949,54.09,55.23,56.369,57.505,58.641,59.774,60.907,62.038,63.167,64.295,65.422,66.548,67.673,68.796,69.919,71.04,72.16,73.279,74.397,75.514,76.63,77.745,78.86,79.973,81.085,82.197,83.308,84.418,85.527,86.635,87.743,88.85,89.956,91.061,92.166,93.27,94.374,95.476,96.578,97.68,98.78,99.88,100.98,102.079,103.177,104.275,105.372,106.469,107.565,108.661,109.756,110.85,111.944,113.038,114.131,115.223,116.315,117.407,118.498],
   [3.841,5.991,7.815,9.488,11.07,12.592,14.067,15.507,16.919,18.307,19.675,21.026,22.362,23.685,24.996,26.296,27.587,28.869,30.144,31.41,32.671,33.924,35.172,36.415,37.652,38.885,40.113,41.337,42.557,43.773,44.985,46.194,47.4,48.602,49.802,50.998,52.192,53.384,54.572,55.758,56.942,58.124,59.304,60.481,61.656,62.83,64.001,65.171,66.339,67.505,68.669,69.832,70.993,72.153,73.311,74.468,75.624,76.778,77.931,79.082,80.232,81.381,82.529,83.675,84.821,85.965,87.108,88.25,89.391,90.531,91.67,92.808,93.945,95.081,96.217,97.351,98.484,99.617,100.749,101.879,103.01,104.139,105.267,106.395,107.522,108.648,109.773,110.898,112.022,113.145,114.268,115.39,116.511,117.632,118.752,119.871,120.99,122.108,123.225,124.342],
@@ -716,6 +718,9 @@ function setupDataStore(){
           // This is the start of the automated process
           console.log(dataStore);
 
+          // Reveal the progress bar
+        //  document.getElementById('progressDiv').classList.remove('hidden');
+
           // change messages
           document.getElementById('readyMessage').classList.add('hidden');
           document.getElementById('projectionsMessage').classList.remove('hidden');
@@ -724,9 +729,19 @@ function setupDataStore(){
           var g1E = parseInt(document.getElementById('gamma1Input').value);
           var g2E = parseInt(document.getElementById('gamma2Input').value);
 
+          /*
           // Use the higher energy peak as the gate because that will likely give less background
           var gateE = (g1E > g2E) ? g1E : g2E;
           var fitE  = (g1E > g2E) ? g2E : g1E;
+          */
+          // Get user input for which peak to use as the gate
+          var gateE = g1E;
+          var fitE = g2E;
+          var gateChoice = parseInt(document.getElementById('peakGateChoiceInput').value);
+          if(gateChoice==2){
+            gateE = g2E;
+            fitE = g1E;
+          }
           dataStore.fitPeakEnergies = [fitE,gateE]; // Remember for use in tables later
 
           // Set the gate width
@@ -821,6 +836,7 @@ function setupDataStore(){
             document.getElementById('userInputParentDiv').classList.remove('hidden');
             document.getElementById('gateInputsParentDiv').classList.remove('hidden');
             document.getElementById('cascadeInputsDiv').classList.remove('hidden');
+            document.getElementById('analysisInputsDiv').classList.remove('hidden');
 
             // Plot a single spectrum for determining the gate and fit regions
             var plot = dataStore.histoFileName.split(".")[0] + ":" + dataStore.spectrumList1d[0];
@@ -958,26 +974,28 @@ function setupDataStore(){
             // Collect the angular bin peak areas
             // This list contains both total projection and peak-gated projection
             // Exclude the zero angular bin as it is the same detector
+            // fitResults object always has the fits in centroid order. So need to ensure we get the correct fit as peak and gate
+            var peakIndex=0, gateIndex=1;
+            if(dataStore.fitPeakEnergies[1]<dataStore.fitPeakEnergies[0]){ peakIndex=1; gateIndex=0; }
             for(var i=0; i<dataStore.angCorrProjections.length; i++){
               // Here we make the subtraction of the gateE peak from the fitE peak to account for time-random coincidences
-              // Peak index 0 is fitE, index 1 is gateE
               var index = i;
               var thisGateKey = dataStore.angCorrProjections[i]; // Gate for angular correlation
               var thisTotalKey = dataStore.angCorrProjections[i].split("x")[0] + "x"; // Total projection
 
               // Determine the time-random background subtraction factor from the ratio of the two peaks in the total projection
-              dataStore.angularBinTRBGFactor[index] = dataStore.fitResults[thisTotalKey][0][5] / dataStore.fitResults[thisTotalKey][1][5];
+              dataStore.angularBinTRBGFactor[index] = dataStore.fitResults[thisTotalKey][peakIndex][5] / dataStore.fitResults[thisTotalKey][gateIndex][5];
               // Add the fractional errors in quadrature
-              dataStore.angularBinTRBGFactorUnc[index] = dataStore.angularBinTRBGFactor[index] * Math.sqrt( Math.pow(dataStore.fitUncertainty[thisTotalKey][0]/dataStore.fitResults[thisTotalKey][0][5],2)
-              + Math.pow(dataStore.fitUncertainty[thisTotalKey][1]/dataStore.fitResults[thisTotalKey][1][5],2) );
+              dataStore.angularBinTRBGFactorUnc[index] = dataStore.angularBinTRBGFactor[index] * Math.sqrt( Math.pow(dataStore.fitUncertainty[thisTotalKey][peakIndex]/dataStore.fitResults[thisTotalKey][peakIndex][5],2)
+              + Math.pow(dataStore.fitUncertainty[thisTotalKey][gateIndex]/dataStore.fitResults[thisTotalKey][gateIndex][5],2) );
               if(!isFinite(dataStore.angularBinTRBGFactor[index])){ dataStore.angularBinTRBGFactor[index] = 1; }
               if(!isFinite(dataStore.angularBinTRBGFactorUnc[index])){ dataStore.angularBinTRBGFactorUnc[index] = 1; }
 
               // Save the raw area and uncertainties for the peak and time-random coincidence peak
-              dataStore.angularBinRawPeakArea[index] = dataStore.fitResults[thisGateKey][0][5];
-              dataStore.angularBinTRBGPeakArea[index] = dataStore.fitResults[thisGateKey][1][5];
-              dataStore.angularBinRawPeakAreaUnc[index] = dataStore.fitUncertainty[thisGateKey][0];
-              dataStore.angularBinTRBGPeakAreaUnc[index] = dataStore.fitUncertainty[thisGateKey][1];
+              dataStore.angularBinRawPeakArea[index] = dataStore.fitResults[thisGateKey][peakIndex][5];
+              dataStore.angularBinTRBGPeakArea[index] = dataStore.fitResults[thisGateKey][gateIndex][5];
+              dataStore.angularBinRawPeakAreaUnc[index] = dataStore.fitUncertainty[thisGateKey][peakIndex];
+              dataStore.angularBinTRBGPeakAreaUnc[index] = dataStore.fitUncertainty[thisGateKey][gateIndex];
               // Protect against failed fits
               if(isNaN(dataStore.angularBinRawPeakArea[index])){ dataStore.angularBinRawPeakArea[index] = 1; }
               if(isNaN(dataStore.angularBinTRBGPeakArea[index])){ dataStore.angularBinTRBGPeakArea[index] = 1; }
@@ -1015,12 +1033,6 @@ function setupDataStore(){
               if(!isFinite(dataStore.angularBinPeakArea[index])){ dataStore.angularBinPeakArea[index] = 0; }
               if(!isFinite(dataStore.angularBinPeakAreaUnc[index])){ dataStore.angularBinPeakAreaUnc[index] = 0; }
 
-              // Add this peak area to the sum for calculating the normalization factor and statistics
-              //  if(!dataStore.angularBinExcludeList.includes(index)){
-              //      sumAngularBinAreas += dataStore.angularBinPeakArea[index];
-              //      sumAngularBinAreasUnc += (dataStore.angularBinPeakAreaUnc[index]*dataStore.angularBinPeakAreaUnc[index]);
-              //    }
-
               if(index>0){ // exclude only the zero angular difference bin from the normalization
                 sumAngularBinAreas += dataStore.angularBinPeakArea[index];
                 sumAngularBinAreasUnc += (dataStore.angularBinPeakAreaUnc[index]*dataStore.angularBinPeakAreaUnc[index]);
@@ -1045,17 +1057,17 @@ function setupDataStore(){
               dataStore.singlesPeakArea[i] = [0,0]; // initialize this element
               dataStore.singlesPeakAreaUnc[i] = [0,0]; // initialize this element
 
-              if( !isNaN(dataStore.fitResults[thisSinglesKey][0][5]))
-              dataStore.singlesPeakArea[i][0] = dataStore.fitResults[thisSinglesKey][0][5]; // the fit energy peak
-              if( !isNaN(dataStore.fitResults[thisSinglesKey][1][5]))
-              dataStore.singlesPeakArea[i][1] = dataStore.fitResults[thisSinglesKey][1][5]; // the gate energy peak
-              dataStore.singlesPeakAreaUnc[i][0] = dataStore.fitUncertainty[thisSinglesKey][0]; // the fit energy peak
-              dataStore.singlesPeakAreaUnc[i][1] = dataStore.fitUncertainty[thisSinglesKey][1]; // the gate energy peak
+              if( !isNaN(dataStore.fitResults[thisSinglesKey][peakIndex][5]))
+              dataStore.singlesPeakArea[i][0] = dataStore.fitResults[thisSinglesKey][peakIndex][5]; // the fit energy peak
+              if( !isNaN(dataStore.fitResults[thisSinglesKey][gateIndex][5]))
+              dataStore.singlesPeakArea[i][1] = dataStore.fitResults[thisSinglesKey][gateIndex][5]; // the gate energy peak
+              dataStore.singlesPeakAreaUnc[i][0] = dataStore.fitUncertainty[thisSinglesKey][peakIndex]; // the fit energy peak
+              dataStore.singlesPeakAreaUnc[i][1] = dataStore.fitUncertainty[thisSinglesKey][gateIndex]; // the gate energy peak
 
               sumSinglesAreas[0] += dataStore.singlesPeakArea[i][0]; // the fit energy peak
               sumSinglesAreas[1] += dataStore.singlesPeakArea[i][1]; // the gate energy peak
-              sumSinglesAreasUnc[0] += (dataStore.fitUncertainty[thisSinglesKey][0]*dataStore.fitUncertainty[thisSinglesKey][0]); // the fit energy peak
-              sumSinglesAreasUnc[1] += (dataStore.fitUncertainty[thisSinglesKey][1]*dataStore.fitUncertainty[thisSinglesKey][1]); // the gate energy peak
+              sumSinglesAreasUnc[0] += (dataStore.fitUncertainty[thisSinglesKey][peakIndex]*dataStore.fitUncertainty[thisSinglesKey][peakIndex]); // the fit energy peak
+              sumSinglesAreasUnc[1] += (dataStore.fitUncertainty[thisSinglesKey][gateIndex]*dataStore.fitUncertainty[thisSinglesKey][gateIndex]); // the gate energy peak
             }
             sumSinglesAreasUnc[0] = Math.sqrt(sumSinglesAreasUnc[0]); // sqrt after the sum of squares in the loop
             sumSinglesAreasUnc[1] = Math.sqrt(sumSinglesAreasUnc[1]); // sqrt after the sum of squares in the loop
@@ -1076,22 +1088,11 @@ function setupDataStore(){
                 // Add the combination of the peak areas from this pair to the sum for this angular bin
                 var first_part  = (dataStore.singlesPeakArea[i][0]/sumSinglesAreas[0])*(dataStore.singlesPeakArea[j][1]/sumSinglesAreas[1]);
                 var second_part = (dataStore.singlesPeakArea[j][0]/sumSinglesAreas[0])*(dataStore.singlesPeakArea[i][1]/sumSinglesAreas[1]);
-                //  dataStore.angularBinWeight[angleIndex] += (dataStore.singlesPeakArea[i][0]/sumSinglesAreas[0])*(dataStore.singlesPeakArea[j][1]/sumSinglesAreas[1]) * 0.5;
-                //  dataStore.angularBinWeight[angleIndex] += (dataStore.singlesPeakArea[j][0]/sumSinglesAreas[0])*(dataStore.singlesPeakArea[i][1]/sumSinglesAreas[1]) * 0.5;
 
                 dataStore.angularBinWeight[angleIndex] += first_part * 0.5;
                 dataStore.angularBinWeight[angleIndex] += second_part * 0.5;
 
                 // The fractional errors will be added in quadrature. Here we calculate each squared contributions
-                /*
-                var uncert1 = (dataStore.singlesPeakAreaUnc[i][0]/dataStore.singlesPeakArea[i][0]) * (dataStore.singlesPeakAreaUnc[i][0]/dataStore.singlesPeakArea[i][0]);
-                var uncert2 = (dataStore.singlesPeakAreaUnc[j][0]/dataStore.singlesPeakArea[j][0]) * (dataStore.singlesPeakAreaUnc[j][0]/dataStore.singlesPeakArea[j][0]);
-                var uncert3 = (dataStore.singlesPeakAreaUnc[i][1]/dataStore.singlesPeakArea[i][1]) * (dataStore.singlesPeakAreaUnc[i][1]/dataStore.singlesPeakArea[i][1]);
-                var uncert4 = (dataStore.singlesPeakAreaUnc[j][1]/dataStore.singlesPeakArea[j][1]) * (dataStore.singlesPeakAreaUnc[j][1]/dataStore.singlesPeakArea[j][1]);
-                var uncert5 = (sumSinglesAreasUnc[0]/sumSinglesAreas[0]) * (sumSinglesAreasUnc[0]/sumSinglesAreas[0]);
-                var uncert6 = (sumSinglesAreasUnc[1]/sumSinglesAreas[1]) * (sumSinglesAreasUnc[1]/sumSinglesAreas[1]);
-                var thisUncert = Math.sqrt( uncert1 + uncert2 + uncert3 + uncert4 + uncert5 + uncert6) * dataStore.angularBinWeight[angleIndex];
-                */
                 var uncert1 = (dataStore.singlesPeakAreaUnc[i][0]/dataStore.singlesPeakArea[i][0]) * (dataStore.singlesPeakAreaUnc[i][0]/dataStore.singlesPeakArea[i][0]);
                 var uncert2 = (dataStore.singlesPeakAreaUnc[j][0]/dataStore.singlesPeakArea[j][0]) * (dataStore.singlesPeakAreaUnc[j][0]/dataStore.singlesPeakArea[j][0]);
                 var uncert3 = (dataStore.singlesPeakAreaUnc[i][1]/dataStore.singlesPeakArea[i][1]) * (dataStore.singlesPeakAreaUnc[i][1]/dataStore.singlesPeakArea[i][1]);
@@ -1135,11 +1136,6 @@ function setupDataStore(){
               * Math.sqrt(  ((dataStore.angularBinPeakAreaUnc[i]/dataStore.angularBinPeakArea[i]) * (dataStore.angularBinPeakAreaUnc[i]/dataStore.angularBinPeakArea[i]))
               + ((dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i]) * (dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i]))
               + ((dataStore.normalizationFactorUnc/dataStore.normalizationFactor) * (dataStore.normalizationFactorUnc/dataStore.normalizationFactor))
-              //+ (0.1 * 0.1) // Include a systematic uncertainty of 10% to account for detector positioning inaccuracy, large or asymmetric source distribution, etc.
-              //  + (0.05 * 0.05) // Include a systematic uncertainty of 5% to account for detector positioning inaccuracy, large or asymmetric source distribution, etc.
-              //  + (0.04 * 0.04) // Include a systematic uncertainty of 4% to account for detector positioning inaccuracy, large or asymmetric source distribution, etc.
-              //+ (0.02 * 0.02) // Include a systematic uncertainty of 2% to account for detector positioning inaccuracy, large or asymmetric source distribution, etc.
-              //+ (0.015 * 0.015) // Include a systematic uncertainty of 1.5% to account for detector positioning inaccuracy, large or asymmetric source distribution, etc.
               + (dataStore.systematicUncertainty*dataStore.systematicUncertainty) // Include a systematic uncertainty set by user input
             )
             /*
@@ -1170,6 +1166,7 @@ function setupDataStore(){
         for(var i = 0; i < optionsCL.length; i++){
           if(optionsCL[i].checked){
             var thisConfidenceLimit = optionsCL[i].value;
+            dataStore.criticalLevel = thisConfidenceLimit;
           }
         }
         console.log(thisConfidenceLimit);
@@ -1178,11 +1175,11 @@ function setupDataStore(){
         console.log("Critical Value of "+dataStore.criticalValue+" from "+dataStore.criticalChiSquareValueTable[thisConfidenceLimit][dataStore.numDegreesOfFreedom-1]+" / "+dataStore.numDegreesOfFreedom);
 
         // Report the statistics of this correlation
-        document.getElementById('dataTableMessage').innerHTML = "<h4>"+dataStore.histoFileName+": "+dataStore.fitPeakEnergies[0]+"-"+dataStore.fitPeakEnergies[1]+"keV</h4>"+ "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>"
+        document.getElementById('dataTableMessage').innerHTML = "<h4>"+dataStore.histoFileName+": "+dataStore.fitPeakEnergies[0]+"-"+dataStore.fitPeakEnergies[1]+"(gate) keV</h4>"+ "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>"
         +"<h4>Normalization factor (Sum of Corrected Areas) = "+bracketNotationString(dataStore.normalizationFactor.toFixed(2),dataStore.normalizationFactorUnc)+"</h4>";
-        document.getElementById('dataPlotMessage').innerHTML = "<h4>"+dataStore.histoFileName+": "+dataStore.fitPeakEnergies[0]+"-"+dataStore.fitPeakEnergies[1]+"keV</h4>"+ "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>";
+        document.getElementById('dataPlotMessage').innerHTML = "<h4>"+dataStore.histoFileName+": "+dataStore.fitPeakEnergies[0]+"-"+dataStore.fitPeakEnergies[1]+"(gate) keV</h4>"+ "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>";
         console.log("Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0)+", mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0));
-        document.getElementById('dataPlotMessage').innerHTML += "<h4>"+"The Critical Value for "+dataStore.numDegreesOfFreedom+" degrees of freedom is \u{1D6D8}\u00B2/NDF="+dataStore.criticalValue+"."+"</h4>";
+        document.getElementById('dataPlotMessage').innerHTML += "<h4>"+"The Critical Value ("+dataStore.criticalLevelStrings[dataStore.criticalLevel]+" confidence level) for "+dataStore.numDegreesOfFreedom+" degrees of freedom is \u{1D6D8}\u00B2/NDF="+dataStore.criticalValue+"."+"</h4>";
 
         // Populate the results table for the angular correlation and weights data
         dataStore._angularCorrelationsReport.updateDataTable();
@@ -1270,10 +1267,10 @@ function setupDataStore(){
           //dataStore.gamma = 0.829300; // 152Eu, 2-2-0, 1408-121
 
           // Grab the user input for the cascade
-          j1=parseFloat(document.getElementById('j1').value);
+          //  j1=parseFloat(document.getElementById('j1').value);
           j2=parseFloat(document.getElementById('j2').value);
           j3=parseFloat(document.getElementById('j3').value);
-          delta1 = parseFloat(document.getElementById('mix1').value);
+          //  delta1 = parseFloat(document.getElementById('mix1').value);
           delta2 = parseFloat(document.getElementById('mix2').value);
 
           // Calculate the l2 momenta
