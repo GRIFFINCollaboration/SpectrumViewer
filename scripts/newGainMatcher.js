@@ -230,7 +230,7 @@ function setupDataStore(){
     'spectrumList2d' : [], 'spectrumListGates' : [], 'spectrumListProjectionsPeaks' : {'All':[]}},
 
     'QED' : {'spectrumList1d' : [
-      /*
+
       "QED01XP00X_Pulse_Height","QED01XP01X_Pulse_Height","QED01XP02X_Pulse_Height","QED01XP03X_Pulse_Height","QED01XP04X_Pulse_Height","QED01XP05X_Pulse_Height","QED01XP06X_Pulse_Height","QED01XP07X_Pulse_Height",
       "QED01XP08X_Pulse_Height","QED01XP09X_Pulse_Height","QED01XP10X_Pulse_Height","QED01XP11X_Pulse_Height","QED01XP12X_Pulse_Height","QED01XP13X_Pulse_Height","QED01XP14X_Pulse_Height","QED01XP15X_Pulse_Height",
       "QED01XP16X_Pulse_Height","QED01XP17X_Pulse_Height","QED01XP18X_Pulse_Height","QED01XP19X_Pulse_Height","QED01XP20X_Pulse_Height","QED01XP21X_Pulse_Height","QED01XP22X_Pulse_Height","QED01XP23X_Pulse_Height",
@@ -257,7 +257,7 @@ function setupDataStore(){
       "QED03XN08X_Pulse_Height","QED03XN09X_Pulse_Height","QED03XN10X_Pulse_Height","QED03XN11X_Pulse_Height","QED03XN12X_Pulse_Height","QED03XN13X_Pulse_Height","QED03XN14X_Pulse_Height","QED03XN15X_Pulse_Height",
       "QED03XN16X_Pulse_Height","QED03XN17X_Pulse_Height","QED03XN18X_Pulse_Height","QED03XN19X_Pulse_Height","QED03XN20X_Pulse_Height","QED03XN21X_Pulse_Height","QED03XN22X_Pulse_Height","QED03XN23X_Pulse_Height",
       "QED03XN24X_Pulse_Height","QED03XN25X_Pulse_Height","QED03XN26X_Pulse_Height","QED03XN27X_Pulse_Height","QED03XN28X_Pulse_Height","QED03XN29X_Pulse_Height","QED03XN30X_Pulse_Height","QED03XN31X_Pulse_Height",
-      */
+
       "QED04XP00X_Pulse_Height","QED04XP01X_Pulse_Height","QED04XP02X_Pulse_Height","QED04XP03X_Pulse_Height","QED04XP04X_Pulse_Height","QED04XP05X_Pulse_Height","QED04XP06X_Pulse_Height","QED04XP07X_Pulse_Height",
       "QED04XP08X_Pulse_Height","QED04XP09X_Pulse_Height","QED04XP10X_Pulse_Height","QED04XP11X_Pulse_Height","QED04XP12X_Pulse_Height","QED04XP13X_Pulse_Height","QED04XP14X_Pulse_Height","QED04XP15X_Pulse_Height",
       "QED04XP16X_Pulse_Height","QED04XP17X_Pulse_Height","QED04XP18X_Pulse_Height","QED04XP19X_Pulse_Height","QED04XP20X_Pulse_Height","QED04XP21X_Pulse_Height","QED04XP22X_Pulse_Height","QED04XP23X_Pulse_Height",
@@ -266,7 +266,7 @@ function setupDataStore(){
       "QED04XN08X_Pulse_Height","QED04XN09X_Pulse_Height","QED04XN10X_Pulse_Height","QED04XN11X_Pulse_Height","QED04XN12X_Pulse_Height","QED04XN13X_Pulse_Height","QED04XN14X_Pulse_Height","QED04XN15X_Pulse_Height",
       "QED04XN16X_Pulse_Height","QED04XN17X_Pulse_Height","QED04XN18X_Pulse_Height","QED04XN19X_Pulse_Height","QED04XN20X_Pulse_Height","QED04XN21X_Pulse_Height","QED04XN22X_Pulse_Height","QED04XN23X_Pulse_Height",
       "QED04XN24X_Pulse_Height","QED04XN25X_Pulse_Height","QED04XN26X_Pulse_Height","QED04XN27X_Pulse_Height","QED04XN28X_Pulse_Height","QED04XN29X_Pulse_Height","QED04XN30X_Pulse_Height","QED04XN31X_Pulse_Height",
-      /*
+
       "QED05XP00X_Pulse_Height","QED05XP01X_Pulse_Height","QED05XP02X_Pulse_Height","QED05XP03X_Pulse_Height","QED05XP04X_Pulse_Height","QED05XP05X_Pulse_Height","QED05XP06X_Pulse_Height","QED05XP07X_Pulse_Height",
       "QED05XP08X_Pulse_Height","QED05XP09X_Pulse_Height","QED05XP10X_Pulse_Height","QED05XP11X_Pulse_Height","QED05XP12X_Pulse_Height","QED05XP13X_Pulse_Height","QED05XP14X_Pulse_Height","QED05XP15X_Pulse_Height",
       "QED05XP16X_Pulse_Height","QED05XP17X_Pulse_Height","QED05XP18X_Pulse_Height","QED05XP19X_Pulse_Height","QED05XP20X_Pulse_Height","QED05XP21X_Pulse_Height","QED05XP22X_Pulse_Height","QED05XP23X_Pulse_Height",
@@ -284,7 +284,7 @@ function setupDataStore(){
       "QED06XN08X_Pulse_Height","QED06XN09X_Pulse_Height","QED06XN10X_Pulse_Height","QED06XN11X_Pulse_Height","QED06XN12X_Pulse_Height","QED06XN13X_Pulse_Height","QED06XN14X_Pulse_Height","QED06XN15X_Pulse_Height",
       "QED06XN16X_Pulse_Height","QED06XN17X_Pulse_Height","QED06XN18X_Pulse_Height","QED06XN19X_Pulse_Height","QED06XN20X_Pulse_Height","QED06XN21X_Pulse_Height","QED06XN22X_Pulse_Height","QED06XN23X_Pulse_Height",
       "QED06XN24X_Pulse_Height","QED06XN25X_Pulse_Height","QED06XN26X_Pulse_Height","QED06XN27X_Pulse_Height","QED06XN28X_Pulse_Height","QED06XN29X_Pulse_Height","QED06XN30X_Pulse_Height","QED06XN31X_Pulse_Height"
-      */
+      
     ], 'spectrumList1dPeaks' : { 'All':[5156.59, 5485.56, 5804.77] }, 'histogramFileNames' : [],
     'spectrumList2d' : [], 'spectrumListGates' : [], 'spectrumListProjectionsPeaks' : {'All':[]}},
 

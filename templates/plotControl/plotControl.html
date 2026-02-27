@@ -525,6 +525,11 @@ function plotControl(wrapID, config){
     ).catch((error) => {
       console.log("Caught error from Promise.all in plotControl refreshAll.");
       console.error(error.message);
+// This error is either a network interruption, (one or a few 2d histograms would fail)
+// OR an old server without the binary transfer method (would fail for all 2d histograms).
+// First check if we have any 2d histograms received, if so then remove them from the refreshAll request
+// If no 2d histograms received then change to json transfer method and request all again
+      
       // Change to the json transfer method and try again
       dataStore.transferMethod = "json";
       dataStore._plotControl.refreshAll();
