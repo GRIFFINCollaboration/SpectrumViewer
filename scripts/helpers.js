@@ -2559,8 +2559,15 @@ function fitPeaksInSeriesOfHistograms(spectra,peaks,detectorType,limits){
   // limits is optional. Create it here if it was not provided
   if(limits == undefined){
     limits = [];
-    for(var j=0; j<peaks.All.length; j++){
-      limits.push([-1,-1]);
+    if(peaks.All != undefined){
+      for(var j=0; j<peaks.All.length; j++){
+        limits.push([-1,-1]);
+      }
+    }else{
+      var keys = Object.keys(peaks);
+      for(var j=0; j<peaks[keys[0]].length; j++){
+        limits.push([-1,-1]);
+      }
     }
   }
   // LIMITS IS NOT YET USED PAST THIS POINT!!!!!
@@ -2632,8 +2639,15 @@ function fitSpectra(spectrum,peaks,detectorType,limits){
   // limits is optional. Create it here if it was not provided
   if(limits == undefined){
     limits = [];
-    for(var j=0; j<peaks.All.length; j++){
-      limits.push([-1,-1]);
+    if(peaks.All != undefined){
+      for(var j=0; j<peaks.All.length; j++){
+        limits.push([-1,-1]);
+      }
+    }else{
+      var keys = Object.keys(peaks);
+      for(var j=0; j<peaks[keys[0]].length; j++){
+        limits.push([-1,-1]);
+      }
     }
   }
 
@@ -4484,7 +4498,7 @@ function typicalPeakWidth(energy,detector){
     width = 40;
   }
   if(detector == "QED"){
-    width = 40;
+    width = 20;
   }
   if(detector == "TAC"){
     width = 80;
