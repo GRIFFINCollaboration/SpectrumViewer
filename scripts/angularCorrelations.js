@@ -831,6 +831,22 @@ function setupDataStore(){
             console.log("fetchCallback");
             console.log(dataStore);
 
+            // Check that we got all the matrices ok
+            var count = 0;
+            for(let key in dataStore.rawData){
+              const index = dataStore.spectrumList2d.indexOf(key.split(":")[1]);
+              if (index > -1) {
+                count++;
+              }
+            }
+            if(count<dataStore.spectrumList2d.length){
+              console.log("We are missing some matrices!");
+
+              var string = 'Matrix transfer error, failed to receive all matrices from the server. Please reload to try again.<br>';
+              if(document.getElementById('messageDivText')){ document.getElementById('messageDivText').innerHTML = string; }
+              if(document.getElementById('messageDiv')){ document.getElementById('messageDiv').style.display = 'block'; }
+            }
+
             // Reveal the gate input controls
             // Reveal the cascade details inputs
             document.getElementById('userInputParentDiv').classList.remove('hidden');

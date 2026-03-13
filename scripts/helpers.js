@@ -2471,35 +2471,46 @@ function roughGainMatch(spectrumList,detType,sourceType){
     "PACES":    {"min": 0.7, "max": 0.9, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
     "RCMP":     {"min": 1.1, "max": 1.5, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
     "ARIES":    {"min": 0.2, "max": 0.4, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
-    "QED":      {"min": 0.05, "max": 0.8, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
+    "QED":      {"min": 0.15,"max": 0.4, "step":0.001, "threshold":25}, // minimum and maximum gains to sweep over
     "DES_Wall": {"min": 0.7, "max": 1.2, "step":0.001, "threshold":5}, // minimum and maximum gains to sweep over
   };
+  var courseFactor = 20;
 
+  // Get the reference spectrum from the store
+  var testSpectrumLength = dataStore.referenceSpectrum[detType][sourceType].length;
+  var referenceSpectrum = dataStore.referenceSpectrum[detType][sourceType].slice(0,testSpectrumLength);
+  var referenceSpectrumCourse = [];
+  referenceSpectrumCourse.fillN(0,Math.floor(testSpectrumLength/courseFactor));
+  for(var i=0; i<referenceSpectrum.length; i++){
+    referenceSpectrumCourse[Math.floor(i/courseFactor)] += referenceSpectrum[i];
+  }
+
+  // Set the parameters for the chi-square sweep
+  var gainLowerLimit = gainRange[detType].min;
+  var gainUpperLimit = gainRange[detType].max;
+  var gainStepSize = gainRange[detType].step;
+  var threshold = gainRange[detType].threshold;
+
+  // Look through to test each spectrum in turn
   for(var i=0; i<spectrumList.length; i++){
 
     // Update the progress bar by one task
     updateProgressBar(1);
 
-    // Create the empty spectrum that will be a starting point for each interation
+    // Zero things for this spectrum
+    var minChiSquare = 100000000, minChiSquareCourse = 100000000;
+    var chiSquareSeries = [], chiSquareSeriesCourse = [];
+    var optimalGain = 1.0, optimalGainCourse = 1.0; // set here in case we dont get a minimum
 
-    // Get the reference spectrum from the store
-    var testSpectrumLength = dataStore.referenceSpectrum[detType][sourceType].length;
-    var referenceSpectrum = dataStore.referenceSpectrum[detType][sourceType].slice(0,testSpectrumLength);
-
-    // Set the parameters for the chi-square sweep
-    var gainLowerLimit = gainRange[detType].min;
-    var gainUpperLimit = gainRange[detType].max;
-    var gainStepSize = gainRange[detType].step;
-    var threshold = gainRange[detType].threshold;
-    var minChiSquare = 100000000;
-    var chiSquareSeries = [];
-    var optimalGain = 1.0; // set here in case we dont get a minimum
     // Scan through gain values
     for(gain=gainLowerLimit; gain<gainUpperLimit; gain+=gainStepSize){
       // Zero the spectra at each iteration
       testSpectrum = []; testSpectrum.fillN(0,testSpectrumLength); // Try and match between zero and 2MeV
       errorSpectrum = []; errorSpectrum.fillN(0,testSpectrumLength); // Try and match between zero and 2MeV
+      testSpectrumCourse = []; testSpectrumCourse.fillN(0,Math.floor(testSpectrumLength/courseFactor)); // Try and match between zero and 2MeV
+      errorSpectrumCourse = []; errorSpectrumCourse.fillN(0,Math.floor(testSpectrumLength/courseFactor)); // Try and match between zero and 2MeV
 
+      // Fine gain
       // Fill the testSpectrum by applying this gain value
       // NOTE THIS APPROACH ONLY WORKS FOR GAIN VALUES > 1.0
       for(j=0; j<testSpectrumLength; j++){
@@ -2510,24 +2521,56 @@ function roughGainMatch(spectrumList,detType,sourceType){
       }
       // Calculate the errorSpectrum from the testSpectrum
       for(j=0; j<testSpectrumLength; j++){ errorSpectrum[j] = Math.sqrt(testSpectrum[j]); }
-      testSpectrum[0] = 0; errorSpectrum[0] = 0; // elimimate noise
+
+      // Elimimate noise
+      testSpectrum[0] = 0; errorSpectrum[0] = 0;
 
       // Zero the lowest channels because they cause problems for high-threshold channels
       for(j=0; j<threshold; j++){
         testSpectrum[j] = 0; errorSpectrum[j] = 0; referenceSpectrum[j] = 0;
       }
 
-      // Calculate the chi square value between this testSpectrum and the referenceSpectrum
+      // Calculate the chi square value between this testSpectrum and the referenceSpectrum - fine gain
       thisChiSquare = calculateChiSquare(testSpectrum,errorSpectrum,referenceSpectrum);
       chiSquareSeries.push(thisChiSquare);
 
+      // Course gain
+      // Fill the testSpectrumCourse from testSpectrum which already has this gain value
+      for(j=0; j<testSpectrum.length; j++){
+        testSpectrumCourse[Math.floor(j/courseFactor)] += testSpectrum[j];
+      }
+
+      // Calculate the errorSpectrum from the testSpectrum
+      for(j=0; j<testSpectrumCourse.length; j++){ errorSpectrumCourse[j] = Math.sqrt(testSpectrumCourse[j]); }
+
+      // Elimimate noise
+      testSpectrumCourse[0] = 0; errorSpectrumCourse[0] = 0;
+
+      // Zero the lowest channels because they cause problems for high-threshold channels
+      for(j=0; j<Math.floor(threshold/courseFactor); j++){
+        testSpectrumCourse[j] = 0; errorSpectrumCourse[j] = 0; referenceSpectrumCourse[j] = 0;
+      }
+
+      // Calculate the chi square value between this testSpectrum and the referenceSpectrum - course gain
+      thisChiSquareCourse = calculateChiSquare(testSpectrumCourse,errorSpectrumCourse,referenceSpectrumCourse);
+      chiSquareSeriesCourse.push(thisChiSquareCourse);
+
       // Decide if this is the best fit and save it if it is
       if(thisChiSquare<minChiSquare){ minChiSquare = thisChiSquare; optimalGain = gain; }
+      if(thisChiSquareCourse<minChiSquareCourse){ minChiSquareCourse = thisChiSquareCourse; optimalGainCourse = gain; }
+    }
+
+    if( (optimalGain > (optimalGainCourse-(4*gainStepSize))) && (optimalGain < (optimalGainCourse+(4*gainStepSize))) ){
+    //  console.log("optimalGain == optimalGainCourse");
+    //  console.log("optimalGain,optimalGainCourse = "+optimalGain+", "+optimalGainCourse+", diff = "+(optimalGainCourse-optimalGain));
+    }else{
+      console.log("optimalGain != optimalGainCourse -> Can we do better??");
+      console.log("optimalGain,optimalGainCourse = "+optimalGain+", "+optimalGainCourse+", diff = "+(optimalGainCourse-optimalGain));
     }
 
     // Save the optimal gain value in the standard place for use later
     dataStore.roughGainMatchParameters[spectrumList[i]] = optimalGain;
-    console.log("Optimal gain for "+spectrumList[i]+": best chi-square ("+minChiSquare +") at gain "+optimalGain);
+    console.log("Optimal gain for "+spectrumList[i]+": best chi-square ("+minChiSquare +") at gain "+optimalGain+", course gain "+optimalGainCourse);
 
     // Save the roughly gain-matched spectrum to the createdSpectra object ready for peakfitting
     var thisRoughGainMatchedName = spectrumList[i].replace("_Pulse_Height","_Energy");
