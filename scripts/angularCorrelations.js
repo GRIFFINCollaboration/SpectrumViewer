@@ -684,18 +684,13 @@ function setupDataStore(){
           setupProgressBarTracking();
 
           ////////////////
-          // Now set up for the start of the fetching process
+          // Now set up for the start of the fetching process for the 1d histograms
           ////////////////
 
           // Plug in the active spectra names for the 1d histograms
           dataStore._plotControl.activeSpectra = [];
           for(var i=0; i<dataStore.spectrumList1d.length; i++){
             dataStore._plotControl.activeSpectra.push(dataStore.spectrumList1d[i]);
-          }
-          // Plug in the active spectra names for the 2d histograms
-          dataStore._plotControl.active2dSpectra = [];
-          for(i=0; i<dataStore.spectrumList2d.length; i++){
-            dataStore._plotControl.active2dSpectra.push(dataStore.spectrumList2d[i]);
           }
 
           // Set the dataStore.histoFileName to this source so that constructQueries requests the correct spectrum
@@ -706,11 +701,78 @@ function setupDataStore(){
           document.getElementById('fetchingMessage').classList.remove('hidden');
 
           // Set the current task to keep track of our progress
-          dataStore.currentTask = 'Fetching';
+          dataStore.currentTask = 'Fetching1d';
 
           // Request the first histogram file from the server.
           // This launches a series of promises. Once complete we end with fetchCallback.
           dataStore._plotControl.refreshAll();
+
+        }
+
+        function fetchAllMatrices(){
+          // Plug in the active spectra names for the 2d histograms
+          dataStore.stagedQueries = [];
+          for(i=0; i<dataStore.spectrumList2d.length; i++){
+            dataStore.stagedQueries.push(dataStore.spectrumList2d[i]);
+          }
+          // Request only 5 matrices at a time - because of slow networks and computers
+          fetchMatrices(dataStore.stagedQueries.slice(-5)); // Request the last 5 matrices in the list
+        }
+
+        function fetchMatrices(theseSpectra){
+          // Create URLs for 2d histograms (one URL per 2d histogram)
+          // ensure one 2d histogram per url using the construct2dQueries function which also calls the binary transfer method
+          var queries2d = construct2dQueries([],theseSpectra);
+          var allQueries2d = queries2d.map(promiseBinaryURL);
+
+          var spectraFetched = Promise.all(allQueries2d).then(
+            function(spectra){
+              var i, j, key, viewerKey, newKey, this2dKey;
+
+              // distribute the spectra data received from the analyzer to the appropriate places
+              // loop through spectra where each element can be up to 16 histograms
+              for(i=0; i<spectra.length; i++){
+
+                // Loop through the keys of this spectrum element where each key is a histogram (or components of a 2d matrix)
+                for(key in spectra[i]){
+
+                  // Remove this matrix from the staged list so it will not be requested again
+                  dataStore.stagedQueries.splice(dataStore.stagedQueries.indexOf(spectra[i]['binaryName']));
+
+                  // Treatment of 2d spectra received by the binary transfer method
+                  // unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse);
+                  // key is used for the dataStore.rawData object
+                  // true/false for which outputs will be generated. This can cause memory overflow if many matrices are requested
+                  unpackBinaryMatrixData(spectra[i]['binaryName'],dataStore.outputRawFlag,dataStore.outputDenseFlag,dataStore.outputSparseFlag,dataStore.outputDeleteFlag);
+                }
+              }
+
+            }
+          ).catch((error) => {
+            console.log("Caught error from Promise.all in plotControl refreshAll.");
+            console.error(error.message);
+            // This error is either a network interruption, (one or a few 2d histograms would fail)
+            // OR an old server without the binary transfer method (would fail for all 2d histograms).
+            // First check if we have any 2d histograms received, if so then remove them from the refreshAll request
+            // If no 2d histograms received then change to json transfer method and request all again
+
+            //return;
+          });
+
+          // End with calling fetchCallback2d()
+          spectraFetched.then( function(){ fetchCallback2d(); } )
+
+        }
+
+        function fetchCallback2d(){
+
+          if(dataStore.stagedQueries.length>0){
+            // There are more staged requests, so request the next batch of 5
+            fetchMatrices(dataStore.stagedQueries.slice(-5)); // Request the last 5 matrices in the list
+          }else{
+            // We are done now
+            fetchCallback();
+          }
 
         }
 
@@ -719,7 +781,7 @@ function setupDataStore(){
           console.log(dataStore);
 
           // Reveal the progress bar
-        //  document.getElementById('progressDiv').classList.remove('hidden');
+          //  document.getElementById('progressDiv').classList.remove('hidden');
 
           // change messages
           document.getElementById('readyMessage').classList.add('hidden');
@@ -827,24 +889,32 @@ function setupDataStore(){
           };
 
           function fetchCallback(){
-            // No 2d histograms in this app, so skip straight to processing 1d
-            console.log("fetchCallback");
+            console.log("fetchCallback with task, "+dataStore.currentTask);
             console.log(dataStore);
 
-            // Check that we got all the matrices ok
-            var count = 0;
-            for(let key in dataStore.rawData){
-              const index = dataStore.spectrumList2d.indexOf(key.split(":")[1]);
-              if (index > -1) {
-                count++;
-              }
-            }
-            if(count<dataStore.spectrumList2d.length){
-              console.log("We are missing some matrices!");
+            if(dataStore.currentTask == 'Fetching1d'){
+              // Set the current task to keep track of our progress
+              dataStore.currentTask = 'Fetching2d';
 
-              var string = 'Matrix transfer error, failed to receive all matrices from the server. Please reload to try again.<br>';
-              if(document.getElementById('messageDivText')){ document.getElementById('messageDivText').innerHTML = string; }
-              if(document.getElementById('messageDiv')){ document.getElementById('messageDiv').style.display = 'block'; }
+              // Now fetch the matrices
+              fetchAllMatrices();
+            }else{
+              // Check that we got all the matrices ok
+              var count = 0;
+              for(let key in dataStore.rawData){
+                const index = dataStore.spectrumList2d.indexOf(key.split(":")[1]);
+                if (index > -1) {
+                  count++;
+                }
+              }
+              if(count<dataStore.spectrumList2d.length){
+                console.log("We are missing some matrices!");
+
+                var string = 'Matrix transfer error, failed to receive all matrices from the server. Please reload to try again.<br>';
+                if(document.getElementById('messageDivText')){ document.getElementById('messageDivText').innerHTML = string; }
+                if(document.getElementById('messageDiv')){ document.getElementById('messageDiv').style.display = 'block'; }
+              }
+              return;
             }
 
             // Reveal the gate input controls
