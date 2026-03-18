@@ -706,7 +706,6 @@ function setupDataStore(){
           // Request the first histogram file from the server.
           // This launches a series of promises. Once complete we end with fetchCallback.
           dataStore._plotControl.refreshAll();
-
         }
 
         function fetchAllMatrices(){

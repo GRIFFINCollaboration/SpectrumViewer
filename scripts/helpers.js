@@ -2602,11 +2602,11 @@ function fitPeaksInSeriesOfHistograms(spectra,peaks,detectorType,limits){
   // limits is optional. Create it here if it was not provided
   if(limits == undefined){
     limits = [];
-    if(peaks.All != undefined){
+    if(peaks.All != undefined){ // Use All but this might not be enough peaks
       for(var j=0; j<peaks.All.length; j++){
         limits.push([-1,-1]);
       }
-    }else{
+    }else{ // if the All is not existing then use the first key
       var keys = Object.keys(peaks);
       for(var j=0; j<peaks[keys[0]].length; j++){
         limits.push([-1,-1]);
@@ -2682,15 +2682,10 @@ function fitSpectra(spectrum,peaks,detectorType,limits){
   // limits is optional. Create it here if it was not provided
   if(limits == undefined){
     limits = [];
-    if(peaks.All != undefined){
-      for(var j=0; j<peaks.All.length; j++){
-        limits.push([-1,-1]);
-      }
-    }else{
-      var keys = Object.keys(peaks);
-      for(var j=0; j<peaks[keys[0]].length; j++){
-        limits.push([-1,-1]);
-      }
+  }
+  if(limits.length<peaks.length){
+    for(var j=0; j<peaks.length-limits.length; j++){
+      limits.push([-1,-1]);
     }
   }
 
