@@ -738,7 +738,7 @@ function setupHistoListSelects(){
 
     // Add the list of histo files as the options
     thisSelect = document.getElementById('HistoListSelect'+thisTitle);
-    if(thisTitle == "11Be" || thisTitle == "133Ba"){
+    if(thisTitle == "11Be" || thisTitle == "133Ba" || thisTitle == "56Co"){
       thisSelect.add( new Option("Do not include "+thisTitle, "exclude") );
     }
     for(var j=0; j<dataStore.histoFileList.length; j++){
