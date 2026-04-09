@@ -514,6 +514,7 @@ this.fitEnergyCalibrationData = function(thisDetector){
   dataStore.THESEcalibrations[thisDetector].residualVar = 0;
   var mean = dataStore.THESEcalibrations[thisDetector].residualMean;
   for(var j=0; j<dataStore.THESEcalibrations[thisDetector].xPH.length; j++){
+  if(isNaN(dataStore.THESEcalibrations[thisDetector].residual[j])){ continue; }
     dataStore.THESEcalibrations[thisDetector].residualVar +=
     (Math.abs(dataStore.THESEcalibrations[thisDetector].residual[j]) - mean) * (Math.abs(dataStore.THESEcalibrations[thisDetector].residual[j]) - mean);
   }
