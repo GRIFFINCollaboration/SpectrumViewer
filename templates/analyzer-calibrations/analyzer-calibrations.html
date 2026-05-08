@@ -100,16 +100,16 @@ function setupAnalyzerCalibrations(wrapperID){
 	document.getElementById(wrapperID).innerHTML = "";
 	document.getElementById(wrapperID).innerHTML = Mustache.to_html(dataStore.templates['analyzer-calibrations'], {});
 
-	// Create Submit button for Calibration coefficients to analyzer
-	newButton = document.createElement('button');
-	newButton.setAttribute('id', 'submitCalibrationsButton');
-	newButton.setAttribute('class', 'btn btn-default btn-lg hidden');
-	newButton.innerHTML = "Save as Current Config";
-	newButton.style.padding = '4px';
-	newButton.onclick = function(){
-		sendCalibrationsToAnalyzer();
-	}.bind(newButton);
-	document.getElementById('submitDivCal').appendChild(newButton);
+			// Create Submit button for Calibration coefficients to analyzer
+			newButton = document.createElement('button');
+			newButton.setAttribute('id', 'submitCalibrationsButton');
+			newButton.setAttribute('class', 'btn btn-default btn-lg hidden');
+			newButton.innerHTML = "Save as Current Config";
+			newButton.style.padding = '4px';
+			newButton.onclick = function(){
+				sendCalibrationsToAnalyzer();
+			}.bind(newButton);
+			document.getElementById('submitDivCal').appendChild(newButton);
 
 	// Create Submit button for Calibration coefficients to odb (this calls the modal)
 	newButton = document.createElement('button');
