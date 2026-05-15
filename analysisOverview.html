@@ -58,7 +58,7 @@
     <h3>Beta Efficiency:</h3>
     <div id='widget-beta-efficiency-peakSelect' class='col-md-12 report'>
       <label for="peakOfInterestInput" class="right inline">Gamma-Ray Peak of Interest for beta efficiency calculation:</label>
-      <input id='peakOfInterestInput' type='number' onchange='dataStore.peakOfInterest = this.value; setupBetaEfficiency();'></input>
+      <input id='peakOfInterestInput' type='number' onchange='dataStore.peakOfInterest = parseInt(this.value); setupBetaEfficiency();'></input>
     </div>
     <div id='widget-beta-efficiency-viewer' class='col-md-6 report'>
       <div id='plotRegion' class='sectionWrapper'>
