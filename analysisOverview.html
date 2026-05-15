@@ -54,6 +54,47 @@
     </div>
   </div>
 
+  <div id='widget-beta-efficiency' class='col-md-10 widget'>
+    <h3>Beta Efficiency:</h3>
+    <div id='widget-beta-efficiency-peakSelect' class='col-md-12 report'>
+      <label for="peakOfInterestInput" class="right inline">Gamma-Ray Peak of Interest for beta efficiency calculation:</label>
+      <input id='peakOfInterestInput' type='number' onchange='dataStore.peakOfInterest = this.value; setupBetaEfficiency();'></input>
+    </div>
+    <div id='widget-beta-efficiency-viewer' class='col-md-6 report'>
+      <div id='plotRegion' class='sectionWrapper'>
+        <div id='plotWrapButtons' class='col-md-12'></div>
+        <div id='plotWrap' class='col-md-12 plotRegion item'>
+          <div id='plottingGrid'></div>
+          <div class='col-md-12' id='plotCtrl'></div>
+        </div>
+      </div>
+    </div>
+    <div id='widget-beta-efficiency-report' class='col-md-5 report'>
+      <div class='container col-md-12'>
+        <table id='betaEffTable' class='table'>
+          <tr id='betaEffsceptarRow' class='hidden'>
+            <td id='betaEffsceptarCell0'>SCEPTAR</td>
+            <td id='betaEffsceptarCell1'></td>
+            <td id='betaEffsceptarCell2'></td>
+            <td id='betaEffsceptarCell3'></td>
+          </tr>
+          <tr id='betaEffzdsRow' class='hidden'>
+            <td id='betaEffzdsCell0'>ZDS</td>
+            <td id='betaEffzdsCell1'></td>
+            <td id='betaEffzdsCell2'></td>
+            <td id='betaEffzdsCell3'></td>
+          </tr>
+          <tr id='betaEffariesRow' class='hidden'>
+            <td id='betaEffariesCell0'>ARIES</td>
+            <td id='betaEffariesCell1'></td>
+            <td id='betaEffariesCell2'></td>
+            <td id='betaEffariesCell3'></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class='hidden' id='plotCtrl'></div>
   <div id='foot'></div>
 

@@ -71,11 +71,13 @@ function setupDataStore(){
   dataStore.fitResults = {};                                            //fit results: 'plotname': [[amplitude, center, width, intercept, slope, area, FWHM], [amplitude, center, width, intercept, slope, area, FWHM]]
   dataStore.fitResultsData = {};              // Store the data of the curve fitting, 'detector-name':{ 'k1':[[x0,y0],[x1,y1]...], 'k2':[[x0,y0],[x1,y1]...], 'e1':[[x0,y0],[x1,y1]...] }
   dataStore.fitResultsParameters = {};        // Store the parameters of the curve fitting, 'detector-name':{ 'k1':[p0,p1,p2,p3,p4,p5,p6], 'k2':[p0,p1,p2,p3,p4,p5,p6], 'e1':[p0,p1,p2,p3,p4,p5,p6] }
+  dataStore.peakOfInterest = null;
 
   // Final results
   dataStore.THESEcalibrations = [];  // Array of objects to store together the cailbration data and results. 'detectorName':{ 'x'(pulseHeight centroids):[],'y'(literature energy):[],'residual':[],'fit':[quad,gain,offset,reduced-chi-squared],
   //                                                                                       'pileupk1':[1 0 0 0 0 0 0], 'pileupk2':[1 0 0 0 0 0 0], 'pileupE1':[0 0 0 0 0 0 0],
   //                                                                                       'crosstalk0:[0,1,0,0,0,0,0]', 'crosstalk1:[0,1,0,0,0,0,0]', 'crosstalk2:[0,1,0,0,0,0,0]'}
+  dataStore.betaEfficiency = {};  // Place to store beta efficiency information
 
   //custom element config
   dataStore.dataType = 'Singles';                                         //mode of operation: Singles or Addback.
@@ -234,6 +236,39 @@ function setupDataStore(){
     }
   };
 
+  // Beta efficiency calculations
+  dataStore.betaEfficiencyCheck = {};
+  dataStore.betaEfficiencyCheck["SCEPTAR"] = {
+    "detectorName" : "sceptar",
+    "spectrumName" : "Ge_Sum_En_SceptarTagged",
+    "histogramName" : "",
+    "active" : false,
+    "counts" : 0,
+    "countsUncertainty" : 0,
+    "efficiency" : 0,
+    "efficiencyUncertainty" : 0
+  };
+  dataStore.betaEfficiencyCheck["ZDS"] = {
+    "detectorName" : "zds",
+    "spectrumName" : "Ge_Sum_En_ZdsTagged",
+    "histogramName" : "",
+    "active" : false,
+    "counts" : 0,
+    "countsUncertainty" : 0,
+    "efficiency" : 0,
+    "efficiencyUncertainty" : 0
+  };
+  dataStore.betaEfficiencyCheck["ARIES"] = {
+    "detectorName" : "aries",
+    "spectrumName" : "Ge_Sum_En_AriesTagged",
+    "histogramName" : "",
+    "active" : false,
+    "counts" : 0,
+    "countsUncertainty" : 0,
+    "efficiency" : 0,
+    "efficiencyUncertainty" : 0
+  };
+
   // Pagination for the results and plotting display
   // plotRegion = spectra
   // energyCalibrator = Table of per detector (lit En., centroids PH and En and residuals)
@@ -374,7 +409,7 @@ function setupEventListeners(){
       console.log("Add event listeners...");
 
       // Inject templates
-      dataStore.templates = prepareTemplates(['header', 'plotControl', 'analysisOverviewReportContents', 'analysisOverviewReport', 'analysisOverviewReportTable', 'footer']);
+      dataStore.templates = prepareTemplates(['header', 'plotGrid', 'plotControl', 'analysisOverviewReportContents', 'analysisOverviewReport', 'analysisOverviewReportTable', 'footer']);
 
       // Header and footer setup
       setupHeader('head', 'Analysis Overview');
@@ -383,6 +418,12 @@ function setupEventListeners(){
       // PlotControl is needed for fetching spectra. Here the parent div is hidden
       dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
       dataStore._plotControl.setup();
+
+      // Spectrum Viewer
+      dataStore._plotGrid = new plotGrid('plottingGrid');
+      dataStore._plotGrid.setup();
+      dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]);
+      deleteNode('plottingGridnewPlotButton'); //don't want additional plots in this app
 
       // Inject the dismiss button to the messageDiv
       newButton = document.createElement('button');
@@ -461,7 +502,7 @@ function launchAnalysisTasks(){
 
   // Plug in the active spectra names for the 1d histograms
   dataStore._plotControl.activeSpectra = [];
-  dataStore.spectrumList1d = ["ZDS01XN00A_Energy", "Ge_Sum_Energy", "Ge_Sum_En_SceptarTagged", "Ge_Sum_En_ZdsTagged", "HPGe_cycle_activity"];
+  dataStore.spectrumList1d = ["ZDS01XN00A_Energy", "Ge_Sum_Energy", "Ge_Sum_En_SceptarTagged", "Ge_Sum_En_ZdsTagged", "Ge_Sum_En_AriesTagged", "HPGe_cycle_activity"];
   for(var i=0; i<dataStore.spectrumList1d.length; i++){
     dataStore._plotControl.activeSpectra.push(dataStore.spectrumList1d[i]);
   }
@@ -480,7 +521,7 @@ function fetchCallback(){
   console.log("fetch");
   console.log(dataStore);
   constructRatesOverAllCycles();
-  // calculateBetaEfficiency();
+  setupBetaEfficiency();
   // performGainmatchingCheck();
 }
 
@@ -599,8 +640,8 @@ function constructRatesAndHitpatterns(){
     document.getElementById(keys[i]+'-rates').innerHTML = (dataStore.detTypesData[keys[i]].meanRate/1000).toFixed(1)+"kHz/crystal average";
     if(dataStore.detTypesData[keys[i]].highCounters.length>0){
       string = dataStore.detTypesData[keys[i]].highCounters.length + " counting at a higher rate";
-        problemString += "<br>"+dataStore.detTypesData[keys[i]].highCounters.length + " " + dataStore.detTypesData[keys[i]].Title + " counting at a higher rate: ";
-        problemString += dataStore.detTypesData[keys[i]].channelNames[dataStore.detTypesData[keys[i]].highCounters[0]];
+      problemString += "<br>"+dataStore.detTypesData[keys[i]].highCounters.length + " " + dataStore.detTypesData[keys[i]].Title + " counting at a higher rate: ";
+      problemString += dataStore.detTypesData[keys[i]].channelNames[dataStore.detTypesData[keys[i]].highCounters[0]];
       for(j=1; j<dataStore.detTypesData[keys[i]].highCounters.length; j++){
         problemString += ", "+dataStore.detTypesData[keys[i]].channelNames[dataStore.detTypesData[keys[i]].highCounters[j]];
       }
@@ -608,8 +649,8 @@ function constructRatesAndHitpatterns(){
     }
     if(dataStore.detTypesData[keys[i]].lowCounters.length>0){
       string = dataStore.detTypesData[keys[i]].lowCounters.length + " counting at a lower rate";
-        problemString += "<br>"+dataStore.detTypesData[keys[i]].lowCounters.length + " " + dataStore.detTypesData[keys[i]].Title + " counting at a lower rate: ";
-        problemString += dataStore.detTypesData[keys[i]].channelNames[dataStore.detTypesData[keys[i]].lowCounters[0]];
+      problemString += "<br>"+dataStore.detTypesData[keys[i]].lowCounters.length + " " + dataStore.detTypesData[keys[i]].Title + " counting at a lower rate: ";
+      problemString += dataStore.detTypesData[keys[i]].channelNames[dataStore.detTypesData[keys[i]].lowCounters[0]];
       for(j=1; j<dataStore.detTypesData[keys[i]].lowCounters.length; j++){
         problemString += ", "+dataStore.detTypesData[keys[i]].channelNames[dataStore.detTypesData[keys[i]].lowCounters[j]];
       }
@@ -768,4 +809,148 @@ function constructRatesAndHitpatterns(){
 
     // Now calculate rates and hitpatterns
     constructRatesAndHitpatterns();
+  }
+
+  function setupBetaEfficiency(){
+    console.log("setupBetaEfficiency function called");
+
+    //var betaEff_keys = ["SCEPTAR", "ZDS", "ARIES"];
+    //  var betaEff_names = ["sceptar", "zds", "aries"];
+    //  var beta_spectra = ["Ge_Sum_Energy", "Ge_Sum_En_SceptarTagged", "Ge_Sum_En_ZdsTagged", "Ge_Sum_En_AriesTagged"];
+    var viewerName = dataStore.plots[0];
+    var fileName = dataStore.histoFileName.split(".")[0];
+    var theseHistograms = [], thesePeaks = {}, theseLimits=[];
+    var sum=0;
+
+    // Add the Ge singles spectrum
+    var thisSpectrum = fileName+":"+"Ge_Sum_Energy";
+    dataStore.viewers[viewerName].addData(thisSpectrum,dataStore.rawData[thisSpectrum]);
+    theseHistograms.push(thisSpectrum);
+    sum=0; maxValue=0; maxChan=0;
+    for(var j=0; j<dataStore.rawData[thisSpectrum].length; j++){
+      sum += dataStore.rawData[thisSpectrum][j];
+      if(j>100 && dataStore.rawData[thisSpectrum][j]>maxValue){
+        maxValue = dataStore.rawData[thisSpectrum][j];
+        maxChan = j;
+      }
+    }
+    if(dataStore.peakOfInterest == null){
+      dataStore.peakOfInterest = maxChan;
+      document.getElementById('peakOfInterestInput').value = maxChan;
+    }
+    thesePeaks[thisSpectrum] = [dataStore.peakOfInterest];
+    theseLimits.push([-1,-1]);
+
+    var keys = Object.keys(dataStore.betaEfficiencyCheck);
+    // Plot spectra for the beta detectors present in this run
+    // Add this plot to the list for peak fitting
+    for(var i=0; i<keys.length; i++){
+      sum=0; maxValue=0; maxChan=0;
+      var thisSpectrum = fileName+":"+dataStore.betaEfficiencyCheck[keys[i]].spectrumName;
+      if(!dataStore.rawData[thisSpectrum]){ continue; }
+
+      for(var j=0; j<dataStore.rawData[thisSpectrum].length; j++){
+        sum += dataStore.rawData[thisSpectrum][j];
+        if(j>100 && dataStore.rawData[thisSpectrum][j]>maxValue){
+          maxValue = dataStore.rawData[thisSpectrum][j];
+          maxChan = j;
+        }
+      }
+      if(sum<10){ continue; } // Skip empty spectra
+      dataStore.betaEfficiencyCheck[keys[i]].active = true;
+      dataStore.betaEfficiencyCheck[keys[i]].histogramName = thisSpectrum;
+
+      if(dataStore.peakOfInterest == null){
+        dataStore.peakOfInterest = maxChan;
+        document.getElementById('peakOfInterestInput').value = maxChan;
+      }
+
+      dataStore.viewers[viewerName].addData(thisSpectrum,dataStore.rawData[thisSpectrum]);
+      theseHistograms.push(thisSpectrum);
+      thesePeaks[thisSpectrum] = [dataStore.peakOfInterest];
+      theseLimits.push([-1,-1]);
+    }
+
+    // Bail out here if we dont have any beta detectors active.
+    if(theseHistograms.length<2){
+      document.getElementById('widget-beta-efficiency').classList.add('hidden');
+      return;
+    }
+
+    // Save this list for replotting
+    dataStore.betaEfficiencySpectra = theseHistograms;
+
+    // Set the axis limits
+    var xMin = (dataStore.peakOfInterest<100) ? 100 : (dataStore.peakOfInterest - 100);
+    var xMax = (dataStore.peakOfInterest+100 > 8191) ? 8191 : (dataStore.peakOfInterest + 100);
+    dataStore.viewers[viewerName].XaxisLimitMin = xMin;
+    dataStore.viewers[viewerName].XaxisLimitMax = xMax;
+    dataStore.viewers[viewerName].setAxisType('log');
+
+    // Trigger the initial draw
+    dataStore.viewers[viewerName].plotData();
+
+    // Start the fitting routine for singles peaks
+    fitPeaksInSeriesOfHistograms(theseHistograms,thesePeaks,"HPGe",theseLimits);
+  }
+
+  function fittingCallback(){
+    console.log("fittingCallback function");
+    var viewerName = dataStore.plots[0];
+
+    // Add the gamma singles
+    var histo = dataStore.histoFileName.split(".")[0] + ":Ge_Sum_Energy";
+    dataStore.viewers[viewerName].addData(histo,dataStore.rawData[histo]);
+    // Update the spectra for each active beta detector
+    var keys = Object.keys(dataStore.betaEfficiencyCheck);
+    for(var i=0; i<keys.length; i++){
+      if(dataStore.betaEfficiencyCheck[keys[i]].active){
+        histo = dataStore.betaEfficiencyCheck[keys[i]].histogramName;
+        dataStore.viewers[viewerName].addData(histo,dataStore.rawData[histo]);
+      }
+    }
+
+    // Set the axis limits
+    var xMin = (dataStore.peakOfInterest<100) ? 100 : (dataStore.peakOfInterest - 100);
+    var xMax = (dataStore.peakOfInterest+100 > 8191) ? 8191 : (dataStore.peakOfInterest + 100);
+    dataStore.viewers[viewerName].XaxisLimitMin = xMin;
+    dataStore.viewers[viewerName].XaxisLimitMax = xMax;
+    dataStore.viewers[viewerName].setAxisType('log');
+
+    // Plot the data
+    dataStore.viewers[viewerName].plotData();
+
+    // Print beta Efficiency Results
+    calculateBetaEfficiency();
+  }
+
+  function calculateBetaEfficiency(){
+    console.log("calculateBetaEfficiency function called");
+    console.log(dataStore);
+
+    var singlesCounts = dataStore.fitResults[dataStore.histoFileName.split(".")[0] + ":Ge_Sum_Energy"][0][5];
+    var singlesCountsUnc = Math.sqrt(singlesCounts);
+
+    var keys = Object.keys(dataStore.betaEfficiencyCheck);
+    for(var i=0; i<keys.length; i++){
+      if(dataStore.betaEfficiencyCheck[keys[i]].active){
+        // First clear any existing results
+        dataStore.betaEfficiencyCheck[keys[i]].counts = 0;
+        dataStore.betaEfficiencyCheck[keys[i]].countsUncertainty = 0;
+        dataStore.betaEfficiencyCheck[keys[i]].efficiency = 0;
+        dataStore.betaEfficiencyCheck[keys[i]].efficiencyUncertainty = 0;
+        
+        var histo = dataStore.betaEfficiencyCheck[keys[i]].histogramName;
+        dataStore.betaEfficiencyCheck[keys[i]].counts = dataStore.fitResults[histo][0][5];
+        dataStore.betaEfficiencyCheck[keys[i]].countsUncertainty = Math.sqrt(dataStore.betaEfficiencyCheck[keys[i]].counts)/dataStore.betaEfficiencyCheck[keys[i]].counts;
+        dataStore.betaEfficiencyCheck[keys[i]].efficiency = ((dataStore.betaEfficiencyCheck[keys[i]].counts / singlesCounts)*100).toFixed(1);
+        dataStore.betaEfficiencyCheck[keys[i]].efficiencyUncertainty = (dataStore.betaEfficiencyCheck[keys[i]].countsUncertainty * dataStore.betaEfficiencyCheck[keys[i]].efficiency).toFixed(2);
+
+        var detName = dataStore.betaEfficiencyCheck[keys[i]].detectorName;
+        document.getElementById('betaEff'+detName+'Row').classList.remove('hidden');
+        document.getElementById('betaEff'+detName+'Cell1').innerHTML = parseInt(dataStore.betaEfficiencyCheck[keys[i]].counts)+"/"+parseInt(singlesCounts);
+        document.getElementById('betaEff'+detName+'Cell2').innerHTML = dataStore.betaEfficiencyCheck[keys[i]].efficiency+" %";
+        document.getElementById('betaEff'+detName+'Cell3').innerHTML = "&plusmn;"+dataStore.betaEfficiencyCheck[keys[i]].efficiencyUncertainty+" %";
+      }
+    }
   }

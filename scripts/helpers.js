@@ -2561,8 +2561,8 @@ function roughGainMatch(spectrumList,detType,sourceType){
     }
 
     if( (optimalGain > (optimalGainCourse-(4*gainStepSize))) && (optimalGain < (optimalGainCourse+(4*gainStepSize))) ){
-    //  console.log("optimalGain == optimalGainCourse");
-    //  console.log("optimalGain,optimalGainCourse = "+optimalGain+", "+optimalGainCourse+", diff = "+(optimalGainCourse-optimalGain));
+      //  console.log("optimalGain == optimalGainCourse");
+      //  console.log("optimalGain,optimalGainCourse = "+optimalGain+", "+optimalGainCourse+", diff = "+(optimalGainCourse-optimalGain));
     }else{
       console.log("optimalGain != optimalGainCourse -> Can we do better??");
       console.log("optimalGain,optimalGainCourse = "+optimalGain+", "+optimalGainCourse+", diff = "+(optimalGainCourse-optimalGain));
@@ -2613,7 +2613,6 @@ function fitPeaksInSeriesOfHistograms(spectra,peaks,detectorType,limits){
       }
     }
   }
-  // LIMITS IS NOT YET USED PAST THIS POINT!!!!!
 
   // Return a new promise.
   return new Promise(function(resolve, reject) {
@@ -2658,7 +2657,9 @@ function fitPeaksInSeriesOfHistograms(spectra,peaks,detectorType,limits){
         dataStore.currentPlot = buffer;
         dataStore.viewers[dataStore.plots[0]].plotData() //kludge to update limits, could be nicer
         dataStore.viewers[dataStore.plots[0]].fitTarget = buffer;
-        dataStore._plotListLite.exclusivePlot(buffer, dataStore.viewers[dataStore.plots[0]]);
+        if(dataStore._plotListLite){
+          dataStore._plotListLite.exclusivePlot(buffer, dataStore.viewers[dataStore.plots[0]]);
+        }
 
         // Callback
         fittingCallback();
@@ -2696,7 +2697,9 @@ function fitSpectra(spectrum,peaks,detectorType,limits){
   dataStore.currentPlot = spectrum;
   dataStore.viewers[viewerName].plotData() //kludge to update limits, could be nicer
   dataStore.viewers[viewerName].fitTarget = spectrum;
-  dataStore._plotListLite.exclusivePlot(spectrum, dataStore.viewers[viewerName]);
+  if(dataStore._plotListLite){
+    dataStore._plotListLite.exclusivePlot(spectrum, dataStore.viewers[viewerName]);
+  }
 
   //locate the spectrum in the dataStore
   if(spectrum in dataStore.createdSpectra){ // true if spectrum is a key of createdSpectra
@@ -3776,11 +3779,12 @@ function projectXaxis(gateMin,gateMax,type,parentPlotname){
     // Set a unique name based on gate limits
     thisProjectionName = dataStore.activeMatrix+'x-'+gateMin+'-'+gateMax;
   }
+  gateMin = Number(gateMin);
+  gateMax = Number(gateMax);
 
   var gateLength = gateMax-gateMin;
   var thisProjection = [];
-  let filledArray = new Array(1023).fillN(0); // May need to be .fillN()
-  for(let i=0; i<dataStore.hm._raw[0].length; i++){
+  for(let i=0; i<=dataStore.hm._raw[0].length; i++){
     thisProjection[i] = 0;
   }
 
@@ -3788,7 +3792,7 @@ function projectXaxis(gateMin,gateMax,type,parentPlotname){
   for(let i=gateMin; i<=gateMax; i++){
     thisRow = dataStore.hm._raw[i];
     thisProjection = thisProjection.map(function (num, index) {
-      return num + thisRow[index];
+      return Number.isNaN(num) ? 0 : num + thisRow[index];
     });
   }
 
@@ -3826,6 +3830,8 @@ function projectYaxis(gateMin,gateMax,type,parentPlotname){
     // Set a unique name based on gate limits
     thisProjectionName = dataStore.activeMatrix+'y-'+gateMin+'-'+gateMax;
   }
+  gateMin = Number(gateMin);
+  gateMax = Number(gateMax);
 
   var gateLength = gateMax-gateMin;
   var thisProjection = [];
@@ -3871,6 +3877,10 @@ function projectXY(gateMinX,gateMaxX,gateMinY,gateMaxY,axis){
   if(gateMaxY == undefined){
     gateMaxY = dataStore.hm._raw[0].length-1;
   }
+  gateMinX = Number(gateMinX);
+  gateMaxX = Number(gateMaxX);
+  gateMinY = Number(gateMinY);
+  gateMaxY = Number(gateMaxY);
 
   // Set up the projection spectrum
   var thisProjection = [];
