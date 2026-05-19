@@ -718,7 +718,6 @@ function spectrumViewer(canvasID){
 	this.fitData = function(fitKey, retries){
 		var cent, fitdata, i, max, width, x, y, height, bkg, bins, estimate;
 		var fitLine, fitter;
-		//  var maxBinContentsLimit=500000;
 		var maxBinContentsLimit=5000000;
 		var normalizationFactor=0, originalFitdata;
 
@@ -731,7 +730,7 @@ function spectrumViewer(canvasID){
 		if(this.FitLimitLower<0) this.FitLimitLower=0;
 		if(this.FitLimitUpper>this.XaxisLimitAbsMax) this.FitLimitUpper = this.XaxisLimitAbsMax;
 		if(this.FitBoundaryLower>0 && this.FitLimitLower<this.FitBoundaryLower){ this.FitLimitLower=this.FitBoundaryLower; }
-		if(this.FitBoundaryUpper>0 && this.FitLimitUpper>this.FitBoundaryUpper){ this.FitLimitUpper=this.FitBoundaryUpper; } 
+		if(this.FitBoundaryUpper>0 && this.FitLimitUpper>this.FitBoundaryUpper){ this.FitLimitUpper=this.FitBoundaryUpper; }
 
 		//old method just sticks a hat on the peak; use this as initial guess
 		max=1;
