@@ -1035,6 +1035,7 @@ function GetURLArguments(callback){
   var queryString = window.location.search.substring(1)
   var value, i;
   var urlData = [];
+  urlData.nontriumfbackend = false;
 
   queryString = queryString.split('&');
   for(i=0; i<queryString.length; i++){
@@ -1045,7 +1046,7 @@ function GetURLArguments(callback){
   // Save the information to the dataStore
   // Save the hostname and port number
   if(urlData.backend != undefined){
-    if(urlData.backend == "localhost"){
+    if(urlData.backend == "localhost" || urlData.nontriumfbackend){
       dataStore.spectrumServer = 'http://'+urlData.backend+":"+urlData.port;
     }else{
       dataStore.spectrumServer = 'http://'+urlData.backend+'.triumf.ca:'+urlData.port;
@@ -1053,7 +1054,7 @@ function GetURLArguments(callback){
     dataStore.spectrumServerBackend = urlData.backend;
     dataStore.spectrumServerPort = urlData.port;
   }else{
-    if(urlData.analyzerBackend == "localhost"){
+    if(urlData.analyzerBackend == "localhost" || urlData.nontriumfbackend){
       dataStore.spectrumServer = 'http://'+urlData.analyzerBackend+":"+urlData.analyzerPort;
     }else{
       dataStore.spectrumServer = 'http://'+urlData.analyzerBackend+'.triumf.ca:'+urlData.analyzerPort;
@@ -1061,7 +1062,7 @@ function GetURLArguments(callback){
 
     // Save the information to the dataStore
     // Save the hostname and port number for writing the ODB parameters
-    if(urlData.ODBHostBackend == "localhost"){
+    if(urlData.ODBHostBackend == "localhost" || urlData.nontriumfbackend){
       dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+":"+urlData.ODBHostPort;
       dataStore.ODBhostBackend = urlData.ODBHostBackend;
       dataStore.ODBhostPort = urlData.ODBHostPort;
@@ -1105,6 +1106,7 @@ function promiseURLArguments(){
     var queryString = window.location.search.substring(1)
     var value, i;
     var urlData = [];
+    urlData.nontriumfbackend = false;
 
     queryString = queryString.split('&');
     for(i=0; i<queryString.length; i++){
@@ -1115,7 +1117,7 @@ function promiseURLArguments(){
     // Save the information to the dataStore
     // Save the hostname and port number
     if(urlData.backend != undefined){
-      if(urlData.backend == "localhost"){
+      if(urlData.backend == "localhost" || urlData.nontriumfbackend){
         dataStore.spectrumServer = 'http://'+urlData.backend+":"+urlData.port;
       }else{
         dataStore.spectrumServer = 'http://'+urlData.backend+'.triumf.ca:'+urlData.port;
@@ -1123,7 +1125,7 @@ function promiseURLArguments(){
       dataStore.spectrumServerBackend = urlData.backend;
       dataStore.spectrumServerPort = urlData.port;
     }else{
-      if(urlData.analyzerBackend == "localhost"){
+      if(urlData.analyzerBackend == "localhost" || urlData.nontriumfbackend){
         dataStore.spectrumServer = 'http://'+urlData.analyzerBackend+":"+urlData.analyzerPort;
       }else{
         dataStore.spectrumServer = 'http://'+urlData.analyzerBackend+'.triumf.ca:'+urlData.analyzerPort;
@@ -1131,7 +1133,7 @@ function promiseURLArguments(){
 
       // Save the information to the dataStore
       // Save the hostname and port number for writing the ODB parameters
-      if(urlData.ODBHostBackend == "localhost"){
+      if(urlData.ODBHostBackend == "localhost" || urlData.nontriumfbackend){
         dataStore.ODBhost = 'http://'+urlData.ODBHostBackend+":"+urlData.ODBHostPort;
         dataStore.ODBhostBackend = urlData.ODBHostBackend;
         dataStore.ODBhostPort = urlData.ODBHostPort;
