@@ -26,8 +26,13 @@ function setupQEDplots(){
   for(var i=0; i<dataStore.QEDanalysisSpectrumList.length; i++){
     thisSelect.add( new Option(dataStore.QEDanalysisSpectrumList[i], dataStore.QEDanalysisSpectrumList[i]) );
   }
+  // Add the list of spectra as the options of the select - with normalization
+  thisSelect = document.getElementById('QEDMenuSelect');
+  for(var i=0; i<dataStore.QEDanalysisSpectrumList.length; i++){
+    thisSelect.add( new Option(dataStore.QEDanalysisSpectrumList[i]+"_normalized", dataStore.QEDanalysisSpectrumList[i]+"_normalized") );
+  }
   thisSelect.value = "QED_DCS_azimuth2_70_110"; // default selection for initial draw
-  
+
   // Define the target div for the Plotly graph
   dataStore.QEDparentDiv = 'widget-qed-plotly'; // defined in analysisOverview.html file
 
@@ -45,6 +50,7 @@ function setupQEDplots(){
 // Function to create the formatting and data for the Plotly graph
 function createQEDplotly(targetDiv, dataKey, title){
   // re-create the specified histogram
+  var applyNormalization = false;
 
   // Define the layout object that controls the appearance
   var layout = {
@@ -54,8 +60,14 @@ function createQEDplotly(targetDiv, dataKey, title){
     title: title,
     plot_bgcolor: "#222222",
     paper_bgcolor: "#222222",
-    range: [-180, 180]   // Sets the minimum to 0, maximum is auto-calculated
+    range: [-180, 180]
   };
+
+  // Is there a request for normalization?
+  if(dataKey.includes("_normalized")){
+    applyNormalization = true;
+    dataKey = dataKey.split("_normalized")[0];
+  }
 
   // Define the data and labels for the x axis
   var bins = [];
@@ -71,7 +83,15 @@ function createQEDplotly(targetDiv, dataKey, title){
   // Define the errors as the sqrt of the data points
   var errorData=[];
   for(var i=0; i<data.length; i++){
-    errorData.push((Math.sqrt(data[i])).toFixed(1));
+    errorData.push(parseFloat((Math.sqrt(data[i])).toFixed(1)));
+  }
+
+  // Apply Normalization here
+  if(applyNormalization){
+    var data = performNormalization(data, dataKey.split(":")[1]);
+    //  console.log(data); // print the data array to the console
+
+    var errorData = calculateNormalizedUncertainties(dataStore.rawData[dataKey],errorData,data,dataKey.split(":")[1]);
   }
 
   // Package the data objects together for consumption by Plotly
@@ -79,15 +99,65 @@ function createQEDplotly(targetDiv, dataKey, title){
   var plotData = {
     x: bins,
     y: data,
+
     error_y: {
       type: 'data',
       array: errorData, // Specific error values for each point
       visible: true
     },
+
     mode: 'markers',
     type: 'scatter'
   };
 
   // Create the Plotly plot using the information defined above in this is function
   Plotly.newPlot(targetDiv, [plotData], layout, {displayModeBar: false});
+}
+
+function performNormalization(raw,weightsKey){
+  // Declare array variables
+  var normalized = [], weight = [];
+
+  // Get the raw number of detector pairs distribution from the data store using the key provided
+  var rawWeights = dataStore.QEDAzimuthalWeightingFactors[weightsKey];
+
+  // Find the sum of the data values and the sum of the weights values
+  var dataSum = raw.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+  var weightSum = rawWeights.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+  // Calculate the weighting factor for each bin from the raw number of detector pairs and total weights sum
+  for(var i=0; i<rawWeights.length; i++){
+    weight[i] = rawWeights[i] / weightSum;
+  }
+
+  // Normalize the data using the weighting factors and total data dum
+  for(i=0; i<raw.length; i++){
+    normalized[i] = raw[i] / (weight[i] * dataSum);
+  }
+
+  // Return the normalized data series
+  return(normalized);
+}
+
+function calculateNormalizedUncertainties(data,errorData,normalized,weightsKey){
+  var uncertainties = [];
+
+  // Get the raw number of detector pairs distribution from the data store using the key provided
+  var rawWeights = dataStore.QEDAzimuthalWeightingFactors[weightsKey];
+
+  // Find the sum of the data values and the sum of the weights values
+  var dataSum = data.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+  var weightSum = rawWeights.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+
+  // Find the fractuional uncertainty for the summed values
+  var dataFractionalError = Math.pow(Math.sqrt(dataSum)/dataSum,2)
+  var weightFractionalError = Math.pow(Math.sqrt(weightSum)/weightSum,2)
+
+  // Add the fractional errors in quadrature for each bin
+  for(var i=0; i<data.length; i++){
+    uncertainties[i] = normalized[i] * Math.sqrt( Math.pow(errorData[i]/data[i],2) + Math.pow(Math.sqrt(rawWeights[i])/rawWeights[i],2) + dataFractionalError + weightFractionalError);
+  }
+
+// Return the series of uncertainties for the normalized data
+  return(uncertainties);
 }
