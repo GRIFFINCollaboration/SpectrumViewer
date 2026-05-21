@@ -760,6 +760,7 @@ function spectrumViewer(canvasID){
 			for(i=0; i<fitdata.length; i++){
 				fitdata[i] = fitdata[i]*normalizationFactor;
 			}
+			console.log("Use normalization in peak fitting");
 			max = max*normalizationFactor;
 		}
 

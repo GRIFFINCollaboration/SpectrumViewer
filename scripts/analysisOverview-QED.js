@@ -78,11 +78,11 @@ function createQEDplotly(targetDiv, dataKey, title){
 
   // Define the data for the y axis
   var data=[];
-  data = dataStore.rawData[dataKey];
+  data = dataStore.rawData[dataKey].slice(0,361);
 
   // Define the errors as the sqrt of the data points
   var errorData=[];
-  for(var i=0; i<data.length; i++){
+  for(var i=0; i<bins.length; i++){
     errorData.push(parseFloat((Math.sqrt(data[i])).toFixed(1)));
   }
 
@@ -94,11 +94,51 @@ function createQEDplotly(targetDiv, dataKey, title){
     var errorData = calculateNormalizedUncertainties(dataStore.rawData[dataKey],errorData,data,dataKey.split(":")[1]);
   }
 
+  // Determine the theoretical best fit line
+  // First build the basic cos(2 deltaPhi) series to be fitted to the data
+  var lineData = [];
+  for(var i=0; i<bins.length; i++){
+    lineData[i] = Math.cos(2.0*bins[i]*(3.14159/180));
+  }
+  var params = [];
+  // Use a linear regression to determine the two parameters (this function is in helpers.js)
+  params = efficiencyRegression(lineData,data);
+
+  // Recalculate the datapoints for the best fit line to be used in the plot
+  for(var i=0; i<bins.length; i++){
+    lineData[i] = params[1]*Math.cos(2.0*bins[i]*(3.14159/180))+params[0];
+  }
+
+  // Calculate the enhancement factor, R
+  var enhancement = ((params[0]-params[1])/(params[0]+params[1])).toFixed(2);
+
+  // Find the uncertainty in the fit to the data - the standard error
+  var sumSqDeviations = 0;
+  for(var i=0; i<bins.length; i++){
+    if(isNaN(data[i])){ continue; }
+    sumSqDeviations += (data[i] - lineData[i])*(data[i] - lineData[i]);
+  }
+  var fitStandardError = Math.sqrt(sumSqDeviations/(bins.length-2));
+  // https://www.itl.nist.gov/div898/handbook/eda/section3/eda3674.htm
+  // For a 95% confidence interval with 358 degrees of freedom
+  var criticalValue = 1.967;
+  var enhancementUncert = (fitStandardError * criticalValue).toFixed(2);
+
+// Calculate the reduced chi-square of the fit to the data (function in helpers.js)
+//var reducedChiSq = (RCS(data, lineData, 2)).toFixed(2);
+
+  // Report the fit parameters in the Div
+  document.getElementById('widget-qed-reportDiv').innerHTML = "Enhancement factor, R="+enhancement+"&plusmn;"+enhancementUncert;
+  //+ "<br>Reduced chi-square = "+reducedChiSq;
+
   // Package the data objects together for consumption by Plotly
   // scatter type plot with only datapoint markers shown
-  var plotData = {
+  var plotData = [];
+
+  plotData[0] = { // The data points
     x: bins,
     y: data,
+    name: dataKey,
 
     error_y: {
       type: 'data',
@@ -110,8 +150,15 @@ function createQEDplotly(targetDiv, dataKey, title){
     type: 'scatter'
   };
 
+  plotData[1] = { // The line of best fit
+    x: bins,
+    y: lineData,
+    name: "cos(2 delta Phi) + Mean",
+    mode: 'line'
+  };
+
   // Create the Plotly plot using the information defined above in this is function
-  Plotly.newPlot(targetDiv, [plotData], layout, {displayModeBar: false});
+  Plotly.newPlot(targetDiv, plotData, layout, {displayModeBar: false});
 }
 
 function performNormalization(raw,weightsKey){
@@ -158,6 +205,6 @@ function calculateNormalizedUncertainties(data,errorData,normalized,weightsKey){
     uncertainties[i] = normalized[i] * Math.sqrt( Math.pow(errorData[i]/data[i],2) + Math.pow(Math.sqrt(rawWeights[i])/rawWeights[i],2) + dataFractionalError + weightFractionalError);
   }
 
-// Return the series of uncertainties for the normalized data
+  // Return the series of uncertainties for the normalized data
   return(uncertainties);
 }

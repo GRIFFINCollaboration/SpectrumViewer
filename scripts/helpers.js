@@ -4584,8 +4584,8 @@ function HPGeEfficiency(param, logEn){
 function efficiencyRegression(dataX,dataY) {
 
   console.log('efficiencyRegression');
-  console.log(dataX);
-  console.log(dataY);
+//  console.log(dataX);
+//  console.log(dataY);
   var params = [];
 
   // Set everything to zero to begin
