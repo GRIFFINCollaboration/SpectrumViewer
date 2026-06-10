@@ -974,6 +974,7 @@ function setupDataStore(){
             }
 
             // Start the whole fitting routine for singles peaks
+            console.log("Call fitPeaksInSeriesOfHistograms for singles peak fitting");
             fitPeaksInSeriesOfHistograms(spectrumList,dataStore.spectrumList1dPeaks,"HPGe",limits);
           }
 
@@ -999,6 +1000,7 @@ function setupDataStore(){
               }
 
               // Start the fitting routine for projections peaks for this run file
+              console.log("Call fitPeaksInSeriesOfHistograms for projections peak fitting");
               fitPeaksInSeriesOfHistograms(dataStore.spectrumListProjections,dataStore.spectrumListProjectionsPeaks,"HPGe",limits);
               return;
             }
@@ -1068,6 +1070,7 @@ function setupDataStore(){
               var thisGateKey = dataStore.angCorrProjections[i]; // Gate for angular correlation
               var thisTotalKey = dataStore.angCorrProjections[i].split("x")[0] + "x"; // Total projection
 
+console.log(thisTotalKey+", gate "+gateIndex+", peak "+peakIndex);
               // Determine the time-random background subtraction factor from the ratio of the two peaks in the total projection
               dataStore.angularBinTRBGFactor[index] = dataStore.fitResults[thisTotalKey][peakIndex][5] / dataStore.fitResults[thisTotalKey][gateIndex][5];
               // Add the fractional errors in quadrature
@@ -1133,6 +1136,7 @@ function setupDataStore(){
             dataStore.normalizationFactor = sumAngularBinAreas;
             dataStore.normalizationFactorUnc = parseInt(sumAngularBinAreasUnc);
             console.log("dataStore.normalizationFactor = "+dataStore.normalizationFactor+" with error "+dataStore.normalizationFactorUnc+" = "+(dataStore.normalizationFactorUnc/dataStore.normalizationFactor));
+            console.log(dataStore);
 
             // Collect the singles peak areas from the fitResults object
             for(i=0; i<dataStore.singlesSpectra.length; i++){
@@ -1142,6 +1146,7 @@ function setupDataStore(){
               dataStore.singlesPeakArea[i] = [0,0]; // initialize this element
               dataStore.singlesPeakAreaUnc[i] = [0,0]; // initialize this element
 
+console.log(thisSinglesKey+" for "+peakIndex+" and "+gateIndex);
               if( !isNaN(dataStore.fitResults[thisSinglesKey][peakIndex][5]))
               dataStore.singlesPeakArea[i][0] = dataStore.fitResults[thisSinglesKey][peakIndex][5]; // the fit energy peak
               if( !isNaN(dataStore.fitResults[thisSinglesKey][gateIndex][5]))
@@ -1346,10 +1351,12 @@ function setupDataStore(){
           // THIS SHOULD BE A CALL TO A FUNCTION BUT HARD-CODED HERE FOR 152EU 344-778
           //dataStore.beta  = 0.954711; // 60Co, 4-2-0, 1332-1173
           //dataStore.gamma = 0.841345; // 60Co, 4-2-0, 1332-1173
-          dataStore.beta  = 0.957442; // 66Ga, 0-2-0, 1333-1039
-          dataStore.gamma = 0.852034; // 66Ga, 0-2-0, 1333-1039
+        //  dataStore.beta  = 0.957442; // 66Ga, 0-2-0, 1333-1039
+        //  dataStore.gamma = 0.852034; // 66Ga, 0-2-0, 1333-1039
           //dataStore.beta  = 0.950804; // 152Eu, 2-2-0, 1408-121
           //dataStore.gamma = 0.829300; // 152Eu, 2-2-0, 1408-121
+          dataStore.beta  = 0.950933; // 148Cs, 719-141
+          dataStore.gamma = 0.828565; // 148Cs, 719-141
 
           // Grab the user input for the cascade
           //  j1=parseFloat(document.getElementById('j1').value);

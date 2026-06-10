@@ -84,6 +84,8 @@ function spectrumViewer(canvasID){
 	this.fitCallback = function(){}; //callback to run after fitting, arguments are (center, width, amplitude, linear background intercept, slope)
 	this.MLfit = true; //do a maximum likelihood fit for putting gaussians on peaks; otherwise fit just estimates gaussian form mode and half-max
 	// mask so fits only appear in plot area (ie don't overflow the axes)
+	this.retries = 0; // keep track of number of attempted refits
+	this.fitResults = []; // place to pass around fit results
 	this.fitMask = new createjs.Shape();
 	this.fitMask.graphics.mt(this.leftMargin, this.canvas.height - this.bottomMargin).lt(this.leftMargin, this.topMargin).lt(this.canvas.width - this.rightMargin, this.topMargin).lt(this.canvas.width-this.rightMargin, this.canvas.height - this.bottomMargin).closePath();
 	this.containerFit.mask = this.fitMask;
@@ -716,64 +718,62 @@ function spectrumViewer(canvasID){
 
 	//stick a gaussian on top of the spectrum fitKey between the fit limits
 	this.fitData = function(fitKey, retries){
-		var cent, fitdata, i, max, width, x, y, height, bkg, bins, estimate;
+		var cent, fitdata, i, max=1, width, x, y, height, bkg, bins, estimate, intercept, slope, sum=0;
 		var fitLine, fitter;
 		var maxBinContentsLimit=5000000;
 		var normalizationFactor=0, originalFitdata;
-
+		console.log(fitKey+" in fitData");
 		if(!retries)
 		retries = 0;
+
+		// Save this so it can be accessed in the other function
+		this.retries = retries;
 
 		//suspend the refresh
 		window.clearTimeout(this.refreshHandler);
 
+		// Ensure sensible limits
 		if(this.FitLimitLower<0) this.FitLimitLower=0;
 		if(this.FitLimitUpper>this.XaxisLimitAbsMax) this.FitLimitUpper = this.XaxisLimitAbsMax;
 		if(this.FitBoundaryLower>0 && this.FitLimitLower<this.FitBoundaryLower){ this.FitLimitLower=this.FitBoundaryLower; }
 		if(this.FitBoundaryUpper>0 && this.FitLimitUpper>this.FitBoundaryUpper){ this.FitLimitUpper=this.FitBoundaryUpper; }
 
-		//old method just sticks a hat on the peak; use this as initial guess
-		max=1;
-
+		// Get the region of data to be fitted
+		dataStore.currentPlot = fitKey;
 		fitdata=this.plotBuffer[fitKey];
 		fitdata=fitdata.slice(this.FitLimitLower, this.FitLimitUpper+1);
-
 
 		// Find maximum Y value in the fit data
 		if(Math.max.apply(Math, fitdata)>max){
 			max=Math.max.apply(Math, fitdata);
 		}
 
-		// Fitting high-statistics data is very slow with these functions. Here normalize down to small bin contents for the fitting
-		// Performance comparison of the normalization factor:
-		// No normalization = 6.2 seconds to fit a peak with max bin content 2.5M counts.
-		// maxBinContentsLimit=1,000,000, fit took 3060 ms.
-		// maxBinContentsLimit=  500,000, fit took 1510 ms. <- Using this now that logPoisson function has been made 100 times faster
-		// maxBinContentsLimit=  250,000, fit took  632 ms.
-		// maxBinContentsLimit=  200,000, fit took  492 ms.
-		// maxBinContentsLimit=  150,000, fit took  373 ms. <- Optimal chosen for speed and fit accuracy.
-		// maxBinContentsLimit=  100,000, fit took  248 ms. <- fitted width is too narrow
-		// maxBinContentsLimit=   10,000, fit took   36 ms. <- fitted width is too narrow.
-		if(max>maxBinContentsLimit){
-			normalizationFactor = maxBinContentsLimit/max;
-			originalFitdata = fitdata;
-			for(i=0; i<fitdata.length; i++){
-				fitdata[i] = fitdata[i]*normalizationFactor;
-			}
-			console.log("Use normalization in peak fitting");
-			max = max*normalizationFactor;
+		// Bail out if the spectrum is empty
+		if(max < 2){
+			console.log(fitKey+" has bad max, return");
+			return;
 		}
 
-
-		// Find the bin with the maximum Y value
+		// Find the bin with the maximum Y value within the fitdata
 		cent=0;
 		while(fitdata[cent]<max){
 			cent++;
 		}
+		if(!cent || !fitdata[cent-1] || !fitdata[cent+1]){
+			console.log(fitKey+" has bad cent ["+cent+"], return");
+			return;
+		}
+		//	var fineCentroidA1 = (fitdata[cent-1]/fitdata[cent]);
+		//	var fineCentroidA2 = (fitdata[cent+1]/fitdata[cent]);
+		//	var fineCentroidA = fineCentroidA1 / (fineCentroidA1+fineCentroidA2);
 
+		var fineCentroid = cent - ( ((fitdata[cent-1]/fitdata[cent]) / ((fitdata[cent-1]/fitdata[cent])+(fitdata[cent+1]/fitdata[cent]))) *2) + 1.5;
+
+		// Estimate the width of the gaussian
 		width = this.estimateWidth(fitdata, cent, max);
 
-		cent=cent+this.FitLimitLower+0.5;
+		// Convert centroid to channel number of full spectrum
+		cent = this.FitLimitLower + fineCentroid;
 
 		//prefit straight bkg
 		x = []
@@ -786,70 +786,52 @@ function spectrumViewer(canvasID){
 			x.push(i)
 			y.push(this.plotBuffer[fitKey][i])
 		}
-		estimate = this.newLinearBKG(x,y)
+		estimate = this.newLinearBKG(x,y);
+		intercept = estimate[0]
+		slope = estimate[1];
 
-		//use the new prototype fitting package to do a maximum likelihood gaussian fit:
-		if(this.MLfit){
-			fitter = new histofit();
-			for(i=this.FitLimitLower; i<=this.FitLimitUpper; i++)
-			fitter.x[i-this.FitLimitLower] = i+0.5;
-			fitter.y=fitdata;
-			fitter.fxn = function(intercept, slope, x, par){return intercept + slope*x + par[0]*Math.exp(-1*(((x-par[1])*(x-par[1]))/(2*par[2]*par[2])))}.bind(null, estimate[0], estimate[1]);
-			fitter.guess = [max, cent, width];
-			fitter.fitit();
-			max = fitter.param[0];
-			cent = fitter.param[1];
-			width = Math.abs(fitter.param[2]); // width must not be negative, but is deduced as sigma squared
+		// fit the height of the gaussian
+		var model = [];
+		for(i=0; i<fitdata.length; i++){
+			var ii = i+this.FitLimitLower;
+			model[i] = intercept + slope*ii + max*Math.exp(-1*(ii-cent)*(ii-cent)/(2*width*width));
 		}
+		var height = max * scaling_factor(fitdata,model);
 
+		let viewer = dataStore.viewers[dataStore.plots[0]];
 		//check if the fit failed, and redo with slightly nudged fit limits
-		if( (!max || !cent || !width || width<0) && retries<10){
-			this.FitLimitLower--;
-			this.FitLimitUpper++;
-			if(this.FitBoundaryLower>0 && this.FitLimitLower<this.FitBoundaryLower){ this.FitLimitLower=this.FitBoundaryLower; }
-			if(this.FitBoundaryUpper>0 && this.FitLimitUpper>this.FitBoundaryUpper){ this.FitLimitUpper=this.FitBoundaryUpper; }
-			this.fitData(fitKey, retries+1);
+		if( (!max || !cent || !width || width<0) && viewer.fitRetries<10){
+			viewer.FitLimitLower--;
+			viewer.FitLimitUpper++;
+			if(viewer.FitBoundaryLower>0 && viewer.FitLimitLower<viewer.FitBoundaryLower){ viewer.FitLimitLower=viewer.FitBoundaryLower; }
+			if(viewer.FitBoundaryUpper>0 && viewer.FitLimitUpper>viewer.FitBoundaryUpper){ viewer.FitLimitUpper=viewer.FitBoundaryUpper; }
+			viewer.fitData(viewer.fitTarget, viewer.fitRetries+1);
+			console.log(fitKey+" Try for a refit with limits nudged");
 			return
 		}
 
-		// Apply the normalization factor again if it is a high-statistics dataset
-		if(normalizationFactor>0){
-			max = (fitter.param[0]/normalizationFactor);
-		}
-
-		this.activeFitLines[fitKey + Math.round(cent)] = {
-			'min': this.FitLimitLower,
+		viewer.activeFitLines[dataStore.viewers[dataStore.plots[0]].fitTarget + Math.round(cent)] = {
+			'min': viewer.FitLimitLower,
 			'nBins': fitdata.length,
-			'amplitude': max,
+			'amplitude': height,
 			'center': cent,
 			'width': width,
-			'intercept': estimate[0],
-			'slope': estimate[1]
+			'intercept': intercept,
+			'slope': slope
 		}
-		fitLine = this.addFitLine(this.FitLimitLower, fitdata.length, max, cent, width, estimate[0], estimate[1])
+		fitLine = viewer.addFitLine(viewer.FitLimitLower, fitdata.length, height, cent, width, intercept, slope)
 
-		/*
-		console.log('ML fitter: (this.FitLimitLower, fitdata.length, max, cent, width, estimate[0], estimate[1])');
-		console.log(originalFitdata);
-		console.log(fitdata);
-		console.log(this.FitLimitLower);
-		console.log(fitdata.length);
-		console.log(max);
-		console.log(cent);
-		console.log(width);
-		console.log(estimate[0]);
-		console.log(estimate[1]);
-		console.log(normalizationFactor);
-		*/
+		viewer.containerPersistentOverlay.removeAllChildren();
+		viewer.containerFit.addChild(fitLine);
+		viewer.stage.update();
 
-		this.containerPersistentOverlay.removeAllChildren();
-		this.containerFit.addChild(fitLine);
-		this.stage.update();
+		viewer.fitted=1;
+		viewer.fitModeEngage = 0;
 
-		this.fitted=1;
-		this.fitModeEngage = 0;
-
-		this.fitCallback(cent, width, max, estimate[0], estimate[1]);
+		// Send results to the callback
+		console.log(dataStore);
+		console.log(fitKey+" fit complete: "+[cent, width, height, intercept, slope]);
+		this.fitCallback(cent, width, height, intercept, slope);
 	};
 
 	//initiate a projection of a 2D matrix based on the limits set in spectrum fitKey
@@ -1008,7 +990,7 @@ function spectrumViewer(canvasID){
 		//suspend the refresh
 		window.clearTimeout(this.refreshHandler);
 
-    // Set all targets the same. Might cause problems with the radios in aux Plot Control
+		// Set all targets the same. Might cause problems with the radios in aux Plot Control
 		this.gateTarget = this.fitTarget = target;
 
 		// ensure limits are sensible
@@ -1047,7 +1029,7 @@ function spectrumViewer(canvasID){
 		this.setAppLimitsActive=1;
 		this.setAppLimitsModeEngage = 0;
 
-// Now also call fitData to fit a peak inside these app Limits
+		// Now also call fitData to fit a peak inside these app Limits
 		this.FitLimitLower =  this.setAppLimitsLimitLower;
 		this.FitLimitUpper = this.setAppLimitsLimitUpper;
 		this.fitData(target);
@@ -1123,7 +1105,7 @@ function spectrumViewer(canvasID){
 	this.bkgShape = function(x, amplitude, center, width, intercept, slope){
 		//evaluate a gaussian + linear background at x
 
-		return intercept + slope*x + amplitude*Math.exp(-1*(x-center)*(x-center)/2/width/width);
+		return intercept + slope*x + amplitude*Math.exp(-1*(x-center)*(x-center)/(2*width*width));
 	}
 
 	//dump the fit results
@@ -1265,19 +1247,35 @@ function spectrumViewer(canvasID){
 
 		return [intercept, slope]
 	}
-
 	//given the position of a peak in a spectrum, estimate its width
 	this.estimateWidth = function(spectrum, peakCenter, peakHeight){
-		var x, width;
+		var x, halfMax, width;
+		var ca, cb, cc, cd, hml, hmu;
 
+		// Perform a crude background subtraction
+		var bkg = (spectrum[0] + spectrum[spectrum.length-1]) / 2;
+		for(var i=0; i<spectrum.length; i++){
+			spectrum[i] -= bkg;
+		}
+		peakHeight = spectrum[peakCenter];
+
+		// Find the crude FWHM
+		halfMax = peakHeight/2.0;
 		x=peakCenter;
-		while(spectrum[x]>(peakHeight/2.0)) x--;
-		width=x;
+		while(spectrum[x]>halfMax && x>-1) x--;
+		cb=x+1; ca=x;
 		x=peakCenter;
-		while(spectrum[x]>(peakHeight/2.0)) x++;
-		width=x-width;
-		if(width<1) width=1;
-		width/=2.35;
+		while(spectrum[x]>halfMax && x<spectrum.length) x++;
+		cc=x-1; cd=x;
+		hml = ca + ((halfMax - spectrum[ca]) / (spectrum[cb] - spectrum[ca]));
+		hmu = cc + ((spectrum[cc] - halfMax) / (spectrum[cc] - spectrum[cd]));
+		width=hmu-hml;
+		width/=2.35; // convert FWHM to sigma
+
+		// Somehow this changes fitdata back in the other function, so undo the bkg subtraction here
+		for(var i=0; i<spectrum.length; i++){
+			spectrum[i] += bkg;
+		}
 
 		return width
 	}
@@ -1484,6 +1482,7 @@ function spectrumViewer(canvasID){
 		var specData=this.plotBuffer[target];
 
 		// Protect against bad values
+		if(specData == undefined) return;
 		if(xMin<0){
 			xMin = 0;
 		}

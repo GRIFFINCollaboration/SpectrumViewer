@@ -58,9 +58,9 @@
     <div id='messageDivText'></div><div id='messageDivButton'></div>
   </div>
 
-    <div id='developmentDiv' class='col-md-12'>
-      <div id='developmentDivButtons'></div>
-    </div>
+  <div id='developmentDiv' class='col-md-12'>
+    <div id='developmentDivButtons'></div>
+  </div>
 
   <!--Plotting-->
   <div id='topControls' class='col-md-12'>
@@ -115,95 +115,95 @@
         <div id='controlTarget' style="vertical-align: top; "></div>
         <!--
         <div id='colorPalette' class='ui-group-vertical noselect'>
-          <h4 class='noselect'>Color Palette</h4>
-          <div id='colorPaletteSelectDiv'></div>
-        </div>
-
-        <div id='cutBounds' class='ui-group-vertical noselect'>
-          <h4 class='noselect'>Cut Bounds</h4>
-          <div id='intro-shift-click' class="alert alert-warning hidden" role="alert">
-            <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-            Shift-click several points on the plot to mark a region of interest.
-          </div>
-          <ul id='cutPolyVertices' class='list-unstyled'></ul>
-          <button class='btn btn-success btn-sm' onclick='saveCutToODB()'>Save 2D Gate Region to ODB</button>
-        </div>
--->
-        <div id='plotCtrl1D' style='display: none'></div>
-        <div id='gateCtrl1D' style='display: none'></div>
-
-        <div id='info-slow-data' class="alert alert-info hidden" role="alert">
-          <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
-          Painting your histogram...
-        </div>
-
-        <div id='info-downloading' class="alert alert-info hidden" role="alert">
-          <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
-          Downloading your histogram...
-        </div>
-
+        <h4 class='noselect'>Color Palette</h4>
+        <div id='colorPaletteSelectDiv'></div>
       </div>
+
+      <div id='cutBounds' class='ui-group-vertical noselect'>
+      <h4 class='noselect'>Cut Bounds</h4>
+      <div id='intro-shift-click' class="alert alert-warning hidden" role="alert">
+      <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+      Shift-click several points on the plot to mark a region of interest.
     </div>
+    <ul id='cutPolyVertices' class='list-unstyled'></ul>
+    <button class='btn btn-success btn-sm' onclick='saveCutToODB()'>Save 2D Gate Region to ODB</button>
   </div>
+-->
+<div id='plotCtrl1D' style='display: none'></div>
+<div id='gateCtrl1D' style='display: none'></div>
 
-  <!-- Extra control features and fitting results table -->
-  <div id='auxCtrlWrap' class='sectionWrapper' style='display: none'>
-    <hr style='width:60%; border-top: 1px solid #999'></hr>
-    <div class='col-md-12'>
-      <div id='auxCtrl'></div>
-    </div>
+<div id='info-slow-data' class="alert alert-info hidden" role="alert">
+  <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+  Painting your histogram...
+</div>
+
+<div id='info-downloading' class="alert alert-info hidden" role="alert">
+  <span class="glyphicon glyphicon-picture" aria-hidden="true"></span>
+  Downloading your histogram...
+</div>
+
+</div>
+</div>
+</div>
+
+<!-- Extra control features and fitting results table -->
+<div id='auxCtrlWrap' class='sectionWrapper' style='display: none'>
+  <hr style='width:60%; border-top: 1px solid #999'></hr>
+  <div class='col-md-12'>
+    <div id='auxCtrl'></div>
   </div>
+</div>
 
-  <div id='foot'></div>
+<div id='foot'></div>
 
-  <script>
-  window.addEventListener('HTMLImportsLoaded', function(e) {
+<script>
+window.addEventListener('HTMLImportsLoaded', function(e) {
 
-    // 2D viewer and shared object setup
-    var _plotList, dim;
+  // 2D viewer and shared object setup
+  var _plotList, dim;
 
-    //generic asset setup
-    dataStore.templates = prepareTemplates(['plotListHeader', 'plotList', 'cutVertex', 'footer', 'plotGrid', 'plotControl', 'auxPlotControl', 'auxPlotControlTable', 'gateControl', 'fitRow']);
+  //generic asset setup
+  dataStore.templates = prepareTemplates(['plotListHeader', 'plotList', 'cutVertex', 'footer', 'plotGrid', 'plotControl', 'auxPlotControl', 'auxPlotControlTable', 'gateControl', 'fitRow']);
 
-    dataStore._plotListHeader = new plotListHeader('navbar-header-div');
-    _plotControl2d = new plotControl2d('plotControl');
-    dataStore._plotListHeader.setup();
-    document.getElementById('navbar-content-div').innerHTML = 'Spectrum menu is loading...';
+  dataStore._plotListHeader = new plotListHeader('navbar-header-div');
+  _plotControl2d = new plotControl2d('plotControl');
+  dataStore._plotListHeader.setup();
+  document.getElementById('navbar-content-div').innerHTML = 'Spectrum menu is loading...';
 
-    _plotControl2d.setup();
-    setupFooter('foot');
+  _plotControl2d.setup();
+  setupFooter('foot');
 
-    // Inject the dismiss button to the messageDiv
-    newButton = document.createElement('button');
-    newButton.setAttribute('id', 'messageDivDismissButton');
-    newButton.setAttribute('class', 'btn btn-default btn-lg');
-    newButton.innerHTML = "Dismiss";
-    //newButton.style.padding = '4px';
-    newButton.onclick = function(){
-      ClearErrorConnectingToAnalyzerServer();
-    }.bind(newButton);
-    document.getElementById('messageDivButton').appendChild(newButton);
+  // Inject the dismiss button to the messageDiv
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'messageDivDismissButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Dismiss";
+  //newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    ClearErrorConnectingToAnalyzerServer();
+  }.bind(newButton);
+  document.getElementById('messageDivButton').appendChild(newButton);
 
-    //start with Coincidence matrix menu displayed
-    // document.getElementById(dataStore.backendHost).onclick();
+  //start with Coincidence matrix menu displayed
+  // document.getElementById(dataStore.backendHost).onclick();
 
-    /*
-    //empty plot
-    dim = Math.min(document.getElementById('heatmapTarget').offsetWidth, window.innerHeight)
-    dataStore.hm = new heatmap(dim,dim);
-    document.getElementById('heatmapTarget').appendChild(dataStore.hm.canvas);
-    dataStore.hm.preRender = generateOverlay;
-    dataStore.hm.slowDataWarning = function(state){
-    if(state === 'on')
-    document.getElementById('info-slow-data').classList.remove('hidden');
-    else
-    document.getElementById('info-slow-data').classList.add('hidden');
-  };
-  dataStore.hm.DataDownloading = function(state){
+  /*
+  //empty plot
+  dim = Math.min(document.getElementById('heatmapTarget').offsetWidth, window.innerHeight)
+  dataStore.hm = new heatmap(dim,dim);
+  document.getElementById('heatmapTarget').appendChild(dataStore.hm.canvas);
+  dataStore.hm.preRender = generateOverlay;
+  dataStore.hm.slowDataWarning = function(state){
   if(state === 'on')
-  document.getElementById('info-downloading').classList.remove('hidden');
+  document.getElementById('info-slow-data').classList.remove('hidden');
   else
-  document.getElementById('info-downloading').classList.add('hidden');
+  document.getElementById('info-slow-data').classList.add('hidden');
+};
+dataStore.hm.DataDownloading = function(state){
+if(state === 'on')
+document.getElementById('info-downloading').classList.remove('hidden');
+else
+document.getElementById('info-downloading').classList.add('hidden');
 };
 */
 

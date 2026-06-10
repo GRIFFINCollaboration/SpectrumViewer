@@ -453,10 +453,14 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
   // Hide the subpage menu for now
   document.getElementById('menu').classList.add('hidden');
 
+  //make sure the fit callback is set up
+  dataStore.viewers[dataStore.plots[0]].fitCallback = fitCallback(); // fitcallback in helpers.js
+
   $(function () {
     $('[data-toggle="tooltip"]').tooltip()
   });
 });
 </script>
+
 </body>
 </html>

@@ -219,5 +219,15 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
   });
 });
 </script>
+
+
+  <script type="module">
+
+  // Use the Alglib.js library from https://github.com/Pterodactylus/Alglib.js for peak fitting
+  import {Alglib} from 'https://cdn.jsdelivr.net/gh/Pterodactylus/Alglib.js@master/Alglib-v1.1.0.js'
+  window.Alglib = Alglib; // export to this Global object for use everywhere
+
+  </script>
+
 </body>
 </html>

@@ -33,6 +33,24 @@ function setupQEDplots(){
   }
   thisSelect.value = "QED_DCS_azimuth2_70_110"; // default selection for initial draw
 
+    // Set up the options menu
+    // Create a select input for the choice of spectrum data
+    var newSelect = document.createElement("select");
+    newSelect.id = 'QEDOptionsSelect';
+    newSelect.name = 'QEDOptionsSelect';
+    newSelect.onchange = function(){
+      dataStore.QEDhistoExcludeBins = Boolean(this.value);
+      createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle);
+    }.bind(newSelect);
+    document.getElementById('widget-qed-menu').appendChild(newSelect);
+
+    // Add the list of spectra as the options of the select
+    thisSelect = document.getElementById('QEDOptionsSelect');
+    thisSelect.add( new Option("Show all bins", 0) );
+    thisSelect.add( new Option("Exclude bins within 10 degrees of 0 or 180", 1) );
+    thisSelect.value = 0; // default selection for initial draw
+    dataStore.QEDhistoExcludeBins = Boolean(0);  // default selection for initial draw
+
   // Define the target div for the Plotly graph
   dataStore.QEDparentDiv = 'widget-qed-plotly'; // defined in analysisOverview.html file
 
@@ -94,6 +112,24 @@ function createQEDplotly(targetDiv, dataKey, title){
     var errorData = calculateNormalizedUncertainties(dataStore.rawData[dataKey],errorData,data,dataKey.split(":")[1]);
   }
 
+// Exclude bins if this option is selected
+if(dataStore.QEDhistoExcludeBins){
+bins.splice(351,10);
+data.splice(351,10);
+errorData.splice(351,10);
+bins.splice(171,19);
+data.splice(171,19);
+errorData.splice(171,19);
+bins.splice(0,10);
+data.splice(0,10);
+errorData.splice(0,10);
+console.log(bins);
+console.log(data);
+console.log(errorData);
+console.log("Did it work?");
+console.log(dataStore);
+}
+
   // Determine the theoretical best fit line
   // First build the basic cos(2 deltaPhi) series to be fitted to the data
   var lineData = [];
@@ -128,7 +164,7 @@ function createQEDplotly(targetDiv, dataKey, title){
 //var reducedChiSq = (RCS(data, lineData, 2)).toFixed(2);
 
   // Report the fit parameters in the Div
-  document.getElementById('widget-qed-reportDiv').innerHTML = "Enhancement factor, R="+enhancement+"&plusmn;"+enhancementUncert;
+  document.getElementById('widget-qed-reportDiv').innerHTML = "<big>Enhancement factor, R="+enhancement+"&plusmn;"+enhancementUncert+"</big>";
   //+ "<br>Reduced chi-square = "+reducedChiSq;
 
   // Package the data objects together for consumption by Plotly

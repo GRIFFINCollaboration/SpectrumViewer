@@ -270,7 +270,7 @@ function efficiencyFitterReport(wrapID){
       var referenceSourceKeyData = dataStore.sourceInfo[referenceSourceKey].absoluteEfficiency;
       var thisSourceKeyData = dataStore.sourceInfo[thisSourceKey].normalizedEfficiency.slice(2,4);
     }
-    
+
     if(thisSourceKey == '152Eu' && referenceSourceKey == '60Co'){
 
       // take only some of the points
@@ -407,6 +407,16 @@ function efficiencyFitterReport(wrapID){
         dataStore.currentPeak = peakIndex;
         dataStore.viewers[viewerName].FitLimitLower = dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][0];
         dataStore.viewers[viewerName].FitLimitUpper = dataStore.ROI[dataStore.currentSource][dataStore.currentPeak][1];
+
+        // Set up the place for the results. If the fit fails this will be the entry
+        if(!dataStore.fitResults[dataStore.currentPlot]) dataStore.fitResults[dataStore.currentPlot] = [];
+        dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [NaN,NaN,NaN,NaN,NaN,1,NaN];
+        if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
+        if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
+        if(typeof dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = []; }
+        dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = 1;
+
+        // Initiate the peak fit
         dataStore.viewers[viewerName].fitData(spectrum, 0);
       }
     }else{
@@ -424,6 +434,16 @@ function efficiencyFitterReport(wrapID){
         dataStore.currentPeak = peakIndex;
         dataStore.viewers[viewerName].FitLimitLower = dataStore.ROIprojections[spectrum][dataStore.currentPeak][0];
         dataStore.viewers[viewerName].FitLimitUpper = dataStore.ROIprojections[spectrum][dataStore.currentPeak][1];
+
+        // Set up the place for the results. If the fit fails this will be the entry
+        if(!dataStore.fitResults[dataStore.currentPlot]) dataStore.fitResults[dataStore.currentPlot] = [];
+        dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [NaN,NaN,NaN,NaN,NaN,1,NaN];
+        if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
+        if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
+        if(typeof dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = []; }
+        dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = 1;
+
+        // Initiate the peak fit
         dataStore.viewers[viewerName].fitData(spectrum, 0);
 
       }

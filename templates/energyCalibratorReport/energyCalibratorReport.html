@@ -335,6 +335,16 @@ this.fitSpectra = function(spectrum){
     dataStore.currentPeak = i;
     dataStore.viewers[viewerName].FitLimitLower = dataStore.ROI[dataStore.currentSource][dataStore.currentDetector][dataStore.currentPeak][0];
     dataStore.viewers[viewerName].FitLimitUpper = dataStore.ROI[dataStore.currentSource][dataStore.currentDetector][dataStore.currentPeak][1];
+
+    // Set up the place for the results. If the fit fails this will be the entry
+    if(!dataStore.fitResults[dataStore.currentPlot]) dataStore.fitResults[dataStore.currentPlot] = [];
+    dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [NaN,NaN,NaN,NaN,NaN,1,NaN];
+    if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
+    if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
+    if(typeof dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = []; }
+    dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = 1;
+
+    // Initiate the peak fit
     dataStore.viewers[viewerName].fitData(spectrum, 0);
   }
 

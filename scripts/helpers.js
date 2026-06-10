@@ -2091,10 +2091,15 @@ function processConfigFileForRunDetails(payload){
 
 // Function to increment the progressBar by the stated amount
 function updateProgressBar(updateValue){
-  dataStore.progressBarTasksCompleted+=parseInt(updateValue);
-  dataStore.ProgressValue = (100*(dataStore.progressBarTasksCompleted/dataStore.progressBarNumberTasks)).toFixed(1);
-  document.getElementById(dataStore.progressBarKey).setAttribute('style', "width:" + dataStore.ProgressValue + "%" );
-  document.getElementById(dataStore.progressBarKey).innerHTML = dataStore.ProgressValue + "% complete";
+  return new Promise((resolve) => {
+        setTimeout(() => {
+            dataStore.progressBarTasksCompleted+=parseInt(updateValue);
+            dataStore.ProgressValue = (100*(dataStore.progressBarTasksCompleted/dataStore.progressBarNumberTasks)).toFixed(1);
+            document.getElementById(dataStore.progressBarKey).setAttribute('style', "width:" + dataStore.ProgressValue + "%" );
+            document.getElementById(dataStore.progressBarKey).innerHTML = dataStore.ProgressValue + "% complete";
+          resolve("resolved");
+        }, 5);
+  });
 }
 
 function setupProgressBarTracking(){
@@ -2464,7 +2469,7 @@ async function createNewProjection(axis,min,max,BG1SF,BG1Min,BG1Max,BG2SF,BG2Min
 };
 
 
-function roughGainMatch(spectrumList,detType,sourceType){
+async function roughGainMatch(spectrumList,detType,sourceType){
   console.log("roughGainMatch for "+detType+" with "+sourceType);
 
   var gainRange = {
@@ -2497,7 +2502,7 @@ function roughGainMatch(spectrumList,detType,sourceType){
   for(var i=0; i<spectrumList.length; i++){
 
     // Update the progress bar by one task
-    updateProgressBar(1);
+    await updateProgressBar(1);
 
     // Zero things for this spectrum
     var minChiSquare = 100000000, minChiSquareCourse = 100000000;
@@ -2722,6 +2727,7 @@ function fitSpectra(spectrum,peaks,detectorType,limits){
     var thisPeakWidth = Math.ceil(typicalPeakWidth(peaks[peakIndex],detectorType)*5);
 
     //set up peak fit
+    dataStore.currentPeakList = peaks;
     dataStore.currentPeak = peakIndex;
     if(!dataStore.ROI[dataStore.currentPlot]){ dataStore.ROI[dataStore.currentPlot] =[]; }
     if(!dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak]){ dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak] = []; }
@@ -2737,6 +2743,17 @@ function fitSpectra(spectrum,peaks,detectorType,limits){
     dataStore.viewers[viewerName].FitLimitUpper = peaks[peakIndex] + thisPeakWidth;
     if(limits[peakIndex][0]>0){ dataStore.viewers[viewerName].FitBoundaryLower = limits[peakIndex][0]; }
     if(limits[peakIndex][1]>0){ dataStore.viewers[viewerName].FitBoundaryUpper = limits[peakIndex][1]; }
+
+    // Create the place for the peak fit results.
+    // If the fitting fails then there will always be an entry for every peak fit with these defaults
+    if(!dataStore.fitResults[dataStore.currentPlot]) dataStore.fitResults[dataStore.currentPlot] = [];
+    dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [NaN,NaN,NaN,NaN,NaN,1,NaN];
+    if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
+    if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
+    if(typeof dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = []; }
+    dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = 1;
+
+    // Initiate the peak fit
     dataStore.viewers[viewerName].fitData(spectrum, 0);
   }
 
@@ -2791,37 +2808,65 @@ function fitCallback(center, width, amplitude, intercept, slope){
   // Calculate the Full Width at Half Maximum (FWHM) here
   var fwhm = (width*2.35);
 
+  // Check if we have the correct information for this peak
+  var thisPeakID = -1;
+  if(dataStore.currentPeakList){
+    var diff = dataStore.currentPeakList[dataStore.currentPeak]*0.015 + 15;
+    if(center>dataStore.currentPeakList[dataStore.currentPeak]-diff && center<dataStore.currentPeakList[dataStore.currentPeak]+diff){
+      thisPeakID = dataStore.currentPeak;
+    }else{
+      for(i=0; i<dataStore.currentPeakList.length; i++){
+        var diff = dataStore.currentPeakList[i]*0.015 + 15;
+        if(center>dataStore.currentPeakList[i]-diff && center<dataStore.currentPeakList[i]+diff){
+          thisPeakID = i;
+          break;
+        }
+      }
+    }
+  }else{ thisPeakID=0; }
+  if(thisPeakID<0){
+    console.log("PROBLEM identifying which peak this is in fitCallback, "+center+" not matched in ["+[dataStore.currentPeakList]+"]");
+    return;
+  }
+
   //keep track of fit results and peak area
+  if(!dataStore.fitResults) dataStore.fitResults = [];
   if(!dataStore.fitResults[dataStore.currentPlot]) dataStore.fitResults[dataStore.currentPlot] = [];
-  dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, center, width, intercept, slope, area, fwhm];
+  dataStore.fitResults[dataStore.currentPlot][thisPeakID] = [amplitude, center, width, intercept, slope, area, fwhm];
+
 
   // Update the ROI in case they were modified by the fitting routine
   // DO WE NEED ROI ANY MORE? Yes, for addFitLines
-  dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0] = dataStore.viewers[viewerName].FitLimitLower;
-  dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1] = dataStore.viewers[viewerName].FitLimitUpper;
+  if(!dataStore.ROI) dataStore.ROI = [];
+  if(!dataStore.ROI[dataStore.currentPlot]) dataStore.ROI[dataStore.currentPlot] = [];
+  if(!dataStore.ROI[dataStore.currentPlot][thisPeakID]) dataStore.ROI[dataStore.currentPlot][thisPeakID] = [];
+  dataStore.ROI[dataStore.currentPlot][thisPeakID][0] = dataStore.viewers[viewerName].FitLimitLower;
+  dataStore.ROI[dataStore.currentPlot][thisPeakID][1] = dataStore.viewers[viewerName].FitLimitUpper;
 
   // Reset the fitBoundaries in preparation for refits etc
   dataStore.viewers[viewerName].FitBoundaryLower = -1;
   dataStore.viewers[viewerName].FitBoundaryUpper = -1;
 
+  /*
   // Check for failed fit. The center of the Gaussian must be within the search region
-  if(center < dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0] || center > dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][1]){
-    dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [NaN,NaN,NaN,NaN,NaN,NaN,NaN];
-  }
+  if(center < dataStore.ROI[dataStore.currentPlot][thisPeakID][0] || center > dataStore.ROI[dataStore.currentPlot][thisPeakID][1]){
+  dataStore.fitResults[dataStore.currentPlot][thisPeakID] = [NaN,NaN,NaN,NaN,NaN,NaN,NaN];
+}
+*/
 
-  // Fit uncertainty is the sum of the variance in the Gross peak area and background areas. Those variance are both sqrt(number of counts)
-  if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
-  if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
-  if(typeof dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = []; }
-  dataStore.fitUncertainty[dataStore.currentPlot][dataStore.currentPeak] = areaVariance;
+// Fit uncertainty is the sum of the variance in the Gross peak area and background areas. Those variance are both sqrt(number of counts)
+if(typeof dataStore.fitUncertainty === 'undefined'){ dataStore.fitUncertainty = []; }
+if(typeof dataStore.fitUncertainty[dataStore.currentPlot] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot] = []; }
+if(typeof dataStore.fitUncertainty[dataStore.currentPlot][thisPeakID] === 'undefined'){ dataStore.fitUncertainty[dataStore.currentPlot][thisPeakID] = []; }
+dataStore.fitUncertainty[dataStore.currentPlot][thisPeakID] = areaVariance;
 
-  //disengage fit mode button in apps which use this
-  var refitButton = document.getElementById('refitButton');
-  if(refitButton != null){
-    if( parseInt(refitButton.getAttribute('engaged'),10) == 1){
-      refitButton.onclick();
-    }
+//disengage fit mode button in apps which use this
+var refitButton = document.getElementById('refitButton');
+if(refitButton != null){
+  if( parseInt(refitButton.getAttribute('engaged'),10) == 1){
+    refitButton.onclick();
   }
+}
 }
 
 function addFitLines(){
@@ -4584,8 +4629,8 @@ function HPGeEfficiency(param, logEn){
 function efficiencyRegression(dataX,dataY) {
 
   console.log('efficiencyRegression');
-//  console.log(dataX);
-//  console.log(dataY);
+  //  console.log(dataX);
+  //  console.log(dataY);
   var params = [];
 
   // Set everything to zero to begin
@@ -4743,6 +4788,38 @@ function Pn(x, n){
     return parseFloat((2*n-1)*x*Pn(x,n-1)-(n-1)*Pn(x,n-2))/n;
   }
 }
+
+// Find the scaling factor for the model to the data
+// Calculated as the slope of a linear regression line forced through the origin (0,0).
+// Formula: sum(x*y) / sum(x*x)
+// dataX is the experimental data, dataY is the model
+function scaling_factor(dataX,dataY){
+  var sum_xy = sum_x2 = 0;
+  var weight;
+
+  // Perform a crude background subtraction
+  var bkg = (dataX[0] + dataX[dataX.length-1]) / 2;
+  for(var i=0; i<dataX.length; i++){
+    dataX[i] -= bkg;
+    dataY[i] -= bkg;
+  }
+
+  for(var i=0; i<dataX.length; i++){
+    //  weight = 1.0 / Math.sqrt(Math.abs(dataX[i]));
+    //  sum_xy += weight * dataX[i] * dataY[i];
+    //  sum_x2 += weight * dataX[i] * dataX[i];
+    sum_xy += dataX[i] * dataY[i];
+    sum_x2 += dataX[i] * dataX[i];
+  }
+
+  // Guard against division by zero
+  if(sum_x2 == 0) {
+    return 0;
+  }
+
+  return (sum_x2/sum_xy);
+}
+
 
 function theoreticalAngularCorrelation(c2,c4, xValues) {
   // Given the c2 and c4 coefficients, return the series of y values of the angular correlation for the given x series.
