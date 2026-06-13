@@ -132,6 +132,7 @@ function processDropFile(file){
   // Set the title
   document.getElementById('calFileContentsTitleDiv').innerHTML = "<h3>Contents of Cal file</h3><br>\""+file.name+"\"";
   //    +"", "+(file.size/1000).toFixed(1)+" kB,<br>last modified "+file.lastModifiedDate+"<br>";
+  dataStore.dropFileName = file.name;
 
   let fr = new FileReader();
 
@@ -192,8 +193,10 @@ function processDropFile(file){
       thisArrStr = arrStr[i].split('\n');
       for(var j=0; j<thisArrStr.length; j++){
         if(thisArrStr[j].includes("Name")){
-          //thisName = thisArrStr[j].split(/\t| /)[1];
           thisName = thisArrStr[j].split(":")[1].trim();
+        }
+        if(thisArrStr[j].includes("Address")){
+          thisAddress = thisArrStr[j].split(":")[1].trim();
         }
         if(thisArrStr[j].includes("EngCoeff") || thisArrStr[j].includes("ENGCoeff")){
           thisArray = thisArrStr[j].split(/\t| /);
@@ -254,8 +257,9 @@ function processDropFile(file){
         globalsURLs.push(thisURLString);
         outputString += thisName+': '+ thisGlobalName+','+ thisOffset + "<br>";
         // Save this entry to the dataStore object
-        if(!dataStore.dropFileCalibrations.thisName){ dataStore.dropFileCalibrations[thisName] = { 'name':"", 'quad':0,'gain':1,'offset':0 }; }
+        if(!dataStore.dropFileCalibrations.thisName){ dataStore.dropFileCalibrations[thisName] = { 'name':"", 'address':"", 'quad':0,'gain':1,'offset':0 }; }
         dataStore.dropFileCalibrations[thisName].name = thisName;
+        dataStore.dropFileCalibrations[thisName].address = thisAddress;
         dataStore.dropFileCalibrations[thisName].quad = thisGlobalName;
         dataStore.dropFileCalibrations[thisName].gain = thisOffset;
         dataStore.dropFileCalibrations[thisName].offset = "";
@@ -304,8 +308,9 @@ function processDropFile(file){
       }
 
       // Save this entry to the dataStore object
-      if(!dataStore.dropFileCalibrations.thisName){ dataStore.dropFileCalibrations[thisName] = { 'name':"", 'quad':0,'gain':1,'offset':0,'TSoffset':"",'pileupk1':[],'pileupk2':[],'pileupE1':[] }; }
+      if(!dataStore.dropFileCalibrations.thisName){ dataStore.dropFileCalibrations[thisName] = { 'name':"", 'address':"", 'quad':0,'gain':1,'offset':0,'TSoffset':"",'pileupk1':[],'pileupk2':[],'pileupE1':[] }; }
       dataStore.dropFileCalibrations[thisName].name = thisName;
+      dataStore.dropFileCalibrations[thisName].address = thisAddress;
       dataStore.dropFileCalibrations[thisName].quad = thisQuad;
       dataStore.dropFileCalibrations[thisName].gain = thisGain;
       dataStore.dropFileCalibrations[thisName].offset = thisOffset;
@@ -313,6 +318,11 @@ function processDropFile(file){
       dataStore.dropFileCalibrations[thisName].pileupk1 = thisPileupk1;
       dataStore.dropFileCalibrations[thisName].pileupk2 = thisPileupk2;
       dataStore.dropFileCalibrations[thisName].pileupE1 = thisPileupE1;
+      if(thisCrosstalk0.length>0){
+      dataStore.dropFileCalibrations[thisName].crosstalk0 = thisCrosstalk0;
+      dataStore.dropFileCalibrations[thisName].crosstalk1 = thisCrosstalk1;
+      dataStore.dropFileCalibrations[thisName].crosstalk2 = thisCrosstalk2;
+    }
 
     }
 
@@ -338,6 +348,7 @@ function processDropFile(file){
 
     // Reveal the button for sending these calibrations to the Analyzer or ODB
     document.getElementById('submitCalibrationsButton').classList.remove('hidden');
+    document.getElementById('saveJSON').classList.remove('hidden');
     document.getElementById('writeToODBmodalCall').classList.remove('hidden');
 
     // Display the gain coefficients in the Div
