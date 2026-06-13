@@ -308,16 +308,18 @@ function processDropFile(file){
       }
 
       // Save this entry to the dataStore object
-      if(!dataStore.dropFileCalibrations.thisName){ dataStore.dropFileCalibrations[thisName] = { 'name':"", 'address':"", 'quad':0,'gain':1,'offset':0,'TSoffset':"",'pileupk1':[],'pileupk2':[],'pileupE1':[] }; }
+      if(!dataStore.dropFileCalibrations.thisName){ dataStore.dropFileCalibrations[thisName] = { 'name':"", 'address':"", 'quad':0,'gain':1,'offset':0,'TSoffset':"" }; }
       dataStore.dropFileCalibrations[thisName].name = thisName;
       dataStore.dropFileCalibrations[thisName].address = thisAddress;
       dataStore.dropFileCalibrations[thisName].quad = thisQuad;
       dataStore.dropFileCalibrations[thisName].gain = thisGain;
       dataStore.dropFileCalibrations[thisName].offset = thisOffset;
       dataStore.dropFileCalibrations[thisName].TSoffset = thisTSOffset;
+      if(thisPileupk1.length>0){
       dataStore.dropFileCalibrations[thisName].pileupk1 = thisPileupk1;
       dataStore.dropFileCalibrations[thisName].pileupk2 = thisPileupk2;
       dataStore.dropFileCalibrations[thisName].pileupE1 = thisPileupE1;
+      }
       if(thisCrosstalk0.length>0){
       dataStore.dropFileCalibrations[thisName].crosstalk0 = thisCrosstalk0;
       dataStore.dropFileCalibrations[thisName].crosstalk1 = thisCrosstalk1;
