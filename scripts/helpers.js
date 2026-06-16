@@ -3335,157 +3335,157 @@ function buildJSONfile(){
   console.log('Download initiated - using buildJSONfile function in helpers.js');
 
   // Write the JSON file
-  JSON = '';
+  var JSONBlob = '';
 
   // Variable
-  JSON += "{\n";
-  JSON += "   \"Analyzer\" : [\n";
-  JSON += "      {\"Variables\" : [\n";
-  JSON += "      ]},\n";
+  JSONBlob += "{\n";
+  JSONBlob += "   \"Analyzer\" : [\n";
+  JSONBlob += "      {\"Variables\" : [\n";
+  JSONBlob += "      ]},\n";
 
   // Gates, Histograms, Globals
-  JSON += "      {\"Gates\" : [\n";
-  JSON += "      ]},\n";
-  JSON += "      {\"Histograms\" : [\n";
-  JSON += "      ]},\n";
-  JSON += "      {\"Globals\" : [\n";
-  JSON += "      ]},\n";
+  JSONBlob += "      {\"Gates\" : [\n";
+  JSONBlob += "      ]},\n";
+  JSONBlob += "      {\"Histograms\" : [\n";
+  JSONBlob += "      ]},\n";
+  JSONBlob += "      {\"Globals\" : [\n";
+  JSONBlob += "      ]},\n";
 
   // Calibrations
   // Write this JSON file containing everything from the Config file that sorted this file.
   // Just replace any coefficients that we have newly determined
-  JSON += "      {\"Calibrations\" : [\n";
+  JSONBlob += "      {\"Calibrations\" : [\n";
 
   for(var i=0; i<dataStore.Config.length; i++){
     var thisKey = dataStore.Config[i].name;
-    JSON += '         {';
-    JSON += '\"name\": \"'+thisKey+'\" , ';
-    //  JSON += '\"address\": 0x'+dataStore.Config[i].address.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+' , ';
-    JSON += '\"address\": '+dataStore.Config[i].address+' , ';
-    JSON += '\"datatype\": '+ -1 +' , ';
+    JSONBlob += '         {';
+    JSONBlob += '\"name\": \"'+thisKey+'\" , ';
+    //  JSONBlob += '\"address\": 0x'+dataStore.Config[i].address.toString(16).toLocaleString(undefined, {minimumIntegerDigits: 2})+' , ';
+    JSONBlob += '\"address\": '+dataStore.Config[i].address+' , ';
+    JSONBlob += '\"datatype\": '+ -1 +' , ';
 
     // Energy gain matching coefficients
     if( dataStore.THESEcalibrations[thisKey] ){
       if( !isNaN(dataStore.THESEcalibrations[thisKey]['fit'][2]) && !isNaN(dataStore.THESEcalibrations[thisKey]['fit'][1]) && !isNaN(dataStore.THESEcalibrations[thisKey]['fit'][0]) && document.getElementById(thisKey+'write').checked){
-        JSON += '\"offset\": '+dataStore.THESEcalibrations[thisKey]['fit'][2].toFixed(6)+' , ';
-        JSON += '\"gain\": '+dataStore.THESEcalibrations[thisKey]['fit'][1].toFixed(6)+' , ';
-        JSON += '\"quad\": '+dataStore.THESEcalibrations[thisKey]['fit'][0]+' ';
+        JSONBlob += '\"offset\": '+dataStore.THESEcalibrations[thisKey]['fit'][2].toFixed(6)+' , ';
+        JSONBlob += '\"gain\": '+dataStore.THESEcalibrations[thisKey]['fit'][1].toFixed(6)+' , ';
+        JSONBlob += '\"quad\": '+dataStore.THESEcalibrations[thisKey]['fit'][0]+' ';
       }else{
-        JSON += '\"offset\": '+dataStore.Config[i].offset+' , ';
-        JSON += '\"gain\": '+dataStore.Config[i].gain+' , ';
-        JSON += '\"quad\": '+dataStore.Config[i].quad+' ';
+        JSONBlob += '\"offset\": '+dataStore.Config[i].offset+' , ';
+        JSONBlob += '\"gain\": '+dataStore.Config[i].gain+' , ';
+        JSONBlob += '\"quad\": '+dataStore.Config[i].quad+' ';
       }
     }else{
-      JSON += '\"offset\": '+dataStore.Config[i].offset+' , ';
-      JSON += '\"gain\": '+dataStore.Config[i].gain+' , ';
-      JSON += '\"quad\": '+dataStore.Config[i].quad+' ';
+      JSONBlob += '\"offset\": '+dataStore.Config[i].offset+' , ';
+      JSONBlob += '\"gain\": '+dataStore.Config[i].gain+' , ';
+      JSONBlob += '\"quad\": '+dataStore.Config[i].quad+' ';
     }
     if(thisKey.includes("GRG")){ // Only include pileup or crosstalk parameters for HPGe channels
       // Pileup correction parameters
       if( dataStore.THESEcalibrations[thisKey] ){
         if(typeof(dataStore.THESEcalibrations[thisKey].pileupk1) != "undefined"){ // newly derived in pileupCorrections app
-          JSON += ', \"pileupk1\":[ '+dataStore.THESEcalibrations[thisKey]['pileupk1'][0]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][1]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][2];
-          JSON +=                 ' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][3]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][4]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][5]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][6]+' ]';
+          JSONBlob += ', \"pileupk1\":[ '+dataStore.THESEcalibrations[thisKey]['pileupk1'][0]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][1]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][2];
+          JSONBlob +=                 ' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][3]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][4]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][5]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk1'][6]+' ]';
 
-          JSON += ', \"pileupk2\":[ '+dataStore.THESEcalibrations[thisKey]['pileupk2'][0]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][1]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][2];
-          JSON +=           ' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][3]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][4]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][5]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][6]+' ]';
+          JSONBlob += ', \"pileupk2\":[ '+dataStore.THESEcalibrations[thisKey]['pileupk2'][0]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][1]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][2];
+          JSONBlob +=           ' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][3]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][4]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][5]+' , '+dataStore.THESEcalibrations[thisKey]['pileupk2'][6]+' ]';
 
-          JSON += ', \"pileupE1\":[ '+dataStore.THESEcalibrations[thisKey]['pileupE1'][0]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][1]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][2];
-          JSON +=           ' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][3]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][4]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][5]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][6]+' ]';
+          JSONBlob += ', \"pileupE1\":[ '+dataStore.THESEcalibrations[thisKey]['pileupE1'][0]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][1]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][2];
+          JSONBlob +=           ' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][3]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][4]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][5]+' , '+dataStore.THESEcalibrations[thisKey]['pileupE1'][6]+' ]';
         }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
-          JSON += ', \"pileupk1\":[ '+dataStore.Config[i].pileupk1[0]+' , '+dataStore.Config[i].pileupk1[1]+' , '+dataStore.Config[i].pileupk1[2];
-          JSON +=           ' , '+dataStore.Config[i].pileupk1[3]+' , '+dataStore.Config[i].pileupk1[4]+' , '+dataStore.Config[i].pileupk1[5]+' , '+dataStore.Config[i].pileupk1[6]+' ]';
+          JSONBlob += ', \"pileupk1\":[ '+dataStore.Config[i].pileupk1[0]+' , '+dataStore.Config[i].pileupk1[1]+' , '+dataStore.Config[i].pileupk1[2];
+          JSONBlob +=           ' , '+dataStore.Config[i].pileupk1[3]+' , '+dataStore.Config[i].pileupk1[4]+' , '+dataStore.Config[i].pileupk1[5]+' , '+dataStore.Config[i].pileupk1[6]+' ]';
 
-          JSON += ', \"pileupk2\":[ '+dataStore.Config[i].pileupk2[0]+' , '+dataStore.Config[i].pileupk2[1]+' , '+dataStore.Config[i].pileupk2[2];
-          JSON +=           ' , '+dataStore.Config[i].pileupk2[3]+' , '+dataStore.Config[i].pileupk2[4]+' , '+dataStore.Config[i].pileupk2[5]+' , '+dataStore.Config[i].pileupk2[6]+' ]';
+          JSONBlob += ', \"pileupk2\":[ '+dataStore.Config[i].pileupk2[0]+' , '+dataStore.Config[i].pileupk2[1]+' , '+dataStore.Config[i].pileupk2[2];
+          JSONBlob +=           ' , '+dataStore.Config[i].pileupk2[3]+' , '+dataStore.Config[i].pileupk2[4]+' , '+dataStore.Config[i].pileupk2[5]+' , '+dataStore.Config[i].pileupk2[6]+' ]';
 
-          JSON += ', \"pileupE1\":[ '+dataStore.Config[i].pileupE1[0]+' , '+dataStore.Config[i].pileupE1[1]+' , '+dataStore.Config[i].pileupE1[2];
-          JSON +=           ' , '+dataStore.Config[i].pileupE1[3]+' , '+dataStore.Config[i].pileupE1[4]+' , '+dataStore.Config[i].pileupE1[5]+' , '+dataStore.Config[i].pileupE1[6]+' ]';
+          JSONBlob += ', \"pileupE1\":[ '+dataStore.Config[i].pileupE1[0]+' , '+dataStore.Config[i].pileupE1[1]+' , '+dataStore.Config[i].pileupE1[2];
+          JSONBlob +=           ' , '+dataStore.Config[i].pileupE1[3]+' , '+dataStore.Config[i].pileupE1[4]+' , '+dataStore.Config[i].pileupE1[5]+' , '+dataStore.Config[i].pileupE1[6]+' ]';
         }else{ // insert default
-          JSON += ', \"pileupk1\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
-          JSON += ', \"pileupk2\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
-          JSON += ', \"pileupE1\":[ 0 , 0 , 0 , 0 , 0 , 0 , 0 ]';
+          JSONBlob += ', \"pileupk1\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
+          JSONBlob += ', \"pileupk2\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
+          JSONBlob += ', \"pileupE1\":[ 0 , 0 , 0 , 0 , 0 , 0 , 0 ]';
         }
       }else if(typeof(dataStore.Config[i].pileupk1) != "undefined"){ // take from Config file that sorted this run
-        JSON += ', \"pileupk1\":[ '+dataStore.Config[i].pileupk1[0]+' , '+dataStore.Config[i].pileupk1[1]+' , '+dataStore.Config[i].pileupk1[2];
-        JSON +=           ' , '+dataStore.Config[i].pileupk1[3]+' , '+dataStore.Config[i].pileupk1[4]+' , '+dataStore.Config[i].pileupk1[5]+' , '+dataStore.Config[i].pileupk1[6]+' ]';
+        JSONBlob += ', \"pileupk1\":[ '+dataStore.Config[i].pileupk1[0]+' , '+dataStore.Config[i].pileupk1[1]+' , '+dataStore.Config[i].pileupk1[2];
+        JSONBlob +=           ' , '+dataStore.Config[i].pileupk1[3]+' , '+dataStore.Config[i].pileupk1[4]+' , '+dataStore.Config[i].pileupk1[5]+' , '+dataStore.Config[i].pileupk1[6]+' ]';
 
-        JSON += ', \"pileupk2\":[ '+dataStore.Config[i].pileupk2[0]+' , '+dataStore.Config[i].pileupk2[1]+' , '+dataStore.Config[i].pileupk2[2];
-        JSON +=           ' , '+dataStore.Config[i].pileupk2[3]+' , '+dataStore.Config[i].pileupk2[4]+' , '+dataStore.Config[i].pileupk2[5]+' , '+dataStore.Config[i].pileupk2[6]+' ]';
+        JSONBlob += ', \"pileupk2\":[ '+dataStore.Config[i].pileupk2[0]+' , '+dataStore.Config[i].pileupk2[1]+' , '+dataStore.Config[i].pileupk2[2];
+        JSONBlob +=           ' , '+dataStore.Config[i].pileupk2[3]+' , '+dataStore.Config[i].pileupk2[4]+' , '+dataStore.Config[i].pileupk2[5]+' , '+dataStore.Config[i].pileupk2[6]+' ]';
 
-        JSON += ', \"pileupE1\":[ '+dataStore.Config[i].pileupE1[0]+' , '+dataStore.Config[i].pileupE1[1]+' , '+dataStore.Config[i].pileupE1[2];
-        JSON +=           ' , '+dataStore.Config[i].pileupE1[3]+' , '+dataStore.Config[i].pileupE1[4]+' , '+dataStore.Config[i].pileupE1[5]+' , '+dataStore.Config[i].pileupE1[6]+' ]';
+        JSONBlob += ', \"pileupE1\":[ '+dataStore.Config[i].pileupE1[0]+' , '+dataStore.Config[i].pileupE1[1]+' , '+dataStore.Config[i].pileupE1[2];
+        JSONBlob +=           ' , '+dataStore.Config[i].pileupE1[3]+' , '+dataStore.Config[i].pileupE1[4]+' , '+dataStore.Config[i].pileupE1[5]+' , '+dataStore.Config[i].pileupE1[6]+' ]';
       }else{ // insert default
-        JSON += ', \"pileupk1\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
-        JSON += ', \"pileupk2\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
-        JSON += ', \"pileupE1\":[ 0 , 0 , 0 , 0 , 0 , 0 , 0 ]';
+        JSONBlob += ', \"pileupk1\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
+        JSONBlob += ', \"pileupk2\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
+        JSONBlob += ', \"pileupE1\":[ 0 , 0 , 0 , 0 , 0 , 0 , 0 ]';
       }
       // Crosstalk correction parameters
       if( dataStore.THESEcalibrations[thisKey] ){
         if(typeof(dataStore.THESEcalibrations[thisKey].crosstalk0) != "undefined"){ // newly derived in crosstalkCorrections app
-          JSON += ', \"crosstalk0\":[ ';
-          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.THESEcalibrations[thisKey]['crosstalk0'][k].toFixed(6); }
-          JSON += ' ]';
-          JSON += ', \"crosstalk1\":[ ';
-          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.THESEcalibrations[thisKey]['crosstalk1'][k].toFixed(6); }
-          JSON += ' ]';
-          JSON += ', \"crosstalk2\":[ ';
-          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.THESEcalibrations[thisKey]['crosstalk2'][k].toFixed(6); }
-          JSON += ' ]';
+          JSONBlob += ', \"crosstalk0\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.THESEcalibrations[thisKey]['crosstalk0'][k].toFixed(6); }
+          JSONBlob += ' ]';
+          JSONBlob += ', \"crosstalk1\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.THESEcalibrations[thisKey]['crosstalk1'][k].toFixed(6); }
+          JSONBlob += ' ]';
+          JSONBlob += ', \"crosstalk2\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.THESEcalibrations[thisKey]['crosstalk2'][k].toFixed(6); }
+          JSONBlob += ' ]';
         }else if(typeof(dataStore.Config[i].crosstalk0) != "undefined"){ // take from Config file that sorted this run
-          JSON += ', \"crosstalk0\":[ ';
-          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.Config[i].crosstalk0[k].toFixed(6); }
-          JSON += ' ]';
-          JSON += ', \"crosstalk1\":[ ';
-          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.Config[i].crosstalk1[k].toFixed(6); }
-          JSON += ' ]';
-          JSON += ', \"crosstalk2\":[ ';
-          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.Config[i].crosstalk2[k].toFixed(6); }
-          JSON += ' ]';
+          JSONBlob += ', \"crosstalk0\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.Config[i].crosstalk0[k].toFixed(6); }
+          JSONBlob += ' ]';
+          JSONBlob += ', \"crosstalk1\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.Config[i].crosstalk1[k].toFixed(6); }
+          JSONBlob += ' ]';
+          JSONBlob += ', \"crosstalk2\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.Config[i].crosstalk2[k].toFixed(6); }
+          JSONBlob += ' ]';
         }else{ // insert default
-          JSON += ', \"crosstalk0\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
-          JSON += ', \"crosstalk1\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
-          JSON += ', \"crosstalk2\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+          JSONBlob += ', \"crosstalk0\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+          JSONBlob += ', \"crosstalk1\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+          JSONBlob += ', \"crosstalk2\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
         }
       }else if(typeof(dataStore.Config[i].crosstalk0) != "undefined"){ // take from Config file that sorted this run
-        JSON += ', \"crosstalk0\":[ ';
-        for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.Config[i].crosstalk0[k].toFixed(6); }
-        JSON += ' ]';
-        JSON += ', \"crosstalk1\":[ ';
-        for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.Config[i].crosstalk1[k].toFixed(6); }
-        JSON += ' ]';
-        JSON += ', \"crosstalk2\":[ ';
-        for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.Config[i].crosstalk2[k].toFixed(6); }
-        JSON += ' ]';
+        JSONBlob += ', \"crosstalk0\":[ ';
+        for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.Config[i].crosstalk0[k].toFixed(6); }
+        JSONBlob += ' ]';
+        JSONBlob += ', \"crosstalk1\":[ ';
+        for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.Config[i].crosstalk1[k].toFixed(6); }
+        JSONBlob += ' ]';
+        JSONBlob += ', \"crosstalk2\":[ ';
+        for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.Config[i].crosstalk2[k].toFixed(6); }
+        JSONBlob += ' ]';
       }else{ // insert default
-        JSON += ', \"crosstalk0\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
-        JSON += ', \"crosstalk1\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
-        JSON += ', \"crosstalk2\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+        JSONBlob += ', \"crosstalk0\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+        JSONBlob += ', \"crosstalk1\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+        JSONBlob += ', \"crosstalk2\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
       }
     }
-    JSON += '},\n';
+    JSONBlob += '},\n';
   }
 
-  JSON += "      ]},\n";
+  JSONBlob += "      ]},\n";
 
   // Directories
-  JSON += "          {\"Directories\" : [\n";
-  JSON += "             {\"name\" : \"Data\", \"Path\" : \"\"},\n";
-  JSON += "             {\"name\" : \"Histo\", \"Path\" : \"\"},\n";
-  JSON += "             {\"name\" : \"Config\", \"Path\" : \"\"}\n";
-  JSON += "          ]},\n";
+  JSONBlob += "          {\"Directories\" : [\n";
+  JSONBlob += "             {\"name\" : \"Data\", \"Path\" : \"\"},\n";
+  JSONBlob += "             {\"name\" : \"Histo\", \"Path\" : \"\"},\n";
+  JSONBlob += "             {\"name\" : \"Config\", \"Path\" : \"\"}\n";
+  JSONBlob += "          ]},\n";
 
   // Midas
-  JSON += "          {\"Midas\" : [\n";
-  JSON += "             {\"name\" : \"Title\", \"Value\" : \"\"},\n";
-  JSON += "             {\"name\" : \"StartTime\", \"Value\" : \"0\"},\n";
-  JSON += "             {\"name\" : \"Duration\", \"Value\" : \"0\"}\n";
-  JSON += "          ]}\n";
-  JSON += "       ]\n";
-  JSON += "}\n";
+  JSONBlob += "          {\"Midas\" : [\n";
+  JSONBlob += "             {\"name\" : \"Title\", \"Value\" : \"\"},\n";
+  JSONBlob += "             {\"name\" : \"StartTime\", \"Value\" : \"0\"},\n";
+  JSONBlob += "             {\"name\" : \"Duration\", \"Value\" : \"0\"}\n";
+  JSONBlob += "          ]}\n";
+  JSONBlob += "       ]\n";
+  JSONBlob += "}\n";
 
   // Create a download link
-  const textBlob = new Blob([JSON], {type: 'text/plain'});
+  const textBlob = new Blob([JSONBlob], {type: 'text/plain'});
   URL.revokeObjectURL(window.textBlobURL);
   const downloadLink = document.createElement('a');
   downloadLink.href = URL.createObjectURL(textBlob);
@@ -3553,97 +3553,97 @@ function saveCalAsJSON(){
   console.log('Download initiated - using saveCalAsJSON function in helpers.js');
 
   // Write the JSON file
-  JSON = '';
+  var JSONBlob = '';
 
   // Variable
-  JSON += "{\n";
-  JSON += "   \"Analyzer\" : [\n";
-  JSON += "      {\"Variables\" : [\n";
-  JSON += "      ]},\n";
+  JSONBlob += "{\n";
+  JSONBlob += "   \"Analyzer\" : [\n";
+  JSONBlob += "      {\"Variables\" : [\n";
+  JSONBlob += "      ]},\n";
 
   // Gates, Histograms, Globals
-  JSON += "      {\"Gates\" : [\n";
-  JSON += "      ]},\n";
-  JSON += "      {\"Histograms\" : [\n";
-  JSON += "      ]},\n";
-  JSON += "      {\"Globals\" : [\n";
-  JSON += "      ]},\n";
+  JSONBlob += "      {\"Gates\" : [\n";
+  JSONBlob += "      ]},\n";
+  JSONBlob += "      {\"Histograms\" : [\n";
+  JSONBlob += "      ]},\n";
+  JSONBlob += "      {\"Globals\" : [\n";
+  JSONBlob += "      ]},\n";
 
   // Calibrations
   // Write this JSON file containing everything from the Config file that sorted this file.
   // Just replace any coefficients that we have newly determined
-  JSON += "      {\"Calibrations\" : [\n";
+  JSONBlob += "      {\"Calibrations\" : [\n";
 
   var keys = Object.keys(dataStore.dropFileCalibrations);
 
   for(var i=0; i<keys.length; i++){
     var thisKey = keys[i];
-    JSON += '         {';
-    JSON += '\"name\": \"'+thisKey+'\" , ';
-    JSON += '\"address\": '+dataStore.dropFileCalibrations[thisKey].address+' , ';
-    JSON += '\"datatype\": '+ -1 +' , ';
+    JSONBlob += '         {';
+    JSONBlob += '\"name\": \"'+thisKey+'\" , ';
+    JSONBlob += '\"address\": '+dataStore.dropFileCalibrations[thisKey].address+' , ';
+    JSONBlob += '\"datatype\": '+ -1 +' , ';
 
     // Energy gain matching coefficients
-        JSON += '\"offset\": '+dataStore.dropFileCalibrations[thisKey].offset+' , ';
-        JSON += '\"gain\": '+dataStore.dropFileCalibrations[thisKey].gain+' , ';
-        JSON += '\"quad\": '+dataStore.dropFileCalibrations[thisKey].quad+' ';
+        JSONBlob += '\"offset\": '+dataStore.dropFileCalibrations[thisKey].offset+' , ';
+        JSONBlob += '\"gain\": '+dataStore.dropFileCalibrations[thisKey].gain+' , ';
+        JSONBlob += '\"quad\": '+dataStore.dropFileCalibrations[thisKey].quad+' ';
 
     if(thisKey.includes("GRG")){ // Only include pileup or crosstalk parameters for HPGe channels
       // Pileup correction parameters
         if(typeof(dataStore.dropFileCalibrations[thisKey].pileupk1) != "undefined"){ // take from Config file that sorted this run
-        JSON += ', \"pileupk1\":[ '+dataStore.dropFileCalibrations[thisKey].pileupk1[0]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[1]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[2];
-        JSON +=           ' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[3]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[4]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[5]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[6]+' ]';
+        JSONBlob += ', \"pileupk1\":[ '+dataStore.dropFileCalibrations[thisKey].pileupk1[0]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[1]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[2];
+        JSONBlob +=           ' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[3]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[4]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[5]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[6]+' ]';
 
-        JSON += ', \"pileupk2\":[ '+dataStore.dropFileCalibrations[thisKey].pileupk2[0]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk2[1]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk2[2];
-        JSON +=           ' , '+dataStore.dropFileCalibrations[thisKey].pileupk2[3]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk2[4]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk2[5]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk2[6]+' ]';
+        JSONBlob += ', \"pileupk2\":[ '+dataStore.dropFileCalibrations[thisKey].pileupk2[0]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk2[1]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk2[2];
+        JSONBlob +=           ' , '+dataStore.dropFileCalibrations[thisKey].pileupk2[3]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk2[4]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk2[5]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk2[6]+' ]';
 
-        JSON += ', \"pileupE1\":[ '+dataStore.dropFileCalibrations[thisKey].pileupE1[0]+' , '+dataStore.dropFileCalibrations[thisKey].pileupE1[1]+' , '+dataStore.dropFileCalibrations[thisKey].pileupE1[2];
-        JSON +=           ' , '+dataStore.dropFileCalibrations[thisKey].pileupE1[3]+' , '+dataStore.dropFileCalibrations[thisKey].pileupE1[4]+' , '+dataStore.dropFileCalibrations[thisKey].pileupE1[5]+' , '+dataStore.dropFileCalibrations[thisKey].pileupE1[6]+' ]';
+        JSONBlob += ', \"pileupE1\":[ '+dataStore.dropFileCalibrations[thisKey].pileupE1[0]+' , '+dataStore.dropFileCalibrations[thisKey].pileupE1[1]+' , '+dataStore.dropFileCalibrations[thisKey].pileupE1[2];
+        JSONBlob +=           ' , '+dataStore.dropFileCalibrations[thisKey].pileupE1[3]+' , '+dataStore.dropFileCalibrations[thisKey].pileupE1[4]+' , '+dataStore.dropFileCalibrations[thisKey].pileupE1[5]+' , '+dataStore.dropFileCalibrations[thisKey].pileupE1[6]+' ]';
       }else{ // insert default
-        JSON += ', \"pileupk1\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
-        JSON += ', \"pileupk2\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
-        JSON += ', \"pileupE1\":[ 0 , 0 , 0 , 0 , 0 , 0 , 0 ]';
+        JSONBlob += ', \"pileupk1\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
+        JSONBlob += ', \"pileupk2\":[ 1 , 0 , 0 , 0 , 0 , 0 , 0 ]';
+        JSONBlob += ', \"pileupE1\":[ 0 , 0 , 0 , 0 , 0 , 0 , 0 ]';
       }
       // Crosstalk correction parameters
       if(typeof(dataStore.dropFileCalibrations[thisKey].crosstalk0) != "undefined"){ // take from Config file that sorted this run
-          JSON += ', \"crosstalk0\":[ ';
-          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.dropFileCalibrations[thisKey].crosstalk0[k].toFixed(6); }
-          JSON += ' ]';
-          JSON += ', \"crosstalk1\":[ ';
-          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.dropFileCalibrations[thisKey].crosstalk1[k].toFixed(6); }
-          JSON += ' ]';
-          JSON += ', \"crosstalk2\":[ ';
-          for(var k=0; k<16; k++){ if(k>0){ JSON += ' , '; } JSON += dataStore.dropFileCalibrations[thisKey].crosstalk2[k].toFixed(6); }
-          JSON += ' ]';
+          JSONBlob += ', \"crosstalk0\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.dropFileCalibrations[thisKey].crosstalk0[k].toFixed(6); }
+          JSONBlob += ' ]';
+          JSONBlob += ', \"crosstalk1\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.dropFileCalibrations[thisKey].crosstalk1[k].toFixed(6); }
+          JSONBlob += ' ]';
+          JSONBlob += ', \"crosstalk2\":[ ';
+          for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.dropFileCalibrations[thisKey].crosstalk2[k].toFixed(6); }
+          JSONBlob += ' ]';
         }else{ // insert default
-          JSON += ', \"crosstalk0\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
-          JSON += ', \"crosstalk1\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
-          JSON += ', \"crosstalk2\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+          JSONBlob += ', \"crosstalk0\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+          JSONBlob += ', \"crosstalk1\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+          JSONBlob += ', \"crosstalk2\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
         }
     }
-    JSON += '},\n';
+    JSONBlob += '},\n';
   }
 
-  JSON += "      ]},\n";
+  JSONBlob += "      ]},\n";
 
   // Directories
-  JSON += "          {\"Directories\" : [\n";
-  JSON += "             {\"name\" : \"Data\", \"Path\" : \"\"},\n";
-  JSON += "             {\"name\" : \"Histo\", \"Path\" : \"\"},\n";
-  JSON += "             {\"name\" : \"Config\", \"Path\" : \"\"}\n";
-  JSON += "          ]},\n";
+  JSONBlob += "          {\"Directories\" : [\n";
+  JSONBlob += "             {\"name\" : \"Data\", \"Path\" : \"\"},\n";
+  JSONBlob += "             {\"name\" : \"Histo\", \"Path\" : \"\"},\n";
+  JSONBlob += "             {\"name\" : \"Config\", \"Path\" : \"\"}\n";
+  JSONBlob += "          ]},\n";
 
   // Midas
-  JSON += "          {\"Midas\" : [\n";
-  JSON += "             {\"name\" : \"Title\", \"Value\" : \"\"},\n";
-  JSON += "             {\"name\" : \"StartTime\", \"Value\" : \"0\"},\n";
-  JSON += "             {\"name\" : \"Duration\", \"Value\" : \"0\"}\n";
-  JSON += "          ]}\n";
-  JSON += "       ]\n";
-  JSON += "}\n";
+  JSONBlob += "          {\"Midas\" : [\n";
+  JSONBlob += "             {\"name\" : \"Title\", \"Value\" : \"\"},\n";
+  JSONBlob += "             {\"name\" : \"StartTime\", \"Value\" : \"0\"},\n";
+  JSONBlob += "             {\"name\" : \"Duration\", \"Value\" : \"0\"}\n";
+  JSONBlob += "          ]}\n";
+  JSONBlob += "       ]\n";
+  JSONBlob += "}\n";
 
   // Create a download link
-  const textBlob = new Blob([JSON], {type: 'text/plain'});
+  const textBlob = new Blob([JSONBlob], {type: 'text/plain'});
   URL.revokeObjectURL(window.textBlobURL);
   const downloadLink = document.createElement('a');
   downloadLink.href = URL.createObjectURL(textBlob);

@@ -763,11 +763,10 @@ function spectrumViewer(canvasID){
 			console.log(fitKey+" has bad cent ["+cent+"], return");
 			return;
 		}
-		//	var fineCentroidA1 = (fitdata[cent-1]/fitdata[cent]);
-		//	var fineCentroidA2 = (fitdata[cent+1]/fitdata[cent]);
-		//	var fineCentroidA = fineCentroidA1 / (fineCentroidA1+fineCentroidA2);
-
-		var fineCentroid = cent - ( ((fitdata[cent-1]/fitdata[cent]) / ((fitdata[cent-1]/fitdata[cent])+(fitdata[cent+1]/fitdata[cent]))) *2) + 1.5;
+		var centroidSumI = (fitdata[cent-3]*(cent-2.5)) + (fitdata[cent-2]*(cent-1.5)) + (fitdata[cent-1]*(cent-0.5)) + (fitdata[cent]*(cent+0.5))
+		                   + (fitdata[cent+1]*(cent+1.5)) + (fitdata[cent+2]*(cent+2.5)) + (fitdata[cent+3]*(cent+3.5));
+		var centroidSum  = fitdata[cent-3]+fitdata[cent-2]+fitdata[cent-1]+fitdata[cent]+fitdata[cent+1]+fitdata[cent+2]+fitdata[cent+3];
+    var fineCentroid = (centroidSumI/centroidSum);
 
 		// Estimate the width of the gaussian
 		width = this.estimateWidth(fitdata, cent, max);
