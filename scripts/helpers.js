@@ -2732,6 +2732,7 @@ function fitSpectra(spectrum,peaks,detectorType,limits){
     if(!dataStore.ROI[dataStore.currentPlot]){ dataStore.ROI[dataStore.currentPlot] =[]; }
     if(!dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak]){ dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak] = []; }
     dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0] = parseInt(peaks[peakIndex] - thisPeakWidth);
+    if(dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0]<1){ dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0] = 1; }
     if(limits[peakIndex][0]>0){
       if(dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0]<limits[peakIndex][0]){ dataStore.ROI[dataStore.currentPlot][dataStore.currentPeak][0] = limits[peakIndex][0]; }
     }
@@ -3171,7 +3172,7 @@ function buildCalfile(){
       }else{
         CAL += 'EngCoeff:	'+dataStore.Config[i].offset+' '+dataStore.Config[i].gain+' '+dataStore.Config[i].quad+'\n';
       }
-    }else if( dataStore.THESEcalibrations[thisKey] && (thisKey.includes("LBL") || thisKey.includes("LBT")) ){
+    }else if( dataStore.THESEcalibrations[thisKey] && (thisKey.includes("LBL") || thisKey.includes("LBT") || thisKey.includes("QED")) ){
       // Results from fastTimingCalibrations app
       CAL += 'EngCoeff:	'+dataStore.THESEcalibrations[thisKey]['fit'][2]+' '+dataStore.THESEcalibrations[thisKey]['fit'][1]+' '+dataStore.THESEcalibrations[thisKey]['fit'][0]+'\n';
     }else{
@@ -3580,7 +3581,7 @@ function saveCalAsJSON(){
     var thisKey = keys[i];
     JSONBlob += '         {';
     JSONBlob += '\"name\": \"'+thisKey+'\" , ';
-    JSONBlob += '\"address\": '+dataStore.dropFileCalibrations[thisKey].address+' , ';
+    JSONBlob += '\"address\": '+parseInt(dataStore.dropFileCalibrations[thisKey].address)+' , ';
     JSONBlob += '\"datatype\": '+ -1 +' , ';
 
     // Energy gain matching coefficients
@@ -4700,7 +4701,7 @@ function typicalPeakWidth(energy,detector){
     width = 40;
   }
   if(detector == "QED"){
-    width = 20;
+    width = 50;
   }
   if(detector == "TAC"){
     width = 80;
