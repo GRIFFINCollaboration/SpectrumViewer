@@ -718,16 +718,16 @@ function spectrumViewer(canvasID){
 
 	//stick a gaussian on top of the spectrum fitKey between the fit limits
 	this.fitData = function(fitKey, retries){
-		var cent, fitdata, i, max=1, width, x, y, height, bkg, bins, estimate, intercept, slope, sum=0;
+		var cent, fitdata, i, max=1, width, x, y, height, bkg, bins, estimate, intercept, slope, sum=0, sumProducts=0, mean;
 		var fitLine, fitter;
 		var maxBinContentsLimit=5000000;
 		var normalizationFactor=0, originalFitdata;
-		console.log(fitKey+" in fitData");
+		console.log(fitKey+" in fitData with retries = "+retries);
 		if(!retries)
 		retries = 0;
 
 		// Save this so it can be accessed in the other function
-		this.retries = retries;
+		this.fitRetries = retries;
 
 		//suspend the refresh
 		window.clearTimeout(this.refreshHandler);
@@ -751,22 +751,42 @@ function spectrumViewer(canvasID){
 		// Bail out if the spectrum is empty
 		if(max < 2){
 			console.log(fitKey+" has bad max, return");
+			if(dataStore._auxCtrl != undefined){ dataStore._auxCtrl.toggleFitMode(); } // Disengage if we are in fit mode
+			// Disengage if we are in refit mode
+			this.leaveFitMode;
+			if(document.getElementById('refitButton')){
+				document.getElementById('refitButton').setAttribute('engaged', 0);
+				document.getElementById('refitButtonBadge').classList.remove('red-text');
+			}
 			return;
 		}
 
-		// Find the bin with the maximum Y value within the fitdata
-		cent=0;
-		while(fitdata[cent]<max){
-			cent++;
+		// Find the bin with the maximum Y value within the fitdata, and the mean
+		cent=0; max=0;
+		for(i=0; i<fitdata.length; i++){
+			if(fitdata[i]>max){ cent=i; max=fitdata[i]; }
+			sum += fitdata[i];
+			sumProducts += fitdata[i] * i;
 		}
+		// Calculate the mean
+		mean = sumProducts / sum;
+
+		// Check the centroid is good
 		if(!cent || !fitdata[cent-1] || !fitdata[cent+1]){
-			console.log(fitKey+" has bad cent ["+cent+"], return");
+		//	console.log(fitKey+" has bad cent ["+(this.FitLimitLower+cent)+"] and mean ["+(this.FitLimitLower+mean)+"], try handling as low statistics spectrum...");
+
+
+			console.log(fitKey+" has bad cent ["+(this.FitLimitLower+cent)+"], cleanly exit");
+			if(dataStore._auxCtrl != undefined){ dataStore._auxCtrl.toggleFitMode(); } // Disengage if we are in fit mode
+			toggleRefitMode(); // Disengage if we are in refit mode
 			return;
 		}
+
+	//	console.log(fitKey+" has GOOD cent ["+(this.FitLimitLower+cent)+"] and mean ["+(this.FitLimitLower+mean)+"]");
 		var centroidSumI = (fitdata[cent-3]*(cent-2.5)) + (fitdata[cent-2]*(cent-1.5)) + (fitdata[cent-1]*(cent-0.5)) + (fitdata[cent]*(cent+0.5))
-		                   + (fitdata[cent+1]*(cent+1.5)) + (fitdata[cent+2]*(cent+2.5)) + (fitdata[cent+3]*(cent+3.5));
+		+ (fitdata[cent+1]*(cent+1.5)) + (fitdata[cent+2]*(cent+2.5)) + (fitdata[cent+3]*(cent+3.5));
 		var centroidSum  = fitdata[cent-3]+fitdata[cent-2]+fitdata[cent-1]+fitdata[cent]+fitdata[cent+1]+fitdata[cent+2]+fitdata[cent+3];
-    var fineCentroid = (centroidSumI/centroidSum);
+		var fineCentroid = (centroidSumI/centroidSum);
 
 		// Estimate the width of the gaussian
 		width = this.estimateWidth(fitdata, cent, max);
@@ -775,19 +795,26 @@ function spectrumViewer(canvasID){
 		cent = this.FitLimitLower + fineCentroid;
 
 		//prefit straight bkg
+		var xValue, yValue;
 		x = []
 		y = []
 		for(i=this.FitLimitLower-5; i<this.FitLimitLower; i++){
-			x.push(i)
-			y.push(this.plotBuffer[fitKey][i])
+			xValue = i > 0 ? i : 0;
+			yValue = this.plotBuffer[fitKey][i] != undefined ? this.plotBuffer[fitKey][i] : 0;
+			x.push(xValue)
+			y.push(yValue)
 		}
 		for(i=this.FitLimitUpper; i<this.FitLimitUpper+5; i++){
-			x.push(i)
-			y.push(this.plotBuffer[fitKey][i])
+			xValue = i > 0 ? i : 0;
+			yValue = this.plotBuffer[fitKey][i] != undefined ? this.plotBuffer[fitKey][i] : 0;
+			x.push(xValue)
+			y.push(yValue)
 		}
 		estimate = this.newLinearBKG(x,y);
 		intercept = estimate[0]
 		slope = estimate[1];
+		if(slope==0){ slope=0.0001; }
+		if(intercept==0){ intercept=0.01; }
 
 		// fit the height of the gaussian
 		var model = [];
@@ -799,9 +826,9 @@ function spectrumViewer(canvasID){
 
 		let viewer = dataStore.viewers[dataStore.plots[0]];
 		//check if the fit failed, and redo with slightly nudged fit limits
-		if( (!max || !cent || !width || width<0) && viewer.fitRetries<10){
-			viewer.FitLimitLower--;
-			viewer.FitLimitUpper++;
+		if( (!height || !cent || !width || width<0) && viewer.fitRetries<10){
+			viewer.FitLimitLower-=3;
+			viewer.FitLimitUpper+=3;
 			if(viewer.FitBoundaryLower>0 && viewer.FitLimitLower<viewer.FitBoundaryLower){ viewer.FitLimitLower=viewer.FitBoundaryLower; }
 			if(viewer.FitBoundaryUpper>0 && viewer.FitLimitUpper>viewer.FitBoundaryUpper){ viewer.FitLimitUpper=viewer.FitBoundaryUpper; }
 			viewer.fitData(viewer.fitTarget, viewer.fitRetries+1);
@@ -829,7 +856,7 @@ function spectrumViewer(canvasID){
 
 		// Send results to the callback
 		console.log(dataStore);
-		console.log(fitKey+" fit complete: "+[cent, width, height, intercept, slope]);
+		console.log(fitKey+" fit complete [cent, width, height, intercept, slope]: "+[cent, width, height, intercept, slope]);
 		this.fitCallback(cent, width, height, intercept, slope);
 	};
 

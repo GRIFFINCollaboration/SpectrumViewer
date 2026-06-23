@@ -2092,13 +2092,13 @@ function processConfigFileForRunDetails(payload){
 // Function to increment the progressBar by the stated amount
 function updateProgressBar(updateValue){
   return new Promise((resolve) => {
-        setTimeout(() => {
-            dataStore.progressBarTasksCompleted+=parseInt(updateValue);
-            dataStore.ProgressValue = (100*(dataStore.progressBarTasksCompleted/dataStore.progressBarNumberTasks)).toFixed(1);
-            document.getElementById(dataStore.progressBarKey).setAttribute('style', "width:" + dataStore.ProgressValue + "%" );
-            document.getElementById(dataStore.progressBarKey).innerHTML = dataStore.ProgressValue + "% complete";
-          resolve("resolved");
-        }, 5);
+    setTimeout(() => {
+      dataStore.progressBarTasksCompleted+=parseInt(updateValue);
+      dataStore.ProgressValue = (100*(dataStore.progressBarTasksCompleted/dataStore.progressBarNumberTasks)).toFixed(1);
+      document.getElementById(dataStore.progressBarKey).setAttribute('style', "width:" + dataStore.ProgressValue + "%" );
+      document.getElementById(dataStore.progressBarKey).innerHTML = dataStore.ProgressValue + "% complete";
+      resolve("resolved");
+    }, 5);
   });
 }
 
@@ -3120,7 +3120,7 @@ function fitCOMSpectra(spectrum,peaks){
     // Save the results
     //keep track of fit results and peak area
     if(!dataStore.fitResults[dataStore.currentPlot]) dataStore.fitResults[dataStore.currentPlot] = [];
-    dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, mean, width, 1, 0, sum, fwhm];
+    dataStore.fitResults[dataStore.currentPlot][dataStore.currentPeak] = [amplitude, mean, width, 0.01, 0.0001, sum, fwhm];
 
     // Update the ROI
     // DO WE NEED ROI ANY MORE? Yes, for addFitLines
@@ -3366,8 +3366,8 @@ function buildJSONfile(){
     JSONBlob += '\"datatype\": '+ -1 +' , ';
 
     // Energy gain matching coefficients
-    if( dataStore.THESEcalibrations[thisKey] ){
-      if( !isNaN(dataStore.THESEcalibrations[thisKey]['fit'][2]) && !isNaN(dataStore.THESEcalibrations[thisKey]['fit'][1]) && !isNaN(dataStore.THESEcalibrations[thisKey]['fit'][0]) && document.getElementById(thisKey+'write').checked){
+    if( dataStore.THESEcalibrations[thisKey] && document.getElementById(thisKey+'write') ){
+      if( document.getElementById(thisKey+'write').checked){
         JSONBlob += '\"offset\": '+dataStore.THESEcalibrations[thisKey]['fit'][2].toFixed(6)+' , ';
         JSONBlob += '\"gain\": '+dataStore.THESEcalibrations[thisKey]['fit'][1].toFixed(6)+' , ';
         JSONBlob += '\"quad\": '+dataStore.THESEcalibrations[thisKey]['fit'][0]+' ';
@@ -3376,6 +3376,11 @@ function buildJSONfile(){
         JSONBlob += '\"gain\": '+dataStore.Config[i].gain+' , ';
         JSONBlob += '\"quad\": '+dataStore.Config[i].quad+' ';
       }
+    }else if( dataStore.THESEcalibrations[thisKey] && (thisKey.includes("LBL") || thisKey.includes("LBT") || thisKey.includes("QED")) ){
+      // Results from fastTimingCalibrations app
+      JSONBlob += '\"offset\": '+dataStore.THESEcalibrations[thisKey]['fit'][2].toFixed(6)+' , ';
+      JSONBlob += '\"gain\": '+dataStore.THESEcalibrations[thisKey]['fit'][1].toFixed(6)+' , ';
+      JSONBlob += '\"quad\": '+dataStore.THESEcalibrations[thisKey]['fit'][0]+' ';
     }else{
       JSONBlob += '\"offset\": '+dataStore.Config[i].offset+' , ';
       JSONBlob += '\"gain\": '+dataStore.Config[i].gain+' , ';
@@ -3585,13 +3590,13 @@ function saveCalAsJSON(){
     JSONBlob += '\"datatype\": '+ -1 +' , ';
 
     // Energy gain matching coefficients
-        JSONBlob += '\"offset\": '+dataStore.dropFileCalibrations[thisKey].offset+' , ';
-        JSONBlob += '\"gain\": '+dataStore.dropFileCalibrations[thisKey].gain+' , ';
-        JSONBlob += '\"quad\": '+dataStore.dropFileCalibrations[thisKey].quad+' ';
+    JSONBlob += '\"offset\": '+dataStore.dropFileCalibrations[thisKey].offset+' , ';
+    JSONBlob += '\"gain\": '+dataStore.dropFileCalibrations[thisKey].gain+' , ';
+    JSONBlob += '\"quad\": '+dataStore.dropFileCalibrations[thisKey].quad+' ';
 
     if(thisKey.includes("GRG")){ // Only include pileup or crosstalk parameters for HPGe channels
       // Pileup correction parameters
-        if(typeof(dataStore.dropFileCalibrations[thisKey].pileupk1) != "undefined"){ // take from Config file that sorted this run
+      if(typeof(dataStore.dropFileCalibrations[thisKey].pileupk1) != "undefined"){ // take from Config file that sorted this run
         JSONBlob += ', \"pileupk1\":[ '+dataStore.dropFileCalibrations[thisKey].pileupk1[0]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[1]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[2];
         JSONBlob +=           ' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[3]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[4]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[5]+' , '+dataStore.dropFileCalibrations[thisKey].pileupk1[6]+' ]';
 
@@ -3607,20 +3612,20 @@ function saveCalAsJSON(){
       }
       // Crosstalk correction parameters
       if(typeof(dataStore.dropFileCalibrations[thisKey].crosstalk0) != "undefined"){ // take from Config file that sorted this run
-          JSONBlob += ', \"crosstalk0\":[ ';
-          for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.dropFileCalibrations[thisKey].crosstalk0[k].toFixed(6); }
-          JSONBlob += ' ]';
-          JSONBlob += ', \"crosstalk1\":[ ';
-          for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.dropFileCalibrations[thisKey].crosstalk1[k].toFixed(6); }
-          JSONBlob += ' ]';
-          JSONBlob += ', \"crosstalk2\":[ ';
-          for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.dropFileCalibrations[thisKey].crosstalk2[k].toFixed(6); }
-          JSONBlob += ' ]';
-        }else{ // insert default
-          JSONBlob += ', \"crosstalk0\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
-          JSONBlob += ', \"crosstalk1\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
-          JSONBlob += ', \"crosstalk2\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
-        }
+        JSONBlob += ', \"crosstalk0\":[ ';
+        for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.dropFileCalibrations[thisKey].crosstalk0[k].toFixed(6); }
+        JSONBlob += ' ]';
+        JSONBlob += ', \"crosstalk1\":[ ';
+        for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.dropFileCalibrations[thisKey].crosstalk1[k].toFixed(6); }
+        JSONBlob += ' ]';
+        JSONBlob += ', \"crosstalk2\":[ ';
+        for(var k=0; k<16; k++){ if(k>0){ JSONBlob += ' , '; } JSONBlob += dataStore.dropFileCalibrations[thisKey].crosstalk2[k].toFixed(6); }
+        JSONBlob += ' ]';
+      }else{ // insert default
+        JSONBlob += ', \"crosstalk0\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+        JSONBlob += ', \"crosstalk1\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+        JSONBlob += ', \"crosstalk2\":[ 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ]';
+      }
     }
     JSONBlob += '},\n';
   }
@@ -3945,10 +3950,10 @@ function projectXaxis(gateMin,gateMax,type,parentPlotname){
 
   // build the projection from the sum of the arrays between the gate min and max values.
   for(let i=gateMin; i<=gateMax; i++){
-    thisRow = dataStore.hm._raw[i];
-    thisProjection = thisProjection.map(function (num, index) {
-      return Number.isNaN(num) ? 0 : num + thisRow[index];
-    });
+    var thisRow = dataStore.hm._raw[i];
+    for (let j = 0; j < thisProjection.length; j++) {
+      thisProjection[j] = Number.isNaN(thisRow[j]) ? thisProjection[j] : thisProjection[j] + thisRow[j];
+    }
   }
 
   // Ensure there are no NaN entries
@@ -4701,7 +4706,7 @@ function typicalPeakWidth(energy,detector){
     width = 40;
   }
   if(detector == "QED"){
-    width = 50;
+    width = 20;
   }
   if(detector == "TAC"){
     width = 80;
