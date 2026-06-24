@@ -547,6 +547,9 @@ this.refreshResidualsByDetectorPlots = function(){
 
   for(var i=0; i<dataStore.THESEdetectors.length; i++){
     var thisDetectorKey = dataStore.THESEdetectors[i];
+    if(!dataStore.THESEcalibrations[thisDetectorKey]){ continue; }
+    if(!dataStore.THESEcalibrations[thisDetectorKey].y){ continue; }
+    if(!dataStore.THESEcalibrations[thisDetectorKey].residual){ continue; }
     var newDiv = document.createElement('div');
     newDiv.setAttribute('id', containerDiv+thisDetectorKey);
     newDiv.setAttribute('class', 'col-md-6 plotlyDiv');

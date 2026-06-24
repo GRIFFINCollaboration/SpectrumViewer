@@ -1353,10 +1353,12 @@ console.log(thisSinglesKey+" for "+peakIndex+" and "+gateIndex);
           //dataStore.gamma = 0.841345; // 60Co, 4-2-0, 1332-1173
         //  dataStore.beta  = 0.957442; // 66Ga, 0-2-0, 1333-1039
         //  dataStore.gamma = 0.852034; // 66Ga, 0-2-0, 1333-1039
-          //dataStore.beta  = 0.950804; // 152Eu, 2-2-0, 1408-121
-          //dataStore.gamma = 0.829300; // 152Eu, 2-2-0, 1408-121
-          dataStore.beta  = 0.950933; // 148Cs, 719-141
-          dataStore.gamma = 0.828565; // 148Cs, 719-141
+          dataStore.beta  = 0.950804; // 152Eu, 2-2-0, 1408-121
+          dataStore.gamma = 0.829300; // 152Eu, 2-2-0, 1408-121
+          //dataStore.beta  = 0.950933; // 148Cs, 719-141
+          //dataStore.gamma = 0.828565; // 148Cs, 719-141
+          //dataStore.beta  = 1.0; // Theory
+          //dataStore.gamma = 1.0; // Theory
 
           // Grab the user input for the cascade
           //  j1=parseFloat(document.getElementById('j1').value);

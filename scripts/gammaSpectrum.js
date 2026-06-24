@@ -773,16 +773,21 @@ function spectrumViewer(canvasID){
 
 		// Check the centroid is good
 		if(!cent || !fitdata[cent-1] || !fitdata[cent+1]){
-		//	console.log(fitKey+" has bad cent ["+(this.FitLimitLower+cent)+"] and mean ["+(this.FitLimitLower+mean)+"], try handling as low statistics spectrum...");
+			//	console.log(fitKey+" has bad cent ["+(this.FitLimitLower+cent)+"] and mean ["+(this.FitLimitLower+mean)+"], try handling as low statistics spectrum...");
 
 
 			console.log(fitKey+" has bad cent ["+(this.FitLimitLower+cent)+"], cleanly exit");
 			if(dataStore._auxCtrl != undefined){ dataStore._auxCtrl.toggleFitMode(); } // Disengage if we are in fit mode
-			toggleRefitMode(); // Disengage if we are in refit mode
+			// Disengage if we are in refit mode
+			this.leaveFitMode;
+			if(document.getElementById('refitButton')){
+				document.getElementById('refitButton').setAttribute('engaged', 0);
+				document.getElementById('refitButtonBadge').classList.remove('red-text');
+			}
 			return;
 		}
 
-	//	console.log(fitKey+" has GOOD cent ["+(this.FitLimitLower+cent)+"] and mean ["+(this.FitLimitLower+mean)+"]");
+		//	console.log(fitKey+" has GOOD cent ["+(this.FitLimitLower+cent)+"] and mean ["+(this.FitLimitLower+mean)+"]");
 		var centroidSumI = (fitdata[cent-3]*(cent-2.5)) + (fitdata[cent-2]*(cent-1.5)) + (fitdata[cent-1]*(cent-0.5)) + (fitdata[cent]*(cent+0.5))
 		+ (fitdata[cent+1]*(cent+1.5)) + (fitdata[cent+2]*(cent+2.5)) + (fitdata[cent+3]*(cent+3.5));
 		var centroidSum  = fitdata[cent-3]+fitdata[cent-2]+fitdata[cent-1]+fitdata[cent]+fitdata[cent+1]+fitdata[cent+2]+fitdata[cent+3];
@@ -795,16 +800,23 @@ function spectrumViewer(canvasID){
 		cent = this.FitLimitLower + fineCentroid;
 
 		//prefit straight bkg
+		let viewer = dataStore.viewers[dataStore.plots[0]];
 		var xValue, yValue;
 		x = []
 		y = []
-		for(i=this.FitLimitLower-5; i<this.FitLimitLower; i++){
+		var lower = (cent-(5*width)) - this.FitLimitLower > 1 ? parseInt((cent-(5*width)) - this.FitLimitLower) : 2;
+		var upper = this.FitLimitUpper - (cent+(5*width)) > 1 ? parseInt(this.FitLimitUpper - (cent+(5*width))) : 2;
+		var lowerROI = this.FitLimitLower - 5;
+		var upperROI = this.FitLimitUpper + 5;
+		if(viewer.FitBoundaryLower>0 && lowerROI<viewer.FitBoundaryLower){ lowerROI=viewer.FitBoundaryLower; }
+		if(viewer.FitBoundaryUpper>0 && upperROI>viewer.FitBoundaryUpper){ upperROI=viewer.FitBoundaryUpper; }
+		for(i=lowerROI; i<=this.FitLimitLower+lower; i++){
 			xValue = i > 0 ? i : 0;
 			yValue = this.plotBuffer[fitKey][i] != undefined ? this.plotBuffer[fitKey][i] : 0;
 			x.push(xValue)
 			y.push(yValue)
 		}
-		for(i=this.FitLimitUpper; i<this.FitLimitUpper+5; i++){
+		for(i=this.FitLimitUpper-upper; i<=upperROI; i++){
 			xValue = i > 0 ? i : 0;
 			yValue = this.plotBuffer[fitKey][i] != undefined ? this.plotBuffer[fitKey][i] : 0;
 			x.push(xValue)
@@ -824,7 +836,6 @@ function spectrumViewer(canvasID){
 		}
 		var height = max * scaling_factor(fitdata,model);
 
-		let viewer = dataStore.viewers[dataStore.plots[0]];
 		//check if the fit failed, and redo with slightly nudged fit limits
 		if( (!height || !cent || !width || width<0) && viewer.fitRetries<10){
 			viewer.FitLimitLower-=3;
