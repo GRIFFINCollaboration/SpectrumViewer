@@ -552,6 +552,11 @@ function unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse,outputDel
   if(outputSparse){ dataStore.sparseData[key] = sparseData; } // sparse mode data
   if(outputDelete){ delete dataStore.rawData[key].dataBinary; } // delete the binaryBuffer data
 
+  // Update the progress bar by one task
+  if(dataStore.progressBarKey != undefined){
+    updateProgressBar(1);
+  }
+
 }
 
 async function promiseUnpackedBinaryMatrixData(key){
@@ -675,6 +680,11 @@ async function promiseUnpackedBinaryMatrixData(key){
 
     // Save the uncompressed data to the 2d histogram object used by project functions
     dataStore.hm._raw = denseData;
+
+    // Update the progress bar by one task
+    if(dataStore.progressBarKey != undefined){
+      updateProgressBar(1);
+    }
 
     // resolve the promise
     resolve("Success!");
@@ -2105,6 +2115,7 @@ function updateProgressBar(updateValue){
 function setupProgressBarTracking(){
   // Set up the progress tracking
   // Assumes the peakFitterScript has already been setup up
+  var local2dpeakstoFit = 0;
 
   // Save the length of the lists which are Objects for easy use later
   dataStore.numRunFiles = dataStore.spectrumListHistoFileNames.length;
@@ -2126,9 +2137,9 @@ function setupProgressBarTracking(){
   // Set up the progress bar and task list
   dataStore.progressBarNumberTasks = 0;
 
-  // Count the number of histograms to fetch
+  // Count the number of histograms to fetch (incremented in promiseBinaryURL)
   //dataStore.progressBarNumberTasks += (dataStore.num1dSpectra * dataStore.numRunFiles);
-  //dataStore.progressBarNumberTasks += (dataStore.num2dSpectra * dataStore.numRunFiles);
+  dataStore.progressBarNumberTasks += (dataStore.num2dSpectra * dataStore.numRunFiles);
 
   // Count the number of peaks for each 1d spectrum
   if(dataStore.num1dSpectra>0){
@@ -2137,39 +2148,50 @@ function setupProgressBarTracking(){
 
   // Count the number of projections to make and peaks to fit in projections of each 2d spectrum
   if(dataStore.num2dSpectra>0){
-    // Num of matrices to download and unpack locally...
+    // Num of matrices to unpack locally...
     dataStore.progressBarNumberTasks += (dataStore.numRunFiles * dataStore.num2dSpectra);
     // Num of projections to make...
     dataStore.progressBarNumberTasks += (dataStore.numRunFiles * dataStore.num2dSpectra * dataStore.num2dGates);
     // Total number of peaks to fit in all projections, from the "All" entry
     dataStore.progressBarNumberTasks += (dataStore.numRunFiles * dataStore.num2dSpectra * dataStore.num2dGates * dataStore.spectrumListProjectionsPeaks["All"].length);
+    local2dpeakstoFit += (dataStore.numRunFiles * dataStore.num2dSpectra * dataStore.num2dGates * dataStore.spectrumListProjectionsPeaks["All"].length);
     // Count the number of other peaks to be fitted
     for(var i=0; i<keys.length; i++){
       if(keys[i] != "All"){
         if(keys[i].includes(":") && (keys[i].includes("x-") || keys[i].includes("y-"))){
           // These peaks are specific to one projection
           dataStore.progressBarNumberTasks += dataStore.spectrumListProjectionsPeaks[keys[i]].length;
+          local2dpeakstoFit += dataStore.spectrumListProjectionsPeaks[keys[i]].length;
         }else if(keys[i].includes("run")){
           // These peaks are specific to one histogram file
           dataStore.progressBarNumberTasks += (dataStore.num2dSpectra * dataStore.num2dGates * dataStore.spectrumListProjectionsPeaks[keys[i]].length);
+          local2dpeakstoFit += (dataStore.num2dSpectra * dataStore.num2dGates * dataStore.spectrumListProjectionsPeaks[keys[i]].length);
         }else if(keys[i].includes("x-") || keys[i].includes("y-")){
           // These peaks are specific to one projection of one spectrum for all histogram file
-          dataStore.progressBarNumberTasks += (dataStore.numRunFiles * dataStore.spectrumListProjectionsPeaks[keys[i]].length);
+          dataStore.progressBarNumberTasks += (dataStore.numRunFiles * dataStore.num2dSpectra * dataStore.spectrumListProjectionsPeaks[keys[i]].length);
+          local2dpeakstoFit += (dataStore.numRunFiles * dataStore.spectrumListProjectionsPeaks[keys[i]].length);
         }else{
           // These peaks are specific to all projections for one spectrum in all histogram files
           dataStore.progressBarNumberTasks += dataStore.numRunFiles * dataStore.num2dGates * dataStore.spectrumListProjectionsPeaks[keys[i]].length;
+          local2dpeakstoFit += dataStore.numRunFiles * dataStore.num2dGates * dataStore.spectrumListProjectionsPeaks[keys[i]].length;
         }
       }
     }
   }
 
-  console.log("Number of tasks: run files = "+dataStore.numRunFiles);
-  console.log("Number of tasks: 1d peaks = "+dataStore.num1dPeaks);
-  console.log("Number of tasks: 2d spectra = "+dataStore.num2dSpectra);
-  console.log("Number of tasks: 2d gates = "+dataStore.num2dGates);
-  console.log("Number of tasks: 2d peaks = "+dataStore.num2dPeaks);
+  console.log("Number of run files = "+dataStore.numRunFiles);
+  console.log("Number of 1d spectra = "+dataStore.num1dSpectra);
+  console.log("Number of 1d peaks = "+dataStore.spectrumList1dPeaks["All"].length);
+  console.log("Number of 2d spectra = "+dataStore.num2dSpectra);
+  console.log("Number of 2d gates = "+dataStore.num2dGates);
+  console.log("Number of 2d peaks = "+dataStore.num2dPeaks);
+  console.log("Number of tasks: 1d peaks to fit = "+(dataStore.numRunFiles * dataStore.num1dSpectra * dataStore.spectrumList1dPeaks["All"].length));
+  console.log("Number of tasks: 2d histograms to fetch = "+(dataStore.num2dSpectra * dataStore.numRunFiles));
+  console.log("Number of tasks: 2d projections to make = "+(dataStore.numRunFiles * dataStore.num2dSpectra * dataStore.num2dGates));
+  console.log("Number of tasks: 2d peaks to fit = "+local2dpeakstoFit);
 
   console.log("Number of tasks = "+dataStore.progressBarNumberTasks);
+  console.log("Pause for debugger");
 
 }
 
