@@ -1,0 +1,309 @@
+<link rel="stylesheet" href="qedCalibrationsReport.css">
+
+<template id='qedCalibrationsReport'>
+<div class='sectionWrapper item'>
+<div class='col-md-12'>
+<div id='{{id}}textFileDownloadNumColsDiv' class='col-md-2'></div>
+<div id='{{id}}textFileDownloadSelectsDiv' class='col-md-9'></div>
+<div id='{{id}}textFileDownloadButtonDiv' class='col-md-1'></div>
+</div>
+<div class='col-md-12'>
+<table id='{{id}}qedCalibrationsResults' class='table qedCalibrationsTable'></table>
+</div>
+</div>
+</template>
+
+<template id='qedCalibrationsCoefficientsReport'>
+<div class='sectionWrapper item'>
+<div class='col-md-12'>
+<table id='{{id}}qedCalibrationsCoefficientsResults' class='table qedCalibrationsTable'></table>
+</div>
+</div>
+</template>
+
+<script>
+function qedCalibrationsReport(wrapID,wrapID2,wrapID3){
+
+  this.wrapID = wrapID;
+  this.wrap = document.getElementById(wrapID);
+
+  this.wrapID2 = wrapID2;
+  this.wrap2 = document.getElementById(wrapID2);
+
+  this.wrapID3 = wrapID3;
+  this.wrap3 = document.getElementById(wrapID3);
+
+  // Variables to control table generation and filling
+  this.numCellsPerRow = 14;
+  this.cellHandles = ["histo","title","starttime","duration","spectrum","centroid","height","width","intercept","slope","area","areaUnc","fwhm"];
+  this.cellHandlesCoefficients = ["detector","correction","a0","a1","a2","a3","a4","a5","a6"];
+  this.cellTitles = ["Index","Histogram Filename","Run Title","Run StartTime","Run Duration","Spectrum name",
+  "Centroid","Height","Width","Intercept (background)","Slope (background)","Area","Area Unc.","FWHM"];
+  this.cellIndex = [0,11,12,1,2,3,4,5,6,7,8,9,10,13,14,15,16,17,18,19]; // Default selections
+  this.cellIndexDefaultSelection = [0,11,12,1,2,3,4,5,6,7,8,9,10,13,14,15,16,17,18,19];
+  this.textFileNumTextColumns = 2;
+  this.writtenNumbers = ["Zero","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen","Twenty"];
+  this.textFileSeparator = [" ",",","\t",":","|"];
+  this.textFileSeparatorNames = ["space","comma","tab","colon","pipe"];
+  this.textFileSeparatorIndex = 0;
+
+  this.setup = function(){
+
+    //inject templates
+    this.wrap.innerHTML = Mustache.to_html(
+      dataStore.templates.qedCalibrationsReport,
+      {
+        'id': this.wrapID,
+      }
+    );
+
+    // table has to be done as a separate template, since templates and tables don't play too nice together
+    document.getElementById(this.wrapID + 'qedCalibrationsResults').innerHTML= Mustache.to_html(
+      dataStore.templates.qedCalibrationsReportTable,
+      content = {
+        'id': this.wrapID
+      }
+    );
+
+    // Create the Number columns select for the Text File
+    var newSelect = document.createElement("select");
+    newSelect.id = 'numColumnsSelect';
+    newSelect.name = 'numColumnsSelect';
+    newSelect.onchange = function(){
+      dataStore._qedCalibrationsReport.textFileNumTextColumns = this.value;
+      dataStore._qedCalibrationsReport.createTextFileOptionInputs();
+    }.bind(newSelect);
+    for(var j=0; j<this.numCellsPerRow; j++){
+      newSelect.add( new Option(this.writtenNumbers[j], j) );
+    }
+    newLabel = document.createElement("label");
+    newLabel.for = newSelect.id;
+    newLabel.innerHTML = 'Num. of Columns: ';
+    document.getElementById(this.wrapID+'textFileDownloadNumColsDiv').appendChild(newLabel);
+    document.getElementById(this.wrapID+'textFileDownloadNumColsDiv').appendChild(newSelect);
+    document.getElementById(newSelect.id).value = this.textFileNumTextColumns;
+
+    // Create the selects for the text file
+    this.createTextFileOptionInputs();
+
+    // Create the button to download the text file
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'textFileDownloadButton');
+    newButton.setAttribute('class', 'btn btn-default btn-lg');
+    newButton.innerHTML = "Download Text File";
+    newButton.style.padding = '4px';
+    newButton.onclick = function(){
+      dataStore._qedCalibrationsReport.buildTextFile();
+    }.bind(newButton);
+    document.getElementById(this.wrapID+'textFileDownloadButtonDiv').appendChild(newButton);
+
+
+    // Setup the Coefficiencts Results subpage
+    //inject templates
+    this.wrap2.innerHTML = Mustache.to_html(
+      dataStore.templates.qedCalibrationsCoefficientsReport,
+      {
+        'id': this.wrapID2,
+      }
+    );
+    // table has to be done as a separate template, since templates and tables don't play too nice together
+    document.getElementById(this.wrapID2 + 'qedCalibrationsCoefficientsResults').innerHTML= Mustache.to_html(
+      dataStore.templates.qedCalibrationsCoefficientsReportTable,
+      content = {
+        'id': this.wrapID2
+      }
+    );
+
+  };
+
+  this.createTextFileOptionInputs = function(){
+
+    // Remove any pre-existing content
+    document.getElementById(this.wrapID+'textFileDownloadSelectsDiv').innerHTML = "";
+
+    // Create the selects for values to include in a text file
+    for(var i=0; i<this.textFileNumTextColumns; i++){
+      var newSelect = document.createElement("select");
+      newSelect.id = 'cellIndexSelect'+i;
+      newSelect.name = 'cellIndexSelect'+i;
+      newSelect.onchange = function(){
+        var index = parseInt(this.id.split("Select")[1]);
+        dataStore._qedCalibrationsReport.cellIndex[index] = this.value;
+      }.bind(newSelect);
+      for(var j=0; j<this.numCellsPerRow; j++){
+        newSelect.add( new Option(this.cellTitles[j], j) );
+      }
+      newLabel = document.createElement("label");
+      newLabel.for = newSelect.id;
+      newLabel.innerHTML = 'Column '+(i+1)+': ';
+      document.getElementById(this.wrapID+'textFileDownloadSelectsDiv').appendChild(newLabel);
+      document.getElementById(this.wrapID+'textFileDownloadSelectsDiv').appendChild(newSelect);
+      document.getElementById(newSelect.id).value = this.cellIndexDefaultSelection[i];
+    }
+
+    // Create the column separator select
+    var newSelect = document.createElement("select");
+    newSelect.id = 'textFileSeparatorSelect';
+    newSelect.name = 'textFileSeparatorSelect';
+    newSelect.onchange = function(){
+      dataStore._qedCalibrationsReport.textFileSeparatorIndex = this.value;
+    }.bind(newSelect);
+    for(var j=0; j<this.textFileSeparatorNames.length; j++){
+      newSelect.add( new Option(this.textFileSeparatorNames[j], j) );
+    }
+    newLabel = document.createElement("label");
+    newLabel.for = newSelect.id;
+    newLabel.innerHTML = 'Column separator/delimiter:';
+    document.getElementById(this.wrapID+'textFileDownloadSelectsDiv').appendChild(newLabel);
+    document.getElementById(this.wrapID+'textFileDownloadSelectsDiv').appendChild(newSelect);
+    this.textFileSeparatorIndex = 0;
+    document.getElementById(newSelect.id).value = 0;
+
+  };
+
+  this.updateTable = function(){
+    //update the report table with whatever is currently in the dataStore
+    //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
+    //<spectrumName>: string; name of spectrum, per names from analyzer
+    //this: efficiencyFitterReport object
+    console.log(dataStore);
+    var tableID = "qedCalibrationsqedCalibrationsResults";
+    var row;
+
+    var keys = Object.keys(dataStore.fitResults);
+    for(var i=0; i<keys.length; i++){
+
+      for(var j=0; j<dataStore.fitResults[keys[i]].length; j++){
+        // if a row for this peak does not exist in the table then create it
+        if(!document.getElementById(tableID+'Row-'+ keys[i]+'-Peak-'+ j)){
+          row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
+          row.id = tableID+'Row-'+ keys[i]+'-Peak-'+ j;
+          for(var cellIndex=0; cellIndex<this.numCellsPerRow; cellIndex++){
+            var cell = row.insertCell(cellIndex);
+            cell.id = row.id + 'Cell' + this.cellHandles[cellIndex];
+          }
+        }else{ row = document.getElementById(tableID+'Row-'+ keys[i]+'-Peak-'+ j); }
+
+        document.getElementById(row.id + 'Cell' + this.cellHandles[0]).innerHTML = row.rowIndex;
+        document.getElementById(row.id + 'Cell' + this.cellHandles[1]).innerHTML = keys[i].split(":")[0];
+        document.getElementById(row.id + 'Cell' + this.cellHandles[2]).innerHTML = dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Title;
+        document.getElementById(row.id + 'Cell' + this.cellHandles[3]).innerHTML = dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].StartTime;
+        document.getElementById(row.id + 'Cell' + this.cellHandles[4]).innerHTML = dataStore.spectrumListHistoFileDetails[keys[i].split(":")[0]].Duration;
+
+        document.getElementById(row.id + 'Cell' + this.cellHandles[5]).innerHTML = keys[i].split(":")[1];
+        document.getElementById(row.id + 'Cell' + this.cellHandles[6]).innerHTML =  parseFloat(dataStore.fitResults[keys[i]][j][1]).toFixed(2);  // Center
+        document.getElementById(row.id + 'Cell' + this.cellHandles[7]).innerHTML = parseFloat(dataStore.fitResults[keys[i]][j][0]).toFixed(2);  // Amplitude
+        document.getElementById(row.id + 'Cell' + this.cellHandles[8]).innerHTML = parseFloat(dataStore.fitResults[keys[i]][j][2]).toFixed(2); // width
+        document.getElementById(row.id + 'Cell' + this.cellHandles[9]).innerHTML = parseFloat(dataStore.fitResults[keys[i]][j][3]).toFixed(2); // intercept
+        document.getElementById(row.id + 'Cell' + this.cellHandles[10]).innerHTML = parseFloat(dataStore.fitResults[keys[i]][j][4]).toFixed(2); // slope
+        document.getElementById(row.id + 'Cell' + this.cellHandles[11]).innerHTML = parseFloat(dataStore.fitResults[keys[i]][j][5]).toFixed(2); // area
+        document.getElementById(row.id + 'Cell' + this.cellHandles[12]).innerHTML = Math.sqrt(parseFloat(dataStore.fitResults[keys[i]][j][5])).toFixed(2) // area uncertainty
+        document.getElementById(row.id + 'Cell' + this.cellHandles[13]).innerHTML = parseFloat(dataStore.fitResults[keys[i]][j][6]).toFixed(2); // FWHM
+      }
+    }
+
+  };
+
+  this.updateCoefficientsTable = function(){
+    //////////////////////////////////////
+    // Now populate the coefficiencts table
+    //////////////////////////////////////
+    console.log(dataStore);
+    var tableID = "crystalKReportRegionqedCalibrationsDetectorqedCalibrationsCoefficientsResults";
+    var numCellsPerRow = 9;
+    var paramKeys = ["k1","k2","e1"];
+    var row;
+
+    var keys = Object.keys(dataStore.fitResultsParameters);
+    for(var i=0; i<keys.length; i++){
+      for(var k=0; k<paramKeys.length; k++){
+
+        // if a row for this detector does not exist in the table then create it, with the rows for all three correction factors
+        if(!document.getElementById(tableID+'Row-'+ keys[i] + '-' + paramKeys[k])){
+          // Create the row
+          row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
+          row.id = tableID+'Row-'+ keys[i] +'-'+paramKeys[k];
+          for(var cellIndex=0; cellIndex<numCellsPerRow; cellIndex++){
+            var cell = row.insertCell(cellIndex);
+            cell.id = row.id + 'Cell' + this.cellHandlesCoefficients[cellIndex];
+          }
+        }else{ row = document.getElementById(tableID+'Row-'+ keys[i] + '-' + paramKeys[k]); }
+
+        // Fill the rows with values
+        if(k==0){ document.getElementById(row.id + 'Cell' + this.cellHandlesCoefficients[0]).innerHTML = keys[i]; }
+        document.getElementById(row.id + 'Cell' + this.cellHandlesCoefficients[1]).innerHTML = paramKeys[k];
+        document.getElementById(row.id + 'Cell' + this.cellHandlesCoefficients[2]).innerHTML = dataStore.fitResultsParameters[keys[i]][paramKeys[k]][0];
+        document.getElementById(row.id + 'Cell' + this.cellHandlesCoefficients[3]).innerHTML = dataStore.fitResultsParameters[keys[i]][paramKeys[k]][1];
+        document.getElementById(row.id + 'Cell' + this.cellHandlesCoefficients[4]).innerHTML = dataStore.fitResultsParameters[keys[i]][paramKeys[k]][2];
+        document.getElementById(row.id + 'Cell' + this.cellHandlesCoefficients[5]).innerHTML = dataStore.fitResultsParameters[keys[i]][paramKeys[k]][3];
+        document.getElementById(row.id + 'Cell' + this.cellHandlesCoefficients[6]).innerHTML = dataStore.fitResultsParameters[keys[i]][paramKeys[k]][4];
+        document.getElementById(row.id + 'Cell' + this.cellHandlesCoefficients[7]).innerHTML = dataStore.fitResultsParameters[keys[i]][paramKeys[k]][5];
+        document.getElementById(row.id + 'Cell' + this.cellHandlesCoefficients[8]).innerHTML = dataStore.fitResultsParameters[keys[i]][paramKeys[k]][6];
+      }
+    }
+
+  };
+
+  this.buildTextFile = function(){
+
+    console.log('Download initiated');
+    var tableID = "qedCalibrationsqedCalibrationsResults";
+
+    // Write the table of results to a text file for download.
+    var textFile = '';
+
+    // Iterate through all rows of the table
+    var table = document.getElementById(tableID);
+    for (var i = 0, row; row = table.rows[i]; i++) {
+      //rows would be accessed using the "row" variable assigned in the for loop
+      for(var k=0; k<this.textFileNumTextColumns; k++){
+        if(k>0){ textFile += this.textFileSeparator[this.textFileSeparatorIndex]; }
+        textFile += row.cells[this.cellIndex[k]].innerHTML;
+      }
+      textFile += "\n";
+    }
+
+    // Create a download link
+    const textBlob = new Blob([textFile], {type: 'text/plain'});
+    URL.revokeObjectURL(window.textBlobURL);
+    const downloadLink = document.createElement('a');
+    downloadLink.href = URL.createObjectURL(textBlob);
+    downloadLink.download = 'GRIFFIN-qedCalibrations-Results.txt';
+
+    // Trigger the download
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+  };
+
+
+  this.refreshCoefficientsTableData = function(){
+
+    for(var i=0; i<dataStore.THESEcalibrations.length; i++){
+      var thisID = 'energyCalibratorResults'+dataStore.THESEcalibrations[i].name;
+      document.getElementById(thisID+'quad').innerHTML = dataStore.THESEcalibrations[i].fit.quad.toPrecision(6);
+      document.getElementById(thisID+'gain').innerHTML = dataStore.THESEcalibrations[i].fit.gain.toFixed(8);
+      document.getElementById(thisID+'offset').innerHTML = dataStore.THESEcalibrations[i].fit.offset.toFixed(8);
+      document.getElementById(thisID+'r2').innerHTML = dataStore.THESEcalibrations[i].fit.r2.toPrecision(10);
+      document.getElementById(thisID+'residual').innerHTML = dataStore.THESEcalibrations[i].residualMean.toFixed(3);
+    }
+
+  };
+
+  this.refreshDetectorTableData = function(thisDetectorIndex){
+
+    for(var i=0; i<dataStore.THESEcalibrations[thisDetectorIndex].y.length; i++){
+      var thisID = 'energyCalibratorDetector'+dataStore.THESEcalibrations[thisDetectorIndex].y[i];
+      document.getElementById(thisID+'pulseHeightCentroid').innerHTML = dataStore.THESEcalibrations[thisDetectorIndex].xPH[i].toFixed(2);
+      document.getElementById(thisID+'energyCentroid').innerHTML = dataStore.THESEcalibrations[thisDetectorIndex].xEn[i].toFixed(2);
+      document.getElementById(thisID+'residual').innerHTML = dataStore.THESEcalibrations[thisDetectorIndex].residual[i].toFixed(4);
+    }
+    document.getElementById('reportCardDiv').innerHTML = "Mean of residuals = "+ dataStore.THESEcalibrations[thisDetectorIndex].residualMean.toFixed(2) +
+    "keV, Variance of residuals = "+ dataStore.THESEcalibrations[thisDetectorIndex].residualVar.toFixed(2)+"keV";
+
+    // Now also refresh the plot with the data from this Detector
+    this.refreshDetectorPlotData(thisDetectorIndex);
+  };
+
+
+}
+</script>

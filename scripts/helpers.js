@@ -3399,7 +3399,7 @@ function buildJSONfile(){
         JSONBlob += '\"quad\": '+dataStore.Config[i].quad+' ';
       }
     }else if( dataStore.THESEcalibrations[thisKey] && (thisKey.includes("LBL") || thisKey.includes("LBT") || thisKey.includes("QED")) ){
-      // Results from fastTimingCalibrations app
+      // Results from fastTimingCalibrations app or qedCalibrations
       JSONBlob += '\"offset\": '+dataStore.THESEcalibrations[thisKey]['fit'][2].toFixed(6)+' , ';
       JSONBlob += '\"gain\": '+dataStore.THESEcalibrations[thisKey]['fit'][1].toFixed(6)+' , ';
       JSONBlob += '\"quad\": '+dataStore.THESEcalibrations[thisKey]['fit'][0]+' ';
