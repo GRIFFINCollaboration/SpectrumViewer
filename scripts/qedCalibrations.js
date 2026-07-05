@@ -87,6 +87,7 @@ function setupDataStore(){
   dataStore.progressBarKey = "qedCalibrationsProgress";                        // id of the Div with class = "progress-bar ..."
   dataStore.progressBarNumberTasks = 0;                             // Total count of tasks (spectra to fetch, projections to make, peaks to fit) for use with the progress bar
   dataStore.progressBarTasksCompleted = 0;                           // Number of tasks completed so far for use with the progress bar
+  dataStore.refitPeakID = -1;
   dataStore.refitCallback = function(){ setTimeout(postProcessQEDCalibrations(), 1000); }  // callback function for after a peak refit
 
   // Script configuration - all are arrays used only as user input
@@ -220,7 +221,7 @@ function setupDataStore(){
       "QED6N18_E_vs_theta", "QED6N19_E_vs_theta", "QED6N20_E_vs_theta", "QED6N21_E_vs_theta", "QED6N22_E_vs_theta", "QED6N23_E_vs_theta",
       "QED6N24_E_vs_theta", "QED6N25_E_vs_theta", "QED6N26_E_vs_theta", "QED6N27_E_vs_theta", "QED6N28_E_vs_theta", "QED6N29_E_vs_theta",
       "QED6N30_E_vs_theta", "QED6N31_E_vs_theta"
-      
+
     ],
     "spectrumListGates" : [
       ["x",40,50],

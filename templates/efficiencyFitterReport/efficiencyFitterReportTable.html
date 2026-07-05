@@ -1,16 +1,36 @@
-<template id='efficiencyFitterReportTable'>
+<template id='peakFitterReportTable'>
+  <tr>
+    <td class='col-md-2'>Fit Index</td>
+    <td class='col-md-2'>Histogram File</td>
+    <td class='col-md-2'>Run Title</td>
+    <td class='col-md-2'>Run StartTime</td>
+    <td class='col-md-2'>Run Duration</td>
+    <td class='col-md-2'>Spectrum</td>
+    <td class='col-md-2'>Centroid</td>
+    <td class='col-md-2'>Height</td>
+    <td class='col-md-2'>Width</td>
+    <td class='col-md-2'>Intercept (BG)</td>
+    <td class='col-md-2'>Slope (BG)</td>
+    <td class='col-md-2'>Area</td>
+    <td class='col-md-2'>Area Unc.</td>
+    <td class='col-md-2'>FWHM</td>
+  </tr>
+</template>
+
+<template id='effResultsReportTable'>
     <tr>
         <td class='col-md-2'>Source</td>
         <td class='col-md-2'>Peak Energy</td>
         <td class='col-md-2'>Peak Intensity</td>
         <td class='col-md-2'>FWHM</td>
-        <td class='col-md-2'>Raw Singles Area</td>
+        <td class='col-md-2'>Raw Peak Area</td>
         <td class='col-md-2'>Summing-In Correction</td>
         <td class='col-md-2'>Summing-Out Correction</td>
         <td class='col-md-2'>Corrected Area</td>
         <td class='col-md-2'>Relative Efficiency</td>
         <td class='col-md-2'>Absolute Efficiency</td>
     </tr>
+    <tr><td>Singles:</td></tr>
     {{# detectors}}
         <tr id='{{id}}{{detectors}}row'>
             <td id='{{id}}{{.}}title'></td>
@@ -25,4 +45,33 @@
             <td id='{{id}}{{.}}absoluteEfficiency'>-</td>
         </tr>
     {{/ detectors}}
+    <tr><td>Addback:</td></tr>
+    {{# ABdetectors}}
+        <tr id='{{id}}{{detectors}}ABrow'>
+            <td id='{{id}}{{.}}ABtitle'></td>
+            <td id='{{id}}{{.}}ABenergy'>-</td>
+            <td id='{{id}}{{.}}ABintensity'>-</td>
+            <td id='{{id}}{{.}}ABFWHM'>-</td>
+            <td id='{{id}}{{.}}ABuncorrectedArea'>-</td>
+            <td id='{{id}}{{.}}ABsummingIn'>-</td>
+            <td id='{{id}}{{.}}ABsummingOut'>-</td>
+            <td id='{{id}}{{.}}ABcorrectedArea'>-</td>
+            <td id='{{id}}{{.}}ABrelativeEfficiency'>-</td>
+            <td id='{{id}}{{.}}ABabsoluteEfficiency'>-</td>
+        </tr>
+    {{/ ABdetectors}}
+</template>
+
+<template id='efficiencyFitterCoefficientsReportTable'>
+    <tr>
+        <td class='col-md-2'>Detector</td>
+        <td class='col-md-2'>Correction</td>
+        <td class='col-md-2'>a0</td>
+        <td class='col-md-2'>a1</td>
+        <td class='col-md-2'>a2</td>
+        <td class='col-md-2'>a3</td>
+        <td class='col-md-2'>a4</td>
+        <td class='col-md-2'>a5</td>
+        <td class='col-md-2'>a6</td>
+    </tr>
 </template>

@@ -75,6 +75,7 @@ function setupDataStore(){
   dataStore.progressBarKey = "peakFitterProgress";                        // id of the Div with class = "progress-bar ..."
   dataStore.progressBarNumberTasks = 0;                             // Total count of tasks (spectra to fetch, projections to make, peaks to fit) for use with the progress bar
   dataStore.progressBarTasksCompleted = 0;                           // Number of tasks completed so far for use with the progress bar
+  dataStore.refitPeakID = -1;
   dataStore.refitCallback = function(){ setTimeout(dataStore._peakFitterReport.updateTable(), 1000); }  // callback function for after a peak refit
 
   // Script configuration - all are arrays used only as user input

@@ -2191,8 +2191,6 @@ function setupProgressBarTracking(){
   console.log("Number of tasks: 2d peaks to fit = "+local2dpeakstoFit);
 
   console.log("Number of tasks = "+dataStore.progressBarNumberTasks);
-  console.log("Pause for debugger");
-
 }
 
 // createAllLocalMatrices(listOfMatrices,progressBarKey,callback);
@@ -2298,6 +2296,7 @@ async function createLocalMatrices(spectrumName){
 // Note: Terminates with projectionsCallback().
 function projectAllMatrices(projectionsList,compressed,menuGroupID){
   //make the projections for the matrix of each source based on the peaks defined.
+  console.log("projectAllMatrices() function in helpers.js");
 
   // Get the list of keys for the matrices to be projected
   matrixKeys = projectionsList;
@@ -2713,10 +2712,8 @@ function fitSpectra(spectrum,peaks,detectorType,limits){
   if(limits == undefined){
     limits = [];
   }
-  if(limits.length<peaks.length){
-    for(var j=0; j<peaks.length-limits.length; j++){
-      limits.push([-1,-1]);
-    }
+  while(limits.length<peaks.length){
+    limits.push([-1,-1]);
   }
 
   var peakIndex = 0;
@@ -2833,7 +2830,9 @@ function fitCallback(center, width, amplitude, intercept, slope){
 
   // Check if we have the correct information for this peak
   var thisPeakID = -1;
-  if(dataStore.currentPeakList){
+  if(dataStore.refitPeakID>0){
+    thisPeakID = dataStore.refitPeakID;
+  }else if(dataStore.currentPeakList){
     var diff = dataStore.currentPeakList[dataStore.currentPeak]*0.015 + 15;
     if(center>dataStore.currentPeakList[dataStore.currentPeak]-diff && center<dataStore.currentPeakList[dataStore.currentPeak]+diff){
       thisPeakID = dataStore.currentPeak;
@@ -2848,6 +2847,11 @@ function fitCallback(center, width, amplitude, intercept, slope){
     }
   }else{ thisPeakID=0; }
   if(thisPeakID<0){
+    // Cleanly exit refit mode
+    if(document.getElementById('refitButton')){
+      document.getElementById('refitButton').setAttribute('engaged', 0);
+      document.getElementById('refitButtonBadge').classList.remove('red-text');
+    }
     console.log("PROBLEM identifying which peak this is in fitCallback, "+center+" not matched in ["+[dataStore.currentPeakList]+"]");
     return;
   }
@@ -2973,7 +2977,8 @@ function toggleRefitMode(){
   if(parseInt(refitButton.getAttribute('engaged'),10) == 0){
 
     // Set the peak index in the datastore
-    dataStore.currentPeak = document.getElementById('refitSelect').value;
+    dataStore.currentPeak = parseInt(document.getElementById('refitSelect').value);
+    dataStore.refitPeakID = parseInt(dataStore.currentPeak);
 
     // Enter fit mode
     dataStore.viewers[viewerName].setupFitMode();
@@ -2985,6 +2990,9 @@ function toggleRefitMode(){
   else{
     // Leave fit mode
     dataStore.viewers[viewerName].leaveFitMode();
+
+    // Reset the refitPeakID
+    dataStore.refitPeakID = -1;
 
     // Trigger the addFitLines so that old peak fits are also removed
     addFitLines();

@@ -19,8 +19,11 @@
   <!--HTML imports-->
   <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
   <link id='header' rel="import" href="templates/header/header.html">
-  <link id='efficiencyFitterReport' rel="import" href="templates/efficiencyFitterReport/efficiencyFitterReport.html">
-  <link id='efficiencyFitterReportTable' rel="import" href="templates/efficiencyFitterReport/efficiencyFitterReportTable.html">
+  <link id='paginationMenu' rel="import" href="templates/paginationMenu/paginationMenu.html">
+  <link id='peakFitterReport' rel="import" href="templates/efficiencyFitterReport/efficiencyFitterReport.html">
+  <link id='peakFitterReportTable' rel="import" href="templates/efficiencyFitterReport/efficiencyFitterReportTable.html">
+  <link id='effResultsReport' rel="import" href="templates/efficiencyFitterReport/efficiencyFitterReport.html">
+  <link id='effResultsReportTable' rel="import" href="templates/efficiencyFitterReport/efficiencyFitterReportTable.html">
   <link id='plotGrid' rel="import" href="templates/plotGrid/plotGrid.html">
   <link id='plotControl' rel="import" href="templates/plotControl/plotControl.html">
   <link id='plotListLite' rel="import" href="templates/plotList/plotListLite.html">
@@ -36,7 +39,7 @@
 
 
   <div id='progressDiv' class="progress hidden" width=100%>
-    <div id='progress' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+    <div id='efficiencyFitterProgress' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
   </div>
 
   <!--helpful hints-->
@@ -46,7 +49,7 @@
       Select which histogram files contain the gain-matched source data for determining the efficiency.
     </div>
 
-    <div id='downloadMessage' class="alert alert-warning hidden" role="alert">
+    <div id='fetchingMessage' class="alert alert-warning hidden" role="alert">
       <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
       Spectra downloading, please wait...
     </div>
@@ -78,156 +81,275 @@
   </div>
 
   <!--User input for initial setup-->
-  <div id='histoChoiceBar' class='col-md-12'>
-  <div id='histoChoiceDir' class='col-md-8'></div>
+  <div id='userInputBar' class='col-md-12'>
+    <div id='histoChoiceDir' class='col-md-12'></div>
+  </div>
+  <div id='error-messages-for-drop-area' class='col-md-6 error-text'></div>
 
-  <div class='col-md-12'>
-  <div id='histoChoice133Ba' class='col-md-4'></div>
-  <div id='histoChoice152Eu' class='col-md-4'></div>
-</div>
-<div class='col-md-12'>
-<div id='histoChoice56Co' class='col-md-4'></div>
-<div id='histoChoice60Co' class='col-md-4'></div>
-<div id='sourceChoice60Co' class='col-md-2'></div>
-</div>
-<div class='col-md-12'>
-<div id='histoChoice11Be' class='col-md-4'></div>
-</div>
-<div id='histoChoiceSubmit' class='col-md-12'></div>
-
-</div>
-
-
-
-<!--Spectrum Plotting-->
-<div id='plotRegion' class='sectionWrapper'>
-  <div id='plotWrap' class='col-md-9 plotRegion item'>
-    <div id='plottingGrid'></div>
-    <div class='col-md-8' id='plotCtrl'></div>
-    <div class='sectionWrapper refitButtons'>
+  <div id="peakFitterDivContainer" class='col-md-12 hidden'>
+    <div id='inputsHistosContainerDiv' class='col-md-12'>
       <div class='col-md-12'>
-        <button type="button" class="btn btn-default btn-lg" id='fitLow' engaged='0'>
-          <span id='refitLoBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
-          <span id='loText'>Refit a Peak</span>
-        </button>
+        <label for="inputHistogramFiles" class='col-md-4'>List of Histogram files (.tar):</label>
+        <div id='histo-list-menu-div' class='col-md-4'>
+          <label for="HistoListSelect">Select files to add them:</label>
+        </div>
+        <div class='col-md-6'>
+          <textarea id="inputHistogramFiles" name="inputHistogramFiles" rows="4" cols="50"></textarea>
+        </div>
+      </div>
+    </div>
+    <div id='inputs1dContainerDiv' class='col-md-12'>
+      <div class='col-md-4'>
+        <label for="input1dSpectrumNames" class='col-md-12'>List of 1d spectra:</label>
+        <textarea id="input1dSpectrumNames" name="input1dSpectrumNames" rows="4" cols="50"></textarea>
+      </div>
+      <div class='col-md-4'>
+        <label for="input1dPeaks" class='col-md-12'>List of peaks to fit in all 1d spectra:</label>
+        <textarea id="input1dPeaks" name="input1dPeaks" rows="4" cols="50"></textarea>
+      </div>
+    </div>
+    <div id='inputs2dContainerDiv' class='col-md-12'>
+      <div class='col-md-4'>
+        <label for="input2dSpectrumNames" class='col-md-12'>List of 2d spectra:</label>
+        <textarea id="input2dSpectrumNames" name="input2dSpectrumNames" rows="4" cols="50"></textarea>
+      </div>
+      <div class='col-md-4'>
+        <label for="input2dGates" class='col-md-12'>List of gates to make projections for all 2d spectra:</label>
+        <textarea id="input2dGates" name="input2dGates" rows="4" cols="50"></textarea>
+      </div>
+      <div class='col-md-4'>
+        <label for="input2dPeaks" class='col-md-12'>List of peaks to fit in all projections:</label>
+        <textarea id="input2dPeaks" name="input2dPeaks" rows="4" cols="50"></textarea>
       </div>
     </div>
   </div>
-  <div class='col-md-2 item'>
-    <div id='plotList' style='overflow-y:scroll; height:400px;'></div>
+
+  <!--User input for initial setup-->
+  <div id='histoChoiceBar' class='col-md-12'>
+    <div id='histoChoiceDir' class='col-md-8'></div>
+    <div class='col-md-12'>
+      <div id='histoChoice133Ba' class='col-md-4'></div>
+      <div id='histoChoice152Eu' class='col-md-4'></div>
+    </div>
+    <div class='col-md-12'>
+      <div id='histoChoice56Co' class='col-md-4'></div>
+      <div id='histoChoice60Co' class='col-md-4'></div>
+      <div id='sourceChoice60Co' class='col-md-2'></div>
+    </div>
+    <div class='col-md-12'>
+      <div id='histoChoice11Be' class='col-md-4'></div>
+    </div>
+    <div id='histoChoiceSubmit' class='col-md-12'></div>
   </div>
-</div>
 
-<!--Table of calculations and results-->
-<div id='efficiencyFitter'></div>
+  <!-- Pagination menu Div -->
+  <div id='menu' class='col-md-12 hidden'></div>
 
-<!--Efficiency curve Plotting-->
-<div id='graphSection' class='sectionWrapper'>
-  <div id='efficiencyPlotWrap' class='col-md-12'>
-    <div class='col-md-12'>
-      <h3>Efficiency curves:</h3>
-      <div id='efficiencyPlotAbs' class='col-md-6'></div>
-      <div id='efficiencyPlotRel' class='col-md-6'></div>
+  <div id='buttonsContainerDiv' class='col-md-12'>
+    <div id='launchSubmitDiv' class='col-md-1'></div>
+    <div id='saveCSVDiv' class='col-md-3 hidden'>
+      <button type="button" class="btn btn-primary btn-lg"  id='saveCSV'>
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>Download peak fit results as CSV
+      </button>
     </div>
-    <div class='col-md-12'>
-      <h3>Efficiency curves of the individual sources:</h3>
-      <div id='efficiencyPlot133Ba' class='col-md-6'></div>
-      <div id='efficiencyPlot152Eu' class='col-md-6'></div>
+    <div id='saveEffCSVDiv' class='col-md-3 hidden'>
+      <button type="button" class="btn btn-primary btn-lg"  id='saveEffCSV'>
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>Download Efficiency results as CSV
+      </button>
     </div>
-    <div class='col-md-12'>
-      <div id='efficiencyPlot56Co' class='col-md-6'></div>
-      <div id='efficiencyPlot60Co' class='col-md-6'></div>
+    <div id='saveRootDiv' class='col-md-2 hidden'>
+      <button type="button" class="btn btn-primary btn-lg"  id='saveRoot'>
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>Root file
+      </button>
     </div>
-    <div class='col-md-12'>
-      <div id='efficiencyPlot11Be' class='col-md-6'></div>
+    <div id='saveGNUDiv' class='col-md-2 hidden'>
+      <button type="button" class="btn btn-primary btn-lg"  id='saveGNU'>
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>GNU file
+      </button>
     </div>
-    <div class='col-md-12'>
-      <div id='addbackSelectDiv' class='col-md-6'></div>
+    <div id='saveScriptDiv' class='col-md-2 hidden'>
+      <button type="button" class="btn btn-primary btn-lg"  id='saveScript'>
+        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>Download input script
+      </button>
     </div>
   </div>
-</div>
-</div>
 
-<div id='foot'></div>
+  <!--Spectrum Plotting-->
+  <div id='plotRegion' class='sectionWrapper'>
+    <div id='plotWrap' class='col-md-9 plotRegion item'>
+      <div id='plottingGrid'></div>
+      <div class='col-md-8' id='plotCtrl'></div>
+      <div class='sectionWrapper refitButtons'>
+        <div class='col-md-12'>
+          <select id="refitSelect"></select>
+          <button type="button" class="btn btn-default btn-lg" id='refitButton' engaged='0'>
+            <span id='refitButtonBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true"></span>
+            <span id='refitButtonText'>Refit this Peak</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class='col-md-2 item'>
+      <div id='plotList' style='overflow-y:scroll; height:400px;'></div>
+    </div>
+  </div>
 
-<script>
-window.addEventListener('HTMLImportsLoaded', function(e) {
+  <!--Table of calculations and results
+  <div id='efficiencyFitter'></div>-->
 
-  dataStore._plotGrid = new plotGrid('plottingGrid');
-  dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
-  dataStore._dataplot[0] = new dataplot('efficiencyPlotAbs',0);
-  dataStore._dataplot[1] = new dataplot('efficiencyPlotRel',1);
-  dataStore._dataplot[2] = new dataplot('efficiencyPlot133Ba',2);
-  dataStore._dataplot[3] = new dataplot('efficiencyPlot152Eu',3);
-  dataStore._dataplot[4] = new dataplot('efficiencyPlot56Co',4);
-  dataStore._dataplot[5] = new dataplot('efficiencyPlot60Co',5);
-  dataStore._dataplot[6] = new dataplot('efficiencyPlot11Be',6);
 
-  dataStore.templates = prepareTemplates(['header', 'efficiencyFitterReport', 'efficiencyFitterReportTable', 'plotGrid', 'plotControl', 'plotListLite', 'dataplot', 'footer']);
+  <!-- Peak-Fitting results table -->
+  <div id='resultsTableRegion' class='col-md-12 hidden'>
+    <div id='peakFitter' class='col-md-12'></div>
+  </div>
 
-  setupHeader('head', 'Efficiency Fitter');
-  dataStore._plotGrid.setup();
-  dataStore._plotControl.setup();
-  //set up spectrum cell
-  dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]);
-  dataStore._dataplot[0].setup(0);
-  dataStore._dataplot[1].setup(1);
-  dataStore._dataplot[2].setup(2);
-  dataStore._dataplot[3].setup(3);
-  dataStore._dataplot[4].setup(4);
-  dataStore._dataplot[5].setup(5);
-  dataStore._dataplot[6].setup(6);
-  setupFooter('foot');
+  <!--Table of calculations and results - per crystal corrections -->
+  <div id='effCurvesReportRegion' class='col-md-12 hidden'>
+    <!--Efficiency curve Plotting-->
+    <div id='graphSection' class='sectionWrapper'>
+      <div id='efficiencyPlotWrap' class='col-md-12'>
+        <div class='col-md-12'>
+          <h3>Singles Efficiency curves:</h3>
+          <div id='efficiencyPlotAbs' class='col-md-6'></div>
+          <div id='efficiencyPlotRel' class='col-md-6'></div>
+        </div>
+        <div class='col-md-12'>
+          <h3>Singles Efficiency curves of the individual sources:</h3>
+          <div id='efficiencyPlot133Ba' class='col-md-6'></div>
+          <div id='efficiencyPlot152Eu' class='col-md-6'></div>
+        </div>
+        <div class='col-md-12'>
+          <div id='efficiencyPlot56Co' class='col-md-6'></div>
+          <div id='efficiencyPlot60Co' class='col-md-6'></div>
+        </div>
+        <div class='col-md-12'>
+          <div id='efficiencyPlot11Be' class='col-md-6'></div>
+        </div>
+        <div class='col-md-12'>
+          <h3>Addback Efficiency curves:</h3>
+          <div id='efficiencyABPlotAbs' class='col-md-6'></div>
+          <div id='efficiencyABPlotRel' class='col-md-6'></div>
+        </div>
+        <div class='col-md-12'>
+          <h3>Addback Efficiency curves of the individual sources:</h3>
+          <div id='efficiencyABPlot133Ba' class='col-md-6'></div>
+          <div id='efficiencyABPlot152Eu' class='col-md-6'></div>
+        </div>
+        <div class='col-md-12'>
+          <div id='efficiencyABPlot56Co' class='col-md-6'></div>
+          <div id='efficiencyABPlot60Co' class='col-md-6'></div>
+        </div>
+        <div class='col-md-12'>
+          <div id='efficiencyABPlot11Be' class='col-md-6'></div>
+        </div>
+        <div class='col-md-12'>
+          <div id='addbackSelectDiv' class='col-md-6'></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  //don't want additional plots in this app
-  deleteNode('plottingGridnewPlotButton');
+  <div id='effResultsReportRegion' class='col-md-12 hidden'>
+    <div id='effResults' class='col-md-12'></div>
+  </div>
 
-  // Grab the histogram list for the default directory
-  getHistoFileListFromServer();
-  getMidasFileListFromServer(); // The request for details follows this. Needed for adding run titles to selects
+  <div id='foot'></div>
 
-  // Inject the dismiss button to the messageDiv
-  newButton = document.createElement('button');
-  newButton.setAttribute('id', 'messageDivDismissButton');
-  newButton.setAttribute('class', 'btn btn-default btn-lg');
-  newButton.innerHTML = "Dismiss";
-  //newButton.style.padding = '4px';
-  newButton.onclick = function(){
-    ClearErrorConnectingToAnalyzerServer();
-  }.bind(newButton);
-  document.getElementById('messageDivButton').appendChild(newButton);
+  <script>
+  window.addEventListener('HTMLImportsLoaded', function(e) {
 
-  // Create the text input for the Histogram file directory and file inputs
-  var newLabel = document.createElement("label");
-  newLabel.for = 'HistoDirectoryInput';
-  newLabel.innerHTML = 'Directory of Histogram files: ';
-  document.getElementById('histoChoiceDir').appendChild(newLabel);
+    dataStore._plotGrid = new plotGrid('plottingGrid');
+    dataStore._plotControl = new plotControl('plotCtrl', 'horizontal');
+    dataStore._dataplot[0] = new dataplot('efficiencyPlotAbs',0);
+    dataStore._dataplot[1] = new dataplot('efficiencyPlotRel',1);
+    dataStore._dataplot[2] = new dataplot('efficiencyPlot133Ba',2);
+    dataStore._dataplot[3] = new dataplot('efficiencyPlot152Eu',3);
+    dataStore._dataplot[4] = new dataplot('efficiencyPlot56Co',4);
+    dataStore._dataplot[5] = new dataplot('efficiencyPlot60Co',5);
+    dataStore._dataplot[6] = new dataplot('efficiencyPlot11Be',6);
+    dataStore._dataplot[7] = new dataplot('efficiencyABPlotAbs',7);
+    dataStore._dataplot[8] = new dataplot('efficiencyABPlotRel',8);
+    dataStore._dataplot[9] = new dataplot('efficiencyABPlot133Ba',9);
+    dataStore._dataplot[10] = new dataplot('efficiencyABPlot152Eu',10);
+    dataStore._dataplot[11] = new dataplot('efficiencyABPlot56Co',11);
+    dataStore._dataplot[12] = new dataplot('efficiencyABPlot60Co',12);
+    dataStore._dataplot[13] = new dataplot('efficiencyABPlot11Be',13);
 
-  newInput = document.createElement('input');
-  newInput.id = 'HistoDirectoryInput';
-  newInput.type = 'text';
-  newInput.style.width = '400px';
-  newInput.value = dataStore.histoFileDirectoryPath;
-  newInput.onchange = function(){
-    dataStore.histoFileDirectoryPath = this.value;
+    dataStore.templates = prepareTemplates(['header', 'paginationMenu', 'peakFitterReport', 'peakFitterReportTable', 'effResultsReport', 'effResultsReportTable', 'plotGrid', 'plotControl', 'plotListLite', 'dataplot', 'footer']);
+
+    setupHeader('head', 'Efficiency Fitter');
+    setupPaginationMenu('menu');
+    dataStore._plotGrid.setup();
+    dataStore._plotControl.setup();
+    //set up spectrum cell
+    dataStore._plotGrid.manageCellCreation(null, dataStore.plots[0]);
+    for(var i=0; i<14; i++){
+      dataStore._dataplot[i].setup(i);
+    }
+    setupFooter('foot');
+
+    //don't want additional plots in this app
+    deleteNode('plottingGridnewPlotButton');
+
+    // Grab the histogram list for the default directory
     getHistoFileListFromServer();
-  }.bind(newInput);
-  document.getElementById('histoChoiceDir').appendChild(newInput);
+    getMidasFileListFromServer(); // The request for details follows this. Needed for adding run titles to selects
 
-  $(function () {
-    $('[data-toggle="tooltip"]').tooltip()
+    // Set up event listener for adding run titles to selects
+    listener('histoChoiceDir', 'midasFileDetailsAvailable', addTitlesToHistoListSelect);
+
+    // Set up the refit button
+    document.getElementById('refitButton').onclick = function(){ toggleRefitMode(); }
+    document.getElementById('refitButton').disabled = true; // Disabled until there are peaks to refit
+
+    // Set up the peak fit CSV file button
+    document.getElementById('saveCSV').onclick = function(){ buildCSVfile(); }
+
+    // Set up the Efficiency CSV file button
+    document.getElementById('saveEffCSV').onclick = function(){ buildEffCSVfile(); }
+
+    // Set up the Script download file button
+    document.getElementById('saveScript').onclick = function(){ buildScriptfile(); }
+
+    // Set up the Root file download file button
+    document.getElementById('saveRoot').onclick = function(){ buildDatafile(); buildABDatafile(); buildRootfile(); }
+
+    // Set up the Data file download file button
+    document.getElementById('saveGNU').onclick = function(){ buildDatafile(); buildABDatafile(); buildGNUfile(); }
+
+    // Inject the dismiss button to the messageDiv
+    newButton = document.createElement('button');
+    newButton.setAttribute('id', 'messageDivDismissButton');
+    newButton.setAttribute('class', 'btn btn-default btn-lg');
+    newButton.innerHTML = "Dismiss";
+    //newButton.style.padding = '4px';
+    newButton.onclick = function(){
+      ClearErrorConnectingToAnalyzerServer();
+    }.bind(newButton);
+    document.getElementById('messageDivButton').appendChild(newButton);
+
+    // Create the text input for the Histogram file directory and file inputs
+    var newLabel = document.createElement("label");
+    newLabel.for = 'HistoDirectoryInput';
+    newLabel.innerHTML = 'Directory of Histogram files: ';
+    document.getElementById('histoChoiceDir').appendChild(newLabel);
+
+    newInput = document.createElement('input');
+    newInput.id = 'HistoDirectoryInput';
+    newInput.type = 'text';
+    newInput.style.width = '400px';
+    newInput.value = dataStore.histoFileDirectoryPath;
+    newInput.onchange = function(){
+      dataStore.histoFileDirectoryPath = this.value;
+      getHistoFileListFromServer();
+    }.bind(newInput);
+    document.getElementById('histoChoiceDir').appendChild(newInput);
+
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    });
   });
-});
 </script>
-
-
-  <script type="module">
-
-  // Use the Alglib.js library from https://github.com/Pterodactylus/Alglib.js for peak fitting
-  import {Alglib} from 'https://cdn.jsdelivr.net/gh/Pterodactylus/Alglib.js@master/Alglib-v1.1.0.js'
-  window.Alglib = Alglib; // export to this Global object for use everywhere
-
-  </script>
 
 </body>
 </html>

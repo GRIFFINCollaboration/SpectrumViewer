@@ -280,6 +280,7 @@ dataStore.spectrumListProjections = {};                           // List of all
 dataStore.spectrumListProjectionsPeaks = {};                      // List of peaks to fit for each projection from the 180degree coincidence matrix
 dataStore.progressBarNumberTasks = 0;                             // Total count of tasks (spectra to fetch, projections to make, peaks to fit) for use with the progress bar
 dataStore.progressBarTasksCompleted =0;                           // Number of tasks completed so far for use with the progress bar
+dataStore.refitPeakID = -1;
 dataStore.refitCallback = function(){ setTimeout(dataStore._energyCalibratorReport.postFittingTasks(), 1000); }  // callback function for after a peak refit
 
 dataStore.cellIndex = dataStore.plots.length;
