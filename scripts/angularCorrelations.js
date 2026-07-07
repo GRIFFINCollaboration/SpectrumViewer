@@ -1006,6 +1006,7 @@ function setupDataStore(){
             // Now we are done.
             // Reveal the download buttons
             document.getElementById('saveCSVDiv').classList.remove('hidden');
+            document.getElementById('saveChiSqCSVDiv').classList.remove('hidden');
             document.getElementById('saveScriptDiv').classList.remove('hidden');
 
             // change information message
@@ -1679,6 +1680,49 @@ function setupDataStore(){
           const downloadLink = document.createElement('a');
           downloadLink.href = URL.createObjectURL(textBlob);
           downloadLink.download = "GRIFFIN-Gamma-Gamma-Angular-Correlation.csv";
+
+          // Trigger the download
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+        }
+
+        function buildChiSqCSVfile(){
+          console.log('Download initiated');
+          var i;
+
+          // Write the table of results to a CSV file for download.
+          CSV = '';
+
+          CSV += 'GRIFFIN Gamma-Gamma Angular Correlations Chi-Square series Data\n\n';
+
+          // List the run files used for this calibration
+          CSV += 'Histogram file:,' + dataStore.histoFileName + '\n';
+          CSV += dataStore.detectorType + '\n';
+
+          // Print column titles
+          CSV += '\natan(delta),';
+          for(i=0; i<dataStore.chiSqLabelSeries.length; i++){
+            CSV += dataStore.chiSqLabelSeries[i]+',';
+          }
+
+          // Loop through all elements in each series to provide the data
+          for(i=0; i<=dataStore.chiSquareSeries[0].length; i++){
+
+            CSV += '\n';
+            if(!dataStore.delta1Series[0][i]){ continue; }
+            CSV += dataStore.delta1Series[0][i]+',';
+            for(j=0; j<dataStore.chiSqLabelSeries.length; j++){
+              CSV += dataStore.chiSquareSeries[j][i]+',';
+            }
+
+          }
+
+          // Create a download link
+          const textBlob = new Blob([CSV], {type: 'text/plain'});
+          URL.revokeObjectURL(window.textBlobURL);
+          const downloadLink = document.createElement('a');
+          downloadLink.href = URL.createObjectURL(textBlob);
+          downloadLink.download = "GRIFFIN-Ang-Corr-ChiSquareSeries.csv";
 
           // Trigger the download
           document.body.appendChild(downloadLink);
