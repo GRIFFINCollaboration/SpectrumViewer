@@ -1,342 +1,329 @@
 <link rel="stylesheet" href="angularCorrelationsReport.css">
 
 <template id='angularCorrelationsReport'>
-  <div id='dataTableMessage' class='col-md-12'></div>
-  <div class='sectionWrapper item'>
-    <div class='col-md-12'>
-      <table id='{{id}}angularCorrelationsResults' class='table angularCorrelationsTable'></table>
-    </div>
-  </div>
+<div id='dataTableMessage' class='col-md-12'></div>
+<div class='sectionWrapper item'>
+<div class='col-md-12'>
+<table id='{{id}}angularCorrelationsResults' class='table angularCorrelationsTable'></table>
+</div>
+</div>
 </template>
 
 <script>
-  function angularCorrelationsReport(wrapID2,wrapID3,wrapID4,wrapID5){
+function angularCorrelationsReport(wrapID2,wrapID3,wrapID4,wrapID5){
 
-    this.wrapID2 = wrapID2;
-    this.wrap2 = document.getElementById(wrapID2);
+  this.wrapID2 = wrapID2;
+  this.wrap2 = document.getElementById(wrapID2);
 
-    this.wrapID3 = wrapID3;
-    this.wrap3 = document.getElementById(wrapID3);
+  this.wrapID3 = wrapID3;
+  this.wrap3 = document.getElementById(wrapID3);
 
-    this.wrapID4 = wrapID4;
-    this.wrap4 = document.getElementById(wrapID4);
+  this.wrapID4 = wrapID4;
+  this.wrap4 = document.getElementById(wrapID4);
 
-    this.wrapID5 = wrapID5;
-    this.wrap5 = document.getElementById(wrapID5);
+  this.wrapID5 = wrapID5;
+  this.wrap5 = document.getElementById(wrapID5);
 
-    // Variables to control table generation and filling
-    this.numCellsPerRow = 10;
-    this.cellHandles = ["Index","spectrum","centroid","height","width","intercept","slope","area","areaUnc","fwhm"];
-    this.cellTitles = ["Index","Spectrum name","Centroid","Height","Width","Intercept (background)","Slope (background)","Area","Area Unc.","FWHM"];
+  // Variables to control table generation and filling
+  this.numCellsPerRow = 10;
+  this.cellHandles = ["Index","spectrum","centroid","height","width","intercept","slope","area","areaUnc","fwhm"];
+  this.cellTitles = ["Index","Spectrum name","Centroid","Height","Width","Intercept (background)","Slope (background)","Area","Area Unc.","FWHM"];
 
-    this.setup = function(){
+  this.setup = function(){
 
-      //inject templates
-      this.wrap2.innerHTML = Mustache.to_html(
+    //inject templates
+    this.wrap2.innerHTML = Mustache.to_html(
       dataStore.templates.angularCorrelationsReport,
       {
         'id': this.wrapID2,
       }
-      );
+    );
 
-      this.wrap3.innerHTML = Mustache.to_html(
+    this.wrap3.innerHTML = Mustache.to_html(
       dataStore.templates.angularCorrelationsReport,
       {
         'id': this.wrapID3,
       }
-      );
+    );
 
-      this.wrap4.innerHTML = Mustache.to_html(
+    this.wrap4.innerHTML = Mustache.to_html(
       dataStore.templates.angularCorrelationsReport,
       {
         'id': this.wrapID4,
       }
-      );
+    );
 
-      this.wrap5.innerHTML = Mustache.to_html(
+    this.wrap5.innerHTML = Mustache.to_html(
       dataStore.templates.angularCorrelationsReport,
       {
         'id': this.wrapID5,
       }
-      );
+    );
 
-      // table has to be done as a separate template, since templates and tables don't play too nice together
-      document.getElementById(this.wrapID2 + 'angularCorrelationsResults').innerHTML= Mustache.to_html(
+    // table has to be done as a separate template, since templates and tables don't play too nice together
+    document.getElementById(this.wrapID2 + 'angularCorrelationsResults').innerHTML= Mustache.to_html(
       dataStore.templates.angularCorrelationsDataReportTable,
       content = {
         'id': this.wrapID2,
         'detectors': Array(51).fill(0).map((_, i) => i + 1)
       }
-      );
+    );
 
-      // table has to be done as a separate template, since templates and tables don't play too nice together
-      document.getElementById(this.wrapID3 + 'angularCorrelationsResults').innerHTML= Mustache.to_html(
+    // table has to be done as a separate template, since templates and tables don't play too nice together
+    document.getElementById(this.wrapID3 + 'angularCorrelationsResults').innerHTML= Mustache.to_html(
       dataStore.templates.angularCorrelationsWeightsReportTable,
       content = {
         'id': this.wrapID3,
         'detectors': dataStore.THESEdetectors
       }
-      );
+    );
 
-      // table has to be done as a separate template, since templates and tables don't play too nice together
-      document.getElementById(this.wrapID5 + 'angularCorrelationsResults').innerHTML= Mustache.to_html(
+    // table has to be done as a separate template, since templates and tables don't play too nice together
+    document.getElementById(this.wrapID5 + 'angularCorrelationsResults').innerHTML= Mustache.to_html(
       dataStore.templates.angularCorrelationsFitsReportTable,
       content = {
         'id': this.wrapID5
       }
-      );
+    );
 
+  };
+
+  this.updateFitsTable = function(){
+    //update the report table with whatever is currently in the dataStore
+    //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
+    //<spectrumName>: string; name of spectrum, per names from analyzer
+    //this: efficiencyFitterReport object
+    var tableID = "resultsFitsTableRegionangularCorrelationsResults";
+    var row, issueWarning=0;
+
+    var keys = Object.keys(dataStore.fitResults);
+    for(var i=keys.length-1; i>=0; i--){
+
+      for(var j=0; j<dataStore.fitResults[keys[i]].length; j++){
+        if(keys[i] == "undefined"){ continue; }
+        // if a row for this peak does not exist in the table then create it
+        if(!document.getElementById(tableID+'Row-'+ keys[i]+'-Peak-'+ j)){
+          row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
+          row.id = tableID+'Row-'+ keys[i]+'-Peak-'+ j;
+          for(var cellIndex=0; cellIndex<this.numCellsPerRow; cellIndex++){
+            var cell = row.insertCell(cellIndex);
+            cell.id = row.id + 'Cell' + this.cellHandles[cellIndex];
+          }
+        }else{ row = document.getElementById(tableID+'Row-'+ keys[i]+'-Peak-'+ j); }
+        document.getElementById(row.id).setAttribute('style', 'background-color: \"\";');
+
+
+        document.getElementById(row.id + 'Cell' + this.cellHandles[0]).innerHTML = row.rowIndex;
+        document.getElementById(row.id + 'Cell' + this.cellHandles[1]).innerHTML = keys[i].split(":")[1];
+        document.getElementById(row.id + 'Cell' + this.cellHandles[2]).innerHTML = dataStore.fitResults[keys[i]][j][1].toFixed(2);  // Center
+        document.getElementById(row.id + 'Cell' + this.cellHandles[3]).innerHTML = dataStore.fitResults[keys[i]][j][0].toFixed(2);  // Amplitude
+        document.getElementById(row.id + 'Cell' + this.cellHandles[4]).innerHTML = dataStore.fitResults[keys[i]][j][2].toFixed(2); // width
+        document.getElementById(row.id + 'Cell' + this.cellHandles[5]).innerHTML = dataStore.fitResults[keys[i]][j][3].toFixed(2); // intercept
+        document.getElementById(row.id + 'Cell' + this.cellHandles[6]).innerHTML = dataStore.fitResults[keys[i]][j][4].toFixed(2); // slope
+        document.getElementById(row.id + 'Cell' + this.cellHandles[7]).innerHTML = dataStore.fitResults[keys[i]][j][5].toFixed(2); // area
+        document.getElementById(row.id + 'Cell' + this.cellHandles[8]).innerHTML = Math.sqrt(dataStore.fitResults[keys[i]][j][5]).toFixed(2) // area uncertainty
+        document.getElementById(row.id + 'Cell' + this.cellHandles[9]).innerHTML = dataStore.fitResults[keys[i]][j][6].toFixed(2); // FWHM
+
+        if(isNaN(dataStore.fitResults[keys[i]][j][1])){ // Check if centroid of the fit is NaN
+          document.getElementById(row.id).setAttribute('style', 'background-color: #F28C28;');
+          if(keys[i].includes("angular")){ // Only issue warning here for the angular bin spectra (singles handled in the other function)
+            if(dataStore.rawData[keys[i]].reduce((sum, currentValue) => sum + currentValue, 0) > 100 )
+            // only issue warning for active crystals
+            if(keys[i].includes("bin00")){ continue; }
+            issueWarning=1;
+          }
+        }
+      }
+    }
+
+    if(issueWarning){ document.getElementById("dataPlotWarnings").innerHTML += "Issue fitting some peaks in the angular bin spectra - Check them in the &quot;Peak Fits&quot; tab<BR>"; }
+
+  };
+
+  this.updateDataTable = function(){
+    console.log("updateDataTable");
+    console.log(dataStore.angularBinExcludeList);
+    //update the report table with whatever is currently in the dataStore
+    //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
+    //<spectrumName>: string; name of spectrum, per names from analyzer
+    //this: efficiencyFitterReport object
+    var tableID = "resultsDataTableRegion";
+
+    for(var i=1; i<dataStore.angularBinData.length; i++){
+      document.getElementById(tableID + i + 'index').innerHTML = (i);
+      document.getElementById(tableID + i + 'angle').innerHTML = dataStore.theseAngularBins[i].toFixed(1);
+      document.getElementById(tableID + i + 'angleATAN').innerHTML = Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)).toFixed(3);
+      document.getElementById(tableID + i + 'pairs').innerHTML = dataStore.numCrystalPairs[i];
+      document.getElementById(tableID + i + 'weight').innerHTML = bracketNotationString(dataStore.angularBinWeight[i].toFixed(6),dataStore.angularBinWeightUnc[i].toFixed(6));
+      document.getElementById(tableID + i + 'rawData').innerHTML = bracketNotationString(parseInt(dataStore.angularBinRawPeakArea[i]),parseInt(dataStore.angularBinRawPeakAreaUnc[i]));
+      document.getElementById(tableID + i + 'rawBkg').innerHTML = bracketNotationString(parseInt(dataStore.angularBinTRBGPeakArea[i]),parseInt(dataStore.angularBinTRBGPeakAreaUnc[i]));
+      document.getElementById(tableID + i + 'area').innerHTML = bracketNotationString(parseInt(dataStore.angularBinPeakArea[i]),parseInt(dataStore.angularBinPeakAreaUnc[i]));
+      document.getElementById(tableID + i + 'value').innerHTML = bracketNotationString(dataStore.angularBinData[i].toFixed(4),dataStore.angularBinDataUnc[i].toFixed(4));
+      var checkParent = document.getElementById(tableID + i + 'exclude');
+      checkParent.innerHTML = "";
+      newInput = document.createElement('input');
+      newInput.id = + 'excludeBin'+i;
+      newInput.type = 'checkbox';
+      newInput.value = i;
+      newInput.onchange = function(){
+        dataStore.currentTask = "exclude";
+        toggleExcludeList(this.value);
+      }.bind(newInput);
+      if(dataStore.angularBinExcludeList.includes(i)){ newInput.checked = true; }
+      checkParent.appendChild(newInput);
+    }
+
+    //highlight suspicious rows
+    //  this.whatsNormal();
+    //this.highlightOutliers();
+
+  };
+
+  this.updateWeightTable = function(){
+    console.log("updateWeightTable");
+    //update the report table with whatever is currently in the dataStore
+    //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
+    //<spectrumName>: string; name of spectrum, per names from analyzer
+    //this: efficiencyFitterReport object
+    var tableID = "resultsWeightTableRegion";
+    var meanCounts = [0,0], issueWarning=0;
+
+    for(var i=0; i<dataStore.THESEdetectors.length; i++){
+      document.getElementById(tableID + dataStore.THESEdetectors[i] + 'row').setAttribute('style', 'background-color: \"\";');
+      document.getElementById(tableID + dataStore.THESEdetectors[i] + 'id').innerHTML = i;
+      document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy1').innerHTML = dataStore.fitPeakEnergies[1];
+      document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area1').innerHTML = bracketNotationString(dataStore.singlesPeakArea[i][1],parseInt(dataStore.singlesPeakAreaUnc[i][1]));
+      document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy2').innerHTML = dataStore.fitPeakEnergies[0];
+      document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area2').innerHTML = bracketNotationString(dataStore.singlesPeakArea[i][0],parseInt(dataStore.singlesPeakAreaUnc[i][0]));
+
+      meanCounts[0] += dataStore.singlesPeakArea[i][1];
+      meanCounts[1] += dataStore.singlesPeakArea[i][0];
+    }
+
+    meanCounts[0] /= dataStore.THESEdetectors.length;
+    meanCounts[1] /= dataStore.THESEdetectors.length;
+
+    //highlight suspicious rows
+    //  this.whatsNormal();
+    //this.highlightOutliers();
+    for(var i=0; i<dataStore.THESEdetectors.length; i++){
+      if(dataStore.singlesPeakArea[i][1] < 0.75*meanCounts[0]){
+        console.log("Crystal "+i+" is less than 0.75*mean ["+(0.75*meanCounts[0]).toFixed(0)+"] = "+dataStore.singlesPeakArea[i][1]);
+        document.getElementById(tableID + dataStore.THESEdetectors[i] + 'row').setAttribute('style', 'background-color: #F28C28;');
+
+        if(dataStore.rawData[dataStore.singlesSpectra[i]].reduce((sum, currentValue) => sum + currentValue, 0) > 100 ){ issueWarning=1; } // only issue warning for active crystals
+      }
+      if(dataStore.singlesPeakArea[i][0] < 0.75*meanCounts[1]){
+        console.log("Crystal "+i+" is less than 0.75*mean ["+(0.75*meanCounts[1]).toFixed(0)+"] = "+dataStore.singlesPeakArea[i][0]);
+        document.getElementById(tableID + dataStore.THESEdetectors[i] + 'row').setAttribute('style', 'background-color: #F28C28;');
+
+        if(dataStore.rawData[dataStore.singlesSpectra[i]].reduce((sum, currentValue) => sum + currentValue, 0) > 100 ){ issueWarning=1; } // only issue warning for active crystals
+      }
+    }
+
+    if(issueWarning){ document.getElementById("dataPlotWarnings").innerHTML += "Issue fitting some singles peaks involved in Weighting factors - Check them in the &quot;Ang Corr Weights Overview table&quot; tab<BR>"; }
+
+  };
+
+  this.refreshAngCorrPlot = function(){
+    console.log("refreshAngCorrPlot");
+    console.log(dataStore.angularBinExcludeList);
+    // Use a Plotly stacked-subplots-with-a-shared-x-axis for Ang Corr data with residuals below.
+    // https://plotly.com/javascript/subplots/#stacked-subplots-with-a-shared-x-axis
+
+    var parentDiv = "angularCorrelationsDataPlot";
+    var data = []; // data is an array of objects required for a plotly scatter plot
+    var xSeries = [];    // Ang Corr Data plot xSeries is cos(theta) - same for residuals axis
+    var yDataSeries = [];   // Ang Corr Data plot ySeries is Ang Corr values
+    var yResSeries = [];    // Ang Corr Residuals plot ySeries is Ang Corr residuals
+    var yErrSeries = [[],[]];
+    var config =  // configuration options for plotly
+    {
+      scrollZoom: true,
+      modeBarButtonsToRemove: ['sendDataToCloud','select2d','lasso2d']
     };
 
-    this.updateFitsTable = function(){
-      //update the report table with whatever is currently in the dataStore
-      //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
-      //<spectrumName>: string; name of spectrum, per names from analyzer
-      //this: efficiencyFitterReport object
-      var tableID = "resultsFitsTableRegionangularCorrelationsResults";
-      var row, issueWarning=0;
+    // Define the data for each series
+    var centralDataSum = 0, count=0, subtitleYposition = 0.95;
 
-      var keys = Object.keys(dataStore.fitResults);
-      for(var i=keys.length-1; i>=0; i--){
+    for(var i=0; i<dataStore.expAngBinData.length; i++){
+      xSeries.push(dataStore.expAngBinRadians[i]);
+      yDataSeries.push(dataStore.expAngBinData[i]);
+      yResSeries.push(dataStore.angularBinDataResiduals[i]);
+      yErrSeries[0].push(dataStore.expAngBinDataUnc[i]);
+      yErrSeries[1].push(dataStore.expAngBinDataUnc[i]);
+      if(dataStore.expAngBinRadians[i]>-0.25 && dataStore.expAngBinRadians[i]<0.25){ centralDataSum += dataStore.expAngBinData[i]; count++; }
+    }
 
-        for(var j=0; j<dataStore.fitResults[keys[i]].length; j++){
-          if(keys[i] == "undefined"){ continue; }
-          // if a row for this peak does not exist in the table then create it
-          if(!document.getElementById(tableID+'Row-'+ keys[i]+'-Peak-'+ j)){
-            row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
-            row.id = tableID+'Row-'+ keys[i]+'-Peak-'+ j;
-            for(var cellIndex=0; cellIndex<this.numCellsPerRow; cellIndex++){
-              var cell = row.insertCell(cellIndex);
-              cell.id = row.id + 'Cell' + this.cellHandles[cellIndex];
-            }
-          }else{ row = document.getElementById(tableID+'Row-'+ keys[i]+'-Peak-'+ j); }
-          document.getElementById(row.id).setAttribute('style', 'background-color: \"\";');
+    var centralDataMean = centralDataSum/count;
+    if(centralDataMean>1){ // Place plot subtitle at bottom of panel
+      subtitleYposition = 0.4;
+    }else{ // Place plot subtitle at top of panel
+      subtitleYposition = 0.95;
+    }
 
-
-          document.getElementById(row.id + 'Cell' + this.cellHandles[0]).innerHTML = row.rowIndex;
-          document.getElementById(row.id + 'Cell' + this.cellHandles[1]).innerHTML = keys[i].split(":")[1];
-          document.getElementById(row.id + 'Cell' + this.cellHandles[2]).innerHTML = dataStore.fitResults[keys[i]][j][1].toFixed(2);  // Center
-          document.getElementById(row.id + 'Cell' + this.cellHandles[3]).innerHTML = dataStore.fitResults[keys[i]][j][0].toFixed(2);  // Amplitude
-          document.getElementById(row.id + 'Cell' + this.cellHandles[4]).innerHTML = dataStore.fitResults[keys[i]][j][2].toFixed(2); // width
-          document.getElementById(row.id + 'Cell' + this.cellHandles[5]).innerHTML = dataStore.fitResults[keys[i]][j][3].toFixed(2); // intercept
-          document.getElementById(row.id + 'Cell' + this.cellHandles[6]).innerHTML = dataStore.fitResults[keys[i]][j][4].toFixed(2); // slope
-          document.getElementById(row.id + 'Cell' + this.cellHandles[7]).innerHTML = dataStore.fitResults[keys[i]][j][5].toFixed(2); // area
-          document.getElementById(row.id + 'Cell' + this.cellHandles[8]).innerHTML = Math.sqrt(dataStore.fitResults[keys[i]][j][5]).toFixed(2) // area uncertainty
-          document.getElementById(row.id + 'Cell' + this.cellHandles[9]).innerHTML = dataStore.fitResults[keys[i]][j][6].toFixed(2); // FWHM
-
-          if(isNaN(dataStore.fitResults[keys[i]][j][1])){ // Check if centroid of the fit is NaN
-            document.getElementById(row.id).setAttribute('style', 'background-color: #F28C28;');
-            if(keys[i].includes("angular")){ // Only issue warning here for the angular bin spectra (singles handled in the other function)
-              if(dataStore.rawData[keys[i]].reduce((sum, currentValue) => sum + currentValue, 0) > 100 )
-              // only issue warning for active crystals
-              if(keys[i].includes("bin00")){ continue; }
-              issueWarning=1;
-            }
-          }
-        }
+    data[0] = { // Residuals
+      x: xSeries,
+      y: yResSeries,
+      xaxis: 'x1',
+      yaxis: 'y1',
+      name: 'Residuals',
+      mode: 'markers',
+      type: 'scatter',
+      error_y : {
+        type: 'data',
+        array: yErrSeries[0],
+        visible: true
       }
-
-      if(issueWarning){ document.getElementById("dataPlotWarnings").innerHTML += "Issue fitting some peaks in the angular bin spectra - Check them in the &quot;Peak Fits&quot; tab<BR>"; }
-
-      };
-
-      this.updateDataTable = function(){
-        console.log("updateDataTable");
-        console.log(dataStore.angularBinExcludeList);
-        //update the report table with whatever is currently in the dataStore
-        //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
-        //<spectrumName>: string; name of spectrum, per names from analyzer
-        //this: efficiencyFitterReport object
-        var tableID = "resultsDataTableRegion";
-
-        for(var i=1; i<dataStore.angularBinData.length; i++){
-          document.getElementById(tableID + i + 'index').innerHTML = (i);
-          document.getElementById(tableID + i + 'angle').innerHTML = dataStore.theseAngularBins[i].toFixed(1);
-          document.getElementById(tableID + i + 'angleATAN').innerHTML = Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)).toFixed(3);
-          document.getElementById(tableID + i + 'pairs').innerHTML = dataStore.numCrystalPairs[i];
-          document.getElementById(tableID + i + 'weight').innerHTML = bracketNotationString(dataStore.angularBinWeight[i].toFixed(6),dataStore.angularBinWeightUnc[i].toFixed(6));
-          document.getElementById(tableID + i + 'rawData').innerHTML = bracketNotationString(parseInt(dataStore.angularBinRawPeakArea[i]),parseInt(dataStore.angularBinRawPeakAreaUnc[i]));
-          document.getElementById(tableID + i + 'rawBkg').innerHTML = bracketNotationString(parseInt(dataStore.angularBinTRBGPeakArea[i]),parseInt(dataStore.angularBinTRBGPeakAreaUnc[i]));
-          document.getElementById(tableID + i + 'area').innerHTML = bracketNotationString(parseInt(dataStore.angularBinPeakArea[i]),parseInt(dataStore.angularBinPeakAreaUnc[i]));
-          document.getElementById(tableID + i + 'value').innerHTML = bracketNotationString(dataStore.angularBinData[i].toFixed(4),dataStore.angularBinDataUnc[i].toFixed(4));
-          var checkParent = document.getElementById(tableID + i + 'exclude');
-          checkParent.innerHTML = "";
-          newInput = document.createElement('input');
-          newInput.id = + 'excludeBin'+i;
-          newInput.type = 'checkbox';
-          newInput.value = i;
-          newInput.onchange = function(){
-            dataStore.currentTask = "exclude";
-            toggleExcludeList(this.value);
-          }.bind(newInput);
-          if(dataStore.angularBinExcludeList.includes(i)){ newInput.checked = true; }
-          checkParent.appendChild(newInput);
-        }
-
-        //highlight suspicious rows
-        //  this.whatsNormal();
-        //this.highlightOutliers();
-
-      };
-
-      this.updateWeightTable = function(){
-        console.log("updateWeightTable");
-        //update the report table with whatever is currently in the dataStore
-        //recall dataStore.fitResults[plotTitle] = [[amplitude, center, width, slope, intercept],[...]], for [low energy, high energy].
-        //<spectrumName>: string; name of spectrum, per names from analyzer
-        //this: efficiencyFitterReport object
-        var tableID = "resultsWeightTableRegion";
-        var meanCounts = [0,0], issueWarning=0;
-
-        for(var i=0; i<dataStore.THESEdetectors.length; i++){
-          document.getElementById(tableID + dataStore.THESEdetectors[i] + 'row').setAttribute('style', 'background-color: \"\";');
-          document.getElementById(tableID + dataStore.THESEdetectors[i] + 'id').innerHTML = i;
-          document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy1').innerHTML = dataStore.fitPeakEnergies[1];
-          document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area1').innerHTML = bracketNotationString(dataStore.singlesPeakArea[i][1],parseInt(dataStore.singlesPeakAreaUnc[i][1]));
-          document.getElementById(tableID + dataStore.THESEdetectors[i] + 'energy2').innerHTML = dataStore.fitPeakEnergies[0];
-          document.getElementById(tableID + dataStore.THESEdetectors[i] + 'area2').innerHTML = bracketNotationString(dataStore.singlesPeakArea[i][0],parseInt(dataStore.singlesPeakAreaUnc[i][0]));
-
-          meanCounts[0] += dataStore.singlesPeakArea[i][1];
-          meanCounts[1] += dataStore.singlesPeakArea[i][0];
-        }
-
-        meanCounts[0] /= dataStore.THESEdetectors.length;
-        meanCounts[1] /= dataStore.THESEdetectors.length;
-
-        //highlight suspicious rows
-        //  this.whatsNormal();
-        //this.highlightOutliers();
-        for(var i=0; i<dataStore.THESEdetectors.length; i++){
-          if(dataStore.singlesPeakArea[i][1] < 0.75*meanCounts[0]){
-            console.log("Crystal "+i+" is less than 0.75*mean ["+(0.75*meanCounts[0]).toFixed(0)+"] = "+dataStore.singlesPeakArea[i][1]);
-            document.getElementById(tableID + dataStore.THESEdetectors[i] + 'row').setAttribute('style', 'background-color: #F28C28;');
-
-            if(dataStore.rawData[dataStore.singlesSpectra[i]].reduce((sum, currentValue) => sum + currentValue, 0) > 100 ){ issueWarning=1; } // only issue warning for active crystals
-          }
-          if(dataStore.singlesPeakArea[i][0] < 0.75*meanCounts[1]){
-            console.log("Crystal "+i+" is less than 0.75*mean ["+(0.75*meanCounts[1]).toFixed(0)+"] = "+dataStore.singlesPeakArea[i][0]);
-            document.getElementById(tableID + dataStore.THESEdetectors[i] + 'row').setAttribute('style', 'background-color: #F28C28;');
-
-            if(dataStore.rawData[dataStore.singlesSpectra[i]].reduce((sum, currentValue) => sum + currentValue, 0) > 100 ){ issueWarning=1; } // only issue warning for active crystals
-          }
-        }
-
-        if(issueWarning){ document.getElementById("dataPlotWarnings").innerHTML += "Issue fitting some singles peaks involved in Weighting factors - Check them in the &quot;Ang Corr Weights Overview table&quot; tab<BR>"; }
-
-        };
-
-        this.refreshAngCorrPlot = function(){
-          console.log("refreshAngCorrPlot");
-          console.log(dataStore.angularBinExcludeList);
-          // Use a Plotly stacked-subplots-with-a-shared-x-axis for Ang Corr data with residuals below.
-          // https://plotly.com/javascript/subplots/#stacked-subplots-with-a-shared-x-axis
-
-          var parentDiv = "angularCorrelationsDataPlot";
-          var data = []; // data is an array of objects required for a plotly scatter plot
-          var xSeries = [];    // Ang Corr Data plot xSeries is cos(theta) - same for residuals axis
-          var yDataSeries = [];   // Ang Corr Data plot ySeries is Ang Corr values
-          var yResSeries = [];    // Ang Corr Residuals plot ySeries is Ang Corr residuals
-          var yErrSeries = [[],[]];
-          var config =  // configuration options for plotly
-          {
-            scrollZoom: true,
-            modeBarButtonsToRemove: ['sendDataToCloud','select2d','lasso2d']
-          };
-
-          // Define the data for each series
-          var centralDataSum = 0, count=0, subtitleYposition = 0.95;
-          /*
-          for(var i=0; i<dataStore.angularBinData.length; i++){
-          if(isFinite(dataStore.theseAngularBins[i]) && isFinite(dataStore.angularBinData[i]) && dataStore.angularBinData[i]>0 && !dataStore.angularBinExcludeList.includes(i) ){
-          xSeries.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
-          xSeries.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
-          yDataSeries.push(dataStore.angularBinData[i]);
-          yResSeries.push(dataStore.angularBinDataResiduals[i]);
-          yErrSeries[0].push(dataStore.angularBinDataUnc[i]);
-          yErrSeries[1].push(dataStore.angularBinDataUnc[i]);
-          if(dataStore.theseAngularBins[i]>80 && dataStore.theseAngularBins[i]<100){ centralDataSum += dataStore.angularBinData[i]; count++; }
-        }
+    };
+    data[2] = { // Experimental data points
+      x: xSeries,
+      y: yDataSeries,
+      xaxis: 'x2',
+      yaxis: 'y2',
+      name: 'Angular Correlation Data',
+      mode: 'markers',
+      type: 'scatter',
+      error_y : {
+        type: 'data',
+        array: yErrSeries[1],
+        visible: true
       }
-      */
+    };
+    data[1] = {
+      x: dataStore.expAngFineBinRadians,
+      y: dataStore.displayLineData,
+      xaxis: 'x2',
+      yaxis: 'y2',
+      name: dataStore.displayLineName,
+      mode: 'line'
+    };
 
-      for(var i=0; i<dataStore.expAngBinData.length; i++){
-        xSeries.push(dataStore.expAngBinRadians[i]);
-        yDataSeries.push(dataStore.expAngBinData[i]);
-        yResSeries.push(dataStore.angularBinDataResiduals[i]);
-        yErrSeries[0].push(dataStore.expAngBinDataUnc[i]);
-        yErrSeries[1].push(dataStore.expAngBinDataUnc[i]);
-        if(dataStore.expAngBinRadians[i]>-0.25 && dataStore.expAngBinRadians[i]<0.25){ centralDataSum += dataStore.expAngBinData[i]; count++; }
-      }
-
-      var centralDataMean = centralDataSum/count;
-      if(centralDataMean>1){ // Place plot subtitle at bottom of panel
-        subtitleYposition = 0.4;
-      }else{ // Place plot subtitle at top of panel
-        subtitleYposition = 0.95;
-      }
-
-      data[0] = {
-        x: xSeries,
-        y: yResSeries,
-        xaxis: 'x1',
-        yaxis: 'y1',
-        name: 'Residuals',
-        mode: 'markers',
-        type: 'scatter',
-        error_y : {
-          type: 'data',
-          array: yErrSeries[0],
-          visible: true
-        }
-      };
-      data[2] = {
-        x: xSeries,
-        y: yDataSeries,
-        xaxis: 'x2',
-        yaxis: 'y2',
-        name: 'Angular Correlation Data',
-        mode: 'markers',
-        type: 'scatter',
-        error_y : {
-          type: 'data',
-          array: yErrSeries[1],
-          visible: true
-        }
-      };
-      data[1] = {
-        x: dataStore.expAngFineBinRadians,
-        y: dataStore.displayLineData,
-        xaxis: 'x2',
-        yaxis: 'y2',
-        name: dataStore.displayLineName,
-        mode: 'line'
-      };
-
-      // Define the layout for this plotly
-      var layout = {
-        autosize: true,
-        width: 700,                                // Default is 700px
-        height: 450,                                // Default is 450px
-        title: "Gamma-gamma angular correlation",
-        xaxis:  {domain: [0, 1],       anchor: 'y1', title: "cos(\u03B8)", showline: false, zeroline: false, range: [-1.1,1.1]},
-        yaxis:  {domain: [0, 0.25],    anchor: 'x1', title: "Residual", showline: false, zeroline: false},
-        xaxis2: {domain: [0, 1],    anchor: 'y2', showticklabels: false, showline: false, zeroline: false, range: [-1.1,1.1]},
-        yaxis2: {domain: [0.3, 1],    anchor: 'x2', title: "Normalized counts", showline: false, zeroline: false},
-        legend: {traceorder: 'reversed', size: 15},
-        annotations: [{ // Chi-square answer on the plot for the line shown
-          text: dataStore.displayLineTitle,
-          font: {
-            size: 15,
-            color: 'rgb(116, 101, 130)',
-          },
-          showarrow: false, // Hides the arrow pointing to the annotation
-          align: 'center',
-          x: 0.5, // Centers the annotation horizontally
-          y: subtitleYposition, // Positions the annotation at the top of the plot area. 0.95 for top, 0.4 for bottom
-          xref: 'paper', // References the entire plot area (0 to 1)
-          yref: 'paper', // References the entire plot area (0 to 1)
-        }],
-        shapes:[ // Box around the panels
+    // Define the layout for this plotly
+    var layout = {
+      autosize: true,
+      width: 700,                                // Default is 700px
+      height: 450,                                // Default is 450px
+      title: "Gamma-gamma angular correlation",
+      xaxis:  {domain: [0, 1],       anchor: 'y1', title: "cos(\u03B8)", showline: false, zeroline: false, range: [-1.1,1.1]},
+      yaxis:  {domain: [0, 0.25],    anchor: 'x1', title: "Residual", showline: false, zeroline: false},
+      xaxis2: {domain: [0, 1],    anchor: 'y2', showticklabels: false, showline: false, zeroline: false, range: [-1.1,1.1]},
+      yaxis2: {domain: [0.3, 1],    anchor: 'x2', title: "Normalized counts", showline: false, zeroline: false},
+      legend: {traceorder: 'reversed', size: 15},
+      annotations: [{ // Chi-square answer on the plot for the line shown
+        text: dataStore.displayLineTitle,
+        font: {
+          size: 15,
+          color: 'rgb(116, 101, 130)',
+        },
+        showarrow: false, // Hides the arrow pointing to the annotation
+        align: 'center',
+        x: 0.5, // Centers the annotation horizontally
+        y: subtitleYposition, // Positions the annotation at the top of the plot area. 0.95 for top, 0.4 for bottom
+        xref: 'paper', // References the entire plot area (0 to 1)
+        yref: 'paper', // References the entire plot area (0 to 1)
+      }],
+      shapes:[ // Box around the panels
         {
           type: 'rect',
           xref: 'paper', // Reference the entire plot width
@@ -363,134 +350,132 @@
             width: 1
           }
         }
-        ]
-      };
+      ]
+    };
 
-      // Usual behavior is to call this function, but here we want a stacked graph.
-      //  createPlotlyScatterPlot([xSeries,xSeries],[yDataSeries,yResSeries],[],layout,containerDiv,traceNames);
-      // Now create the Plotly plot
-      Plotly.newPlot(parentDiv, data, layout, config);
+    // Usual behavior is to call this function, but here we want a stacked graph.
+    //  createPlotlyScatterPlot([xSeries,xSeries],[yDataSeries,yResSeries],[],layout,containerDiv,traceNames);
+    // Now create the Plotly plot
+    Plotly.newPlot(parentDiv, data, layout, config);
+  }
+
+
+  this.updateChiSquareResultsTable = function(){
+    console.log("updateChiSquareResultsTable");
+    //$("chiSquareReportTable tbody tr").remove();
+    //  chiSquareReportTable
+    var results = dataStore.minimaDetails;
+    var keys = Object.keys(results);
+    keys.sort();
+    var tableID = "chiSquareReportTableDivangularCorrelationsResults";
+    var cellHandles = ["j1","ChiSq","atan","delta","c2","c4","beta","gamma","a2","a4","display"];
+
+    // Need to delete all table rows and create them again.
+    var numRows = document.getElementById(tableID).rows.length;
+    for(var i=0; i<numRows; i++){
+      document.getElementById(tableID).deleteRow(0);
     }
 
+    // Column titles row
+    var rowID = "title";
+    var row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
+    row.id = tableID+rowID;
+    // Create the cells for this row
+    for(var cellIndex=0; cellIndex<cellHandles.length; cellIndex++){
+      var cell = row.insertCell(cellIndex);
+      cell.id = row.id + cellHandles[cellIndex];
+    }
+    // Fill the contents for the title row
+    document.getElementById(row.id + 'j1').innerHTML = "j\u2081";
+    document.getElementById(row.id + 'ChiSq').innerHTML = "\u{1D6D8}\u00B2/NDF";
+    document.getElementById(row.id + 'atan').innerHTML = "atan(\u03B4\u2081)";
+    document.getElementById(row.id + 'delta').innerHTML = "\u03B4";
+    document.getElementById(row.id + 'c2').innerHTML = "c\u2082";
+    document.getElementById(row.id + 'c4').innerHTML = "c\u2084";
+    document.getElementById(row.id + 'beta').innerHTML = "\u03B2";
+    document.getElementById(row.id + 'gamma').innerHTML = "\u03B3";
+    document.getElementById(row.id + 'a2').innerHTML = "a\u2082";
+    document.getElementById(row.id + 'a4').innerHTML = "a\u2084";
+    document.getElementById(row.id + 'display').innerHTML = "Display";
 
-    this.updateChiSquareResultsTable = function(){
-      console.log("updateChiSquareResultsTable");
-      //$("chiSquareReportTable tbody tr").remove();
-      //  chiSquareReportTable
-      var results = dataStore.minimaDetails;
-      var keys = Object.keys(results);
-      keys.sort();
-      var tableID = "chiSquareReportTableDivangularCorrelationsResults";
-      var cellHandles = ["j1","ChiSq","atan","delta","c2","c4","beta","gamma","a2","a4","display"];
-
-      // Need to delete all table rows and create them again.
-      var numRows = document.getElementById(tableID).rows.length;
-      for(var i=0; i<numRows; i++){
-        document.getElementById(tableID).deleteRow(0);
-      }
-
-      // Column titles row
-      var rowID = "title";
+    // Loop through all results of the chi-square fitting
+    for(i=0; i<keys.length; i++){
+      rowID = keys[i];
+      // Create new row for each result if one does not exist already
       var row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
       row.id = tableID+rowID;
       // Create the cells for this row
       for(var cellIndex=0; cellIndex<cellHandles.length; cellIndex++){
         var cell = row.insertCell(cellIndex);
         cell.id = row.id + cellHandles[cellIndex];
-      }
-      // Fill the contents for the title row
-      document.getElementById(row.id + 'j1').innerHTML = "j\u2081";
-      document.getElementById(row.id + 'ChiSq').innerHTML = "\u{1D6D8}\u00B2/NDF";
-      document.getElementById(row.id + 'atan').innerHTML = "atan(\u03B4\u2081)";
-      document.getElementById(row.id + 'delta').innerHTML = "\u03B4";
-      document.getElementById(row.id + 'c2').innerHTML = "c\u2082";
-      document.getElementById(row.id + 'c4').innerHTML = "c\u2084";
-      document.getElementById(row.id + 'beta').innerHTML = "\u03B2";
-      document.getElementById(row.id + 'gamma').innerHTML = "\u03B3";
-      document.getElementById(row.id + 'a2').innerHTML = "a\u2082";
-      document.getElementById(row.id + 'a4').innerHTML = "a\u2084";
-      document.getElementById(row.id + 'display').innerHTML = "Display";
-
-      // Loop through all results of the chi-square fitting
-      for(i=0; i<keys.length; i++){
-        rowID = keys[i];
-        // Create new row for each result if one does not exist already
-        var row = document.getElementById(tableID).insertRow(document.getElementById(tableID).rows.length);
-        row.id = tableID+rowID;
-        // Create the cells for this row
-        for(var cellIndex=0; cellIndex<cellHandles.length; cellIndex++){
-          var cell = row.insertCell(cellIndex);
-          cell.id = row.id + cellHandles[cellIndex];
-          if(keys[i] == dataStore.bestFitKey){ cell.classList.add("heavy-text"); }
-        }
-
-        // Fill the contents for this row
-        if(keys[i][keys[i].length-1]=="1"){ document.getElementById(row.id + 'j1').innerHTML = results[keys[i]].series; }
-        document.getElementById(row.id + 'ChiSq').innerHTML = results[keys[i]].chiSquare;
-        document.getElementById(row.id + 'atan').innerHTML = results[keys[i]].atanDelta1;
-        document.getElementById(row.id + 'delta').innerHTML = bracketNotationString(results[keys[i]].Delta1,results[keys[i]].Delta1Unc);
-        document.getElementById(row.id + 'c2').innerHTML = results[keys[i]].bestFitCoeffsC[0].toFixed(4);
-        document.getElementById(row.id + 'c4').innerHTML = results[keys[i]].bestFitCoeffsC[1].toFixed(4);
-        document.getElementById(row.id + 'beta').innerHTML = results[keys[i]].beta;
-        document.getElementById(row.id + 'gamma').innerHTML = results[keys[i]].gamma;
-        document.getElementById(row.id + 'a2').innerHTML = results[keys[i]].bestFitCoeffsA[0].toFixed(4);
-        document.getElementById(row.id + 'a4').innerHTML = results[keys[i]].bestFitCoeffsA[1].toFixed(4);
-
-        // Insert the display button
-        newButton = document.createElement('button');
-        newButton.setAttribute('id', 'display-'+results[keys[i]].series);
-        newButton.setAttribute('class', 'btn btn-default');
-        newButton.value = keys[i];
-        newButton.innerHTML = "Plot this result";
-        newButton.onclick = function(){
-          var thisTheory = theoreticalAngularCorrelation(dataStore.minimaDetails[this.value].bestFitCoeffsA[0],dataStore.minimaDetails[this.value].bestFitCoeffsA[1], dataStore.expAngBinRadians); // x series matching data for determining offset
-          var thisOffset = angularCorrelationRegression(dataStore.expAngBinData,thisTheory);
-          thisTheory = theoreticalAngularCorrelation(dataStore.minimaDetails[this.value].bestFitCoeffsA[0],dataStore.minimaDetails[this.value].bestFitCoeffsA[1], dataStore.expAngFineBinRadians); // fine x series for the actual plot
-          for(var i=0; i<thisTheory.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
-          dataStore.displayLineData = thisTheory;
-          dataStore.displayLineName = "Local minimum, "+this.value.split("-")[0]+", \u03B4 = "+dataStore.minimaDetails[this.value].Delta1;
-          dataStore.displayLineTitle = "\u{1D6D8}\u00B2/NDF = "+dataStore.minimaDetails[this.value].chiSquare;
-          generateResidualsData(dataStore.minimaDetails[this.value].bestFitCoeffsA[0],dataStore.minimaDetails[this.value].bestFitCoeffsA[1]);
-          dataStore._angularCorrelationsReport.refreshAngCorrPlot();
-        }.bind(newButton);
-        document.getElementById(row.id + 'display').appendChild(newButton);
+        if(keys[i] == dataStore.bestFitKey){ cell.classList.add("heavy-text"); }
       }
 
+      // Fill the contents for this row
+      if(keys[i][keys[i].length-1]=="1"){ document.getElementById(row.id + 'j1').innerHTML = results[keys[i]].series; }
+      document.getElementById(row.id + 'ChiSq').innerHTML = results[keys[i]].chiSquare;
+      document.getElementById(row.id + 'atan').innerHTML = results[keys[i]].atanDelta1;
+      document.getElementById(row.id + 'delta').innerHTML = bracketNotationString(results[keys[i]].Delta1,results[keys[i]].Delta1Unc);
+      document.getElementById(row.id + 'c2').innerHTML = results[keys[i]].bestFitCoeffsC[0].toFixed(4);
+      document.getElementById(row.id + 'c4').innerHTML = results[keys[i]].bestFitCoeffsC[1].toFixed(4);
+      document.getElementById(row.id + 'beta').innerHTML = results[keys[i]].beta;
+      document.getElementById(row.id + 'gamma').innerHTML = results[keys[i]].gamma;
+      document.getElementById(row.id + 'a2').innerHTML = results[keys[i]].bestFitCoeffsA[0].toFixed(4);
+      document.getElementById(row.id + 'a4').innerHTML = results[keys[i]].bestFitCoeffsA[1].toFixed(4);
 
+      // Insert the display button
+      newButton = document.createElement('button');
+      newButton.setAttribute('id', 'display-'+results[keys[i]].series);
+      newButton.setAttribute('class', 'btn btn-default');
+      newButton.value = keys[i];
+      newButton.innerHTML = "Plot this result";
+      newButton.onclick = function(){
+        var thisTheory = theoreticalAngularCorrelation(dataStore.minimaDetails[this.value].bestFitCoeffsC[0],dataStore.minimaDetails[this.value].bestFitCoeffsC[1], dataStore.expAngBinRadians); // x series matching data for determining offset
+        var thisOffset = angularCorrelationRegression(dataStore.expAngBinData,thisTheory);
+        thisTheory = theoreticalAngularCorrelation(dataStore.minimaDetails[this.value].bestFitCoeffsC[0],dataStore.minimaDetails[this.value].bestFitCoeffsC[1], dataStore.expAngFineBinRadians); // fine x series for the actual plot
+        for(var i=0; i<thisTheory.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
+        dataStore.displayLineData = thisTheory;
+        dataStore.displayLineName = "Local minimum, "+this.value.split("-")[0]+", \u03B4 = "+dataStore.minimaDetails[this.value].Delta1;
+        dataStore.displayLineTitle = "\u{1D6D8}\u00B2/NDF = "+dataStore.minimaDetails[this.value].chiSquare;
+        generateResidualsData(dataStore.minimaDetails[this.value].bestFitCoeffsC[0],dataStore.minimaDetails[this.value].bestFitCoeffsC[1]);
+        dataStore._angularCorrelationsReport.refreshAngCorrPlot();
+      }.bind(newButton);
+      document.getElementById(row.id + 'display').appendChild(newButton);
     }
 
-    this.populateChiSquarePlot = function(){
-      console.log("populateChiSquarePlot");
-      // data comes from dataStore.delta1Series and dataStore.chiSquareSeries
-      // which are populated in generateChiSquareData()
 
-      var containerDiv = "angularCorrelationsChiSqPlot";
-      var xSeries = [];    // Chi-square plot xSeries is atan( delta ) where delta is mixing ratio
-      var ySeries = [];    // Chi-square plot ySeries is the Chi-square value
-      var traceNames = []; // Names/titles that will appear in the legend for each series
+  }
 
-      // Define the name/title for each series to appear in the legend
-      for(var i=0; i<dataStore.minimaDetails.length; i++){
-        traceNames.push(dataStore.minimaDetails.series[i]);
-      }
+  this.populateChiSquarePlot = function(){
+    console.log("populateChiSquarePlot");
+    // data comes from dataStore.delta1Series and dataStore.chiSquareSeries
+    // which are populated in generateChiSquareData()
 
-      // Define one series for each chi-squared curve.
-      for(var j=0; j<dataStore.delta1Series.length; j++){
-        xSeries[j] = dataStore.delta1Series[j];
-        ySeries[j] = dataStore.chiSquareSeries[j];
-        traceNames[j] = dataStore.chiSqLabelSeries[j];
-      }
+    var containerDiv = "angularCorrelationsChiSqPlot";
+    var xSeries = [];    // Chi-square plot xSeries is atan( delta ) where delta is mixing ratio
+    var ySeries = [];    // Chi-square plot ySeries is the Chi-square value
+    var traceNames = []; // Names/titles that will appear in the legend for each series
 
-      // Define the layout for this plotly
-      var layout = {
-        autosize: true,
-        title: "\u{1D6D8}\u00B2 distributions",
-        xaxis: {title: "atan(\u03B4)", showline: false, zeroline: false},
-        yaxis: {title: "\u{1D6D8}\u00B2/NDF", type: "log", showline: false, zeroline: false},
-        //  xaxis: {title: {text: "atan(\u03B4)", font: { size: 15 }}, showline: false, zeroline: false},
-        //  yaxis: {title: {text: "atan(\u03B4)", font: { size: 15 }}, type: "log", showline: false, zeroline: false},
-        legend: {size: 15},
-        shapes:[ // Box around the panels
+    // Define the name/title for each series to appear in the legend
+    for(var i=0; i<dataStore.minimaDetails.length; i++){
+      traceNames.push(dataStore.minimaDetails.series[i]);
+    }
+
+    // Define one series for each chi-squared curve.
+    for(var j=0; j<dataStore.delta1Series.length; j++){
+      xSeries[j] = dataStore.delta1Series[j];
+      ySeries[j] = dataStore.chiSquareSeries[j];
+      traceNames[j] = dataStore.chiSqLabelSeries[j];
+    }
+
+    // Define the layout for this plotly
+    var layout = {
+      autosize: true,
+      title: "\u{1D6D8}\u00B2 distributions",
+      xaxis: {title: "atan(\u03B4)", showline: false, zeroline: false},
+      yaxis: {title: "\u{1D6D8}\u00B2/NDF", type: "log", showline: false, zeroline: false},
+      legend: {size: 15},
+      shapes:[ // Box around the panels
         {
           type: 'rect',
           xref: 'paper', // Reference the entire plot width
@@ -517,13 +502,13 @@
             width: 1
           }
         }
-        ]
-      };
+      ]
+    };
 
-      // Send info to create the Plotly scatter plot
-      createPlotlyScatterPlot(xSeries,ySeries,[],layout,containerDiv,traceNames);
-    }
-
-
+    // Send info to create the Plotly scatter plot
+    createPlotlyScatterPlot(xSeries,ySeries,[],layout,containerDiv,traceNames);
   }
+
+
+}
 </script>

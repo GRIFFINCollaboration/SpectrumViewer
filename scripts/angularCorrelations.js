@@ -149,16 +149,6 @@ function setupDataStore(){
   dataStore.peakFitterScriptTemplate = {};
   dataStore.peakFitterScriptTemplate = {
     'GRG-GRG-145mm' : {'spectrumList1d' : [
-      /*
-      "GRG01BN00A_Energy","GRG01GN00A_Energy","GRG01RN00A_Energy","GRG01WN00A_Energy", "GRG02BN00A_Energy","GRG02GN00A_Energy","GRG02RN00A_Energy","GRG02WN00A_Energy",
-      "GRG03BN00A_Energy","GRG03GN00A_Energy","GRG03RN00A_Energy","GRG03WN00A_Energy", "GRG04BN00A_Energy","GRG04GN00A_Energy","GRG04RN00A_Energy","GRG04WN00A_Energy",
-      "GRG05BN00A_Energy","GRG05GN00A_Energy","GRG05RN00A_Energy","GRG05WN00A_Energy", "GRG06BN00A_Energy","GRG06GN00A_Energy","GRG06RN00A_Energy","GRG06WN00A_Energy",
-      "GRG07BN00A_Energy","GRG07GN00A_Energy","GRG07RN00A_Energy","GRG07WN00A_Energy", "GRG08BN00A_Energy","GRG08GN00A_Energy","GRG08RN00A_Energy","GRG08WN00A_Energy",
-      "GRG09BN00A_Energy","GRG09GN00A_Energy","GRG09RN00A_Energy","GRG09WN00A_Energy", "GRG10BN00A_Energy","GRG10GN00A_Energy","GRG10RN00A_Energy","GRG10WN00A_Energy",
-      "GRG11BN00A_Energy","GRG11GN00A_Energy","GRG11RN00A_Energy","GRG11WN00A_Energy", "GRG12BN00A_Energy","GRG12GN00A_Energy","GRG12RN00A_Energy","GRG12WN00A_Energy",
-      "GRG13BN00A_Energy","GRG13GN00A_Energy","GRG13RN00A_Energy","GRG13WN00A_Energy", "GRG14BN00A_Energy","GRG14GN00A_Energy","GRG14RN00A_Energy","GRG14WN00A_Energy",
-      "GRG15BN00A_Energy","GRG15GN00A_Energy","GRG15RN00A_Energy","GRG15WN00A_Energy", "GRG16BN00A_Energy","GRG16GN00A_Energy","GRG16RN00A_Energy","GRG16WN00A_Energy"
-      */
       "GRG01BN00A_GGEnergy","GRG01GN00A_GGEnergy","GRG01RN00A_GGEnergy","GRG01WN00A_GGEnergy", "GRG02BN00A_GGEnergy","GRG02GN00A_GGEnergy","GRG02RN00A_GGEnergy","GRG02WN00A_GGEnergy",
       "GRG03BN00A_GGEnergy","GRG03GN00A_GGEnergy","GRG03RN00A_GGEnergy","GRG03WN00A_GGEnergy", "GRG04BN00A_GGEnergy","GRG04GN00A_GGEnergy","GRG04RN00A_GGEnergy","GRG04WN00A_GGEnergy",
       "GRG05BN00A_GGEnergy","GRG05GN00A_GGEnergy","GRG05RN00A_GGEnergy","GRG05WN00A_GGEnergy", "GRG06BN00A_GGEnergy","GRG06GN00A_GGEnergy","GRG06RN00A_GGEnergy","GRG06WN00A_GGEnergy",
@@ -169,15 +159,12 @@ function setupDataStore(){
       "GRG15BN00A_GGEnergy","GRG15GN00A_GGEnergy","GRG15RN00A_GGEnergy","GRG15WN00A_GGEnergy", "GRG16BN00A_GGEnergy","GRG16GN00A_GGEnergy","GRG16RN00A_GGEnergy","GRG16WN00A_GGEnergy"
     ], 'spectrumList1dPeaks' : { 'All':[] }, 'histogramFileNames' : [],
     'spectrumList2d' : [
-      "Ge_Ge_145mm_angular_bin00",
-      "Ge_Ge_145mm_angular_bin01","Ge_Ge_145mm_angular_bin02","Ge_Ge_145mm_angular_bin03","Ge_Ge_145mm_angular_bin04",
-
+      "Ge_Ge_145mm_angular_bin00","Ge_Ge_145mm_angular_bin01","Ge_Ge_145mm_angular_bin02","Ge_Ge_145mm_angular_bin03","Ge_Ge_145mm_angular_bin04",
       "Ge_Ge_145mm_angular_bin05","Ge_Ge_145mm_angular_bin06","Ge_Ge_145mm_angular_bin07","Ge_Ge_145mm_angular_bin08","Ge_Ge_145mm_angular_bin09",
       "Ge_Ge_145mm_angular_bin10","Ge_Ge_145mm_angular_bin11","Ge_Ge_145mm_angular_bin12","Ge_Ge_145mm_angular_bin13","Ge_Ge_145mm_angular_bin14",
       "Ge_Ge_145mm_angular_bin15","Ge_Ge_145mm_angular_bin16","Ge_Ge_145mm_angular_bin17","Ge_Ge_145mm_angular_bin18","Ge_Ge_145mm_angular_bin19",
       "Ge_Ge_145mm_angular_bin20","Ge_Ge_145mm_angular_bin21","Ge_Ge_145mm_angular_bin22","Ge_Ge_145mm_angular_bin23","Ge_Ge_145mm_angular_bin24",
-      "Ge_Ge_145mm_angular_bin25","Ge_Ge_145mm_angular_bin26",
-      "Ge_Ge_145mm_angular_bin27","Ge_Ge_145mm_angular_bin28","Ge_Ge_145mm_angular_bin29",
+      "Ge_Ge_145mm_angular_bin25","Ge_Ge_145mm_angular_bin26","Ge_Ge_145mm_angular_bin27","Ge_Ge_145mm_angular_bin28","Ge_Ge_145mm_angular_bin29",
       "Ge_Ge_145mm_angular_bin30","Ge_Ge_145mm_angular_bin31","Ge_Ge_145mm_angular_bin32","Ge_Ge_145mm_angular_bin33","Ge_Ge_145mm_angular_bin34",
       "Ge_Ge_145mm_angular_bin35","Ge_Ge_145mm_angular_bin36","Ge_Ge_145mm_angular_bin37","Ge_Ge_145mm_angular_bin38","Ge_Ge_145mm_angular_bin39",
       "Ge_Ge_145mm_angular_bin40","Ge_Ge_145mm_angular_bin41","Ge_Ge_145mm_angular_bin42","Ge_Ge_145mm_angular_bin43","Ge_Ge_145mm_angular_bin44",
@@ -683,6 +670,7 @@ function setupDataStore(){
 
           // Set up the progress tracking
           setupProgressBarTracking();
+          dataStore.progressBarNumberTasks -= 52; // We are not unpacking matrices locally
 
           ////////////////
           // Now set up for the start of the fetching process for the 1d histograms
@@ -858,6 +846,8 @@ function setupDataStore(){
               processAngularCorrelationData();
             };
           }
+          document.getElementById('betaInput').onchange = function(){ processAngularCorrelationData(); };
+          document.getElementById('gammaInput').onchange = function(){ processAngularCorrelationData(); };
           var optionsTR = document.getElementsByName('time_random_select_value');
           for(var i = 0; i < optionsTR.length; i++){
             optionsTR[i].onclick = function(){
@@ -898,6 +888,20 @@ function setupDataStore(){
 
               // Now fetch the matrices
               fetchAllMatrices();
+
+              // Reveal the gate input controls
+              // Reveal the cascade details inputs
+              document.getElementById('userInputParentDiv').classList.remove('hidden');
+              document.getElementById('gateInputsParentDiv').classList.remove('hidden');
+              document.getElementById('cascadeInputsDiv').classList.remove('hidden');
+              document.getElementById('analysisInputsDiv').classList.remove('hidden');
+
+              // Plot a single spectrum for determining the gate and fit regions
+              var plot = dataStore.histoFileName.split(".")[0] + ":" + dataStore.spectrumList1d[0];
+              dataStore.viewers[dataStore.plots[0]].addData(plot, JSON.parse(JSON.stringify(dataStore.rawData[plot])) );
+              dataStore.viewers[dataStore.plots[0]].plotData();
+
+              return;
             }else{
               // Check that we got all the matrices ok
               var count = 0;
@@ -913,21 +917,9 @@ function setupDataStore(){
                 var string = 'Matrix transfer error, failed to receive all matrices from the server. Please reload to try again.<br>';
                 if(document.getElementById('messageDivText')){ document.getElementById('messageDivText').innerHTML = string; }
                 if(document.getElementById('messageDiv')){ document.getElementById('messageDiv').style.display = 'block'; }
+                return;
               }
-              return;
             }
-
-            // Reveal the gate input controls
-            // Reveal the cascade details inputs
-            document.getElementById('userInputParentDiv').classList.remove('hidden');
-            document.getElementById('gateInputsParentDiv').classList.remove('hidden');
-            document.getElementById('cascadeInputsDiv').classList.remove('hidden');
-            document.getElementById('analysisInputsDiv').classList.remove('hidden');
-
-            // Plot a single spectrum for determining the gate and fit regions
-            var plot = dataStore.histoFileName.split(".")[0] + ":" + dataStore.spectrumList1d[0];
-            dataStore.viewers[dataStore.plots[0]].addData(plot, JSON.parse(JSON.stringify(dataStore.rawData[plot])) );
-            dataStore.viewers[dataStore.plots[0]].plotData();
 
             // Set the current task to keep track of our progress
             dataStore.currentTask = 'peakInfoInput';
@@ -935,6 +927,9 @@ function setupDataStore(){
             // change information message
             document.getElementById('fetchingMessage').classList.add('hidden');
             document.getElementById('readyMessage').classList.remove('hidden');
+
+            // Enable the Launch button
+            document.getElementById('ggAngCorrProject').disabled = false;
 
             // Nothing further to do here on fetchCallback. Further tasks are initiated following User input.
           }
@@ -1071,7 +1066,7 @@ function setupDataStore(){
               var thisGateKey = dataStore.angCorrProjections[i]; // Gate for angular correlation
               var thisTotalKey = dataStore.angCorrProjections[i].split("x")[0] + "x"; // Total projection
 
-console.log(thisTotalKey+", gate "+gateIndex+", peak "+peakIndex);
+              console.log(thisTotalKey+", gate "+gateIndex+", peak "+peakIndex);
               // Determine the time-random background subtraction factor from the ratio of the two peaks in the total projection
               dataStore.angularBinTRBGFactor[index] = dataStore.fitResults[thisTotalKey][peakIndex][5] / dataStore.fitResults[thisTotalKey][gateIndex][5];
               // Add the fractional errors in quadrature
@@ -1147,7 +1142,7 @@ console.log(thisTotalKey+", gate "+gateIndex+", peak "+peakIndex);
               dataStore.singlesPeakArea[i] = [0,0]; // initialize this element
               dataStore.singlesPeakAreaUnc[i] = [0,0]; // initialize this element
 
-console.log(thisSinglesKey+" for "+peakIndex+" and "+gateIndex);
+              console.log(thisSinglesKey+" for "+peakIndex+" and "+gateIndex);
               if( !isNaN(dataStore.fitResults[thisSinglesKey][peakIndex][5]))
               dataStore.singlesPeakArea[i][0] = dataStore.fitResults[thisSinglesKey][peakIndex][5]; // the fit energy peak
               if( !isNaN(dataStore.fitResults[thisSinglesKey][gateIndex][5]))
@@ -1229,466 +1224,463 @@ console.log(thisSinglesKey+" for "+peakIndex+" and "+gateIndex);
               + ((dataStore.normalizationFactorUnc/dataStore.normalizationFactor) * (dataStore.normalizationFactorUnc/dataStore.normalizationFactor))
               + (dataStore.systematicUncertainty*dataStore.systematicUncertainty) // Include a systematic uncertainty set by user input
             )
-            /*
-            dataStore.angularBinDataUnc[i] = dataStore.angularBinData[i]
-            * Math.sqrt(  ((dataStore.angularBinPeakAreaUnc[i]/dataStore.angularBinPeakArea[i]) * (dataStore.angularBinPeakAreaUnc[i]/dataStore.angularBinPeakArea[i]))
-            + ((dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i]) * (dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i]))
-            + ((dataStore.normalizationFactorUnc/dataStore.normalizationFactor) * (dataStore.normalizationFactorUnc/dataStore.normalizationFactor))
-          )
-          */
-          // Protect against NaN or infinite values
-          if(!isFinite(dataStore.angularBinData[i])){ dataStore.angularBinData[i] = 0.0; }
-          if(!isFinite(dataStore.angularBinDataUnc[i])){ dataStore.angularBinDataUnc[i] = 0; }
-          //  console.log(dataStore.theseAngularBins[i]+","+dataStore.angularBinData[i]+","+dataStore.angularBinDataUnc[i]);
-          //  console.log("Error from "+dataStore.angularBinPeakAreaUnc[i]+"/"+dataStore.angularBinPeakArea[i]+"="+(dataStore.angularBinPeakAreaUnc[i]/dataStore.angularBinPeakArea[i])+", "+dataStore.angularBinWeightUnc[i]+"/"+dataStore.angularBinWeight[i]+"="+(dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i])+", "+dataStore.normalizationFactorUnc+"/"+dataStore.normalizationFactor+"="+(dataStore.normalizationFactorUnc/dataStore.normalizationFactor) );
-        }
 
-        // Set the number of degrees of freedom used in the reduced chi-square calculation
-        dataStore.angularBinEmptyCount = 0;
-        for(i=0; i<dataStore.angularBinData.length; i++){ if(dataStore.angularBinData[i]==0 && dataStore.angularBinExcludeList.indexOf(i)<0){ dataStore.angularBinEmptyCount++; } }
-        dataStore.numDegreesOfFreedom = dataStore.angularBinData.length - dataStore.angularBinExcludeList.length - dataStore.angularBinEmptyCount - 2; // Number of data points minus two parameters to fit (c1,c4)
-
-        console.log(dataStore.angularBinData);
-        console.log(dataStore.angularBinExcludeList);
-        console.log("Number of degrees of Freedom = "+dataStore.angularBinData.length + " - "+ dataStore.angularBinExcludeList.length + " - "+ dataStore.angularBinEmptyCount+ " - 2 = "+dataStore.numDegreesOfFreedom);
-
-        // Set the confidence level value used in the plotting of the reduced chi-square calculation
-        var optionsCL = document.getElementsByName('confidenceLimitValue');
-        for(var i = 0; i < optionsCL.length; i++){
-          if(optionsCL[i].checked){
-            var thisConfidenceLimit = optionsCL[i].value;
-            dataStore.criticalLevel = thisConfidenceLimit;
+            // Protect against NaN or infinite values
+            if(!isFinite(dataStore.angularBinData[i])){ dataStore.angularBinData[i] = 0.0; }
+            if(!isFinite(dataStore.angularBinDataUnc[i])){ dataStore.angularBinDataUnc[i] = 0; }
+            //  console.log(dataStore.theseAngularBins[i]+","+dataStore.angularBinData[i]+","+dataStore.angularBinDataUnc[i]);
+            //  console.log("Error from "+dataStore.angularBinPeakAreaUnc[i]+"/"+dataStore.angularBinPeakArea[i]+"="+(dataStore.angularBinPeakAreaUnc[i]/dataStore.angularBinPeakArea[i])+", "+dataStore.angularBinWeightUnc[i]+"/"+dataStore.angularBinWeight[i]+"="+(dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i])+", "+dataStore.normalizationFactorUnc+"/"+dataStore.normalizationFactor+"="+(dataStore.normalizationFactorUnc/dataStore.normalizationFactor) );
           }
-        }
-        console.log(thisConfidenceLimit);
-        dataStore.criticalValue = dataStore.criticalChiSquareValueTable[thisConfidenceLimit][dataStore.numDegreesOfFreedom-1];
-        dataStore.criticalValue = (dataStore.criticalValue / dataStore.numDegreesOfFreedom).toFixed(3);
-        console.log("Critical Value of "+dataStore.criticalValue+" from "+dataStore.criticalChiSquareValueTable[thisConfidenceLimit][dataStore.numDegreesOfFreedom-1]+" / "+dataStore.numDegreesOfFreedom);
 
-        // Report the statistics of this correlation
-        document.getElementById('dataTableMessage').innerHTML = "<h4>"+dataStore.histoFileName+": "+dataStore.fitPeakEnergies[0]+"-"+dataStore.fitPeakEnergies[1]+"(gate) keV</h4>"+ "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>"
-        +"<h4>Normalization factor (Sum of Corrected Areas) = "+bracketNotationString(dataStore.normalizationFactor.toFixed(2),dataStore.normalizationFactorUnc)+"</h4>";
-        document.getElementById('dataPlotMessage').innerHTML = "<h4>"+dataStore.histoFileName+": "+dataStore.fitPeakEnergies[0]+"-"+dataStore.fitPeakEnergies[1]+"(gate) keV</h4>"+ "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>";
-        console.log("Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0)+", mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0));
-        document.getElementById('dataPlotMessage').innerHTML += "<h4>"+"The Critical Value ("+dataStore.criticalLevelStrings[dataStore.criticalLevel]+" confidence level) for "+dataStore.numDegreesOfFreedom+" degrees of freedom is \u{1D6D8}\u00B2/NDF="+dataStore.criticalValue+"."+"</h4>";
+          // Set the number of degrees of freedom used in the reduced chi-square calculation
+          dataStore.angularBinEmptyCount = 0;
+          for(i=0; i<dataStore.angularBinData.length; i++){ if(dataStore.angularBinData[i]==0 && dataStore.angularBinExcludeList.indexOf(i)<0){ dataStore.angularBinEmptyCount++; } }
+          dataStore.numDegreesOfFreedom = dataStore.angularBinData.length - dataStore.angularBinExcludeList.length - dataStore.angularBinEmptyCount - 2; // Number of data points minus two parameters to fit (c1,c4)
 
-        // Populate the results table for the angular correlation and weights data
-        dataStore._angularCorrelationsReport.updateDataTable();
-        dataStore._angularCorrelationsReport.updateWeightTable();
-        dataStore._angularCorrelationsReport.updateFitsTable();
-
-        // Promise to generate the chi-squared data and then populate the tables and plots
-        let dataPromise = new Promise(function(resolve, reject) {
-          generateChiSquareData();
-          return resolve();
-        });
-
-        dataPromise.then(
-
-          function(value){
-            console.log("Execute then function of dataPromise");
-
-            // Populate the main angular correlation plot
-            dataStore._angularCorrelationsReport.refreshAngCorrPlot();
-
-            // Populate the chi-squred plot
-            dataStore._angularCorrelationsReport.populateChiSquarePlot();
-
-            // Write the results to the Table
-            dataStore._angularCorrelationsReport.updateChiSquareResultsTable();
-
-            // Show the angular correlations plot when finished
-            if(dataStore.currentTask!="refit"){ document.getElementById("dataPlotRegionMenuButton").click(); }
-          }
-        );
-
-      }
-
-      function generateResidualsData(c2,c4){
-        console.log("generateResidualsData");
-
-        dataStore.angularBinDataResiduals = []; // Reset this array, especially if some points have been excluded
-
-        var theorySeries = theoreticalAngularCorrelation(c2,c4, dataStore.expAngBinRadians);
-        var thisOffset = angularCorrelationRegression(dataStore.expAngBinData,theorySeries);
-        for(i=0; i<theorySeries.length; i++){ theorySeries[i] = theorySeries[i] + thisOffset; }
-
-        for(var i=0; i<dataStore.expAngBinData.length; i++){
-          if(dataStore.angularBinExcludeList.includes(i)){ continue; } // Exclude any datapoints on the excludeList
-          dataStore.angularBinDataResiduals[i] = dataStore.expAngBinData[i] - theorySeries[i];
-        }
-      }
-
-      function generateChiSquareData(){
-
-
-        // Return a new promise.
-        return new Promise(function(resolve) {
-
-
-          console.log("generateChiSquareData");
+          console.log(dataStore.angularBinData);
           console.log(dataStore.angularBinExcludeList);
-          dataStore.theseAngularBinsRadians = [];
-          for(var i=0; i<dataStore.theseAngularBins.length; i++){
-            dataStore.theseAngularBinsRadians.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
+          console.log("Number of degrees of Freedom = "+dataStore.angularBinData.length + " - "+ dataStore.angularBinExcludeList.length + " - "+ dataStore.angularBinEmptyCount+ " - 2 = "+dataStore.numDegreesOfFreedom);
+
+          // Set the confidence level value used in the plotting of the reduced chi-square calculation
+          var optionsCL = document.getElementsByName('confidenceLimitValue');
+          for(var i = 0; i < optionsCL.length; i++){
+            if(optionsCL[i].checked){
+              var thisConfidenceLimit = optionsCL[i].value;
+              dataStore.criticalLevel = thisConfidenceLimit;
+            }
           }
+          console.log(thisConfidenceLimit);
+          dataStore.criticalValue = dataStore.criticalChiSquareValueTable[thisConfidenceLimit][dataStore.numDegreesOfFreedom-1];
+          dataStore.criticalValue = (dataStore.criticalValue / dataStore.numDegreesOfFreedom).toFixed(3);
+          console.log("Critical Value of "+dataStore.criticalValue+" from "+dataStore.criticalChiSquareValueTable[thisConfidenceLimit][dataStore.numDegreesOfFreedom-1]+" / "+dataStore.numDegreesOfFreedom);
 
-          var thisTheory = [];      // A series of the distribution vs cos(theta)
-          var newCoEffs = [];       // Coefficients [c2,c4]. Theoretical and uncorrected for finite element size.
-          var correctedCoEffs = []; // Coefficients [a2,a4]. Corrected for finite element size.
-          var localMinima = [[]];   // An array of minima indexes for each j value.
-          var localMinimaKeys = []; // An array of minima keys for each j value (they may not start from 0).
-          var thisOffset = 0.0; // Offset to align theory with data
-          // Declare the variables
-          var j1, j2, j3, l1a, l1b, l2a, l2b, delta1, delta2;
-          var bestFitC = [], bestFitA = [], bestFitKey = '', pure=0;
-          dataStore.minimaDetails = {}; // reset this array
-          dataStore.NEWminimaDetails = {}; // reset this array
-          var expAngBinData = [];
-          var expAngBinDataUnc = [];
-          var expAngBinRadians = [];
+          // Report the statistics of this correlation
+          document.getElementById('dataTableMessage').innerHTML = "<h4>"+dataStore.histoFileName+": "+dataStore.fitPeakEnergies[0]+"-"+dataStore.fitPeakEnergies[1]+"(gate) keV</h4>"+ "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>"
+          +"<h4>Normalization factor (Sum of Corrected Areas) = "+bracketNotationString(dataStore.normalizationFactor.toFixed(2),dataStore.normalizationFactorUnc)+"</h4>";
+          document.getElementById('dataPlotMessage').innerHTML = "<h4>"+dataStore.histoFileName+": "+dataStore.fitPeakEnergies[0]+"-"+dataStore.fitPeakEnergies[1]+"(gate) keV</h4>"+ "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>";
+          console.log("Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0)+", mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0));
+          document.getElementById('dataPlotMessage').innerHTML += "<h4>"+"The Critical Value ("+dataStore.criticalLevelStrings[dataStore.criticalLevel]+" confidence level) for "+dataStore.numDegreesOfFreedom+" degrees of freedom is \u{1D6D8}\u00B2/NDF="+dataStore.criticalValue+"."+"</h4>";
+          if(dataStore.systematicUncertainty>0){var systematicString = "A systematic uncertainty of "+(dataStore.systematicUncertainty*100).toFixed(1)+"% has been added in quadrature to each data point. ";}else{var systematicString = "No systematic uncertainty has been added to the data points. ";}
+          document.getElementById('dataPlotMessage').innerHTML += "<h4>"+systematicString+"</h4>";
 
-          // Get the beta and gamma parameters for this energy cascade
-          // THIS SHOULD BE A CALL TO A FUNCTION BUT HARD-CODED HERE FOR 152EU 344-778
-          //dataStore.beta  = 0.954711; // 60Co, 4-2-0, 1332-1173
-          //dataStore.gamma = 0.841345; // 60Co, 4-2-0, 1332-1173
-        //  dataStore.beta  = 0.957442; // 66Ga, 0-2-0, 1333-1039
-        //  dataStore.gamma = 0.852034; // 66Ga, 0-2-0, 1333-1039
-          dataStore.beta  = 0.950804; // 152Eu, 2-2-0, 1408-121
-          dataStore.gamma = 0.829300; // 152Eu, 2-2-0, 1408-121
-          //dataStore.beta  = 0.950933; // 148Cs, 719-141
-          //dataStore.gamma = 0.828565; // 148Cs, 719-141
-          //dataStore.beta  = 1.0; // Theory
-          //dataStore.gamma = 1.0; // Theory
+          // Populate the results table for the angular correlation and weights data
+          dataStore._angularCorrelationsReport.updateDataTable();
+          dataStore._angularCorrelationsReport.updateWeightTable();
+          dataStore._angularCorrelationsReport.updateFitsTable();
 
-          // Grab the user input for the cascade
-          //  j1=parseFloat(document.getElementById('j1').value);
-          j2=parseFloat(document.getElementById('j2').value);
-          j3=parseFloat(document.getElementById('j3').value);
-          //  delta1 = parseFloat(document.getElementById('mix1').value);
-          delta2 = parseFloat(document.getElementById('mix2').value);
+          // Promise to generate the chi-squared data and then populate the tables and plots
+          let dataPromise = new Promise(function(resolve, reject) {
+            generateChiSquareData();
+            return resolve();
+          });
 
-          // Calculate the l2 momenta
-          l2a = l2b = Math.abs(j2-j3);
-          if(l2a<1){ l2a = l2b = 1; } // E0 is not permitted
-          if((j2+j3)>l2b){ l2b++; }
+          dataPromise.then(
 
-          // Build the array of experimental data to use.
-          // Exclude any bins identified in the excludeList.
-          var index=0;
-          for(var i=0; i<dataStore.angularBinData.length; i++){
-            if(dataStore.angularBinExcludeList.includes(i)){ continue; } // Exclude any datapoints on the excludeList
-            expAngBinData[index] = dataStore.angularBinData[i];
-            expAngBinDataUnc[index] = dataStore.angularBinDataUnc[i];
-            expAngBinRadians[index] = dataStore.theseAngularBinsRadians[i];
-            index++;
+            function(value){
+              console.log("Execute then function of dataPromise");
+
+              // Populate the main angular correlation plot
+              dataStore._angularCorrelationsReport.refreshAngCorrPlot();
+
+              // Populate the chi-squred plot
+              dataStore._angularCorrelationsReport.populateChiSquarePlot();
+
+              // Write the results to the Table
+              dataStore._angularCorrelationsReport.updateChiSquareResultsTable();
+
+              // Show the angular correlations plot when finished
+              if(dataStore.currentTask!="refit"){ document.getElementById("dataPlotRegionMenuButton").click(); }
+            }
+          );
+
+        }
+
+        function generateResidualsData(c2,c4){
+          console.log("generateResidualsData");
+
+          dataStore.angularBinDataResiduals = []; // Reset this array, especially if some points have been excluded
+
+          var theorySeries = theoreticalAngularCorrelation(c2,c4, dataStore.expAngBinRadians);
+          var thisOffset = angularCorrelationRegression(dataStore.expAngBinData,theorySeries);
+          for(var i=0; i<theorySeries.length; i++){ theorySeries[i] = theorySeries[i] + thisOffset; }
+
+          for(var i=0; i<dataStore.expAngBinData.length; i++){
+            //  Excluded bins are already accounted for in dataStore.expAngBinData
+            dataStore.angularBinDataResiduals[i] = dataStore.expAngBinData[i] - theorySeries[i];
           }
-          // Save this x series for use in generating theory curves
-          dataStore.expAngBinData = expAngBinData;
-          dataStore.expAngBinDataUnc = expAngBinDataUnc;
-          dataStore.expAngBinRadians = expAngBinRadians;
-          // x series for theory line plotting
-          dataStore.expAngFineBinRadians = [];
-          for(i=-1; i<=1; i+=0.01){
-            dataStore.expAngFineBinRadians.push(i);
-          }
+        }
 
-          // Zero the arrays and variables
-          dataStore.delta1Series = [];
-          dataStore.chiSqLabelSeries = [];
-          dataStore.chiSquareSeries = [];
-          var minChiSquareSeries = [];
-          var thisChiSquare, minChiSquare = 100000;
+        function generateChiSquareData(){
 
-          // Loop through possible j values of 0,1,2,3,4,5.
-          // For each j value, scan the full range of mixing ratio (delta).
-          // At each point calculate the theoretical coefficients c2,c4
-          // Correct the theoretical coefficients with the finite-element correction parameters for this energy cascade.
-          // Determine the chi-square of the fit of this corrected-theory curve with the experimental data.
-          // Find the minima in the chi-squared distribution for each j value.
-          index=0;
-          for(j1=(j2-2); j1<(j2+3); j1++){
-            l1a = l1b = Math.abs(j1-j2);
-            if(l1a<1){ l1a = l1b = 1; } // E0 is not permitted
-            if((j1+j2)>l1b){ l1b++; }
-            if(l1a == l1b && l1a == l2a && l1a == l2b){ pure=1; }else{ pure=0; }
-            //  console.log("j1,j2,j3,l1a,l1b,l2a,l2b: "+j1+","+j2+","+j3+","+l1a+","+l1b+","+l2a+","+l2b);
-            dataStore.delta1Series[index] = [];
-            dataStore.chiSquareSeries[index] = [];
-            dataStore.chiSqLabelSeries[index] = "j="+j1;
-            minChiSquareSeries[index] = 1000000000;
-            for(var atanDelta1=-1.5; atanDelta1<=1.5; atanDelta1+=0.01){
-              if(atanDelta1>-0.01 && atanDelta1<0.01){ atanDelta1=0.0; }
-              dataStore.delta1Series[index].push(atanDelta1.toFixed(2));
-              if(pure){ // Need special handling for pure multipolarity case which only has one solution
-                if(atanDelta1 != 0){
-                  dataStore.chiSquareSeries[index].push(null);
-                  continue;
-                }else{
-                  newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2);
-                  correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
-                  correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
-                  //thisTheory = theoreticalAngularCorrelation(newCoEffs[0],newCoEffs[1], expAngBinRadians);
-                  thisTheory = theoreticalAngularCorrelation(correctedCoEffs[0],correctedCoEffs[1], expAngBinRadians);
-                  thisOffset = angularCorrelationRegression(expAngBinData,thisTheory);
-                  for(i=0; i<thisTheory.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
-                  thisChiSquare = calculateChiSquare(expAngBinData,expAngBinDataUnc,thisTheory)/dataStore.numDegreesOfFreedom;
-                  dataStore.chiSquareSeries[index].push(thisChiSquare);
-                  var minimaKey = "j="+j1+"-1"; // Only one solution for pure case
-                  localMinimaKeys[index] = j1;
+
+          // Return a new promise.
+          return new Promise(function(resolve) {
+
+
+            console.log("generateChiSquareData");
+            console.log(dataStore.angularBinExcludeList);
+            dataStore.theseAngularBinsRadians = [];
+            for(var i=0; i<dataStore.theseAngularBins.length; i++){
+              dataStore.theseAngularBinsRadians.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
+            }
+
+            var thisTheory = [];      // A series of the distribution vs cos(theta)
+            var newCoEffs = [];       // Coefficients [a2,a4]. Theoretical and uncorrected for finite element size.
+            var correctedCoEffs = []; // Coefficients [c2,c4]. Corrected for finite element size.
+            var localMinima = [[]];   // An array of minima indexes for each j value.
+            var localMinimaKeys = []; // An array of minima keys for each j value (they may not start from 0).
+            var thisOffset = 0.0; // Offset to align theory with data
+            // Declare the variables
+            var j1, j2, j3, l1a, l1b, l2a, l2b, delta1, delta2;
+            var bestFitC = [], bestFitA = [], bestFitKey = '', pure=0;
+            dataStore.minimaDetails = {}; // reset this array
+            dataStore.NEWminimaDetails = {}; // reset this array
+            var expAngBinData = [];
+            var expAngBinDataUnc = [];
+            var expAngBinRadians = [];
+
+            // Get the beta and gamma parameters for this energy cascade
+            // THIS SHOULD BE A CALL TO A FUNCTION BUT HARD-CODED HERE FOR 152EU 344-778
+            //dataStore.beta  = 0.954711; // 60Co, 4-2-0, 1332-1173
+            //dataStore.gamma = 0.841345; // 60Co, 4-2-0, 1332-1173
+            //  dataStore.beta  = 0.957442; // 66Ga, 0-2-0, 1333-1039
+            //  dataStore.gamma = 0.852034; // 66Ga, 0-2-0, 1333-1039
+            //  dataStore.beta  = 0.950804; // 152Eu, 2-2-0, 1408-121
+            //  dataStore.gamma = 0.829300; // 152Eu, 2-2-0, 1408-121
+            //dataStore.beta  = 0.950933; // 148Cs, 719-141
+            //dataStore.gamma = 0.828565; // 148Cs, 719-141
+            //dataStore.beta  = 1.0; // Theory
+            //dataStore.gamma = 1.0; // Theory
+            //  dataStore.beta  = 0.9; // 148Ba trialling
+            //  dataStore.gamma = 0.7; // 148Ba trialling
+            dataStore.beta  = parseFloat(document.getElementById('betaInput').value);
+            dataStore.gamma = parseFloat(document.getElementById('gammaInput').value);
+
+            // Grab the user input for the cascade
+            j2=parseFloat(document.getElementById('j2').value);
+            j3=parseFloat(document.getElementById('j3').value);
+            delta2 = parseFloat(document.getElementById('mix2').value);
+
+            // Calculate the l2 momenta
+            l2a = l2b = Math.abs(j2-j3);
+            if(l2a<1){ l2a = l2b = 1; } // E0 is not permitted
+            if((j2+j3)>l2b){ l2b++; }
+
+            // Build the array of experimental data to use.
+            // Exclude any bins identified in the excludeList.
+            var index=0;
+            for(var i=0; i<dataStore.angularBinData.length; i++){
+              if(dataStore.angularBinExcludeList.includes(i)){ continue; } // Exclude any datapoints on the excludeList
+              expAngBinData[index] = dataStore.angularBinData[i];
+              expAngBinDataUnc[index] = dataStore.angularBinDataUnc[i];
+              expAngBinRadians[index] = dataStore.theseAngularBinsRadians[i];
+              index++;
+            }
+            // Save this x series for use in generating theory curves
+            dataStore.expAngBinData = expAngBinData;
+            dataStore.expAngBinDataUnc = expAngBinDataUnc;
+            dataStore.expAngBinRadians = expAngBinRadians;
+            // x series for theory line plotting
+            dataStore.expAngFineBinRadians = [];
+            for(i=-1; i<=1; i+=0.01){
+              dataStore.expAngFineBinRadians.push(i);
+            }
+
+            // Zero the arrays and variables
+            dataStore.delta1Series = [];
+            dataStore.chiSqLabelSeries = [];
+            dataStore.chiSquareSeries = [];
+            var minChiSquareSeries = [];
+            var thisChiSquare, minChiSquare = 100000;
+
+            // Loop through possible j values of j2 plus and minus 2.
+            // For each j value, scan the full range of mixing ratio (delta).
+            // At each point calculate the theoretical coefficients a2,a4
+            // Correct the theoretical coefficients with the finite-element correction parameters for this energy cascade.
+            // Determine the chi-square of the fit of this corrected-theory curve with the experimental data.
+            // Find the minima in the chi-squared distribution for each j value.
+            index=0;
+            for(j1=(j2-2); j1<(j2+3); j1++){
+              l1a = l1b = Math.abs(j1-j2);
+              if(l1a<1){ l1a = l1b = 1; } // E0 is not permitted
+              if((j1+j2)>l1b){ l1b++; }
+              if(l1a == l1b && l1a == l2a && l1a == l2b){ pure=1; }else{ pure=0; }
+              //  console.log("j1,j2,j3,l1a,l1b,l2a,l2b: "+j1+","+j2+","+j3+","+l1a+","+l1b+","+l2a+","+l2b);
+              dataStore.delta1Series[index] = [];
+              dataStore.chiSquareSeries[index] = [];
+              dataStore.chiSqLabelSeries[index] = "j="+j1;
+              minChiSquareSeries[index] = 1000000000;
+              for(var atanDelta1=-1.5; atanDelta1<=1.5; atanDelta1+=0.01){
+                if(atanDelta1>-0.01 && atanDelta1<0.01){ atanDelta1=0.0; }
+                dataStore.delta1Series[index].push(atanDelta1.toFixed(2));
+                if(pure){ // Need special handling for pure multipolarity case which only has one solution
+                  if(atanDelta1 != 0){
+                    dataStore.chiSquareSeries[index].push(null);
+                    continue;
+                  }else{
+                    newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2);
+                    correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
+                    correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
+                    thisTheory = theoreticalAngularCorrelation(correctedCoEffs[0],correctedCoEffs[1], expAngBinRadians);
+                    thisOffset = angularCorrelationRegression(expAngBinData,thisTheory);
+                    for(i=0; i<thisTheory.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
+                    thisChiSquare = calculateChiSquare(expAngBinData,expAngBinDataUnc,thisTheory)/dataStore.numDegreesOfFreedom;
+                    dataStore.chiSquareSeries[index].push(thisChiSquare);
+                    var minimaKey = "j="+j1+"-1"; // Only one solution for pure case
+                    localMinimaKeys[index] = j1;
+                    dataStore.minimaDetails[minimaKey] = {
+                      'series': "j="+j1,
+                      'params': [j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2],
+                      'atanDelta1': atanDelta1.toFixed(3),
+                      'Delta1': Math.tan(atanDelta1).toFixed(3),
+                      'Delta1Unc': 0,
+                      'chiSquare': thisChiSquare.toFixed(3),
+                      'beta': dataStore.beta,
+                      'gamma': dataStore.gamma,
+                      'bestFitCoeffsC': [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma],
+                      'bestFitCoeffsA': newCoEffs
+                    };
+                    // This identifies the global minimum
+                    if(thisChiSquare<minChiSquare){  // Global minimum
+                      minChiSquare = thisChiSquare;
+                      bestFitC = [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma];
+                      bestFitA = newCoEffs;
+                      bestFitKey = minimaKey;
+                    }
+                    continue;
+                  }
+                }
+                // Calculate the chi-square for this set of coefficients and atan(delta) value
+                newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2);
+                correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
+                correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
+                thisTheory = theoreticalAngularCorrelation(correctedCoEffs[0],correctedCoEffs[1], expAngBinRadians);
+                thisOffset = angularCorrelationRegression(expAngBinData,thisTheory);
+                for(i=0; i<expAngBinData.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
+                thisChiSquare = calculateChiSquare(expAngBinData,expAngBinDataUnc,thisTheory)/dataStore.numDegreesOfFreedom;
+                dataStore.chiSquareSeries[index].push(thisChiSquare);
+
+                // This finds the primary local minimum for this j value
+                if(thisChiSquare<minChiSquareSeries[index]){
+                  minChiSquareSeries[index] = thisChiSquare;
+                  var minimaKey = "j="+j1+"-1"; // This is always the primary minimum for this j value
+                  //    console.log("This  c2,c4 = ["+newCoEffs[0]+","+newCoEffs[1]+"] and a2,a4 = ["+correctedCoEffs[0]+","+correctedCoEffs[1]+"]");
                   dataStore.minimaDetails[minimaKey] = {
                     'series': "j="+j1,
                     'params': [j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2],
                     'atanDelta1': atanDelta1.toFixed(3),
-                    'Delta1': Math.tan(atanDelta1).toFixed(3),
+                    'Delta1': Math.tan(atanDelta1).toFixed(4),
                     'Delta1Unc': 0,
                     'chiSquare': thisChiSquare.toFixed(3),
                     'beta': dataStore.beta,
                     'gamma': dataStore.gamma,
-                    'bestFitCoeffsC': newCoEffs,
-                    'bestFitCoeffsA': [newCoEffs[0] * dataStore.beta,newCoEffs[1] * dataStore.gamma]
+                    'bestFitCoeffsC': [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma],
+                    'bestFitCoeffsA': newCoEffs
                   };
+                  //        console.log("Saved c2,c4 = ["+dataStore.minimaDetails[minimaKey].bestFitCoeffsC[0]+","+dataStore.minimaDetails[minimaKey].bestFitCoeffsC[1]+"] and a2,a4 = ["+dataStore.minimaDetails[minimaKey].bestFitCoeffsA[0]+","+dataStore.minimaDetails[minimaKey].bestFitCoeffsA[1]+"]");
+
                   // This identifies the global minimum
                   if(thisChiSquare<minChiSquare){  // Global minimum
                     minChiSquare = thisChiSquare;
-                    bestFitC = newCoEffs;
-                    bestFitA = [newCoEffs[0] * dataStore.beta,newCoEffs[1] * dataStore.gamma];
+                    bestFitC = [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma];
+                    bestFitA = newCoEffs;
                     bestFitKey = minimaKey;
                   }
-                  continue;
                 }
+
               }
-              // Calculate the chi-square for this set of coefficients and atan(delta) value
-              newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2);
-              correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
-              correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
-              thisTheory = theoreticalAngularCorrelation(correctedCoEffs[0],correctedCoEffs[1], expAngBinRadians);
-              thisOffset = angularCorrelationRegression(expAngBinData,thisTheory);
-              for(i=0; i<expAngBinData.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
-              thisChiSquare = calculateChiSquare(expAngBinData,expAngBinDataUnc,thisTheory)/dataStore.numDegreesOfFreedom;
-              dataStore.chiSquareSeries[index].push(thisChiSquare);
+              //  console.log("End of atan loop");
+              console.log(dataStore.minimaDetails);
 
-              // This finds the primary local minimum for this j value
-              if(thisChiSquare<minChiSquareSeries[index]){
-                minChiSquareSeries[index] = thisChiSquare;
-                var minimaKey = "j="+j1+"-1"; // This is always the primary minimum for this j value
-                //    console.log("This  c2,c4 = ["+newCoEffs[0]+","+newCoEffs[1]+"] and a2,a4 = ["+correctedCoEffs[0]+","+correctedCoEffs[1]+"]");
-                dataStore.minimaDetails[minimaKey] = {
-                  'series': "j="+j1,
-                  'params': [j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2],
-                  'atanDelta1': atanDelta1.toFixed(3),
-                  'Delta1': Math.tan(atanDelta1).toFixed(4),
-                  'Delta1Unc': 0,
-                  'chiSquare': thisChiSquare.toFixed(3),
-                  'beta': dataStore.beta,
-                  'gamma': dataStore.gamma,
-                  'bestFitCoeffsC': newCoEffs,
-                  'bestFitCoeffsA': [newCoEffs[0] * dataStore.beta,newCoEffs[1] * dataStore.gamma]
-                };
-                //        console.log("Saved c2,c4 = ["+dataStore.minimaDetails[minimaKey].bestFitCoeffsC[0]+","+dataStore.minimaDetails[minimaKey].bestFitCoeffsC[1]+"] and a2,a4 = ["+dataStore.minimaDetails[minimaKey].bestFitCoeffsA[0]+","+dataStore.minimaDetails[minimaKey].bestFitCoeffsA[1]+"]");
-
-                // This identifies the global minimum
-                if(thisChiSquare<minChiSquare){  // Global minimum
-                  minChiSquare = thisChiSquare;
-                  bestFitC = newCoEffs;
-                  bestFitA = [newCoEffs[0] * dataStore.beta,newCoEffs[1] * dataStore.gamma];
-                  bestFitKey = minimaKey;
+              // Now we have the full chi-square series for this j value
+              // Locate the primary and secondary minimum for this j value
+              if(pure){ localMinimaKeys[index] = j1; index++; continue; } // Pure multipolarity only have one solution which was already recorded
+              var previousGradient = 1;
+              var gradient = 1;
+              if(!localMinima[index]){ localMinima[index] = []; localMinimaKeys[index] = j1; }
+              for(i=1; i<dataStore.delta1Series[index].length; i++){
+                previousGradient = gradient;
+                if(dataStore.chiSquareSeries[index][i]<dataStore.chiSquareSeries[index][i-1]){ gradient = -1; }else{ gradient = 1; }
+                if(previousGradient<gradient){ // The gradient changed from negative to positive so we have found a minimum
+                  console.log("j="+j1+" minimum found at ["+i+"], delta="+dataStore.delta1Series[index][i]+", chi-square="+dataStore.chiSquareSeries[index][i]);
+                  localMinima[index].push(i-1);
+                  localMinimaKeys[index] = j1;
                 }
               }
 
+              index++;
             }
-            //  console.log("End of atan loop");
-            console.log(dataStore.minimaDetails);
 
-            // Now we have the full chi-square series for this j value
-            // Locate the primary and secondary minimum for this j value
-            if(pure){ localMinimaKeys[index] = j1; index++; continue; } // Pure multipolarity only have one solution which was already recorded
-            var previousGradient = 1;
-            var gradient = 1;
-            if(!localMinima[index]){ localMinima[index] = []; localMinimaKeys[index] = j1; }
-            for(i=1; i<dataStore.delta1Series[index].length; i++){
-              previousGradient = gradient;
-              if(dataStore.chiSquareSeries[index][i]<dataStore.chiSquareSeries[index][i-1]){ gradient = -1; }else{ gradient = 1; }
-              if(previousGradient<gradient){ // The gradient changed from negative to positive so we have found a minimum
-                console.log("j="+j1+" minimum found at ["+i+"], delta="+dataStore.delta1Series[index][i]+", chi-square="+dataStore.chiSquareSeries[index][i]);
-                localMinima[index].push(i-1);
-                localMinimaKeys[index] = j1;
+            // Sort the arrays so the primary minimum is always first
+            for(i=0; i<localMinima.length; i++){
+              if(localMinima[i].length>1){
+                if(localMinima[i][1]>localMinima[i][0]){
+                  j=localMinima[i][0];
+                  localMinima[i][0] = localMinima[i][1];
+                  localMinima[i][1] = j;
+                }
+              }
+            }
+            console.log(localMinima);
+            // Find the uncertainty for each chi-square minimum
+            for(i=0; i<localMinima.length; i++){
+              for(j=0; j<localMinima[i].length; j++){
+                minimaKey = "j="+localMinimaKeys[i]+"-1";
+                var theseParams = dataStore.minimaDetails[minimaKey].params;
+                if(dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(3) != dataStore.minimaDetails[minimaKey].chiSquare){
+                  console.log("Must be second minimum: "+dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(4)+" not equal to "+dataStore.minimaDetails[minimaKey].chiSquare+", for atan(delta)="+dataStore.minimaDetails[minimaKey].atanDelta1);
+                  theseParams[7] = Number(dataStore.delta1Series[i][localMinima[i][j]]).toFixed(3);
+                  theseParams[8] = (Math.tan(dataStore.delta1Series[i][localMinima[i][j]])).toFixed(4);
+                  newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(theseParams[0],theseParams[1],theseParams[2],theseParams[3],theseParams[4],theseParams[5],theseParams[6],theseParams[7],theseParams[8]);
+                  correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
+                  correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
+                  minimaKey = "j="+localMinimaKeys[i]+"-2";
+                  dataStore.minimaDetails[minimaKey] = {
+                    'series': "j="+i,
+                    'params': theseParams,
+                    'atanDelta1': Number(dataStore.delta1Series[i][localMinima[i][j]]).toFixed(3),
+                    'Delta1': (Math.tan(dataStore.delta1Series[i][localMinima[i][j]])).toFixed(4),
+                    'chiSquare': dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(3),
+                    'beta': dataStore.beta,
+                    'gamma': dataStore.gamma,
+                    'bestFitCoeffsC': [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma],
+                    'bestFitCoeffsA': newCoEffs
+                  };
+                }
+                k=localMinima[i][j]; // k is an index number of the series array
+                threshold = Number(dataStore.chiSquareSeries[i][k] + (1/dataStore.numDegreesOfFreedom)); // threshold is the chi-square value
+                while(dataStore.chiSquareSeries[i][k]<threshold){ k--; }
+                var minUncertIndex = k; k=localMinima[i][j];
+                while(dataStore.chiSquareSeries[i][k]<threshold){ k++; }
+                var maxUncertIndex = k;
+                dataStore.minimaDetails[minimaKey]['Delta1Unc'] = ((Math.tan(dataStore.delta1Series[i][maxUncertIndex]) - Math.tan(dataStore.delta1Series[i][minUncertIndex]))/2).toFixed(4);
               }
             }
 
-            index++;
-          }
+            console.log([dataStore.delta1Series,dataStore.chiSquareSeries]);
 
-          // Sort the arrays so the primary minimum is always first
-          for(i=0; i<localMinima.length; i++){
-            if(localMinima[i].length>1){
-              if(localMinima[i][1]>localMinima[i][0]){
-                j=localMinima[i][0];
-                localMinima[i][0] = localMinima[i][1];
-                localMinima[i][1] = j;
-              }
-            }
-          }
-          console.log(localMinima);
-          // Find the uncertainty for each chi-square minimum
-          for(i=0; i<localMinima.length; i++){
-            for(j=0; j<localMinima[i].length; j++){
-              minimaKey = "j="+localMinimaKeys[i]+"-1";
-              var theseParams = dataStore.minimaDetails[minimaKey].params;
-              if(dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(3) != dataStore.minimaDetails[minimaKey].chiSquare){
-                console.log("Must be second minimum: "+dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(4)+" not equal to "+dataStore.minimaDetails[minimaKey].chiSquare+", for atan(delta)="+dataStore.minimaDetails[minimaKey].atanDelta1);
-                theseParams[7] = Number(dataStore.delta1Series[i][localMinima[i][j]]).toFixed(3);
-                theseParams[8] = (Math.tan(dataStore.delta1Series[i][localMinima[i][j]])).toFixed(4);
-                newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(theseParams[0],theseParams[1],theseParams[2],theseParams[3],theseParams[4],theseParams[5],theseParams[6],theseParams[7],theseParams[8]);
-                correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
-                correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
-                minimaKey = "j="+localMinimaKeys[i]+"-2";
-                dataStore.minimaDetails[minimaKey] = {
-                  'series': "j="+i,
-                  'params': theseParams,
-                  'atanDelta1': Number(dataStore.delta1Series[i][localMinima[i][j]]).toFixed(3),
-                  'Delta1': (Math.tan(dataStore.delta1Series[i][localMinima[i][j]])).toFixed(4),
-                  'chiSquare': dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(3),
-                  'beta': dataStore.beta,
-                  'gamma': dataStore.gamma,
-                  'bestFitCoeffsC': newCoEffs,
-                  'bestFitCoeffsA': [newCoEffs[0] * dataStore.beta,newCoEffs[1] * dataStore.gamma]
-                };
-              }
-              k=localMinima[i][j]; // k is an index number of the series array
-              threshold = Number(dataStore.chiSquareSeries[i][k] + (1/dataStore.numDegreesOfFreedom)); // threshold is the chi-square value
-              while(dataStore.chiSquareSeries[i][k]<threshold){ k--; }
-              var minUncertIndex = k; k=localMinima[i][j];
-              while(dataStore.chiSquareSeries[i][k]<threshold){ k++; }
-              var maxUncertIndex = k;
-              dataStore.minimaDetails[minimaKey]['Delta1Unc'] = ((Math.tan(dataStore.delta1Series[i][maxUncertIndex]) - Math.tan(dataStore.delta1Series[i][minUncertIndex]))/2).toFixed(4);
-            }
-          }
+            console.log(dataStore);
 
-          console.log([dataStore.delta1Series,dataStore.chiSquareSeries]);
+            // Generate data for the best fit line to be displayed as a line on the Ang Corr Data plot
+            var thisTheory = theoreticalAngularCorrelation(bestFitC[0],bestFitC[1], dataStore.expAngBinRadians); // x series matching data for determining offset
+            var thisOffset = angularCorrelationRegression(dataStore.expAngBinData,thisTheory);
+            thisTheory = theoreticalAngularCorrelation(bestFitC[0],bestFitC[1], dataStore.expAngFineBinRadians); // fine x series for the actual plot
+            for(var i=0; i<thisTheory.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
+            dataStore.displayLineData = thisTheory;
+            dataStore.displayLineName = "Global minimum, "+bestFitKey.split("-")[0]+", \u03B4 = "+dataStore.minimaDetails[bestFitKey].Delta1;
+            dataStore.displayLineTitle = "\u{1D6D8}\u00B2/NDF = "+dataStore.minimaDetails[bestFitKey].chiSquare;
 
-          console.log(dataStore);
+            // Generate the residuals for the global best fit
+            generateResidualsData(bestFitC[0],bestFitC[1]);
 
-          // Generate data for the best fit line to be displayed as a line on the Ang Corr Data plot
-          var thisTheory = theoreticalAngularCorrelation(bestFitA[0],bestFitA[1], dataStore.expAngBinRadians); // x series matching data for determining offset
-          var thisOffset = angularCorrelationRegression(dataStore.expAngBinData,thisTheory);
-          thisTheory = theoreticalAngularCorrelation(bestFitA[0],bestFitA[1], dataStore.expAngFineBinRadians); // fine x series for the actual plot
-          for(var i=0; i<thisTheory.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
-          dataStore.displayLineData = thisTheory;
-          dataStore.displayLineName = "Global minimum, "+bestFitKey.split("-")[0]+", \u03B4 = "+dataStore.minimaDetails[bestFitKey].Delta1;
-          dataStore.displayLineTitle = "\u{1D6D8}\u00B2/NDF = "+dataStore.minimaDetails[bestFitKey].chiSquare;
-
-          // Generate the residuals for the global best fit
-          generateResidualsData(bestFitA[0],bestFitA[1]);
-
-          // Save the global best fit result for use in the plots
-          dataStore.bestFitCoeffs = bestFitA;
-          dataStore.bestFitKey = bestFitKey;
+            // Save the global best fit result for use in the plots
+            dataStore.bestFitCoeffs = bestFitC;
+            dataStore.bestFitKey = bestFitKey;
 
 
-          console.log(dataStore);
-          // resolve the promise
-          resolve("Success!");
-        }); // end of promise definition
+            console.log(dataStore);
+            // resolve the promise
+            resolve("Success!");
+          }); // end of promise definition
 
-      }
-
-      function toggleExcludeList(index){
-
-        if( dataStore.angularBinExcludeList.includes(Number(index))){
-          // If this index is already excluded, remove this index from the exclude list
-          dataStore.angularBinExcludeList.splice(dataStore.angularBinExcludeList.indexOf(Number(index)),1);
-        }else{
-          // If this index is not already excluded, add it to the exclude list
-          dataStore.angularBinExcludeList.push(Number(index));
         }
 
-        // Trigger a recalculation
-        dataStore.refitCallback();
-      }
+        function toggleExcludeList(index){
 
-      function buildCSVfile(){
-        console.log('Download initiated');
-
-        // Write the table of results to a CSV file for download.
-        CSV = '';
-
-        CSV += 'GRIFFIN Gamma-Gamma Angular Correlations Data\n\n';
-
-        // List the run files used for this calibration
-        CSV += 'Histogram file:,' + dataStore.histoFileName + '\n';
-        CSV += dataStore.detectorType + '\n';
-
-        // Print table Titles
-        CSV += '\nAngular bin data for angular correlation:,,,,,,,,,,,,,,,Data for calculating Weighting factors from individual crystals:\n';
-
-        // Print the column titles
-        CSV += 'Angular Bin Index,';
-        CSV += 'Angular Bin (deg),';
-        CSV += 'Angular Bin cos(),';
-        CSV += 'Num Ge pairs,';
-        CSV += 'Angular Bin Raw Area,';
-        CSV += 'Angular Bin BKG Area,';
-        CSV += 'Angular Bin BKG Factor,';
-        CSV += 'Angular Bin Area,';
-        CSV += 'Angular Bin Area Uncertainty,';
-        CSV += 'Angular Bin Weight,';
-        CSV += 'Normalization Factor,';
-        CSV += 'Angular Correlation Value,';
-        CSV += 'Ang. Corr. Value Uncertainty, , ,';
-        CSV += 'Crystal Index,';
-        CSV += 'Gate Peak Energy (keV),';
-        CSV += 'Singles Area,';
-        CSV += 'Singles Area Uncertainty,';
-        CSV += 'Fitted Peak Energy (keV),';
-        CSV += 'Singles Area,';
-        CSV += 'Singles Area Uncertainty\n';
-
-        // Loop through all angular bins to provide the data
-        for(i=1; i<=dataStore.singlesPeakArea.length; i++){
-
-          if(i<dataStore.angularBinData.length){
-            CSV += (i-1) + ',';
-            CSV += dataStore.theseAngularBins[i] + ',';
-            CSV += Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)) + ',';
-            CSV += dataStore.numCrystalPairs[i] + ',';
-            CSV += dataStore.angularBinRawPeakArea[i] + ',';
-            CSV += dataStore.angularBinTRBGPeakArea[i] + ',';
-            CSV += dataStore.angularBinTRBGFactor[i] + ',';
-            CSV += dataStore.angularBinPeakArea[i] + ',';
-            CSV += dataStore.angularBinPeakAreaUnc[i] + ',';
-            CSV += dataStore.angularBinWeight[i] + ',';
-            CSV += dataStore.normalizationFactor + ',';
-            CSV += dataStore.angularBinData[i] + ',';
-            CSV += dataStore.angularBinDataUnc[i] + ', , ,';
-            CSV += i + ',';
-            CSV += dataStore.fitPeakEnergies[1] + ',';
-            CSV += dataStore.singlesPeakArea[i-1][1] + ',';
-            CSV += dataStore.singlesPeakAreaUnc[i-1][1] + ',';
-            CSV += dataStore.fitPeakEnergies[0] + ',';
-            CSV += dataStore.singlesPeakArea[i-1][0] + ',';
-            CSV += dataStore.singlesPeakAreaUnc[i-1][0] + '\n';
+          if( dataStore.angularBinExcludeList.includes(Number(index))){
+            // If this index is already excluded, remove this index from the exclude list
+            dataStore.angularBinExcludeList.splice(dataStore.angularBinExcludeList.indexOf(Number(index)),1);
           }else{
-            CSV += ' , , , , , , , , , , , , , , ,';
-            CSV += i + ',';
-            CSV += dataStore.fitPeakEnergies[1] + ',';
-            CSV += dataStore.singlesPeakArea[i-1][1] + ',';
-            CSV += dataStore.singlesPeakAreaUnc[i-1][1] + ',';
-            CSV += dataStore.fitPeakEnergies[0] + ',';
-            CSV += dataStore.singlesPeakArea[i-1][0] + ',';
-            CSV += dataStore.singlesPeakAreaUnc[i-1][0] + '\n';
+            // If this index is not already excluded, add it to the exclude list
+            dataStore.angularBinExcludeList.push(Number(index));
           }
 
+          // Trigger a recalculation
+          dataStore.refitCallback();
         }
 
-        // Create a download link
-        const textBlob = new Blob([CSV], {type: 'text/plain'});
-        URL.revokeObjectURL(window.textBlobURL);
-        const downloadLink = document.createElement('a');
-        downloadLink.href = URL.createObjectURL(textBlob);
-        downloadLink.download = "GRIFFIN-Gamma-Gamma-Angular-Correlation.csv";
+        function buildCSVfile(){
+          console.log('Download initiated');
 
-        // Trigger the download
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-      }
+          // Write the table of results to a CSV file for download.
+          CSV = '';
+
+          CSV += 'GRIFFIN Gamma-Gamma Angular Correlations Data\n\n';
+
+          // List the run files used for this calibration
+          CSV += 'Histogram file:,' + dataStore.histoFileName + '\n';
+          CSV += dataStore.detectorType + '\n';
+
+          // Print table Titles
+          CSV += '\nAngular bin data for angular correlation:,,,,,,,,,,,,,,,Data for calculating Weighting factors from individual crystals:\n';
+
+          // Print the column titles
+          CSV += 'Angular Bin Index,';
+          CSV += 'Angular Bin (deg),';
+          CSV += 'Angular Bin cos(),';
+          CSV += 'Num Ge pairs,';
+          CSV += 'Angular Bin Raw Area,';
+          CSV += 'Angular Bin BKG Area,';
+          CSV += 'Angular Bin BKG Factor,';
+          CSV += 'Angular Bin Area,';
+          CSV += 'Angular Bin Area Uncertainty,';
+          CSV += 'Angular Bin Weight,';
+          CSV += 'Normalization Factor,';
+          CSV += 'Angular Correlation Value,';
+          CSV += 'Ang. Corr. Value Uncertainty, , ,';
+          CSV += 'Crystal Index,';
+          CSV += 'Gate Peak Energy (keV),';
+          CSV += 'Singles Area,';
+          CSV += 'Singles Area Uncertainty,';
+          CSV += 'Fitted Peak Energy (keV),';
+          CSV += 'Singles Area,';
+          CSV += 'Singles Area Uncertainty\n';
+
+          // Loop through all angular bins to provide the data
+          for(i=1; i<=dataStore.singlesPeakArea.length; i++){
+
+            if(i<dataStore.angularBinData.length){
+              CSV += (i-1) + ',';
+              CSV += dataStore.theseAngularBins[i] + ',';
+              CSV += Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)) + ',';
+              CSV += dataStore.numCrystalPairs[i] + ',';
+              CSV += dataStore.angularBinRawPeakArea[i] + ',';
+              CSV += dataStore.angularBinTRBGPeakArea[i] + ',';
+              CSV += dataStore.angularBinTRBGFactor[i] + ',';
+              CSV += dataStore.angularBinPeakArea[i] + ',';
+              CSV += dataStore.angularBinPeakAreaUnc[i] + ',';
+              CSV += dataStore.angularBinWeight[i] + ',';
+              CSV += dataStore.normalizationFactor + ',';
+              CSV += dataStore.angularBinData[i] + ',';
+              CSV += dataStore.angularBinDataUnc[i] + ', , ,';
+              CSV += i + ',';
+              CSV += dataStore.fitPeakEnergies[1] + ',';
+              CSV += dataStore.singlesPeakArea[i-1][1] + ',';
+              CSV += dataStore.singlesPeakAreaUnc[i-1][1] + ',';
+              CSV += dataStore.fitPeakEnergies[0] + ',';
+              CSV += dataStore.singlesPeakArea[i-1][0] + ',';
+              CSV += dataStore.singlesPeakAreaUnc[i-1][0] + '\n';
+            }else{
+              CSV += ' , , , , , , , , , , , , , , ,';
+              CSV += i + ',';
+              CSV += dataStore.fitPeakEnergies[1] + ',';
+              CSV += dataStore.singlesPeakArea[i-1][1] + ',';
+              CSV += dataStore.singlesPeakAreaUnc[i-1][1] + ',';
+              CSV += dataStore.fitPeakEnergies[0] + ',';
+              CSV += dataStore.singlesPeakArea[i-1][0] + ',';
+              CSV += dataStore.singlesPeakAreaUnc[i-1][0] + '\n';
+            }
+
+          }
+
+          // Create a download link
+          const textBlob = new Blob([CSV], {type: 'text/plain'});
+          URL.revokeObjectURL(window.textBlobURL);
+          const downloadLink = document.createElement('a');
+          downloadLink.href = URL.createObjectURL(textBlob);
+          downloadLink.download = "GRIFFIN-Gamma-Gamma-Angular-Correlation.csv";
+
+          // Trigger the download
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+        }

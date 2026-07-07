@@ -190,7 +190,7 @@
       </select>
     </div>
     <div class='col-md-12'>
-      <button type="button" class="btn btn-default btn-sm" id='ggAngCorrProject' engaged='0'>
+      <button type="button" class="btn btn-default btn-sm" id='ggAngCorrProject' engaged='0' disabled>
         <span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Launch the peak fitting</span>
       </button>
     </div>
@@ -255,33 +255,41 @@
           <label for="90CL" class="right inline">90%</label>
           <input id='90CL' name='confidenceLimitValue' type='radio' value='0'></input>
         </div>
-      </div>
 
-      <hr></hr>
-
-      <div class='col-md-10'>
-        <label for="sysUnc" class="right inline"><b>Systematic uncertainty (added in quadrature to each data point):</b></label>
-        <div id="systematicUncertaintyValueDiv">
-          <input id='sysUnc' type='number' min='0' max='10' step='0.1' value='0' onchange='dataStore.systematicUncertainty=(this.value/100)'></input>%
+        <div class='col-md-12'>
+          <label for="sysUnc" class="left inline"><b>Systematic uncertainty (added in quadrature to each data point):</b></label>
+          <div id="systematicUncertaintyValueDiv">
+            <input id='sysUnc' type='number' min='0' max='10' step='0.1' value='0' onchange='dataStore.systematicUncertainty=(this.value/100)'></input>%
+          </div>
         </div>
-      </div>
 
-      <hr></hr>
-
-      <div class='col-md-10'>
-        <label for="time_random_select_value" class="right inline"><b>Subtract time-random background:</b></label>
-        <div id="timeRandomSelectValueDiv">
-          <label for="TR_Auto" class="right inline">Auto (if >3%)</label>
-          <input id='TR_Auto' name='time_random_select_value' type='radio' value='2' checked></input>
-          <label for="TR_Yes" class="right inline">Always</label>
-          <input id='TR_Yes' name='time_random_select_value' type='radio' value='1'></input>
-          <label for="TR_No" class="right inline">Never</label>
-          <input id='TR_No' name='time_random_select_value' type='radio' value='0'></input>
+        <div class='col-md-12'>
+          <label for="time_random_select_value" class="left inline"><b>Subtract time-random background:</b></label>
+          <div id="timeRandomSelectValueDiv" class='col-md-12'>
+            <label for="TR_Auto" class="right inline">Auto (if >3%)</label>
+            <input id='TR_Auto' name='time_random_select_value' type='radio' value='2' checked></input>
+            <label for="TR_Yes" class="right inline">Always</label>
+            <input id='TR_Yes' name='time_random_select_value' type='radio' value='1'></input>
+            <label for="TR_No" class="right inline">Never</label>
+            <input id='TR_No' name='time_random_select_value' type='radio' value='0'></input>
+          </div>
         </div>
-      </div>
 
-      <hr></hr>
-    </form>
+        <div id='paramsInputsDiv' class='col-md-12'>
+          <label for="parametersValueDiv" class="left inline"><b>Finite detector size correction parameters:</b></label>
+          <div id="parametersValueDiv" class='col-md-12'>
+            <div class='col-md-5'>
+              <label for="betaInput" class="right inline"><b>Beta:</b></label>
+              <input id="betaInput" value="0.954711" min="0" max="1" type="number" class='black-text'></input>
+            </div>
+            <div class='col-md-5'>
+              <label for="gammaInput" class="right inline"><b>Gamma:</b></label>
+              <input id="gammaInput" value="0.841345" min="0" max="1" type="number" class='black-text'></input>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
   </div>
 
 </div>
