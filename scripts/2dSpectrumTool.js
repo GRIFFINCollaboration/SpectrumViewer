@@ -477,7 +477,8 @@ function fetchCallback(){
   if(dataStore.sparseData.hasOwnProperty(dataStore.activeMatrix)){
     console.log("The sparseData object already exists!");
     dataStore.hm.draw(dataStore.sparseData[dataStore.activeMatrix]); // Plot it
-    dataStore.hm.setMeta({plotTitle: dataStore.activeMatrix}); // Update titles
+    var total = dataStore.sparseData[dataStore.activeMatrix].z.reduce(function(a,b){return a+b;}, 0);
+    dataStore.hm.setMeta({plotTitle: dataStore.activeMatrix + ' (N=' + total.toLocaleString() + ')'}); // Update titles
   }else{
     console.log("Need to create the sparseData object");
     // unpack the raw 2d spectrum to the required format
@@ -487,6 +488,8 @@ function fetchCallback(){
     dataStore.hm._raw = dataStore.hm.raw;
     var sparseData = zeroSuppressData(dataStore.hm.raw);
     dataStore.hm.draw(sparseData); // sparseData is in format for sparse mode
+    var total = sparseData.z.reduce(function(a,b){return a+b;}, 0);
+    dataStore.hm.setMeta({plotTitle: dataStore.activeMatrix + ' (N=' + total.toLocaleString() + ')'});
   }
   /*
   // make the 2d heatmap plot of this histogram
