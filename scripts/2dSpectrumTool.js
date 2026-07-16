@@ -121,6 +121,7 @@ function plotControl2d(wrapID){
     document.getElementById('showYproj').classList.remove('hidden');
     document.getElementById('showXprojZoomed').classList.remove('hidden');
     document.getElementById('showYprojZoomed').classList.remove('hidden');
+    document.getElementById('unzoomBtn').classList.remove('hidden');
 
     //don't need plot help anymore; swap in roi help
     document.getElementById('intro-plot-picker').classList.add('hidden');
@@ -523,10 +524,16 @@ function fetchCallback(){
     dataStore.currentSparseData = _sd;
     dataStore.totalEntries = _sd.z.reduce(function(a,v){ return a+v; }, 0);
     if(!dataStore._zoomWrapped && dataStore.hm){
-      ['zoomX','zoomY','zoomout'].forEach(function(method){
+      ['zoomX','zoomY'].forEach(function(method){
         var orig = dataStore.hm[method].bind(dataStore.hm);
         dataStore.hm[method] = function(){ orig.apply(this, arguments); updateEntryCounts(); };
       });
+      var origZoomout = dataStore.hm.zoomout.bind(dataStore.hm);
+      dataStore.hm.zoomout = function(){
+        origZoomout();
+        if(dataStore.currentSparseData){ dataStore.hm.draw(dataStore.currentSparseData); }
+        updateEntryCounts();
+      };
       dataStore._zoomWrapped = true;
     }
     updateEntryCounts();
