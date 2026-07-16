@@ -440,20 +440,33 @@ function updateEntryCounts(){
   var div = document.getElementById('entryCountDiv');
   if(!div || !dataStore.currentSparseData || !dataStore.hm) return;
 
-  var sd  = dataStore.currentSparseData;
+  var sd   = dataStore.currentSparseData;
   var xMin = dataStore.hm.currentXaxisMinValue;
   var xMax = dataStore.hm.currentXaxisMaxValue;
   var yMin = dataStore.hm.currentYaxisMinValue;
   var yMax = dataStore.hm.currentYaxisMaxValue;
 
+  // xglobalEnd = sd.xBins is always the true axis edge.
+  // After a zoom, currentXaxisMaxValue is set to the right edge (exclusive).
+  // After setData (initial draw), currentXaxisMaxValue is set to max(x bin index),
+  // which is sd.xBins-1 — one less than the edge. Detect full view using xglobalEnd-1
+  // as the threshold so the initial state is correctly treated as unzoomed.
+  var xEnd = dataStore.hm.xglobalEnd;
+  var yEnd = dataStore.hm.yglobalEnd;
+  var isFullView = (xMin <= 0 && yMin <= 0 && xMax >= xEnd - 1 && yMax >= yEnd - 1);
+
+  // In full view use xEnd so the filter includes the last bin (x < xEnd covers 0..xBins-1).
+  // When zoomed, xMax is already the exclusive right edge so use it directly.
+  var filterXMax = isFullView ? xEnd : xMax;
+  var filterYMax = isFullView ? yEnd : yMax;
+
   var viewCount = 0;
   for(var i=0; i<sd.x.length; i++){
-    if(sd.x[i] >= xMin && sd.x[i] < xMax && sd.y[i] >= yMin && sd.y[i] < yMax){
+    if(sd.x[i] >= xMin && sd.x[i] < filterXMax && sd.y[i] >= yMin && sd.y[i] < filterYMax){
       viewCount += sd.z[i];
     }
   }
 
-  var isFullView = (xMin <= 0 && yMin <= 0 && xMax >= sd.xBins && yMax >= sd.yBins);
   var text = 'Total entries: ' + dataStore.totalEntries.toLocaleString();
   if(!isFullView){ text += '\u2003|\u2003View entries: ' + viewCount.toLocaleString(); }
   div.textContent = text;
