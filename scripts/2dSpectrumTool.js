@@ -435,6 +435,30 @@ function extractCutVertices(){
   }
 }
 
+function updateEntryCounts(){
+  var div = document.getElementById('entryCountDiv');
+  if(!div || !dataStore.currentSparseData || !dataStore.hm) return;
+
+  var sd  = dataStore.currentSparseData;
+  var xMin = dataStore.hm.currentXaxisMinValue;
+  var xMax = dataStore.hm.currentXaxisMaxValue;
+  var yMin = dataStore.hm.currentYaxisMinValue;
+  var yMax = dataStore.hm.currentYaxisMaxValue;
+
+  var viewCount = 0;
+  for(var i=0; i<sd.x.length; i++){
+    if(sd.x[i] >= xMin && sd.x[i] < xMax && sd.y[i] >= yMin && sd.y[i] < yMax){
+      viewCount += sd.z[i];
+    }
+  }
+
+  var isFullView = (xMin <= 0 && yMin <= 0 && xMax >= sd.xBins && yMax >= sd.yBins);
+  var text = 'Total entries: ' + dataStore.totalEntries.toLocaleString();
+  if(!isFullView){ text += '\u2003|\u2003View entries: ' + viewCount.toLocaleString(); }
+  div.textContent = text;
+  div.style.display = 'block';
+}
+
 function fetchCallback(){
   //runs after every time the histogram is updated
 
@@ -487,9 +511,25 @@ function fetchCallback(){
     dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2,dataStore.activeMatrixXaxisLength,dataStore.activeMatrixYaxisLength,dataStore.activeMatrixZaxisMax,dataStore.activeMatrixSymmetrized,false);
     dataStore.hm._raw = dataStore.hm.raw;
     var sparseData = zeroSuppressData(dataStore.hm.raw);
+    dataStore.sparseData[dataStore.activeMatrix] = sparseData;
     dataStore.hm.draw(sparseData); // sparseData is in format for sparse mode
     var total = sparseData.z.reduce(function(a,b){return a+b;}, 0);
     dataStore.hm.setMeta({plotTitle: dataStore.activeMatrix + ' (N=' + total.toLocaleString() + ')'});
+  }
+
+  // Compute total entries and update the entry count display
+  var _sd = dataStore.sparseData[dataStore.activeMatrix];
+  if(_sd){
+    dataStore.currentSparseData = _sd;
+    dataStore.totalEntries = _sd.z.reduce(function(a,v){ return a+v; }, 0);
+    if(!dataStore._zoomWrapped && dataStore.hm){
+      ['zoomX','zoomY','zoomout'].forEach(function(method){
+        var orig = dataStore.hm[method].bind(dataStore.hm);
+        dataStore.hm[method] = function(){ orig.apply(this, arguments); updateEntryCounts(); };
+      });
+      dataStore._zoomWrapped = true;
+    }
+    updateEntryCounts();
   }
   /*
   // make the 2d heatmap plot of this histogram
