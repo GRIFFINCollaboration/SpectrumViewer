@@ -524,10 +524,16 @@ function fetchCallback(){
     dataStore.currentSparseData = _sd;
     dataStore.totalEntries = _sd.z.reduce(function(a,v){ return a+v; }, 0);
     if(!dataStore._zoomWrapped && dataStore.hm){
-      ['zoomX','zoomY'].forEach(function(method){
-        var orig = dataStore.hm[method].bind(dataStore.hm);
-        dataStore.hm[method] = function(){ orig.apply(this, arguments); updateEntryCounts(); };
-      });
+      var origZoomX = dataStore.hm.zoomX.bind(dataStore.hm);
+      dataStore.hm.zoomX = function(){ origZoomX.apply(this, arguments); updateEntryCounts(); };
+      var origZoomY = dataStore.hm.zoomY.bind(dataStore.hm);
+      dataStore.hm.zoomY = function(start, end){
+        origZoomY(start, end);
+        // The heatmap filter uses `x > dragEnd` (not >=), so boundary bins render beyond the
+        // axis max. Decrement dragEnd by 1 so draw() excludes those bins.
+        if(this.dragEnd){ this.dragEnd = [this.dragEnd[0]-1, this.dragEnd[1]-1]; }
+        updateEntryCounts();
+      };
       var origZoomout = dataStore.hm.zoomout.bind(dataStore.hm);
       dataStore.hm.zoomout = function(){
         origZoomout();
