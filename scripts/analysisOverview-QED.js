@@ -10,46 +10,67 @@ function setupQEDplots(){
     return; // cleanly exit
   }
 
+
+
   // Set up the plot menu
   // Create a select input for the choice of spectrum data
-  var newSelect = document.createElement("select");
-  newSelect.id = 'QEDMenuSelect';
-  newSelect.name = 'QEDMenuSelect';
-  newSelect.onchange = function(){
-    dataStore.QEDhistoName = dataStore.histoFileName.split(".")[0] + ":" + this.value;
-    createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle);
-  }.bind(newSelect);
-  document.getElementById('widget-qed-menu').appendChild(newSelect);
+  var spectraSelect = document.createElement("select");
+  spectraSelect.id = 'QEDSpectraSelect';
+  spectraSelect.name = 'QEDSpectraSelect';
+  spectraSelect.onchange = function(){
+    dataStore.QEDhistoName = dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
+    var binWidth = Number(thirdSelect.value);
+    createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, binWidth);
+  }.bind(spectraSelect);
+  document.getElementById('widget-qed-menu-Spectra').appendChild(spectraSelect);
+
+
+  normSelect = document.createElement("select");
+  normSelect.id = 'QEDNormSelect';
+  normSelect.name = 'QEDNormSelect';
+  normSelect.onchange = function(){
+    dataStore.QEDhistoName = dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
+    var binWidth = Number(thirdSelect.value);
+    createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, binWidth);
+ }.bind(normSelect);
+  document.getElementById('widget-qed-menu-Norm').appendChild(normSelect);
+
+
+  binsSelect = document.createElement("select");
+  binsSelect.id = 'QEDBinsSelect';
+  binsSelect.name = 'QEDBinsSelect';
+  binsSelect.onchange = function(){
+    //dataStore.QEDhistoName - dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
+    createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, Number(thirdSelect.value));
+  }
+  document.getElementById('widget-qed-menu-Bin').appendChild(binsSelect);
+
+
 
   // Add the list of spectra as the options of the select
-  thisSelect = document.getElementById('QEDMenuSelect');
+  firstSelect = document.getElementById('QEDSpectraSelect');
   for(var i=0; i<dataStore.QEDanalysisSpectrumList.length; i++){
-    thisSelect.add( new Option(dataStore.QEDanalysisSpectrumList[i], dataStore.QEDanalysisSpectrumList[i]) );
+    firstSelect.add( new Option(dataStore.QEDanalysisSpectrumList[i], dataStore.QEDanalysisSpectrumList[i]) );
   }
   // Add the list of spectra as the options of the select - with normalization
-  thisSelect = document.getElementById('QEDMenuSelect');
-  for(var i=0; i<dataStore.QEDanalysisSpectrumList.length; i++){
-    thisSelect.add( new Option(dataStore.QEDanalysisSpectrumList[i]+"_normalized", dataStore.QEDanalysisSpectrumList[i]+"_normalized") );
+  secondSelect = document.getElementById('QEDNormSelect');
+ // for(var i=0; i<dataStore.QEDanalysisSpectrumList.length; i++){
+    //thisSelect.add( new Option(dataStore.QEDanalysisSpectrumList[i]+"_normalized", dataStore.QEDanalysisSpectrumList[i]+"_normalized") );
+  secondSelect.add( new Option("no normalization", "") );
+  secondSelect.add( new Option("detector pairs", "_dp") );
+  secondSelect.add( new Option("weighting factors", "_normalized") );
+
+ // }
+  thirdSelect = document.getElementById('QEDBinsSelect');
+  thirdSelect.add(new Option("1 degree", 1));
+  for(var i=0; i<4; i++){
+    var testBin = 5*i + 5;
+    thirdSelect.add( new Option(testBin+" degrees", testBin));
   }
-  thisSelect.value = "QED_DCS_azimuth2_70_110"; // default selection for initial draw
 
-    // Set up the options menu
-    // Create a select input for the choice of spectrum data
-    var newSelect = document.createElement("select");
-    newSelect.id = 'QEDOptionsSelect';
-    newSelect.name = 'QEDOptionsSelect';
-    newSelect.onchange = function(){
-      dataStore.QEDhistoExcludeBins = Boolean(this.value);
-      createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle);
-    }.bind(newSelect);
-    document.getElementById('widget-qed-menu').appendChild(newSelect);
-
-    // Add the list of spectra as the options of the select
-    thisSelect = document.getElementById('QEDOptionsSelect');
-    thisSelect.add( new Option("Show all bins", 0) );
-    thisSelect.add( new Option("Exclude bins within 10 degrees of 0 or 180", 1) );
-    thisSelect.value = 0; // default selection for initial draw
-    dataStore.QEDhistoExcludeBins = Boolean(0);  // default selection for initial draw
+  firstSelect.value = "QED_DCS_azimuth2_70_110"; // default selection for initial draw
+  secondSelect.value = "";
+  thirdSelect.value = 1;
 
   // Define the target div for the Plotly graph
   dataStore.QEDparentDiv = 'widget-qed-plotly'; // defined in analysisOverview.html file
@@ -60,13 +81,16 @@ function setupQEDplots(){
   // Define the title to be displayed at the top of the plot
   dataStore.QEDtitle = 'QED azimuthal';
 
+  binWidth = Number(thirdSelect.value);
+
   // Initial draw on start up
   // Call the function that will create the Plotly graph with the information given
-  createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle);
+  createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, binWidth);
 }
 
+
 // Function to create the formatting and data for the Plotly graph
-function createQEDplotly(targetDiv, dataKey, title){
+function createQEDplotly(targetDiv, dataKey, title, binWidth){
   // re-create the specified histogram
   var applyNormalization = false;
 
@@ -90,13 +114,17 @@ function createQEDplotly(targetDiv, dataKey, title){
   // Define the data and labels for the x axis
   var bins = [];
   var labels = [];
-  for(var i=-180; i<=180; i++){
+  for(var i=-180; i<=180; i+=binWidth){
     bins.push(i);
   }
 
   // Define the data for the y axis
-  var data=[];
-  data = dataStore.rawData[dataKey].slice(0,361);
+  var dataRaw=[];
+  dataRaw = dataStore.rawData[dataKey].slice(0,361);
+  var data = [];
+  for(var i=0; i<bins.length; i++){
+    data.push(dataRaw.slice(binWidth*i, binWidth*(i+1)).reduce((acc,current)=>acc+current,0));
+  }
 
   // Define the errors as the sqrt of the data points
   var errorData=[];
@@ -112,37 +140,25 @@ function createQEDplotly(targetDiv, dataKey, title){
     var errorData = calculateNormalizedUncertainties(dataStore.rawData[dataKey],errorData,data,dataKey.split(":")[1]);
   }
 
-// Exclude bins if this option is selected
-if(dataStore.QEDhistoExcludeBins){
-bins.splice(351,10);
-data.splice(351,10);
-errorData.splice(351,10);
-bins.splice(171,19);
-data.splice(171,19);
-errorData.splice(171,19);
-bins.splice(0,10);
-data.splice(0,10);
-errorData.splice(0,10);
-console.log(bins);
-console.log(data);
-console.log(errorData);
-console.log("Did it work?");
-console.log(dataStore);
-}
-
   // Determine the theoretical best fit line
   // First build the basic cos(2 deltaPhi) series to be fitted to the data
+  var lineBins = []
+  for(var i=-180; i<180; i++){
+    lineBins.push(i);
+  }
+
   var lineData = [];
   for(var i=0; i<bins.length; i++){
-    lineData[i] = Math.cos(2.0*bins[i]*(3.14159/180));
+     lineData[i] = Math.cos(2.0*bins[i]*(3.14159/180));;
   }
+
   var params = [];
   // Use a linear regression to determine the two parameters (this function is in helpers.js)
   params = efficiencyRegression(lineData,data);
 
   // Recalculate the datapoints for the best fit line to be used in the plot
-  for(var i=0; i<bins.length; i++){
-    lineData[i] = params[1]*Math.cos(2.0*bins[i]*(3.14159/180))+params[0];
+  for(var i=0; i<lineBins.length; i++){
+    lineData[i] = params[1]*Math.cos(2.0*lineBins[i]*(3.14159/180))+params[0];
   }
 
   // Calculate the enhancement factor, R
@@ -152,7 +168,7 @@ console.log(dataStore);
   var sumSqDeviations = 0;
   for(var i=0; i<bins.length; i++){
     if(isNaN(data[i])){ continue; }
-    sumSqDeviations += (data[i] - lineData[i])*(data[i] - lineData[i]);
+    sumSqDeviations += (data[i] - lineData[i*binWidth])*(data[i] - lineData[i*binWidth]);
   }
   var fitStandardError = Math.sqrt(sumSqDeviations/(bins.length-2));
   // https://www.itl.nist.gov/div898/handbook/eda/section3/eda3674.htm
@@ -161,11 +177,11 @@ console.log(dataStore);
   var enhancementUncert = (fitStandardError * criticalValue).toFixed(2);
 
 // Calculate the reduced chi-square of the fit to the data (function in helpers.js)
-//var reducedChiSq = (RCS(data, lineData, 2)).toFixed(2);
+// var reducedChiSq = (RCS(data, lineData, 2)).toFixed(2);
 
   // Report the fit parameters in the Div
-  document.getElementById('widget-qed-reportDiv').innerHTML = "<big>Enhancement factor, R="+enhancement+"&plusmn;"+enhancementUncert+"</big>";
-  //+ "<br>Reduced chi-square = "+reducedChiSq;
+//  document.getElementById('widget-qed-reportDiv').innerHTML = "Enhancement factor, R="+enhancement+"&plusmn;"+enhancementUncert
+//  + "<br>Changed Reduced chi-square = "+reducedChiSq;
 
   // Package the data objects together for consumption by Plotly
   // scatter type plot with only datapoint markers shown
@@ -187,7 +203,7 @@ console.log(dataStore);
   };
 
   plotData[1] = { // The line of best fit
-    x: bins,
+    x: lineBins,
     y: lineData,
     name: "cos(2 delta Phi) + Mean",
     mode: 'line'
@@ -213,7 +229,7 @@ function performNormalization(raw,weightsKey){
     weight[i] = rawWeights[i] / weightSum;
   }
 
-  // Normalize the data using the weighting factors and total data dum
+  // Normalize the data using the weighting factors and total data sum
   for(i=0; i<raw.length; i++){
     normalized[i] = raw[i] / (weight[i] * dataSum);
   }
@@ -232,7 +248,7 @@ function calculateNormalizedUncertainties(data,errorData,normalized,weightsKey){
   var dataSum = data.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
   var weightSum = rawWeights.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 
-  // Find the fractuional uncertainty for the summed values
+  // Find the fractional uncertainty for the summed values
   var dataFractionalError = Math.pow(Math.sqrt(dataSum)/dataSum,2)
   var weightFractionalError = Math.pow(Math.sqrt(weightSum)/weightSum,2)
 
