@@ -122,6 +122,7 @@ function plotControl2d(wrapID){
     document.getElementById('showXprojZoomed').classList.remove('hidden');
     document.getElementById('showYprojZoomed').classList.remove('hidden');
     document.getElementById('unzoomBtn').classList.remove('hidden');
+    document.getElementById('saveImageBtn').classList.remove('hidden');
 
     //don't need plot help anymore; swap in roi help
     document.getElementById('intro-plot-picker').classList.add('hidden');
@@ -434,6 +435,25 @@ function extractCutVertices(){
   for(i=0; i<xVertices.length; i++){
     dataStore.cutVertices.push([xVertices[i].value, yVertices[i].value])
   }
+}
+
+function saveHeatmapImage(){
+  if(!dataStore.hm || !dataStore.currentSparseData) return;
+  dataStore.hm.draw(dataStore.currentSparseData); // re-render so WebGL buffer is populated
+  var canvases = document.querySelectorAll('#heatmapTarget canvas');
+  if(!canvases.length) return;
+  var first = canvases[0];
+  var composite = document.createElement('canvas');
+  composite.width  = first.width;
+  composite.height = first.height;
+  var ctx = composite.getContext('2d');
+  for(var i = 0; i < canvases.length; i++){
+    ctx.drawImage(canvases[i], 0, 0);
+  }
+  var link = document.createElement('a');
+  link.download = (dataStore.activeMatrix || 'heatmap') + '.png';
+  link.href = composite.toDataURL('image/png');
+  link.click();
 }
 
 function updateEntryCounts(){

@@ -77,6 +77,7 @@
       <button id="showXprojZoomed" class="btn btn-default btn-sm hidden" disabled='true' type="button">Project onto X</button>
       <button id="showYprojZoomed" class="btn btn-default btn-sm hidden" disabled='true' type="button">Project onto Y</button>
       <button id="unzoomBtn" class="btn btn-default btn-sm hidden" type="button" onclick='if(dataStore.hm && dataStore.currentSparseData){ dataStore.hm.zoomout(); dataStore.hm.draw(dataStore.currentSparseData); updateEntryCounts(); }'>Unzoom</button>
+      <button id="saveImageBtn" class="btn btn-default btn-sm hidden" type="button" onclick='saveHeatmapImage()'>Save Image</button>
     </div>
 
     <div id='updateWrapPeriodic' class='col-md-4'>
