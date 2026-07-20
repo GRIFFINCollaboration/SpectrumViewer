@@ -2,95 +2,127 @@
 // Function to setup the QED widget if QED data is present in this histogram file
 function setupQEDplots(){
   console.log("setupQEDplots...");
-  console.log(dataStore);
 
-  // Bail out if there are no QED plots
-  if(dataStore.detTypesData["QED"].activeChans<10){
-    document.getElementById('widget-qed').classList.add('hidden'); // hide the QED widget
-    return; // cleanly exit
-  }
+  // Declare QED specific dataStore objects
+  // These are the number of DSSD-Ge pairs at each azimuthal scattering angle bin
+  // The key corresponds to histograms for which these weighting factors can be applied
+  dataStore.QEDAzimuthalWeightingFactors = { "QED_DCS_azimuth_0_180":[655761,1982919,3280430,4504586,5670215,6801794,7844227,8730593,9246768,9231332,8379386,7815404,7455550,7125213,7036783,7202884,7679795,8759212,10438815,9288677,8500860,8189248,8186240,8367995,8753323,9314441,8494583,7955879,7649562,7635266,7629590,7804293,7652623,7368660,7183463,7210227,7373040,7399378,7438980,7578962,7781409,8025338,8193633,8564697,9108235,8342246,8278061,8300242,9154306,8722100,8066379,7679416,7557557,7571605,7774459,7756308,7648839,7717483,7772659,7762757,7779362,7827014,7963854,8057399,8090739,8336704,8521612,8217174,8009028,8100477,8033134,7927386,8083830,8211645,7912469,7834727,7699134,7349232,7273133,7118104,7240983,7232089,7325222,7467285,7504527,7710613,7906873,8164894,8667647,8165668,8147603,8659749,8191177,7931937,7728987,7518268,7469407,7342503,7232078,7246713,7122198,7271800,7343826,7675878,7827904,7911022,8166649,8137671,7933015,8003815,8126395,8013026,8207155,8523968,8335747,8128197,8021701,8021921,7852535,7783346,7783414,7780465,7727955,7661733,7772784,7774988,7601162,7562079,7678300,8043552,8714161,9184110,8333405,8287718,8339440,9102707,8610501,8220098,8053924,7805073,7596374,7471187,7416917,7391104,7245256,7202796,7389363,7654644,7853090,7673933,7665946,7691581,7983373,8539338,9351115,8802020,8436305,8266481,8269971,8584494,9369406,10605995,8939645,7860794,7423257,7303252,7444349,7845051,8323954,9133259,10384777,10682337,10368200,9659176,8721316,7703767,6622518,5466154,4185247,2883438,2885962,4176873,5463874,6612110,7695377,8701996,9634332,10337436,10682899,10362563,9101493,8330530,7820093,7425239,7280396,7405543,7848106,8872411,10484737,9434110,8598898,8258313,8235383,8424067,8818904,9361885,8547702,7996239,7689283,7678666,7637391,7806506,7694676,7382617,7206212,7220480,7389332,7411599,7448261,7593442,7781763,8017052,8191606,8545359,9126201,8379192,8286734,8296155,9146970,8761599,8085200,7693140,7560589,7556306,7783012,7768104,7654051,7710385,7782639,7761082,7767430,7810793,7933703,8092347,8098959,8327201,8527724,8241621,8018366,8123857,8021617,7935321,8083093,8228263,7910550,7840404,7702870,7352178,7283112,7118898,7238343,7235874,7318773,7475661,7508420,7714973,7904791,8156739,8690083,8153805,8143784,8680213,8187750,7925931,7728283,7528209,7469615,7342370,7231095,7246433,7117328,7282591,7344372,7683150,7829137,7906839,8193731,8127074,7932638,8005430,8142375,8012172,8228658,8532420,8315884,8135041,8085121,7961238,7825422,7775302,7770031,7777421,7723993,7656269,7775492,7778485,7585855,7558091,7679816,8054981,8740624,9172158,8307314,8293675,8356266,9121661,8569203,8201459,8029566,7795471,7588482,7449828,7407074,7372112,7225113,7182513,7374248,7633601,7836047,7633890,7647326,7660294,7967305,8509685,9317055,8759477,8386793,8188344,8190960,8508444,9286867,10459257,8775024,7688685,7222528,7037221,7130695,7458990,7825972,8392558,9230948,9258192,8743071,7848353,6812522,5674485,4509982,3291178,1984341,655843]
 
+  ,"QED_DCS_azimuth_70_110": [42607,131958,217269,300697,381375,456697,534952,593581,629289,628378,565475,530825,507842,484547,472755,478499,506138,574674,665073,605711,557937,542055,539487,540534,556254,586719,540673,516111,494923,486261,475968,479250,469047,456225,446216,445869,449785,447849,443947,447588,452698,460408,464326,484960,517626,489362,483706,487144,520135,497529,477209,461501,451383,450275,453965,451531,442405,439378,438915,437604,438944,441673,446006,452106,453837,459071,465878,456650,447407,448962,450039,453639,458668,457849,451408,447329,441253,431806,429137,422778,426025,424427,424962,424900,425272,428625,432835,439192,444712,439247,439745,447213,442414,435596,430845,427265,426310,425658,425202,427336,424332,429627,430203,439572,445033,449987,454415,458358,452553,451186,451316,450212,457062,467102,459943,456908,454486,451745,445229,439420,440701,441406,440428,443513,452790,455627,451609,451108,459777,474528,496077,518364,486675,482582,487852,517406,488543,466150,462374,455284,449665,446814,448097,449983,447949,447150,455930,468566,479041,476778,486636,495178,514175,540017,582995,553388,539093,538993,542472,557577,603401,674286,581316,512069,487120,482278,495741,527071,560753,614247,701813,718807,697907,645115,575628,507958,428775,352185,267104,177604,185474,277437,362745,439649,515363,588592,654195,704135,727964,708537,624210,569827,534129,504808,492617,499224,530366,588930,669461,618602,567356,548068,542831,548646,569133,600978,555444,524069,503417,492671,480515,483533,472852,459274,450758,452276,454570,454171,450179,452185,458876,468037,476130,497169,531505,499956,492728,496231,529316,506335,484598,468877,459754,458893,465002,461006,452009,448754,444654,443353,445357,448690,455794,464482,465223,468866,474739,465916,455188,455867,457425,462485,466329,465386,457253,453768,445785,435283,434716,426119,428959,430460,430554,431190,428828,433329,435437,441363,448105,442707,444397,451065,444319,438381,435521,431773,431949,431238,430939,430111,427961,435101,433401,444065,450987,455399,463037,465744,461998,459301,458191,458289,467107,476485,469644,468242,468000,460597,452150,446388,445501,445926,450096,452349,462547,466161,461320,459465,466885,481848,503474,527654,495025,492920,498508,532593,500162,478521,470219,463259,452945,452729,454420,454436,453680,450880,458650,470795,484198,480662,493373,502552,523179,554267,598809,565723,547279,543745,548428,567410,613739,681787,592950,531023,501647,490527,497979,523771,546349,582443,639750,640183,607324,541614,468607,387177,307167,220730,136835,43920]
 
+  ,"QED_DCS_azimuth_93_103": [4475,14122,22403,30572,37987,48191,58367,65013,69714,72410,66315,64007,61903,59172,57145,59091,65989,79222,102613,90053,80845,77510,76065,75944,76235,77024,71545,67884,64162,63194,61345,61779,60398,59461,57815,57560,57509,57770,58848,60057,61058,62486,63152,64421,68393,66873,66432,66392,69715,69671,68799,66325,63619,62676,62275,61393,59713,58838,59131,59297,60382,60135,59871,60795,62246,65430,67274,66369,64187,63127,62041,62589,63215,63140,62450,61624,59138,58147,57458,56722,55746,55620,54865,54697,54506,54829,55179,56511,57216,57137,57634,58184,57995,57488,57307,56846,56632,56639,56502,56126,55919,56401,56618,57477,58998,59314,59534,59464,58636,57475,56840,56609,56879,57004,57133,57195,57165,57340,58113,58609,59737,60472,61691,62743,64255,65358,65587,67149,70096,73484,76450,76203,71298,68850,68545,70905,67858,65010,65175,64670,64546,64330,64297,64608,64686,65648,67323,68983,71488,70052,71021,73428,77167,81926,89303,81525,77180,75381,74023,74855,82295,93015,88502,77163,73375,73442,76182,81517,89220,100073,116697,119866,119213,110140,97524,87414,73705,59993,46182,31095,32938,50585,67369,82606,96691,110896,123385,132677,135849,132642,116563,108495,102209,97726,94926,97281,106043,118592,155525,141294,124820,120903,118584,119053,119402,125478,115159,107526,101709,98209,94920,93704,90101,86969,84499,84555,84358,84687,85270,86319,88136,90929,94399,98828,108574,104266,103925,104613,108093,106610,103853,100388,96091,93619,93280,91198,88976,87594,85909,85268,86060,86727,88008,90732,91873,94273,96407,95711,92878,90888,89901,90408,91666,91776,90687,89607,86164,84443,84111,82562,81600,81076,80036,78977,77930,77805,78147,79621,80316,79882,80368,81438,81106,80099,80135,80448,80964,82039,82656,82813,82131,82594,81821,83150,85738,86637,87700,87058,85535,84609,84483,84190,84618,84879,84714,85144,85887,84843,84719,84828,85623,87446,89376,91585,94265,96483,96480,98639,103519,107685,112959,114880,108963,106011,105750,109955,101240,95848,93646,92322,91274,91009,91438,91282,92652,93050,95804,99550,102862,103622,106727,110088,117263,127137,140018,127351,120996,118275,117993,120587,131262,148434,129092,115904,111782,110729,114039,122032,128227,137938,154848,157163,152042,138363,120871,102262,81725,58108,35928,11951]
 
-  // Set up the plot menu
-  // Create a select input for the choice of spectrum data
-  var spectraSelect = document.createElement("select");
-  spectraSelect.id = 'QEDSpectraSelect';
-  spectraSelect.name = 'QEDSpectraSelect';
-  spectraSelect.onchange = function(){
-    dataStore.QEDhistoName = dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
-    var binWidth = Number(thirdSelect.value);
-    createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, binWidth);
-  }.bind(spectraSelect);
-  document.getElementById('widget-qed-menu-Spectra').appendChild(spectraSelect);
+  ,"QED_DCS_azimuth2_70_110": [42607,131958,217269,300697,381375,456697,534952,593581,629289,628378,565475,530825,507842,484547,472755,478499,506138,574674,665073,605711,557937,542055,539487,540534,556254,586719,540673,516111,494923,486261,475968,479250,469047,456225,446216,445869,449785,447849,443947,447588,452698,460408,464326,484960,517626,489362,483706,487144,520135,497529,477209,461501,451383,450275,453965,451531,442405,439378,438915,437604,438944,441673,446006,452106,453837,459071,465878,456650,447407,448962,450039,453639,458668,457849,451408,447329,441253,431806,429137,422778,426025,424427,424962,424900,425272,428625,432835,439192,444712,439247,439745,447213,442414,435596,430845,427265,426310,425658,425202,427336,424332,429627,430203,439572,445033,449987,454415,458358,452553,451186,451316,450212,457062,467102,459943,456908,454486,451745,445229,439420,440701,441406,440428,443513,452790,455627,451609,451108,459777,474528,496077,518364,486675,482582,487852,517406,488543,466150,462374,455284,449665,446814,448097,449983,447949,447150,455930,468566,479041,476778,486636,495178,514175,540017,582995,553388,539093,538993,542472,557577,603401,674286,581316,512069,487120,482278,495741,527071,560753,614247,701813,718807,697907,645115,575628,507958,428775,352185,267104,177604,185474,277437,362745,439649,515363,588592,654195,704135,727964,708537,624210,569827,534129,504808,492617,499224,530366,588930,669461,618602,567356,548068,542831,548646,569133,600978,555444,524069,503417,492671,480515,483533,472852,459274,450758,452276,454570,454171,450179,452185,458876,468037,476130,497169,531505,499956,492728,496231,529316,506335,484598,468877,459754,458893,465002,461006,452009,448754,444654,443353,445357,448690,455794,464482,465223,468866,474739,465916,455188,455867,457425,462485,466329,465386,457253,453768,445785,435283,434716,426119,428959,430460,430554,431190,428828,433329,435437,441363,448105,442707,444397,451065,444319,438381,435521,431773,431949,431238,430939,430111,427961,435101,433401,444065,450987,455399,463037,465744,461998,459301,458191,458289,467107,476485,469644,468242,468000,460597,452150,446388,445501,445926,450096,452349,462547,466161,461320,459465,466885,481848,503474,527654,495025,492920,498508,532593,500162,478521,470219,463259,452945,452729,454420,454436,453680,450880,458650,470795,484198,480662,493373,502552,523179,554267,598809,565723,547279,543745,548428,567410,613739,681787,592950,531023,501647,490527,497979,523771,546349,582443,639750,640183,607324,541614,468607,387177,307167,220730,136835,43920]
 
+  ,"QED_DCS_azimuth2_80_100": [17009,53411,87077,120050,152957,182750,207627,232016,241704,244134,218437,204434,195889,189829,185303,190701,200058,217253,249106,237200,222487,215438,211665,211297,211976,218301,208591,200698,193296,188547,184980,180772,176779,175808,174763,173263,173306,173670,171615,172296,172493,172196,171201,174062,179256,179364,179358,180042,181850,184726,185624,185757,185442,184916,185175,183515,180288,177531,173902,172432,170313,168705,169569,171407,172433,173723,174060,175761,176027,178137,179245,180313,182131,183210,182695,180460,178743,177409,175527,174112,175255,175556,175082,174722,174445,174934,176232,175633,176254,175669,175806,176653,176230,177035,175780,174973,175038,174995,175802,176053,174913,176406,178145,178267,179962,181420,182616,181912,180087,179661,178600,176721,176278,175696,173919,172860,172205,170162,169734,170335,173128,173807,176923,180289,183476,184769,183655,184473,184336,184500,184080,181008,180276,178717,179844,179602,175030,172081,172907,172920,171835,172065,173053,173026,173635,174263,175537,176718,180627,184031,188290,192083,199864,207603,216107,208638,210394,211948,214247,221041,235736,252821,219310,201509,190828,187927,191550,200480,216364,240275,273827,277837,273058,252100,228250,202038,169278,139946,106185,68673,71727,108137,143218,171952,204648,231306,254026,273792,278844,276674,242402,219175,203102,191981,189501,195188,205234,219429,248670,240364,223822,215570,212129,212800,214313,221035,211495,202076,194497,189480,186058,182659,180004,177971,176808,176105,174333,174894,173938,174658,174943,175070,175165,177459,182180,182527,182396,182850,185108,188209,188803,188876,187715,186564,186739,185314,182082,179886,176405,174259,171958,170092,170545,171530,171967,172844,174188,176461,177629,179569,180459,182067,183955,184400,183221,180549,178327,176977,175261,173630,174619,174688,174711,174644,174137,175301,177031,176992,177530,177102,177091,178114,177821,177551,176171,174834,175079,174618,175372,175186,174374,176264,177601,177673,179869,182117,183507,183605,182206,181047,180416,178570,176827,175176,173708,172625,172089,171140,170923,172560,174428,176231,179744,182016,184966,186357,185612,186836,187703,188080,187090,183862,182809,182278,182491,182754,178439,175589,176032,175615,174400,174173,174403,174117,175866,176381,177890,179965,182864,185260,188392,193810,201109,210066,218757,211276,212033,211801,214699,222319,237760,252574,222718,206524,195950,189864,191146,200987,210812,223562,248801,243708,234847,211339,182751,153376,120534,87913,53972,16951]
 
-  normSelect = document.createElement("select");
-  normSelect.id = 'QEDNormSelect';
-  normSelect.name = 'QEDNormSelect';
-  normSelect.onchange = function(){
-    dataStore.QEDhistoName = dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
-    var binWidth = Number(thirdSelect.value);
-    createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, binWidth);
- }.bind(normSelect);
-  document.getElementById('widget-qed-menu-Norm').appendChild(normSelect);
+  ,"QED_DCS_azimuth2_93_103": [4475,14122,22403,30572,37987,48191,58367,65013,69714,72410,66315,64007,61903,59172,57145,59091,65989,79222,102613,90053,80845,77510,76065,75944,76235,77024,71545,67884,64162,63194,61345,61779,60398,59461,57815,57560,57509,57770,58848,60057,61058,62486,63152,64421,68393,66873,66432,66392,69715,69671,68799,66325,63619,62676,62275,61393,59713,58838,59131,59297,60382,60135,59871,60795,62246,65430,67274,66369,64187,63127,62041,62589,63215,63140,62450,61624,59138,58147,57458,56722,55746,55620,54865,54697,54506,54829,55179,56511,57216,57137,57634,58184,57995,57488,57307,56846,56632,56639,56502,56126,55919,56401,56618,57477,58998,59314,59534,59464,58636,57475,56840,56609,56879,57004,57133,57195,57165,57340,58113,58609,59737,60472,61691,62743,64255,65358,65587,67149,70096,73484,76450,76203,71298,68850,68545,70905,67858,65010,65175,64670,64546,64330,64297,64608,64686,65648,67323,68983,71488,70052,71021,73428,77167,81926,89303,81525,77180,75381,74023,74855,82295,93015,88502,77163,73375,73442,76182,81517,89220,100073,116697,119866,119213,110140,97524,87414,73705,59993,46182,31095,32938,50585,67369,82606,96691,110896,123385,132677,135849,132642,116563,108495,102209,97726,94926,97281,106043,118592,155525,141294,124820,120903,118584,119053,119402,125478,115159,107526,101709,98209,94920,93704,90101,86969,84499,84555,84358,84687,85270,86319,88136,90929,94399,98828,108574,104266,103925,104613,108093,106610,103853,100388,96091,93619,93280,91198,88976,87594,85909,85268,86060,86727,88008,90732,91873,94273,96407,95711,92878,90888,89901,90408,91666,91776,90687,89607,86164,84443,84111,82562,81600,81076,80036,78977,77930,77805,78147,79621,80316,79882,80368,81438,81106,80099,80135,80448,80964,82039,82656,82813,82131,82594,81821,83150,85738,86637,87700,87058,85535,84609,84483,84190,84618,84879,84714,85144,85887,84843,84719,84828,85623,87446,89376,91585,94265,96483,96480,98639,103519,107685,112959,114880,108963,106011,105750,109955,101240,95848,93646,92322,91274,91009,91438,91282,92652,93050,95804,99550,102862,103622,106727,110088,117263,127137,140018,127351,120996,118275,117993,120587,131262,148434,129092,115904,111782,110729,114039,122032,128227,137938,154848,157163,152042,138363,120871,102262,81725,58108,35928,11951]
+};
 
+// Print the dataStore in the console for debugging purposes
+console.log(dataStore);
 
-  binsSelect = document.createElement("select");
-  binsSelect.id = 'QEDBinsSelect';
-  binsSelect.name = 'QEDBinsSelect';
-  binsSelect.onchange = function(){
-    //dataStore.QEDhistoName - dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
-    createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, Number(thirdSelect.value));
-  }
-  document.getElementById('widget-qed-menu-Bin').appendChild(binsSelect);
+// Bail out if there are no QED plots
+if(dataStore.detTypesData["QED"].activeChans<10){
+  document.getElementById('widget-qed').classList.add('hidden'); // hide the QED widget
+  return; // cleanly exit
+}
 
-
-
-  // Add the list of spectra as the options of the select
-  firstSelect = document.getElementById('QEDSpectraSelect');
-  for(var i=0; i<dataStore.QEDanalysisSpectrumList.length; i++){
-    firstSelect.add( new Option(dataStore.QEDanalysisSpectrumList[i], dataStore.QEDanalysisSpectrumList[i]) );
-  }
-  // Add the list of spectra as the options of the select - with normalization
-  secondSelect = document.getElementById('QEDNormSelect');
- // for(var i=0; i<dataStore.QEDanalysisSpectrumList.length; i++){
-    //thisSelect.add( new Option(dataStore.QEDanalysisSpectrumList[i]+"_normalized", dataStore.QEDanalysisSpectrumList[i]+"_normalized") );
-  secondSelect.add( new Option("no normalization", "") );
-  secondSelect.add( new Option("detector pairs", "_dp") );
-  secondSelect.add( new Option("weighting factors", "_normalized") );
-
- // }
-  thirdSelect = document.getElementById('QEDBinsSelect');
-  thirdSelect.add(new Option("1 degree", 1));
-  for(var i=0; i<4; i++){
-    var testBin = 5*i + 5;
-    thirdSelect.add( new Option(testBin+" degrees", testBin));
-  }
-
-  firstSelect.value = "QED_DCS_azimuth2_70_110"; // default selection for initial draw
-  secondSelect.value = "";
-  thirdSelect.value = 1;
-
-  // Define the target div for the Plotly graph
-  dataStore.QEDparentDiv = 'widget-qed-plotly'; // defined in analysisOverview.html file
-
-  // Define the spectrum to be used for the data of this plot
-  dataStore.QEDhistoName = dataStore.histoFileName.split(".")[0] + ":" + "QED_DCS_azimuth2_70_110";
-
-  // Define the title to be displayed at the top of the plot
-  dataStore.QEDtitle = 'QED azimuthal';
-
-  binWidth = Number(thirdSelect.value);
-
-  // Initial draw on start up
-  // Call the function that will create the Plotly graph with the information given
+// Set up the plot menu
+// Create a select input for the choice of spectrum data
+var spectraSelect = document.createElement("select");
+spectraSelect.id = 'QEDSpectraSelect';
+spectraSelect.name = 'QEDSpectraSelect';
+spectraSelect.onchange = function(){
+  dataStore.QEDhistoName = dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
+  var binWidth = Number(thirdSelect.value);
   createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, binWidth);
+}.bind(spectraSelect);
+document.getElementById('widget-qed-menu-Spectra').appendChild(spectraSelect);
+
+
+normSelect = document.createElement("select");
+normSelect.id = 'QEDNormSelect';
+normSelect.name = 'QEDNormSelect';
+normSelect.onchange = function(){
+  dataStore.QEDhistoName = dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
+  var binWidth = Number(thirdSelect.value);
+  createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, binWidth);
+}.bind(normSelect);
+document.getElementById('widget-qed-menu-Norm').appendChild(normSelect);
+
+
+binsSelect = document.createElement("select");
+binsSelect.id = 'QEDBinsSelect';
+binsSelect.name = 'QEDBinsSelect';
+binsSelect.onchange = function(){
+  //dataStore.QEDhistoName - dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
+  createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, Number(thirdSelect.value));
+}
+document.getElementById('widget-qed-menu-Bin').appendChild(binsSelect);
+
+excludeSelect = document.createElement("select");
+excludeSelect.id = 'QEDexcludeSelect';
+excludeSelect.name = 'QEDexcludeSelect';
+excludeSelect.onchange = function(){
+  //dataStore.QEDhistoName - dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
+  createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, Number(thirdSelect.value));
+}
+document.getElementById('widget-qed-menu-Exclude').appendChild(excludeSelect);
+
+
+
+// Add the list of spectra as the options of the select
+firstSelect = document.getElementById('QEDSpectraSelect');
+for(var i=0; i<dataStore.QEDanalysisSpectrumList.length; i++){
+  firstSelect.add( new Option(dataStore.QEDanalysisSpectrumList[i], dataStore.QEDanalysisSpectrumList[i]) );
+}
+// Add the list of spectra as the options of the select - with normalization
+secondSelect = document.getElementById('QEDNormSelect');
+// for(var i=0; i<dataStore.QEDanalysisSpectrumList.length; i++){
+//thisSelect.add( new Option(dataStore.QEDanalysisSpectrumList[i]+"_normalized", dataStore.QEDanalysisSpectrumList[i]+"_normalized") );
+secondSelect.add( new Option("no normalization", "") );
+secondSelect.add( new Option("detector pairs", "_dp") );
+secondSelect.add( new Option("weighting factors", "_normalized") );
+
+// }
+thirdSelect = document.getElementById('QEDBinsSelect');
+thirdSelect.add(new Option("1 degree", 1));
+for(var i=0; i<4; i++){
+  var testBin = 5*i + 5;
+  thirdSelect.add( new Option(testBin+" degrees", testBin));
+}
+
+// Add the options for the Exclude bins select
+fourthSelect = document.getElementById('QEDexcludeSelect');
+fourthSelect.add( new Option("Include all bins", 0) );
+fourthSelect.add( new Option("Exclude 5 degrees around 0, 180 and 360 degrees.", 1) );
+fourthSelect.value = 0;
+
+firstSelect.value = "QED_DCS_azimuth2_70_110"; // default selection for initial draw
+secondSelect.value = "";
+thirdSelect.value = 1;
+
+// Define the target div for the Plotly graph
+dataStore.QEDparentDiv = 'widget-qed-plotly'; // defined in analysisOverview.html file
+
+// Define the spectrum to be used for the data of this plot
+dataStore.QEDhistoName = dataStore.histoFileName.split(".")[0] + ":" + "QED_DCS_azimuth2_70_110";
+
+// Define the title to be displayed at the top of the plot
+dataStore.QEDtitle = 'QED azimuthal';
+
+binWidth = Number(thirdSelect.value);
+
+// Initial draw on start up
+// Call the function that will create the Plotly graph with the information given
+createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, binWidth);
 }
 
 
 // Function to create the formatting and data for the Plotly graph
 function createQEDplotly(targetDiv, dataKey, title, binWidth){
+
   // re-create the specified histogram
   var applyNormalization = false;
 
@@ -111,33 +143,47 @@ function createQEDplotly(targetDiv, dataKey, title, binWidth){
     dataKey = dataKey.split("_normalized")[0];
   }
 
+  // Check that we have the data requested
+  if(!dataStore.rawData[dataKey]){
+    document.getElementById('widget-qed-reportDiv').innerHTML = "Error: No data for histogram, <br>"+dataKey;
+    return;
+  }
+
+  var excludeAngles = document.getElementById('QEDexcludeSelect').value;
+
   // Define the data and labels for the x axis
   var bins = [];
   var labels = [];
-  for(var i=-180; i<=180; i+=binWidth){
+  for(var i=-180; i<180; i+=binWidth){
+    //  if(excludeAngles && (i<-175 || (i>-5 && i<5) || i>175)){ continue; } // Do not generate the bins for the excluded angles
     bins.push(i);
   }
 
   // Define the data for the y axis
   var dataRaw=[];
-  dataRaw = dataStore.rawData[dataKey].slice(0,361);
-  var data = [];
+  dataRaw = dataStore.rawData[dataKey].slice(0,360);
+  for(var i=0; i<dataRaw.length; i++){
+    if(excludeAngles==1 && (i<=5 || (i>=175 && i<=185) || i>=355)){ dataRaw[i] = 0; } // Zero the data in the excluded angles
+  }
+  var dataBinned = [];
   for(var i=0; i<bins.length; i++){
-    data.push(dataRaw.slice(binWidth*i, binWidth*(i+1)).reduce((acc,current)=>acc+current,0));
+    dataBinned.push(dataRaw.slice(binWidth*i, binWidth*(i+1)).reduce((acc,current)=>acc+current,0));
   }
 
   // Define the errors as the sqrt of the data points
   var errorData=[];
   for(var i=0; i<bins.length; i++){
-    errorData.push(parseFloat((Math.sqrt(data[i])).toFixed(1)));
+    errorData.push(parseFloat((Math.sqrt(dataBinned[i])).toFixed(1)));
   }
 
   // Apply Normalization here
   if(applyNormalization){
-    var data = performNormalization(data, dataKey.split(":")[1]);
+    var data = performNormalization(dataBinned, dataKey.split(":")[1],binWidth);
     //  console.log(data); // print the data array to the console
 
-    var errorData = calculateNormalizedUncertainties(dataStore.rawData[dataKey],errorData,data,dataKey.split(":")[1]);
+    var errorData = calculateNormalizedUncertainties(dataBinned,errorData,data,dataKey.split(":")[1],binWidth);
+  }else{
+    var data = dataBinned;
   }
 
   // Determine the theoretical best fit line
@@ -149,7 +195,7 @@ function createQEDplotly(targetDiv, dataKey, title, binWidth){
 
   var lineData = [];
   for(var i=0; i<bins.length; i++){
-     lineData[i] = Math.cos(2.0*bins[i]*(3.14159/180));;
+    lineData[i] = Math.cos(2.0*bins[i]*(3.14159/180));;
   }
 
   var params = [];
@@ -170,18 +216,32 @@ function createQEDplotly(targetDiv, dataKey, title, binWidth){
     if(isNaN(data[i])){ continue; }
     sumSqDeviations += (data[i] - lineData[i*binWidth])*(data[i] - lineData[i*binWidth]);
   }
-  var fitStandardError = Math.sqrt(sumSqDeviations/(bins.length-2));
+  var fitStandardError = Math.sqrt(sumSqDeviations/(bins.length-1)); // This is the standard deviation of the dataset
+  var fitStandardError = fitStandardError / Math.sqrt(bins.length);                    // This is the standard error of the dataset
   // https://www.itl.nist.gov/div898/handbook/eda/section3/eda3674.htm
   // For a 95% confidence interval with 358 degrees of freedom
-  var criticalValue = 1.967;
+  // 1 degree, 360 bins = 1.967
+  // 5 degree, 72 bins = 90.531/70 = 1.293
+  //10 degree, 36 bins = 48.602/34 = 1.429
+  //15 degree, 24 bins = 33.924/22 = 1.542
+  //20 degree, 18 bins = 26.296/16 = 1.644
+  var criticalValueLookup = {
+    "1": 1.967,
+    "5": 1.293,
+    "10": 1.429,
+    "15": 1.542,
+    "20": 1.644
+  };
+  var criticalKey = ""+document.getElementById('QEDBinsSelect').value;
+  var criticalValue = criticalValueLookup[criticalKey];
   var enhancementUncert = (fitStandardError * criticalValue).toFixed(2);
 
-// Calculate the reduced chi-square of the fit to the data (function in helpers.js)
-// var reducedChiSq = (RCS(data, lineData, 2)).toFixed(2);
+  // Calculate the reduced chi-square of the fit to the data (function in helpers.js)
+  // var reducedChiSq = (RCS(data, lineData, 2)).toFixed(2);
 
   // Report the fit parameters in the Div
-//  document.getElementById('widget-qed-reportDiv').innerHTML = "Enhancement factor, R="+enhancement+"&plusmn;"+enhancementUncert
-//  + "<br>Changed Reduced chi-square = "+reducedChiSq;
+  document.getElementById('widget-qed-reportDiv').innerHTML = "Enhancement factor, R="+enhancement+"&plusmn;"+enhancementUncert;
+  //  document.getElementById('widget-qed-reportDiv').innerHTML += "<br>Changed Reduced chi-square = "+reducedChiSq;
 
   // Package the data objects together for consumption by Plotly
   // scatter type plot with only datapoint markers shown
@@ -213,20 +273,25 @@ function createQEDplotly(targetDiv, dataKey, title, binWidth){
   Plotly.newPlot(targetDiv, plotData, layout, {displayModeBar: false});
 }
 
-function performNormalization(raw,weightsKey){
+function performNormalization(raw,weightsKey,binWidth){
   // Declare array variables
-  var normalized = [], weight = [];
+  var normalized = [], weight = [], binnedWeights = [];
 
   // Get the raw number of detector pairs distribution from the data store using the key provided
   var rawWeights = dataStore.QEDAzimuthalWeightingFactors[weightsKey];
 
+  // Process the raw Weighting factors for the binning
+  for(var i=0; i<raw.length; i++){
+    binnedWeights.push(rawWeights.slice(binWidth*i, binWidth*(i+1)).reduce((acc,current)=>acc+current,0));
+  }
+
   // Find the sum of the data values and the sum of the weights values
   var dataSum = raw.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-  var weightSum = rawWeights.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+  var weightSum = binnedWeights.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 
   // Calculate the weighting factor for each bin from the raw number of detector pairs and total weights sum
-  for(var i=0; i<rawWeights.length; i++){
-    weight[i] = rawWeights[i] / weightSum;
+  for(var i=0; i<binnedWeights.length; i++){
+    weight[i] = binnedWeights[i] / weightSum;
   }
 
   // Normalize the data using the weighting factors and total data sum
@@ -234,19 +299,30 @@ function performNormalization(raw,weightsKey){
     normalized[i] = raw[i] / (weight[i] * dataSum);
   }
 
+  // Apply offset to the data to align the baseline with 1
+  var offset = 1 - ((normalized[0] + normalized[parseInt(normalized.length/2)] + normalized[normalized.length-1])/3);
+  for(i=0; i<raw.length; i++){
+    normalized[i] += offset;
+  }
+
   // Return the normalized data series
   return(normalized);
 }
 
-function calculateNormalizedUncertainties(data,errorData,normalized,weightsKey){
-  var uncertainties = [];
+function calculateNormalizedUncertainties(data,errorData,normalized,weightsKey,binWidth){
+  var uncertainties = [], binnedWeights = [];
 
   // Get the raw number of detector pairs distribution from the data store using the key provided
   var rawWeights = dataStore.QEDAzimuthalWeightingFactors[weightsKey];
 
+  // Process the raw Weighting factors for the binning
+  for(var i=0; i<data.length; i++){
+    binnedWeights.push(rawWeights.slice(binWidth*i, binWidth*(i+1)).reduce((acc,current)=>acc+current,0));
+  }
+
   // Find the sum of the data values and the sum of the weights values
   var dataSum = data.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
-  var weightSum = rawWeights.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+  var weightSum = binnedWeights.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
 
   // Find the fractional uncertainty for the summed values
   var dataFractionalError = Math.pow(Math.sqrt(dataSum)/dataSum,2)
@@ -254,7 +330,7 @@ function calculateNormalizedUncertainties(data,errorData,normalized,weightsKey){
 
   // Add the fractional errors in quadrature for each bin
   for(var i=0; i<data.length; i++){
-    uncertainties[i] = normalized[i] * Math.sqrt( Math.pow(errorData[i]/data[i],2) + Math.pow(Math.sqrt(rawWeights[i])/rawWeights[i],2) + dataFractionalError + weightFractionalError);
+    uncertainties[i] = normalized[i] * Math.sqrt( Math.pow(errorData[i]/data[i],2) + Math.pow(Math.sqrt(binnedWeights[i])/binnedWeights[i],2) + dataFractionalError + weightFractionalError);
   }
 
   // Return the series of uncertainties for the normalized data
