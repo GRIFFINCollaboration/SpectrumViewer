@@ -470,7 +470,7 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
   document.getElementById('menu').classList.add('hidden');
 
   //make sure the fit callback is set up
-  dataStore.viewers[dataStore.plots[0]].fitCallback = fitCallback(); // fitcallback in helpers.js
+  dataStore.viewers[dataStore.plots[0]].fitCallback = function(){ fitCallback(); } // fitcallback in helpers.js
 
   $(function () {
     $('[data-toggle="tooltip"]').tooltip()
