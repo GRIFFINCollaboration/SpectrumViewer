@@ -4072,14 +4072,14 @@ function projectXY(gateMinX,gateMaxX,gateMinY,gateMaxY,axis){
   gateMinY = Number(gateMinY);
   gateMaxY = Number(gateMaxY);
 
-  // Set up the projection spectrum
-  var thisProjection = [];
-  for(let i=0; i<dataStore.hm._raw.length; i++){
-    thisProjection[i] = 0;
-  }
-
   // Make the projection onto the stated axis
   if(axis == 'y'){
+      // Set up the projection spectrum
+      var thisProjection = [];
+      for(let i=0; i<dataStore.hm._raw.length; i++){
+        thisProjection[i] = 0;
+      }
+
     // Set a unique name based on gate limits
     thisProjectionName = dataStore.activeMatrix+'y-'+gateMinX+'-'+gateMaxX;
 
@@ -4087,7 +4087,13 @@ function projectXY(gateMinX,gateMaxX,gateMinY,gateMaxY,axis){
     for(let i=gateMinY; i<gateMaxY; i++){
       thisProjection[i] = dataStore.hm._raw[i].slice(gateMinX,gateMaxX).reduce((a, b) => a + b, 0);
     }
-  }else{
+  }else{ // x
+      // Set up the projection spectrum
+      var thisProjection = [];
+      for(let i=0; i<dataStore.hm._raw[0].length; i++){
+        thisProjection[i] = 0;
+      }
+
     // Set a unique name based on gate limits
     thisProjectionName = dataStore.activeMatrix+'x-'+gateMinY+'-'+gateMaxY;
 
