@@ -76,6 +76,8 @@
       <button id="showYproj" class="btn btn-default btn-sm hidden" disabled='true' type="button">Total Y projection</button>
       <button id="showXprojZoomed" class="btn btn-default btn-sm hidden" disabled='true' type="button">Project onto X</button>
       <button id="showYprojZoomed" class="btn btn-default btn-sm hidden" disabled='true' type="button">Project onto Y</button>
+      <button id="unzoomBtn" class="btn btn-default btn-sm hidden" type="button" onclick='if(dataStore.hm && dataStore.currentSparseData){ dataStore.hm.zoomout(); dataStore.hm.draw(dataStore.currentSparseData); updateEntryCounts(); }'>Unzoom</button>
+      <button id="saveImageBtn" class="btn btn-default btn-sm hidden" type="button" onclick='saveHeatmapImage()'>Save Image</button>
     </div>
 
     <div id='updateWrapPeriodic' class='col-md-4'>
@@ -100,6 +102,7 @@
           Choose a plot from the menu at the top to get started.
         </div>
       </div>
+      <div id='entryCountDiv' style="display:none; padding:4px 8px; font-family:monospace; font-size:16px; font-weight:bold; color:#fff; border-top:1px solid #ddd;"></div>
     </div>
     <div id='plotWrap1D' class='col-md-9 plotRegion' style='display: none'>
       <div id='plottingGrid'></div>

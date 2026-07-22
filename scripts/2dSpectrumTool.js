@@ -121,6 +121,8 @@ function plotControl2d(wrapID){
     document.getElementById('showYproj').classList.remove('hidden');
     document.getElementById('showXprojZoomed').classList.remove('hidden');
     document.getElementById('showYprojZoomed').classList.remove('hidden');
+    document.getElementById('unzoomBtn').classList.remove('hidden');
+    document.getElementById('saveImageBtn').classList.remove('hidden');
 
     //don't need plot help anymore; swap in roi help
     document.getElementById('intro-plot-picker').classList.add('hidden');
@@ -435,6 +437,62 @@ function extractCutVertices(){
   }
 }
 
+function saveHeatmapImage(){
+  if(!dataStore.hm || !dataStore.currentSparseData) return;
+  dataStore.hm.draw(dataStore.currentSparseData); // re-render so WebGL buffer is populated
+  var canvases = document.querySelectorAll('#heatmapTarget canvas');
+  if(!canvases.length) return;
+  var first = canvases[0];
+  var composite = document.createElement('canvas');
+  composite.width  = first.width;
+  composite.height = first.height;
+  var ctx = composite.getContext('2d');
+  for(var i = 0; i < canvases.length; i++){
+    ctx.drawImage(canvases[i], 0, 0);
+  }
+  var link = document.createElement('a');
+  link.download = (dataStore.activeMatrix || 'heatmap') + '.png';
+  link.href = composite.toDataURL('image/png');
+  link.click();
+}
+
+function updateEntryCounts(){
+  var div = document.getElementById('entryCountDiv');
+  if(!div || !dataStore.currentSparseData || !dataStore.hm) return;
+
+  var sd   = dataStore.currentSparseData;
+  var xMin = dataStore.hm.currentXaxisMinValue;
+  var xMax = dataStore.hm.currentXaxisMaxValue;
+  var yMin = dataStore.hm.currentYaxisMinValue;
+  var yMax = dataStore.hm.currentYaxisMaxValue;
+
+  // xglobalEnd = sd.xBins is always the true axis edge.
+  // After a zoom, currentXaxisMaxValue is set to the right edge (exclusive).
+  // After setData (initial draw), currentXaxisMaxValue is set to max(x bin index),
+  // which is sd.xBins-1 — one less than the edge. Detect full view using xglobalEnd-1
+  // as the threshold so the initial state is correctly treated as unzoomed.
+  var xEnd = dataStore.hm.xglobalEnd;
+  var yEnd = dataStore.hm.yglobalEnd;
+  var isFullView = (xMin <= 0 && yMin <= 0 && xMax >= xEnd - 1 && yMax >= yEnd - 1);
+
+  // In full view use xEnd so the filter includes the last bin (x < xEnd covers 0..xBins-1).
+  // When zoomed, xMax is already the exclusive right edge so use it directly.
+  var filterXMax = isFullView ? xEnd : xMax;
+  var filterYMax = isFullView ? yEnd : yMax;
+
+  var viewCount = 0;
+  for(var i=0; i<sd.x.length; i++){
+    if(sd.x[i] >= xMin && sd.x[i] < filterXMax && sd.y[i] >= yMin && sd.y[i] < filterYMax){
+      viewCount += sd.z[i];
+    }
+  }
+
+  var text = 'Total entries: ' + dataStore.totalEntries.toLocaleString();
+  if(!isFullView){ text += '\u2003|\u2003View entries: ' + viewCount.toLocaleString(); }
+  div.textContent = text;
+  div.style.display = 'block';
+}
+
 function fetchCallback(){
   //runs after every time the histogram is updated
 
@@ -477,7 +535,8 @@ function fetchCallback(){
   if(dataStore.sparseData.hasOwnProperty(dataStore.activeMatrix)){
     console.log("The sparseData object already exists!");
     dataStore.hm.draw(dataStore.sparseData[dataStore.activeMatrix]); // Plot it
-    dataStore.hm.setMeta({plotTitle: dataStore.activeMatrix}); // Update titles
+    var total = dataStore.sparseData[dataStore.activeMatrix].z.reduce(function(a,b){return a+b;}, 0);
+    dataStore.hm.setMeta({plotTitle: dataStore.activeMatrix + ' (N=' + total.toLocaleString() + ')'}); // Update titles
   }else{
     console.log("Need to create the sparseData object");
     // unpack the raw 2d spectrum to the required format
@@ -486,7 +545,37 @@ function fetchCallback(){
     dataStore.hm.raw = packZcompressed(dataStore.rawData[dataStore.activeMatrix].data2,dataStore.activeMatrixXaxisLength,dataStore.activeMatrixYaxisLength,dataStore.activeMatrixZaxisMax,dataStore.activeMatrixSymmetrized,false);
     dataStore.hm._raw = dataStore.hm.raw;
     var sparseData = zeroSuppressData(dataStore.hm.raw);
+    dataStore.sparseData[dataStore.activeMatrix] = sparseData;
     dataStore.hm.draw(sparseData); // sparseData is in format for sparse mode
+    var total = sparseData.z.reduce(function(a,b){return a+b;}, 0);
+    dataStore.hm.setMeta({plotTitle: dataStore.activeMatrix + ' (N=' + total.toLocaleString() + ')'});
+  }
+
+  // Compute total entries and update the entry count display
+  var _sd = dataStore.sparseData[dataStore.activeMatrix];
+  if(_sd){
+    dataStore.currentSparseData = _sd;
+    dataStore.totalEntries = _sd.z.reduce(function(a,v){ return a+v; }, 0);
+    if(!dataStore._zoomWrapped && dataStore.hm){
+      var origZoomX = dataStore.hm.zoomX.bind(dataStore.hm);
+      dataStore.hm.zoomX = function(){ origZoomX.apply(this, arguments); updateEntryCounts(); };
+      var origZoomY = dataStore.hm.zoomY.bind(dataStore.hm);
+      dataStore.hm.zoomY = function(start, end){
+        origZoomY(start, end);
+        // The heatmap filter uses `x > dragEnd` (not >=), so boundary bins render beyond the
+        // axis max. Decrement dragEnd by 1 so draw() excludes those bins.
+        if(this.dragEnd){ this.dragEnd = [this.dragEnd[0]-1, this.dragEnd[1]-1]; }
+        updateEntryCounts();
+      };
+      var origZoomout = dataStore.hm.zoomout.bind(dataStore.hm);
+      dataStore.hm.zoomout = function(){
+        origZoomout();
+        if(dataStore.currentSparseData){ dataStore.hm.draw(dataStore.currentSparseData); }
+        updateEntryCounts();
+      };
+      dataStore._zoomWrapped = true;
+    }
+    updateEntryCounts();
   }
   /*
   // make the 2d heatmap plot of this histogram
