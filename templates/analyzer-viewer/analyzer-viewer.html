@@ -38,16 +38,16 @@
 
 <!-- Modal content-->
 <div class="modal-content">
- <div class="modal-header">
- <button type="button" class="close" data-dismiss="modal">&times;</button>
- <h4 class="modal-title">Error</h4>
- </div>
- <div class="modal-body">
-  <p>Please select at least two histogram files to sum together (Shift-click to select multiple at once).</p>
- </div>
- <div class="modal-footer">
-  <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
- </div>
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Error</h4>
+</div>
+<div class="modal-body">
+<p>Please select at least two histogram files to sum together (Shift-click to select multiple at once).</p>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+</div>
 </div>
 
 </div>
@@ -58,16 +58,16 @@
 
 <!-- Modal content-->
 <div class="modal-content">
- <div class="modal-header">
- <button type="button" class="close" data-dismiss="modal">&times;</button>
- <h4 class="modal-title">Error</h4>
- </div>
- <div class="modal-body">
-  <p>Please select less than 200 histogram files to sum together (Shift-click to select multiple at once).</p>
- </div>
- <div class="modal-footer">
-  <button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
- </div>
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal">&times;</button>
+<h4 class="modal-title">Error</h4>
+</div>
+<div class="modal-body">
+<p>Please select less than 200 histogram files to sum together (Shift-click to select multiple at once).</p>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-warning" data-dismiss="modal">Close</button>
+</div>
 </div>
 
 </div>
@@ -228,15 +228,15 @@ function setupAnalyzerViewer(wrapperID){
   }.bind(newButton);
   document.getElementById('launchAppsDiv').appendChild(newButton);
 
-  // Create button for launching Efficiency Fitter app
+  // Create button for launching crosstalk corrections app
   newButton = document.createElement('button');
-  newButton.setAttribute('id', 'launchEffFitButton');
+  newButton.setAttribute('id', 'launchPUButton');
   newButton.setAttribute('class', 'btn btn-default btn-lg');
-  newButton.innerHTML = "Launch Efficiency Fitter";
+  newButton.innerHTML = "Launch Crosstalk Corrections";
   document.getElementById('launchAppsDiv').style.textAlign = 'right';
   newButton.style.padding = '4px';
   newButton.onclick = function(){
-    var url = "https://griffincollaboration.github.io/SpectrumViewer/efficiencyFitter.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
+    var url = "https://griffincollaboration.github.io/SpectrumViewer/crosstalkCorrections.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
     window.open(url);
   }.bind(newButton);
   document.getElementById('launchAppsDiv').appendChild(newButton);
@@ -254,15 +254,28 @@ function setupAnalyzerViewer(wrapperID){
   }.bind(newButton);
   document.getElementById('launchAppsDiv').appendChild(newButton);
 
-  // Create button for launching crosstalk corrections app
+  // Create button for launching qed calibrations app
   newButton = document.createElement('button');
-  newButton.setAttribute('id', 'launchPUButton');
+  newButton.setAttribute('id', 'launchQEDButton');
   newButton.setAttribute('class', 'btn btn-default btn-lg');
-  newButton.innerHTML = "Launch Crosstalk Corrections";
+  newButton.innerHTML = "Launch QED Calibrations";
   document.getElementById('launchAppsDiv').style.textAlign = 'right';
   newButton.style.padding = '4px';
   newButton.onclick = function(){
-    var url = "https://griffincollaboration.github.io/SpectrumViewer/crosstalkCorrections.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
+    var url = "https://griffincollaboration.github.io/SpectrumViewer/qedCalibrations.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
+    window.open(url);
+  }.bind(newButton);
+  document.getElementById('launchAppsDiv').appendChild(newButton);
+  
+  // Create button for launching Efficiency Fitter app
+  newButton = document.createElement('button');
+  newButton.setAttribute('id', 'launchEffFitButton');
+  newButton.setAttribute('class', 'btn btn-default btn-lg');
+  newButton.innerHTML = "Launch Efficiency Fitter";
+  document.getElementById('launchAppsDiv').style.textAlign = 'right';
+  newButton.style.padding = '4px';
+  newButton.onclick = function(){
+    var url = "https://griffincollaboration.github.io/SpectrumViewer/efficiencyFitter.html?analyzerBackend="+dataStore.spectrumServerBackend+"&analyzerPort="+dataStore.spectrumServerPort+"&histoDir="+dataStore.histoFileDirectoryPath;
     window.open(url);
   }.bind(newButton);
   document.getElementById('launchAppsDiv').appendChild(newButton);
