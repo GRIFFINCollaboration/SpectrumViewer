@@ -509,6 +509,7 @@ function launchPeakFittingProcess(){
       document.getElementById('saveCSVDiv').classList.remove('hidden');
       document.getElementById('saveScriptDiv').classList.remove('hidden');
       document.getElementById('saveCalFileDiv').classList.remove('hidden');
+      document.getElementById('saveJSONDiv').classList.remove('hidden');
 
       // change information message
       document.getElementById('fittingProjectionsMessage').classList.add('hidden');
