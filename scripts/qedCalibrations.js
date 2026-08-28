@@ -40,7 +40,7 @@ function setupDataStore(){
   dataStore.Config = {};                  // Place to store the Calibrations from the config file. Used for building Cal files etc.
 
   // histoChoiceBar
-  dataStore.histoChoiceBarContents = ['152Eu'];  // Array defining the contents of the histoChoiceBar user input. Used in setupHistoListSelect()
+  dataStore.histoChoiceBarContents = ['22Na'];  // Array defining the contents of the histoChoiceBar user input. Used in setupHistoListSelect()
 
   // Get the analyzer Server and ODB host names from the URL
   GetURLArguments();
@@ -311,7 +311,7 @@ function launchPeakFittingProcess(){
   thisScript = dataStore.peakFitterScriptTemplate["QED-calibration"];
 
   // Get the user input on histogramFileNames
-  thisScript.histogramFileNames.push(document.getElementById('HistoListSelect152Eu').value);
+  thisScript.histogramFileNames.push(document.getElementById('HistoListSelect22Na').value);
 
   // Setup the peak-fitting script from the template
   receiveScript(JSON.stringify(thisScript));
