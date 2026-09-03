@@ -161,7 +161,8 @@ function setupDataStore(){
 
       "QED4P00_E_vs_theta", "QED4P01_E_vs_theta", "QED4P02_E_vs_theta", "QED4P03_E_vs_theta", "QED4P04_E_vs_theta", "QED4P05_E_vs_theta",
       "QED4P06_E_vs_theta", "QED4P07_E_vs_theta", "QED4P08_E_vs_theta", "QED4P09_E_vs_theta", "QED4P10_E_vs_theta", "QED4P11_E_vs_theta",
-      "QED4P12_E_vs_theta", "QED4P13_E_vs_theta", "QED4P14_E_vs_theta", "QED4P15_E_vs_theta", "QED4P16_E_vs_theta", "QED4P17_E_vs_theta",
+
+      "QED4P12_E_vs_theta", "QED4P13_E_vs_theta","QED4P14_E_vs_theta", "QED4P15_E_vs_theta","QED4P16_E_vs_theta", "QED4P17_E_vs_theta",
       "QED4P18_E_vs_theta", "QED4P19_E_vs_theta", "QED4P20_E_vs_theta", "QED4P21_E_vs_theta", "QED4P22_E_vs_theta", "QED4P23_E_vs_theta",
       "QED4P24_E_vs_theta", "QED4P25_E_vs_theta", "QED4P26_E_vs_theta", "QED4P27_E_vs_theta", "QED4P28_E_vs_theta", "QED4P29_E_vs_theta",
       "QED4P30_E_vs_theta", "QED4P31_E_vs_theta",
@@ -221,7 +222,6 @@ function setupDataStore(){
       "QED6N18_E_vs_theta", "QED6N19_E_vs_theta", "QED6N20_E_vs_theta", "QED6N21_E_vs_theta", "QED6N22_E_vs_theta", "QED6N23_E_vs_theta",
       "QED6N24_E_vs_theta", "QED6N25_E_vs_theta", "QED6N26_E_vs_theta", "QED6N27_E_vs_theta", "QED6N28_E_vs_theta", "QED6N29_E_vs_theta",
       "QED6N30_E_vs_theta", "QED6N31_E_vs_theta"
-
     ],
     "spectrumListGates" : [
       ["x",40,50],
@@ -236,7 +236,10 @@ function setupDataStore(){
       ["x",130,140],
       ["x",140,150],
       ["x",150,160],
-      ["x",160,170]
+      ["x",160,170],
+      ["x",50,160],
+      ["x",100,120],
+      ["x",140,170]
     ],
     "spectrumListProjectionsPeaks" : {
       "All":[],
@@ -252,12 +255,16 @@ function setupDataStore(){
       "x-130-140":[321],
       "x-140-150":[330],
       "x-150-160":[335],
-      "x-160-170":[340]
+      "x-160-170":[340],
+      "x-50-160":[511],
+      "x-100-120":[980],
+      "x-140-170":[1050]
     }
   };
 
   // Compton energies deposited in DSSD pixel for scattering angles of 45, 55, 65, ... 145, 155, 165 degrees.
-  dataStore.comptonEnergies = [ 115.8,152.8,187.0,217.5,243.9,266.2,284.8,300.1,312.4,322.2,329.7,335.2,338.7 ];
+  // The last index is the full energy peak that is added into this calibration histogram from a coincidence with 1274keV or 511keV
+  dataStore.comptonEnergies = [ 115.8,152.8,187.0,217.5,243.9,266.2,284.8,300.1,312.4,322.2,329.7,335.2,338.7,511.0,980.8,1052.5 ];
 
   // Pagination for the results and plotting display
   // plotRegion = spectra
@@ -531,12 +538,12 @@ function launchPeakFittingProcess(){
             var thisGainFromODB = parseFloat(dataStore.Config[configIndex].gain);
             var thisOffsetFromODB = parseFloat(dataStore.Config[configIndex].offset);
 
-            // Please to store this data for plotting later
+            // Place to store this data for plotting later
             if(typeof(dataStore.fitResultsData[detString]) == 'undefined'){
               dataStore.fitResultsData[detString] = [];
             }
 
-            // Loop over gate values which are make on the theta axis
+            // Loop over gate values which are made on the theta axis
             for(var thisGateIndex=0; thisGateIndex<dataStore.peakFitterScriptTemplate["QED-calibration"]["spectrumListGates"].length; thisGateIndex++){
               var thisGateLower = dataStore.peakFitterScriptTemplate["QED-calibration"]["spectrumListGates"][thisGateIndex][1];
               var thisGateUpper = dataStore.peakFitterScriptTemplate["QED-calibration"]["spectrumListGates"][thisGateIndex][2];
@@ -553,6 +560,8 @@ function launchPeakFittingProcess(){
               if(thisQuadFromODB==0 && thisOffsetFromODB==0){
                 var xValue = thisCentroid/thisGainFromODB;
               }else{
+                var discriminant = thisGainFromODB*thisGainFromODB - 4*thisQuadFromODB*thisOffsetFromODB + 4*thisQuadFromODB*thisCentroid;
+                if(discriminant<0){ console.log("Problem with discriminant being negative, "+thisKey+", quad,gain,offset "+[thisQuadFromODB,thisGainFromODB,thisOffsetFromODB]+" for centroid "+thisCentroid); }
                 var xValue = (-1*thisGainFromODB + Math.sqrt( thisGainFromODB*thisGainFromODB - 4*thisQuadFromODB*thisOffsetFromODB + 4*thisQuadFromODB*thisCentroid)) ;
                 if(thisQuadFromODB!=0){ xValue /= (2*thisQuadFromODB); }
               }

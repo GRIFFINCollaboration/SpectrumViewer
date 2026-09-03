@@ -204,11 +204,9 @@ function setupDataStore(){
 
   // QED spectra
     dataStore.QEDanalysisSpectrumList = [
-      "QED_DCS_azimuth_0_180", 
+      "QED_DCS_azimuth_0_180",
     "QED_DCS_azimuth_70_110",
-    "QED_DCS_azimuth_93_103",
-    "QED_DCS_azimuth2_70_110",
-    "QED_DCS_azimuth2_93_103"
+    "QED_DCS_azimuth_93_103"
   , "QED_DCS_azimuth2_0_180"
   , "QED_DCS_azimuth2_10_170"
   , "QED_DCS_azimuth2_20_160"
@@ -219,6 +217,23 @@ function setupDataStore(){
   , "QED_DCS_azimuth2_70_110"
   , "QED_DCS_azimuth2_80_100"
   , "QED_DCS_azimuth2_85_95"
+  , "QED_DCS_azimuth2_93_103"
+  ];
+    dataStore.QEDanalysisWFList = [
+      "QED_DCS_azimuth_TRWF_0_180",
+    "QED_DCS_azimuth_TRWF_70_110",
+    "QED_DCS_azimuth_TRWF_93_103",
+ "QED_DCS_azimuth2_TRWF_0_180"
+, "QED_DCS_azimuth2_TRWF_10_170"
+, "QED_DCS_azimuth2_TRWF_20_160"
+, "QED_DCS_azimuth2_TRWF_30_150"
+, "QED_DCS_azimuth2_TRWF_40_140"
+, "QED_DCS_azimuth2_TRWF_50_130"
+, "QED_DCS_azimuth2_TRWF_60_120"
+, "QED_DCS_azimuth2_TRWF_70_110"
+, "QED_DCS_azimuth2_TRWF_80_100"
+, "QED_DCS_azimuth2_TRWF_85_95"
+, "QED_DCS_azimuth2_TRWF_93_103"
   ];
 
   // Beta efficiency calculations
@@ -501,6 +516,7 @@ function launchAnalysisTasks(){
   dataStore._plotControl.activeSpectra = [];
   dataStore.spectrumList1d = ["ZDS01XN00A_Energy", "Ge_Sum_Energy", "Ge_Sum_En_SceptarTagged", "Ge_Sum_En_ZdsTagged", "Ge_Sum_En_AriesTagged", "HPGe_cycle_activity"];
   dataStore.spectrumList1d.push(...dataStore.QEDanalysisSpectrumList);
+  dataStore.spectrumList1d.push(...dataStore.QEDanalysisWFList);
   for(var i=0; i<dataStore.spectrumList1d.length; i++){
     dataStore._plotControl.activeSpectra.push(dataStore.spectrumList1d[i]);
   }

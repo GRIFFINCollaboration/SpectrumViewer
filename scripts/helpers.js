@@ -2837,12 +2837,20 @@ function fitCallback(center, width, amplitude, intercept, slope){
     if(center>dataStore.currentPeakList[dataStore.currentPeak]-diff && center<dataStore.currentPeakList[dataStore.currentPeak]+diff){
       thisPeakID = dataStore.currentPeak;
     }else{
+      // Try to find the cloest matching peak within a reasonable energy window
+      var differences = [];
       for(i=0; i<dataStore.currentPeakList.length; i++){
+        differences.push(Math.abs(dataStore.currentPeakList[i]-center));
         var diff = dataStore.currentPeakList[i]*0.015 + 15;
         if(center>dataStore.currentPeakList[i]-diff && center<dataStore.currentPeakList[i]+diff){
           thisPeakID = i;
           break;
         }
+      }
+      // Did not find a match in the list within the energy window, so just set to the closest one
+      var diff = 10000;
+      for(i=0; i<differences.length; i++){
+        if(differences[i]<diff){ thisPeakID=i; }
       }
     }
   }else{ thisPeakID=0; }
@@ -4074,11 +4082,11 @@ function projectXY(gateMinX,gateMaxX,gateMinY,gateMaxY,axis){
 
   // Make the projection onto the stated axis
   if(axis == 'y'){
-      // Set up the projection spectrum
-      var thisProjection = [];
-      for(let i=0; i<dataStore.hm._raw.length; i++){
-        thisProjection[i] = 0;
-      }
+    // Set up the projection spectrum
+    var thisProjection = [];
+    for(let i=0; i<dataStore.hm._raw.length; i++){
+      thisProjection[i] = 0;
+    }
 
     // Set a unique name based on gate limits
     thisProjectionName = dataStore.activeMatrix+'y-'+gateMinX+'-'+gateMaxX;
@@ -4088,11 +4096,11 @@ function projectXY(gateMinX,gateMaxX,gateMinY,gateMaxY,axis){
       thisProjection[i] = dataStore.hm._raw[i].slice(gateMinX,gateMaxX).reduce((a, b) => a + b, 0);
     }
   }else{ // x
-      // Set up the projection spectrum
-      var thisProjection = [];
-      for(let i=0; i<dataStore.hm._raw[0].length; i++){
-        thisProjection[i] = 0;
-      }
+    // Set up the projection spectrum
+    var thisProjection = [];
+    for(let i=0; i<dataStore.hm._raw[0].length; i++){
+      thisProjection[i] = 0;
+    }
 
     // Set a unique name based on gate limits
     thisProjectionName = dataStore.activeMatrix+'x-'+gateMinY+'-'+gateMaxY;

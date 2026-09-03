@@ -28,14 +28,24 @@ if(dataStore.detTypesData["QED"].activeChans<10){
   return; // cleanly exit
 }
 
+// Add the Weighting Factor histograms to the object and remove them from the rawData object
+for(var i=0; i<dataStore.QEDanalysisWFList.length; i++){
+  thisKey = dataStore.histoFileName.split(".")[0] + ":" + dataStore.QEDanalysisWFList[i];
+  if(dataStore.rawData[thisKey]){
+    dataStore.QEDAzimuthalWeightingFactors[thisKey] = dataStore.rawData[thisKey];
+    delete dataStore.rawData[thisKey];
+  }
+}
+console.log(dataStore);
+
 // Set up the plot menu
 // Create a select input for the choice of spectrum data
 var spectraSelect = document.createElement("select");
 spectraSelect.id = 'QEDSpectraSelect';
 spectraSelect.name = 'QEDSpectraSelect';
 spectraSelect.onchange = function(){
-  dataStore.QEDhistoName = dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
-  var binWidth = Number(thirdSelect.value);
+  dataStore.QEDhistoName = dataStore.histoFileName.split(".")[0] + ":" + document.getElementById('QEDSpectraSelect').value + document.getElementById('QEDNormSelect').value;
+  var binWidth = Number(document.getElementById('QEDBinsSelect').value);
   createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, binWidth);
 }.bind(spectraSelect);
 document.getElementById('widget-qed-menu-Spectra').appendChild(spectraSelect);
@@ -45,8 +55,8 @@ normSelect = document.createElement("select");
 normSelect.id = 'QEDNormSelect';
 normSelect.name = 'QEDNormSelect';
 normSelect.onchange = function(){
-  dataStore.QEDhistoName = dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
-  var binWidth = Number(thirdSelect.value);
+  dataStore.QEDhistoName = dataStore.histoFileName.split(".")[0] + ":" + document.getElementById('QEDSpectraSelect').value + document.getElementById('QEDNormSelect').value;
+  var binWidth = Number(document.getElementById('QEDBinsSelect').value);
   createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, binWidth);
 }.bind(normSelect);
 document.getElementById('widget-qed-menu-Norm').appendChild(normSelect);
@@ -56,8 +66,8 @@ binsSelect = document.createElement("select");
 binsSelect.id = 'QEDBinsSelect';
 binsSelect.name = 'QEDBinsSelect';
 binsSelect.onchange = function(){
-  //dataStore.QEDhistoName - dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
-  createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, Number(thirdSelect.value));
+  //dataStore.QEDhistoName - dataStore.histoFileName.split(".")[0] + ":" + document.getElementById('QEDSpectraSelect').value + document.getElementById('QEDNormSelect').value;
+  createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, Number(document.getElementById('QEDBinsSelect').value));
 }
 document.getElementById('widget-qed-menu-Bin').appendChild(binsSelect);
 
@@ -65,8 +75,8 @@ excludeSelect = document.createElement("select");
 excludeSelect.id = 'QEDexcludeSelect';
 excludeSelect.name = 'QEDexcludeSelect';
 excludeSelect.onchange = function(){
-  //dataStore.QEDhistoName - dataStore.histoFileName.split(".")[0] + ":" + firstSelect.value + secondSelect.value;
-  createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, Number(thirdSelect.value));
+  //dataStore.QEDhistoName - dataStore.histoFileName.split(".")[0] + ":" + document.getElementById('QEDSpectraSelect').value + document.getElementById('QEDNormSelect').value;
+  createQEDplotly(dataStore.QEDparentDiv, dataStore.QEDhistoName, dataStore.QEDtitle, Number(document.getElementById('QEDBinsSelect').value));
 }
 document.getElementById('widget-qed-menu-Exclude').appendChild(excludeSelect);
 
