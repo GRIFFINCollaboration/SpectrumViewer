@@ -11,9 +11,9 @@
   <script src="scripts/jquery1-11-3.min.js"></script>
   <script src="scripts/bootstrap3-3-5.min.js"></script>
   <script src="scripts/plotly-1.5.0.min.js"></script>
-
   <script src='scripts/helpers.js' type="text/javascript"></script>
   <script src='scripts/analysisOverview.js' type="text/javascript"></script>
+  <script src='scripts/qedGeometry.js' type="text/javascript"></script>
   <script src='scripts/analysisOverview-QED.js' type="text/javascript"></script>
   <link rel="stylesheet" type="text/css" href="css/bootstrap3-3-5.min.css">
   <link rel="stylesheet" type="text/css" href="css/custom.css">
@@ -37,25 +37,21 @@
     <div id='messageDivText'></div><div id='messageDivButton'></div>
   </div>
 
-  <div id='progressDiv' class="container progress hidden">
-    <div id='analysisOverviewProgress' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">Initializing App...
-    </div>
-  </div>
-
-  <div id='widget-title' class='col-md-10 widget'>
+  <div id='widget-title' class='col-md-12 widget'>
     <h1 id='widget-title-header'>Run number: Run Title</h1>
     <h3 id='widget-title-times'>Start time to End time. Duration: --s</h3>
     <div id='widget-title-ancillaries' class='col-md-12 container'></div>
+    <div id='widget-title-ancillaryQED' class='col-md-12 container'></div>
     <div id='widget-title-problems' class='col-md-11 widget'></div>
   </div>
 
-  <div id='widget-cycles' class='col-md-10 widget'>
+  <div id='widget-cycles' class='col-md-12 widget'>
     <h3>Data rate through this run:</h3>
     <div id='widget-cycles-plotly' class='col-md-6 report'>
     </div>
   </div>
 
-  <div id='widget-beta-efficiency' class='col-md-10 widget'>
+  <div id='widget-beta-efficiency' class='col-md-12 widget'>
     <h3>Beta Efficiency:</h3>
     <div id='widget-beta-efficiency-peakSelect' class='col-md-12 report'>
       <label for="peakOfInterestInput" class="right inline">Gamma-Ray Peak of Interest for beta efficiency calculation:</label>
@@ -96,16 +92,27 @@
     </div>
   </div>
 
-  <div id='widget-qed' class='col-md-10 widget'>
-    <h3>Quantum Entanglement and Decoherence:</h3>
-    <div id='widget-qed-plotly' class='col-md-8 report'></div>
-    <div id='widget-qed-menu' class='col-md-3 report'>
-      <div id='widget-qed-menu-Spectra' class='col-md-12'>Histrogram Data: </div>
-      <div id='widget-qed-menu-Norm' class='col-md-12'>Normalization:</div>
-      <div id='widget-qed-menu-Bin' class='col-md-12'>Binning:</div>
-      <div id='widget-qed-menu-Exclude' class='col-md-12'>Exclude bins:</div>
+  <div id='widget-qed' class='col-md-12 widget'>
+    <div id='progressDiv' class="progress hidden">
+      <div id='analysisOverviewProgress' class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">Initializing App...
+      </div>
+      <h3>The calculation of the weighting factors can take 10 minutes. However the result will be saved locally on this machine so the calculation only needs to be done once per histogram file.</h3>
     </div>
-    <div id='widget-qed-reportDiv' class='col-md-3 report'></div>
+    <h3>Quantum Entanglement and Decoherence:</h3>
+    <div id='widget-qed-plotly-final' class='col-md-7 report'></div>
+    <div id='widget-qed-menu-container' class='col-md-4 report'>
+      <div id='widget-qed-menu' class='col-md-12 report'>
+        <div id='widget-qed-menu-Spectra' class='col-md-12'>Histrogram Data: </div>
+        <div id='widget-qed-menu-Norm' class='col-md-12'>Normalization:</div>
+        <div id='widget-qed-menu-Bin' class='col-md-12'>Binning:</div>
+        <div id='widget-qed-menu-Exclude' class='col-md-12'>Exclude bins:</div>
+      </div>
+      <div id='widget-qed-reportDiv' class='col-md-12 report'></div>
+    </div>
+    <div id='widget-qed-plotly-container' class='col-md-12 report'>
+      <div id='widget-qed-plotly-data' class='col-md-5 report'></div>
+      <div id='widget-qed-plotly-weights' class='col-md-5 report'></div>
+    </div>
   </div>
 
   <div class='hidden' id='plotCtrl'></div>

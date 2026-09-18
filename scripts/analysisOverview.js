@@ -194,8 +194,33 @@ function setupDataStore(){
       "totalHits": 0, "meanRate": 0, "medianRate": 0, "peakRate": 0, "tailRate": 0, "pileup": 0,
       "channelNames": [], "hitpatternData": [], "sumEnergyData": [], "lowCounters": [], "highCounters": [],
       "rateWarn": 20000, "rateError": 30000,
-    }, "QED":{
-      "Title": "QED", "matrixName": "QED01_E_strips", "maxChans": 64, "activeChans": 0,
+    }, "QED01":{
+      "Title": "QED01", "matrixName": "QED01_E_strips", "maxChans": 64, "activeChans": 0,
+      "totalHits": 0, "meanRate": 0, "medianRate": 0, "peakRate": 0, "tailRate": 0, "pileup": 0,
+      "channelNames": [], "hitpatternData": [], "sumEnergyData": [], "lowCounters": [], "highCounters": [],
+      "rateWarn": 20000, "rateError": 30000,
+    }, "QED02":{
+      "Title": "QED02", "matrixName": "QED02_E_strips", "maxChans": 64, "activeChans": 0,
+      "totalHits": 0, "meanRate": 0, "medianRate": 0, "peakRate": 0, "tailRate": 0, "pileup": 0,
+      "channelNames": [], "hitpatternData": [], "sumEnergyData": [], "lowCounters": [], "highCounters": [],
+      "rateWarn": 20000, "rateError": 30000,
+    }, "QED03":{
+      "Title": "QED03", "matrixName": "QED03_E_strips", "maxChans": 64, "activeChans": 0,
+      "totalHits": 0, "meanRate": 0, "medianRate": 0, "peakRate": 0, "tailRate": 0, "pileup": 0,
+      "channelNames": [], "hitpatternData": [], "sumEnergyData": [], "lowCounters": [], "highCounters": [],
+      "rateWarn": 20000, "rateError": 30000,
+    }, "QED04":{
+      "Title": "QED04", "matrixName": "QED04_E_strips", "maxChans": 64, "activeChans": 0,
+      "totalHits": 0, "meanRate": 0, "medianRate": 0, "peakRate": 0, "tailRate": 0, "pileup": 0,
+      "channelNames": [], "hitpatternData": [], "sumEnergyData": [], "lowCounters": [], "highCounters": [],
+      "rateWarn": 20000, "rateError": 30000,
+    }, "QED05":{
+      "Title": "QED05", "matrixName": "QED05_E_strips", "maxChans": 64, "activeChans": 0,
+      "totalHits": 0, "meanRate": 0, "medianRate": 0, "peakRate": 0, "tailRate": 0, "pileup": 0,
+      "channelNames": [], "hitpatternData": [], "sumEnergyData": [], "lowCounters": [], "highCounters": [],
+      "rateWarn": 20000, "rateError": 30000,
+    }, "QED06":{
+      "Title": "QED06", "matrixName": "QED06_E_strips", "maxChans": 64, "activeChans": 0,
       "totalHits": 0, "meanRate": 0, "medianRate": 0, "peakRate": 0, "tailRate": 0, "pileup": 0,
       "channelNames": [], "hitpatternData": [], "sumEnergyData": [], "lowCounters": [], "highCounters": [],
       "rateWarn": 20000, "rateError": 30000,
@@ -203,37 +228,37 @@ function setupDataStore(){
   };
 
   // QED spectra
-    dataStore.QEDanalysisSpectrumList = [
-      "QED_DCS_azimuth_0_180",
+  dataStore.QEDanalysisSpectrumList = [
+    "QED_DCS_azimuth_0_180",
     "QED_DCS_azimuth_70_110",
     "QED_DCS_azimuth_93_103"
-  , "QED_DCS_azimuth2_0_180"
-  , "QED_DCS_azimuth2_10_170"
-  , "QED_DCS_azimuth2_20_160"
-  , "QED_DCS_azimuth2_30_150"
-  , "QED_DCS_azimuth2_40_140"
-  , "QED_DCS_azimuth2_50_130"
-  , "QED_DCS_azimuth2_60_120"
-  , "QED_DCS_azimuth2_70_110"
-  , "QED_DCS_azimuth2_80_100"
-  , "QED_DCS_azimuth2_85_95"
-  , "QED_DCS_azimuth2_93_103"
+    , "QED_DCS_azimuth2_0_180"
+    , "QED_DCS_azimuth2_10_170"
+    , "QED_DCS_azimuth2_20_160"
+    , "QED_DCS_azimuth2_30_150"
+    , "QED_DCS_azimuth2_40_140"
+    , "QED_DCS_azimuth2_50_130"
+    , "QED_DCS_azimuth2_60_120"
+    , "QED_DCS_azimuth2_70_110"
+    , "QED_DCS_azimuth2_80_100"
+    , "QED_DCS_azimuth2_85_95"
+    , "QED_DCS_azimuth2_93_103"
   ];
-    dataStore.QEDanalysisWFList = [
-      "QED_DCS_azimuth_TRWF_0_180",
+  dataStore.QEDanalysisWFList = [
+    "QED_DCS_azimuth_TRWF_0_180",
     "QED_DCS_azimuth_TRWF_70_110",
     "QED_DCS_azimuth_TRWF_93_103",
- "QED_DCS_azimuth2_TRWF_0_180"
-, "QED_DCS_azimuth2_TRWF_10_170"
-, "QED_DCS_azimuth2_TRWF_20_160"
-, "QED_DCS_azimuth2_TRWF_30_150"
-, "QED_DCS_azimuth2_TRWF_40_140"
-, "QED_DCS_azimuth2_TRWF_50_130"
-, "QED_DCS_azimuth2_TRWF_60_120"
-, "QED_DCS_azimuth2_TRWF_70_110"
-, "QED_DCS_azimuth2_TRWF_80_100"
-, "QED_DCS_azimuth2_TRWF_85_95"
-, "QED_DCS_azimuth2_TRWF_93_103"
+    "QED_DCS_azimuth2_TRWF_0_180"
+    , "QED_DCS_azimuth2_TRWF_10_170"
+    , "QED_DCS_azimuth2_TRWF_20_160"
+    , "QED_DCS_azimuth2_TRWF_30_150"
+    , "QED_DCS_azimuth2_TRWF_40_140"
+    , "QED_DCS_azimuth2_TRWF_50_130"
+    , "QED_DCS_azimuth2_TRWF_60_120"
+    , "QED_DCS_azimuth2_TRWF_70_110"
+    , "QED_DCS_azimuth2_TRWF_80_100"
+    , "QED_DCS_azimuth2_TRWF_85_95"
+    , "QED_DCS_azimuth2_TRWF_93_103"
   ];
 
   // Beta efficiency calculations
@@ -359,12 +384,50 @@ function setupDataStore(){
     if(keys[x] == "PAC"){ dataStore.detTypesData[keys[x]].channelNames = ['','PAC01XN00A','PAC02XN00A','PAC03XN00A','PAC04XN00A','PAC05XN00A']; }
     if(keys[x] == "ZDS"){ dataStore.detTypesData[keys[x]].channelNames = ['ZDS01XN00A']; }
 
-    if(keys[x] == "QED"){
-      for(j=1; j<6; j++){
-        for(i=0; i<2; i++){
-          for(k=0; k<32; k++){
-            dataStore.detTypesData[keys[x]].channelNames.push('QED'+alwaysThisLong(j, 2)+'X'+strips[i]+alwaysThisLong(k, 2)+'X');
-          }
+    if(keys[x] == "QED01"){
+      for(i=0; i<2; i++){
+        for(k=0; k<32; k++){
+          dataStore.detTypesData[keys[x]].channelNames.push('QED01'+'X'+strips[i]+alwaysThisLong(k, 2)+'X');
+        }
+      }
+    }
+
+    if(keys[x] == "QED02"){
+      for(i=0; i<2; i++){
+        for(k=0; k<32; k++){
+          dataStore.detTypesData[keys[x]].channelNames.push('QED02'+'X'+strips[i]+alwaysThisLong(k, 2)+'X');
+        }
+      }
+    }
+
+    if(keys[x] == "QED03"){
+      for(i=0; i<2; i++){
+        for(k=0; k<32; k++){
+          dataStore.detTypesData[keys[x]].channelNames.push('QED03'+'X'+strips[i]+alwaysThisLong(k, 2)+'X');
+        }
+      }
+    }
+
+    if(keys[x] == "QED04"){
+      for(i=0; i<2; i++){
+        for(k=0; k<32; k++){
+          dataStore.detTypesData[keys[x]].channelNames.push('QED04'+'X'+strips[i]+alwaysThisLong(k, 2)+'X');
+        }
+      }
+    }
+
+    if(keys[x] == "QED05"){
+      for(i=0; i<2; i++){
+        for(k=0; k<32; k++){
+          dataStore.detTypesData[keys[x]].channelNames.push('QED05'+'X'+strips[i]+alwaysThisLong(k, 2)+'X');
+        }
+      }
+    }
+
+    if(keys[x] == "QED06"){
+      for(i=0; i<2; i++){
+        for(k=0; k<32; k++){
+          dataStore.detTypesData[keys[x]].channelNames.push('QED06'+'X'+strips[i]+alwaysThisLong(k, 2)+'X');
         }
       }
     }
@@ -521,7 +584,8 @@ function launchAnalysisTasks(){
     dataStore._plotControl.activeSpectra.push(dataStore.spectrumList1d[i]);
   }
   // Plug in the active spectra names for the 2d histograms
-  dataStore.spectrumList2d = ["GeEnergy_CrystalNum", "BgoEnergy_CrystalNum", "Labr3Energy_CrystalNum", "BgoAncilEnergy_CrystalNum", "SceptarEnergy_CrystalNum", "PacesEnergy_CrystalNum", "AriesEnergy_CrystalNum", "QED01_E_strips", "cycle_vs_Ge"];
+  dataStore.spectrumList2d = ["GeEnergy_CrystalNum", "BgoEnergy_CrystalNum", "Labr3Energy_CrystalNum", "BgoAncilEnergy_CrystalNum", "SceptarEnergy_CrystalNum",
+  "PacesEnergy_CrystalNum", "AriesEnergy_CrystalNum", "QED01_E_strips", "QED02_E_strips", "QED03_E_strips", "QED04_E_strips", "QED05_E_strips", "QED06_E_strips", "COMP_QED_GE_weights_indiv", "COMP_QED_GE_weights_coinc", "cycle_vs_Ge"];
   for(i=0; i<dataStore.spectrumList2d.length; i++){
     dataStore._plotControl.active2dSpectra.push(dataStore.spectrumList2d[i]);
   }
@@ -598,10 +662,12 @@ function constructRatesAndHitpatterns(){
     if(activeChans==0){ continue; }
 
     // Inject parent div for this widget report
+    var parentID = 'widget-title-ancillaries';
+    if(keys[i].includes("QED")){ parentID = 'widget-title-ancillaryQED'; }
     newDiv = document.createElement('div');
     newDiv.setAttribute('id', 'widget-title-'+keys[i]);
     newDiv.setAttribute('class', 'col-md-2 report report-good');
-    document.getElementById('widget-title-ancillaries').appendChild(newDiv);
+    document.getElementById(parentID).appendChild(newDiv);
 
     // inject template for the contents
     document.getElementById('widget-title-'+keys[i]).innerHTML = Mustache.to_html(
@@ -694,6 +760,17 @@ function constructRatesAndHitpatterns(){
     document.getElementById('widget-title-problems').innerHTML = problemString;
     console.log(dataStore);
 
+
+    if(dataStore.detTypesData["QED01"].activeChans<10
+    && dataStore.detTypesData["QED02"].activeChans<10
+    && dataStore.detTypesData["QED03"].activeChans<10
+    && dataStore.detTypesData["QED04"].activeChans<10
+    && dataStore.detTypesData["QED05"].activeChans<10
+    && dataStore.detTypesData["QED06"].activeChans<10){
+      return;
+    }else{ // QED is active
+      generateQEDweightingFactors();
+    }
   }
 
   function createBasicHitsBarchart(targetDiv, hitpatternData, title){
