@@ -3405,7 +3405,7 @@ function buildJSONfile(){
 
     // Energy gain matching coefficients
     if( dataStore.THESEcalibrations[thisKey] && document.getElementById(thisKey+'write') ){
-      if( document.getElementById(thisKey+'write').checked){
+      if( document.getElementById(thisKey+'write').checked && !isNaN(dataStore.THESEcalibrations[thisKey]['fit'][2])){
         JSONBlob += '\"offset\": '+dataStore.THESEcalibrations[thisKey]['fit'][2].toFixed(6)+' , ';
         JSONBlob += '\"gain\": '+dataStore.THESEcalibrations[thisKey]['fit'][1].toFixed(6)+' , ';
         JSONBlob += '\"quad\": '+dataStore.THESEcalibrations[thisKey]['fit'][0]+' ';
