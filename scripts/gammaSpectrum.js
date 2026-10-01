@@ -772,7 +772,7 @@ function spectrumViewer(canvasID){
 		mean = sumProducts / sum;
 
 		// Check the centroid is good
-		if(!cent || !fitdata[cent-1] || !fitdata[cent+1]){
+		if(!cent || (!fitdata[cent-1] && !fitdata[cent-2]) || (!fitdata[cent+1] && !fitdata[cent+2])){
 			//	console.log(fitKey+" has bad cent ["+(this.FitLimitLower+cent)+"] and mean ["+(this.FitLimitLower+mean)+"], try handling as low statistics spectrum...");
 
 

@@ -119,6 +119,7 @@ if(!dataStore.QEDAzimuthalWeightingFactors){
   //thisSelect.add( new Option(dataStore.QEDanalysisSpectrumList[i]+"_normalized", dataStore.QEDanalysisSpectrumList[i]+"_normalized") );
   secondSelect.add( new Option("No normalization (raw spectrum)", "_raw") );
   secondSelect.add( new Option("Idealized geometry weighting factors", "_idealized") );
+  secondSelect.add( new Option("Individual hits weighting factors", "_individual") );
   secondSelect.add( new Option("Coincidence hits weighting factors", "_coincidence") );
 
   // }
@@ -695,89 +696,96 @@ function azimuthal_DCS(pos1, qed1, ge1, pos2, qed2, ge2){
       // We produce essentially an event-mixed spectrum by multiplying the values for each pixel which satisfy the 180 degree condition
       // "COMP_QED_GE_weights"
       console.log(dataStore);
-      thisKey = dataStore.histoFileName.split(".")[0] + ":" + "COMP_QED_GE_weights_indiv";
-      //thisKey = dataStore.histoFileName.split(".")[0] + ":" + "COMP_QED_GE_weights_coinc";
-      var weightsArray = [];
-      weightsArray = dataStore.rawData[thisKey].data2;
+      weightingFactorKeys = ["COMP_QED_GE_weights_indiv","COMP_QED_GE_weights_coinc"];
+      weightingFactorNames = ["_individual","_coincidence"];
+      for(thisWeight=0; thisWeight<weightingFactorKeys.length; thisWeight++){
 
-      // Create the empty data arrays
-      weight_data = [];
-      weight_main = [];
-      for(var i=0; i<360; i++){
-        weight_main[i] = 0;
-      }
-      for(var i=0; i<names.length; i++){
-        weight_data.push(weight_main);
-      }
+        //thisKey = dataStore.histoFileName.split(".")[0] + ":" + "COMP_QED_GE_weights_indiv";
+        //thisKey = dataStore.histoFileName.split(".")[0] + ":" + "COMP_QED_GE_weights_coinc";
+        thisKey = dataStore.histoFileName.split(".")[0] + ":" + weightingFactorKeys[thisWeight];
 
-      // Create total X projection so we can skip dead pixels faster
-      pixelTotals = [];
-      for(var j=0; j<weightsArray[0].length; j++){  // j is pixel number (pos[0-5]*1024)+[0-1024]
-        pixelTotals[j] = 0;
-        for(var i=0; i<weightsArray.length; i++){ // i is the ge number [0-63]
-          pixelTotals[j] += weightsArray[i][j];
+        var weightsArray = [];
+        weightsArray = dataStore.rawData[thisKey].data2;
+
+        // Create the empty data arrays
+        weight_data = [];
+        weight_main = [];
+        for(var i=0; i<360; i++){
+          weight_main[i] = 0;
         }
-      }
-
-      // Build the weighting factors
-      jLength = weightsArray[0].length;
-      iLength = weightsArray.length;
-      for(var j=0; j<jLength; j++){  // j is pixel number (pos[0-5]*1024)+[0-1024]
-        if(pixelTotals[j]==0){ continue; }
-        pos1=parseInt(j/1024)+1;
-        qed1=j%1024;
-
-        if(j%248 == 0){
-          qedProgress = (((j/jLength)*80)+20).toFixed(1);
-          await updateQEDprogress(qedProgress);
+        for(var i=0; i<names.length; i++){
+          weight_data.push(weight_main);
         }
 
-        for(var i=0; i<iLength; i++){ // i is the ge number [0-63]
-          if(weightsArray[i][j] == 0){ continue; }
+        // Create total X projection so we can skip dead pixels faster
+        pixelTotals = [];
+        for(var j=0; j<weightsArray[0].length; j++){  // j is pixel number (pos[0-5]*1024)+[0-1024]
+          pixelTotals[j] = 0;
+          for(var i=0; i<weightsArray.length; i++){ // i is the ge number [0-63]
+            pixelTotals[j] += weightsArray[i][j];
+          }
+        }
 
-          for(var jj=0; jj<jLength; jj++){  // jj is pixel number (pos[0-5]*1024)+[0-1024]
-            if(pixelTotals[jj]==0){ continue; }
-            pos2=parseInt(jj/1024)+1;
-            qed2=jj%1024;
-            var omega = angular_diff_QEDQED(pos1, qed1, pos2, qed2);
-            if(omega<170){ continue; }
-            for(var ii=0; ii<iLength; ii++){ // ii is the ge number [0-63]
-              if(weightsArray[ii][jj] == 0){ continue; }
+        // Build the weighting factors
+        jLength = weightsArray[0].length;
+        iLength = weightsArray.length;
+        for(var j=0; j<jLength; j++){  // j is pixel number (pos[0-5]*1024)+[0-1024]
+          if(pixelTotals[j]==0){ continue; }
+          pos1=parseInt(j/1024)+1;
+          qed1=j%1024;
 
-              ge1=i;
-              ge2=ii;
-              theta1 = scattering_angle_QEDGe(pos1, qed1, ge1);
-              theta2 = scattering_angle_QEDGe(pos2, qed2, ge2);
-              azimuthal = azimuthal_DCS(pos1, qed1, ge1, pos2, qed2, ge2);
+          if(j%248 == 0){
+            qedProgress = ((((j/jLength)*80)*0.5)+20).toFixed(1);
+            await updateQEDprogress(qedProgress);
+          }
 
-              if(parseInt(azimuthal)<0 || parseInt(azimuthal)>359){ continue; }
+          for(var i=0; i<iLength; i++){ // i is the ge number [0-63]
+            if(weightsArray[i][j] == 0){ continue; }
 
-              if(theta1>0 && theta1<180 && theta2>0 && theta2<180){
-                weight_data[0][parseInt(azimuthal)] += weightsArray[ii][jj];
-                weight_data[3][parseInt(azimuthal)] += weightsArray[ii][jj];
-                if(theta1>10 && theta1<170 && theta2>10 && theta2<170){
-                  weight_data[4][parseInt(azimuthal)] += weightsArray[ii][jj];
-                  if(theta1>20 && theta1<160 && theta2>20 && theta2<160){
-                    weight_data[5][parseInt(azimuthal)] += weightsArray[ii][jj];
-                    if(theta1>30 && theta1<150 && theta2>30 && theta2<150){
-                      weight_data[6][parseInt(azimuthal)] += weightsArray[ii][jj];
-                      if(theta1>40 && theta1<140 && theta2>40 && theta2<140){
-                        weight_data[7][parseInt(azimuthal)] += weightsArray[ii][jj];
-                        if(theta1>50 && theta1<130 && theta2>50 && theta2<130){
-                          weight_data[8][parseInt(azimuthal)] += weightsArray[ii][jj];
-                          if(theta1>60 && theta1<120 && theta2>60 && theta2<120){
-                            weight_data[9][parseInt(azimuthal)] += weightsArray[ii][jj];
-                            if(theta1>70 && theta1<110 && theta2>70 && theta2<110){
-                              weight_data[1][parseInt(azimuthal)] += weightsArray[ii][jj];
-                              weight_data[10][parseInt(azimuthal)] += weightsArray[ii][jj];
-                              if(theta1>93 && theta1<103 && theta2>93 && theta2<103){
-                                weight_data[2][parseInt(azimuthal)] += weightsArray[ii][jj];
-                                weight_data[13][parseInt(azimuthal)] += weightsArray[ii][jj];
-                              }
-                              if(theta1>80 && theta1<100 && theta2>80 && theta2<100){
-                                weight_data[11][parseInt(azimuthal)] += weightsArray[ii][jj];
-                                if(theta1>85 && theta1<95 && theta2>85 && theta2<95){
-                                  weight_data[12][parseInt(azimuthal)] += weightsArray[ii][jj];
+            for(var jj=0; jj<jLength; jj++){  // jj is pixel number (pos[0-5]*1024)+[0-1024]
+              if(pixelTotals[jj]==0){ continue; }
+              pos2=parseInt(jj/1024)+1;
+              qed2=jj%1024;
+              var omega = angular_diff_QEDQED(pos1, qed1, pos2, qed2);
+              if(omega<170){ continue; }
+              for(var ii=0; ii<iLength; ii++){ // ii is the ge number [0-63]
+                if(weightsArray[ii][jj] == 0){ continue; }
+
+                ge1=i;
+                ge2=ii;
+                theta1 = scattering_angle_QEDGe(pos1, qed1, ge1);
+                theta2 = scattering_angle_QEDGe(pos2, qed2, ge2);
+                azimuthal = azimuthal_DCS(pos1, qed1, ge1, pos2, qed2, ge2);
+
+                if(parseInt(azimuthal)<0 || parseInt(azimuthal)>359){ continue; }
+
+                if(theta1>0 && theta1<180 && theta2>0 && theta2<180){
+                  weight_data[0][parseInt(azimuthal)] += weightsArray[ii][jj];
+                  weight_data[3][parseInt(azimuthal)] += weightsArray[ii][jj];
+                  if(theta1>10 && theta1<170 && theta2>10 && theta2<170){
+                    weight_data[4][parseInt(azimuthal)] += weightsArray[ii][jj];
+                    if(theta1>20 && theta1<160 && theta2>20 && theta2<160){
+                      weight_data[5][parseInt(azimuthal)] += weightsArray[ii][jj];
+                      if(theta1>30 && theta1<150 && theta2>30 && theta2<150){
+                        weight_data[6][parseInt(azimuthal)] += weightsArray[ii][jj];
+                        if(theta1>40 && theta1<140 && theta2>40 && theta2<140){
+                          weight_data[7][parseInt(azimuthal)] += weightsArray[ii][jj];
+                          if(theta1>50 && theta1<130 && theta2>50 && theta2<130){
+                            weight_data[8][parseInt(azimuthal)] += weightsArray[ii][jj];
+                            if(theta1>60 && theta1<120 && theta2>60 && theta2<120){
+                              weight_data[9][parseInt(azimuthal)] += weightsArray[ii][jj];
+                              if(theta1>70 && theta1<110 && theta2>70 && theta2<110){
+                                weight_data[1][parseInt(azimuthal)] += weightsArray[ii][jj];
+                                weight_data[10][parseInt(azimuthal)] += weightsArray[ii][jj];
+                                if(theta1>93 && theta1<103 && theta2>93 && theta2<103){
+                                  weight_data[2][parseInt(azimuthal)] += weightsArray[ii][jj];
+                                  weight_data[13][parseInt(azimuthal)] += weightsArray[ii][jj];
+                                }
+                                if(theta1>80 && theta1<100 && theta2>80 && theta2<100){
+                                  weight_data[11][parseInt(azimuthal)] += weightsArray[ii][jj];
+                                  if(theta1>85 && theta1<95 && theta2>85 && theta2<95){
+                                    weight_data[12][parseInt(azimuthal)] += weightsArray[ii][jj];
+                                  }
                                 }
                               }
                             }
@@ -791,21 +799,22 @@ function azimuthal_DCS(pos1, qed1, ge1, pos2, qed2, ge2){
             }
           }
         }
-      }
 
-      // Copy the arrays to the Weighting Factor Object
-      if(!dataStore.QEDAzimuthalWeightingFactors){
-        console.log("Create the dataStore.QEDAzimuthalWeightingFactors object for Coincidence"); dataStore.QEDAzimuthalWeightingFactors = {}; }
-        for(i=0; i<names.length; i++){
-          thisKey = names[i] + "_coincidence";
-          dataStore.QEDAzimuthalWeightingFactors[thisKey] = weight_data[i];
+        // Copy the arrays to the Weighting Factor Object
+        if(!dataStore.QEDAzimuthalWeightingFactors){
+          console.log("Create the dataStore.QEDAzimuthalWeightingFactors object for "+weightingFactorNames[thisWeight]); dataStore.QEDAzimuthalWeightingFactors = {}; }
+          for(i=0; i<names.length; i++){
+            //thisKey = names[i] + "_coincidence";
+            thisKey = names[i] + weightingFactorNames[thisWeight];
+            dataStore.QEDAzimuthalWeightingFactors[thisKey] = weight_data[i];
+          }
+
+          console.log(dataStore);
+          console.log(weight_main);
+          console.log("End of Weighting Factors Building Loop for "+weightingFactorKeys[thisWeight]);
         }
 
-        console.log(dataStore);
-        console.log(weight_main);
-        console.log("End of Weighting Factors Building Loop");
-
-        // Save the weight_data to the localStorage for fast retrieve on next page load
+        // Save the weight_data to the localStorage for fast retrieval on next page load
         var thisKey = dataStore.histoFileName.split(".")[0] + ":" + "weight_data";
         localStorage.setItem(thisKey, JSON.stringify(weight_data));
 
