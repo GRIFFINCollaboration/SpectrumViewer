@@ -722,9 +722,10 @@ function spectrumViewer(canvasID){
 		var fitLine, fitter;
 		var maxBinContentsLimit=5000000;
 		var normalizationFactor=0, originalFitdata;
-		console.log(fitKey+" in fitData with retries = "+retries);
 		if(!retries)
-		retries = 0;
+      retries = 0;
+
+		//console.log(fitKey+" in fitData with retries = "+retries);
 
 		// Save this so it can be accessed in the other function
 		this.fitRetries = retries;
@@ -772,11 +773,10 @@ function spectrumViewer(canvasID){
 		mean = sumProducts / sum;
 
 		// Check the centroid is good
-		if(!cent || (!fitdata[cent-1] && !fitdata[cent-2]) || (!fitdata[cent+1] && !fitdata[cent+2])){
-			//	console.log(fitKey+" has bad cent ["+(this.FitLimitLower+cent)+"] and mean ["+(this.FitLimitLower+mean)+"], try handling as low statistics spectrum...");
+    if (!cent || (!fitdata[cent - 1] && !fitdata[cent - 2]) || (!fitdata[cent + 1] && !fitdata[cent + 2])) {
+    // Bad cent or a single channel spike. Reject this.
 
-
-			console.log(fitKey+" has bad cent ["+(this.FitLimitLower+cent)+"], cleanly exit");
+			//console.log(fitKey+" has bad cent ["+(this.FitLimitLower+cent)+"], cleanly exit");
 			if(dataStore._auxCtrl != undefined){ dataStore._auxCtrl.toggleFitMode(); } // Disengage if we are in fit mode
 			// Disengage if we are in refit mode
 			this.leaveFitMode;
@@ -787,14 +787,37 @@ function spectrumViewer(canvasID){
 			return;
 		}
 
-		//	console.log(fitKey+" has GOOD cent ["+(this.FitLimitLower+cent)+"] and mean ["+(this.FitLimitLower+mean)+"]");
+    /*
+    if (cent<(mean-2) || cent>(mean+2)){
+      console.log(fitKey + " has GOOD cent [" + (this.FitLimitLower + cent) + "] but its different from mean [" + (this.FitLimitLower + mean) + "]");
+      // What to do here??? Maybe switch to a COM approach to the fit instead of continuing with a narrow gaussian fit.
+    }
+    */
+
+// Bin the spectrum by 2. Then find the binned mean for comparison
+    binnedCent = 0; binnedMax = 0;
+    binnedData = [];
+    for (i = 0; i < fitdata.length; i++){
+      if(!binnedData[parseInt(i / 2)]){ binnedData[parseInt(i / 2)] = 0; }
+      if(!isNaN(fitdata[i])){ binnedData[parseInt(i / 2)] += fitdata[i]; }
+			if(binnedData[parseInt(i/2)]>binnedMax){ binnedCent=i; binnedMax=binnedData[parseInt(i/2)]; }
+		}
+    //console.log(fitKey + " cent/mean/binnedCent [" + (this.FitLimitLower + cent) + "/" + (this.FitLimitLower + mean) + "/" + (this.FitLimitLower + binnedCent) + "]");
+
+    if (cent<(binnedCent-2) || cent>(binnedCent+2)){
+      //console.log(fitKey + " has GOOD cent [" + (this.FitLimitLower + cent) + "] but its different from binnedCent [" + (this.FitLimitLower + binnedCent) + "]");
+      // What to do here??? Maybe switch to a COM approach to the fit instead of continuing with a narrow gaussian fit.
+      // For now just switch to the binnedCent value
+      cent = binnedCent;
+    }
+
 		var centroidSumI = (fitdata[cent-3]*(cent-2.5)) + (fitdata[cent-2]*(cent-1.5)) + (fitdata[cent-1]*(cent-0.5)) + (fitdata[cent]*(cent+0.5))
 		+ (fitdata[cent+1]*(cent+1.5)) + (fitdata[cent+2]*(cent+2.5)) + (fitdata[cent+3]*(cent+3.5));
 		var centroidSum  = fitdata[cent-3]+fitdata[cent-2]+fitdata[cent-1]+fitdata[cent]+fitdata[cent+1]+fitdata[cent+2]+fitdata[cent+3];
 		var fineCentroid = (centroidSumI/centroidSum);
 
 		// Estimate the width of the gaussian
-		width = this.estimateWidth(fitdata, cent, max);
+		width = this.estimateWidth(fitdata, cent);
 
 		// Convert centroid to channel number of full spectrum
 		cent = this.FitLimitLower + fineCentroid;
@@ -829,21 +852,21 @@ function spectrumViewer(canvasID){
 		if(intercept==0){ intercept=0.01; }
 
 		// fit the height of the gaussian
-		var model = [];
+    var model = [];
 		for(i=0; i<fitdata.length; i++){
 			var ii = i+this.FitLimitLower;
 			model[i] = intercept + slope*ii + max*Math.exp(-1*(ii-cent)*(ii-cent)/(2*width*width));
 		}
-		var height = max * scaling_factor(fitdata,model);
+		var height = max * scaling_factor(fitdata,model,(cent-this.FitLimitLower));
 
 		//check if the fit failed, and redo with slightly nudged fit limits
-		if( (!height || !cent || !width || width<0) && viewer.fitRetries<10){
+		if( (!height || !cent || !width || width<0 || !isFinite(width)) && viewer.fitRetries<10){
+		  console.log(fitKey+" Try for a refit with limits nudged");
 			viewer.FitLimitLower-=3;
 			viewer.FitLimitUpper+=3;
 			if(viewer.FitBoundaryLower>0 && viewer.FitLimitLower<viewer.FitBoundaryLower){ viewer.FitLimitLower=viewer.FitBoundaryLower; }
 			if(viewer.FitBoundaryUpper>0 && viewer.FitLimitUpper>viewer.FitBoundaryUpper){ viewer.FitLimitUpper=viewer.FitBoundaryUpper; }
 			viewer.fitData(viewer.fitTarget, viewer.fitRetries+1);
-			console.log(fitKey+" Try for a refit with limits nudged");
 			return
 		}
 
@@ -866,8 +889,8 @@ function spectrumViewer(canvasID){
 		viewer.fitModeEngage = 0;
 
 		// Send results to the callback
-		console.log(dataStore);
-		console.log(fitKey+" fit complete [cent, width, height, intercept, slope]: "+[cent, width, height, intercept, slope]);
+		//console.log(dataStore);
+		//console.log(fitKey+" fit complete [cent, width, height, intercept, slope]: "+[cent, width, height, intercept, slope]);
 		this.fitCallback(cent, width, height, intercept, slope);
 	};
 
@@ -1184,7 +1207,7 @@ function spectrumViewer(canvasID){
 		concavity = this.concavity( region );
 		for(i=0; i<concavity.length; i++){
 			if(concavity[i] < -100){   //<--- TODO: does this criteria make any sense?
-				width = this.estimateWidth(region, i, region[i]);
+				width = this.estimateWidth(region, i);
 				parameterGuesses = parameterGuesses.concat([region[i], min + i+0.5, width])  //<--- amplitude guess is poor
 				nPeaks++;
 			}
@@ -1285,9 +1308,9 @@ function spectrumViewer(canvasID){
 		return [intercept, slope]
 	}
 	//given the position of a peak in a spectrum, estimate its width
-	this.estimateWidth = function(spectrum, peakCenter, peakHeight){
+	this.estimateWidth = function(spectrum, peakCenter){
 		var x, halfMax, width;
-		var ca, cb, cc, cd, hml, hmu;
+    var ca, cb, cc, cd, hml, hmu;
 
 		// Perform a crude background subtraction
 		var bkg = (spectrum[0] + spectrum[spectrum.length-1]) / 2;
@@ -1299,20 +1322,86 @@ function spectrumViewer(canvasID){
 		// Find the crude FWHM
 		halfMax = peakHeight/2.0;
 		x=peakCenter;
-		while(spectrum[x]>halfMax && x>-1) x--;
+		while(spectrum[x]>halfMax && spectrum[x]>spectrum[x-1] && x>-1) x--;
 		cb=x+1; ca=x;
 		x=peakCenter;
-		while(spectrum[x]>halfMax && x<spectrum.length) x++;
+		while(spectrum[x]>halfMax && spectrum[x]>spectrum[x+1] && x<spectrum.length) x++;
 		cc=x-1; cd=x;
 		hml = ca + ((halfMax - spectrum[ca]) / (spectrum[cb] - spectrum[ca]));
 		hmu = cc + ((spectrum[cc] - halfMax) / (spectrum[cc] - spectrum[cd]));
 		width=hmu-hml;
 		width/=2.35; // convert FWHM to sigma
 
-		// Somehow this changes fitdata back in the other function, so undo the bkg subtraction here
+    if (isNaN(width)) { width = 2; }
+		if(!isFinite(width)){ width = 2; }
+
+
+    // Repeat this with a binned spectrum to avoid false narrow peak fitting from channle spikes.
+    // Find the crude FWHM
+    //
+    var binnedData = []; // background subtraction has already been applied
+    x = 0;
+    for(i=0; i <spectrum.length; i++){
+      if(!binnedData[parseInt(i / 2)]){ binnedData[parseInt(i / 2)] = 0; }
+      if(!isNaN(spectrum[i])){ binnedData[parseInt(i / 2)] += spectrum[i]; }
+      binnedData[parseInt(i/2)] += spectrum[i];
+    }
+    peakCenter = parseInt(peakCenter/2);
+		halfMax = binnedData[peakCenter]/2.0;
+		x=peakCenter;
+		while((binnedData[x]>halfMax && binnedData[x]>binnedData[x-1]) && x>-1) x--;
+		cb=x+1; ca=x;
+		x=peakCenter;
+		while((binnedData[x]>halfMax && binnedData[x]>binnedData[x+1]) && x<binnedData.length) x++;
+		cc=x-1; cd=x;
+		hml = ca + ((halfMax - binnedData[ca]) / (binnedData[cb] - binnedData[ca]));
+		hmu = cc + ((binnedData[cc] - halfMax) / (binnedData[cc] - binnedData[cd]));
+		binnedWidth=hmu-hml;
+    binnedWidth *= 2; // convert back to unbinned
+    binnedWidth /= 2.35; // convert FWHM to sigma
+
+    // Width found from outside in
+		x=binnedData.length-1;
+		while(binnedData[x]<halfMax && x>peakCenter) x--;
+		cb=x+1; ca=x;
+		x=1;
+		while(binnedData[x]<halfMax && x<peakCenter) x++;
+		cc=x-1; cd=x;
+		hml = ca + ((halfMax - binnedData[ca]) / (binnedData[cb] - binnedData[ca]));
+		hmu = cc + ((binnedData[cc] - halfMax) / (binnedData[cc] - binnedData[cd]));
+		var outerWidth=hml-hmu;
+      outerWidth *= 2; // convert back to unbinned
+      outerWidth /= 2.35; // convert FWHM to sigma
+
+
+   // console.log("estimateWidth: width = " + width + ", binnedWidth = " + binnedWidth + ", outerWidth = " + outerWidth);
+    // if binnedWidth is much lower than width
+    // if binnedWidth is much higher than width
+    // else they are similar
+    if(binnedWidth < (width / 2)){
+      if (outerWidth > binnedWidth) {
+        width = outerWidth;
+         //console.log("use outerWidth because binnedWidth < (width / 2)");
+
+}else{
+      width = binnedWidth;
+        //console.log("use binnedWidth because binnedWidth < (width / 2)");
+}
+    }else if (binnedWidth > (width * 2)){
+      if (outerWidth > binnedWidth) {
+        width = outerWidth;
+        //  console.log("use outerWidth because binnedWidth < (width * 2)");
+
+}else{
+      width = binnedWidth
+      // console.log("use binnedWidth because binnedWidth > (width * 2)");
+      }
+    }
+
+    // Somehow this function changes fitdata back in the other function, even if its copied here as a local variable, so undo the bkg subtraction here
 		for(var i=0; i<spectrum.length; i++){
 			spectrum[i] += bkg;
-		}
+    }
 
 		return width
 	}

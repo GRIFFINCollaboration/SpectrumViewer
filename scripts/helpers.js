@@ -2797,7 +2797,10 @@ function fitCallback(center, width, amplitude, intercept, slope){
   // Calculate peak area here
   var integral = 0,
   functionVals = [],
-  i, x, sigmas = 5, stepSize = 0.01;
+    i, x, sigmas = 5, stepSize = 0.01;
+  if (width > 10) { stepSize = 0.1; }
+  if (width > 50) { stepSize = 1; }
+  if (width > 200) { stepSize = 2; }
   //calculate peak area in excess of background, for <sigmas> up and down.
   for(i=0; i<2*sigmas*width/stepSize; i++){
     x = center - sigmas*width + i*stepSize;
@@ -4950,7 +4953,7 @@ function Pn(x, n){
 // Calculated as the slope of a linear regression line forced through the origin (0,0).
 // Formula: sum(x*y) / sum(x*x)
 // dataX is the experimental data, dataY is the model
-function scaling_factor(dataX,dataY){
+function scaling_factor(dataX,dataY,peakCenter){
   var sum_xy = sum_x2 = 0;
   var weight;
 
@@ -4962,9 +4965,10 @@ function scaling_factor(dataX,dataY){
   }
 
   for(var i=0; i<dataX.length; i++){
+   // for(var i=parseInt(peakCenter-4); i<parseInt(peakCenter+4); i++){
     //  weight = 1.0 / Math.sqrt(Math.abs(dataX[i]));
-    //  sum_xy += weight * dataX[i] * dataY[i];
-    //  sum_x2 += weight * dataX[i] * dataX[i];
+     // sum_xy += weight * dataX[i] * dataY[i];
+     // sum_x2 += weight * dataX[i] * dataX[i];
     sum_xy += dataX[i] * dataY[i];
     sum_x2 += dataX[i] * dataX[i];
   }

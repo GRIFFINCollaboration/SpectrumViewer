@@ -222,6 +222,7 @@ function setupDataStore(){
       "QED6N18_E_vs_theta", "QED6N19_E_vs_theta", "QED6N20_E_vs_theta", "QED6N21_E_vs_theta", "QED6N22_E_vs_theta", "QED6N23_E_vs_theta",
       "QED6N24_E_vs_theta", "QED6N25_E_vs_theta", "QED6N26_E_vs_theta", "QED6N27_E_vs_theta", "QED6N28_E_vs_theta", "QED6N29_E_vs_theta",
       "QED6N30_E_vs_theta", "QED6N31_E_vs_theta"
+
     ],
     "spectrumListGates" : [
       ["x",40,50],
