@@ -293,6 +293,36 @@ function setupDataStore(){
     "efficiency" : 0,
     "efficiencyUncertainty" : 0
   };
+  dataStore.betaEfficiencyCheck["ARIES-Squares"] = {
+    "detectorName" : "aries-Sqr",
+    "spectrumName" : "Ge_Sum_En_Aries_Sqr",
+    "histogramName" : "",
+    "active" : false,
+    "counts" : 0,
+    "countsUncertainty" : 0,
+    "efficiency" : 0,
+    "efficiencyUncertainty" : 0
+  };
+  dataStore.betaEfficiencyCheck["ARIES-Rectangles"] = {
+    "detectorName" : "aries-Rec",
+    "spectrumName" : "Ge_Sum_En_Aries_Rec",
+    "histogramName" : "",
+    "active" : false,
+    "counts" : 0,
+    "countsUncertainty" : 0,
+    "efficiency" : 0,
+    "efficiencyUncertainty" : 0
+  };
+  dataStore.betaEfficiencyCheck["ARIES-Triangles"] = {
+    "detectorName" : "aries-Tri",
+    "spectrumName" : "Ge_Sum_En_Aries_Tri",
+    "histogramName" : "",
+    "active" : false,
+    "counts" : 0,
+    "countsUncertainty" : 0,
+    "efficiency" : 0,
+    "efficiencyUncertainty" : 0
+  };
 
 
   // Pagination for the results and plotting display
@@ -577,7 +607,7 @@ function launchAnalysisTasks(){
 
   // Plug in the active spectra names for the 1d histograms
   dataStore._plotControl.activeSpectra = [];
-  dataStore.spectrumList1d = ["ZDS01XN00A_Energy", "Ge_Sum_Energy", "Ge_Sum_En_SceptarTagged", "Ge_Sum_En_ZdsTagged", "Ge_Sum_En_AriesTagged", "HPGe_cycle_activity"];
+  dataStore.spectrumList1d = ["ZDS01XN00A_Energy", "Ge_Sum_Energy", "Ge_Sum_En_SceptarTagged", "Ge_Sum_En_ZdsTagged", "Ge_Sum_En_AriesTagged", "Ge_Sum_En_Aries_Sqr", "Ge_Sum_En_Aries_Rec", "Ge_Sum_En_Aries_Tri", "HPGe_cycle_activity"];
   dataStore.spectrumList1d.push(...dataStore.QEDanalysisSpectrumList);
   dataStore.spectrumList1d.push(...dataStore.QEDanalysisWFList);
   for(var i=0; i<dataStore.spectrumList1d.length; i++){
@@ -1000,14 +1030,7 @@ function constructRatesAndHitpatterns(){
         dataStore.viewers[viewerName].addData(histo,dataStore.rawData[histo]);
       }
     }
-/*
-    // Set the axis limits
-    var xMin = (dataStore.peakOfInterest<100) ? 100 : (dataStore.peakOfInterest - 100);
-    var xMax = (dataStore.peakOfInterest+100 > 8191) ? 8191 : (dataStore.peakOfInterest + 100);
-    dataStore.viewers[viewerName].XaxisLimitMin = xMin;
-    dataStore.viewers[viewerName].XaxisLimitMax = xMax;
-    dataStore.viewers[viewerName].setAxisType('log');
-*/
+
     // Plot the data
     dataStore.viewers[viewerName].plotData();
 
