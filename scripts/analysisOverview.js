@@ -1000,14 +1000,14 @@ function constructRatesAndHitpatterns(){
         dataStore.viewers[viewerName].addData(histo,dataStore.rawData[histo]);
       }
     }
-
+/*
     // Set the axis limits
     var xMin = (dataStore.peakOfInterest<100) ? 100 : (dataStore.peakOfInterest - 100);
     var xMax = (dataStore.peakOfInterest+100 > 8191) ? 8191 : (dataStore.peakOfInterest + 100);
     dataStore.viewers[viewerName].XaxisLimitMin = xMin;
     dataStore.viewers[viewerName].XaxisLimitMax = xMax;
     dataStore.viewers[viewerName].setAxisType('log');
-
+*/
     // Plot the data
     dataStore.viewers[viewerName].plotData();
 

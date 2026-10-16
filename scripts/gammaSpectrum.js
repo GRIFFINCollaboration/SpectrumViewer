@@ -735,7 +735,11 @@ function spectrumViewer(canvasID){
 
 		// Ensure sensible limits
 		if(this.FitLimitLower<0) this.FitLimitLower=0;
-		if(this.FitLimitUpper>this.XaxisLimitAbsMax) this.FitLimitUpper = this.XaxisLimitAbsMax;
+		if(this.FitLimitUpper>this.XaxisLimitAbsMax){
+		 if(this.FitLimitUpper >= this.plotBuffer[fitKey].length ){
+			  this.FitLimitUpper = this.XaxisLimitAbsMax;
+		  }
+		}
 		if(this.FitBoundaryLower>0 && this.FitLimitLower<this.FitBoundaryLower){ this.FitLimitLower=this.FitBoundaryLower; }
 		if(this.FitBoundaryUpper>0 && this.FitLimitUpper>this.FitBoundaryUpper){ this.FitLimitUpper=this.FitBoundaryUpper; }
 
