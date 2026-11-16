@@ -723,7 +723,7 @@ function spectrumViewer(canvasID){
 		var maxBinContentsLimit=5000000;
 		var normalizationFactor=0, originalFitdata;
 		if(!retries)
-      retries = 0;
+		retries = 0;
 
 		//console.log(fitKey+" in fitData with retries = "+retries);
 
@@ -736,9 +736,9 @@ function spectrumViewer(canvasID){
 		// Ensure sensible limits
 		if(this.FitLimitLower<0) this.FitLimitLower=0;
 		if(this.FitLimitUpper>this.XaxisLimitAbsMax){
-		 if(this.FitLimitUpper >= this.plotBuffer[fitKey].length ){
-			  this.FitLimitUpper = this.XaxisLimitAbsMax;
-		  }
+			if(this.FitLimitUpper >= this.plotBuffer[fitKey].length ){
+				this.FitLimitUpper = this.XaxisLimitAbsMax;
+			}
 		}
 		if(this.FitBoundaryLower>0 && this.FitLimitLower<this.FitBoundaryLower){ this.FitLimitLower=this.FitBoundaryLower; }
 		if(this.FitBoundaryUpper>0 && this.FitLimitUpper>this.FitBoundaryUpper){ this.FitLimitUpper=this.FitBoundaryUpper; }
@@ -777,8 +777,8 @@ function spectrumViewer(canvasID){
 		mean = sumProducts / sum;
 
 		// Check the centroid is good
-    if (!cent || (!fitdata[cent - 1] && !fitdata[cent - 2]) || (!fitdata[cent + 1] && !fitdata[cent + 2])) {
-    // Bad cent or a single channel spike. Reject this.
+		if (!cent || (!fitdata[cent - 1] && !fitdata[cent - 2]) || (!fitdata[cent + 1] && !fitdata[cent + 2])) {
+			// Bad cent or a single channel spike. Reject this.
 
 			//console.log(fitKey+" has bad cent ["+(this.FitLimitLower+cent)+"], cleanly exit");
 			if(dataStore._auxCtrl != undefined){ dataStore._auxCtrl.toggleFitMode(); } // Disengage if we are in fit mode
@@ -791,992 +791,1171 @@ function spectrumViewer(canvasID){
 			return;
 		}
 
-    /*
-    if (cent<(mean-2) || cent>(mean+2)){
-      console.log(fitKey + " has GOOD cent [" + (this.FitLimitLower + cent) + "] but its different from mean [" + (this.FitLimitLower + mean) + "]");
-      // What to do here??? Maybe switch to a COM approach to the fit instead of continuing with a narrow gaussian fit.
-    }
-    */
+		/*
+		if (cent<(mean-2) || cent>(mean+2)){
+		console.log(fitKey + " has GOOD cent [" + (this.FitLimitLower + cent) + "] but its different from mean [" + (this.FitLimitLower + mean) + "]");
+		// What to do here??? Maybe switch to a COM approach to the fit instead of continuing with a narrow gaussian fit.
+	}
+	*/
 
-// Bin the spectrum by 2. Then find the binned mean for comparison
-    binnedCent = 0; binnedMax = 0;
-    binnedData = [];
-    for (i = 0; i < fitdata.length; i++){
-      if(!binnedData[parseInt(i / 2)]){ binnedData[parseInt(i / 2)] = 0; }
-      if(!isNaN(fitdata[i])){ binnedData[parseInt(i / 2)] += fitdata[i]; }
-			if(binnedData[parseInt(i/2)]>binnedMax){ binnedCent=i; binnedMax=binnedData[parseInt(i/2)]; }
+	// Bin the spectrum by 2. Then find the binned mean for comparison
+	binnedCent = 0; binnedMax = 0;
+	binnedData = [];
+	for (i = 0; i < fitdata.length; i++){
+		if(!binnedData[parseInt(i / 2)]){ binnedData[parseInt(i / 2)] = 0; }
+		if(!isNaN(fitdata[i])){ binnedData[parseInt(i / 2)] += fitdata[i]; }
+		if(binnedData[parseInt(i/2)]>binnedMax){ binnedCent=i; binnedMax=binnedData[parseInt(i/2)]; }
+	}
+	//console.log(fitKey + " cent/mean/binnedCent [" + (this.FitLimitLower + cent) + "/" + (this.FitLimitLower + mean) + "/" + (this.FitLimitLower + binnedCent) + "]");
+
+	if (cent<(binnedCent-2) || cent>(binnedCent+2)){
+		//console.log(fitKey + " has GOOD cent [" + (this.FitLimitLower + cent) + "] but its different from binnedCent [" + (this.FitLimitLower + binnedCent) + "]");
+		// What to do here??? Maybe switch to a COM approach to the fit instead of continuing with a narrow gaussian fit.
+		// For now just switch to the binnedCent value
+		cent = binnedCent;
+	}
+
+	var centroidSumI = (fitdata[cent-3]*(cent-2.5)) + (fitdata[cent-2]*(cent-1.5)) + (fitdata[cent-1]*(cent-0.5)) + (fitdata[cent]*(cent+0.5))
+	+ (fitdata[cent+1]*(cent+1.5)) + (fitdata[cent+2]*(cent+2.5)) + (fitdata[cent+3]*(cent+3.5));
+	var centroidSum  = fitdata[cent-3]+fitdata[cent-2]+fitdata[cent-1]+fitdata[cent]+fitdata[cent+1]+fitdata[cent+2]+fitdata[cent+3];
+	var fineCentroid = (centroidSumI/centroidSum);
+
+	// Estimate the width of the gaussian
+	width = this.estimateWidth(fitdata, cent);
+
+	// Convert centroid to channel number of full spectrum
+	cent = this.FitLimitLower + fineCentroid;
+
+	//prefit straight bkg
+	let viewer = dataStore.viewers[dataStore.plots[0]];
+	var xValue, yValue;
+	x = []
+	y = []
+	var lower = (cent-(5*width)) - this.FitLimitLower > 1 ? parseInt((cent-(5*width)) - this.FitLimitLower) : 2;
+	var upper = this.FitLimitUpper - (cent+(5*width)) > 1 ? parseInt(this.FitLimitUpper - (cent+(5*width))) : 2;
+	var lowerROI = this.FitLimitLower - 5;
+	var upperROI = this.FitLimitUpper + 5;
+	if(viewer.FitBoundaryLower>0 && lowerROI<viewer.FitBoundaryLower){ lowerROI=viewer.FitBoundaryLower; }
+	if(viewer.FitBoundaryUpper>0 && upperROI>viewer.FitBoundaryUpper){ upperROI=viewer.FitBoundaryUpper; }
+	for(i=lowerROI; i<=this.FitLimitLower+lower; i++){
+		xValue = i > 0 ? i : 0;
+		yValue = this.plotBuffer[fitKey][i] != undefined ? this.plotBuffer[fitKey][i] : 0;
+		x.push(xValue)
+		y.push(yValue)
+	}
+	for(i=this.FitLimitUpper-upper; i<=upperROI; i++){
+		xValue = i > 0 ? i : 0;
+		yValue = this.plotBuffer[fitKey][i] != undefined ? this.plotBuffer[fitKey][i] : 0;
+		x.push(xValue)
+		y.push(yValue)
+	}
+	//estimate = this.newLinearBKG(x,y);
+	estimate = this.smartLinearBKG(x,y);
+	intercept = estimate[0]
+	slope = estimate[1];
+	if(slope==0){ slope=0.0001; }
+	if(intercept==0){ intercept=0.01; }
+
+	// fit the height of the gaussian
+	var bkg = [];
+	var model = [];
+	for(i=0; i<fitdata.length; i++){
+		var ii = i+this.FitLimitLower;
+		model[i] = intercept + slope*ii + max*Math.exp(-1*(ii-cent)*(ii-cent)/(2*width*width));
+		bkg[i] = intercept + slope*ii;
+	}
+	//	var height = max * scaling_factor(fitdata,model,bkg,(cent-this.FitLimitLower));
+	var height=max;
+
+//	console.log(fitKey+" initial guesses:\n[cent, width, height, intercept, slope]: "+[cent.toFixed(1), width.toFixed(2), height.toFixed(1), intercept.toFixed(2), slope.toFixed(2)]);
+
+	// Perform chi-square test and print it to the console
+	var resultData = [];
+	var resultDataUnc = [];
+	var resultModel = [];
+
+	for(i=0; i<fitdata.length; i++){
+		var ii = i+this.FitLimitLower;
+		resultData[i] = fitdata[i];
+		resultDataUnc[i] = Math.sqrt(fitdata[i]);
+		resultModel[i] = intercept + slope*ii + height*Math.exp(-1*(ii-cent)*(ii-cent)/(2*width*width));
+	}
+	var chiSquare = calculateChiSquare(resultData,resultDataUnc,resultModel);
+	var reducedChiSq = chiSquare / (resultData.length - 5);
+	var initialReducedChiSq = reducedChiSq;
+//	console.log("Initial Guesses: Centroid="+cent+", Chi-square = "+chiSquare.toFixed(2)+", reduced Chi-square = "+reducedChiSq.toFixed(2));
+
+	// Call the Nelder-Mead Optimization Algorithm
+	const testData = Array.from({ length: fitdata.length }, (_, i) => {
+		const x = i+this.FitLimitLower;
+		const y = fitdata[i];
+		return { x, y };
+	});
+	// Approximated rough starting values are key for non-linear fitting
+	const initialGuesses = [height, width]; // Centroid is fixed, background is fixed
+	// Call the Nelder-Mead Optimization Algorithm
+	const result = nelderMead(testData, initialGuesses, cent, intercept, slope);
+	// Save the results to the appropriate variables
+	height = result.p[0];
+	width = result.p[1];
+
+	// Perform chi-square test and print it to the console
+	var resultData = [];
+	var resultDataUnc = [];
+	var resultModel = [];
+
+	for(i=0; i<fitdata.length; i++){
+		var ii = i+this.FitLimitLower;
+		resultData[i] = fitdata[i];
+		resultDataUnc[i] = Math.sqrt(fitdata[i]);
+		resultModel[i] = intercept + slope*ii + height*Math.exp(-1*(ii-cent)*(ii-cent)/(2*width*width));
+	}
+	var chiSquare = calculateChiSquare(resultData,resultDataUnc,resultModel);
+	var reducedChiSq = chiSquare / (resultData.length - 5);
+//	console.log("Nelder-Mead:\n[cent, width, height, intercept, slope]: "+[cent.toFixed(1), width.toFixed(2), height.toFixed(1), intercept.toFixed(2), slope.toFixed(2)]);
+//	console.log("Centroid="+cent+", Chi-square = "+chiSquare.toFixed(2)+", reduced Chi-square = "+reducedChiSq.toFixed(2));
+
+	if(reducedChiSq > initialReducedChiSq){
+//		console.log("Nelder-Mead result is worse than initial guesses so reverting");
+		height = initialGuesses[0];
+		width = initialGuesses[1];
+	}
+
+	//check if the fit failed, and redo with slightly nudged fit limits
+	if( (!height || !cent || !width || width<0 || !isFinite(width)) && viewer.fitRetries<10){
+		console.log(fitKey+" Try for a refit with limits nudged");
+		viewer.FitLimitLower-=3;
+		viewer.FitLimitUpper+=3;
+		if(viewer.FitBoundaryLower>0 && viewer.FitLimitLower<viewer.FitBoundaryLower){ viewer.FitLimitLower=viewer.FitBoundaryLower; }
+		if(viewer.FitBoundaryUpper>0 && viewer.FitLimitUpper>viewer.FitBoundaryUpper){ viewer.FitLimitUpper=viewer.FitBoundaryUpper; }
+		viewer.fitData(viewer.fitTarget, viewer.fitRetries+1);
+		return
+	}
+
+	viewer.activeFitLines[dataStore.viewers[dataStore.plots[0]].fitTarget + Math.round(cent)] = {
+		'min': viewer.FitLimitLower,
+		'nBins': fitdata.length,
+		'amplitude': height,
+		'center': cent,
+		'width': width,
+		'intercept': intercept,
+		'slope': slope
+	}
+	fitLine = viewer.addFitLine(viewer.FitLimitLower, fitdata.length, height, cent, width, intercept, slope)
+
+	viewer.containerPersistentOverlay.removeAllChildren();
+	viewer.containerFit.addChild(fitLine);
+	viewer.stage.update();
+
+	viewer.fitted=1;
+	viewer.fitModeEngage = 0;
+
+
+	// Send results to the callback
+	//console.log(dataStore);
+	//	console.log(fitKey+" fit complete [cent, width, height, intercept, slope]: "+[cent, width, height, intercept, slope]);
+	this.fitCallback(cent, width, height, intercept, slope);
+};
+
+//initiate a projection of a 2D matrix based on the limits set in spectrum fitKey
+this.gateData = function(gateKey){
+
+	//suspend the refresh
+	window.clearTimeout(this.refreshHandler);
+
+	// ensure limits are sensible
+	if(this.GateLimitLower<0) this.GateLimitLower=0;
+	if(this.GateLimitUpper>this.XaxisLimitAbsMax) this.GateLimitUpper = this.XaxisLimitAbsMax;
+
+	// Update the gate limit input boxes
+	document.getElementById('gateMinInput').value = this.GateLimitLower;
+	document.getElementById('gateMaxInput').value = this.GateLimitUpper;
+
+	// Draw the gate limits on the spectrum
+	this.containerPersistentOverlay.removeAllChildren();
+	this.shadeGateBins(this.gateColor,this.GateLimitLower,this.GateLimitUpper,this.gateTarget);
+	this.stage.update();
+
+	// Remeber this gate region for redrawing later
+	this.activeGateLines[gateKey + 'Gate' + (Math.round(this.GateLimitUpper-this.GateLimitLower)+this.GateLimitLower)] = {
+		'Color': this.gateColor,
+		'LimitLower': this.GateLimitLower,
+		'LimitUpper': this.GateLimitUpper,
+		'Target': this.gateTarget,
+	}
+
+	// Determine the BG1 and BG2 regions
+	var gateWidth = this.GateLimitUpper - this.GateLimitLower;
+	var gateData=this.plotBuffer[gateKey];
+	var regionLimitLower = this.GateLimitLower-(6*gateWidth);
+	if(regionLimitLower<0){ regionLimitLower=0; }
+	var regionLimitUpper = this.GateLimitUpper+(6*gateWidth);
+	if(regionLimitLower>this.XaxisLimitMax){ regionLimitUpper=this.XaxisLimitMax; }
+	gateData=gateData.slice(regionLimitLower, regionLimitUpper);
+
+	//prefit straight bkg
+	var x = []
+	var y = []
+	for(i=0; i<(6*gateWidth); i++){
+		x.push(regionLimitLower+i)
+		y.push(gateData[i])
+	}
+	for(i=(gateWidth*7)+1; i<gateData.length; i++){
+		x.push(regionLimitLower+i)
+		y.push(gateData[i])
+	}
+	var gateBKGfit = this.newLinearBKG(x,y); //return is [intercept, slope]
+
+	// BG1
+	var BG1LimitUpper = this.GateLimitLower-3;
+	var BG1LimitLower = this.GateLimitLower-gateWidth-3;
+	pass=0;
+	while(!pass){
+		var BG1SumData = 0;
+		var BG1SumFit = 0;
+		for(var i=(BG1LimitLower); i<(BG1LimitUpper); i++){
+			BG1SumData += gateData[i-regionLimitLower];
+			BG1SumFit += (gateBKGfit[1]*i)+gateBKGfit[0];
 		}
-    //console.log(fitKey + " cent/mean/binnedCent [" + (this.FitLimitLower + cent) + "/" + (this.FitLimitLower + mean) + "/" + (this.FitLimitLower + binnedCent) + "]");
-
-    if (cent<(binnedCent-2) || cent>(binnedCent+2)){
-      //console.log(fitKey + " has GOOD cent [" + (this.FitLimitLower + cent) + "] but its different from binnedCent [" + (this.FitLimitLower + binnedCent) + "]");
-      // What to do here??? Maybe switch to a COM approach to the fit instead of continuing with a narrow gaussian fit.
-      // For now just switch to the binnedCent value
-      cent = binnedCent;
-    }
-
-		var centroidSumI = (fitdata[cent-3]*(cent-2.5)) + (fitdata[cent-2]*(cent-1.5)) + (fitdata[cent-1]*(cent-0.5)) + (fitdata[cent]*(cent+0.5))
-		+ (fitdata[cent+1]*(cent+1.5)) + (fitdata[cent+2]*(cent+2.5)) + (fitdata[cent+3]*(cent+3.5));
-		var centroidSum  = fitdata[cent-3]+fitdata[cent-2]+fitdata[cent-1]+fitdata[cent]+fitdata[cent+1]+fitdata[cent+2]+fitdata[cent+3];
-		var fineCentroid = (centroidSumI/centroidSum);
-
-		// Estimate the width of the gaussian
-		width = this.estimateWidth(fitdata, cent);
-
-		// Convert centroid to channel number of full spectrum
-		cent = this.FitLimitLower + fineCentroid;
-
-		//prefit straight bkg
-		let viewer = dataStore.viewers[dataStore.plots[0]];
-		var xValue, yValue;
-		x = []
-		y = []
-		var lower = (cent-(5*width)) - this.FitLimitLower > 1 ? parseInt((cent-(5*width)) - this.FitLimitLower) : 2;
-		var upper = this.FitLimitUpper - (cent+(5*width)) > 1 ? parseInt(this.FitLimitUpper - (cent+(5*width))) : 2;
-		var lowerROI = this.FitLimitLower - 5;
-		var upperROI = this.FitLimitUpper + 5;
-		if(viewer.FitBoundaryLower>0 && lowerROI<viewer.FitBoundaryLower){ lowerROI=viewer.FitBoundaryLower; }
-		if(viewer.FitBoundaryUpper>0 && upperROI>viewer.FitBoundaryUpper){ upperROI=viewer.FitBoundaryUpper; }
-		for(i=lowerROI; i<=this.FitLimitLower+lower; i++){
-			xValue = i > 0 ? i : 0;
-			yValue = this.plotBuffer[fitKey][i] != undefined ? this.plotBuffer[fitKey][i] : 0;
-			x.push(xValue)
-			y.push(yValue)
-		}
-		for(i=this.FitLimitUpper-upper; i<=upperROI; i++){
-			xValue = i > 0 ? i : 0;
-			yValue = this.plotBuffer[fitKey][i] != undefined ? this.plotBuffer[fitKey][i] : 0;
-			x.push(xValue)
-			y.push(yValue)
-		}
-		estimate = this.newLinearBKG(x,y);
-		intercept = estimate[0]
-		slope = estimate[1];
-		if(slope==0){ slope=0.0001; }
-		if(intercept==0){ intercept=0.01; }
-
-		// fit the height of the gaussian
-    var model = [];
-		for(i=0; i<fitdata.length; i++){
-			var ii = i+this.FitLimitLower;
-			model[i] = intercept + slope*ii + max*Math.exp(-1*(ii-cent)*(ii-cent)/(2*width*width));
-		}
-		var height = max * scaling_factor(fitdata,model,(cent-this.FitLimitLower));
-
-		//check if the fit failed, and redo with slightly nudged fit limits
-		if( (!height || !cent || !width || width<0 || !isFinite(width)) && viewer.fitRetries<10){
-		  console.log(fitKey+" Try for a refit with limits nudged");
-			viewer.FitLimitLower-=3;
-			viewer.FitLimitUpper+=3;
-			if(viewer.FitBoundaryLower>0 && viewer.FitLimitLower<viewer.FitBoundaryLower){ viewer.FitLimitLower=viewer.FitBoundaryLower; }
-			if(viewer.FitBoundaryUpper>0 && viewer.FitLimitUpper>viewer.FitBoundaryUpper){ viewer.FitLimitUpper=viewer.FitBoundaryUpper; }
-			viewer.fitData(viewer.fitTarget, viewer.fitRetries+1);
-			return
-		}
-
-		viewer.activeFitLines[dataStore.viewers[dataStore.plots[0]].fitTarget + Math.round(cent)] = {
-			'min': viewer.FitLimitLower,
-			'nBins': fitdata.length,
-			'amplitude': height,
-			'center': cent,
-			'width': width,
-			'intercept': intercept,
-			'slope': slope
-		}
-		fitLine = viewer.addFitLine(viewer.FitLimitLower, fitdata.length, height, cent, width, intercept, slope)
-
-		viewer.containerPersistentOverlay.removeAllChildren();
-		viewer.containerFit.addChild(fitLine);
-		viewer.stage.update();
-
-		viewer.fitted=1;
-		viewer.fitModeEngage = 0;
-
-		// Send results to the callback
-		//console.log(dataStore);
-		//console.log(fitKey+" fit complete [cent, width, height, intercept, slope]: "+[cent, width, height, intercept, slope]);
-		this.fitCallback(cent, width, height, intercept, slope);
-	};
-
-	//initiate a projection of a 2D matrix based on the limits set in spectrum fitKey
-	this.gateData = function(gateKey){
-
-		//suspend the refresh
-		window.clearTimeout(this.refreshHandler);
-
-		// ensure limits are sensible
-		if(this.GateLimitLower<0) this.GateLimitLower=0;
-		if(this.GateLimitUpper>this.XaxisLimitAbsMax) this.GateLimitUpper = this.XaxisLimitAbsMax;
-
-		// Update the gate limit input boxes
-		document.getElementById('gateMinInput').value = this.GateLimitLower;
-		document.getElementById('gateMaxInput').value = this.GateLimitUpper;
-
-		// Draw the gate limits on the spectrum
-		this.containerPersistentOverlay.removeAllChildren();
-		this.shadeGateBins(this.gateColor,this.GateLimitLower,this.GateLimitUpper,this.gateTarget);
-		this.stage.update();
-
-		// Remeber this gate region for redrawing later
-		this.activeGateLines[gateKey + 'Gate' + (Math.round(this.GateLimitUpper-this.GateLimitLower)+this.GateLimitLower)] = {
-			'Color': this.gateColor,
-			'LimitLower': this.GateLimitLower,
-			'LimitUpper': this.GateLimitUpper,
-			'Target': this.gateTarget,
-		}
-
-		// Determine the BG1 and BG2 regions
-		var gateWidth = this.GateLimitUpper - this.GateLimitLower;
-		var gateData=this.plotBuffer[gateKey];
-		var regionLimitLower = this.GateLimitLower-(6*gateWidth);
-		if(regionLimitLower<0){ regionLimitLower=0; }
-		var regionLimitUpper = this.GateLimitUpper+(6*gateWidth);
-		if(regionLimitLower>this.XaxisLimitMax){ regionLimitUpper=this.XaxisLimitMax; }
-		gateData=gateData.slice(regionLimitLower, regionLimitUpper);
-
-		//prefit straight bkg
-		var x = []
-		var y = []
-		for(i=0; i<(6*gateWidth); i++){
-			x.push(regionLimitLower+i)
-			y.push(gateData[i])
-		}
-		for(i=(gateWidth*7)+1; i<gateData.length; i++){
-			x.push(regionLimitLower+i)
-			y.push(gateData[i])
-		}
-		var gateBKGfit = this.newLinearBKG(x,y); //return is [intercept, slope]
-
-		// BG1
-		var BG1LimitUpper = this.GateLimitLower-3;
-		var BG1LimitLower = this.GateLimitLower-gateWidth-3;
-		pass=0;
-		while(!pass){
-			var BG1SumData = 0;
-			var BG1SumFit = 0;
-			for(var i=(BG1LimitLower); i<(BG1LimitUpper); i++){
-				BG1SumData += gateData[i-regionLimitLower];
-				BG1SumFit += (gateBKGfit[1]*i)+gateBKGfit[0];
+		var BG1ChanDiff = 1.0;
+		for(var i=(BG1LimitLower+1); i<(BG1LimitUpper); i++){
+			if(gateData[i-regionLimitLower]/gateData[i-1-regionLimitLower]>1.15 || gateData[i-regionLimitLower]/gateData[i-1-regionLimitLower]<0.85){
+				BG1ChanDiff = gateData[i-regionLimitLower]/gateData[i-1-regionLimitLower];
 			}
-			var BG1ChanDiff = 1.0;
-			for(var i=(BG1LimitLower+1); i<(BG1LimitUpper); i++){
-				if(gateData[i-regionLimitLower]/gateData[i-1-regionLimitLower]>1.15 || gateData[i-regionLimitLower]/gateData[i-1-regionLimitLower]<0.85){
-					BG1ChanDiff = gateData[i-regionLimitLower]/gateData[i-1-regionLimitLower];
-				}
-			}
-			if(((BG1SumData/BG1SumFit)>0.9 && (BG1SumData/BG1SumFit)<1.1) && (BG1ChanDiff>0.85 && BG1ChanDiff<1.15)){
+		}
+		if(((BG1SumData/BG1SumFit)>0.9 && (BG1SumData/BG1SumFit)<1.1) && (BG1ChanDiff>0.85 && BG1ChanDiff<1.15)){
+			pass=1;
+		}else{
+			BG1LimitLower--;
+			BG1LimitUpper--;
+			if(BG1LimitLower == regionLimitLower){
+				// console.log('Failed to find good BG1 region. What to do?');
+				var BG1LimitUpper = this.GateLimitLower-3;
+				var BG1LimitLower = this.GateLimitLower-gateWidth-3;
 				pass=1;
-			}else{
-				BG1LimitLower--;
-				BG1LimitUpper--;
-				if(BG1LimitLower == regionLimitLower){
-					// console.log('Failed to find good BG1 region. What to do?');
-					var BG1LimitUpper = this.GateLimitLower-3;
-					var BG1LimitLower = this.GateLimitLower-gateWidth-3;
-					pass=1;
-				}
 			}
 		}
-		this.BG1LimitLower = BG1LimitLower;
-		this.BG1LimitUpper = BG1LimitUpper;
-		// BG2
-		var BG2LimitLower = this.GateLimitUpper+3;
-		var BG2LimitUpper = this.GateLimitUpper+gateWidth+3;
-		pass=0;
-		while(!pass){
-			var BG2SumData = 0;
-			var BG2SumFit = 0;
-			for(var i=(BG2LimitLower); i<(BG2LimitUpper); i++){
-				BG2SumData += gateData[i-regionLimitLower];
-				BG2SumFit += (gateBKGfit[1]*i)+gateBKGfit[0];
+	}
+	this.BG1LimitLower = BG1LimitLower;
+	this.BG1LimitUpper = BG1LimitUpper;
+	// BG2
+	var BG2LimitLower = this.GateLimitUpper+3;
+	var BG2LimitUpper = this.GateLimitUpper+gateWidth+3;
+	pass=0;
+	while(!pass){
+		var BG2SumData = 0;
+		var BG2SumFit = 0;
+		for(var i=(BG2LimitLower); i<(BG2LimitUpper); i++){
+			BG2SumData += gateData[i-regionLimitLower];
+			BG2SumFit += (gateBKGfit[1]*i)+gateBKGfit[0];
+		}
+		var BG2ChanDiff = 1.0;
+		for(var i=(BG2LimitLower+1); i<(BG2LimitUpper); i++){
+			if(gateData[i-regionLimitLower]/gateData[i-1-regionLimitLower]>1.15 || gateData[i-regionLimitLower]/gateData[i-1-regionLimitLower]<0.85){
+				BG2ChanDiff = gateData[i-regionLimitLower]/gateData[i-1-regionLimitLower];
 			}
-			var BG2ChanDiff = 1.0;
-			for(var i=(BG2LimitLower+1); i<(BG2LimitUpper); i++){
-				if(gateData[i-regionLimitLower]/gateData[i-1-regionLimitLower]>1.15 || gateData[i-regionLimitLower]/gateData[i-1-regionLimitLower]<0.85){
-					BG2ChanDiff = gateData[i-regionLimitLower]/gateData[i-1-regionLimitLower];
-				}
-			}
-			if(((BG2SumData/BG2SumFit)>0.9 && (BG2SumData/BG2SumFit)<1.1) && (BG2ChanDiff>0.85 && BG2ChanDiff<1.15)){
+		}
+		if(((BG2SumData/BG2SumFit)>0.9 && (BG2SumData/BG2SumFit)<1.1) && (BG2ChanDiff>0.85 && BG2ChanDiff<1.15)){
+			pass=1;
+		}else{
+			BG2LimitLower++;
+			BG2LimitUpper++;
+			if(BG2LimitUpper == regionLimitUpper){
+				// console.log('Failed to find good BG2 region. What to do?');
+				var BG2LimitLower = this.GateLimitUpper+3;
+				var BG2LimitUpper = this.GateLimitUpper+gateWidth+3;
 				pass=1;
-			}else{
-				BG2LimitLower++;
-				BG2LimitUpper++;
-				if(BG2LimitUpper == regionLimitUpper){
-					// console.log('Failed to find good BG2 region. What to do?');
-					var BG2LimitLower = this.GateLimitUpper+3;
-					var BG2LimitUpper = this.GateLimitUpper+gateWidth+3;
-					pass=1;
-				}
 			}
 		}
-		this.BG2LimitLower = BG2LimitLower;
-		this.BG2LimitUpper = BG2LimitUpper;
+	}
+	this.BG2LimitLower = BG2LimitLower;
+	this.BG2LimitUpper = BG2LimitUpper;
 
-		// Update the Background inputs
-		document.getElementById('bg1MinInput').value = this.BG1LimitLower;
-		document.getElementById('bg1MaxInput').value = this.BG1LimitUpper;
-		document.getElementById('bg2MinInput').value = this.BG2LimitLower;
-		document.getElementById('bg2MaxInput').value = this.BG2LimitUpper;
+	// Update the Background inputs
+	document.getElementById('bg1MinInput').value = this.BG1LimitLower;
+	document.getElementById('bg1MaxInput').value = this.BG1LimitUpper;
+	document.getElementById('bg2MinInput').value = this.BG2LimitLower;
+	document.getElementById('bg2MaxInput').value = this.BG2LimitUpper;
 
-		// Draw the gate BG regions on the spectrum
-		this.containerPersistentOverlay.removeAllChildren();
-		this.shadeGateBins(this.bkgColor,this.BG1LimitLower,this.BG1LimitUpper,this.gateTarget);
-		this.shadeGateBins(this.bkgColor,this.BG2LimitLower,this.BG2LimitUpper,this.gateTarget);
-		this.stage.update();
+	// Draw the gate BG regions on the spectrum
+	this.containerPersistentOverlay.removeAllChildren();
+	this.shadeGateBins(this.bkgColor,this.BG1LimitLower,this.BG1LimitUpper,this.gateTarget);
+	this.shadeGateBins(this.bkgColor,this.BG2LimitLower,this.BG2LimitUpper,this.gateTarget);
+	this.stage.update();
 
-		// Remeber these BG regions for redrawing later
-		this.activeGateLines[gateKey + 'BG1' + (Math.round(this.GateLimitUpper-this.GateLimitLower)+this.GateLimitLower)] = {
-			'Color': this.bkgColor,
-			'LimitLower': this.BG1LimitLower,
-			'LimitUpper': this.BG1LimitUpper,
-			'Target': this.gateTarget,
-		}
-		this.activeGateLines[gateKey + 'BG2' + (Math.round(this.GateLimitUpper-this.GateLimitLower)+this.GateLimitLower)] = {
-			'Color': this.bkgColor,
-			'LimitLower': this.BG2LimitLower,
-			'LimitUpper': this.BG2LimitUpper,
-			'Target': this.gateTarget,
-		}
-		// Request the gate region projection be made
-		document.getElementById('submitGateButton').click();
+	// Remeber these BG regions for redrawing later
+	this.activeGateLines[gateKey + 'BG1' + (Math.round(this.GateLimitUpper-this.GateLimitLower)+this.GateLimitLower)] = {
+		'Color': this.bkgColor,
+		'LimitLower': this.BG1LimitLower,
+		'LimitUpper': this.BG1LimitUpper,
+		'Target': this.gateTarget,
+	}
+	this.activeGateLines[gateKey + 'BG2' + (Math.round(this.GateLimitUpper-this.GateLimitLower)+this.GateLimitLower)] = {
+		'Color': this.bkgColor,
+		'LimitLower': this.BG2LimitLower,
+		'LimitUpper': this.BG2LimitUpper,
+		'Target': this.gateTarget,
+	}
+	// Request the gate region projection be made
+	document.getElementById('submitGateButton').click();
 
-		// prepare to exit Gate mode
-		this.gated=1;
-		this.gateModeEngage = 0;
+	// prepare to exit Gate mode
+	this.gated=1;
+	this.gateModeEngage = 0;
 
-		// callback
-		this.gateCallback();
+	// callback
+	this.gateCallback();
+};
+
+// Set limits in spectrum 'target' and save them to the standard place in dataStore
+this.setAppLimits = function(target){
+
+	//suspend the refresh
+	window.clearTimeout(this.refreshHandler);
+
+	// Set all targets the same. Might cause problems with the radios in aux Plot Control
+	this.gateTarget = this.fitTarget = target;
+
+	// ensure limits are sensible
+	if(this.setAppLimitsLimitLower<0) this.setAppLimitsLimitLower=0;
+	if(this.setAppLimitsLimitUpper>this.XaxisLimitAbsMax) this.setAppLimitsLimitUpper = this.XaxisLimitAbsMax;
+
+	// Find the maximum bin within the limits
+	var centroid = this.setAppLimitsLimitLower;
+	var max = 0;
+	for(var i=this.setAppLimitsLimitLower; i<this.setAppLimitsLimitUpper; i++){
+		if(this.plotBuffer[target][i] > max){ centroid = i; max = this.plotBuffer[target][i]; }
+	}
+
+	// save these limits to the dataStore object
+	dataStore.appLimitsStore[this.setAppLimitsKeyName] = {
+		'Centroid': centroid,
+		'LimitLower': this.setAppLimitsLimitLower,
+		'LimitUpper': this.setAppLimitsLimitUpper,
+		'Target': target,
 	};
 
-	// Set limits in spectrum 'target' and save them to the standard place in dataStore
-	this.setAppLimits = function(target){
+	// Draw the AppLimits on the spectrum
+	this.containerPersistentOverlay.removeAllChildren();
+	this.shadeGateBins(this.setAppLimitsColor,this.setAppLimitsLimitLower,this.setAppLimitsLimitUpper,target);
+	this.stage.update();
 
-		//suspend the refresh
-		window.clearTimeout(this.refreshHandler);
+	// Remember this AppLimits region for redrawing later
+	this.setAppLimitsLines[target + 'Limits' + (Math.round(this.setAppLimitsLimitUpper-this.setAppLimitsLimitLower)+this.setAppLimitsLimitLower)] = {
+		'Color': this.setAppLimitsColor,
+		'LimitLower': this.setAppLimitsLimitLower,
+		'LimitUpper': this.setAppLimitsLimitUpper,
+		'Target': target,
+	}
 
-		// Set all targets the same. Might cause problems with the radios in aux Plot Control
-		this.gateTarget = this.fitTarget = target;
+	// prepare to exit setAppLimits mode
+	this.setAppLimitsActive=1;
+	this.setAppLimitsModeEngage = 0;
 
-		// ensure limits are sensible
-		if(this.setAppLimitsLimitLower<0) this.setAppLimitsLimitLower=0;
-		if(this.setAppLimitsLimitUpper>this.XaxisLimitAbsMax) this.setAppLimitsLimitUpper = this.XaxisLimitAbsMax;
+	// Now also call fitData to fit a peak inside these app Limits
+	this.FitLimitLower =  this.setAppLimitsLimitLower;
+	this.FitLimitUpper = this.setAppLimitsLimitUpper;
+	this.fitData(target);
 
-		// Find the maximum bin within the limits
-		var centroid = this.setAppLimitsLimitLower;
-		var max = 0;
-		for(var i=this.setAppLimitsLimitLower; i<this.setAppLimitsLimitUpper; i++){
-			if(this.plotBuffer[target][i] > max){ centroid = i; max = this.plotBuffer[target][i]; }
-		}
+	console.log(dataStore);
+	// callback
+	this.setAppLimitsCallback();
+};
 
-		// save these limits to the dataStore object
-		dataStore.appLimitsStore[this.setAppLimitsKeyName] = {
-			'Centroid': centroid,
-			'LimitLower': this.setAppLimitsLimitLower,
-			'LimitUpper': this.setAppLimitsLimitUpper,
-			'Target': target,
-		};
+this.addFitLine = function(lowerLimit, nPoints, amplitude, center, width, intercept, slope){
+	//returns a createjs.Shape representing a background fit with the given parameters
 
-		// Draw the AppLimits on the spectrum
-		this.containerPersistentOverlay.removeAllChildren();
-		this.shadeGateBins(this.setAppLimitsColor,this.setAppLimitsLimitLower,this.setAppLimitsLimitUpper,target);
-		this.stage.update();
+	var i, x, y, height, fitLine = new createjs.Shape();
+	fitLine.graphics.ss(3).s('#FF0000');
+	fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - this.bkgShape(lowerLimit, amplitude, center, width, intercept, slope)*this.countHeight);
 
-		// Remember this AppLimits region for redrawing later
-		this.setAppLimitsLines[target + 'Limits' + (Math.round(this.setAppLimitsLimitUpper-this.setAppLimitsLimitLower)+this.setAppLimitsLimitLower)] = {
-			'Color': this.setAppLimitsColor,
-			'LimitLower': this.setAppLimitsLimitLower,
-			'LimitUpper': this.setAppLimitsLimitUpper,
-			'Target': target,
-		}
+	for(i=0;i<nPoints;i+=0.2){
+		//draw fit line on canvas:
+		x = i+lowerLimit;
+		y = this.bkgShape(x, amplitude, center, width, intercept, slope)
 
-		// prepare to exit setAppLimits mode
-		this.setAppLimitsActive=1;
-		this.setAppLimitsModeEngage = 0;
-
-		// Now also call fitData to fit a peak inside these app Limits
-		this.FitLimitLower =  this.setAppLimitsLimitLower;
-		this.FitLimitUpper = this.setAppLimitsLimitUpper;
-		this.fitData(target);
-
-		console.log(dataStore);
-		// callback
-		this.setAppLimitsCallback();
-	};
-
-	this.addFitLine = function(lowerLimit, nPoints, amplitude, center, width, intercept, slope){
-		//returns a createjs.Shape representing a background fit with the given parameters
-
-		var i, x, y, height, fitLine = new createjs.Shape();
-		fitLine.graphics.ss(3).s('#FF0000');
-		fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth, this.canvas.height - this.bottomMargin - this.bkgShape(lowerLimit, amplitude, center, width, intercept, slope)*this.countHeight);
-
-		for(i=0;i<nPoints;i+=0.2){
-			//draw fit line on canvas:
-			x = i+lowerLimit;
-			y = this.bkgShape(x, amplitude, center, width, intercept, slope)
-
-			if(i!=0){
-				if(this.AxisType == 0){
-					fitLine.graphics.lt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
-				} else if(this.AxisType == 1){
-					if(y<=0) height = 0;
-					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
-					if(height<0) height = 0;
-					fitLine.graphics.lt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
-				}
-			} else{
-				if(this.AxisType == 0){
-					fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
-				} else if(this.AxisType == 1){
-					if(y<=0) height = 0;
-					else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
-					if(height<0) height = 0;
-					fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
-				}
+		if(i!=0){
+			if(this.AxisType == 0){
+				fitLine.graphics.lt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
+			} else if(this.AxisType == 1){
+				if(y<=0) height = 0;
+				else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
+				if(height<0) height = 0;
+				fitLine.graphics.lt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
+			}
+		} else{
+			if(this.AxisType == 0){
+				fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - y*this.countHeight);
+			} else if(this.AxisType == 1){
+				if(y<=0) height = 0;
+				else height = Math.log10(y) - Math.log10(this.YaxisLimitMin);
+				if(height<0) height = 0;
+				fitLine.graphics.mt( this.leftMargin + (lowerLimit-this.XaxisLimitMin)*this.binWidth + i*this.binWidth, this.canvas.height - this.bottomMargin - height*this.countHeight);
 			}
 		}
-
-		return fitLine;
 	}
 
-	//redraw all the fit lines in their appropriate places
-	this.redrawFitLines = function(){
-		var key, fitLine;
+	return fitLine;
+}
 
-		this.containerFit.removeAllChildren();
+//redraw all the fit lines in their appropriate places
+this.redrawFitLines = function(){
+	var key, fitLine;
 
-		for(key in this.activeFitLines){
-			fitLine = this.addFitLine(this.activeFitLines[key].min, this.activeFitLines[key].nBins, this.activeFitLines[key].amplitude, this.activeFitLines[key].center, this.activeFitLines[key].width, this.activeFitLines[key].intercept, this.activeFitLines[key].slope );
-			this.containerFit.addChild(fitLine);
+	this.containerFit.removeAllChildren();
+
+	for(key in this.activeFitLines){
+		fitLine = this.addFitLine(this.activeFitLines[key].min, this.activeFitLines[key].nBins, this.activeFitLines[key].amplitude, this.activeFitLines[key].center, this.activeFitLines[key].width, this.activeFitLines[key].intercept, this.activeFitLines[key].slope );
+		this.containerFit.addChild(fitLine);
+	}
+}
+
+//redraw all the gate lines in their appropriate places
+this.redrawGateLines = function(){
+	var key, gateLine;
+
+	this.containerGate.removeAllChildren();
+
+	for(key in this.activeGateLines){
+		this.shadeGateBins(this.activeGateLines[key].Color,this.activeGateLines[key].LimitLower,this.activeGateLines[key].LimitUpper,this.activeGateLines[key].Target);
+	}
+	for(key in this.setAppLimitsLines){
+		this.shadeGateBins(this.setAppLimitsLines[key].Color,this.setAppLimitsLines[key].LimitLower,this.setAppLimitsLines[key].LimitUpper,this.setAppLimitsLines[key].Target);
+	}
+	this.stage.update();
+}
+
+this.bkgShape = function(x, amplitude, center, width, intercept, slope){
+	//evaluate a gaussian + linear background at x
+
+	return intercept + slope*x + amplitude*Math.exp(-1*(x-center)*(x-center)/(2*width*width));
+}
+
+//dump the fit results
+this.clearFits = function(callback){
+	this.containerFit.removeAllChildren();
+	this.activeFitLines = {};
+	this.fitted = false;
+	this.stage.update();
+
+	if(callback)
+	callback();
+}
+
+//dump the gate results
+this.clearGates = function(callback){
+	this.containerGate.removeAllChildren();
+	this.activeGateLines = {};
+	this.gated = false;
+	this.setAppLimitsLines = {};
+	this.setAppLimitsActive = false;
+	this.stage.update();
+
+	if(callback)
+	callback();
+}
+
+//detect all peaks in spectrum between min and max
+//fit them with gaussians on top of a linear background
+//return background parameters as [intercept, slope]
+//note: gets really slow, too many spurious peaks identified blows up the parameter space
+this.bkgFit = function(spectrum, min, max){
+	var i, concavity, width,
+	parameterGuesses = [1000,-1],  //<-- background guess is poor
+	fitter = new histofit(),
+	nPeaks = 0,
+	region = spectrum.slice(min, max)
+
+	//detect peaks & estimate widths in the region of interest
+	concavity = this.concavity( region );
+	for(i=0; i<concavity.length; i++){
+		if(concavity[i] < -100){   //<--- TODO: does this criteria make any sense?
+			width = this.estimateWidth(region, i);
+			parameterGuesses = parameterGuesses.concat([region[i], min + i+0.5, width])  //<--- amplitude guess is poor
+			nPeaks++;
 		}
 	}
 
-	//redraw all the gate lines in their appropriate places
-	this.redrawGateLines = function(){
-		var key, gateLine;
+	//set up the fitter and do the fit
+	for(i=min; i<max; i++)
+	fitter.x[i-min] = i+0.5;
+	fitter.y = region;
+	fitter.fxn = this.multiPeak.bind(null, nPeaks);
+	fitter.guess = parameterGuesses;
+	fitter.fitit();
 
-		this.containerGate.removeAllChildren();
+	return fitter.param
+}
 
-		for(key in this.activeGateLines){
-			this.shadeGateBins(this.activeGateLines[key].Color,this.activeGateLines[key].LimitLower,this.activeGateLines[key].LimitUpper,this.activeGateLines[key].Target);
-		}
-		for(key in this.setAppLimitsLines){
-			this.shadeGateBins(this.setAppLimitsLines[key].Color,this.setAppLimitsLines[key].LimitLower,this.setAppLimitsLines[key].LimitUpper,this.setAppLimitsLines[key].Target);
-		}
-		this.stage.update();
+//a function consisting of a linear background and several gaussian peaks
+//par[0] = intercept, par[1] = slope of background
+//par[2+3*n] = amplitude of nth peak, par[2+3*n+1] = center, par[2+3*n+2] = width
+this.multiPeak = function(nPeaks, x, par){
+	var i, result;
+
+	result = par[0] + x*par[1];
+	for(i=0; i<nPeaks; i++){
+		result += par[2+3*i]*Math.exp(-1*(((x-par[2+3*i+1])*(x-par[2+3*i+1]))/(2*par[2+3*i+2]*par[2+3*i+2])));
 	}
 
-	this.bkgShape = function(x, amplitude, center, width, intercept, slope){
-		//evaluate a gaussian + linear background at x
+	return result
+}
 
-		return intercept + slope*x + amplitude*Math.exp(-1*(x-center)*(x-center)/(2*width*width));
+//given two arrays of bin numbers (bins) and counts in the corresponding bin (bkg),
+//detects peaks, masks them out, and return the resulting bins.
+this.scrubPeaks = function(bins, bkg){
+	var concavity, spikePosition,
+	bkgBins = bins,
+	bkgCandidate = bkg
+
+
+	//detect spikes and throw away until not too spiky
+	concavity = this.asymmetricConcavity(bkgBins, bkgCandidate)
+	while(Math.min.apply(null, concavity.slice(1, concavity.length-2)) < -100){
+		spikePosition = concavity.indexOf(Math.min.apply(null, concavity.slice(1, concavity.length-2)));
+		bkgCandidate.splice(spikePosition, 1);
+		bkgBins.splice(spikePosition, 1);
+		concavity = this.asymmetricConcavity(bkgBins, bkgCandidate);
 	}
 
-	//dump the fit results
-	this.clearFits = function(callback){
-		this.containerFit.removeAllChildren();
-		this.activeFitLines = {};
-		this.fitted = false;
-		this.stage.update();
+	return [bkgBins, bkgCandidate];
+}
 
-		if(callback)
-		callback();
-	}
+//do a straight line fit to the points x, y, and return the results as [intercept, slope]
+this.linearBKG = function(x, y){
+	var slope, intercept,
+	fitter = new histofit();
 
-	//dump the gate results
-	this.clearGates = function(callback){
-		this.containerGate.removeAllChildren();
-		this.activeGateLines = {};
-		this.gated = false;
-		this.setAppLimitsLines = {};
-		this.setAppLimitsActive = false;
-		this.stage.update();
+	//make some guesses
+	slope = (y[y.length - 1] - y[0]) / (x[x.length - 1] - x[0]);
+	intercept = y[0] - x[0]*slope
+	//set up the fitter and do the fit
+	fitter.x = x;
+	fitter.y = y;
+	fitter.fxn = function(x, par){return par[0] + x*par[1]};
+	fitter.guess = [intercept, slope];
+	fitter.fitit();
 
-		if(callback)
-		callback();
-	}
+	//if the fit fails, fall back to simple line:
+	if(!fitter.param[0] || !fitter.param[1])
+	return fitter.simpleLine(x,y)
 
-	//detect all peaks in spectrum between min and max
-	//fit them with gaussians on top of a linear background
-	//return background parameters as [intercept, slope]
-	//note: gets really slow, too many spurious peaks identified blows up the parameter space
-	this.bkgFit = function(spectrum, min, max){
-		var i, concavity, width,
-		parameterGuesses = [1000,-1],  //<-- background guess is poor
-		fitter = new histofit(),
-		nPeaks = 0,
-		region = spectrum.slice(min, max)
+	return fitter.param
+}
 
-		//detect peaks & estimate widths in the region of interest
-		concavity = this.concavity( region );
-		for(i=0; i<concavity.length; i++){
-			if(concavity[i] < -100){   //<--- TODO: does this criteria make any sense?
-				width = this.estimateWidth(region, i);
-				parameterGuesses = parameterGuesses.concat([region[i], min + i+0.5, width])  //<--- amplitude guess is poor
-				nPeaks++;
-			}
-		}
-
-		//set up the fitter and do the fit
-		for(i=min; i<max; i++)
-		fitter.x[i-min] = i+0.5;
-		fitter.y = region;
-		fitter.fxn = this.multiPeak.bind(null, nPeaks);
-		fitter.guess = parameterGuesses;
-		fitter.fitit();
-
-		return fitter.param
-	}
-
-	//a function consisting of a linear background and several gaussian peaks
-	//par[0] = intercept, par[1] = slope of background
-	//par[2+3*n] = amplitude of nth peak, par[2+3*n+1] = center, par[2+3*n+2] = width
-	this.multiPeak = function(nPeaks, x, par){
-		var i, result;
-
-		result = par[0] + x*par[1];
-		for(i=0; i<nPeaks; i++){
-			result += par[2+3*i]*Math.exp(-1*(((x-par[2+3*i+1])*(x-par[2+3*i+1]))/(2*par[2+3*i+2]*par[2+3*i+2])));
-		}
-
-		return result
-	}
-
-	//given two arrays of bin numbers (bins) and counts in the corresponding bin (bkg),
-	//detects peaks, masks them out, and return the resulting bins.
-	this.scrubPeaks = function(bins, bkg){
-		var concavity, spikePosition,
-		bkgBins = bins,
-		bkgCandidate = bkg
-
-
-		//detect spikes and throw away until not too spiky
-		concavity = this.asymmetricConcavity(bkgBins, bkgCandidate)
-		while(Math.min.apply(null, concavity.slice(1, concavity.length-2)) < -100){
-			spikePosition = concavity.indexOf(Math.min.apply(null, concavity.slice(1, concavity.length-2)));
-			bkgCandidate.splice(spikePosition, 1);
-			bkgBins.splice(spikePosition, 1);
-			concavity = this.asymmetricConcavity(bkgBins, bkgCandidate);
-		}
-
-		return [bkgBins, bkgCandidate];
-	}
-
+this.newLinearBKG = function(x,y){
 	//do a straight line fit to the points x, y, and return the results as [intercept, slope]
-	this.linearBKG = function(x, y){
-		var slope, intercept,
-		fitter = new histofit();
+	// Hats off to Tom Alexander for regression, https://github.com/Tom-Alexander/regression-js
+	//given the data, return [intercept, slope] defining
+	//this: gammaSpectrum object
 
-		//make some guesses
-		slope = (y[y.length - 1] - y[0]) / (x[x.length - 1] - x[0]);
-		intercept = y[0] - x[0]*slope
-		//set up the fitter and do the fit
-		fitter.x = x;
-		fitter.y = y;
-		fitter.fxn = function(x, par){return par[0] + x*par[1]};
-		fitter.guess = [intercept, slope];
-		fitter.fitit();
+	var slope, intercept,
+	data = [];
 
-		//if the fit fails, fall back to simple line:
-		if(!fitter.param[0] || !fitter.param[1])
-		return fitter.simpleLine(x,y)
-
-		return fitter.param
+	if(x.length != y.length){
+		console.log('newLinearBKG Error: x and y data arrays have different size.');
+		return [null, null];
 	}
 
-	this.newLinearBKG = function(x,y){
-		//do a straight line fit to the points x, y, and return the results as [intercept, slope]
-		// Hats off to Tom Alexander for regression, https://github.com/Tom-Alexander/regression-js
-		//given the data, return [intercept, slope] defining
-		//this: gammaSpectrum object
+	for(i=0; i<x.length; i++){
+		data.push([parseFloat(x[i]),parseFloat(y[i])]);
+	}
 
-		var slope, intercept,
-		data = [];
+	// Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
+	const result = regression.linear(data);
+	//console.log(result);
 
-		if(x.length != y.length){
-			console.log('newLinearBKG Error: x and y data arrays have different size.');
-			return [null, null];
+	slope = result.equation[0];
+	intercept = result.equation[1];
+
+	return [intercept, slope]
+}
+this.smartLinearBKG = function(x,y){
+	//do a straight line fit to the points x, y.
+	// If the straight line is a poor fit then try to reassess each side separately to avoid neighbour peaks
+	// return the results as [intercept, slope]
+	// Hats off to Tom Alexander for regression, https://github.com/Tom-Alexander/regression-js
+	//given the data, return [intercept, slope] defining
+	//this: gammaSpectrum object
+
+	var slope, intercept,
+	data = [], dataLower = [], dataUpper = [], dataTight = [];
+
+	if(x.length != y.length){
+		console.log('smartLinearBKG Error: x and y data arrays have different size.');
+		return [null, null];
+	}
+
+	// Calculate the interquartile range
+	var resultIQR = interQuartileRange(y);
+	//console.log(resultIQR);
+
+	var length=0;
+	var uncert = [];
+	for(i=0; i<x.length; i++){
+		if(i>0){
+			if((x[i]-x[i-1])>1){ length=i; }
+		}
+		data.push([parseFloat(x[i]),parseFloat(y[i])]);
+		uncert.push(Math.sqrt(parseFloat(y[i])));
+	}
+	dataLower = data.slice(0,length);
+	dataUpper = data.slice(length);
+	var start = parseInt(length/2);
+	var end = Math.ceil((data.length-length)/2);
+	dataTight = data.slice(start,start+start+end);
+
+		// Remove outliers from all the datasets
+		// Do this after the split so that the split was done in the correct place
+		for(i=data.length-1; i>=0; i--){
+			if(data[i][1]<resultIQR.lowerFence || data[i][1]>resultIQR.upperFence){
+				data.splice(i,1);
+			}
+		}
+		for(i=dataLower.length-1; i>=0; i--){
+			if(dataLower[i][1]<resultIQR.lowerFence || dataLower[i][1]>resultIQR.upperFence){
+				dataLower.splice(i,1);
+			}
+		}
+		for(i=dataUpper.length-1; i>=0; i--){
+			if(dataUpper[i][1]<resultIQR.lowerFence || dataUpper[i][1]>resultIQR.upperFence){
+				dataUpper.splice(i,1);
+			}
+		}
+		for(i=dataTight.length-1; i>=0; i--){
+			if(dataTight[i][1]<resultIQR.lowerFence || dataTight[i][1]>resultIQR.upperFence){
+				dataTight.splice(i,1);
+			}
 		}
 
-		for(i=0; i<x.length; i++){
-			data.push([parseFloat(x[i]),parseFloat(y[i])]);
-		}
+  // Now do the fitting of the linear function
+	// Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
+	const result = regression.linear(data,{ precision: 10 });
+	//console.log(result);
 
-		// Hats off to Tom Alexander, https://github.com/Tom-Alexander/regression-js
-		const result = regression.linear(data);
-		//console.log(result);
+	// Print the quality of the fit
+	//console.log("smartLinearBKG:");
+	//console.log(result);
+	var model = [];
+	for(i=0; i<result.points.length; i++){
+		model.push(result.points[i][1]);
+	}
+	var chiSq = calculateChiSquare(y,uncert,model)/(y.length - 2);
+	//console.log("full  data chiSq = "+chiSq);
 
+	const resultLower = regression.linear( dataLower,{ precision: 10 } );
+	//console.log(resultLower);
+	var model = [];
+	for(i=0; i<resultLower.points.length; i++){
+		model.push(resultLower.points[i][1]);
+	}
+	var chiSqLower = calculateChiSquare(y.slice(0,length),uncert.slice(0,length),model) /(dataLower.length - 2);
+	//console.log("Lower data chiSq = "+chiSqLower);
+
+	const resultUpper = regression.linear( dataUpper,{ precision: 10 } );
+	//console.log(resultUpper);
+	var model = [];
+	for(i=0; i<resultUpper.points.length; i++){
+		model.push(resultUpper.points[i][1]);
+	}
+	var chiSqUpper = calculateChiSquare(y.slice(length),uncert.slice(length),model)/(dataUpper.length - 2);
+	//console.log("Upper data reduced chiSq = "+chiSqUpper);
+
+	const resultTight = regression.linear( dataTight,{ precision: 10 } );
+	//console.log(resultTight);
+	var model = [];
+	for(i=0; i<resultTight.points.length; i++){
+		model.push(resultTight.points[i][1]);
+	}
+	var chiSqTight = calculateChiSquare(y.slice(start,start+start+end),uncert.slice(start,start+start+end),model)/(dataTight.length - 2);
+	//console.log("Tight data reduced chiSq = "+chiSqTight);
+
+	if(chiSqTight<chiSq && chiSqTight<chiSqLower && chiSqTight<chiSqUpper){
+		//console.log("====================Recalcuate background using Tight region");
+		slope = resultTight.equation[0];
+		intercept = resultTight.equation[1];
+	}else if(chiSqLower<(chiSq*0.5) && chiSqUpper>(chiSq*1.5)){
+		//console.log("====================Recalcuate background using Lower side");
+		slope = resultLower.equation[0];
+		intercept = resultLower.equation[1];
+	}else if(chiSqUpper<(chiSq*0.5) && chiSqLower>(chiSq*1.5)){
+		//console.log("====================Recalcuate background using Upper side");
+		slope = resultUpper.equation[0];
+		intercept = resultUpper.equation[1];
+	}else{
+		//console.log("====================Accept this background");
 		slope = result.equation[0];
 		intercept = result.equation[1];
-
-		return [intercept, slope]
 	}
-	//given the position of a peak in a spectrum, estimate its width
-	this.estimateWidth = function(spectrum, peakCenter){
-		var x, halfMax, width;
-    var ca, cb, cc, cd, hml, hmu;
 
-		// Perform a crude background subtraction
-		var bkg = (spectrum[0] + spectrum[spectrum.length-1]) / 2;
-		for(var i=0; i<spectrum.length; i++){
-			spectrum[i] -= bkg;
-		}
-		peakHeight = spectrum[peakCenter];
-
-		// Find the crude FWHM
-		halfMax = peakHeight/2.0;
-		x=peakCenter;
-		while(spectrum[x]>halfMax && spectrum[x]>spectrum[x-1] && x>-1) x--;
-		cb=x+1; ca=x;
-		x=peakCenter;
-		while(spectrum[x]>halfMax && spectrum[x]>spectrum[x+1] && x<spectrum.length) x++;
-		cc=x-1; cd=x;
-		hml = ca + ((halfMax - spectrum[ca]) / (spectrum[cb] - spectrum[ca]));
-		hmu = cc + ((spectrum[cc] - halfMax) / (spectrum[cc] - spectrum[cd]));
-		width=hmu-hml;
-		width/=2.35; // convert FWHM to sigma
-
-    if (isNaN(width)) { width = 2; }
-		if(!isFinite(width)){ width = 2; }
-
-
-    // Repeat this with a binned spectrum to avoid false narrow peak fitting from channle spikes.
-    // Find the crude FWHM
-    //
-    var binnedData = []; // background subtraction has already been applied
-    x = 0;
-    for(i=0; i <spectrum.length; i++){
-      if(!binnedData[parseInt(i / 2)]){ binnedData[parseInt(i / 2)] = 0; }
-      if(!isNaN(spectrum[i])){ binnedData[parseInt(i / 2)] += spectrum[i]; }
-      binnedData[parseInt(i/2)] += spectrum[i];
-    }
-    peakCenter = parseInt(peakCenter/2);
-		halfMax = binnedData[peakCenter]/2.0;
-		x=peakCenter;
-		while((binnedData[x]>halfMax && binnedData[x]>binnedData[x-1]) && x>-1) x--;
-		cb=x+1; ca=x;
-		x=peakCenter;
-		while((binnedData[x]>halfMax && binnedData[x]>binnedData[x+1]) && x<binnedData.length) x++;
-		cc=x-1; cd=x;
-		hml = ca + ((halfMax - binnedData[ca]) / (binnedData[cb] - binnedData[ca]));
-		hmu = cc + ((binnedData[cc] - halfMax) / (binnedData[cc] - binnedData[cd]));
-		binnedWidth=hmu-hml;
-    binnedWidth *= 2; // convert back to unbinned
-    binnedWidth /= 2.35; // convert FWHM to sigma
-
-    // Width found from outside in
-		x=binnedData.length-1;
-		while(binnedData[x]<halfMax && x>peakCenter) x--;
-		cb=x+1; ca=x;
-		x=1;
-		while(binnedData[x]<halfMax && x<peakCenter) x++;
-		cc=x-1; cd=x;
-		hml = ca + ((halfMax - binnedData[ca]) / (binnedData[cb] - binnedData[ca]));
-		hmu = cc + ((binnedData[cc] - halfMax) / (binnedData[cc] - binnedData[cd]));
-		var outerWidth=hml-hmu;
-      outerWidth *= 2; // convert back to unbinned
-      outerWidth /= 2.35; // convert FWHM to sigma
-
-
-   // console.log("estimateWidth: width = " + width + ", binnedWidth = " + binnedWidth + ", outerWidth = " + outerWidth);
-    // if binnedWidth is much lower than width
-    // if binnedWidth is much higher than width
-    // else they are similar
-    if(binnedWidth < (width / 2)){
-      if (outerWidth > binnedWidth) {
-        width = outerWidth;
-         //console.log("use outerWidth because binnedWidth < (width / 2)");
-
-}else{
-      width = binnedWidth;
-        //console.log("use binnedWidth because binnedWidth < (width / 2)");
+	return [intercept, slope]
 }
-    }else if (binnedWidth > (width * 2)){
-      if (outerWidth > binnedWidth) {
-        width = outerWidth;
-        //  console.log("use outerWidth because binnedWidth < (width * 2)");
+//given the position of a peak in a spectrum, estimate its width
+this.estimateWidth = function(spectrum, peakCenter){
+	var x, halfMax, width;
+	var ca, cb, cc, cd, hml, hmu;
 
-}else{
-      width = binnedWidth
-      // console.log("use binnedWidth because binnedWidth > (width * 2)");
-      }
-    }
+	// Perform a crude background subtraction
+	var bkg = (spectrum[0] + spectrum[spectrum.length-1]) / 2;
+	for(var i=0; i<spectrum.length; i++){
+		spectrum[i] -= bkg;
+	}
+	peakHeight = spectrum[peakCenter];
 
-    // Somehow this function changes fitdata back in the other function, even if its copied here as a local variable, so undo the bkg subtraction here
-		for(var i=0; i<spectrum.length; i++){
-			spectrum[i] += bkg;
-    }
+	// Find the crude FWHM
+	halfMax = peakHeight/2.0;
+	x=peakCenter;
+	while(spectrum[x]>halfMax && spectrum[x]>spectrum[x-1] && x>-1) x--;
+	cb=x+1; ca=x;
+	x=peakCenter;
+	while(spectrum[x]>halfMax && spectrum[x]>spectrum[x+1] && x<spectrum.length) x++;
+	cc=x-1; cd=x;
+	hml = ca + ((halfMax - spectrum[ca]) / (spectrum[cb] - spectrum[ca]));
+	hmu = cc + ((spectrum[cc] - halfMax) / (spectrum[cc] - spectrum[cd]));
+	width=hmu-hml;
+	width/=2.35; // convert FWHM to sigma
 
-		return width
+	if (isNaN(width)) { width = 2; }
+	if(!isFinite(width)){ width = 2; }
+
+
+	// Repeat this with a binned spectrum to avoid false narrow peak fitting from channle spikes.
+	// Find the crude FWHM
+	//
+	var binnedData = []; // background subtraction has already been applied
+	x = 0;
+	for(i=0; i <spectrum.length; i++){
+		if(!binnedData[parseInt(i / 2)]){ binnedData[parseInt(i / 2)] = 0; }
+		if(!isNaN(spectrum[i])){ binnedData[parseInt(i / 2)] += spectrum[i]; }
+		binnedData[parseInt(i/2)] += spectrum[i];
+	}
+	peakCenter = parseInt(peakCenter/2);
+	halfMax = binnedData[peakCenter]/2.0;
+	x=peakCenter;
+	while((binnedData[x]>halfMax && binnedData[x]>binnedData[x-1]) && x>-1) x--;
+	cb=x+1; ca=x;
+	x=peakCenter;
+	while((binnedData[x]>halfMax && binnedData[x]>binnedData[x+1]) && x<binnedData.length) x++;
+	cc=x-1; cd=x;
+	hml = ca + ((halfMax - binnedData[ca]) / (binnedData[cb] - binnedData[ca]));
+	hmu = cc + ((binnedData[cc] - halfMax) / (binnedData[cc] - binnedData[cd]));
+	binnedWidth=hmu-hml;
+	binnedWidth *= 2; // convert back to unbinned
+	binnedWidth /= 2.35; // convert FWHM to sigma
+
+	// Width found from outside in
+	x=binnedData.length-1;
+	while(binnedData[x]<halfMax && x>peakCenter) x--;
+	cb=x+1; ca=x;
+	x=1;
+	while(binnedData[x]<halfMax && x<peakCenter) x++;
+	cc=x-1; cd=x;
+	hml = ca + ((halfMax - binnedData[ca]) / (binnedData[cb] - binnedData[ca]));
+	hmu = cc + ((binnedData[cc] - halfMax) / (binnedData[cc] - binnedData[cd]));
+	var outerWidth=hml-hmu;
+	outerWidth *= 2; // convert back to unbinned
+	outerWidth /= 2.35; // convert FWHM to sigma
+
+
+	// console.log("estimateWidth: width = " + width + ", binnedWidth = " + binnedWidth + ", outerWidth = " + outerWidth);
+	// if binnedWidth is much lower than width
+	// if binnedWidth is much higher than width
+	// else they are similar
+	if(binnedWidth < (width / 2)){
+		if (outerWidth > binnedWidth) {
+			width = outerWidth;
+			//console.log("use outerWidth because binnedWidth < (width / 2)");
+
+		}else{
+			width = binnedWidth;
+			//console.log("use binnedWidth because binnedWidth < (width / 2)");
+		}
+	}else if (binnedWidth > (width * 2)){
+		if (outerWidth > binnedWidth) {
+			width = outerWidth;
+			//  console.log("use outerWidth because binnedWidth < (width * 2)");
+
+		}else{
+			width = binnedWidth
+			// console.log("use binnedWidth because binnedWidth > (width * 2)");
+		}
 	}
 
-	//calculate second derrivatives of spectrum; return as array
-	//note first and last entry will be null, can't calculate derivatives on edges.
-	this.concavity = function(spectrum){
-		var i, concavity = [null], slope = []
-
-		for(i=0; i<spectrum.length-1; i++){
-			slope.push(spectrum[i+1] - spectrum[i])
-		}
-
-		for(i=0; i<slope.length-1; i++){
-			concavity.push(slope[i+1] - slope[i])
-		}
-
-		concavity.push(null)
-
-		return concavity
+	// Somehow this function changes fitdata back in the other function, even if its copied here as a local variable, so undo the bkg subtraction here
+	for(var i=0; i<spectrum.length; i++){
+		spectrum[i] += bkg;
 	}
 
+	return width
+}
 
+//calculate second derrivatives of spectrum; return as array
+//note first and last entry will be null, can't calculate derivatives on edges.
+this.concavity = function(spectrum){
+	var i, concavity = [null], slope = []
 
-	//as concavity, but points may not be equidistant
-	this.asymmetricConcavity = function(x, y){
-		var i, concavity = [null], slope = [];
-
-		for(i=0; i<y.length-1; i++){
-			slope.push( (y[i+1] - y[i]) / (x[i+1] - x[i]) );
-			//console.log((y[i+1] - y[i]) , (x[i+1] - x[i]))
-		}
-
-		for(i=1; i<slope.length;i++){
-			concavity.push( (slope[i] - slope[i-1]) / (x[i+1]/2 - x[i-1]/2) );
-		}
-		concavity.push(null)
-
-		return concavity
+	for(i=0; i<spectrum.length-1; i++){
+		slope.push(spectrum[i+1] - spectrum[i])
 	}
 
-	//suppress or unsuppress a spectrum from being shown
-	this.toggleSpectrum = function(spectrumName, hide){
-		this.hideSpectrum[spectrumName] = hide;
+	for(i=0; i<slope.length-1; i++){
+		concavity.push(slope[i+1] - slope[i])
+	}
 
-		this.adjustXaxis();
+	concavity.push(null)
 
-		this.plotData();
-	};
+	return concavity
+}
 
-	//add a data series to the list to be plotted with key name and content [data]
-	//if such a series already exists, just update its data.
-	this.addData = function(name, data){
-		var nSeries, i;
-		//data = this.fakeData.energydata0 //fake for testing
-		//dump fits
-		this.clearFits();
 
-		//if a series with this name already exists, just update the data
-		if(this.plotBuffer[name]){
-			this.plotBuffer[name] = data;
-			return;
-		}
 
-		//dump gates
-		this.clearGates();
+//as concavity, but points may not be equidistant
+this.asymmetricConcavity = function(x, y){
+	var i, concavity = [null], slope = [];
 
-		//refuse to display more than 10 data series, it's ugly.
-		nSeries = Object.keys(this.plotBuffer).length;
-		if(nSeries >= this.dataColor.length){
-			alert('gammaSpectrum only allows at most ' + this.dataColor.length + ' series to be plotted simultaneously.');
-			return;
-		}
+	for(i=0; i<y.length-1; i++){
+		slope.push( (y[i+1] - y[i]) / (x[i+1] - x[i]) );
+		//console.log((y[i+1] - y[i]) , (x[i+1] - x[i]))
+	}
 
-		//choose the first available color and assign it to this data series
-		if(this.colorAssignment.indexOf(name) == -1){
-			i=0;
-			while(this.colorAssignment[i]) i++;
-			this.colorAssignment[i] = name;
-		}
+	for(i=1; i<slope.length;i++){
+		concavity.push( (slope[i] - slope[i-1]) / (x[i+1]/2 - x[i-1]/2) );
+	}
+	concavity.push(null)
 
-		//append the data to the data buffer
+	return concavity
+}
+
+//suppress or unsuppress a spectrum from being shown
+this.toggleSpectrum = function(spectrumName, hide){
+	this.hideSpectrum[spectrumName] = hide;
+
+	this.adjustXaxis();
+
+	this.plotData();
+};
+
+//add a data series to the list to be plotted with key name and content [data]
+//if such a series already exists, just update its data.
+this.addData = function(name, data){
+	var nSeries, i;
+	//data = this.fakeData.energydata0 //fake for testing
+	//dump fits
+	this.clearFits();
+
+	//if a series with this name already exists, just update the data
+	if(this.plotBuffer[name]){
 		this.plotBuffer[name] = data;
-	};
-
-	//remove a data series from the buffer
-	this.removeData = function(name){
-		//free the color
-		this.colorAssignment[this.colorAssignment.indexOf(name)] = null;
-
-		//delete the data
-		delete this.plotBuffer[name];
-	};
-
-	//////////////////////////////////////////
-	// annotation objects
-	//////////////////////////////////////////
-
-	//redraw all the annotation opbjects in their appropriate places
-	this.redrawAnnotation = function(){
-		var key;
-
-		this.containerAnnotations.removeAllChildren();
-
-		//vertical lines
-		for(key in this.verticals){
-			if(this.suppressedAnnotations.indexOf(key) == -1)
-			this.vertical(this.verticals[key].bin, this.verticals[key].color);
-		}
-
-		//lines
-		for(key in this.lines){
-			if(this.suppressedAnnotations.indexOf(key) == -1)
-			this.line(this.lines[key].x0, this.lines[key].y0, this.lines[key].x1, this.lines[key].y1, this.lines[key].color)
-		}
+		return;
 	}
 
-	//draw a vertical line of a given color '#123456' at left edge of bin
-	this.vertical = function(bin, color){
-		var line
+	//dump gates
+	this.clearGates();
 
-		line = new createjs.Shape();
-		line.graphics.ss(this.axisLineWidth*2).s(color);
-		line.graphics.mt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.canvas.height - this.bottomMargin);
-		line.graphics.lt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.topMargin);
-		this.containerAnnotations.addChild(line);
-
+	//refuse to display more than 10 data series, it's ugly.
+	nSeries = Object.keys(this.plotBuffer).length;
+	if(nSeries >= this.dataColor.length){
+		alert('gammaSpectrum only allows at most ' + this.dataColor.length + ' series to be plotted simultaneously.');
+		return;
 	}
 
-	//draw a straight line from the centers of the noted bins.
-	this.line = function(x0, y0, x1, y1, color){
-		var line;
-
-		line = new createjs.Shape();
-		line.graphics.ss(this.axisLineWidth*2).s(color);
-		line.graphics.mt(this.leftMargin + this.binWidth*(x0-this.XaxisLimitMin + 0.5), this.canvas.height - this.bottomMargin - Math.max(0,(y0 - this.YaxisLimitMin))*this.countHeight);
-		line.graphics.lt(this.leftMargin + this.binWidth*(x1-this.XaxisLimitMin + 0.5), this.canvas.height - this.bottomMargin - Math.max(0,(y1 - this.YaxisLimitMin))*this.countHeight);
-		this.containerAnnotations.addChild(line);
+	//choose the first available color and assign it to this data series
+	if(this.colorAssignment.indexOf(name) == -1){
+		i=0;
+		while(this.colorAssignment[i]) i++;
+		this.colorAssignment[i] = name;
 	}
 
-	//add a persistent vertical
-	this.addVertical = function(name, bin, color){
-		this.verticals[name] = {'bin': parseInt(bin, 10), 'color': color}
+	//append the data to the data buffer
+	this.plotBuffer[name] = data;
+};
+
+//remove a data series from the buffer
+this.removeData = function(name){
+	//free the color
+	this.colorAssignment[this.colorAssignment.indexOf(name)] = null;
+
+	//delete the data
+	delete this.plotBuffer[name];
+};
+
+//////////////////////////////////////////
+// annotation objects
+//////////////////////////////////////////
+
+//redraw all the annotation opbjects in their appropriate places
+this.redrawAnnotation = function(){
+	var key;
+
+	this.containerAnnotations.removeAllChildren();
+
+	//vertical lines
+	for(key in this.verticals){
+		if(this.suppressedAnnotations.indexOf(key) == -1)
+		this.vertical(this.verticals[key].bin, this.verticals[key].color);
 	}
 
-	//remove a persistent vertical
-	this.removeVertical = function(name){
-		if(this.verticals.hasOwnProperty(name))
-		delete this.verticals[name];
+	//lines
+	for(key in this.lines){
+		if(this.suppressedAnnotations.indexOf(key) == -1)
+		this.line(this.lines[key].x0, this.lines[key].y0, this.lines[key].x1, this.lines[key].y1, this.lines[key].color)
 	}
+}
 
-	//add an arbitrary line
-	this.addLine = function(name, x0,y0,x1,y1,color){
-		this.lines[name] = {'x0':x0, 'y0':y0, 'x1':x1, 'y1':y1, 'color':color};
-	}
+//draw a vertical line of a given color '#123456' at left edge of bin
+this.vertical = function(bin, color){
+	var line
 
-	//remove an annotation line
-	this.removeLine = function(name){
-		if(this.lines.hasOwnProperty(name))
-		delete this.lines[name];
-	}
+	line = new createjs.Shape();
+	line.graphics.ss(this.axisLineWidth*2).s(color);
+	line.graphics.mt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.canvas.height - this.bottomMargin);
+	line.graphics.lt(this.leftMargin + this.binWidth*(bin-this.XaxisLimitMin), this.topMargin);
+	this.containerAnnotations.addChild(line);
 
-	//suppress a persistent annotation without deleting it
-	this.suppressAnnotation = function(id){
-		if(this.suppressedAnnotations.indexOf(id) == -1)
-		this.suppressedAnnotations.push(id);
-	}
+}
 
-	//unsuppress a persistent annotation
-	this.unsuppressAnnotation = function(id){
-		var index = this.suppressedAnnotations.indexOf(id);
-		if(index != -1)
-		this.suppressedAnnotations.splice(index, 1);
-	}
+//draw a straight line from the centers of the noted bins.
+this.line = function(x0, y0, x1, y1, color){
+	var line;
 
-	//highlight some bins
-	this.shadeBins = function(){
-		var i, bin, x0, y0;
+	line = new createjs.Shape();
+	line.graphics.ss(this.axisLineWidth*2).s(color);
+	line.graphics.mt(this.leftMargin + this.binWidth*(x0-this.XaxisLimitMin + 0.5), this.canvas.height - this.bottomMargin - Math.max(0,(y0 - this.YaxisLimitMin))*this.countHeight);
+	line.graphics.lt(this.leftMargin + this.binWidth*(x1-this.XaxisLimitMin + 0.5), this.canvas.height - this.bottomMargin - Math.max(0,(y1 - this.YaxisLimitMin))*this.countHeight);
+	this.containerAnnotations.addChild(line);
+}
 
-		for(i=0; i<this.binHighlights.length; i++){
-			if(this.binHighlights[i]){
-				x0 = this.leftMargin + this.binWidth*(i-this.XaxisLimitMin)
-				y0 = this.canvas.height - this.bottomMargin - this.binHighlights[i].height*this.countHeight;
+//add a persistent vertical
+this.addVertical = function(name, bin, color){
+	this.verticals[name] = {'bin': parseInt(bin, 10), 'color': color}
+}
 
-				// Handle log Y axis
-				if(this.AxisType == 1){
-					if(specData[i]<=0) height = 0;
-					else height = Math.log10(specData[i]) - Math.log10(this.YaxisLimitMin);
-					if(height<0) height = 0;
-					y0 = this.canvas.height - this.bottomMargin - height*this.countHeight;
-				}
+//remove a persistent vertical
+this.removeVertical = function(name){
+	if(this.verticals.hasOwnProperty(name))
+	delete this.verticals[name];
+}
 
-				bin = new createjs.Shape();
-				bin.graphics.beginFill(this.binHighlights[i].color).drawRect(x0, y0, this.binWidth, this.binHighlights[i].height*this.countHeight);
-				bin.graphics.beginStroke(this.binHighlights[i].color).drawRect(x0, y0, this.binWidth, this.binHighlights[i].height*this.countHeight);
-				this.containerAnnotations.addChild(bin);
-			}
-		}
-	}
+//add an arbitrary line
+this.addLine = function(name, x0,y0,x1,y1,color){
+	this.lines[name] = {'x0':x0, 'y0':y0, 'x1':x1, 'y1':y1, 'color':color};
+}
 
-	//highlight the bins indicating the gate limits for a projection
-	this.shadeGateBins = function(shadeColor,xMin,xMax,target){
-		var i, bin, x0, y0;
-		var specData=this.plotBuffer[target];
+//remove an annotation line
+this.removeLine = function(name){
+	if(this.lines.hasOwnProperty(name))
+	delete this.lines[name];
+}
 
-		// Protect against bad values
-		if(specData == undefined) return;
-		if(xMin<0){
-			xMin = 0;
-		}
-		if(xMax>this.XaxisLimitAbsMax){
-			xMax = this.XaxisLimitAbsMax;
-		}
-		if(xMax<xMin){
-			temp = xMin;
-			xMin = xMax;
-			xMax = temp;
-		}
+//suppress a persistent annotation without deleting it
+this.suppressAnnotation = function(id){
+	if(this.suppressedAnnotations.indexOf(id) == -1)
+	this.suppressedAnnotations.push(id);
+}
 
-		for(i=xMin; i<xMax+1; i++){
-			if(specData[i]){
-				x0 = this.leftMargin + this.binWidth*(i-this.XaxisLimitMin);
-				y0 = this.canvas.height - this.bottomMargin - specData[i]*this.countHeight;
+//unsuppress a persistent annotation
+this.unsuppressAnnotation = function(id){
+	var index = this.suppressedAnnotations.indexOf(id);
+	if(index != -1)
+	this.suppressedAnnotations.splice(index, 1);
+}
 
-				// Handle log Y axis
-				if(this.AxisType == 1){
-					if(specData[i]<=0) height = 0;
-					else height = Math.log10(specData[i]) - Math.log10(this.YaxisLimitMin);
-					if(height<0) height = 0;
-					y0 = this.canvas.height - this.bottomMargin - height*this.countHeight;
-				}
+//highlight some bins
+this.shadeBins = function(){
+	var i, bin, x0, y0;
 
-				bin = new createjs.Shape();
-				bin.graphics.beginFill(shadeColor).drawRect(x0, y0, this.binWidth, specData[i]*this.countHeight);
-				bin.graphics.beginStroke(shadeColor).drawRect(x0, y0, this.binWidth, specData[i]*this.countHeight);
-				this.containerGate.addChild(bin);
-			}
-		}
-	}
+	for(i=0; i<this.binHighlights.length; i++){
+		if(this.binHighlights[i]){
+			x0 = this.leftMargin + this.binWidth*(i-this.XaxisLimitMin)
+			y0 = this.canvas.height - this.bottomMargin - this.binHighlights[i].height*this.countHeight;
 
-	//how long is the longest histogam?
-	this.longestHist = function(){
-		var i, longest = 0;
-		var keys = Object.keys(this.plotBuffer)
-
-		for(i=0; i<keys.length; i++){
-			longest = Math.max(longest, this.plotBuffer[keys[i]].length)
-		}
-
-		return longest;
-	}
-
-	//////////////////////////////////////////////////////
-	//initial setup///////////////////////////////////////
-	//////////////////////////////////////////////////////
-	this.drawFrame();
-	//plot mouseover behavior - report mouse coordinates in bin-space, and manage the cursor style
-	this.canvas.addEventListener('mousemove', function(event){
-		var coords, x, y, xBin, yBin;
-		var crosshairs, highlight;
-
-		coords = this.canvas.relMouseCoords(event);
-		x = coords.x;
-		y = coords.y;
-
-		if(x > this.leftMargin && x < this.canvas.width - this.rightMargin && y > this.topMargin){
-			xBin = Math.floor((x-this.leftMargin)/this.binWidth) + this.XaxisLimitMin;
-
+			// Handle log Y axis
 			if(this.AxisType == 1){
-				yBin = (this.canvas.height-this.bottomMargin - y) / this.countHeight;
-				yBin = Math.floor(Math.pow(10,yBin)/10);
-			} else {
-				yBin = Math.floor((this.canvas.height-this.bottomMargin - y) / this.countHeight);
+				if(specData[i]<=0) height = 0;
+				else height = Math.log10(specData[i]) - Math.log10(this.YaxisLimitMin);
+				if(height<0) height = 0;
+				y0 = this.canvas.height - this.bottomMargin - height*this.countHeight;
 			}
 
-			this.cursorX = xBin.toFixed(0);
-			this.cursorY = yBin.toFixed(0);
+			bin = new createjs.Shape();
+			bin.graphics.beginFill(this.binHighlights[i].color).drawRect(x0, y0, this.binWidth, this.binHighlights[i].height*this.countHeight);
+			bin.graphics.beginStroke(this.binHighlights[i].color).drawRect(x0, y0, this.binWidth, this.binHighlights[i].height*this.countHeight);
+			this.containerAnnotations.addChild(bin);
 		}
-		this.mouseMoveCallback(xBin, Math.max(yBin,0) );
+	}
+}
 
-		//change cursor to indicate draggable region:
-		if(this.fitModeEngage || this.gateModeEngage || this.setAppLimitsModeEngage){
-			if( y < (this.canvas.height - this.bottomMargin) )
-			document.body.style.cursor = 's-resize';
-			else
-			document.body.style.cursor = 'n-resize';
+//highlight the bins indicating the gate limits for a projection
+this.shadeGateBins = function(shadeColor,xMin,xMax,target){
+	var i, bin, x0, y0;
+	var specData=this.plotBuffer[target];
+
+	// Protect against bad values
+	if(specData == undefined) return;
+	if(xMin<0){
+		xMin = 0;
+	}
+	if(xMax>this.XaxisLimitAbsMax){
+		xMax = this.XaxisLimitAbsMax;
+	}
+	if(xMax<xMin){
+		temp = xMin;
+		xMin = xMax;
+		xMax = temp;
+	}
+
+	for(i=xMin; i<xMax+1; i++){
+		if(specData[i]){
+			x0 = this.leftMargin + this.binWidth*(i-this.XaxisLimitMin);
+			y0 = this.canvas.height - this.bottomMargin - specData[i]*this.countHeight;
+
+			// Handle log Y axis
+			if(this.AxisType == 1){
+				if(specData[i]<=0) height = 0;
+				else height = Math.log10(specData[i]) - Math.log10(this.YaxisLimitMin);
+				if(height<0) height = 0;
+				y0 = this.canvas.height - this.bottomMargin - height*this.countHeight;
+			}
+
+			bin = new createjs.Shape();
+			bin.graphics.beginFill(shadeColor).drawRect(x0, y0, this.binWidth, specData[i]*this.countHeight);
+			bin.graphics.beginStroke(shadeColor).drawRect(x0, y0, this.binWidth, specData[i]*this.countHeight);
+			this.containerGate.addChild(bin);
 		}
-		else if(y>this.canvas.height-this.bottomMargin)
-		document.body.style.cursor = 'pointer';
+	}
+}
+
+//how long is the longest histogam?
+this.longestHist = function(){
+	var i, longest = 0;
+	var keys = Object.keys(this.plotBuffer)
+
+	for(i=0; i<keys.length; i++){
+		longest = Math.max(longest, this.plotBuffer[keys[i]].length)
+	}
+
+	return longest;
+}
+
+//////////////////////////////////////////////////////
+//initial setup///////////////////////////////////////
+//////////////////////////////////////////////////////
+this.drawFrame();
+//plot mouseover behavior - report mouse coordinates in bin-space, and manage the cursor style
+this.canvas.addEventListener('mousemove', function(event){
+	var coords, x, y, xBin, yBin;
+	var crosshairs, highlight;
+
+	coords = this.canvas.relMouseCoords(event);
+	x = coords.x;
+	y = coords.y;
+
+	if(x > this.leftMargin && x < this.canvas.width - this.rightMargin && y > this.topMargin){
+		xBin = Math.floor((x-this.leftMargin)/this.binWidth) + this.XaxisLimitMin;
+
+		if(this.AxisType == 1){
+			yBin = (this.canvas.height-this.bottomMargin - y) / this.countHeight;
+			yBin = Math.floor(Math.pow(10,yBin)/10);
+		} else {
+			yBin = Math.floor((this.canvas.height-this.bottomMargin - y) / this.countHeight);
+		}
+
+		this.cursorX = xBin.toFixed(0);
+		this.cursorY = yBin.toFixed(0);
+	}
+	this.mouseMoveCallback(xBin, Math.max(yBin,0) );
+
+	//change cursor to indicate draggable region:
+	if(this.fitModeEngage || this.gateModeEngage || this.setAppLimitsModeEngage){
+		if( y < (this.canvas.height - this.bottomMargin) )
+		document.body.style.cursor = 's-resize';
 		else
-		document.body.style.cursor = 'default';
+		document.body.style.cursor = 'n-resize';
+	}
+	else if(y>this.canvas.height-this.bottomMargin)
+	document.body.style.cursor = 'pointer';
+	else
+	document.body.style.cursor = 'default';
 
-		//draw crosshairs
-		this.containerOverlay.removeAllChildren();
-		if(x > this.leftMargin && x < this.canvas.width - this.rightMargin && y > this.topMargin && y<this.canvas.height-this.bottomMargin){
-			if(this.clickBounds.length!=1){  //normal crosshairs
-				crosshairs = new createjs.Shape();
-				crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
-				crosshairs.graphics.mt(this.leftMargin, y);
-				crosshairs.graphics.lt(this.canvas.width-this.rightMargin, y);
-				this.containerOverlay.addChild(crosshairs);
+	//draw crosshairs
+	this.containerOverlay.removeAllChildren();
+	if(x > this.leftMargin && x < this.canvas.width - this.rightMargin && y > this.topMargin && y<this.canvas.height-this.bottomMargin){
+		if(this.clickBounds.length!=1){  //normal crosshairs
+			crosshairs = new createjs.Shape();
+			crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
+			crosshairs.graphics.mt(this.leftMargin, y);
+			crosshairs.graphics.lt(this.canvas.width-this.rightMargin, y);
+			this.containerOverlay.addChild(crosshairs);
 
-				crosshairs = new createjs.Shape();
-				crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
-				crosshairs.graphics.mt(x, this.canvas.height-this.bottomMargin);
-				crosshairs.graphics.lt(x, this.topMargin);
-				this.containerOverlay.addChild(crosshairs);
-			} else { //red vertical line to mark second bound of click-and-zoom
-				crosshairs = new createjs.Shape();
-				crosshairs.graphics.ss(this.axisLineWidth).s('#FF0000');
-				crosshairs.graphics.mt(x, this.canvas.height-this.bottomMargin);
-				crosshairs.graphics.lt(x, this.topMargin);
-				this.containerOverlay.addChild(crosshairs);
-			}
+			crosshairs = new createjs.Shape();
+			crosshairs.graphics.ss(this.axisLineWidth).s(this.axisColor);
+			crosshairs.graphics.mt(x, this.canvas.height-this.bottomMargin);
+			crosshairs.graphics.lt(x, this.topMargin);
+			this.containerOverlay.addChild(crosshairs);
+		} else { //red vertical line to mark second bound of click-and-zoom
+			crosshairs = new createjs.Shape();
+			crosshairs.graphics.ss(this.axisLineWidth).s('#FF0000');
+			crosshairs.graphics.mt(x, this.canvas.height-this.bottomMargin);
+			crosshairs.graphics.lt(x, this.topMargin);
+			this.containerOverlay.addChild(crosshairs);
 		}
-		//highlight region on drag
-		if(this.highlightStart != -1){
-			highlight = new createjs.Shape();
-			highlight.alpha = 0.3;
-			highlight.graphics.beginFill(this.highlightColor).r(this.highlightStart, this.topMargin, Math.max(x, this.leftMargin) - this.highlightStart, this.canvas.height-this.topMargin-this.bottomMargin)
-			this.containerOverlay.addChild(highlight);
-		}
-		this.stage.update();
+	}
+	//highlight region on drag
+	if(this.highlightStart != -1){
+		highlight = new createjs.Shape();
+		highlight.alpha = 0.3;
+		highlight.graphics.beginFill(this.highlightColor).r(this.highlightStart, this.topMargin, Math.max(x, this.leftMargin) - this.highlightStart, this.canvas.height-this.topMargin-this.bottomMargin)
+		this.containerOverlay.addChild(highlight);
+	}
+	this.stage.update();
 
-	}.bind(this), false);
+}.bind(this), false);
 
-	this.canvas.onmouseout = function(event){
-		document.body.style.cursor = 'default';
-		this.containerOverlay.removeAllChildren();
-		this.stage.update();
-	}.bind(this);
+this.canvas.onmouseout = function(event){
+	document.body.style.cursor = 'default';
+	this.containerOverlay.removeAllChildren();
+	this.stage.update();
+}.bind(this);
 
-	this.canvas.onmousedown = function(event){
-		var x, y
-		if(event.shiftKey){
-			x = this.xpix2bin(this.canvas.relMouseCoords(event).x)
-			y = this.ypix2bin(this.canvas.relMouseCoords(event).y)
-			this.shiftclickCallback.bind(this)({x:x,y:y});
-		}
-		else if(event.button == 0){
-			this.highlightStart = this.canvas.relMouseCoords(event).x;
-			this.XMouseLimitxMin = this.xpix2bin(this.canvas.relMouseCoords(event).x);
-		}
-	}.bind(this);
+this.canvas.onmousedown = function(event){
+	var x, y
+	if(event.shiftKey){
+		x = this.xpix2bin(this.canvas.relMouseCoords(event).x)
+		y = this.ypix2bin(this.canvas.relMouseCoords(event).y)
+		this.shiftclickCallback.bind(this)({x:x,y:y});
+	}
+	else if(event.button == 0){
+		this.highlightStart = this.canvas.relMouseCoords(event).x;
+		this.XMouseLimitxMin = this.xpix2bin(this.canvas.relMouseCoords(event).x);
+	}
+}.bind(this);
 
-	this.canvas.onmouseup = function(event){
-		if(event.button == 0 && !event.shiftKey){
-			this.highlightStart = -1;
-			this.XMouseLimitxMax = this.xpix2bin(this.canvas.relMouseCoords(event).x);
-			this.DragWindow();
-		}
-	}.bind(this);
+this.canvas.onmouseup = function(event){
+	if(event.button == 0 && !event.shiftKey){
+		this.highlightStart = -1;
+		this.XMouseLimitxMax = this.xpix2bin(this.canvas.relMouseCoords(event).x);
+		this.DragWindow();
+	}
+}.bind(this);
 
-	this.canvas.ondblclick = function(event){
-		this.unzoom();
-	}.bind(this);
+this.canvas.ondblclick = function(event){
+	this.unzoom();
+}.bind(this);
 
-	//right clicking does obnoxious focus things, messes with canvas onclicks.
-	this.canvas.oncontextmenu = function(){
-		return false;
-	};
+//right clicking does obnoxious focus things, messes with canvas onclicks.
+this.canvas.oncontextmenu = function(){
+	return false;
+};
 
-	this.xpix2bin = function(x){
-		// convert the x pixel position returned by relMouseCoords into a bin number
-		return parseInt((x-this.leftMargin)/this.binWidth + this.XaxisLimitMin);
-	};
+this.xpix2bin = function(x){
+	// convert the x pixel position returned by relMouseCoords into a bin number
+	return parseInt((x-this.leftMargin)/this.binWidth + this.XaxisLimitMin);
+};
 
-	this.ypix2bin = function(y){
-		// convert the y pixel position returned by relMouseCoords into a bin number
-		return Math.floor((this.canvas.height - this.bottomMargin - y)/this.yAxisPixLength * this.YaxisLength + this.YaxisLimitMin);
-	};
+this.ypix2bin = function(y){
+	// convert the y pixel position returned by relMouseCoords into a bin number
+	return Math.floor((this.canvas.height - this.bottomMargin - y)/this.yAxisPixLength * this.YaxisLength + this.YaxisLimitMin);
+};
 }
 
 //stick a coordinate tracker on the canvas prototype:

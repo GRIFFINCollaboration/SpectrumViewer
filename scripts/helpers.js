@@ -2797,7 +2797,7 @@ function fitCallback(center, width, amplitude, intercept, slope){
   // Calculate peak area here
   var integral = 0,
   functionVals = [],
-    i, x, sigmas = 5, stepSize = 0.01;
+  i, x, sigmas = 5, stepSize = 0.01;
   if (width > 10) { stepSize = 0.1; }
   if (width > 50) { stepSize = 1; }
   if (width > 200) { stepSize = 2; }
@@ -4953,32 +4953,40 @@ function Pn(x, n){
 // Calculated as the slope of a linear regression line forced through the origin (0,0).
 // Formula: sum(x*y) / sum(x*x)
 // dataX is the experimental data, dataY is the model
-function scaling_factor(dataX,dataY,peakCenter){
+function scaling_factor(dataX,dataY,bkg,peakCenter){
   var sum_xy = sum_x2 = 0;
   var weight;
 
+  /*
   // Perform a crude background subtraction
   var bkg = (dataX[0] + dataX[dataX.length-1]) / 2;
   for(var i=0; i<dataX.length; i++){
-    dataX[i] -= bkg;
-    dataY[i] -= bkg;
-  }
+  dataX[i] -= bkg;
+  dataY[i] -= bkg;
+}
+*/
 
-  for(var i=0; i<dataX.length; i++){
-   // for(var i=parseInt(peakCenter-4); i<parseInt(peakCenter+4); i++){
-    //  weight = 1.0 / Math.sqrt(Math.abs(dataX[i]));
-     // sum_xy += weight * dataX[i] * dataY[i];
-     // sum_x2 += weight * dataX[i] * dataX[i];
-    sum_xy += dataX[i] * dataY[i];
-    sum_x2 += dataX[i] * dataX[i];
-  }
+// Perform a background subtraction from data and model
+for(var i=0; i<dataX.length; i++){
+  dataX[i] -= bkg[i];
+  dataY[i] -= bkg[i];
+}
 
-  // Guard against division by zero
-  if(sum_x2 == 0) {
-    return 0;
-  }
+for(var i=0; i<dataX.length; i++){
+  // for(var i=parseInt(peakCenter-4); i<parseInt(peakCenter+4); i++){
+  //  weight = 1.0 / Math.sqrt(Math.abs(dataX[i]));
+  // sum_xy += weight * dataX[i] * dataY[i];
+  // sum_x2 += weight * dataX[i] * dataX[i];
+  sum_xy += dataX[i] * dataY[i];
+  sum_x2 += dataX[i] * dataX[i];
+}
 
-  return (sum_x2/sum_xy);
+// Guard against division by zero
+if(sum_x2 == 0) {
+  return 0;
+}
+
+return (sum_x2/sum_xy);
 }
 
 
@@ -4995,4 +5003,132 @@ function theoreticalAngularCorrelation(c2,c4, xValues) {
     series.push((1.0 + (c2*Pn(xValues[i],2)) + (c4*Pn(xValues[i],4))));
   }
   return(series);
+}
+
+// Define the model equation for Guassian plus linear background
+// Helper function specific to the nelderMead fitting algorithm below
+function nelderMeadModel(i, p) {
+  const [intercept, slope, max, cent, width] = p;
+  return intercept + slope * i + max * Math.exp(-1 * (i - cent) * (i - cent) / (2 * width * width));
+}
+// Compute Chi-Square (unweighted sum of squared residuals)
+// Helper function specific to the nelderMead fitting algorithm below
+//  (Accepts scaled parameters, applies scales internally)
+function nelderMeadComputeChiSquare(scaledP, scales, fixedCent, fixedInt, fixedSlope, data) {
+  // Reconstruct the 2 active real parameters
+  const [max, width] = scaledP.map((val, idx) => val * scales[idx]);
+
+  // --- ENFORCE BOUNDARY CONDITIONS ---
+  // Width cannot be 0 or negative (avoids Division by Zero)
+  if (width <= 0.1) return 1e15;
+
+  // Max (peak height) must be positive for a peak
+  if (max <= 1) return 1e15;
+  // ----------------------------------
+
+  // Assemble the complete 5-parameter array required by the model
+  const fullParams = [fixedInt, fixedSlope, max, fixedCent, width];
+
+  let chiSq = 0;
+  for (let idx = 0; idx < data.length; idx++) {
+    const diff = data[idx].y - nelderMeadModel(data[idx].x, fullParams);
+    chiSq += diff * diff;
+  }
+  return chiSq;
+}
+
+// Nelder-Mead Optimization Algorithm provided by Gemini
+// (Performs scaling and unscaling internally)
+// Nelder-Mead is an excellent choice for a pure JavaScript implementation
+// because it does not require computing derivatives (Jacobian matrices), making the code highly compact,
+// fast, and completely free of external dependencies.
+function nelderMead(data, initial2P, fixedCent, fixedInt, fixedSlope, maxIter = 5000, tol = 1e-10) {
+  const n = initial2P.length; // Will be 2
+  const scales = initial2P.map(guess => guess === 0 ? 1.0 : Math.abs(guess));
+  const initialScaledP = initial2P.map((guess, idx) => guess / scales[idx]);
+  const simplex = [];
+
+  // Initialize simplex
+  simplex.push({ p: [...initialScaledP], error: nelderMeadComputeChiSquare(initialScaledP, scales, fixedCent, fixedInt, fixedSlope, data) });
+  for (let i = 0; i < n; i++) {
+    const p = [...initialScaledP];
+    p[i] = p[i] + 0.05;
+    simplex.push({ p, error: nelderMeadComputeChiSquare(p, scales, fixedCent, fixedInt, fixedSlope, data) });
+  }
+
+  const order = () => simplex.sort((a, b) => a.error - b.error);
+
+  for (let iter = 0; iter < maxIter; iter++) {
+    order();
+
+    if (Math.abs(simplex[n].error - simplex[0].error) < tol) break;
+
+    const centroid = Array(n).fill(0);
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) centroid[j] += simplex[i].p[j] / n;
+    }
+
+    const worst = simplex[n];
+    const reflectedP = centroid.map((c, j) => 2 * c - worst.p[j]);
+    const reflectedErr = nelderMeadComputeChiSquare(reflectedP, scales, fixedCent, fixedInt, fixedSlope, data);
+
+    if (reflectedErr < simplex[n - 1].error && reflectedErr >= simplex[0].error) {
+      simplex[n] = { p: reflectedP, error: reflectedErr };
+      continue;
+    }
+
+    if (reflectedErr < simplex[0].error) {
+      const expandedP = centroid.map((c, j) => 3 * c - 2 * worst.p[j]);
+      const expandedErr = nelderMeadComputeChiSquare(expandedP, scales, fixedCent, fixedInt, fixedSlope, data);
+      simplex[n] = expandedErr < reflectedErr ? { p: expandedP, error: expandedErr } : { p: reflectedP, error: reflectedErr };
+      continue;
+    }
+
+    const contractedP = centroid.map((c, j) => 0.5 * c + 0.5 * worst.p[j]);
+    const contractedErr = nelderMeadComputeChiSquare(contractedP, scales, fixedCent, fixedInt, fixedSlope, data);
+    if (contractedErr < worst.error) {
+      simplex[n] = { p: contractedP, error: contractedErr };
+      continue;
+    }
+
+    for (let i = 1; i <= n; i++) {
+      simplex[i].p = simplex[i].p.map((val, j) => 0.5 * simplex[0].p[j] + 0.5 * val);
+      simplex[i].error = nelderMeadComputeChiSquare(simplex[i].p, scales, fixedCent, fixedInt, fixedSlope, data);
+    }
+  }
+
+  order();
+  const finalRealParams = simplex[0].p.map((val, idx) => val * scales[idx]);
+
+  return {
+    p: finalRealParams,
+    error: simplex[0].error
+  };
+}
+
+// function applies the IQR (Interquartile Range) Method to a given dataset
+// originalData is an array of numbers
+// Returned object has the various calculated proprties
+function interQuartileRange(originalData){
+  console.log("interQuartileRange:");
+  var results = {};
+
+  // Calculate the median value
+  var orderedData = originalData.filter(element => element !== undefined).toSorted((a, b) => a - b);
+  var index = parseInt(orderedData.length / 2);
+  results.orderedData = orderedData;
+  results.median = orderedData[index];
+
+  // Calculate the upper and lower fence values
+  var lowerData = orderedData.slice(0,index);
+  results.Q1 = lowerData[parseInt(lowerData.length/2)];
+  results.Q2 = results.median;
+  var upperData = orderedData.slice(index);
+  results.Q3 = upperData[parseInt(upperData.length/2)];
+  results.IQR = results.Q3 - results.Q1;
+  results.lowerFence = results.Q1 - (1.5*results.IQR);
+  results.upperFence = results.Q3 + (1.5*results.IQR);
+  console.log(results);
+
+  return(results);
 }
