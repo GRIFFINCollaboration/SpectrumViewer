@@ -53,7 +53,7 @@ function setupDataStore(){
   dataStore.plotGroups = [];                                          // groups used for building the specturm menu (plotlite)
   dataStore.rawData = {};                                                 //buffer for raw spectrum data
   dataStore.raw = [];                                                 //buffer for raw matrix data
-  dataStore.sparseData = {},                                            //buffer for raw data in sparse data mode
+  dataStore.sparseData = {},                                      //buffer for raw data in sparse data mode
   dataStore.matrix = [];                                                 //buffer for objects containing the uncompressed matrix data
   dataStore.hm = {};                                                 //object for 2d matrix stuff
   dataStore.hm._raw = [];                                                 //buffer for raw matrix data
@@ -97,11 +97,11 @@ function setupDataStore(){
   // Script configuration - all are arrays used only as user input
   // The 'peakFitterScript' can be provided by the user as an upload and will be copied into this 'dataStore.peakFitterScript' object
   dataStore.peakFitterScript = {
-    'histogramFileNames' : [],                                // List of all the histogram files
-    'spectrumList1d' : [],                                    // Names of all the 1d spectra
-    'spectrumList1dPeaks' : {},                               // List of all peak centroids to be fitted in the 1d spectra
-    'spectrumList2d' : [],                                    // Names of all the 2d spectra
-    'spectrumListGates' : [],                                 // List of all the gate limits to make projections from the 2d spectra,
+    'histogramFileNames' : [],                          // List of all the histogram files
+    'spectrumList1d' : [],                              // Names of all the 1d spectra
+    'spectrumList1dPeaks' : {},                         // List of all peak centroids to be fitted in the 1d spectra
+    'spectrumList2d' : [],                              // Names of all the 2d spectra
+    'spectrumListGates' : [],                           // List of all the gate limits to make projections from the 2d spectra,
     // Format for gates: 'matrixname': [[axis,gateMin,gateMax,BG1SF,BG1Min,BG1Max,BG2SF,BG2Min,BG2Max], [], ...]
     'spectrumListProjectionsPeaks' : {}                       // List of all peak centroids to be fitted in the projected 1d spectra from the 2d spectra
   };
@@ -198,7 +198,7 @@ function setupDataStore(){
 
     ], 'spectrumListGates' : [], 'spectrumListProjectionsPeaks' : {'All':[]}},
 
-    'GRG-ART' : {'spectrumList1d' : [
+    'GRG-ART-110mm' : {'spectrumList1d' : [
       "GRG01BN00A_Energy","GRG01GN00A_Energy","GRG01RN00A_Energy","GRG01WN00A_Energy", "GRG02BN00A_Energy","GRG02GN00A_Energy","GRG02RN00A_Energy","GRG02WN00A_Energy",
       "GRG03BN00A_Energy","GRG03GN00A_Energy","GRG03RN00A_Energy","GRG03WN00A_Energy", "GRG04BN00A_Energy","GRG04GN00A_Energy","GRG04RN00A_Energy","GRG04WN00A_Energy",
       "GRG05BN00A_Energy","GRG05GN00A_Energy","GRG05RN00A_Energy","GRG05WN00A_Energy", "GRG06BN00A_Energy","GRG06GN00A_Energy","GRG06RN00A_Energy","GRG06WN00A_Energy",
@@ -206,21 +206,95 @@ function setupDataStore(){
       "GRG09BN00A_Energy","GRG09GN00A_Energy","GRG09RN00A_Energy","GRG09WN00A_Energy", "GRG10BN00A_Energy","GRG10GN00A_Energy","GRG10RN00A_Energy","GRG10WN00A_Energy",
       "GRG11BN00A_Energy","GRG11GN00A_Energy","GRG11RN00A_Energy","GRG11WN00A_Energy", "GRG12BN00A_Energy","GRG12GN00A_Energy","GRG12RN00A_Energy","GRG12WN00A_Energy",
       "GRG13BN00A_Energy","GRG13GN00A_Energy","GRG13RN00A_Energy","GRG13WN00A_Energy", "GRG14BN00A_Energy","GRG14GN00A_Energy","GRG14RN00A_Energy","GRG14WN00A_Energy",
-      "GRG15BN00A_Energy","GRG15GN00A_Energy","GRG15RN00A_Energy","GRG15WN00A_Energy", "GRG16BN00A_Energy","GRG16GN00A_Energy","GRG16RN00A_Energy","GRG16WN00A_Energy"
+      "GRG15BN00A_Energy","GRG15GN00A_Energy","GRG15RN00A_Energy","GRG15WN00A_Energy", "GRG16BN00A_Energy","GRG16GN00A_Energy","GRG16RN00A_Energy","GRG16WN00A_Energy",
+
+      "ART01XS00X_Energy","ART02XS00X_Energy","ART03XS00X_Energy","ART04XS00X_Energy","ART05XS00X_Energy","ART06XS00X_Energy","ART07XS00X_Energy","ART08XS00X_Energy",
+      "ART09XS00X_Energy","ART10XS00X_Energy","ART11XS00X_Energy","ART12XS00X_Energy","ART13XS00X_Energy","ART14XS00X_Energy","ART15XS00X_Energy","ART16XS00X_Energy",
+      "ART17XS00X_Energy","ART18XS00X_Energy","ART19XS00X_Energy","ART20XS00X_Energy","ART21XS00X_Energy","ART22XS00X_Energy","ART23XS00X_Energy","ART24XS00X_Energy",
+      "ART25XS00X_Energy","ART26XS00X_Energy","ART27XS00X_Energy","ART28XS00X_Energy","ART29XS00X_Energy","ART30XS00X_Energy","ART31XS00X_Energy","ART32XS00X_Energy",
+      "ART33XS00X_Energy","ART34XS00X_Energy","ART35XS00X_Energy","ART36XS00X_Energy","ART37XS00X_Energy","ART38XS00X_Energy","ART39XS00X_Energy","ART40XS00X_Energy",
+      "ART41XS00X_Energy","ART42XS00X_Energy","ART43XS00X_Energy","ART44XS00X_Energy","ART45XS00X_Energy","ART46XS00X_Energy","ART47XS00X_Energy","ART48XS00X_Energy",
+      "ART49XS00X_Energy","ART50XS00X_Energy","ART51XS00X_Energy","ART52XS00X_Energy","ART53XS00X_Energy","ART54XS00X_Energy","ART55XS00X_Energy","ART56XS00X_Energy",
+      "ART57XS00X_Energy","ART58XS00X_Energy","ART59XS00X_Energy","ART60XS00X_Energy","ART61XS00X_Energy","ART62XS00X_Energy","ART63XS00X_Energy","ART64XS00X_Energy",
+      "ART65XS00X_Energy","ART66XS00X_Energy","ART67XS00X_Energy","ART68XS00X_Energy","ART69XS00X_Energy","ART70XS00X_Energy","ART71XS00X_Energy","ART72XS00X_Energy",
+      "ART73XS00X_Energy","ART74XS00X_Energy","ART75XS00X_Energy","ART76XS00X_Energy"
     ], 'spectrumList1dPeaks' : { 'All':[] }, 'histogramFileNames' : [],
     'spectrumList2d' : [
-      "Ge-ART_angular_bin000","Ge-ART_angular_bin001","Ge-ART_angular_bin002","Ge-ART_angular_bin003","Ge-ART_angular_bin004",
-      "Ge-ART_angular_bin005","Ge-ART_angular_bin006","Ge-ART_angular_bin007","Ge-ART_angular_bin008","Ge-ART_angular_bin009",
-      "Ge-ART_angular_bin010","Ge-ART_angular_bin011","Ge-ART_angular_bin012","Ge-ART_angular_bin013","Ge-ART_angular_bin014",
-      "Ge-ART_angular_bin015","Ge-ART_angular_bin016","Ge-ART_angular_bin017","Ge-ART_angular_bin018","Ge-ART_angular_bin019",
-      "Ge-ART_angular_bin020","Ge-ART_angular_bin021","Ge-ART_angular_bin022","Ge-ART_angular_bin023","Ge-ART_angular_bin024",
-      "Ge-ART_angular_bin025","Ge-ART_angular_bin026","Ge-ART_angular_bin027","Ge-ART_angular_bin028","Ge-ART_angular_bin029",
-      "Ge-ART_angular_bin030","Ge-ART_angular_bin031","Ge-ART_angular_bin032","Ge-ART_angular_bin033","Ge-ART_angular_bin034",
-      "Ge-ART_angular_bin035","Ge-ART_angular_bin036","Ge-ART_angular_bin037","Ge-ART_angular_bin038","Ge-ART_angular_bin039",
-      "Ge-ART_angular_bin040","Ge-ART_angular_bin041","Ge-ART_angular_bin042","Ge-ART_angular_bin043","Ge-ART_angular_bin044",
-      "Ge-ART_angular_bin045","Ge-ART_angular_bin046","Ge-ART_angular_bin047","Ge-ART_angular_bin048","Ge-ART_angular_bin049",
-      "Ge-ART_angular_bin050","Ge-ART_angular_bin051","Ge-ART_angular_bin052","Ge-ART_angular_bin053","Ge-ART_angular_bin054" // NEED MORE HERE, 114 bins
+      "Ge_ART_110mm_angular_bin000","Ge_ART_110mm_angular_bin001","Ge_ART_110mm_angular_bin002","Ge_ART_110mm_angular_bin003","Ge_ART_110mm_angular_bin004",
+      "Ge_ART_110mm_angular_bin005","Ge_ART_110mm_angular_bin006","Ge_ART_110mm_angular_bin007","Ge_ART_110mm_angular_bin008","Ge_ART_110mm_angular_bin009",
+      "Ge_ART_110mm_angular_bin010","Ge_ART_110mm_angular_bin011","Ge_ART_110mm_angular_bin012","Ge_ART_110mm_angular_bin013","Ge_ART_110mm_angular_bin014",
+      "Ge_ART_110mm_angular_bin015","Ge_ART_110mm_angular_bin016","Ge_ART_110mm_angular_bin017","Ge_ART_110mm_angular_bin018","Ge_ART_110mm_angular_bin019",
+      "Ge_ART_110mm_angular_bin020","Ge_ART_110mm_angular_bin021","Ge_ART_110mm_angular_bin022","Ge_ART_110mm_angular_bin023","Ge_ART_110mm_angular_bin024",
+      "Ge_ART_110mm_angular_bin025","Ge_ART_110mm_angular_bin026","Ge_ART_110mm_angular_bin027","Ge_ART_110mm_angular_bin028","Ge_ART_110mm_angular_bin029",
+      "Ge_ART_110mm_angular_bin030","Ge_ART_110mm_angular_bin031","Ge_ART_110mm_angular_bin032","Ge_ART_110mm_angular_bin033","Ge_ART_110mm_angular_bin034",
+      "Ge_ART_110mm_angular_bin035","Ge_ART_110mm_angular_bin036","Ge_ART_110mm_angular_bin037","Ge_ART_110mm_angular_bin038","Ge_ART_110mm_angular_bin039",
+      "Ge_ART_110mm_angular_bin040","Ge_ART_110mm_angular_bin041","Ge_ART_110mm_angular_bin042","Ge_ART_110mm_angular_bin043","Ge_ART_110mm_angular_bin044",
+      "Ge_ART_110mm_angular_bin045","Ge_ART_110mm_angular_bin046","Ge_ART_110mm_angular_bin047","Ge_ART_110mm_angular_bin048","Ge_ART_110mm_angular_bin049",
+      "Ge_ART_110mm_angular_bin050","Ge_ART_110mm_angular_bin051","Ge_ART_110mm_angular_bin052","Ge_ART_110mm_angular_bin053","Ge_ART_110mm_angular_bin054",
+      "Ge_ART_110mm_angular_bin055","Ge_ART_110mm_angular_bin056","Ge_ART_110mm_angular_bin057","Ge_ART_110mm_angular_bin058","Ge_ART_110mm_angular_bin059",
+      "Ge_ART_110mm_angular_bin060","Ge_ART_110mm_angular_bin061","Ge_ART_110mm_angular_bin062","Ge_ART_110mm_angular_bin063","Ge_ART_110mm_angular_bin064",
+      "Ge_ART_110mm_angular_bin065","Ge_ART_110mm_angular_bin066","Ge_ART_110mm_angular_bin067","Ge_ART_110mm_angular_bin068","Ge_ART_110mm_angular_bin069",
+      "Ge_ART_110mm_angular_bin070","Ge_ART_110mm_angular_bin071","Ge_ART_110mm_angular_bin072","Ge_ART_110mm_angular_bin073","Ge_ART_110mm_angular_bin074",
+      "Ge_ART_110mm_angular_bin075","Ge_ART_110mm_angular_bin076","Ge_ART_110mm_angular_bin077","Ge_ART_110mm_angular_bin078","Ge_ART_110mm_angular_bin079",
+      "Ge_ART_110mm_angular_bin080","Ge_ART_110mm_angular_bin081","Ge_ART_110mm_angular_bin082","Ge_ART_110mm_angular_bin083","Ge_ART_110mm_angular_bin084",
+      "Ge_ART_110mm_angular_bin085","Ge_ART_110mm_angular_bin086","Ge_ART_110mm_angular_bin087","Ge_ART_110mm_angular_bin088","Ge_ART_110mm_angular_bin089",
+      "Ge_ART_110mm_angular_bin090","Ge_ART_110mm_angular_bin091","Ge_ART_110mm_angular_bin092","Ge_ART_110mm_angular_bin093","Ge_ART_110mm_angular_bin094",
+      "Ge_ART_110mm_angular_bin095","Ge_ART_110mm_angular_bin096","Ge_ART_110mm_angular_bin097","Ge_ART_110mm_angular_bin098","Ge_ART_110mm_angular_bin099",
+      "Ge_ART_110mm_angular_bin100","Ge_ART_110mm_angular_bin101","Ge_ART_110mm_angular_bin102","Ge_ART_110mm_angular_bin103","Ge_ART_110mm_angular_bin104",
+      "Ge_ART_110mm_angular_bin105","Ge_ART_110mm_angular_bin106","Ge_ART_110mm_angular_bin107","Ge_ART_110mm_angular_bin108","Ge_ART_110mm_angular_bin109",
+      "Ge_ART_110mm_angular_bin110","Ge_ART_110mm_angular_bin111","Ge_ART_110mm_angular_bin112","Ge_ART_110mm_angular_bin113"
+    ], 'spectrumListGates' : [], 'spectrumListProjectionsPeaks' : {'All':[]}},
 
+    'GRG-ART-145mm' : {'spectrumList1d' : [
+      "GRG01BN00A_Energy","GRG01GN00A_Energy","GRG01RN00A_Energy","GRG01WN00A_Energy", "GRG02BN00A_Energy","GRG02GN00A_Energy","GRG02RN00A_Energy","GRG02WN00A_Energy",
+      "GRG03BN00A_Energy","GRG03GN00A_Energy","GRG03RN00A_Energy","GRG03WN00A_Energy", "GRG04BN00A_Energy","GRG04GN00A_Energy","GRG04RN00A_Energy","GRG04WN00A_Energy",
+      "GRG05BN00A_Energy","GRG05GN00A_Energy","GRG05RN00A_Energy","GRG05WN00A_Energy", "GRG06BN00A_Energy","GRG06GN00A_Energy","GRG06RN00A_Energy","GRG06WN00A_Energy",
+      "GRG07BN00A_Energy","GRG07GN00A_Energy","GRG07RN00A_Energy","GRG07WN00A_Energy", "GRG08BN00A_Energy","GRG08GN00A_Energy","GRG08RN00A_Energy","GRG08WN00A_Energy",
+      "GRG09BN00A_Energy","GRG09GN00A_Energy","GRG09RN00A_Energy","GRG09WN00A_Energy", "GRG10BN00A_Energy","GRG10GN00A_Energy","GRG10RN00A_Energy","GRG10WN00A_Energy",
+      "GRG11BN00A_Energy","GRG11GN00A_Energy","GRG11RN00A_Energy","GRG11WN00A_Energy", "GRG12BN00A_Energy","GRG12GN00A_Energy","GRG12RN00A_Energy","GRG12WN00A_Energy",
+      "GRG13BN00A_Energy","GRG13GN00A_Energy","GRG13RN00A_Energy","GRG13WN00A_Energy", "GRG14BN00A_Energy","GRG14GN00A_Energy","GRG14RN00A_Energy","GRG14WN00A_Energy",
+      "GRG15BN00A_Energy","GRG15GN00A_Energy","GRG15RN00A_Energy","GRG15WN00A_Energy", "GRG16BN00A_Energy","GRG16GN00A_Energy","GRG16RN00A_Energy","GRG16WN00A_Energy",
+
+      "ART01XS00X_Energy","ART02XS00X_Energy","ART03XS00X_Energy","ART04XS00X_Energy","ART05XS00X_Energy","ART06XS00X_Energy","ART07XS00X_Energy","ART08XS00X_Energy",
+      "ART09XS00X_Energy","ART10XS00X_Energy","ART11XS00X_Energy","ART12XS00X_Energy","ART13XS00X_Energy","ART14XS00X_Energy","ART15XS00X_Energy","ART16XS00X_Energy",
+      "ART17XS00X_Energy","ART18XS00X_Energy","ART19XS00X_Energy","ART20XS00X_Energy","ART21XS00X_Energy","ART22XS00X_Energy","ART23XS00X_Energy","ART24XS00X_Energy",
+      "ART25XS00X_Energy","ART26XS00X_Energy","ART27XS00X_Energy","ART28XS00X_Energy","ART29XS00X_Energy","ART30XS00X_Energy","ART31XS00X_Energy","ART32XS00X_Energy",
+      "ART33XS00X_Energy","ART34XS00X_Energy","ART35XS00X_Energy","ART36XS00X_Energy","ART37XS00X_Energy","ART38XS00X_Energy","ART39XS00X_Energy","ART40XS00X_Energy",
+      "ART41XS00X_Energy","ART42XS00X_Energy","ART43XS00X_Energy","ART44XS00X_Energy","ART45XS00X_Energy","ART46XS00X_Energy","ART47XS00X_Energy","ART48XS00X_Energy",
+      "ART49XS00X_Energy","ART50XS00X_Energy","ART51XS00X_Energy","ART52XS00X_Energy","ART53XS00X_Energy","ART54XS00X_Energy","ART55XS00X_Energy","ART56XS00X_Energy",
+      "ART57XS00X_Energy","ART58XS00X_Energy","ART59XS00X_Energy","ART60XS00X_Energy","ART61XS00X_Energy","ART62XS00X_Energy","ART63XS00X_Energy","ART64XS00X_Energy",
+      "ART65XS00X_Energy","ART66XS00X_Energy","ART67XS00X_Energy","ART68XS00X_Energy","ART69XS00X_Energy","ART70XS00X_Energy","ART71XS00X_Energy","ART72XS00X_Energy",
+      "ART73XS00X_Energy","ART74XS00X_Energy","ART75XS00X_Energy","ART76XS00X_Energy"
+    ], 'spectrumList1dPeaks' : { 'All':[] }, 'histogramFileNames' : [],
+    'spectrumList2d' : [
+      "Ge_ART_145mm_angular_bin000","Ge_ART_145mm_angular_bin001","Ge_ART_145mm_angular_bin002","Ge_ART_145mm_angular_bin003","Ge_ART_145mm_angular_bin004",
+      "Ge_ART_145mm_angular_bin005","Ge_ART_145mm_angular_bin006","Ge_ART_145mm_angular_bin007","Ge_ART_145mm_angular_bin008","Ge_ART_145mm_angular_bin009",
+      "Ge_ART_145mm_angular_bin010","Ge_ART_145mm_angular_bin011","Ge_ART_145mm_angular_bin012","Ge_ART_145mm_angular_bin013","Ge_ART_145mm_angular_bin014",
+      "Ge_ART_145mm_angular_bin015","Ge_ART_145mm_angular_bin016","Ge_ART_145mm_angular_bin017","Ge_ART_145mm_angular_bin018","Ge_ART_145mm_angular_bin019",
+      "Ge_ART_145mm_angular_bin020","Ge_ART_145mm_angular_bin021","Ge_ART_145mm_angular_bin022","Ge_ART_145mm_angular_bin023","Ge_ART_145mm_angular_bin024",
+      "Ge_ART_145mm_angular_bin025","Ge_ART_145mm_angular_bin026","Ge_ART_145mm_angular_bin027","Ge_ART_145mm_angular_bin028","Ge_ART_145mm_angular_bin029",
+      "Ge_ART_145mm_angular_bin030","Ge_ART_145mm_angular_bin031","Ge_ART_145mm_angular_bin032","Ge_ART_145mm_angular_bin033","Ge_ART_145mm_angular_bin034",
+      "Ge_ART_145mm_angular_bin035","Ge_ART_145mm_angular_bin036","Ge_ART_145mm_angular_bin037","Ge_ART_145mm_angular_bin038","Ge_ART_145mm_angular_bin039",
+      "Ge_ART_145mm_angular_bin040","Ge_ART_145mm_angular_bin041","Ge_ART_145mm_angular_bin042","Ge_ART_145mm_angular_bin043","Ge_ART_145mm_angular_bin044",
+      "Ge_ART_145mm_angular_bin045","Ge_ART_145mm_angular_bin046","Ge_ART_145mm_angular_bin047","Ge_ART_145mm_angular_bin048","Ge_ART_145mm_angular_bin049",
+      "Ge_ART_145mm_angular_bin050","Ge_ART_145mm_angular_bin051","Ge_ART_145mm_angular_bin052","Ge_ART_145mm_angular_bin053","Ge_ART_145mm_angular_bin054",
+      "Ge_ART_145mm_angular_bin055","Ge_ART_145mm_angular_bin056","Ge_ART_145mm_angular_bin057","Ge_ART_145mm_angular_bin058","Ge_ART_145mm_angular_bin059",
+      "Ge_ART_145mm_angular_bin060","Ge_ART_145mm_angular_bin061","Ge_ART_145mm_angular_bin062","Ge_ART_145mm_angular_bin063","Ge_ART_145mm_angular_bin064",
+      "Ge_ART_145mm_angular_bin065","Ge_ART_145mm_angular_bin066","Ge_ART_145mm_angular_bin067","Ge_ART_145mm_angular_bin068","Ge_ART_145mm_angular_bin069",
+      "Ge_ART_145mm_angular_bin070","Ge_ART_145mm_angular_bin071","Ge_ART_145mm_angular_bin072","Ge_ART_145mm_angular_bin073","Ge_ART_145mm_angular_bin074",
+      "Ge_ART_145mm_angular_bin075","Ge_ART_145mm_angular_bin076","Ge_ART_145mm_angular_bin077","Ge_ART_145mm_angular_bin078","Ge_ART_145mm_angular_bin079",
+      "Ge_ART_145mm_angular_bin080","Ge_ART_145mm_angular_bin081","Ge_ART_145mm_angular_bin082","Ge_ART_145mm_angular_bin083","Ge_ART_145mm_angular_bin084",
+      "Ge_ART_145mm_angular_bin085","Ge_ART_145mm_angular_bin086","Ge_ART_145mm_angular_bin087","Ge_ART_145mm_angular_bin088","Ge_ART_145mm_angular_bin089",
+      "Ge_ART_145mm_angular_bin090","Ge_ART_145mm_angular_bin091","Ge_ART_145mm_angular_bin092","Ge_ART_145mm_angular_bin093","Ge_ART_145mm_angular_bin094",
+      "Ge_ART_145mm_angular_bin095","Ge_ART_145mm_angular_bin096","Ge_ART_145mm_angular_bin097","Ge_ART_145mm_angular_bin098","Ge_ART_145mm_angular_bin099",
+      "Ge_ART_145mm_angular_bin100","Ge_ART_145mm_angular_bin101","Ge_ART_145mm_angular_bin102","Ge_ART_145mm_angular_bin103","Ge_ART_145mm_angular_bin104",
+      "Ge_ART_145mm_angular_bin105","Ge_ART_145mm_angular_bin106","Ge_ART_145mm_angular_bin107","Ge_ART_145mm_angular_bin108","Ge_ART_145mm_angular_bin109",
+      "Ge_ART_145mm_angular_bin110","Ge_ART_145mm_angular_bin111","Ge_ART_145mm_angular_bin112","Ge_ART_145mm_angular_bin113","Ge_ART_145mm_angular_bin114",
+      "Ge_ART_145mm_angular_bin115","Ge_ART_145mm_angular_bin116","Ge_ART_145mm_angular_bin117","Ge_ART_145mm_angular_bin118","Ge_ART_145mm_angular_bin119",
+      "Ge_ART_145mm_angular_bin120","Ge_ART_145mm_angular_bin121","Ge_ART_145mm_angular_bin122","Ge_ART_145mm_angular_bin123","Ge_ART_145mm_angular_bin124",
+      "Ge_ART_145mm_angular_bin125","Ge_ART_145mm_angular_bin126","Ge_ART_145mm_angular_bin127","Ge_ART_145mm_angular_bin128","Ge_ART_145mm_angular_bin129",
+      "Ge_ART_145mm_angular_bin130","Ge_ART_145mm_angular_bin131","Ge_ART_145mm_angular_bin132","Ge_ART_145mm_angular_bin133","Ge_ART_145mm_angular_bin134",
+      "Ge_ART_145mm_angular_bin135","Ge_ART_145mm_angular_bin136","Ge_ART_145mm_angular_bin137","Ge_ART_145mm_angular_bin138","Ge_ART_145mm_angular_bin139"
     ], 'spectrumListGates' : [], 'spectrumListProjectionsPeaks' : {'All':[]}},
 
     'DSW-DSW' : {'spectrumList1d' : [
@@ -262,6 +336,7 @@ function setupDataStore(){
 
   // Generate THESEdetectors object.
   dataStore.numberOfClovers = 16;
+  dataStore.numberOfARIESTiles = 72;
   dataStore.THESEdetectors = [];
 
   // App specific data structures
@@ -272,37 +347,41 @@ function setupDataStore(){
   dataStore.detectorChoice = [
     {"name": "GRG-GRG-145mm", "title": "Ge-Ge, 145mm"},
     {"name": "GRG-GRG-110mm", "title": "Ge-Ge, 110mm"},
-    {"name": "GRG-ART", "title": "Ge-ARIES"},
+    {"name": "GRG-ART-145mm", "title": "Ge-ARIES, 145mm"},
+    {"name": "GRG-ART-110mm", "title": "Ge-ARIES, 110mm"},
     {"name": "DSW-DSW", "title": "DSW-DSW (Descant Wall)"}
   ];       // Detector choice information to generate buttons
 
 
   // Custom settings for Angular Correlations
-  dataStore.singlesSpectra = [];                // list of the names of the singles spectra to be fitted
+  dataStore.singlesSpectra = [];                // list of the names of the singles spectra to be fitted (GRG)
+  dataStore.singlesScintillatorSpectra = [];    // list of the names of the singles spectra to use total counts (ART, DSW)
   dataStore.angCorrProjections = [];            // list of the names of the projections to be fitted
   dataStore.angularBinRawPeakArea = [];         // place to store the raw peak area for each angular bin
-  dataStore.angularBinRawPeakAreaUnc = [];         // place to store the uncertainty in the raw peak area for each angular bin
-  dataStore.angularBinTRBGPeakArea = [];         // place to store the time-random background peak area for each angular bin
-  dataStore.angularBinTRBGPeakAreaUnc = [];         // place to store the uncertainty in the time-random background peak area for each angular bin
-  dataStore.angularBinTRBGFactor = [];         // place to store the time-random background factor for each angular bin
-  dataStore.angularBinTRBGFactorUnc = [];         // place to store the time-random background factor for each angular bin
-  dataStore.angularBinPeakArea = [];         // place to store the peak area for each angular bin
+  dataStore.angularBinRawPeakAreaUnc = [];      // place to store the uncertainty in the raw peak area for each angular bin
+  dataStore.angularBinTRBGPeakArea = [];        // place to store the time-random background peak area for each angular bin
+  dataStore.angularBinTRBGPeakAreaUnc = [];     // place to store the uncertainty in the time-random background peak area for each angular bin
+  dataStore.angularBinTRBGFactor = [];          // place to store the time-random background factor for each angular bin
+  dataStore.angularBinTRBGFactorUnc = [];       // place to store the time-random background factor for each angular bin
+  dataStore.angularBinPeakArea = [];            // place to store the peak area for each angular bin
   dataStore.angularBinPeakAreaUnc = [];         // place to store the uncertainty in the peak area for each angular bin
-  dataStore.angularBinWeight = [];           // place to store the weighting factor for each angular bin
-  dataStore.angularBinWeightUnc = [];        // place to store the weighting factor uncertainty for each angular bin
-  dataStore.normalizationFactor = [];        // place to store the Normalization Factor for the angular correlation
+  dataStore.angularBinWeight = [];              // place to store the weighting factor for each angular bin
+  dataStore.angularBinWeightUnc = [];           // place to store the weighting factor uncertainty for each angular bin
+  dataStore.normalizationFactor = [];           // place to store the Normalization Factor for the angular correlation
   dataStore.normalizationFactorUnc = [];        // place to store the Normalization Factor for the angular correlation
-  dataStore.angularBinExcludeList = [];       // place to store list of indexes for angular bins that will be excluded from plots and fitting
-  dataStore.angularBinData = [];             // place to store the data value for each angular bin. raw area * bin weight * Normalization
-  dataStore.angularBinDataUnc = [];          // place to store the data value uncertainty for each angular bin. raw area * bin weight * Normalization
-  dataStore.systematicUncertainty = 0.0;     // a systematic uncertainty to add in quadrature to the angularBinDataUnc
-  dataStore.angularBinDataResiduals = [];    // place to store the residuals of the data vs best fit
-  dataStore.singlesPeakArea = [];            // place to store the peak areas from each angular bin
+  dataStore.angularBinExcludeList = [];         // place to store list of indexes for angular bins that will be excluded from plots and fitting
+  dataStore.angularBinData = [];                // place to store the data value for each angular bin. raw area * bin weight * Normalization
+  dataStore.angularBinDataUnc = [];             // place to store the data value uncertainty for each angular bin. raw area * bin weight * Normalization
+  dataStore.systematicUncertainty = 0.0;        // a systematic uncertainty to add in quadrature to the angularBinDataUnc
+  dataStore.angularBinDataResiduals = [];       // place to store the residuals of the data vs best fit
+  dataStore.singlesPeakArea = [];               // place to store the peak areas from each angular bin
   dataStore.singlesPeakAreaUnc = [];            // place to store the peak areas from each angular bin
-  dataStore.numCrystalPairs = [];            // place to store the number of crystal pairs for each angular bin
-  dataStore.numDegreesOfFreedom = [];          // place to store the number of degrees of freedom for the chi-square fits
-  dataStore.criticalValue = 0.0;             // place to store the current critical chi-square value
-  dataStore.criticalLevel = 2;               // place to store the current critical value confidence Level index number
+  dataStore.scintillatorArea = [];              // place to store the total counts from each angular bin
+  dataStore.scintillatorAreaUnc = [];           // place to store the total counts from each angular bin
+  dataStore.numCrystalPairs = [];               // place to store the number of crystal pairs for each angular bin
+  dataStore.numDegreesOfFreedom = [];           // place to store the number of degrees of freedom for the chi-square fits
+  dataStore.criticalValue = 0.0;                // place to store the current critical chi-square value
+  dataStore.criticalLevel = 2;                  // place to store the current critical value confidence Level index number
   dataStore.criticalLevelStrings = ["90%","95%","99%"];             // place to store the current critical value confidence Level strings
   dataStore.criticalChiSquareValueTable =            // Critical chi-square values for 90%, 95% and 99% confidence levels. index is (NDF-1). https://www.itl.nist.gov/div898/handbook/eda/section3/eda3674.htm
   [[2.706,4.605,6.251,7.779,9.236,10.645,12.017,13.362,14.684,15.987,17.275,18.549,19.812,21.064,22.307,23.542,24.769,25.989,27.204,28.412,29.615,30.813,32.007,33.196,34.382,35.563,36.741,37.916,39.087,40.256,41.422,42.585,43.745,44.903,46.059,47.212,48.363,49.513,50.66,51.805,52.949,54.09,55.23,56.369,57.505,58.641,59.774,60.907,62.038,63.167,64.295,65.422,66.548,67.673,68.796,69.919,71.04,72.16,73.279,74.397,75.514,76.63,77.745,78.86,79.973,81.085,82.197,83.308,84.418,85.527,86.635,87.743,88.85,89.956,91.061,92.166,93.27,94.374,95.476,96.578,97.68,98.78,99.88,100.98,102.079,103.177,104.275,105.372,106.469,107.565,108.661,109.756,110.85,111.944,113.038,114.131,115.223,116.315,117.407,118.498],
@@ -484,328 +563,194 @@ function setupDataStore(){
       [43,41,35,36,49,50,51,50,33,29,35,39,26,20,19,25,18,15,9,14,34,30,24,28,46,42,39,43,47,44,45,48,36,33,37,42,21,17,23,27,9,5,8,12,7,4,3,6,22,18,12,16,31,25,26,32,10,8,15,16,1,2,1,0]
     ];
 
-    // 60Co gg ang corr from Run run29578.tar
-    dataStore.quickDataX = [0.000, 15.442, 21.905, 29.143, 33.143, 38.382, 44.57, 47.445, 48.741, 51.473,
-      55.170, 59.978, 60.102, 62.340, 62.492, 63.423, 68.957, 71.431, 73.358, 73.629,
-      75.774, 80.942, 81.546, 83.894, 86.868, 88.966, 91.034, 93.132, 96.106, 98.454,
-      99.058, 104.226, 106.371, 106.642, 108.569, 111.043, 116.577, 117.508, 117.660,
-      119.898, 120.022, 124.830, 128.527, 131.259, 132.555, 135.430, 141.618, 146.857,
-      150.857, 158.095, 164.558, 180.000];
-      dataStore.quickDataY = [1.2, 1.1649445679515484, 1.16404404173609, 1.1534194212971343, 1.1487646735942079, 1.1319730562416195, 1.0855024174242622, 1.0955483598820324, 1.0967150537881445, 1.07477819459717, 1.0670033719253225, 1.0350595775621638, 1.0632547565661457, 1.054290250774924, 1.0397650722247835, 1.0464194928300574, 1.0382793697970039, 1.0345761445428245, 1.0213096453001547, 1.033750779388556, 1.0526274019670399, 1.0135505676433754, 1.022872761287112, 1.0229782483214198, 1.024272823171905, 1.0127807217310842, 1.0259485750877826, 1.010741956012306, 1.014006851101479, 1.0337180827684103, 1.0085204602351001, 1.0315913337747054, 1.045413973136467, 1.0273662602169433, 1.0239243794524204, 1.0302119450801877, 1.045204729193273, 1.0494111870868919, 1.0468512616814172, 1.0468137786650362, 1.0688584627515472, 1.0621886640362925, 1.0848967001474858, 1.086446504807811, 1.0831054060283596, 1.1116666070843002, 1.1222843879096187, 1.1243680235895794, 1.1433331260031783, 1.1398908022870562, 1.189665641136618, 1.2];
 
-    } // end of setupDataStore()
-    setupDataStore();
+    // GRIFFIN-ARIES with HPGE at 110mm, 114 bins
+    dataStore.GRG_ART_angular_bins_110mm = [
+      0,18.787,25.602,26.69,27.229,27.292,29.681,31.458,31.946,33.654,36.505,
+      38.602,41.39,42.923,44.234,44.364,45.555,45.872,45.884,46.794,47.478,48.576,
+      49.798,50.229,53.808,53.834,55.822,57.36,60.151,60.651,62.705,63.001,63.086,
+      64.305,65.016,66.461,67.456,68.081,69.864,70.86,71.462,72.69,73.084,75.735,
+      76.381,76.85,78.628,78.669,82.827,83.043,85.662,86.228,86.238,87.763,88.474,
+      88.596,89.764,90.236,91.404,91.526,92.237,93.762,93.772,94.338,96.957,97.173,
+      101.331,101.372,103.15,103.619,104.265,106.916,107.31,108.538,109.14,110.136,
+      111.919,112.544,113.539,114.984,115.695,116.914,116.999,117.295,119.349,119.849,
+      122.64,124.178,126.166,126.192,129.771,130.202,131.424,132.522,133.206,134.116,
+      134.128,134.445,135.636,135.766,137.077,138.61,141.398,143.495,146.346,148.054,
+      148.542,150.319,152.708,152.771,153.31,154.398,161.213,180.000];
 
-    function initializeAngularCorrelations(detType){
-      console.log("initializeAngularCorrelations()");
+      // GRIFFIN-ARIES with HPGE at 145mm, 140 bins
+      dataStore.GRG_ART_angular_bins_145mm = [
+        2.392,17.201,24.298,27.421,28.455,28.671,30.615,32.458,33.246,36.02,37.268,
+        40.406,42.795,43.61,43.783,43.866,44.062,45.428,45.839,46.208,46.375,46.593,
+        47.165,48.643,48.879,49.084,49.595,51.667,52.178,54.559,55.47,55.795,57.77,
+        58.558,61.277,61.565,62.368,62.48,62.655,63.783,64.386,64.561,65.688,68.654,
+        69.063,69.812,71.201,71.767,73.203,73.997,74.205,74.393,75.749,77.636,78.974,
+        79.207,80.002,80.693,82.575,83.894,84.277,84.497,84.751,87.051,87.078,88.159,
+        88.589,88.631,89.565,89.593,90.407,90.435,91.369,91.411,91.841,92.922,92.949,
+        95.249,95.503,95.723,96.106,97.425,99.307,99.998,100.793,101.026,102.364,
+        104.251,105.607,105.795,106.003,106.797,108.233,108.799,110.188,110.937,
+        111.346,114.312,115.439,115.614,116.217,117.345,117.52,117.632,118.435,
+        118.723,121.442,122.23,124.205,124.53,125.441,127.822,128.333,130.405,
+        130.916,131.121,131.357,132.835,133.407,133.625,133.792,134.161,134.572,
+        135.938,136.134,136.217,136.39,137.205,139.594,142.732,143.98,146.754,147.542,149.385,151.329,151.545,152.579,155.702,162.799,177.608];
 
-      // Save the choices to the dataStore
-      dataStore.detectorType = detType;
-      console.log("Detector choice is "+dataStore.detectorType)
+        // GRIFFIN-ARIES with HPGE at 110mm
+        // GRG_ART_angles_110mm[crystal][tile] = angularIndex of the GRG_ART_angular_bins_110mm array of angular differences in degrees
+        dataStore.GRG_ART_angles_110mm = [
+          [6,7,14,13,1,0,9,22,38,42,30,22,16,5,45,53,3,1,19,28,54,59,44,34,39,28,21,15,19,25,36,47,61,69,78,81,79,74,64,51,52,44,35,32,34,39,49,62,74,85,92,98,94,88,77,66,59,54,69,79,110,112,94,85,68,60,97,108,75,71,83,91,112,113,104,91],
+          [20,23,31,29,3,1,19,34,54,59,44,28,16,5,60,68,1,0,25,39,71,75,52,39,34,22,8,2,9,19,36,49,69,83,92,98,91,85,66,51,44,30,21,15,22,28,47,62,79,91,105,111,104,94,77,64,42,38,61,74,112,113,88,74,53,45,97,108,59,54,69,85,110,112,94,79],
+          [17,24,33,27,1,3,28,44,59,54,34,19,5,16,68,60,0,1,39,52,75,71,39,25,19,9,2,8,22,34,51,66,85,91,98,92,83,69,49,36,28,22,15,21,30,44,64,77,94,104,111,105,91,79,62,47,38,42,74,88,113,112,74,61,45,53,108,97,54,59,79,94,112,110,85,69],
+          [4,10,18,11,0,1,22,30,42,38,22,9,5,16,53,45,1,3,34,44,59,54,28,19,25,19,15,21,28,39,51,64,74,79,81,78,69,61,47,36,39,34,32,35,44,52,66,77,88,94,98,92,85,74,62,49,54,59,85,94,112,110,79,69,60,68,108,97,71,75,91,104,113,112,91,83],
+          [13,6,7,14,30,22,1,0,9,22,38,42,53,16,5,45,44,34,3,1,19,28,54,59,79,74,64,51,39,28,21,15,19,25,36,47,61,69,78,81,94,88,77,66,52,44,35,32,34,39,49,62,74,85,92,98,94,85,59,54,69,79,110,112,108,68,60,97,104,91,75,71,83,91,112,113],
+          [29,20,23,31,44,28,3,1,19,34,54,59,68,16,5,60,52,39,1,0,25,39,71,75,91,85,66,51,34,22,8,2,9,19,36,49,69,83,92,98,104,94,77,64,44,30,21,15,22,28,47,62,79,91,105,111,88,74,42,38,61,74,112,113,108,53,45,97,94,79,59,54,69,85,110,112],
+          [27,17,24,33,34,19,1,3,28,44,59,54,60,5,16,68,39,25,0,1,39,52,75,71,83,69,49,36,19,9,2,8,22,34,51,66,85,91,98,92,91,79,62,47,28,22,15,21,30,44,64,77,94,104,111,105,74,61,38,42,74,88,113,112,97,45,53,108,85,69,54,59,79,94,112,110],
+          [11,4,10,18,22,9,0,1,22,30,42,38,45,5,16,53,28,19,1,3,34,44,59,54,69,61,47,36,25,19,15,21,28,39,51,64,74,79,81,78,85,74,62,49,39,34,32,35,44,52,66,77,88,94,98,92,79,69,54,59,85,94,112,110,97,60,68,108,91,83,71,75,91,104,113,112],
+          [14,13,6,7,38,42,30,22,1,0,9,22,45,53,16,5,54,59,44,34,3,1,19,28,61,69,78,81,79,74,64,51,39,28,21,15,19,25,36,47,74,85,92,98,94,88,77,66,52,44,35,32,34,39,49,62,110,112,94,85,59,54,69,79,97,108,68,60,112,113,104,91,75,71,83,91],
+          [31,29,20,23,54,59,44,28,3,1,19,34,60,68,16,5,71,75,52,39,1,0,25,39,69,83,92,98,91,85,66,51,34,22,8,2,9,19,36,49,79,91,105,111,104,94,77,64,44,30,21,15,22,28,47,62,112,113,88,74,42,38,61,74,97,108,53,45,110,112,94,79,59,54,69,85],
+          [33,27,17,24,59,54,34,19,1,3,28,44,68,60,5,16,75,71,39,25,0,1,39,52,85,91,98,92,83,69,49,36,19,9,2,8,22,34,51,66,94,104,111,105,91,79,62,47,28,22,15,21,30,44,64,77,113,112,74,61,38,42,74,88,108,97,45,53,112,110,85,69,54,59,79,94],
+          [18,11,4,10,42,38,22,9,0,1,22,30,53,45,5,16,59,54,28,19,1,3,34,44,74,79,81,78,69,61,47,36,25,19,15,21,28,39,51,64,88,94,98,92,85,74,62,49,39,34,32,35,44,52,66,77,112,110,79,69,54,59,85,94,108,97,60,68,113,112,91,83,71,75,91,104],
+          [7,14,13,6,9,22,38,42,30,22,1,0,5,45,53,16,19,28,54,59,44,34,3,1,19,25,36,47,61,69,78,81,79,74,64,51,39,28,21,15,34,39,49,62,74,85,92,98,94,88,77,66,52,44,35,32,69,79,110,112,94,85,59,54,60,97,108,68,83,91,112,113,104,91,75,71],
+          [23,31,29,20,19,34,54,59,44,28,3,1,5,60,68,16,25,39,71,75,52,39,1,0,9,19,36,49,69,83,92,98,91,85,66,51,34,22,8,2,22,28,47,62,79,91,105,111,104,94,77,64,44,30,21,15,61,74,112,113,88,74,42,38,45,97,108,53,69,85,110,112,94,79,59,54],
+          [24,33,27,17,28,44,59,54,34,19,1,3,16,68,60,5,39,52,75,71,39,25,0,1,22,34,51,66,85,91,98,92,83,69,49,36,19,9,2,8,30,44,64,77,94,104,111,105,91,79,62,47,28,22,15,21,74,88,113,112,74,61,38,42,53,108,97,45,79,94,112,110,85,69,54,59],
+          [10,18,11,4,22,30,42,38,22,9,0,1,16,53,45,5,34,44,59,54,28,19,1,3,28,39,51,64,74,79,81,78,69,61,47,36,25,19,15,21,44,52,66,77,88,94,98,92,85,74,62,49,39,34,32,35,85,94,112,110,79,69,54,59,68,108,97,60,91,104,113,112,91,83,71,75],
+          [40,48,56,46,19,28,61,74,79,69,39,25,5,45,97,60,9,22,69,85,91,83,34,19,1,0,2,15,38,54,78,92,110,112,105,92,71,54,32,15,3,1,8,21,42,59,81,98,112,113,111,98,75,59,35,21,22,30,79,94,104,91,44,28,16,53,108,68,34,44,74,88,94,85,52,39],
+          [57,67,73,65,34,44,74,88,94,85,52,39,16,53,108,68,22,30,79,94,104,91,44,28,3,1,8,21,42,59,81,98,112,113,111,98,75,59,35,21,1,0,2,15,38,54,78,92,110,112,105,92,71,54,32,15,9,22,69,85,91,83,34,19,5,45,97,60,19,28,61,74,79,69,39,25],
+          [58,70,72,63,39,52,85,94,88,74,44,34,16,68,108,53,28,44,91,104,94,79,30,22,1,3,21,35,59,75,98,111,113,112,98,81,59,42,21,8,0,1,15,32,54,71,92,105,112,110,92,78,54,38,15,2,19,34,83,91,85,69,22,9,5,60,97,45,25,39,69,79,74,61,28,19],
+          [41,50,55,43,25,39,69,79,74,61,28,19,5,60,97,45,19,34,83,91,85,69,22,9,0,1,15,32,54,71,92,105,112,110,92,78,54,38,15,2,1,3,21,35,59,75,98,111,113,112,98,81,59,42,21,8,28,44,91,104,94,79,30,22,16,68,108,53,39,52,85,94,88,74,44,34],
+          [41,43,55,50,21,15,36,51,78,81,64,47,26,12,76,87,8,2,36,51,92,98,66,49,32,15,1,0,2,15,38,54,78,92,110,112,105,92,71,54,35,21,3,1,8,21,42,59,81,98,112,113,111,98,75,59,21,15,47,64,105,111,77,62,37,26,87,101,35,32,49,66,92,98,77,62],
+          [58,63,72,70,35,32,49,66,92,98,77,62,37,26,87,101,21,15,47,64,105,111,77,62,35,21,3,1,8,21,42,59,81,98,112,113,111,98,75,59,32,15,1,0,2,15,38,54,78,92,110,112,105,92,71,54,8,2,36,51,92,98,66,49,26,12,76,87,21,15,36,51,78,81,64,47],
+          [57,65,73,67,32,35,62,77,98,92,66,49,26,37,101,87,15,21,62,77,111,105,64,47,21,8,1,3,21,35,59,75,98,111,113,112,98,81,59,42,15,2,0,1,15,32,54,71,92,105,112,110,92,78,54,38,2,8,49,66,98,92,51,36,12,26,87,76,15,21,47,64,81,78,51,36],
+          [40,46,56,48,15,21,47,64,81,78,51,36,12,26,87,76,2,8,49,66,98,92,51,36,15,2,0,1,15,32,54,71,92,105,112,110,92,78,54,38,21,8,1,3,21,35,59,75,98,111,113,112,98,81,59,42,15,21,62,77,111,105,64,47,26,37,101,87,32,35,62,77,98,92,66,49],
+          [46,40,48,56,39,25,19,28,61,74,79,69,60,5,45,97,34,19,9,22,69,85,91,83,71,54,32,15,1,0,2,15,38,54,78,92,110,112,105,92,75,59,35,21,3,1,8,21,42,59,81,98,112,113,111,98,44,28,22,30,79,94,104,91,68,16,53,108,52,39,34,44,74,88,94,85],
+          [65,57,67,73,52,39,34,44,74,88,94,85,68,16,53,108,44,28,22,30,79,94,104,91,75,59,35,21,3,1,8,21,42,59,81,98,112,113,111,98,71,54,32,15,1,0,2,15,38,54,78,92,110,112,105,92,34,19,9,22,69,85,91,83,60,5,45,97,39,25,19,28,61,74,79,69],
+          [63,58,70,72,44,34,39,52,85,94,88,74,53,16,68,108,30,22,28,44,91,104,94,79,59,42,21,8,1,3,21,35,59,75,98,111,113,112,98,81,54,38,15,2,0,1,15,32,54,71,92,105,112,110,92,78,22,9,19,34,83,91,85,69,45,5,60,97,28,19,25,39,69,79,74,61],
+          [43,41,50,55,28,19,25,39,69,79,74,61,45,5,60,97,22,9,19,34,83,91,85,69,54,38,15,2,0,1,15,32,54,71,92,105,112,110,92,78,59,42,21,8,1,3,21,35,59,75,98,111,113,112,98,81,30,22,28,44,91,104,94,79,53,16,68,108,44,34,39,52,85,94,88,74],
+          [50,41,43,55,64,47,21,15,36,51,78,81,87,26,12,76,66,49,8,2,36,51,92,98,105,92,71,54,32,15,1,0,2,15,38,54,78,92,110,112,111,98,75,59,35,21,3,1,8,21,42,59,81,98,112,113,77,62,21,15,47,64,105,111,101,37,26,87,77,62,35,32,49,66,92,98],
+          [70,58,63,72,77,62,35,32,49,66,92,98,101,37,26,87,77,62,21,15,47,64,105,111,111,98,75,59,35,21,3,1,8,21,42,59,81,98,112,113,105,92,71,54,32,15,1,0,2,15,38,54,78,92,110,112,66,49,8,2,36,51,92,98,87,26,12,76,64,47,21,15,36,51,78,81],
+          [67,57,65,73,66,49,32,35,62,77,98,92,87,26,37,101,64,47,15,21,62,77,111,105,98,81,59,42,21,8,1,3,21,35,59,75,98,111,113,112,92,78,54,38,15,2,0,1,15,32,54,71,92,105,112,110,51,36,2,8,49,66,98,92,76,12,26,87,51,36,15,21,47,64,81,78],
+          [48,40,46,56,51,36,15,21,47,64,81,78,76,12,26,87,51,36,2,8,49,66,98,92,92,78,54,38,15,2,0,1,15,32,54,71,92,105,112,110,98,81,59,42,21,8,1,3,21,35,59,75,98,111,113,112,64,47,15,21,62,77,111,105,87,26,37,101,66,49,32,35,62,77,98,92],
+          [56,46,40,48,79,69,39,25,19,28,61,74,97,60,5,45,91,83,34,19,9,22,69,85,110,112,105,92,71,54,32,15,1,0,2,15,38,54,78,92,112,113,111,98,75,59,35,21,3,1,8,21,42,59,81,98,104,91,44,28,22,30,79,94,108,68,16,53,94,85,52,39,34,44,74,88],
+          [73,65,57,67,94,85,52,39,34,44,74,88,108,68,16,53,104,91,44,28,22,30,79,94,112,113,111,98,75,59,35,21,3,1,8,21,42,59,81,98,110,112,105,92,71,54,32,15,1,0,2,15,38,54,78,92,91,83,34,19,9,22,69,85,97,60,5,45,79,69,39,25,19,28,61,74],
+          [72,63,58,70,88,74,44,34,39,52,85,94,108,53,16,68,94,79,30,22,28,44,91,104,113,112,98,81,59,42,21,8,1,3,21,35,59,75,98,111,112,110,92,78,54,38,15,2,0,1,15,32,54,71,92,105,85,69,22,9,19,34,83,91,97,45,5,60,74,61,28,19,25,39,69,79],
+          [55,43,41,50,74,61,28,19,25,39,69,79,97,45,5,60,85,69,22,9,19,34,83,91,112,110,92,78,54,38,15,2,0,1,15,32,54,71,92,105,113,112,98,81,59,42,21,8,1,3,21,35,59,75,98,111,94,79,30,22,28,44,91,104,108,53,16,68,88,74,44,34,39,52,85,94],
+          [55,50,41,43,78,81,64,47,21,15,36,51,76,87,26,12,92,98,66,49,8,2,36,51,78,92,110,112,105,92,71,54,32,15,1,0,2,15,38,54,81,98,112,113,111,98,75,59,35,21,3,1,8,21,42,59,105,111,77,62,21,15,47,64,87,101,37,26,92,98,77,62,35,32,49,66],
+          [72,70,58,63,92,98,77,62,35,32,49,66,87,101,37,26,105,111,77,62,21,15,47,64,81,98,112,113,111,98,75,59,35,21,3,1,8,21,42,59,78,92,110,112,105,92,71,54,32,15,1,0,2,15,38,54,92,98,66,49,8,2,36,51,76,87,26,12,78,81,64,47,21,15,36,51],
+          [73,67,57,65,98,92,66,49,32,35,62,77,101,87,26,37,111,105,64,47,15,21,62,77,98,111,113,112,98,81,59,42,21,8,1,3,21,35,59,75,92,105,112,110,92,78,54,38,15,2,0,1,15,32,54,71,98,92,51,36,2,8,49,66,87,76,12,26,81,78,51,36,15,21,47,64],
+          [56,48,40,46,81,78,51,36,15,21,47,64,87,76,12,26,98,92,51,36,2,8,49,66,92,105,112,110,92,78,54,38,15,2,0,1,15,32,54,71,98,111,113,112,98,81,59,42,21,8,1,3,21,35,59,75,111,105,64,47,15,21,62,77,101,87,26,37,98,92,66,49,32,35,62,77],
+          [48,56,46,40,61,74,79,69,39,25,19,28,45,97,60,5,69,85,91,83,34,19,9,22,38,54,78,92,110,112,105,92,71,54,32,15,1,0,2,15,42,59,81,98,112,113,111,98,75,59,35,21,3,1,8,21,79,94,104,91,44,28,22,30,53,108,68,16,74,88,94,85,52,39,34,44],
+          [67,73,65,57,74,88,94,85,52,39,34,44,53,108,68,16,79,94,104,91,44,28,22,30,42,59,81,98,112,113,111,98,75,59,35,21,3,1,8,21,38,54,78,92,110,112,105,92,71,54,32,15,1,0,2,15,69,85,91,83,34,19,9,22,45,97,60,5,61,74,79,69,39,25,19,28],
+          [70,72,63,58,85,94,88,74,44,34,39,52,68,108,53,16,91,104,94,79,30,22,28,44,59,75,98,111,113,112,98,81,59,42,21,8,1,3,21,35,54,71,92,105,112,110,92,78,54,38,15,2,0,1,15,32,83,91,85,69,22,9,19,34,60,97,45,5,69,79,74,61,28,19,25,39],
+          [50,55,43,41,69,79,74,61,28,19,25,39,60,97,45,5,83,91,85,69,22,9,19,34,54,71,92,105,112,110,92,78,54,38,15,2,0,1,15,32,59,75,98,111,113,112,98,81,59,42,21,8,1,3,21,35,91,104,94,79,30,22,28,44,68,108,53,16,85,94,88,74,44,34,39,52],
+          [43,55,50,41,36,51,78,81,64,47,21,15,12,76,87,26,36,51,92,98,66,49,8,2,2,15,38,54,78,92,110,112,105,92,71,54,32,15,1,0,8,21,42,59,81,98,112,113,111,98,75,59,35,21,3,1,47,64,105,111,77,62,21,15,26,87,101,37,49,66,92,98,77,62,35,32],
+          [63,72,70,58,49,66,92,98,77,62,35,32,26,87,101,37,47,64,105,111,77,62,21,15,8,21,42,59,81,98,112,113,111,98,75,59,35,21,3,1,2,15,38,54,78,92,110,112,105,92,71,54,32,15,1,0,36,51,92,98,66,49,8,2,12,76,87,26,36,51,78,81,64,47,21,15],
+          [65,73,67,57,62,77,98,92,66,49,32,35,37,101,87,26,62,77,111,105,64,47,15,21,21,35,59,75,98,111,113,112,98,81,59,42,21,8,1,3,15,32,54,71,92,105,112,110,92,78,54,38,15,2,0,1,49,66,98,92,51,36,2,8,26,87,76,12,47,64,81,78,51,36,15,21],
+          [46,56,48,40,47,64,81,78,51,36,15,21,26,87,76,12,49,66,98,92,51,36,2,8,15,32,54,71,92,105,112,110,92,78,54,38,15,2,0,1,21,35,59,75,98,111,113,112,98,81,59,42,21,8,1,3,62,77,111,105,64,47,15,21,37,101,87,26,62,77,98,92,66,49,32,35],
+          [82,84,93,90,59,54,69,85,110,112,94,79,53,45,97,108,42,38,61,74,112,113,88,74,44,30,21,15,22,28,47,62,79,91,105,111,104,94,77,64,34,22,8,2,9,19,36,49,69,83,92,98,91,85,66,51,1,0,25,39,71,75,52,39,16,5,60,68,3,1,19,34,54,59,44,28],
+          [99,100,107,106,75,71,83,91,112,113,104,91,68,60,97,108,59,54,69,79,110,112,94,85,52,44,35,32,34,39,49,62,74,85,92,98,94,88,77,66,39,28,21,15,19,25,36,47,61,69,78,81,79,74,64,51,3,1,19,28,54,59,44,34,16,5,45,53,1,0,9,22,38,42,30,22],
+          [95,102,109,103,71,75,91,104,113,112,91,83,60,68,108,97,54,59,85,94,112,110,79,69,39,34,32,35,44,52,66,77,88,94,98,92,85,74,62,49,25,19,15,21,28,39,51,64,74,79,81,78,69,61,47,36,1,3,34,44,59,54,28,19,5,16,53,45,0,1,22,30,42,38,22,9],
+          [80,86,96,89,54,59,79,94,112,110,85,69,45,53,108,97,38,42,74,88,113,112,74,61,28,22,15,21,30,44,64,77,94,104,111,105,91,79,62,47,19,9,2,8,22,34,51,66,85,91,98,92,83,69,49,36,0,1,39,52,75,71,39,25,5,16,68,60,1,3,28,44,59,54,34,19],
+          [90,82,84,93,94,79,59,54,69,85,110,112,108,53,45,97,88,74,42,38,61,74,112,113,104,94,77,64,44,30,21,15,22,28,47,62,79,91,105,111,91,85,66,51,34,22,8,2,9,19,36,49,69,83,92,98,52,39,1,0,25,39,71,75,68,16,5,60,44,28,3,1,19,34,54,59],
+          [106,99,100,107,104,91,75,71,83,91,112,113,108,68,60,97,94,85,59,54,69,79,110,112,94,88,77,66,52,44,35,32,34,39,49,62,74,85,92,98,79,74,64,51,39,28,21,15,19,25,36,47,61,69,78,81,44,34,3,1,19,28,54,59,53,16,5,45,30,22,1,0,9,22,38,42],
+          [103,95,102,109,91,83,71,75,91,104,113,112,97,60,68,108,79,69,54,59,85,94,112,110,85,74,62,49,39,34,32,35,44,52,66,77,88,94,98,92,69,61,47,36,25,19,15,21,28,39,51,64,74,79,81,78,28,19,1,3,34,44,59,54,45,5,16,53,22,9,0,1,22,30,42,38],
+          [89,80,86,96,85,69,54,59,79,94,112,110,97,45,53,108,74,61,38,42,74,88,113,112,91,79,62,47,28,22,15,21,30,44,64,77,94,104,111,105,83,69,49,36,19,9,2,8,22,34,51,66,85,91,98,92,39,25,0,1,39,52,75,71,60,5,16,68,34,19,1,3,28,44,59,54],
+          [93,90,82,84,110,112,94,79,59,54,69,85,97,108,53,45,112,113,88,74,42,38,61,74,79,91,105,111,104,94,77,64,44,30,21,15,22,28,47,62,69,83,92,98,91,85,66,51,34,22,8,2,9,19,36,49,71,75,52,39,1,0,25,39,60,68,16,5,54,59,44,28,3,1,19,34],
+          [107,106,99,100,112,113,104,91,75,71,83,91,97,108,68,60,110,112,94,85,59,54,69,79,74,85,92,98,94,88,77,66,52,44,35,32,34,39,49,62,61,69,78,81,79,74,64,51,39,28,21,15,19,25,36,47,54,59,44,34,3,1,19,28,45,53,16,5,38,42,30,22,1,0,9,22],
+          [109,103,95,102,113,112,91,83,71,75,91,104,108,97,60,68,112,110,79,69,54,59,85,94,88,94,98,92,85,74,62,49,39,34,32,35,44,52,66,77,74,79,81,78,69,61,47,36,25,19,15,21,28,39,51,64,59,54,28,19,1,3,34,44,53,45,5,16,42,38,22,9,0,1,22,30],
+          [96,89,80,86,112,110,85,69,54,59,79,94,108,97,45,53,113,112,74,61,38,42,74,88,94,104,111,105,91,79,62,47,28,22,15,21,30,44,64,77,85,91,98,92,83,69,49,36,19,9,2,8,22,34,51,66,75,71,39,25,0,1,39,52,68,60,5,16,59,54,34,19,1,3,28,44],
+          [84,93,90,82,69,85,110,112,94,79,59,54,45,97,108,53,61,74,112,113,88,74,42,38,22,28,47,62,79,91,105,111,104,94,77,64,44,30,21,15,9,19,36,49,69,83,92,98,91,85,66,51,34,22,8,2,25,39,71,75,52,39,1,0,5,60,68,16,19,34,54,59,44,28,3,1],
+          [100,107,106,99,83,91,112,113,104,91,75,71,60,97,108,68,69,79,110,112,94,85,59,54,34,39,49,62,74,85,92,98,94,88,77,66,52,44,35,32,19,25,36,47,61,69,78,81,79,74,64,51,39,28,21,15,19,28,54,59,44,34,3,1,5,45,53,16,9,22,38,42,30,22,1,0],
+          [102,109,103,95,91,104,113,112,91,83,71,75,68,108,97,60,85,94,112,110,79,69,54,59,44,52,66,77,88,94,98,92,85,74,62,49,39,34,32,35,28,39,51,64,74,79,81,78,69,61,47,36,25,19,15,21,34,44,59,54,28,19,1,3,16,53,45,5,22,30,42,38,22,9,0,1],
+          [86,96,89,80,79,94,112,110,85,69,54,59,53,108,97,45,74,88,113,112,74,61,38,42,30,44,64,77,94,104,111,105,91,79,62,47,28,22,15,21,22,34,51,66,85,91,98,92,83,69,49,36,19,9,2,8,39,52,75,71,39,25,0,1,16,68,60,5,28,44,59,54,34,19,1,3],
+        ];
 
-      // Grab the template peak-fitting script to a local copy here
-      var thisScript = {};
-      thisScript = dataStore.peakFitterScriptTemplate[dataStore.detectorType];
+        // GRIFFIN-ARIES with HPGE at 145mm
+        // GRG_ART_angles_145mm[crystal][tile] = angularIndex of the GRG_ART_angular_bins_145mm array of angular differences in degrees
+        dataStore.GRG_ART_angles_145mm = [
+          [6,8,18,15,1,0,9,28,47,51,38,25,13,4,55,65,2,1,24,37,71,76,52,39,43,32,20,12,21,29,44,57,80,90,99,104,98,93,79,61,59,49,40,35,41,46,60,78,96,107,119,127,118,110,95,82,68,63,87,100,137,138,115,102,84,74,126,135,92,88,101,114,138,139,130,111],
+          [17,23,34,33,2,1,21,41,63,68,49,32,13,4,74,84,1,0,29,46,88,92,59,43,39,25,7,3,9,24,44,60,87,101,113,120,111,102,82,61,52,38,26,19,28,37,57,78,100,114,132,136,130,115,95,79,51,47,80,96,138,139,110,93,65,55,126,135,76,71,90,107,137,138,118,98],
+          [16,27,36,31,1,2,32,49,68,63,41,21,4,13,84,74,0,1,43,59,92,88,46,29,24,9,3,7,25,39,61,82,102,111,120,113,101,87,60,44,37,28,19,26,38,52,79,95,115,130,136,132,114,100,78,57,47,51,93,110,139,138,96,80,55,65,135,126,71,76,98,118,138,137,107,90],
+          [5,10,22,11,0,1,25,38,51,47,28,9,4,13,65,55,1,2,39,52,76,71,37,24,29,21,12,20,32,43,61,79,93,98,104,99,90,80,57,44,46,41,35,40,49,59,82,95,110,118,127,119,107,96,78,60,63,68,102,115,138,137,100,87,74,84,135,126,88,92,111,130,139,138,114,101],
+          [15,6,8,18,38,25,1,0,9,28,47,51,65,13,4,55,52,39,2,1,24,37,71,76,98,93,79,61,43,32,20,12,21,29,44,57,80,90,99,104,118,110,95,82,59,49,40,35,41,46,60,78,96,107,119,127,115,102,68,63,87,100,137,138,135,84,74,126,130,111,92,88,101,114,138,139],
+          [33,17,23,34,49,32,2,1,21,41,63,68,84,13,4,74,59,43,1,0,29,46,88,92,111,102,82,61,39,25,7,3,9,24,44,60,87,101,113,120,130,115,95,79,52,38,26,19,28,37,57,78,100,114,132,136,110,93,51,47,80,96,138,139,135,65,55,126,118,98,76,71,90,107,137,138],
+          [31,16,27,36,41,21,1,2,32,49,68,63,74,4,13,84,46,29,0,1,43,59,92,88,101,87,60,44,24,9,3,7,25,39,61,82,102,111,120,113,114,100,78,57,37,28,19,26,38,52,79,95,115,130,136,132,96,80,47,51,93,110,139,138,126,55,65,135,107,90,71,76,98,118,138,137],
+          [11,5,10,22,28,9,0,1,25,38,51,47,55,4,13,65,37,24,1,2,39,52,76,71,90,80,57,44,29,21,12,20,32,43,61,79,93,98,104,99,107,96,78,60,46,41,35,40,49,59,82,95,110,118,127,119,100,87,63,68,102,115,138,137,126,74,84,135,114,101,88,92,111,130,139,138],
+          [18,15,6,8,47,51,38,25,1,0,9,28,55,65,13,4,71,76,52,39,2,1,24,37,80,90,99,104,98,93,79,61,43,32,20,12,21,29,44,57,96,107,119,127,118,110,95,82,59,49,40,35,41,46,60,78,137,138,115,102,68,63,87,100,126,135,84,74,138,139,130,111,92,88,101,114],
+          [34,33,17,23,63,68,49,32,2,1,21,41,74,84,13,4,88,92,59,43,1,0,29,46,87,101,113,120,111,102,82,61,39,25,7,3,9,24,44,60,100,114,132,136,130,115,95,79,52,38,26,19,28,37,57,78,138,139,110,93,51,47,80,96,126,135,65,55,137,138,118,98,76,71,90,107],
+          [36,31,16,27,68,63,41,21,1,2,32,49,84,74,4,13,92,88,46,29,0,1,43,59,102,111,120,113,101,87,60,44,24,9,3,7,25,39,61,82,115,130,136,132,114,100,78,57,37,28,19,26,38,52,79,95,139,138,96,80,47,51,93,110,135,126,55,65,138,137,107,90,71,76,98,118],
+          [22,11,5,10,51,47,28,9,0,1,25,38,65,55,4,13,76,71,37,24,1,2,39,52,93,98,104,99,90,80,57,44,29,21,12,20,32,43,61,79,110,118,127,119,107,96,78,60,46,41,35,40,49,59,82,95,138,137,100,87,63,68,102,115,135,126,74,84,139,138,114,101,88,92,111,130],
+          [8,18,15,6,9,28,47,51,38,25,1,0,4,55,65,13,24,37,71,76,52,39,2,1,21,29,44,57,80,90,99,104,98,93,79,61,43,32,20,12,41,46,60,78,96,107,119,127,118,110,95,82,59,49,40,35,87,100,137,138,115,102,68,63,74,126,135,84,101,114,138,139,130,111,92,88],
+          [23,34,33,17,21,41,63,68,49,32,2,1,4,74,84,13,29,46,88,92,59,43,1,0,9,24,44,60,87,101,113,120,111,102,82,61,39,25,7,3,28,37,57,78,100,114,132,136,130,115,95,79,52,38,26,19,80,96,138,139,110,93,51,47,55,126,135,65,90,107,137,138,118,98,76,71],
+          [27,36,31,16,32,49,68,63,41,21,1,2,13,84,74,4,43,59,92,88,46,29,0,1,25,39,61,82,102,111,120,113,101,87,60,44,24,9,3,7,38,52,79,95,115,130,136,132,114,100,78,57,37,28,19,26,93,110,139,138,96,80,47,51,65,135,126,55,98,118,138,137,107,90,71,76],
+          [10,22,11,5,25,38,51,47,28,9,0,1,13,65,55,4,39,52,76,71,37,24,1,2,32,43,61,79,93,98,104,99,90,80,57,44,29,21,12,20,49,59,82,95,110,118,127,119,107,96,78,60,46,41,35,40,102,115,138,137,100,87,63,68,84,135,126,74,111,130,139,138,114,101,88,92],
+          [48,62,72,56,24,37,80,96,100,87,46,29,4,55,126,74,9,28,90,107,114,101,41,21,1,0,3,19,47,71,99,119,137,138,132,113,88,63,35,12,2,1,7,26,51,76,104,127,138,139,136,120,92,68,40,20,25,38,98,118,130,111,49,32,13,65,135,84,39,52,93,110,115,102,59,43],
+          [67,83,91,77,39,52,93,110,115,102,59,43,13,65,135,84,25,38,98,118,130,111,49,32,2,1,7,26,51,76,104,127,138,139,136,120,92,68,40,20,1,0,3,19,47,71,99,119,137,138,132,113,88,63,35,12,9,28,90,107,114,101,41,21,4,55,126,74,24,37,80,96,100,87,46,29],
+          [69,86,89,75,43,59,102,115,110,93,52,39,13,84,135,65,32,49,111,130,118,98,38,25,1,2,20,40,68,92,120,136,139,138,127,104,76,51,26,7,0,1,12,35,63,88,113,132,138,137,119,99,71,47,19,3,21,41,101,114,107,90,28,9,4,74,126,55,29,46,87,100,96,80,37,24],
+          [50,64,70,53,29,46,87,100,96,80,37,24,4,74,126,55,21,41,101,114,107,90,28,9,0,1,12,35,63,88,113,132,138,137,119,99,71,47,19,3,1,2,20,40,68,92,120,136,139,138,127,104,76,51,26,7,32,49,111,130,118,98,38,25,13,84,135,65,43,59,102,115,110,93,52,39],
+          [50,53,70,64,26,19,45,66,99,104,81,54,30,14,97,109,7,3,45,66,119,127,85,58,35,12,1,0,3,19,47,71,99,119,137,138,132,113,88,63,40,20,2,1,7,26,51,76,104,127,138,139,136,120,92,68,20,12,54,81,132,136,94,73,42,30,109,125,40,35,58,85,113,120,94,73],
+          [69,75,89,86,40,35,58,85,113,120,94,73,42,30,109,125,20,12,54,81,132,136,94,73,40,20,2,1,7,26,51,76,104,127,138,139,136,120,92,68,35,12,1,0,3,19,47,71,99,119,137,138,132,113,88,63,7,3,45,66,119,127,85,58,30,14,97,109,26,19,45,66,99,104,81,54],
+          [67,77,91,83,35,40,73,94,120,113,85,58,30,42,125,109,12,20,73,94,136,132,81,54,26,7,1,2,20,40,68,92,120,136,139,138,127,104,76,51,19,3,0,1,12,35,63,88,113,132,138,137,119,99,71,47,3,7,58,85,127,119,66,45,14,30,109,97,19,26,54,81,104,99,66,45],
+          [48,56,72,62,19,26,54,81,104,99,66,45,14,30,109,97,3,7,58,85,127,119,66,45,19,3,0,1,12,35,63,88,113,132,138,137,119,99,71,47,26,7,1,2,20,40,68,92,120,136,139,138,127,104,76,51,12,20,73,94,136,132,81,54,30,42,125,109,35,40,73,94,120,113,85,58],
+          [56,48,62,72,46,29,24,37,80,96,100,87,74,4,55,126,41,21,9,28,90,107,114,101,88,63,35,12,1,0,3,19,47,71,99,119,137,138,132,113,92,68,40,20,2,1,7,26,51,76,104,127,138,139,136,120,49,32,25,38,98,118,130,111,84,13,65,135,59,43,39,52,93,110,115,102],
+          [77,67,83,91,59,43,39,52,93,110,115,102,84,13,65,135,49,32,25,38,98,118,130,111,92,68,40,20,2,1,7,26,51,76,104,127,138,139,136,120,88,63,35,12,1,0,3,19,47,71,99,119,137,138,132,113,41,21,9,28,90,107,114,101,74,4,55,126,46,29,24,37,80,96,100,87],
+          [75,69,86,89,52,39,43,59,102,115,110,93,65,13,84,135,38,25,32,49,111,130,118,98,76,51,26,7,1,2,20,40,68,92,120,136,139,138,127,104,71,47,19,3,0,1,12,35,63,88,113,132,138,137,119,99,28,9,21,41,101,114,107,90,55,4,74,126,37,24,29,46,87,100,96,80],
+          [53,50,64,70,37,24,29,46,87,100,96,80,55,4,74,126,28,9,21,41,101,114,107,90,71,47,19,3,0,1,12,35,63,88,113,132,138,137,119,99,76,51,26,7,1,2,20,40,68,92,120,136,139,138,127,104,38,25,32,49,111,130,118,98,65,13,84,135,52,39,43,59,102,115,110,93],
+          [64,50,53,70,81,54,26,19,45,66,99,104,109,30,14,97,85,58,7,3,45,66,119,127,132,113,88,63,35,12,1,0,3,19,47,71,99,119,137,138,136,120,92,68,40,20,2,1,7,26,51,76,104,127,138,139,94,73,20,12,54,81,132,136,125,42,30,109,94,73,40,35,58,85,113,120],
+          [86,69,75,89,94,73,40,35,58,85,113,120,125,42,30,109,94,73,20,12,54,81,132,136,136,120,92,68,40,20,2,1,7,26,51,76,104,127,138,139,132,113,88,63,35,12,1,0,3,19,47,71,99,119,137,138,85,58,7,3,45,66,119,127,109,30,14,97,81,54,26,19,45,66,99,104],
+          [83,67,77,91,85,58,35,40,73,94,120,113,109,30,42,125,81,54,12,20,73,94,136,132,127,104,76,51,26,7,1,2,20,40,68,92,120,136,139,138,119,99,71,47,19,3,0,1,12,35,63,88,113,132,138,137,66,45,3,7,58,85,127,119,97,14,30,109,66,45,19,26,54,81,104,99],
+          [62,48,56,72,66,45,19,26,54,81,104,99,97,14,30,109,66,45,3,7,58,85,127,119,119,99,71,47,19,3,0,1,12,35,63,88,113,132,138,137,127,104,76,51,26,7,1,2,20,40,68,92,120,136,139,138,81,54,12,20,73,94,136,132,109,30,42,125,85,58,35,40,73,94,120,113],
+          [72,56,48,62,100,87,46,29,24,37,80,96,126,74,4,55,114,101,41,21,9,28,90,107,137,138,132,113,88,63,35,12,1,0,3,19,47,71,99,119,138,139,136,120,92,68,40,20,2,1,7,26,51,76,104,127,130,111,49,32,25,38,98,118,135,84,13,65,115,102,59,43,39,52,93,110],
+          [91,77,67,83,115,102,59,43,39,52,93,110,135,84,13,65,130,111,49,32,25,38,98,118,138,139,136,120,92,68,40,20,2,1,7,26,51,76,104,127,137,138,132,113,88,63,35,12,1,0,3,19,47,71,99,119,114,101,41,21,9,28,90,107,126,74,4,55,100,87,46,29,24,37,80,96],
+          [89,75,69,86,110,93,52,39,43,59,102,115,135,65,13,84,118,98,38,25,32,49,111,130,139,138,127,104,76,51,26,7,1,2,20,40,68,92,120,136,138,137,119,99,71,47,19,3,0,1,12,35,63,88,113,132,107,90,28,9,21,41,101,114,126,55,4,74,96,80,37,24,29,46,87,100],
+          [70,53,50,64,96,80,37,24,29,46,87,100,126,55,4,74,107,90,28,9,21,41,101,114,138,137,119,99,71,47,19,3,0,1,12,35,63,88,113,132,139,138,127,104,76,51,26,7,1,2,20,40,68,92,120,136,118,98,38,25,32,49,111,130,135,65,13,84,110,93,52,39,43,59,102,115],
+          [70,64,50,53,99,104,81,54,26,19,45,66,97,109,30,14,119,127,85,58,7,3,45,66,99,119,137,138,132,113,88,63,35,12,1,0,3,19,47,71,104,127,138,139,136,120,92,68,40,20,2,1,7,26,51,76,132,136,94,73,20,12,54,81,109,125,42,30,113,120,94,73,40,35,58,85],
+          [89,86,69,75,113,120,94,73,40,35,58,85,109,125,42,30,132,136,94,73,20,12,54,81,104,127,138,139,136,120,92,68,40,20,2,1,7,26,51,76,99,119,137,138,132,113,88,63,35,12,1,0,3,19,47,71,119,127,85,58,7,3,45,66,97,109,30,14,99,104,81,54,26,19,45,66],
+          [91,83,67,77,120,113,85,58,35,40,73,94,125,109,30,42,136,132,81,54,12,20,73,94,120,136,139,138,127,104,76,51,26,7,1,2,20,40,68,92,113,132,138,137,119,99,71,47,19,3,0,1,12,35,63,88,127,119,66,45,3,7,58,85,109,97,14,30,104,99,66,45,19,26,54,81],
+          [72,62,48,56,104,99,66,45,19,26,54,81,109,97,14,30,127,119,66,45,3,7,58,85,113,132,138,137,119,99,71,47,19,3,0,1,12,35,63,88,120,136,139,138,127,104,76,51,26,7,1,2,20,40,68,92,136,132,81,54,12,20,73,94,125,109,30,42,120,113,85,58,35,40,73,94],
+          [62,72,56,48,80,96,100,87,46,29,24,37,55,126,74,4,90,107,114,101,41,21,9,28,47,71,99,119,137,138,132,113,88,63,35,12,1,0,3,19,51,76,104,127,138,139,136,120,92,68,40,20,2,1,7,26,98,118,130,111,49,32,25,38,65,135,84,13,93,110,115,102,59,43,39,52],
+          [83,91,77,67,93,110,115,102,59,43,39,52,65,135,84,13,98,118,130,111,49,32,25,38,51,76,104,127,138,139,136,120,92,68,40,20,2,1,7,26,47,71,99,119,137,138,132,113,88,63,35,12,1,0,3,19,90,107,114,101,41,21,9,28,55,126,74,4,80,96,100,87,46,29,24,37],
+          [86,89,75,69,102,115,110,93,52,39,43,59,84,135,65,13,111,130,118,98,38,25,32,49,68,92,120,136,139,138,127,104,76,51,26,7,1,2,20,40,63,88,113,132,138,137,119,99,71,47,19,3,0,1,12,35,101,114,107,90,28,9,21,41,74,126,55,4,87,100,96,80,37,24,29,46],
+          [64,70,53,50,87,100,96,80,37,24,29,46,74,126,55,4,101,114,107,90,28,9,21,41,63,88,113,132,138,137,119,99,71,47,19,3,0,1,12,35,68,92,120,136,139,138,127,104,76,51,26,7,1,2,20,40,111,130,118,98,38,25,32,49,84,135,65,13,102,115,110,93,52,39,43,59],
+          [53,70,64,50,45,66,99,104,81,54,26,19,14,97,109,30,45,66,119,127,85,58,7,3,3,19,47,71,99,119,137,138,132,113,88,63,35,12,1,0,7,26,51,76,104,127,138,139,136,120,92,68,40,20,2,1,54,81,132,136,94,73,20,12,30,109,125,42,58,85,113,120,94,73,40,35],
+          [75,89,86,69,58,85,113,120,94,73,40,35,30,109,125,42,54,81,132,136,94,73,20,12,7,26,51,76,104,127,138,139,136,120,92,68,40,20,2,1,3,19,47,71,99,119,137,138,132,113,88,63,35,12,1,0,45,66,119,127,85,58,7,3,14,97,109,30,45,66,99,104,81,54,26,19],
+          [77,91,83,67,73,94,120,113,85,58,35,40,42,125,109,30,73,94,136,132,81,54,12,20,20,40,68,92,120,136,139,138,127,104,76,51,26,7,1,2,12,35,63,88,113,132,138,137,119,99,71,47,19,3,0,1,58,85,127,119,66,45,3,7,30,109,97,14,54,81,104,99,66,45,19,26],
+          [56,72,62,48,54,81,104,99,66,45,19,26,30,109,97,14,58,85,127,119,66,45,3,7,12,35,63,88,113,132,138,137,119,99,71,47,19,3,0,1,20,40,68,92,120,136,139,138,127,104,76,51,26,7,1,2,73,94,136,132,81,54,12,20,42,125,109,30,73,94,120,113,85,58,35,40],
+          [105,106,122,116,76,71,90,107,137,138,118,98,65,55,126,135,51,47,80,96,138,139,110,93,52,38,26,19,28,37,57,78,100,114,132,136,130,115,95,79,39,25,7,3,9,24,44,60,87,101,113,120,111,102,82,61,1,0,29,46,88,92,59,43,13,4,74,84,2,1,21,41,63,68,49,32],
+          [121,124,133,131,92,88,101,114,138,139,130,111,84,74,126,135,68,63,87,100,137,138,115,102,59,49,40,35,41,46,60,78,96,107,119,127,118,110,95,82,43,32,20,12,21,29,44,57,80,90,99,104,98,93,79,61,2,1,24,37,71,76,52,39,13,4,55,65,1,0,9,28,47,51,38,25],
+          [117,128,134,129,88,92,111,130,139,138,114,101,74,84,135,126,63,68,102,115,138,137,100,87,46,41,35,40,49,59,82,95,110,118,127,119,107,96,78,60,29,21,12,20,32,43,61,79,93,98,104,99,90,80,57,44,1,2,39,52,76,71,37,24,4,13,65,55,0,1,25,38,51,47,28,9],
+          [103,108,123,112,71,76,98,118,138,137,107,90,55,65,135,126,47,51,93,110,139,138,96,80,37,28,19,26,38,52,79,95,115,130,136,132,114,100,78,57,24,9,3,7,25,39,61,82,102,111,120,113,101,87,60,44,0,1,43,59,92,88,46,29,4,13,84,74,1,2,32,49,68,63,41,21],
+          [116,105,106,122,118,98,76,71,90,107,137,138,135,65,55,126,110,93,51,47,80,96,138,139,130,115,95,79,52,38,26,19,28,37,57,78,100,114,132,136,111,102,82,61,39,25,7,3,9,24,44,60,87,101,113,120,59,43,1,0,29,46,88,92,84,13,4,74,49,32,2,1,21,41,63,68],
+          [131,121,124,133,130,111,92,88,101,114,138,139,135,84,74,126,115,102,68,63,87,100,137,138,118,110,95,82,59,49,40,35,41,46,60,78,96,107,119,127,98,93,79,61,43,32,20,12,21,29,44,57,80,90,99,104,52,39,2,1,24,37,71,76,65,13,4,55,38,25,1,0,9,28,47,51],
+          [129,117,128,134,114,101,88,92,111,130,139,138,126,74,84,135,100,87,63,68,102,115,138,137,107,96,78,60,46,41,35,40,49,59,82,95,110,118,127,119,90,80,57,44,29,21,12,20,32,43,61,79,93,98,104,99,37,24,1,2,39,52,76,71,55,4,13,65,28,9,0,1,25,38,51,47],
+          [112,103,108,123,107,90,71,76,98,118,138,137,126,55,65,135,96,80,47,51,93,110,139,138,114,100,78,57,37,28,19,26,38,52,79,95,115,130,136,132,101,87,60,44,24,9,3,7,25,39,61,82,102,111,120,113,46,29,0,1,43,59,92,88,74,4,13,84,41,21,1,2,32,49,68,63],
+          [122,116,105,106,137,138,118,98,76,71,90,107,126,135,65,55,138,139,110,93,51,47,80,96,100,114,132,136,130,115,95,79,52,38,26,19,28,37,57,78,87,101,113,120,111,102,82,61,39,25,7,3,9,24,44,60,88,92,59,43,1,0,29,46,74,84,13,4,63,68,49,32,2,1,21,41],
+          [133,131,121,124,138,139,130,111,92,88,101,114,126,135,84,74,137,138,115,102,68,63,87,100,96,107,119,127,118,110,95,82,59,49,40,35,41,46,60,78,80,90,99,104,98,93,79,61,43,32,20,12,21,29,44,57,71,76,52,39,2,1,24,37,55,65,13,4,47,51,38,25,1,0,9,28],
+          [134,129,117,128,139,138,114,101,88,92,111,130,135,126,74,84,138,137,100,87,63,68,102,115,110,118,127,119,107,96,78,60,46,41,35,40,49,59,82,95,93,98,104,99,90,80,57,44,29,21,12,20,32,43,61,79,76,71,37,24,1,2,39,52,65,55,4,13,51,47,28,9,0,1,25,38],
+          [123,112,103,108,138,137,107,90,71,76,98,118,135,126,55,65,139,138,96,80,47,51,93,110,115,130,136,132,114,100,78,57,37,28,19,26,38,52,79,95,102,111,120,113,101,87,60,44,24,9,3,7,25,39,61,82,92,88,46,29,0,1,43,59,84,74,4,13,68,63,41,21,1,2,32,49],
+          [106,122,116,105,90,107,137,138,118,98,76,71,55,126,135,65,80,96,138,139,110,93,51,47,28,37,57,78,100,114,132,136,130,115,95,79,52,38,26,19,9,24,44,60,87,101,113,120,111,102,82,61,39,25,7,3,29,46,88,92,59,43,1,0,4,74,84,13,21,41,63,68,49,32,2,1],
+          [124,133,131,121,101,114,138,139,130,111,92,88,74,126,135,84,87,100,137,138,115,102,68,63,41,46,60,78,96,107,119,127,118,110,95,82,59,49,40,35,21,29,44,57,80,90,99,104,98,93,79,61,43,32,20,12,24,37,71,76,52,39,2,1,4,55,65,13,9,28,47,51,38,25,1,0],
+          [128,134,129,117,111,130,139,138,114,101,88,92,84,135,126,74,102,115,138,137,100,87,63,68,49,59,82,95,110,118,127,119,107,96,78,60,46,41,35,40,32,43,61,79,93,98,104,99,90,80,57,44,29,21,12,20,39,52,76,71,37,24,1,2,13,65,55,4,25,38,51,47,28,9,0,1],
+          [108,123,112,103,98,118,138,137,107,90,71,76,65,135,126,55,93,110,139,138,96,80,47,51,38,52,79,95,115,130,136,132,114,100,78,57,37,28,19,26,25,39,61,82,102,111,120,113,101,87,60,44,24,9,3,7,43,59,92,88,46,29,0,1,13,84,74,4,32,49,68,63,41,21,1,2],
+        ];
 
-      // Get the user input on histogramFileNames
-      thisScript.histogramFileNames.push(document.getElementById('HistoListSelectGRIFFIN').value);
-      dataStore.histoFileName = document.getElementById('HistoListSelectGRIFFIN').value;
-      dataStore.currentHistoFileName = document.getElementById('HistoListSelectGRIFFIN').value;
 
-      // Setup the peak-fitting script from the template
-      receiveScript(JSON.stringify(thisScript));
+        // 60Co gg ang corr from Run run29578.tar
+        dataStore.quickDataX = [0.000, 15.442, 21.905, 29.143, 33.143, 38.382, 44.57, 47.445, 48.741, 51.473,
+          55.170, 59.978, 60.102, 62.340, 62.492, 63.423, 68.957, 71.431, 73.358, 73.629,
+          75.774, 80.942, 81.546, 83.894, 86.868, 88.966, 91.034, 93.132, 96.106, 98.454,
+          99.058, 104.226, 106.371, 106.642, 108.569, 111.043, 116.577, 117.508, 117.660,
+          119.898, 120.022, 124.830, 128.527, 131.259, 132.555, 135.430, 141.618, 146.857,
+          150.857, 158.095, 164.558, 180.000];
+          dataStore.quickDataY = [1.2, 1.1649445679515484, 1.16404404173609, 1.1534194212971343, 1.1487646735942079, 1.1319730562416195, 1.0855024174242622, 1.0955483598820324, 1.0967150537881445, 1.07477819459717, 1.0670033719253225, 1.0350595775621638, 1.0632547565661457, 1.054290250774924, 1.0397650722247835, 1.0464194928300574, 1.0382793697970039, 1.0345761445428245, 1.0213096453001547, 1.033750779388556, 1.0526274019670399, 1.0135505676433754, 1.022872761287112, 1.0229782483214198, 1.024272823171905, 1.0127807217310842, 1.0259485750877826, 1.010741956012306, 1.014006851101479, 1.0337180827684103, 1.0085204602351001, 1.0315913337747054, 1.045413973136467, 1.0273662602169433, 1.0239243794524204, 1.0302119450801877, 1.045204729193273, 1.0494111870868919, 1.0468512616814172, 1.0468137786650362, 1.0688584627515472, 1.0621886640362925, 1.0848967001474858, 1.086446504807811, 1.0831054060283596, 1.1116666070843002, 1.1222843879096187, 1.1243680235895794, 1.1433331260031783, 1.1398908022870562, 1.189665641136618, 1.2];
 
-      // Custom settings for Angular Correlations for this subsytem type
-      // generate the groups for plot selector
-      // fill the THESEdetectors array of detector names
-      // fill the angularMatrices array of 2d histogram names
-      switch(dataStore.detectorType){
+        } // end of setupDataStore()
+        setupDataStore();
 
-        case "GRG-GRG-110mm": // Ge-Ge angular correlations for HPGe at 110mm
-        case "GRG-GRG-145mm": // Ge-Ge angular correlations for HPGe at 145mm
+        function initializeAngularCorrelations(detType){
+          console.log("initializeAngularCorrelations()");
 
-        // Copy the corresponding angular bin data into the arrays to use
-        if(dataStore.detectorType == "GRG-GRG-145mm"){
-          dataStore.theseAngularBins = dataStore.angular_bins_145mm;
-          dataStore.theseGeAngles = dataStore.ge_angles_145mm;
-          dataStore.HPGeDistance = 145;
-          var matrixNameString = "Ge_Ge_145mm_angular_bin";
-        }else{
-          dataStore.theseAngularBins = dataStore.angular_bins_110mm;
-          dataStore.theseGeAngles = dataStore.ge_angles_110mm;
-          dataStore.HPGeDistance = 110;
-          var matrixNameString = "Ge_Ge_110mm_angular_bin";
-        }
-
-        // Generate the angular bins in radians
-        for(var i=0; i<dataStore.theseAngularBins.length; i++){
-          dataStore.theseAngularBinsRadians.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
-        }
-
-        // Set up GRIFFIN detectors for GRG-GRG type
-        var crystals = ["B","G","R","W"];
-        var num=0;
-        for(i=1; i<(dataStore.numberOfClovers+1); i++){
-          for(k=0; k<4; k++){
-            dataStore.THESEdetectors[num] = 'GRG'+alwaysThisLong(i, 2)+crystals[k]+'N00A'; num++;
-          }
-        }
-
-        // Set up the groups based on THESEdetectors
-        var groups = [];
-        groups.push({ "groupID": 'AngularBins', "groupTitle": 'Angular Bins', "plots": [] });
-        var histoName = dataStore.histoFileName.split(".")[0] + ":";
-        var thesePlots = [];
-        for(i=0; i<dataStore.THESEdetectors.length; i++){
-          thesePlots.push( { "plotID": histoName + dataStore.THESEdetectors[i] + '_GGEnergy', "title": dataStore.THESEdetectors[i] });
-        }
-        groups.push({ "groupID": 'GRG', "groupTitle": 'Ge Singles for normalization', "plots": thesePlots });
-
-        break; // End of case of GRG-GRG
-
-        ////////////////////////////////////////////////
-        case "GRG-ART": // Ge-ARIES angular correlations
-
-        // Set up GRIFFIN and ARIES detectors for GRG-ART type
-        var crystals = ["B","G","R","W"];
-        var num=0;
-        for(i=1; i<(dataStore.numberOfClovers+1); i++){
-          for(k=0; k<4; k++){
-            dataStore.THESEdetectors[num] = 'GRG'+alwaysThisLong(i, 2)+crystals[k]+'N00A'; num++;
-          }
-        }
-        for(i=1; i<=dataStore.numberOfARIESTiles; i++){
-          dataStore.THESEdetectors[num] = 'ART'+alwaysThisLong(i, 2)+'XS00X'; num++;
-        }
-
-        // Set up the groups based on THESEdetectors
-        var groups = [];
-        groups.push({ "groupID": 'AngularBins', "groupTitle": 'Angular Bins', "plots": [] });
-        var histoName = dataStore.histoFileName.split(".")[0] + ":";
-        var theseGRGPlots = [];
-        var theseARTPlots = [];
-        for(i=0; i<dataStore.THESEdetectors.length; i++){
-          if(dataStore.THESEdetectors[i].includes('GRG')){
-            theseGRGPlots.push(
-              { "plotID": histoName + dataStore.THESEdetectors[i] + '_Energy', "title": dataStore.THESEdetectors[i] });
-            }else if(dataStore.THESEdetectors[i].includes('ART')){
-              theseARTPlots.push( { "plotID": histoName + dataStore.THESEdetectors[i] + '_Energy', "title": dataStore.THESEdetectors[i] });
-            }
-          }
-          groups.push({ "groupID": 'GRG', "groupTitle": 'Ge Singles for normalization', "plots": theseGRGPlots });
-          groups.push({ "groupID": 'ART', "groupTitle": 'ARIES Singles for normalization', "plots": theseARTPlots });
-
-          break; // End of case of GRG-ART
-
-          ////////////////////////////////////////////////
-          case "DSW-DSW": // DSW-DSW angular correlations
-
-          // Set up DESCANT detectors for DSW-DSW type
-          var num=0;
-          for(i=1; i<=dataStore.numberOfDSW; i++){
-            dataStore.THESEdetectors[num] = 'ART'+alwaysThisLong(i, 2)+'XS00X'; num++;
-          }
-
-          // Set up the groups based on THESEdetectors
-          var groups = [];
-          groups.push({ "groupID": 'AngularBins', "groupTitle": 'Angular Bins', "plots": [] });
-          var histoName = dataStore.histoFileName.split(".")[0] + ":";
-          var thesePlots = [];
-          for(i=0; i<dataStore.THESEdetectors.length; i++){
-            thesePlots.push(
-              {
-                "plotID": histoName + dataStore.THESEdetectors[i] + '_CTOF', // Use corrected TOF
-                "title": dataStore.THESEdetectors[i]
-              });
-            }
-            groups.push({ "groupID": 'DSW', "groupTitle": 'DESCANT Singles for normalization', "plots": thesePlots });
-            break; // End of case of DSW-DSW
-
-            default:
-            console.log("Error, unrecognized detectorType = "+dataStore.detectorType);
-            break;
-          }
-
-          // Names of Angular correlation matrices that we need to fetch and use for GRG-GRG
-          dataStore.angularMatrices = thisScript.spectrumList2d;
-
-          ////////////////
-          // Set up the menus, reports and display objects
-          ////////////////
-
-          // Build the menu list from the groups defined above for this detector type
-          if(dataStore.spectrumListHistoFileNames.length>1){
-            dataStore.plotGroups = groups;     //groups to arrange spectra into for dropdowns
-          }else{
-            for(i=0; i<groups.length; i++){
-              dataStore.plotGroups.push(groups[i]); //add these groups to arrange spectra into for dropdowns
-            }
-          }
-
-          // Generate the spectrum menu based on the plotGroups
-          dataStore._plotListLite = new plotListLite('plotList');
-          dataStore._plotListLite.setup();
-
-          // Generate the angularCorrelations report table
-          dataStore._angularCorrelationsReport = new angularCorrelationsReport('resultsDataTableRegion','resultsWeightTableRegion','chiSquareReportTableDiv','resultsFitsTableRegion');
-          dataStore._angularCorrelationsReport.setup();
-
-          // Draw the search region
-          dataStore.viewers[dataStore.plots[0]].plotData();
-
-          // Hide the subpages. They need to be not hidden while the templates are injected.
-          menuButtonClick(dataStore.buttonIDs[0],0);
-
-          // Disable user inputs now we have launched the process
-          document.getElementById('HistoDirectoryInput').setAttribute('disabled', true);
-          for(var i=0; i<dataStore.histoChoiceBarContents.length; i++){
-            var thisTitle = dataStore.histoChoiceBarContents[i];
-            document.getElementById('HistoListSelect'+thisTitle).setAttribute('disabled', true);
-          }
-
-          // Disable inputs
-          for(var i=0; i<dataStore.detectorChoice.length; i++){
-            document.getElementById('detectorChoice-'+dataStore.detectorChoice[i].name).setAttribute('disabled', true);
-          }
-
-          // Set up the progress tracking
-          setupProgressBarTracking();
-          dataStore.progressBarNumberTasks -= 52; // We are not unpacking matrices locally
-
-          ////////////////
-          // Now set up for the start of the fetching process for the 1d histograms
-          ////////////////
-
-          // Plug in the active spectra names for the 1d histograms
-          dataStore._plotControl.activeSpectra = [];
-          for(var i=0; i<dataStore.spectrumList1d.length; i++){
-            dataStore._plotControl.activeSpectra.push(dataStore.spectrumList1d[i]);
-          }
-
-          // Set the dataStore.histoFileName to this source so that constructQueries requests the correct spectrum
-          dataStore.histoFileName = dataStore.currentHistoFileName = dataStore.spectrumListHistoFileNames[0];
-
-          // change information message
-          document.getElementById('welcomeMessage').classList.add('hidden');
-          document.getElementById('fetchingMessage').classList.remove('hidden');
-
-          // Set the current task to keep track of our progress
-          dataStore.currentTask = 'Fetching1d';
-
-          // Request the first histogram file from the server.
-          // This launches a series of promises. Once complete we end with fetchCallback.
-          dataStore._plotControl.refreshAll();
-        }
-
-        function fetchAllMatrices(){
-          // Plug in the active spectra names for the 2d histograms
-          dataStore.stagedQueries = [];
-          for(i=0; i<dataStore.spectrumList2d.length; i++){
-            dataStore.stagedQueries.push(dataStore.spectrumList2d[i]);
-          }
-          // Request only 5 matrices at a time - because of slow networks and computers
-          fetchMatrices(dataStore.stagedQueries.slice(-5)); // Request the last 5 matrices in the list
-        }
-
-        function fetchMatrices(theseSpectra){
-          // Create URLs for 2d histograms (one URL per 2d histogram)
-          // ensure one 2d histogram per url using the construct2dQueries function which also calls the binary transfer method
-          var queries2d = construct2dQueries([],theseSpectra);
-          var allQueries2d = queries2d.map(promiseBinaryURL);
-
-          var spectraFetched = Promise.all(allQueries2d).then(
-            function(spectra){
-              var i, j, key, viewerKey, newKey, this2dKey;
-
-              // distribute the spectra data received from the analyzer to the appropriate places
-              // loop through spectra where each element can be up to 16 histograms
-              for(i=0; i<spectra.length; i++){
-
-                // Loop through the keys of this spectrum element where each key is a histogram (or components of a 2d matrix)
-                for(key in spectra[i]){
-
-                  // Remove this matrix from the staged list so it will not be requested again
-                  dataStore.stagedQueries.splice(dataStore.stagedQueries.indexOf(spectra[i]['binaryName']));
-
-                  // Treatment of 2d spectra received by the binary transfer method
-                  // unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse);
-                  // key is used for the dataStore.rawData object
-                  // true/false for which outputs will be generated. This can cause memory overflow if many matrices are requested
-                  unpackBinaryMatrixData(spectra[i]['binaryName'],dataStore.outputRawFlag,dataStore.outputDenseFlag,dataStore.outputSparseFlag,dataStore.outputDeleteFlag);
-                }
-              }
-
-            }
-          ).catch((error) => {
-            console.log("Caught error from Promise.all in plotControl refreshAll.");
-            console.error(error.message);
-            // This error is either a network interruption, (one or a few 2d histograms would fail)
-            // OR an old server without the binary transfer method (would fail for all 2d histograms).
-            // First check if we have any 2d histograms received, if so then remove them from the refreshAll request
-            // If no 2d histograms received then change to json transfer method and request all again
-
-            //return;
-          });
-
-          // End with calling fetchCallback2d()
-          spectraFetched.then( function(){ fetchCallback2d(); } )
-
-        }
-
-        function fetchCallback2d(){
-
-          if(dataStore.stagedQueries.length>0){
-            // There are more staged requests, so request the next batch of 5
-            fetchMatrices(dataStore.stagedQueries.slice(-5)); // Request the last 5 matrices in the list
-          }else{
-            // We are done now
-            fetchCallback();
-          }
-
-        }
-
-        function launchAngularCorrelations(){
-          // This is the start of the automated process
-          console.log(dataStore);
-
-          // Reveal the progress bar
-          //  document.getElementById('progressDiv').classList.remove('hidden');
-
-          // change messages
-          document.getElementById('readyMessage').classList.add('hidden');
-          document.getElementById('projectionsMessage').classList.remove('hidden');
-
-          // Get the peak energies from the User input
-          var g1E = parseInt(document.getElementById('gamma1Input').value);
-          var g2E = parseInt(document.getElementById('gamma2Input').value);
-
-          /*
-          // Use the higher energy peak as the gate because that will likely give less background
-          var gateE = (g1E > g2E) ? g1E : g2E;
-          var fitE  = (g1E > g2E) ? g2E : g1E;
-          */
-          // Get user input for which peak to use as the gate
-          var gateE = g1E;
-          var fitE = g2E;
-          var gateChoice = parseInt(document.getElementById('peakGateChoiceInput').value);
-          if(gateChoice==2){
-            gateE = g2E;
-            fitE = g1E;
-          }
-          dataStore.fitPeakEnergies = [fitE,gateE]; // Remember for use in tables later
-
-          // Set the gate width
-          var gateWidth = Math.ceil(typicalPeakWidth(gateE,"HPGe"));
-
-          // Set limits for the projections
-          var gateMin = gateE - gateWidth;
-          var gateMax = gateE + gateWidth;
-
-          // Set limits for the backgrounds to be subtracted from the projections
-          var BG1Max = gateMin - Math.floor(gateWidth*1.5);
-          var BG1Min = BG1Max - gateWidth;
-          var BG2Min = gateMax + Math.floor(gateWidth*1.5);
-          var BG2Max = BG2Min + gateWidth;
+          // Save the choices to the dataStore
+          dataStore.detectorType = detType;
+          console.log("Detector choice is "+dataStore.detectorType)
 
           // Grab the template peak-fitting script to a local copy here
           var thisScript = {};
@@ -813,918 +758,1513 @@ function setupDataStore(){
 
           // Get the user input on histogramFileNames
           thisScript.histogramFileNames.push(document.getElementById('HistoListSelectGRIFFIN').value);
-
-          //  var histoName = dataStore.histoFileName.split(".")[0];
-
-          // Set up the gating details for the projections
-          var axisLength = dataStore.rawData[thisScript.histogramFileNames[0].split(".")[0] + ":" + dataStore.spectrumList2d[0]].XaxisMax - 1;
-          thisScript.spectrumListGates.push(["x",undefined,undefined,undefined,undefined,undefined,undefined]); // Total projection
-          thisScript.spectrumListGates.push(["x",gateMin,gateMax,BG1Min,BG1Max,BG2Min,BG2Max]); // Gate defined by user input
-
-          // Add the peaks for fitting
-          thisScript.spectrumList1dPeaks.All.push(fitE);
-          thisScript.spectrumList1dPeaks.All.push(gateE);
-          thisScript.spectrumListProjectionsPeaks.All.push(fitE);
-          thisScript.spectrumListProjectionsPeaks.All.push(gateE);
+          dataStore.histoFileName = document.getElementById('HistoListSelectGRIFFIN').value;
+          dataStore.currentHistoFileName = document.getElementById('HistoListSelectGRIFFIN').value;
 
           // Setup the peak-fitting script from the template
           receiveScript(JSON.stringify(thisScript));
 
-          // Set up the progress tracking
-          setupProgressBarTracking();
+          // Custom settings for Angular Correlations for this subsytem type
+          // generate the groups for plot selector
+          // fill the THESEdetectors array of detector names
+          // fill the angularMatrices array of 2d histogram names
+          switch(dataStore.detectorType){
 
-          // Enable onchange functions which now trigger recalculations
-          document.getElementById('sysUnc').onchange = function(){
-            console.log("sysUnc onchange function");
-            dataStore.systematicUncertainty=(this.value/100);
-            processAngularCorrelationData();
-          };
-          var optionsCL = document.getElementsByName('confidenceLimitValue');
-          for(var i = 0; i < optionsCL.length; i++){
-            optionsCL[i].onclick = function(){
-              console.log("confidenceLimitValue onclick function");
-              processAngularCorrelationData();
-            };
-          }
-          document.getElementById('betaInput').onchange = function(){ processAngularCorrelationData(); };
-          document.getElementById('gammaInput').onchange = function(){ processAngularCorrelationData(); };
-          var optionsTR = document.getElementsByName('time_random_select_value');
-          for(var i = 0; i < optionsTR.length; i++){
-            optionsTR[i].onclick = function(){
-              console.log("time_random_select_value onclick function");
-              processAngularCorrelationData();
-            };
-          }
+            case "GRG-GRG-110mm": // Ge-Ge angular correlations for HPGe at 110mm
+            case "GRG-GRG-145mm": // Ge-Ge angular correlations for HPGe at 145mm
 
-          // Create projectionsList for the input of the function projectAllMatrices(projectionsList,compressed)
-          // projectionsList is an array of objects.
-          // Each object contains the "matrixName" which is a valid key for the dataStore.matrix array.
-          // Each object also contains the "gateDetails" which is an array of gates specific to that 2d spectrum.
-          // Format for gates: 'matrixname': [[axis,gateMin,gateMax,BG1SF,BG1Min,BG1Max,BG2SF,BG2Min,BG2Max], [], ...]
-          // Where BG1SF is the Scaling Factor for a projection between bins BG1Min and BG1Max which will be subtracted from the main Gate projection between bins gateMin and gateMax onto the 'axis' axis.
-          var projectionsList = [];
-          var histoName = dataStore.histoFileName.split(".")[0] + ":";
-          for(var i=0; i<dataStore.spectrumList2d.length; i++){
-            for(var j=0; j<dataStore.spectrumListGates[dataStore.spectrumList2d[i]].length; j++){
-              projectionsList.push(
-                {
-                  "matrixName": histoName + dataStore.spectrumList2d[i],
-                  "gateDetails": dataStore.spectrumListGates[dataStore.spectrumList2d[i]][j]
-                });
-              }
-            }
-
-            // Start the process of projections for all matrices
-            projectAllMatrices(projectionsList,true,'AngularBins');
-          };
-
-          function fetchCallback(){
-            console.log("fetchCallback with task, "+dataStore.currentTask);
-            console.log(dataStore);
-
-            if(dataStore.currentTask == 'Fetching1d'){
-              // Set the current task to keep track of our progress
-              dataStore.currentTask = 'Fetching2d';
-
-              // Now fetch the matrices
-              fetchAllMatrices();
-
-              // Reveal the gate input controls
-              // Reveal the cascade details inputs
-              document.getElementById('userInputParentDiv').classList.remove('hidden');
-              document.getElementById('gateInputsParentDiv').classList.remove('hidden');
-              document.getElementById('cascadeInputsDiv').classList.remove('hidden');
-              document.getElementById('analysisInputsDiv').classList.remove('hidden');
-
-              // Plot a single spectrum for determining the gate and fit regions
-              var plot = dataStore.histoFileName.split(".")[0] + ":" + dataStore.spectrumList1d[0];
-              dataStore.viewers[dataStore.plots[0]].addData(plot, JSON.parse(JSON.stringify(dataStore.rawData[plot])) );
-              dataStore.viewers[dataStore.plots[0]].plotData();
-
-              return;
+            // Copy the corresponding angular bin data into the arrays to use
+            if(dataStore.detectorType == "GRG-GRG-145mm"){
+              dataStore.theseAngularBins = dataStore.angular_bins_145mm;
+              dataStore.theseGeAngles = dataStore.ge_angles_145mm;
+              dataStore.HPGeDistance = 145;
+              var matrixNameString = "Ge_Ge_145mm_angular_bin";
             }else{
-              // Check that we got all the matrices ok
-              var count = 0;
-              for(let key in dataStore.rawData){
-                const index = dataStore.spectrumList2d.indexOf(key.split(":")[1]);
-                if (index > -1) {
-                  count++;
-                }
-              }
-              if(count<dataStore.spectrumList2d.length){
-                console.log("We are missing some matrices!");
-
-                var string = 'Matrix transfer error, failed to receive all matrices from the server. Please reload to try again.<br>';
-                if(document.getElementById('messageDivText')){ document.getElementById('messageDivText').innerHTML = string; }
-                if(document.getElementById('messageDiv')){ document.getElementById('messageDiv').style.display = 'block'; }
-                return;
-              }
+              dataStore.theseAngularBins = dataStore.angular_bins_110mm;
+              dataStore.theseGeAngles = dataStore.ge_angles_110mm;
+              dataStore.HPGeDistance = 110;
+              var matrixNameString = "Ge_Ge_110mm_angular_bin";
             }
 
-            // Set the current task to keep track of our progress
-            dataStore.currentTask = 'peakInfoInput';
-
-            // change information message
-            document.getElementById('fetchingMessage').classList.add('hidden');
-            document.getElementById('readyMessage').classList.remove('hidden');
-
-            // Enable the Launch button
-            document.getElementById('ggAngCorrProject').disabled = false;
-
-            // Nothing further to do here on fetchCallback. Further tasks are initiated following User input.
-          }
-
-          function projectionsCallback(){
-            console.log("ProjectionsCallback");
-
-            // Add this projection spectrum to the list which will be used in processAngularCorrelationData
-            for(var i=0; i<dataStore.spectrumListProjections.length; i++){
-              if(dataStore.spectrumListProjections[i][dataStore.spectrumListProjections[i].length-1] != 'x'){
-                dataStore.angCorrProjections.push(dataStore.spectrumListProjections[i]);
-              }
-            }
-
-            // change information message
-            document.getElementById('projectionsMessage').classList.add('hidden');
-            document.getElementById('fittingMessage').classList.remove('hidden');
-
-            // Set the current task to keep track of our progress
-            dataStore.currentTask = 'SinglesFitting';
-
-            // Build the list of spectrum names with the histogram name appended to the start of the string so it can be used as a key
-            var histoName = dataStore.histoFileName.split(".")[0];
-            var spectrumList = [];
-            dataStore.spectrumList1d.forEach((element) => spectrumList.push(histoName+":"+element));
-            dataStore.singlesSpectra = spectrumList;
-
-            // Use Limits if any were set through mouse clicks
-            var limits = [];
-            for(var i=0; i<dataStore.spectrumList1dPeaks.All.length; i++){
-              limits[i] = [-1,-1];
-              if(dataStore.appLimitsStore != undefined){
-                if(dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]] != undefined){
-                  if(dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitLower){ limits[i][0] = dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitLower; }
-                  if(dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitUpper){ limits[i][1] = dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitUpper; }
-                }
-              }
-            }
-
-            // Start the whole fitting routine for singles peaks
-            console.log("Call fitPeaksInSeriesOfHistograms for singles peak fitting");
-            fitPeaksInSeriesOfHistograms(spectrumList,dataStore.spectrumList1dPeaks,"HPGe",limits);
-          }
-
-          function fittingCallback(){
-            // Might not be finished all fitting yet because singles and projections fitting is done sequentially.
-            if(dataStore.currentTask == 'SinglesFitting'){
-              // Now perform peak fitting for projections
-              console.log("Now initiate projections fitting");
-
-              // Set the current task to keep track of our progress
-              dataStore.currentTask = 'ProjectionsFitting';
-
-              // Use Limits if any were set through mouse clicks
-              var limits = [];
-              for(var i=0; i<dataStore.spectrumListProjectionsPeaks.All.length; i++){
-                limits[i] = [-1,-1];
-                if(dataStore.appLimitsStore != undefined){
-                  if(dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]] != undefined){
-                    if(dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitLower){ limits[i][0] = dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitLower; }
-                    if(dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitUpper){ limits[i][1] = dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitUpper; }
-                  }
-                }
-              }
-
-              // Start the fitting routine for projections peaks for this run file
-              console.log("Call fitPeaksInSeriesOfHistograms for projections peak fitting");
-              fitPeaksInSeriesOfHistograms(dataStore.spectrumListProjections,dataStore.spectrumListProjectionsPeaks,"HPGe",limits);
-              return;
-            }
-
-            // All fitting has now been completed
-
-            // Now we are done.
-            // Reveal the download buttons
-            document.getElementById('saveCSVDiv').classList.remove('hidden');
-            document.getElementById('saveChiSqCSVDiv').classList.remove('hidden');
-            document.getElementById('saveScriptDiv').classList.remove('hidden');
-
-            // change information message
-            document.getElementById('fittingMessage').classList.add('hidden');
-            document.getElementById('reviewMessage').classList.remove('hidden');
-
-            console.log(dataStore);
-            console.log("Finished");
-            console.log("Completed: "+dataStore.progressBarTasksCompleted+"/"+dataStore.progressBarNumberTasks+" = " + dataStore.ProgressValue);
-
-            // Reveal the subpage menu
-            document.getElementById('menu').classList.remove('hidden');
-
-            // Launch the post-processing
-            processAngularCorrelationData();
-          }
-
-          function processAngularCorrelationData(){
-            console.log("processAngularCorrelationData()");
-            console.log(dataStore);
-
-            // Reset all warnings
-            document.getElementById("dataPlotWarnings").innerHTML = "";
-
-            // Initialize the sums as zero
-            var sumAngularBinAreas = 0;
-            var sumSinglesAreas = [0,0];
-            var sumAngularBinAreasUnc = 0;
-            var sumSinglesAreasUnc = [0,0];
-
-            // Always exclude the zero angular bin as it is the same detector
-            if(!dataStore.angularBinExcludeList.includes(0)){
-              dataStore.angularBinExcludeList.push(0);
-            }
-
-            // Set if Time-Random Background Subtraction will be performed
-            // 2 = Auto for each angular bin = only if the time-random background contribution is greater than 3% of the raw peak value.
-            // 1 = Always subtract Time-Random Background
-            // 0 = Never subtract Time-Random Background
-            var thisTimeRandomOption = 2;
-            var optionsTR = document.getElementsByName('time_random_select_value');
-            for(var i = 0; i < optionsTR.length; i++){
-              if(optionsTR[i].checked){
-                thisTimeRandomOption = optionsTR[i].value;
-              }
-            }
-            console.log("Time-Random Background subtraction setting = "+thisTimeRandomOption);
-
-            // Collect the angular bin peak areas
-            // This list contains both total projection and peak-gated projection
-            // Exclude the zero angular bin as it is the same detector
-            // fitResults object always has the fits in centroid order. So need to ensure we get the correct fit as peak and gate
-            var peakIndex=0, gateIndex=1;
-            if(dataStore.fitPeakEnergies[1]<dataStore.fitPeakEnergies[0]){ peakIndex=1; gateIndex=0; }
-            for(var i=0; i<dataStore.angCorrProjections.length; i++){
-              // Here we make the subtraction of the gateE peak from the fitE peak to account for time-random coincidences
-              var index = i;
-              var thisGateKey = dataStore.angCorrProjections[i]; // Gate for angular correlation
-              var thisTotalKey = dataStore.angCorrProjections[i].split("x")[0] + "x"; // Total projection
-
-              console.log(thisTotalKey+", gate "+gateIndex+", peak "+peakIndex);
-              // Determine the time-random background subtraction factor from the ratio of the two peaks in the total projection
-              dataStore.angularBinTRBGFactor[index] = dataStore.fitResults[thisTotalKey][peakIndex][5] / dataStore.fitResults[thisTotalKey][gateIndex][5];
-              // Add the fractional errors in quadrature
-              dataStore.angularBinTRBGFactorUnc[index] = dataStore.angularBinTRBGFactor[index] * Math.sqrt( Math.pow(dataStore.fitUncertainty[thisTotalKey][peakIndex]/dataStore.fitResults[thisTotalKey][peakIndex][5],2)
-              + Math.pow(dataStore.fitUncertainty[thisTotalKey][gateIndex]/dataStore.fitResults[thisTotalKey][gateIndex][5],2) );
-              if(!isFinite(dataStore.angularBinTRBGFactor[index])){ dataStore.angularBinTRBGFactor[index] = 1; }
-              if(!isFinite(dataStore.angularBinTRBGFactorUnc[index])){ dataStore.angularBinTRBGFactorUnc[index] = 1; }
-
-              // Save the raw area and uncertainties for the peak and time-random coincidence peak
-              dataStore.angularBinRawPeakArea[index] = dataStore.fitResults[thisGateKey][peakIndex][5];
-              dataStore.angularBinTRBGPeakArea[index] = dataStore.fitResults[thisGateKey][gateIndex][5];
-              dataStore.angularBinRawPeakAreaUnc[index] = dataStore.fitUncertainty[thisGateKey][peakIndex];
-              dataStore.angularBinTRBGPeakAreaUnc[index] = dataStore.fitUncertainty[thisGateKey][gateIndex];
-              // Protect against failed fits
-              if(isNaN(dataStore.angularBinRawPeakArea[index])){ dataStore.angularBinRawPeakArea[index] = 1; }
-              if(isNaN(dataStore.angularBinTRBGPeakArea[index])){ dataStore.angularBinTRBGPeakArea[index] = 1; }
-              if(isNaN(dataStore.angularBinRawPeakAreaUnc[index])){ dataStore.angularBinRawPeakAreaUnc[index] = 1; }
-              if(isNaN(dataStore.angularBinTRBGPeakAreaUnc[index])){ dataStore.angularBinTRBGPeakAreaUnc[index] = 1; }
-              // Protect against very low-statistics peaks in the time-random
-              if(dataStore.angularBinTRBGPeakAreaUnc[index] > dataStore.angularBinTRBGPeakArea[index]){ dataStore.angularBinTRBGPeakAreaUnc[index] = dataStore.angularBinTRBGPeakArea[index]; } // Limit uncertainty to 100%
-
-              // Subtract time-random coincidence from the raw peak area
-              // Only subtract time-random contribution if it is greater than 3% of the raw peak area
-              if(thisTimeRandomOption == 1){ // thisTimeRandomOption = 1 for always
-                dataStore.angularBinPeakArea[index] = parseInt(dataStore.angularBinRawPeakArea[index] - (dataStore.angularBinTRBGPeakArea[index] * dataStore.angularBinTRBGFactor[index]));
-                // Reduce the uncertainty for the normalized TRBG peak area by the same factor
-                var uncert = (dataStore.angularBinTRBGPeakAreaUnc[index] * dataStore.angularBinTRBGFactor[index]);
-                // Add in quadrature the uncertainties for the two peak areas
-                dataStore.angularBinPeakAreaUnc[index] = parseInt( Math.sqrt( uncert*uncert + dataStore.angularBinRawPeakAreaUnc[index]*dataStore.angularBinRawPeakAreaUnc[index] ) );
-              }else if(thisTimeRandomOption == 2 && dataStore.angularBinTRBGPeakArea[index] / dataStore.angularBinRawPeakArea[index] > 0.03){ // thisTimeRandomOption == 2 auto and >3% contribution
-                dataStore.angularBinPeakArea[index] = parseInt(dataStore.angularBinRawPeakArea[index] - (dataStore.angularBinTRBGPeakArea[index] * dataStore.angularBinTRBGFactor[index]));
-                // Reduce the uncertainty for the normalized TRBG peak area by the same factor
-                var uncert = (dataStore.angularBinTRBGPeakAreaUnc[index] * dataStore.angularBinTRBGFactor[index]);
-                // Add in quadrature the uncertainties for the two peak areas
-                dataStore.angularBinPeakAreaUnc[index] = parseInt( Math.sqrt( uncert*uncert + dataStore.angularBinRawPeakAreaUnc[index]*dataStore.angularBinRawPeakAreaUnc[index] ) );
-              }else{ // thisTimeRandomOption = 0 for never, or 2 auto and <3% contribution
-                dataStore.angularBinPeakArea[index] = parseInt(dataStore.angularBinRawPeakArea[index]);
-                dataStore.angularBinPeakAreaUnc[index] = parseInt(dataStore.angularBinRawPeakAreaUnc[index]);
-              }
-              console.log("Time-Random Background subtraction setting = "+thisTimeRandomOption);
-              console.log(index+" Ang bin Peak Area Unc: Final:"+dataStore.angularBinPeakAreaUnc[index]+"/"+dataStore.angularBinPeakArea[index]+" = "+dataStore.angularBinPeakAreaUnc[index]/dataStore.angularBinPeakArea[index]);
-              console.log(index+" from: Raw: "+dataStore.angularBinRawPeakAreaUnc[index]+"/"+dataStore.angularBinRawPeakArea[index]+"="+dataStore.angularBinRawPeakAreaUnc[index]/dataStore.angularBinRawPeakArea[index]);
-              console.log(index+" and "+"TRBG: "+dataStore.angularBinTRBGPeakAreaUnc[index]+"/"+dataStore.angularBinTRBGPeakArea[index]+"="+dataStore.angularBinTRBGPeakAreaUnc[index]/dataStore.angularBinTRBGPeakArea[index]);
-              console.log(index+" reduced to: "+uncert+"/"+dataStore.angularBinTRBGPeakArea[index]+"="+uncert/dataStore.angularBinTRBGPeakArea[index]);
-              console.log(index+" TRBG Factor is "+dataStore.angularBinTRBGFactorUnc[index]+"/"+dataStore.angularBinTRBGFactor[index]+"="+dataStore.angularBinTRBGFactorUnc[index]/dataStore.angularBinTRBGFactor[index]);
-
-              // Protect against NaN and infinity results
-              if(!isFinite(dataStore.angularBinPeakArea[index])){ dataStore.angularBinPeakArea[index] = 0; }
-              if(!isFinite(dataStore.angularBinPeakAreaUnc[index])){ dataStore.angularBinPeakAreaUnc[index] = 0; }
-
-              if(index>0){ // exclude only the zero angular difference bin from the normalization
-                sumAngularBinAreas += dataStore.angularBinPeakArea[index];
-                sumAngularBinAreasUnc += (dataStore.angularBinPeakAreaUnc[index]*dataStore.angularBinPeakAreaUnc[index]);
-              }
-              dataStore.angularBinWeight[index] = 0;    // zero the weighting factors here
-              dataStore.angularBinWeightUnc[index] = 0; // zero the uncertainty in the weighting factors here
-              dataStore.numCrystalPairs[index] = 0;     // zero the number of crystal pairs here
-            }
-            sumAngularBinAreasUnc = Math.sqrt(sumAngularBinAreasUnc); // Squares of the uncertainties were summed in the loop, now find sqrt
-
-            // The normalization factor is the sum of all angular bin peak areas
-            // Need to exclude the constributions from angular bins on the excludeList. This is done above.
-            dataStore.normalizationFactor = sumAngularBinAreas;
-            dataStore.normalizationFactorUnc = parseInt(sumAngularBinAreasUnc);
-            console.log("dataStore.normalizationFactor = "+dataStore.normalizationFactor+" with error "+dataStore.normalizationFactorUnc+" = "+(dataStore.normalizationFactorUnc/dataStore.normalizationFactor));
-            console.log(dataStore);
-
-            // Collect the singles peak areas from the fitResults object
-            for(i=0; i<dataStore.singlesSpectra.length; i++){
-
-              var thisSinglesKey = dataStore.singlesSpectra[i];
-              //    console.log(thisSinglesKey);
-              dataStore.singlesPeakArea[i] = [0,0]; // initialize this element
-              dataStore.singlesPeakAreaUnc[i] = [0,0]; // initialize this element
-
-              console.log(thisSinglesKey+" for "+peakIndex+" and "+gateIndex);
-              if( !isNaN(dataStore.fitResults[thisSinglesKey][peakIndex][5]))
-              dataStore.singlesPeakArea[i][0] = dataStore.fitResults[thisSinglesKey][peakIndex][5]; // the fit energy peak
-              if( !isNaN(dataStore.fitResults[thisSinglesKey][gateIndex][5]))
-              dataStore.singlesPeakArea[i][1] = dataStore.fitResults[thisSinglesKey][gateIndex][5]; // the gate energy peak
-              dataStore.singlesPeakAreaUnc[i][0] = dataStore.fitUncertainty[thisSinglesKey][peakIndex]; // the fit energy peak
-              dataStore.singlesPeakAreaUnc[i][1] = dataStore.fitUncertainty[thisSinglesKey][gateIndex]; // the gate energy peak
-
-              sumSinglesAreas[0] += dataStore.singlesPeakArea[i][0]; // the fit energy peak
-              sumSinglesAreas[1] += dataStore.singlesPeakArea[i][1]; // the gate energy peak
-              sumSinglesAreasUnc[0] += (dataStore.fitUncertainty[thisSinglesKey][peakIndex]*dataStore.fitUncertainty[thisSinglesKey][peakIndex]); // the fit energy peak
-              sumSinglesAreasUnc[1] += (dataStore.fitUncertainty[thisSinglesKey][gateIndex]*dataStore.fitUncertainty[thisSinglesKey][gateIndex]); // the gate energy peak
-            }
-            sumSinglesAreasUnc[0] = Math.sqrt(sumSinglesAreasUnc[0]); // sqrt after the sum of squares in the loop
-            sumSinglesAreasUnc[1] = Math.sqrt(sumSinglesAreasUnc[1]); // sqrt after the sum of squares in the loop
-
-            // Calculate the weighting factors from singles peak areas of all crystals involved in each angular bin
-            for(i=0; i<64; i++){
-              // Do not include crystals with NaN peak areas, or peak areas of zero
-              if(   isNaN(dataStore.singlesPeakArea[i][0]) || isNaN(dataStore.singlesPeakArea[i][1])
-              ||    isNaN(dataStore.singlesPeakAreaUnc[i][0]) || isNaN(dataStore.singlesPeakAreaUnc[i][1])
-              || dataStore.singlesPeakArea[i][0]<1 || dataStore.singlesPeakArea[i][1]<1 ){ continue; }
-              for(var j=0; j<64; j++){
-                // Do not include crystals with NaN peak areas, or peak areas of zero
-                if(   isNaN(dataStore.singlesPeakArea[j][0]) || isNaN(dataStore.singlesPeakArea[j][1])
-                ||    isNaN(dataStore.singlesPeakAreaUnc[j][0]) || isNaN(dataStore.singlesPeakAreaUnc[j][1])
-                || dataStore.singlesPeakArea[j][0]<1 || dataStore.singlesPeakArea[j][1]<1 ){ continue; }
-                var angleIndex = dataStore.theseGeAngles[i][j];
-
-                // Add the combination of the peak areas from this pair to the sum for this angular bin
-                var first_part  = (dataStore.singlesPeakArea[i][0]/sumSinglesAreas[0])*(dataStore.singlesPeakArea[j][1]/sumSinglesAreas[1]);
-                var second_part = (dataStore.singlesPeakArea[j][0]/sumSinglesAreas[0])*(dataStore.singlesPeakArea[i][1]/sumSinglesAreas[1]);
-
-                dataStore.angularBinWeight[angleIndex] += first_part * 0.5;
-                dataStore.angularBinWeight[angleIndex] += second_part * 0.5;
-
-                // The fractional errors will be added in quadrature. Here we calculate each squared contributions
-                var uncert1 = (dataStore.singlesPeakAreaUnc[i][0]/dataStore.singlesPeakArea[i][0]) * (dataStore.singlesPeakAreaUnc[i][0]/dataStore.singlesPeakArea[i][0]);
-                var uncert2 = (dataStore.singlesPeakAreaUnc[j][0]/dataStore.singlesPeakArea[j][0]) * (dataStore.singlesPeakAreaUnc[j][0]/dataStore.singlesPeakArea[j][0]);
-                var uncert3 = (dataStore.singlesPeakAreaUnc[i][1]/dataStore.singlesPeakArea[i][1]) * (dataStore.singlesPeakAreaUnc[i][1]/dataStore.singlesPeakArea[i][1]);
-                var uncert4 = (dataStore.singlesPeakAreaUnc[j][1]/dataStore.singlesPeakArea[j][1]) * (dataStore.singlesPeakAreaUnc[j][1]/dataStore.singlesPeakArea[j][1]);
-                var uncert5 = (sumSinglesAreasUnc[0]/sumSinglesAreas[0]) * (sumSinglesAreasUnc[0]/sumSinglesAreas[0]);
-                var uncert6 = (sumSinglesAreasUnc[1]/sumSinglesAreas[1]) * (sumSinglesAreasUnc[1]/sumSinglesAreas[1]);
-                var uncertCombo1 = ( first_part * Math.sqrt( uncert1 + uncert4 + uncert5 + uncert6)) * ( first_part * Math.sqrt( uncert1 + uncert4 + uncert5 + uncert6));
-                var uncertCombo2 = (second_part * Math.sqrt( uncert2 + uncert3 + uncert5 + uncert6)) * (second_part * Math.sqrt( uncert2 + uncert3 + uncert5 + uncert6));
-                var thisUncert =  Math.sqrt( uncertCombo1 + uncertCombo2 );
-
-
-                //var uncertSum = uncert1 + uncert2 + uncert3 + uncert4 + uncert5 + uncert6;
-                //  var uncertSum = uncert1 + uncert2 + uncert3 + uncert4;// + uncert5 + uncert6;
-                //  console.log("This pair contribution ["+i+","+j+"]");
-                //  console.log("Relative contributions: "+(uncert1/uncertSum)+", "+(uncert2/uncertSum)+", "+(uncert3/uncertSum)+", "+(uncert4/uncertSum)+", "+(uncert5/uncertSum)+", "+(uncert6/uncertSum));
-                //  console.log("Value, uncertainty = "+dataStore.angularBinWeight[angleIndex]+", "+thisUncert+" which is "+((thisUncert/dataStore.angularBinWeight[angleIndex])*100)+"%");
-                // Sum the squared contributions to include the uncertainty in the peak areas for this pair combination to the running sum
-                // However, we are adding them in quadrature for each pair. So here we sum the squares
-                // When all are collected then they will be sqrt.
-                dataStore.angularBinWeightUnc[angleIndex] +=  thisUncert*thisUncert; // sum the squares. Then square-root will be taken when all combinations collected.
-
-                // Determine the number of crystal pairs in each angular bin here so that crystals with peak areas of zero are not included
-                dataStore.numCrystalPairs[angleIndex]++;
-              }
-            }
-
-            console.log(dataStore);
-            console.log("Angular Correlation Data:");
-            // Calculate the angular correlation data points
-            for(i=0; i<dataStore.angularBinPeakArea.length; i++){
-
-              // The uncertainty in the weighting factor of the angular bins is the uncertainties in the peak areas added in quadrature. So here we sqrt the sum of these after the loop for the sum has ended.
-              dataStore.angularBinWeightUnc[i] =  Math.sqrt(dataStore.angularBinWeightUnc[i]);
-              console.log("Final Weight["+i+"] Value, uncertainty = "+dataStore.angularBinWeight[i]+", "+dataStore.angularBinWeightUnc[i]+" which is "+((dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[angleIndex])*100)+"%");
-
-              // Calculate the angular correlation data value
-              dataStore.angularBinData[i] = dataStore.angularBinPeakArea[i] / (dataStore.angularBinWeight[i] * dataStore.normalizationFactor);
-
-              // Add the fractional errors in quadrature
-              dataStore.angularBinDataUnc[i] = dataStore.angularBinData[i]
-              * Math.sqrt(  ((dataStore.angularBinPeakAreaUnc[i]/dataStore.angularBinPeakArea[i]) * (dataStore.angularBinPeakAreaUnc[i]/dataStore.angularBinPeakArea[i]))
-              + ((dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i]) * (dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i]))
-              + ((dataStore.normalizationFactorUnc/dataStore.normalizationFactor) * (dataStore.normalizationFactorUnc/dataStore.normalizationFactor))
-              + (dataStore.systematicUncertainty*dataStore.systematicUncertainty) // Include a systematic uncertainty set by user input
-            )
-
-            // Protect against NaN or infinite values
-            if(!isFinite(dataStore.angularBinData[i])){ dataStore.angularBinData[i] = 0.0; }
-            if(!isFinite(dataStore.angularBinDataUnc[i])){ dataStore.angularBinDataUnc[i] = 0; }
-            //  console.log(dataStore.theseAngularBins[i]+","+dataStore.angularBinData[i]+","+dataStore.angularBinDataUnc[i]);
-            //  console.log("Error from "+dataStore.angularBinPeakAreaUnc[i]+"/"+dataStore.angularBinPeakArea[i]+"="+(dataStore.angularBinPeakAreaUnc[i]/dataStore.angularBinPeakArea[i])+", "+dataStore.angularBinWeightUnc[i]+"/"+dataStore.angularBinWeight[i]+"="+(dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i])+", "+dataStore.normalizationFactorUnc+"/"+dataStore.normalizationFactor+"="+(dataStore.normalizationFactorUnc/dataStore.normalizationFactor) );
-          }
-
-          // Set the number of degrees of freedom used in the reduced chi-square calculation
-          dataStore.angularBinEmptyCount = 0;
-          for(i=0; i<dataStore.angularBinData.length; i++){ if(dataStore.angularBinData[i]==0 && dataStore.angularBinExcludeList.indexOf(i)<0){ dataStore.angularBinEmptyCount++; } }
-          dataStore.numDegreesOfFreedom = dataStore.angularBinData.length - dataStore.angularBinExcludeList.length - dataStore.angularBinEmptyCount - 2; // Number of data points minus two parameters to fit (c1,c4)
-
-          console.log(dataStore.angularBinData);
-          console.log(dataStore.angularBinExcludeList);
-          console.log("Number of degrees of Freedom = "+dataStore.angularBinData.length + " - "+ dataStore.angularBinExcludeList.length + " - "+ dataStore.angularBinEmptyCount+ " - 2 = "+dataStore.numDegreesOfFreedom);
-
-          // Set the confidence level value used in the plotting of the reduced chi-square calculation
-          var optionsCL = document.getElementsByName('confidenceLimitValue');
-          for(var i = 0; i < optionsCL.length; i++){
-            if(optionsCL[i].checked){
-              var thisConfidenceLimit = optionsCL[i].value;
-              dataStore.criticalLevel = thisConfidenceLimit;
-            }
-          }
-          console.log(thisConfidenceLimit);
-          dataStore.criticalValue = dataStore.criticalChiSquareValueTable[thisConfidenceLimit][dataStore.numDegreesOfFreedom-1];
-          dataStore.criticalValue = (dataStore.criticalValue / dataStore.numDegreesOfFreedom).toFixed(3);
-          console.log("Critical Value of "+dataStore.criticalValue+" from "+dataStore.criticalChiSquareValueTable[thisConfidenceLimit][dataStore.numDegreesOfFreedom-1]+" / "+dataStore.numDegreesOfFreedom);
-
-          // Report the statistics of this correlation
-          document.getElementById('dataTableMessage').innerHTML = "<h4>"+dataStore.histoFileName+": "+dataStore.fitPeakEnergies[0]+"-"+dataStore.fitPeakEnergies[1]+"(gate) keV</h4>"+ "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>"
-          +"<h4>Normalization factor (Sum of Corrected Areas) = "+bracketNotationString(dataStore.normalizationFactor.toFixed(2),dataStore.normalizationFactorUnc)+"</h4>";
-          document.getElementById('dataPlotMessage').innerHTML = "<h4>"+dataStore.histoFileName+": "+dataStore.fitPeakEnergies[0]+"-"+dataStore.fitPeakEnergies[1]+"(gate) keV</h4>"+ "<h4>Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>";
-          console.log("Total gamma-gamma coincidences = "+sumAngularBinAreas.toFixed(0)+", mean peak area in an individual angular bin = "+(sumAngularBinAreas/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0));
-          document.getElementById('dataPlotMessage').innerHTML += "<h4>"+"The Critical Value ("+dataStore.criticalLevelStrings[dataStore.criticalLevel]+" confidence level) for "+dataStore.numDegreesOfFreedom+" degrees of freedom is \u{1D6D8}\u00B2/NDF="+dataStore.criticalValue+"."+"</h4>";
-          if(dataStore.systematicUncertainty>0){var systematicString = "A systematic uncertainty of "+(dataStore.systematicUncertainty*100).toFixed(1)+"% has been added in quadrature to each data point. ";}else{var systematicString = "No systematic uncertainty has been added to the data points. ";}
-          document.getElementById('dataPlotMessage').innerHTML += "<h4>"+systematicString+"</h4>";
-
-          // Populate the results table for the angular correlation and weights data
-          dataStore._angularCorrelationsReport.updateDataTable();
-          dataStore._angularCorrelationsReport.updateWeightTable();
-          dataStore._angularCorrelationsReport.updateFitsTable();
-
-          // Promise to generate the chi-squared data and then populate the tables and plots
-          let dataPromise = new Promise(function(resolve, reject) {
-            generateChiSquareData();
-            return resolve();
-          });
-
-          dataPromise.then(
-
-            function(value){
-              console.log("Execute then function of dataPromise");
-
-              // Populate the main angular correlation plot
-              dataStore._angularCorrelationsReport.refreshAngCorrPlot();
-
-              // Populate the chi-squred plot
-              dataStore._angularCorrelationsReport.populateChiSquarePlot();
-
-              // Write the results to the Table
-              dataStore._angularCorrelationsReport.updateChiSquareResultsTable();
-
-              // Show the angular correlations plot when finished
-              if(dataStore.currentTask!="refit"){ document.getElementById("dataPlotRegionMenuButton").click(); }
-            }
-          );
-
-        }
-
-        function generateResidualsData(c2,c4){
-          console.log("generateResidualsData");
-
-          dataStore.angularBinDataResiduals = []; // Reset this array, especially if some points have been excluded
-
-          var theorySeries = theoreticalAngularCorrelation(c2,c4, dataStore.expAngBinRadians);
-          var thisOffset = angularCorrelationRegression(dataStore.expAngBinData,theorySeries);
-          for(var i=0; i<theorySeries.length; i++){ theorySeries[i] = theorySeries[i] + thisOffset; }
-
-          for(var i=0; i<dataStore.expAngBinData.length; i++){
-            //  Excluded bins are already accounted for in dataStore.expAngBinData
-            dataStore.angularBinDataResiduals[i] = dataStore.expAngBinData[i] - theorySeries[i];
-          }
-        }
-
-        function generateChiSquareData(){
-
-
-          // Return a new promise.
-          return new Promise(function(resolve) {
-
-
-            console.log("generateChiSquareData");
-            console.log(dataStore.angularBinExcludeList);
-            dataStore.theseAngularBinsRadians = [];
+            // Generate the angular bins in radians
             for(var i=0; i<dataStore.theseAngularBins.length; i++){
               dataStore.theseAngularBinsRadians.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
             }
 
-            var thisTheory = [];      // A series of the distribution vs cos(theta)
-            var newCoEffs = [];       // Coefficients [a2,a4]. Theoretical and uncorrected for finite element size.
-            var correctedCoEffs = []; // Coefficients [c2,c4]. Corrected for finite element size.
-            var localMinima = [[]];   // An array of minima indexes for each j value.
-            var localMinimaKeys = []; // An array of minima keys for each j value (they may not start from 0).
-            var thisOffset = 0.0; // Offset to align theory with data
-            // Declare the variables
-            var j1, j2, j3, l1a, l1b, l2a, l2b, delta1, delta2;
-            var bestFitC = [], bestFitA = [], bestFitKey = '', pure=0;
-            dataStore.minimaDetails = {}; // reset this array
-            dataStore.NEWminimaDetails = {}; // reset this array
-            var expAngBinData = [];
-            var expAngBinDataUnc = [];
-            var expAngBinRadians = [];
-
-            // Get the beta and gamma parameters for this energy cascade
-            // THIS SHOULD BE A CALL TO A FUNCTION BUT HARD-CODED HERE FOR 152EU 344-778
-            //dataStore.beta  = 0.954711; // 60Co, 4-2-0, 1332-1173
-            //dataStore.gamma = 0.841345; // 60Co, 4-2-0, 1332-1173
-            //  dataStore.beta  = 0.957442; // 66Ga, 0-2-0, 1333-1039
-            //  dataStore.gamma = 0.852034; // 66Ga, 0-2-0, 1333-1039
-            //  dataStore.beta  = 0.950804; // 152Eu, 2-2-0, 1408-121
-            //  dataStore.gamma = 0.829300; // 152Eu, 2-2-0, 1408-121
-            //dataStore.beta  = 0.950933; // 148Cs, 719-141
-            //dataStore.gamma = 0.828565; // 148Cs, 719-141
-            //dataStore.beta  = 1.0; // Theory
-            //dataStore.gamma = 1.0; // Theory
-            //  dataStore.beta  = 0.9; // 148Ba trialling
-            //  dataStore.gamma = 0.7; // 148Ba trialling
-            dataStore.beta  = parseFloat(document.getElementById('betaInput').value);
-            dataStore.gamma = parseFloat(document.getElementById('gammaInput').value);
-
-            // Grab the user input for the cascade
-            j2=parseFloat(document.getElementById('j2').value);
-            j3=parseFloat(document.getElementById('j3').value);
-            delta2 = parseFloat(document.getElementById('mix2').value);
-
-            // Calculate the l2 momenta
-            l2a = l2b = Math.abs(j2-j3);
-            if(l2a<1){ l2a = l2b = 1; } // E0 is not permitted
-            if((j2+j3)>l2b){ l2b++; }
-
-            // Build the array of experimental data to use.
-            // Exclude any bins identified in the excludeList.
-            var index=0;
-            for(var i=0; i<dataStore.angularBinData.length; i++){
-              if(dataStore.angularBinExcludeList.includes(i)){ continue; } // Exclude any datapoints on the excludeList
-              expAngBinData[index] = dataStore.angularBinData[i];
-              expAngBinDataUnc[index] = dataStore.angularBinDataUnc[i];
-              expAngBinRadians[index] = dataStore.theseAngularBinsRadians[i];
-              index++;
-            }
-            // Save this x series for use in generating theory curves
-            dataStore.expAngBinData = expAngBinData;
-            dataStore.expAngBinDataUnc = expAngBinDataUnc;
-            dataStore.expAngBinRadians = expAngBinRadians;
-            // x series for theory line plotting
-            dataStore.expAngFineBinRadians = [];
-            for(i=-1; i<=1; i+=0.01){
-              dataStore.expAngFineBinRadians.push(i);
-            }
-
-            // Zero the arrays and variables
-            dataStore.delta1Series = [];
-            dataStore.chiSqLabelSeries = [];
-            dataStore.chiSquareSeries = [];
-            var minChiSquareSeries = [];
-            var thisChiSquare, minChiSquare = 100000;
-
-            // Loop through possible j values of j2 plus and minus 2.
-            // For each j value, scan the full range of mixing ratio (delta).
-            // At each point calculate the theoretical coefficients a2,a4
-            // Correct the theoretical coefficients with the finite-element correction parameters for this energy cascade.
-            // Determine the chi-square of the fit of this corrected-theory curve with the experimental data.
-            // Find the minima in the chi-squared distribution for each j value.
-            index=0;
-            for(j1=(j2-2); j1<(j2+3); j1++){
-              l1a = l1b = Math.abs(j1-j2);
-              if(l1a<1){ l1a = l1b = 1; } // E0 is not permitted
-              if((j1+j2)>l1b){ l1b++; }
-              if(l1a == l1b && l1a == l2a && l1a == l2b){ pure=1; }else{ pure=0; }
-              //  console.log("j1,j2,j3,l1a,l1b,l2a,l2b: "+j1+","+j2+","+j3+","+l1a+","+l1b+","+l2a+","+l2b);
-              dataStore.delta1Series[index] = [];
-              dataStore.chiSquareSeries[index] = [];
-              dataStore.chiSqLabelSeries[index] = "j="+j1;
-              minChiSquareSeries[index] = 1000000000;
-              for(var atanDelta1=-1.5; atanDelta1<=1.5; atanDelta1+=0.01){
-                if(atanDelta1>-0.01 && atanDelta1<0.01){ atanDelta1=0.0; }
-                dataStore.delta1Series[index].push(atanDelta1.toFixed(2));
-                if(pure){ // Need special handling for pure multipolarity case which only has one solution
-                  if(atanDelta1 != 0){
-                    dataStore.chiSquareSeries[index].push(null);
-                    continue;
-                  }else{
-                    newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2);
-                    correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
-                    correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
-                    thisTheory = theoreticalAngularCorrelation(correctedCoEffs[0],correctedCoEffs[1], expAngBinRadians);
-                    thisOffset = angularCorrelationRegression(expAngBinData,thisTheory);
-                    for(i=0; i<thisTheory.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
-                    thisChiSquare = calculateChiSquare(expAngBinData,expAngBinDataUnc,thisTheory)/dataStore.numDegreesOfFreedom;
-                    dataStore.chiSquareSeries[index].push(thisChiSquare);
-                    var minimaKey = "j="+j1+"-1"; // Only one solution for pure case
-                    localMinimaKeys[index] = j1;
-                    dataStore.minimaDetails[minimaKey] = {
-                      'series': "j="+j1,
-                      'params': [j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2],
-                      'atanDelta1': atanDelta1.toFixed(3),
-                      'Delta1': Math.tan(atanDelta1).toFixed(3),
-                      'Delta1Unc': 0,
-                      'chiSquare': thisChiSquare.toFixed(3),
-                      'beta': dataStore.beta,
-                      'gamma': dataStore.gamma,
-                      'bestFitCoeffsC': [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma],
-                      'bestFitCoeffsA': newCoEffs
-                    };
-                    // This identifies the global minimum
-                    if(thisChiSquare<minChiSquare){  // Global minimum
-                      minChiSquare = thisChiSquare;
-                      bestFitC = [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma];
-                      bestFitA = newCoEffs;
-                      bestFitKey = minimaKey;
-                    }
-                    continue;
-                  }
-                }
-                // Calculate the chi-square for this set of coefficients and atan(delta) value
-                newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2);
-                correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
-                correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
-                thisTheory = theoreticalAngularCorrelation(correctedCoEffs[0],correctedCoEffs[1], expAngBinRadians);
-                thisOffset = angularCorrelationRegression(expAngBinData,thisTheory);
-                for(i=0; i<expAngBinData.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
-                thisChiSquare = calculateChiSquare(expAngBinData,expAngBinDataUnc,thisTheory)/dataStore.numDegreesOfFreedom;
-                dataStore.chiSquareSeries[index].push(thisChiSquare);
-
-                // This finds the primary local minimum for this j value
-                if(thisChiSquare<minChiSquareSeries[index]){
-                  minChiSquareSeries[index] = thisChiSquare;
-                  var minimaKey = "j="+j1+"-1"; // This is always the primary minimum for this j value
-                  //    console.log("This  c2,c4 = ["+newCoEffs[0]+","+newCoEffs[1]+"] and a2,a4 = ["+correctedCoEffs[0]+","+correctedCoEffs[1]+"]");
-                  dataStore.minimaDetails[minimaKey] = {
-                    'series': "j="+j1,
-                    'params': [j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2],
-                    'atanDelta1': atanDelta1.toFixed(3),
-                    'Delta1': Math.tan(atanDelta1).toFixed(4),
-                    'Delta1Unc': 0,
-                    'chiSquare': thisChiSquare.toFixed(3),
-                    'beta': dataStore.beta,
-                    'gamma': dataStore.gamma,
-                    'bestFitCoeffsC': [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma],
-                    'bestFitCoeffsA': newCoEffs
-                  };
-                  //        console.log("Saved c2,c4 = ["+dataStore.minimaDetails[minimaKey].bestFitCoeffsC[0]+","+dataStore.minimaDetails[minimaKey].bestFitCoeffsC[1]+"] and a2,a4 = ["+dataStore.minimaDetails[minimaKey].bestFitCoeffsA[0]+","+dataStore.minimaDetails[minimaKey].bestFitCoeffsA[1]+"]");
-
-                  // This identifies the global minimum
-                  if(thisChiSquare<minChiSquare){  // Global minimum
-                    minChiSquare = thisChiSquare;
-                    bestFitC = [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma];
-                    bestFitA = newCoEffs;
-                    bestFitKey = minimaKey;
-                  }
-                }
-
-              }
-              //  console.log("End of atan loop");
-              console.log(dataStore.minimaDetails);
-
-              // Now we have the full chi-square series for this j value
-              // Locate the primary and secondary minimum for this j value
-              if(pure){ localMinimaKeys[index] = j1; index++; continue; } // Pure multipolarity only have one solution which was already recorded
-              var previousGradient = 1;
-              var gradient = 1;
-              if(!localMinima[index]){ localMinima[index] = []; localMinimaKeys[index] = j1; }
-              for(i=1; i<dataStore.delta1Series[index].length; i++){
-                previousGradient = gradient;
-                if(dataStore.chiSquareSeries[index][i]<dataStore.chiSquareSeries[index][i-1]){ gradient = -1; }else{ gradient = 1; }
-                if(previousGradient<gradient){ // The gradient changed from negative to positive so we have found a minimum
-                  console.log("j="+j1+" minimum found at ["+i+"], delta="+dataStore.delta1Series[index][i]+", chi-square="+dataStore.chiSquareSeries[index][i]);
-                  localMinima[index].push(i-1);
-                  localMinimaKeys[index] = j1;
-                }
-              }
-
-              index++;
-            }
-
-            // Sort the arrays so the primary minimum is always first
-            for(i=0; i<localMinima.length; i++){
-              if(localMinima[i].length>1){
-                if(localMinima[i][1]>localMinima[i][0]){
-                  j=localMinima[i][0];
-                  localMinima[i][0] = localMinima[i][1];
-                  localMinima[i][1] = j;
-                }
-              }
-            }
-            console.log(localMinima);
-            // Find the uncertainty for each chi-square minimum
-            for(i=0; i<localMinima.length; i++){
-              for(j=0; j<localMinima[i].length; j++){
-                minimaKey = "j="+localMinimaKeys[i]+"-1";
-                var theseParams = dataStore.minimaDetails[minimaKey].params;
-                if(dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(3) != dataStore.minimaDetails[minimaKey].chiSquare){
-                  console.log("Must be second minimum: "+dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(4)+" not equal to "+dataStore.minimaDetails[minimaKey].chiSquare+", for atan(delta)="+dataStore.minimaDetails[minimaKey].atanDelta1);
-                  theseParams[7] = Number(dataStore.delta1Series[i][localMinima[i][j]]).toFixed(3);
-                  theseParams[8] = (Math.tan(dataStore.delta1Series[i][localMinima[i][j]])).toFixed(4);
-                  newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(theseParams[0],theseParams[1],theseParams[2],theseParams[3],theseParams[4],theseParams[5],theseParams[6],theseParams[7],theseParams[8]);
-                  correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
-                  correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
-                  minimaKey = "j="+localMinimaKeys[i]+"-2";
-                  dataStore.minimaDetails[minimaKey] = {
-                    'series': "j="+i,
-                    'params': theseParams,
-                    'atanDelta1': Number(dataStore.delta1Series[i][localMinima[i][j]]).toFixed(3),
-                    'Delta1': (Math.tan(dataStore.delta1Series[i][localMinima[i][j]])).toFixed(4),
-                    'chiSquare': dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(3),
-                    'beta': dataStore.beta,
-                    'gamma': dataStore.gamma,
-                    'bestFitCoeffsC': [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma],
-                    'bestFitCoeffsA': newCoEffs
-                  };
-                }
-                k=localMinima[i][j]; // k is an index number of the series array
-                threshold = Number(dataStore.chiSquareSeries[i][k] + (1/dataStore.numDegreesOfFreedom)); // threshold is the chi-square value
-                while(dataStore.chiSquareSeries[i][k]<threshold){ k--; }
-                var minUncertIndex = k; k=localMinima[i][j];
-                while(dataStore.chiSquareSeries[i][k]<threshold){ k++; }
-                var maxUncertIndex = k;
-                dataStore.minimaDetails[minimaKey]['Delta1Unc'] = ((Math.tan(dataStore.delta1Series[i][maxUncertIndex]) - Math.tan(dataStore.delta1Series[i][minUncertIndex]))/2).toFixed(4);
+            // Set up GRIFFIN detectors for GRG-GRG type
+            var crystals = ["B","G","R","W"];
+            var num=0;
+            for(i=1; i<(dataStore.numberOfClovers+1); i++){
+              for(k=0; k<4; k++){
+                dataStore.THESEdetectors[num] = 'GRG'+alwaysThisLong(i, 2)+crystals[k]+'N00A'; num++;
               }
             }
 
-            console.log([dataStore.delta1Series,dataStore.chiSquareSeries]);
+            // Set up the groups based on THESEdetectors
+            var groups = [];
+            groups.push({ "groupID": 'AngularBins', "groupTitle": 'Angular Bins', "plots": [] });
+            var histoName = dataStore.histoFileName.split(".")[0] + ":";
+            var thesePlots = [];
+            for(i=0; i<dataStore.THESEdetectors.length; i++){
+              thesePlots.push( { "plotID": histoName + dataStore.THESEdetectors[i] + '_GGEnergy', "title": dataStore.THESEdetectors[i] });
+            }
+            groups.push({ "groupID": 'GRG', "groupTitle": 'Ge Singles for normalization', "plots": thesePlots });
 
-            console.log(dataStore);
+            break; // End of case of GRG-GRG
 
-            // Generate data for the best fit line to be displayed as a line on the Ang Corr Data plot
-            var thisTheory = theoreticalAngularCorrelation(bestFitC[0],bestFitC[1], dataStore.expAngBinRadians); // x series matching data for determining offset
-            var thisOffset = angularCorrelationRegression(dataStore.expAngBinData,thisTheory);
-            thisTheory = theoreticalAngularCorrelation(bestFitC[0],bestFitC[1], dataStore.expAngFineBinRadians); // fine x series for the actual plot
-            for(var i=0; i<thisTheory.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
-            dataStore.displayLineData = thisTheory;
-            dataStore.displayLineName = "Global minimum, "+bestFitKey.split("-")[0]+", \u03B4 = "+dataStore.minimaDetails[bestFitKey].Delta1;
-            dataStore.displayLineTitle = "\u{1D6D8}\u00B2/NDF = "+dataStore.minimaDetails[bestFitKey].chiSquare;
+            ////////////////////////////////////////////////
+            case "GRG-ART-110mm": // Ge-ARIES angular correlations
+            case "GRG-ART-145mm": // Ge-ARIES angular correlations
 
-            // Generate the residuals for the global best fit
-            generateResidualsData(bestFitC[0],bestFitC[1]);
+            // Hide unnecessary inputs
+            document.getElementById('gamma2InputDiv').classList.add('hidden');
+            document.getElementById('peakGateChoiceInputDiv').classList.add('hidden');
 
-            // Save the global best fit result for use in the plots
-            dataStore.bestFitCoeffs = bestFitC;
-            dataStore.bestFitKey = bestFitKey;
+            // Change the refit callback function
+            dataStore.refitCallback = function(){ setTimeout(processAriesAngularCorrelationData(), 1000); }  // callback function for after a peak refit
 
-
-            console.log(dataStore);
-            // resolve the promise
-            resolve("Success!");
-          }); // end of promise definition
-
-        }
-
-        function toggleExcludeList(index){
-
-          if( dataStore.angularBinExcludeList.includes(Number(index))){
-            // If this index is already excluded, remove this index from the exclude list
-            dataStore.angularBinExcludeList.splice(dataStore.angularBinExcludeList.indexOf(Number(index)),1);
-          }else{
-            // If this index is not already excluded, add it to the exclude list
-            dataStore.angularBinExcludeList.push(Number(index));
-          }
-
-          // Trigger a recalculation
-          dataStore.refitCallback();
-        }
-
-        function buildCSVfile(){
-          console.log('Download initiated');
-
-          // Write the table of results to a CSV file for download.
-          CSV = '';
-
-          CSV += 'GRIFFIN Gamma-Gamma Angular Correlations Data\n\n';
-
-          // List the run files used for this calibration
-          CSV += 'Histogram file:,' + dataStore.histoFileName + '\n';
-          CSV += dataStore.detectorType + '\n';
-
-          // Print table Titles
-          CSV += '\nAngular bin data for angular correlation:,,,,,,,,,,,,,,,Data for calculating Weighting factors from individual crystals:\n';
-
-          // Print the column titles
-          CSV += 'Angular Bin Index,';
-          CSV += 'Angular Bin (deg),';
-          CSV += 'Angular Bin cos(),';
-          CSV += 'Num Ge pairs,';
-          CSV += 'Angular Bin Raw Area,';
-          CSV += 'Angular Bin BKG Area,';
-          CSV += 'Angular Bin BKG Factor,';
-          CSV += 'Angular Bin Area,';
-          CSV += 'Angular Bin Area Uncertainty,';
-          CSV += 'Angular Bin Weight,';
-          CSV += 'Normalization Factor,';
-          CSV += 'Angular Correlation Value,';
-          CSV += 'Ang. Corr. Value Uncertainty, , ,';
-          CSV += 'Crystal Index,';
-          CSV += 'Gate Peak Energy (keV),';
-          CSV += 'Singles Area,';
-          CSV += 'Singles Area Uncertainty,';
-          CSV += 'Fitted Peak Energy (keV),';
-          CSV += 'Singles Area,';
-          CSV += 'Singles Area Uncertainty\n';
-
-          // Loop through all angular bins to provide the data
-          for(i=1; i<=dataStore.singlesPeakArea.length; i++){
-
-            if(i<dataStore.angularBinData.length){
-              CSV += (i-1) + ',';
-              CSV += dataStore.theseAngularBins[i] + ',';
-              CSV += Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)) + ',';
-              CSV += dataStore.numCrystalPairs[i] + ',';
-              CSV += dataStore.angularBinRawPeakArea[i] + ',';
-              CSV += dataStore.angularBinTRBGPeakArea[i] + ',';
-              CSV += dataStore.angularBinTRBGFactor[i] + ',';
-              CSV += dataStore.angularBinPeakArea[i] + ',';
-              CSV += dataStore.angularBinPeakAreaUnc[i] + ',';
-              CSV += dataStore.angularBinWeight[i] + ',';
-              CSV += dataStore.normalizationFactor + ',';
-              CSV += dataStore.angularBinData[i] + ',';
-              CSV += dataStore.angularBinDataUnc[i] + ', , ,';
-              CSV += i + ',';
-              CSV += dataStore.fitPeakEnergies[1] + ',';
-              CSV += dataStore.singlesPeakArea[i-1][1] + ',';
-              CSV += dataStore.singlesPeakAreaUnc[i-1][1] + ',';
-              CSV += dataStore.fitPeakEnergies[0] + ',';
-              CSV += dataStore.singlesPeakArea[i-1][0] + ',';
-              CSV += dataStore.singlesPeakAreaUnc[i-1][0] + '\n';
+            // Copy the corresponding angular bin data into the arrays to use
+            if(dataStore.detectorType == "GRG-ART-145mm"){
+              dataStore.theseAngularBins = dataStore.GRG_ART_angular_bins_145mm;
+              dataStore.theseGeAngles = dataStore.GRG_ART_angles_145mm;
             }else{
-              CSV += ' , , , , , , , , , , , , , , ,';
-              CSV += i + ',';
-              CSV += dataStore.fitPeakEnergies[1] + ',';
-              CSV += dataStore.singlesPeakArea[i-1][1] + ',';
-              CSV += dataStore.singlesPeakAreaUnc[i-1][1] + ',';
-              CSV += dataStore.fitPeakEnergies[0] + ',';
-              CSV += dataStore.singlesPeakArea[i-1][0] + ',';
-              CSV += dataStore.singlesPeakAreaUnc[i-1][0] + '\n';
+              dataStore.theseAngularBins = dataStore.GRG_ART_angular_bins_110mm;
+              dataStore.theseGeAngles = dataStore.GRG_ART_angles_110mm;
             }
 
-          }
-
-          // Create a download link
-          const textBlob = new Blob([CSV], {type: 'text/plain'});
-          URL.revokeObjectURL(window.textBlobURL);
-          const downloadLink = document.createElement('a');
-          downloadLink.href = URL.createObjectURL(textBlob);
-          downloadLink.download = "GRIFFIN-Gamma-Gamma-Angular-Correlation.csv";
-
-          // Trigger the download
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-        }
-
-        function buildChiSqCSVfile(){
-          console.log('Download initiated');
-          var i;
-
-          // Write the table of results to a CSV file for download.
-          CSV = '';
-
-          CSV += 'GRIFFIN Gamma-Gamma Angular Correlations Chi-Square series Data\n\n';
-
-          // List the run files used for this calibration
-          CSV += 'Histogram file:,' + dataStore.histoFileName + '\n';
-          CSV += dataStore.detectorType + '\n';
-
-          // Print column titles
-          CSV += '\natan(delta),';
-          for(i=0; i<dataStore.chiSqLabelSeries.length; i++){
-            CSV += dataStore.chiSqLabelSeries[i]+',';
-          }
-
-          // Loop through all elements in each series to provide the data
-          for(i=0; i<=dataStore.chiSquareSeries[0].length; i++){
-
-            CSV += '\n';
-            if(!dataStore.delta1Series[0][i]){ continue; }
-            CSV += dataStore.delta1Series[0][i]+',';
-            for(j=0; j<dataStore.chiSqLabelSeries.length; j++){
-              CSV += dataStore.chiSquareSeries[j][i]+',';
+            // Generate the angular bins in radians
+            for(var i=0; i<dataStore.theseAngularBins.length; i++){
+              dataStore.theseAngularBinsRadians.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
             }
 
-          }
+            // Set up GRIFFIN and ARIES detectors for GRG-ART type
+            var crystals = ["B","G","R","W"];
+            var num=0;
+            for(i=1; i<(dataStore.numberOfClovers+1); i++){
+              for(k=0; k<4; k++){
+                dataStore.THESEdetectors[num] = 'GRG'+alwaysThisLong(i, 2)+crystals[k]+'N00A'; num++;
+              }
+            }
+            for(i=0; i<=dataStore.numberOfARIESTiles; i++){
+              dataStore.THESEdetectors[num] = 'ART'+alwaysThisLong(i, 2)+'XS00X'; num++;
+            }
 
-          // Create a download link
-          const textBlob = new Blob([CSV], {type: 'text/plain'});
-          URL.revokeObjectURL(window.textBlobURL);
-          const downloadLink = document.createElement('a');
-          downloadLink.href = URL.createObjectURL(textBlob);
-          downloadLink.download = "GRIFFIN-Ang-Corr-ChiSquareSeries.csv";
+            // Set up the groups based on THESEdetectors
+            var groups = [];
+            groups.push({ "groupID": 'AngularBins', "groupTitle": 'Angular Bins', "plots": [] });
+            var histoName = dataStore.histoFileName.split(".")[0] + ":";
+            var theseGRGPlots = [];
+            var theseARTPlots = [];
+            for(i=0; i<dataStore.THESEdetectors.length; i++){
+              if(dataStore.THESEdetectors[i].includes('GRG')){
+                theseGRGPlots.push(
+                  { "plotID": histoName + dataStore.THESEdetectors[i] + '_Energy', "title": dataStore.THESEdetectors[i] });
+                }else if(dataStore.THESEdetectors[i].includes('ART')){
+                  theseARTPlots.push( { "plotID": histoName + dataStore.THESEdetectors[i] + '_Energy', "title": dataStore.THESEdetectors[i] });
+                }
+              }
+              groups.push({ "groupID": 'GRG', "groupTitle": 'Ge Singles for normalization', "plots": theseGRGPlots });
+              groups.push({ "groupID": 'ART', "groupTitle": 'ARIES Singles for normalization', "plots": theseARTPlots });
 
-          // Trigger the download
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-        }
+              break; // End of case of GRG-ART
+
+              ////////////////////////////////////////////////
+              case "DSW-DSW": // DSW-DSW angular correlations
+
+              // Set up DESCANT detectors for DSW-DSW type
+              var num=0;
+              for(i=1; i<=dataStore.numberOfDSW; i++){
+                dataStore.THESEdetectors[num] = 'ART'+alwaysThisLong(i, 2)+'XS00X'; num++;
+              }
+
+              // Set up the groups based on THESEdetectors
+              var groups = [];
+              groups.push({ "groupID": 'AngularBins', "groupTitle": 'Angular Bins', "plots": [] });
+              var histoName = dataStore.histoFileName.split(".")[0] + ":";
+              var thesePlots = [];
+              for(i=0; i<dataStore.THESEdetectors.length; i++){
+                thesePlots.push(
+                  {
+                    "plotID": histoName + dataStore.THESEdetectors[i] + '_CTOF', // Use corrected TOF
+                    "title": dataStore.THESEdetectors[i]
+                  });
+                }
+                groups.push({ "groupID": 'DSW', "groupTitle": 'DESCANT Singles for normalization', "plots": thesePlots });
+                break; // End of case of DSW-DSW
+
+                default:
+                console.log("Error, unrecognized detectorType = "+dataStore.detectorType);
+                break;
+              }
+
+              // Names of Angular correlation matrices that we need to fetch and use for GRG-GRG
+              dataStore.angularMatrices = thisScript.spectrumList2d;
+
+              ////////////////
+              // Set up the menus, reports and display objects
+              ////////////////
+
+              // Build the menu list from the groups defined above for this detector type
+              if(dataStore.spectrumListHistoFileNames.length>1){
+                dataStore.plotGroups = groups;     //groups to arrange spectra into for dropdowns
+              }else{
+                for(i=0; i<groups.length; i++){
+                  dataStore.plotGroups.push(groups[i]); //add these groups to arrange spectra into for dropdowns
+                }
+              }
+
+              // Generate the spectrum menu based on the plotGroups
+              dataStore._plotListLite = new plotListLite('plotList');
+              dataStore._plotListLite.setup();
+
+              // Generate the angularCorrelations report table
+              dataStore._angularCorrelationsReport = new angularCorrelationsReport('resultsDataTableRegion','resultsWeightTableRegion','chiSquareReportTableDiv','resultsFitsTableRegion');
+              dataStore._angularCorrelationsReport.setup();
+
+              // Draw the search region
+              dataStore.viewers[dataStore.plots[0]].plotData();
+
+              // Hide the subpages. They need to be not hidden while the templates are injected.
+              menuButtonClick(dataStore.buttonIDs[0],0);
+
+              // Disable user inputs now we have launched the process
+              document.getElementById('HistoDirectoryInput').setAttribute('disabled', true);
+              for(var i=0; i<dataStore.histoChoiceBarContents.length; i++){
+                var thisTitle = dataStore.histoChoiceBarContents[i];
+                document.getElementById('HistoListSelect'+thisTitle).setAttribute('disabled', true);
+              }
+
+              // Disable inputs
+              for(var i=0; i<dataStore.detectorChoice.length; i++){
+                document.getElementById('detectorChoice-'+dataStore.detectorChoice[i].name).setAttribute('disabled', true);
+              }
+
+              // Set up the progress tracking
+              setupProgressBarTracking();
+              dataStore.progressBarNumberTasks -= dataStore.peakFitterScriptTemplate[dataStore.detectorType].spectrumList2d.length; // We are not unpacking matrices locally
+
+              ////////////////
+              // Now set up for the start of the fetching process for the 1d histograms
+              ////////////////
+
+              // Plug in the active spectra names for the 1d histograms
+              dataStore._plotControl.activeSpectra = [];
+              for(var i=0; i<dataStore.spectrumList1d.length; i++){
+                dataStore._plotControl.activeSpectra.push(dataStore.spectrumList1d[i]);
+              }
+
+              // Set the dataStore.histoFileName to this source so that constructQueries requests the correct spectrum
+              dataStore.histoFileName = dataStore.currentHistoFileName = dataStore.spectrumListHistoFileNames[0];
+
+              // change information message
+              document.getElementById('welcomeMessage').classList.add('hidden');
+              document.getElementById('fetchingMessage').classList.remove('hidden');
+
+              // Set the current task to keep track of our progress
+              dataStore.currentTask = 'Fetching1d';
+
+              // Request the first histogram file from the server.
+              // This launches a series of promises. Once complete we end with fetchCallback.
+              dataStore._plotControl.refreshAll();
+            }
+
+            function fetchAllMatrices(){
+              // Plug in the active spectra names for the 2d histograms
+              dataStore.stagedQueries = [];
+              for(i=0; i<dataStore.spectrumList2d.length; i++){
+                dataStore.stagedQueries.push(dataStore.spectrumList2d[i]);
+              }
+              // Request only 5 matrices at a time - because of slow networks and computers
+              fetchMatrices(dataStore.stagedQueries.slice(-5)); // Request the last 5 matrices in the list
+            }
+
+            function fetchMatrices(theseSpectra){
+              // Create URLs for 2d histograms (one URL per 2d histogram)
+              // ensure one 2d histogram per url using the construct2dQueries function which also calls the binary transfer method
+              var queries2d = construct2dQueries([],theseSpectra);
+              var allQueries2d = queries2d.map(promiseBinaryURL);
+
+              var spectraFetched = Promise.all(allQueries2d).then(
+                function(spectra){
+                  var i, j, key, viewerKey, newKey, this2dKey;
+
+                  // distribute the spectra data received from the analyzer to the appropriate places
+                  // loop through spectra where each element can be up to 16 histograms
+                  for(i=0; i<spectra.length; i++){
+
+                    // Loop through the keys of this spectrum element where each key is a histogram (or components of a 2d matrix)
+                    for(key in spectra[i]){
+
+                      // Remove this matrix from the staged list so it will not be requested again
+                      dataStore.stagedQueries.splice(dataStore.stagedQueries.indexOf(spectra[i]['binaryName']));
+
+                      // Treatment of 2d spectra received by the binary transfer method
+                      // unpackBinaryMatrixData(key,outputRaw,outputDense,outputSparse);
+                      // key is used for the dataStore.rawData object
+                      // true/false for which outputs will be generated. This can cause memory overflow if many matrices are requested
+                      unpackBinaryMatrixData(spectra[i]['binaryName'],dataStore.outputRawFlag,dataStore.outputDenseFlag,dataStore.outputSparseFlag,dataStore.outputDeleteFlag);
+                    }
+                  }
+
+                }
+              ).catch((error) => {
+                console.log("Caught error from Promise.all in plotControl refreshAll.");
+                console.error(error.message);
+                // This error is either a network interruption, (one or a few 2d histograms would fail)
+                // OR an old server without the binary transfer method (would fail for all 2d histograms).
+                // First check if we have any 2d histograms received, if so then remove them from the refreshAll request
+                // If no 2d histograms received then change to json transfer method and request all again
+
+                //return;
+              });
+
+              // End with calling fetchCallback2d()
+              spectraFetched.then( function(){ fetchCallback2d(); } )
+
+            }
+
+            function fetchCallback2d(){
+
+              if(dataStore.stagedQueries.length>0){
+                // There are more staged requests, so request the next batch of 5
+                fetchMatrices(dataStore.stagedQueries.slice(-5)); // Request the last 5 matrices in the list
+              }else{
+                // We are done now
+                fetchCallback();
+              }
+
+            }
+
+            function launchAngularCorrelations(){
+              // This is the start of the automated process
+              console.log(dataStore);
+
+              // change messages
+              document.getElementById('readyMessage').classList.add('hidden');
+              document.getElementById('projectionsMessage').classList.remove('hidden');
+
+              // Get the peak energies from the User input
+              var g1E = parseInt(document.getElementById('gamma1Input').value);
+              var g2E = parseInt(document.getElementById('gamma2Input').value);
+
+              // Get user input for which peak to use as the gate
+              var gateE = g1E;
+              var fitE = g2E;
+              var gateChoice = parseInt(document.getElementById('peakGateChoiceInput').value);
+              if(gateChoice==2){
+                gateE = g2E;
+                fitE = g1E;
+              }
+              dataStore.fitPeakEnergies = [fitE,gateE]; // Remember for use in tables later
+
+              // Set the gate width
+              var gateWidth = Math.ceil(typicalPeakWidth(gateE,"HPGe"));
+
+              // Set limits for the projections
+              var gateMin = gateE - gateWidth;
+              var gateMax = gateE + gateWidth;
+
+              // Set limits for the backgrounds to be subtracted from the projections
+              var BG1Max = gateMin - Math.floor(gateWidth*1.5);
+              var BG1Min = BG1Max - gateWidth;
+              var BG2Min = gateMax + Math.floor(gateWidth*1.5);
+              var BG2Max = BG2Min + gateWidth;
+
+              // Grab the template peak-fitting script to a local copy here
+              var thisScript = {};
+              thisScript = dataStore.peakFitterScriptTemplate[dataStore.detectorType];
+
+              // Get the user input on histogramFileNames
+              thisScript.histogramFileNames.push(document.getElementById('HistoListSelectGRIFFIN').value);
+
+              // Set up the gating details for the projections
+              thisScript.spectrumListGates.push(["x",undefined,undefined,undefined,undefined,undefined,undefined]); // Total projection
+              thisScript.spectrumListGates.push(["x",gateMin,gateMax,BG1Min,BG1Max,BG2Min,BG2Max]); // Gate defined by user input
+
+              // Add the peaks for fitting
+              thisScript.spectrumList1dPeaks.All.push(fitE);
+              thisScript.spectrumList1dPeaks.All.push(gateE);
+              thisScript.spectrumListProjectionsPeaks.All.push(fitE);
+              thisScript.spectrumListProjectionsPeaks.All.push(gateE);
+
+              // Setup the peak-fitting script from the template
+              receiveScript(JSON.stringify(thisScript));
+
+              // Set up the progress tracking
+              setupProgressBarTracking();
+
+              // Enable onchange functions which now trigger recalculations
+              document.getElementById('sysUnc').onchange = function(){
+                console.log("sysUnc onchange function");
+                dataStore.systematicUncertainty=(this.value/100);
+                processAngularCorrelationData();
+              };
+              var optionsCL = document.getElementsByName('confidenceLimitValue');
+              for(var i = 0; i < optionsCL.length; i++){
+                optionsCL[i].onclick = function(){
+                  console.log("confidenceLimitValue onclick function");
+                  processAngularCorrelationData();
+                };
+              }
+              document.getElementById('betaInput').onchange = function(){ processAngularCorrelationData(); };
+              document.getElementById('gammaInput').onchange = function(){ processAngularCorrelationData(); };
+              var optionsTR = document.getElementsByName('time_random_select_value');
+              for(var i = 0; i < optionsTR.length; i++){
+                optionsTR[i].onclick = function(){
+                  console.log("time_random_select_value onclick function");
+                  processAngularCorrelationData();
+                };
+              }
+
+              // Create projectionsList for the input of the function projectAllMatrices(projectionsList,compressed)
+              // projectionsList is an array of objects.
+              // Each object contains the "matrixName" which is a valid key for the dataStore.matrix array.
+              // Each object also contains the "gateDetails" which is an array of gates specific to that 2d spectrum.
+              // Format for gates: 'matrixname': [[axis,gateMin,gateMax,BG1SF,BG1Min,BG1Max,BG2SF,BG2Min,BG2Max], [], ...]
+              // Where BG1SF is the Scaling Factor for a projection between bins BG1Min and BG1Max which will be subtracted from the main Gate projection between bins gateMin and gateMax onto the 'axis' axis.
+              var projectionsList = [];
+              var histoName = dataStore.histoFileName.split(".")[0] + ":";
+              for(var i=0; i<dataStore.spectrumList2d.length; i++){
+                for(var j=0; j<dataStore.spectrumListGates[dataStore.spectrumList2d[i]].length; j++){
+                  projectionsList.push(
+                    {
+                      "matrixName": histoName + dataStore.spectrumList2d[i],    "gateDetails": dataStore.spectrumListGates[dataStore.spectrumList2d[i]][j]
+                    });
+                  }
+                }
+
+                // Start the process of projections for all matrices
+                projectAllMatrices(projectionsList,true,'AngularBins');
+              };
+
+              function launchARIESAngularCorrelations(){
+                // This is the start of the automated process
+                console.log(dataStore);
+
+                // change messages
+                document.getElementById('readyMessage').classList.add('hidden');
+                document.getElementById('projectionsMessage').classList.remove('hidden');
+
+                // Get the peak energies from the User input
+                var fitE = parseInt(document.getElementById('gamma1Input').value);
+                dataStore.fitPeakEnergies = [fitE]; // Remember for use in tables later
+
+                // Grab the template peak-fitting script to a local copy here
+                var thisScript = {};
+                thisScript = dataStore.peakFitterScriptTemplate[dataStore.detectorType];
+
+                // Get the user input on histogramFileNames
+                thisScript.histogramFileNames.push(document.getElementById('HistoListSelectGRIFFIN').value);
+
+                // Set up the gating details for the projections - For ARIES we only need total projection
+                thisScript.spectrumListGates.push(["x",undefined,undefined,undefined,undefined,undefined,undefined]); // Total projection
+
+                // Add the peaks for fitting
+                thisScript.spectrumList1dPeaks.All.push(fitE);
+                thisScript.spectrumListProjectionsPeaks.All.push(fitE);
+
+                // Setup the peak-fitting script from the template
+                receiveScript(JSON.stringify(thisScript));
+
+                // Set up the progress tracking
+                setupProgressBarTracking();
+
+                // Enable onchange functions which now trigger recalculations
+                document.getElementById('sysUnc').onchange = function(){
+                  console.log("sysUnc onchange function");
+                  dataStore.systematicUncertainty=(this.value/100);
+                  processAriesAngularCorrelationData();
+                };
+                var optionsCL = document.getElementsByName('confidenceLimitValue');
+                for(var i = 0; i < optionsCL.length; i++){
+                  optionsCL[i].onclick = function(){
+                    console.log("confidenceLimitValue onclick function");
+                    processAriesAngularCorrelationData();
+                  };
+                }
+                document.getElementById('betaInput').onchange = function(){ processAriesAngularCorrelationData(); };
+                document.getElementById('gammaInput').onchange = function(){ processAriesAngularCorrelationData(); };
+                var optionsTR = document.getElementsByName('time_random_select_value');
+                for(var i = 0; i < optionsTR.length; i++){
+                  optionsTR[i].onclick = function(){
+                    console.log("time_random_select_value onclick function");
+                    processAriesAngularCorrelationData();
+                  };
+                }
+
+                // Create projectionsList for the input of the function projectAllMatrices(projectionsList,compressed)
+                // projectionsList is an array of objects.
+                // Each object contains the "matrixName" which is a valid key for the dataStore.matrix array.
+                // Each object also contains the "gateDetails" which is an array of gates specific to that 2d spectrum.
+                // Format for gates: 'matrixname': [[axis,gateMin,gateMax,BG1SF,BG1Min,BG1Max,BG2SF,BG2Min,BG2Max], [], ...]
+                // Where BG1SF is the Scaling Factor for a projection between bins BG1Min and BG1Max which will be subtracted from the main Gate projection between bins gateMin and gateMax onto the 'axis' axis.
+                var projectionsList = [];
+                var histoName = dataStore.histoFileName.split(".")[0] + ":";
+                for(var i=0; i<dataStore.spectrumList2d.length; i++){
+                  for(var j=0; j<dataStore.spectrumListGates[dataStore.spectrumList2d[i]].length; j++){
+                    projectionsList.push(
+                      {
+                        "matrixName": histoName + dataStore.spectrumList2d[i],    "gateDetails": dataStore.spectrumListGates[dataStore.spectrumList2d[i]][j]
+                      });
+                    }
+                  }
+
+                  // Start the process of projections for all matrices
+                  projectAllMatrices(projectionsList,true,'AngularBins');
+                };
+
+                function fetchCallback(){
+                  console.log("fetchCallback with task, "+dataStore.currentTask);
+                  console.log(dataStore);
+
+                  if(dataStore.currentTask == 'Fetching1d'){
+                    // Set the current task to keep track of our progress
+                    dataStore.currentTask = 'Fetching2d';
+
+                    // Now fetch the matrices
+                    fetchAllMatrices();
+
+                    // Reveal the gate input controls
+                    // Reveal the cascade details inputs
+                    document.getElementById('userInputParentDiv').classList.remove('hidden');
+                    document.getElementById('gateInputsParentDiv').classList.remove('hidden');
+                    document.getElementById('cascadeInputsDiv').classList.remove('hidden');
+                    document.getElementById('analysisInputsDiv').classList.remove('hidden');
+
+                    // Plot a single spectrum for determining the gate and fit regions
+                    var plot = dataStore.histoFileName.split(".")[0] + ":" + dataStore.spectrumList1d[0];
+                    dataStore.viewers[dataStore.plots[0]].addData(plot, JSON.parse(JSON.stringify(dataStore.rawData[plot])) );
+                    dataStore.viewers[dataStore.plots[0]].plotData();
+
+                    return;
+                  }else{
+                    // Check that we got all the matrices ok
+                    var count = 0;
+                    for(let key in dataStore.rawData){
+                      const index = dataStore.spectrumList2d.indexOf(key.split(":")[1]);
+                      if (index > -1) {
+                        count++;
+                      }
+                    }
+                    // If only one hemisphere of ARIES is used then not all histograms exist in a summed histogram file
+                    // and thats ok but we need to create empty versions in the dataStore so that the processing goes smoothly
+                    if((dataStore.detectorType == "GRG-ART-110mm" || dataStore.detectorType == "GRG-ART-145mm") && count<dataStore.spectrumList2d.length){
+
+                      var byteArray = new Uint8Array([]);
+                      var submatrixType = new Array(65536).fill(0);
+
+                      var count = 0;
+                      for(var i=0; i<dataStore.spectrumList2d.length; i++){
+                        key = dataStore.spectrumList2d[i];
+                        fullKey = dataStore.histoFileName.split(".")[0] + ":" + key;
+                        if ( dataStore.rawData[fullKey] != undefined ) {
+                          count++;
+                        }else{
+                          // Reconstruct the 2d histogram object as an empty spectrum
+                          var thisMatrix = {
+                            "name" : key, "XaxisLength" : 4096, "YaxisLength" : 4096,
+                            "symmetrized" : 0,
+                            "XaxisMin" : 0, "XaxisMax" : 4096,
+                            "YaxisMin" : 0, "YaxisMax" : 4096,
+                            "submatrixType" : submatrixType,
+                            "dataBinary" : byteArray,
+                            "data2" : []
+                          };
+                          dataStore.rawData[fullKey] = thisMatrix;
+                          count++;
+                        }
+                      }
+                    }
+                    // Now check if we have all matrices and quit if we dont
+                    if(count<dataStore.spectrumList2d.length){
+                      console.log("We are missing some matrices!");
+
+                      var string = 'Matrix transfer error, failed to receive all matrices from the server. Please reload to try again.<br>';
+                      if(document.getElementById('messageDivText')){ document.getElementById('messageDivText').innerHTML = string; }
+                      if(document.getElementById('messageDiv')){ document.getElementById('messageDiv').style.display = 'block'; }
+                      return;
+                    }
+                  }
+
+                  // Set the current task to keep track of our progress
+                  dataStore.currentTask = 'peakInfoInput';
+
+                  // change information message
+                  document.getElementById('fetchingMessage').classList.add('hidden');
+                  document.getElementById('readyMessage').classList.remove('hidden');
+
+                  switch(dataStore.detectorType){
+
+                    case "GRG-GRG-110mm": // Ge-Ge angular correlations for HPGe at 110mm
+                    case "GRG-GRG-145mm": // Ge-Ge angular correlations for HPGe at 145mm
+
+                    // Enable the Launch button
+                    document.getElementById('ggAngCorrProject').disabled = false;
+                    break;
+                    case "GRG-ART-110mm": // Ge-ARIES angular correlations for HPGe at 110mm
+                    case "GRG-ART-145mm": // Ge-ARIES angular correlations for HPGe at 145mm
+                    // Reveal the correct Launch button
+                    document.getElementById('ggAngCorrProject').classList.add('hidden');
+                    document.getElementById('ariesAngCorrProject').classList.remove('hidden');
+                    document.getElementById('ariesAngCorrProject').disabled = false;
+                    break;
+                    case "DSW-DSW": // DSW-DSW angular correlations
+                    break; // End of case of DSW-DSW
+
+                    default:
+                    console.log("Error, unrecognized detectorType = "+dataStore.detectorType);
+                    break;
+                  }
+
+                  // Nothing further to do here on fetchCallback. Further tasks are initiated following User input.
+                }
+
+                function projectionsCallback(){
+                  console.log("ProjectionsCallback");
+
+                  // Add this projection spectrum to the list which will be used in processAngularCorrelationData
+                  for(var i=0; i<dataStore.spectrumListProjections.length; i++){
+                    if(dataStore.spectrumListProjections[i][dataStore.spectrumListProjections[i].length-1] != 'x'){
+                      dataStore.angCorrProjections.push(dataStore.spectrumListProjections[i]);
+                    }
+                  }
+
+                  // change information message
+                  document.getElementById('projectionsMessage').classList.add('hidden');
+                  document.getElementById('fittingMessage').classList.remove('hidden');
+
+                  // Set the current task to keep track of our progress
+                  dataStore.currentTask = 'SinglesFitting';
+
+                  // Build the list of spectrum names with the histogram name appended to the start of the string so it can be used as a key
+                  var histoName = dataStore.histoFileName.split(".")[0];
+                  var spectrumList = [];
+                  dataStore.spectrumList1d.forEach((element) => {
+                    if(element.includes("GRG")){  spectrumList.push(histoName+":"+element); }
+                    else{ dataStore.singlesScintillatorSpectra.push(histoName+":"+element); }
+                  }); // Only include Ge spectra here for peak fitting. Other detcetor types just use a sum of counts.
+                  dataStore.singlesSpectra = spectrumList;
+
+                  // Use Limits if any were set through mouse clicks
+                  var limits = [];
+                  for(var i=0; i<dataStore.spectrumList1dPeaks.All.length; i++){
+                    limits[i] = [-1,-1];
+                    if(dataStore.appLimitsStore != undefined){
+                      if(dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]] != undefined){
+                        if(dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitLower){ limits[i][0] = dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitLower; }
+                        if(dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitUpper){ limits[i][1] = dataStore.appLimitsStore[dataStore.spectrumList1dPeaks.All[i]].LimitUpper; }
+                      }
+                    }
+                  }
+
+                  // Start the whole fitting routine for singles peaks
+                  console.log("Call fitPeaksInSeriesOfHistograms for singles peak fitting");
+                  fitPeaksInSeriesOfHistograms(spectrumList,dataStore.spectrumList1dPeaks,"HPGe",limits);
+                }
+
+                function fittingCallback(){
+                  // Might not be finished all fitting yet because singles and projections fitting is done sequentially.
+                  if(dataStore.currentTask == 'SinglesFitting'){
+                    // Now perform peak fitting for projections
+                    console.log("Now initiate projections fitting");
+
+                    // Set the current task to keep track of our progress
+                    dataStore.currentTask = 'ProjectionsFitting';
+
+                    // Use Limits if any were set through mouse clicks
+                    var limits = [];
+                    for(var i=0; i<dataStore.spectrumListProjectionsPeaks.All.length; i++){
+                      limits[i] = [-1,-1];
+                      if(dataStore.appLimitsStore != undefined){
+                        if(dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]] != undefined){
+                          if(dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitLower){ limits[i][0] = dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitLower; }
+                          if(dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitUpper){ limits[i][1] = dataStore.appLimitsStore[dataStore.spectrumListProjectionsPeaks.All[i]].LimitUpper; }
+                        }
+                      }
+                    }
+
+                    // Start the fitting routine for projections peaks for this run file
+                    console.log("Call fitPeaksInSeriesOfHistograms for projections peak fitting");
+                    fitPeaksInSeriesOfHistograms(dataStore.spectrumListProjections,dataStore.spectrumListProjectionsPeaks,"HPGe",limits);
+                    return;
+                  }
+
+                  // All fitting has now been completed
+
+                  // Now we are done.
+                  // Reveal the download buttons
+                  document.getElementById('saveCSVDiv').classList.remove('hidden');
+                  document.getElementById('saveChiSqCSVDiv').classList.remove('hidden');
+                  document.getElementById('saveScriptDiv').classList.remove('hidden');
+
+                  // change information message
+                  document.getElementById('fittingMessage').classList.add('hidden');
+                  document.getElementById('reviewMessage').classList.remove('hidden');
+
+                  console.log(dataStore);
+                  console.log("Finished");
+                  console.log("Completed: "+dataStore.progressBarTasksCompleted+"/"+dataStore.progressBarNumberTasks+" = " + dataStore.ProgressValue);
+
+                  // Reveal the subpage menu
+                  document.getElementById('menu').classList.remove('hidden');
+
+                  // Launch the post-processing
+                  switch(dataStore.detectorType){
+                    case "GRG-GRG-110mm": // Ge-Ge angular correlations for HPGe at 110mm
+                    case "GRG-GRG-145mm": // Ge-Ge angular correlations for HPGe at 145mm
+                    processAngularCorrelationData();
+                    break;
+                    case "GRG-ART-110mm": // Ge-ARIES angular correlations for HPGe at 110mm
+                    case "GRG-ART-145mm": // Ge-ARIES angular correlations for HPGe at 145mm
+                    processAriesAngularCorrelationData();
+                    break;
+                    case "DSW-DSW": // DSW-DSW angular correlations
+                    break; // End of case of DSW-DSW
+                    default: console.log("Error, unrecognized detectorType = "+dataStore.detectorType);
+                    break;
+                  }
+                }
+
+                function processAriesAngularCorrelationData(){
+                  console.log("processAriesAngularCorrelationData()");
+                  console.log(dataStore);
+
+                  // Reset all warnings
+                  document.getElementById("dataPlotWarnings").innerHTML = "";
+
+                  // Initialize the sums as zero
+                  var sumAngularBinAreas = 0;
+                  var sumSinglesAreas = [0,0];
+                  var sumScintillatorAreas = 0;
+                  var sumAngularBinAreasUnc = 0;
+                  var sumSinglesAreasUnc = [0,0];
+                  var sumScintillatorAreasUnc = 0;
+
+                  // Collect the angular bin peak areas
+                  var peakIndex=0;
+                  var keys = Object.keys(dataStore.createdSpectra);
+                  keys.reverse();
+                  for(var i=0; i<keys.length; i++){
+                    var index = i;
+                    var thisGateKey = keys[i]; // These are all total projections for ARIES coincidences
+
+                    // Save the raw area and uncertainties for the peak and time-random coincidence peak
+                    dataStore.angularBinRawPeakArea[index] = dataStore.fitResults[thisGateKey][peakIndex][5];
+                    dataStore.angularBinRawPeakAreaUnc[index] = dataStore.fitUncertainty[thisGateKey][peakIndex];
+                    // Protect against failed fits
+                    if(isNaN(dataStore.angularBinRawPeakArea[index])){ dataStore.angularBinRawPeakArea[index] = 1; }
+                    if(isNaN(dataStore.angularBinRawPeakAreaUnc[index])){ dataStore.angularBinRawPeakAreaUnc[index] = 1; }
+
+                    // No subtraction of time-random background for ARIES coincidences
+                    dataStore.angularBinPeakArea[index] = parseInt(dataStore.angularBinRawPeakArea[index]);
+                    dataStore.angularBinPeakAreaUnc[index] = parseInt(dataStore.angularBinRawPeakAreaUnc[index]);
+
+                    console.log(index+" Ang bin Peak Area Unc: Final:"+dataStore.angularBinPeakAreaUnc[index]+"/"+dataStore.angularBinPeakArea[index]+" = "+dataStore.angularBinPeakAreaUnc[index]/dataStore.angularBinPeakArea[index]);
+                    console.log(index+" from: Raw: "+dataStore.angularBinRawPeakAreaUnc[index]+"/"+dataStore.angularBinRawPeakArea[index]+"="+dataStore.angularBinRawPeakAreaUnc[index]/dataStore.angularBinRawPeakArea[index]);
+
+                    // Protect against NaN and infinity results
+                    if(!isFinite(dataStore.angularBinPeakArea[index])){ dataStore.angularBinPeakArea[index] = 0; }
+                    if(!isFinite(dataStore.angularBinPeakAreaUnc[index])){ dataStore.angularBinPeakAreaUnc[index] = 0; }
+
+                    // Sum all angular bins for the normalization
+                    sumAngularBinAreas += dataStore.angularBinPeakArea[index];
+                    sumAngularBinAreasUnc += (dataStore.angularBinPeakAreaUnc[index]*dataStore.angularBinPeakAreaUnc[index]);
+
+                    dataStore.angularBinWeight[index] = 0;    // zero the weighting factors here
+                    dataStore.angularBinWeightUnc[index] = 0; // zero the uncertainty in the weighting factors here
+                    dataStore.numCrystalPairs[index] = 0;     // zero the number of crystal pairs here
+                  }
+                  sumAngularBinAreasUnc = Math.sqrt(sumAngularBinAreasUnc); // Squares of the uncertainties were summed in the loop, now find sqrt
+
+                  // The normalization factor is the sum of all angular bin peak areas
+                  dataStore.normalizationFactor = sumAngularBinAreas;
+                  dataStore.normalizationFactorUnc = parseInt(sumAngularBinAreasUnc);
+                  console.log("dataStore.normalizationFactor = "+dataStore.normalizationFactor+" with error "+dataStore.normalizationFactorUnc+" = "+(dataStore.normalizationFactorUnc/dataStore.normalizationFactor));
+                  console.log(dataStore);
+
+                  // Collect the singles peak areas from the fitResults object for the Ge
+                  for(i=0; i<dataStore.singlesSpectra.length; i++){
+                    var thisSinglesKey = dataStore.singlesSpectra[i];
+                    //    console.log(thisSinglesKey);
+                    dataStore.singlesPeakArea[i] = [0,0]; // initialize this element
+                    dataStore.singlesPeakAreaUnc[i] = [0,0]; // initialize this element
+
+                    console.log(thisSinglesKey+" for peakIndex "+peakIndex);
+                    if( !isNaN(dataStore.fitResults[thisSinglesKey][peakIndex][5]))
+                    dataStore.singlesPeakArea[i][0] = dataStore.fitResults[thisSinglesKey][peakIndex][5]; // the fit energy peak
+                    dataStore.singlesPeakAreaUnc[i][0] = dataStore.fitUncertainty[thisSinglesKey][peakIndex]; // the fit energy peak
+
+                    sumSinglesAreas[0] += dataStore.singlesPeakArea[i][0]; // the fit energy peak
+                    sumSinglesAreasUnc[0] += (dataStore.fitUncertainty[thisSinglesKey][peakIndex]*dataStore.fitUncertainty[thisSinglesKey][peakIndex]); // the fit energy peak
+                  }
+                  sumSinglesAreasUnc[0] = Math.sqrt(sumSinglesAreasUnc[0]); // sqrt after the sum of squares in the loop
+
+                  // Collect the total counts for each tile for ARIES
+                  for(i=0; i<dataStore.singlesScintillatorSpectra.length; i++){
+                    var thisSinglesKey = dataStore.singlesScintillatorSpectra[i];
+                    //    console.log(thisSinglesKey);
+                    dataStore.scintillatorArea[i] = 0; // initialize this element
+                    dataStore.scintillatorAreaUnc[i] = 0; // initialize this element
+
+                    // Scintillator area is the sum of all counts in the spectrum for this tile
+                    dataStore.scintillatorArea[i] = dataStore.rawData[thisSinglesKey].slice(70,4000).reduce((acc, curr) => acc + curr, 0);
+                    if(dataStore.scintillatorArea[i]>0){ dataStore.scintillatorAreaUnc[i] = Math.sqrt(dataStore.scintillatorArea[i]); }
+
+                    // Save to the singlesPeakArea so it will display in the Weights table
+                    if(!dataStore.singlesPeakArea[i+dataStore.singlesSpectra.length]){ dataStore.singlesPeakArea[i+dataStore.singlesSpectra.length] = []; }
+                    if(!dataStore.singlesPeakAreaUnc[i+dataStore.singlesSpectra.length]){ dataStore.singlesPeakAreaUnc[i+dataStore.singlesSpectra.length] = []; }
+                    dataStore.singlesPeakArea[i+dataStore.singlesSpectra.length][0] = dataStore.scintillatorArea[i];
+                    dataStore.singlesPeakAreaUnc[i+dataStore.singlesSpectra.length][0] = dataStore.scintillatorAreaUnc[i];
+
+                    sumScintillatorAreas += dataStore.scintillatorArea[i]; // total counts in this tile
+                    sumScintillatorAreasUnc += (dataStore.scintillatorAreaUnc[i]*dataStore.scintillatorAreaUnc[i]);
+                  }
+                  sumScintillatorAreasUnc = Math.sqrt(sumScintillatorAreasUnc); // sqrt after the sum of squares in the loop
+
+                  // Calculate the weighting factors from singles peak areas of all Ge crystals and total counts in ARIES tiles involved in each angular bin
+                  for(i=0; i<64; i++){ // Ge crystals
+                    // Do not include crystals with NaN peak areas, or peak areas of zero
+                    if( isNaN(dataStore.singlesPeakArea[i][0]) || isNaN(dataStore.singlesPeakAreaUnc[i][0]) || dataStore.singlesPeakArea[i][0]<2 ){ continue; }
+
+                    for(var j=0; j<76; j++){ // ARIES tiles
+                      // Do not include tiles with NaN peak areas, or peak areas of zero
+                      if( isNaN(dataStore.scintillatorArea[j]) || isNaN(dataStore.scintillatorAreaUnc[j]) || dataStore.scintillatorArea[j]<2 ){ continue; }
+                      var angleIndex = dataStore.theseGeAngles[i][j];
+
+                      // Add the combination of the peak areas from this pair to the sum for this angular bin
+                      var first_part = (dataStore.singlesPeakArea[i][0]/sumSinglesAreas[0])*(dataStore.scintillatorArea[j]/sumScintillatorAreas);
+
+                      if(angleIndex>2 && angleIndex<5){ console.log(angleIndex+": "+dataStore.angularBinWeight[angleIndex]+" + "+first_part+" where [i,j]="+[i,j]); }
+                      dataStore.angularBinWeight[angleIndex] += first_part;
+
+                      // The fractional errors will be added in quadrature. Here we calculate each squared contributions
+                      var uncert1 = (dataStore.singlesPeakAreaUnc[i][0]/dataStore.singlesPeakArea[i][0]) * (dataStore.singlesPeakAreaUnc[i][0]/dataStore.singlesPeakArea[i][0]);
+                      var uncert2 = (dataStore.scintillatorAreaUnc[j]/dataStore.scintillatorArea[j]) * (dataStore.scintillatorAreaUnc[j]/dataStore.scintillatorArea[j]);
+                      var uncert5 = (sumSinglesAreasUnc[0]/sumSinglesAreas[0]) * (sumSinglesAreasUnc[0]/sumSinglesAreas[0]);
+                      var uncertCombo1 = ( first_part * Math.sqrt( uncert1 + uncert2 + uncert5)) * ( first_part * Math.sqrt( uncert1 + uncert2 + uncert5));
+                      var thisUncert =  Math.sqrt( uncertCombo1 );
+
+
+                      //var uncertSum = uncert1 + uncert2 + uncert3 + uncert4 + uncert5 + uncert6;
+                      //  var uncertSum = uncert1 + uncert2 + uncert3 + uncert4;// + uncert5 + uncert6;
+                      //  console.log("This pair contribution ["+i+","+j+"]");
+                      //  console.log("Relative contributions: "+(uncert1/uncertSum)+", "+(uncert2/uncertSum)+", "+(uncert3/uncertSum)+", "+(uncert4/uncertSum)+", "+(uncert5/uncertSum)+", "+(uncert6/uncertSum));
+                      //  console.log("Value, uncertainty = "+dataStore.angularBinWeight[angleIndex]+", "+thisUncert+" which is "+((thisUncert/dataStore.angularBinWeight[angleIndex])*100)+"%");
+                      // Sum the squared contributions to include the uncertainty in the peak areas for this pair combination to the running sum
+                      // However, we are adding them in quadrature for each pair. So here we sum the squares
+                      // When all are collected then they will be sqrt.
+                      dataStore.angularBinWeightUnc[angleIndex] +=  thisUncert*thisUncert; // sum the squares. Then square-root will be taken when all combinations collected.
+
+                      // Determine the number of crystal pairs in each angular bin here so that crystals with peak areas of zero are not included
+                      dataStore.numCrystalPairs[angleIndex]++;
+                    }
+                  }
+
+                  prepareAngularCorrelationDataForPlotting();
+                }
+
+                function processAngularCorrelationData(){
+                  console.log("processAngularCorrelationData()");
+                  console.log(dataStore);
+
+                  // Reset all warnings
+                  document.getElementById("dataPlotWarnings").innerHTML = "";
+
+                  // Initialize the sums as zero
+                  var sumAngularBinAreas = 0;
+                  var sumSinglesAreas = [0,0];
+                  var sumAngularBinAreasUnc = 0;
+                  var sumSinglesAreasUnc = [0,0];
+
+                  // Always exclude the zero angular bin as it is the same detector
+                  if(!dataStore.angularBinExcludeList.includes(0)){
+                    dataStore.angularBinExcludeList.push(0);
+                  }
+
+                  // Set if Time-Random Background Subtraction will be performed
+                  // 2 = Auto for each angular bin = only if the time-random background contribution is greater than 3% of the raw peak value.
+                  // 1 = Always subtract Time-Random Background
+                  // 0 = Never subtract Time-Random Background
+                  var thisTimeRandomOption = 2;
+                  var optionsTR = document.getElementsByName('time_random_select_value');
+                  for(var i = 0; i < optionsTR.length; i++){
+                    if(optionsTR[i].checked){
+                      thisTimeRandomOption = optionsTR[i].value;
+                    }
+                  }
+                  console.log("Time-Random Background subtraction setting = "+thisTimeRandomOption);
+
+                  // Collect the angular bin peak areas
+                  // This list contains both total projection and peak-gated projection
+                  // Exclude the zero angular bin as it is the same detector
+                  // fitResults object always has the fits in centroid order. So need to ensure we get the correct fit as peak and gate
+                  var peakIndex=0, gateIndex=1;
+                  if(dataStore.fitPeakEnergies[1]<dataStore.fitPeakEnergies[0]){ peakIndex=1; gateIndex=0; }
+                  for(var i=0; i<dataStore.angCorrProjections.length; i++){
+                    // Here we make the subtraction of the gateE peak from the fitE peak to account for time-random coincidences
+                    var index = i;
+                    var thisGateKey = dataStore.angCorrProjections[i]; // Gate for angular correlation
+                    var thisTotalKey = dataStore.angCorrProjections[i].split("x")[0] + "x"; // Total projection
+
+                    console.log(thisTotalKey+", gate "+gateIndex+", peak "+peakIndex);
+                    // Determine the time-random background subtraction factor from the ratio of the two peaks in the total projection
+                    dataStore.angularBinTRBGFactor[index] = dataStore.fitResults[thisTotalKey][peakIndex][5] / dataStore.fitResults[thisTotalKey][gateIndex][5];
+                    // Add the fractional errors in quadrature
+                    dataStore.angularBinTRBGFactorUnc[index] = dataStore.angularBinTRBGFactor[index] * Math.sqrt( Math.pow(dataStore.fitUncertainty[thisTotalKey][peakIndex]/dataStore.fitResults[thisTotalKey][peakIndex][5],2)
+                    + Math.pow(dataStore.fitUncertainty[thisTotalKey][gateIndex]/dataStore.fitResults[thisTotalKey][gateIndex][5],2) );
+                    if(!isFinite(dataStore.angularBinTRBGFactor[index])){ dataStore.angularBinTRBGFactor[index] = 1; }
+                    if(!isFinite(dataStore.angularBinTRBGFactorUnc[index])){ dataStore.angularBinTRBGFactorUnc[index] = 1; }
+
+                    // Save the raw area and uncertainties for the peak and time-random coincidence peak
+                    dataStore.angularBinRawPeakArea[index] = dataStore.fitResults[thisGateKey][peakIndex][5];
+                    dataStore.angularBinTRBGPeakArea[index] = dataStore.fitResults[thisGateKey][gateIndex][5];
+                    dataStore.angularBinRawPeakAreaUnc[index] = dataStore.fitUncertainty[thisGateKey][peakIndex];
+                    dataStore.angularBinTRBGPeakAreaUnc[index] = dataStore.fitUncertainty[thisGateKey][gateIndex];
+                    // Protect against failed fits
+                    if(isNaN(dataStore.angularBinRawPeakArea[index])){ dataStore.angularBinRawPeakArea[index] = 1; }
+                    if(isNaN(dataStore.angularBinTRBGPeakArea[index])){ dataStore.angularBinTRBGPeakArea[index] = 1; }
+                    if(isNaN(dataStore.angularBinRawPeakAreaUnc[index])){ dataStore.angularBinRawPeakAreaUnc[index] = 1; }
+                    if(isNaN(dataStore.angularBinTRBGPeakAreaUnc[index])){ dataStore.angularBinTRBGPeakAreaUnc[index] = 1; }
+                    // Protect against very low-statistics peaks in the time-random
+                    if(dataStore.angularBinTRBGPeakAreaUnc[index] > dataStore.angularBinTRBGPeakArea[index]){ dataStore.angularBinTRBGPeakAreaUnc[index] = dataStore.angularBinTRBGPeakArea[index]; } // Limit uncertainty to 100%
+
+                    // Subtract time-random coincidence from the raw peak area
+                    // Only subtract time-random contribution if it is greater than 3% of the raw peak area
+                    if(thisTimeRandomOption == 1){ // thisTimeRandomOption = 1 for always
+                      dataStore.angularBinPeakArea[index] = parseInt(dataStore.angularBinRawPeakArea[index] - (dataStore.angularBinTRBGPeakArea[index] * dataStore.angularBinTRBGFactor[index]));
+                      // Reduce the uncertainty for the normalized TRBG peak area by the same factor
+                      var uncert = (dataStore.angularBinTRBGPeakAreaUnc[index] * dataStore.angularBinTRBGFactor[index]);
+                      // Add in quadrature the uncertainties for the two peak areas
+                      dataStore.angularBinPeakAreaUnc[index] = parseInt( Math.sqrt( uncert*uncert + dataStore.angularBinRawPeakAreaUnc[index]*dataStore.angularBinRawPeakAreaUnc[index] ) );
+                    }else if(thisTimeRandomOption == 2 && dataStore.angularBinTRBGPeakArea[index] / dataStore.angularBinRawPeakArea[index] > 0.03){ // thisTimeRandomOption == 2 auto and >3% contribution
+                      dataStore.angularBinPeakArea[index] = parseInt(dataStore.angularBinRawPeakArea[index] - (dataStore.angularBinTRBGPeakArea[index] * dataStore.angularBinTRBGFactor[index]));
+                      // Reduce the uncertainty for the normalized TRBG peak area by the same factor
+                      var uncert = (dataStore.angularBinTRBGPeakAreaUnc[index] * dataStore.angularBinTRBGFactor[index]);
+                      // Add in quadrature the uncertainties for the two peak areas
+                      dataStore.angularBinPeakAreaUnc[index] = parseInt( Math.sqrt( uncert*uncert + dataStore.angularBinRawPeakAreaUnc[index]*dataStore.angularBinRawPeakAreaUnc[index] ) );
+                    }else{ // thisTimeRandomOption = 0 for never, or 2 auto and <3% contribution
+                      dataStore.angularBinPeakArea[index] = parseInt(dataStore.angularBinRawPeakArea[index]);
+                      dataStore.angularBinPeakAreaUnc[index] = parseInt(dataStore.angularBinRawPeakAreaUnc[index]);
+                    }
+                    console.log("Time-Random Background subtraction setting = "+thisTimeRandomOption);
+                    console.log(index+" Ang bin Peak Area Unc: Final:"+dataStore.angularBinPeakAreaUnc[index]+"/"+dataStore.angularBinPeakArea[index]+" = "+dataStore.angularBinPeakAreaUnc[index]/dataStore.angularBinPeakArea[index]);
+                    console.log(index+" from: Raw: "+dataStore.angularBinRawPeakAreaUnc[index]+"/"+dataStore.angularBinRawPeakArea[index]+"="+dataStore.angularBinRawPeakAreaUnc[index]/dataStore.angularBinRawPeakArea[index]);
+                    console.log(index+" and "+"TRBG: "+dataStore.angularBinTRBGPeakAreaUnc[index]+"/"+dataStore.angularBinTRBGPeakArea[index]+"="+dataStore.angularBinTRBGPeakAreaUnc[index]/dataStore.angularBinTRBGPeakArea[index]);
+                    console.log(index+" reduced to: "+uncert+"/"+dataStore.angularBinTRBGPeakArea[index]+"="+uncert/dataStore.angularBinTRBGPeakArea[index]);
+                    console.log(index+" TRBG Factor is "+dataStore.angularBinTRBGFactorUnc[index]+"/"+dataStore.angularBinTRBGFactor[index]+"="+dataStore.angularBinTRBGFactorUnc[index]/dataStore.angularBinTRBGFactor[index]);
+
+                    // Protect against NaN and infinity results
+                    if(!isFinite(dataStore.angularBinPeakArea[index])){ dataStore.angularBinPeakArea[index] = 0; }
+                    if(!isFinite(dataStore.angularBinPeakAreaUnc[index])){ dataStore.angularBinPeakAreaUnc[index] = 0; }
+
+                    if(index>0){ // exclude only the zero angular difference bin from the normalization
+                      sumAngularBinAreas += dataStore.angularBinPeakArea[index];
+                      sumAngularBinAreasUnc += (dataStore.angularBinPeakAreaUnc[index]*dataStore.angularBinPeakAreaUnc[index]);
+                    }
+                    dataStore.angularBinWeight[index] = 0;    // zero the weighting factors here
+                    dataStore.angularBinWeightUnc[index] = 0; // zero the uncertainty in the weighting factors here
+                    dataStore.numCrystalPairs[index] = 0;     // zero the number of crystal pairs here
+                  }
+                  sumAngularBinAreasUnc = Math.sqrt(sumAngularBinAreasUnc); // Squares of the uncertainties were summed in the loop, now find sqrt
+
+                  // The normalization factor is the sum of all angular bin peak areas
+                  // Need to exclude the constributions from angular bins on the excludeList. This is done above.
+                  dataStore.normalizationFactor = sumAngularBinAreas;
+                  dataStore.normalizationFactorUnc = parseInt(sumAngularBinAreasUnc);
+                  console.log("dataStore.normalizationFactor = "+dataStore.normalizationFactor+" with error "+dataStore.normalizationFactorUnc+" = "+(dataStore.normalizationFactorUnc/dataStore.normalizationFactor));
+                  console.log(dataStore);
+
+                  // Collect the singles peak areas from the fitResults object
+                  for(i=0; i<dataStore.singlesSpectra.length; i++){
+
+                    var thisSinglesKey = dataStore.singlesSpectra[i];
+                    //    console.log(thisSinglesKey);
+                    dataStore.singlesPeakArea[i] = [0,0]; // initialize this element
+                    dataStore.singlesPeakAreaUnc[i] = [0,0]; // initialize this element
+
+                    console.log(thisSinglesKey+" for "+peakIndex+" and "+gateIndex);
+                    if( !isNaN(dataStore.fitResults[thisSinglesKey][peakIndex][5]))
+                    dataStore.singlesPeakArea[i][0] = dataStore.fitResults[thisSinglesKey][peakIndex][5]; // the fit energy peak
+                    if( !isNaN(dataStore.fitResults[thisSinglesKey][gateIndex][5]))
+                    dataStore.singlesPeakArea[i][1] = dataStore.fitResults[thisSinglesKey][gateIndex][5]; // the gate energy peak
+                    dataStore.singlesPeakAreaUnc[i][0] = dataStore.fitUncertainty[thisSinglesKey][peakIndex]; // the fit energy peak
+                    dataStore.singlesPeakAreaUnc[i][1] = dataStore.fitUncertainty[thisSinglesKey][gateIndex]; // the gate energy peak
+
+                    sumSinglesAreas[0] += dataStore.singlesPeakArea[i][0]; // the fit energy peak
+                    sumSinglesAreas[1] += dataStore.singlesPeakArea[i][1]; // the gate energy peak
+                    sumSinglesAreasUnc[0] += (dataStore.fitUncertainty[thisSinglesKey][peakIndex]*dataStore.fitUncertainty[thisSinglesKey][peakIndex]); // the fit energy peak
+                    sumSinglesAreasUnc[1] += (dataStore.fitUncertainty[thisSinglesKey][gateIndex]*dataStore.fitUncertainty[thisSinglesKey][gateIndex]); // the gate energy peak
+                  }
+                  sumSinglesAreasUnc[0] = Math.sqrt(sumSinglesAreasUnc[0]); // sqrt after the sum of squares in the loop
+                  sumSinglesAreasUnc[1] = Math.sqrt(sumSinglesAreasUnc[1]); // sqrt after the sum of squares in the loop
+
+                  // Calculate the weighting factors from singles peak areas of all crystals involved in each angular bin
+                  for(i=0; i<64; i++){
+                    // Do not include crystals with NaN peak areas, or peak areas of zero
+                    if(   isNaN(dataStore.singlesPeakArea[i][0])    || isNaN(dataStore.singlesPeakArea[i][1])
+                    ||    isNaN(dataStore.singlesPeakAreaUnc[i][0]) || isNaN(dataStore.singlesPeakAreaUnc[i][1])
+                    || dataStore.singlesPeakArea[i][0]<2 || dataStore.singlesPeakArea[i][1]<2 ){ continue; }
+                    for(var j=0; j<64; j++){
+                      // Do not include crystals with NaN peak areas, or peak areas of zero
+                      if(   isNaN(dataStore.singlesPeakArea[j][0]) || isNaN(dataStore.singlesPeakArea[j][1])
+                      ||    isNaN(dataStore.singlesPeakAreaUnc[j][0]) || isNaN(dataStore.singlesPeakAreaUnc[j][1])
+                      || dataStore.singlesPeakArea[j][0]<2 || dataStore.singlesPeakArea[j][1]<2 ){ continue; }
+                      var angleIndex = dataStore.theseGeAngles[i][j];
+
+                      // Add the combination of the peak areas from this pair to the sum for this angular bin
+                      var first_part  = (dataStore.singlesPeakArea[i][0]/sumSinglesAreas[0])*(dataStore.singlesPeakArea[j][1]/sumSinglesAreas[1]);
+                      var second_part = (dataStore.singlesPeakArea[j][0]/sumSinglesAreas[0])*(dataStore.singlesPeakArea[i][1]/sumSinglesAreas[1]);
+
+                      dataStore.angularBinWeight[angleIndex] += first_part * 0.5;
+                      dataStore.angularBinWeight[angleIndex] += second_part * 0.5;
+
+                      // The fractional errors will be added in quadrature. Here we calculate each squared contributions
+                      var uncert1 = (dataStore.singlesPeakAreaUnc[i][0]/dataStore.singlesPeakArea[i][0]) * (dataStore.singlesPeakAreaUnc[i][0]/dataStore.singlesPeakArea[i][0]);
+                      var uncert2 = (dataStore.singlesPeakAreaUnc[j][0]/dataStore.singlesPeakArea[j][0]) * (dataStore.singlesPeakAreaUnc[j][0]/dataStore.singlesPeakArea[j][0]);
+                      var uncert3 = (dataStore.singlesPeakAreaUnc[i][1]/dataStore.singlesPeakArea[i][1]) * (dataStore.singlesPeakAreaUnc[i][1]/dataStore.singlesPeakArea[i][1]);
+                      var uncert4 = (dataStore.singlesPeakAreaUnc[j][1]/dataStore.singlesPeakArea[j][1]) * (dataStore.singlesPeakAreaUnc[j][1]/dataStore.singlesPeakArea[j][1]);
+                      var uncert5 = (sumSinglesAreasUnc[0]/sumSinglesAreas[0]) * (sumSinglesAreasUnc[0]/sumSinglesAreas[0]);
+                      var uncert6 = (sumSinglesAreasUnc[1]/sumSinglesAreas[1]) * (sumSinglesAreasUnc[1]/sumSinglesAreas[1]);
+                      var uncertCombo1 = ( first_part * Math.sqrt( uncert1 + uncert4 + uncert5 + uncert6)) * ( first_part * Math.sqrt( uncert1 + uncert4 + uncert5 + uncert6));
+                      var uncertCombo2 = (second_part * Math.sqrt( uncert2 + uncert3 + uncert5 + uncert6)) * (second_part * Math.sqrt( uncert2 + uncert3 + uncert5 + uncert6));
+                      var thisUncert =  Math.sqrt( uncertCombo1 + uncertCombo2 );
+
+
+                      //var uncertSum = uncert1 + uncert2 + uncert3 + uncert4 + uncert5 + uncert6;
+                      //  var uncertSum = uncert1 + uncert2 + uncert3 + uncert4;// + uncert5 + uncert6;
+                      //  console.log("This pair contribution ["+i+","+j+"]");
+                      //  console.log("Relative contributions: "+(uncert1/uncertSum)+", "+(uncert2/uncertSum)+", "+(uncert3/uncertSum)+", "+(uncert4/uncertSum)+", "+(uncert5/uncertSum)+", "+(uncert6/uncertSum));
+                      //  console.log("Value, uncertainty = "+dataStore.angularBinWeight[angleIndex]+", "+thisUncert+" which is "+((thisUncert/dataStore.angularBinWeight[angleIndex])*100)+"%");
+                      // Sum the squared contributions to include the uncertainty in the peak areas for this pair combination to the running sum
+                      // However, we are adding them in quadrature for each pair. So here we sum the squares
+                      // When all are collected then they will be sqrt.
+                      dataStore.angularBinWeightUnc[angleIndex] +=  thisUncert*thisUncert; // sum the squares. Then square-root will be taken when all combinations collected.
+
+                      // Determine the number of crystal pairs in each angular bin here so that crystals with peak areas of zero are not included
+                      dataStore.numCrystalPairs[angleIndex]++;
+                    }
+                  }
+
+                  prepareAngularCorrelationDataForPlotting();
+                }
+
+                function prepareAngularCorrelationDataForPlotting(){
+
+                  console.log(dataStore);
+                  console.log("Angular Correlation Data:");
+                  // Calculate the angular correlation data points
+                  for(i=0; i<dataStore.angularBinPeakArea.length; i++){
+
+                    // The uncertainty in the weighting factor of the angular bins is the uncertainties in the peak areas added in quadrature. So here we sqrt the sum of these after the loop for the sum has ended.
+                    dataStore.angularBinWeightUnc[i] =  Math.sqrt(dataStore.angularBinWeightUnc[i]);
+                    console.log("Final Weight["+i+"] Value, uncertainty = "+dataStore.angularBinWeight[i]+", "+dataStore.angularBinWeightUnc[i]+" which is "+((dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i])*100)+"%");
+
+                    // Calculate the angular correlation data value
+                    dataStore.angularBinData[i] = dataStore.angularBinPeakArea[i] / (dataStore.angularBinWeight[i] * dataStore.normalizationFactor);
+
+                    // Add the fractional errors in quadrature
+                    dataStore.angularBinDataUnc[i] = dataStore.angularBinData[i]
+                    * Math.sqrt(  ((dataStore.angularBinPeakAreaUnc[i]/dataStore.angularBinPeakArea[i]) * (dataStore.angularBinPeakAreaUnc[i]/dataStore.angularBinPeakArea[i]))
+                    + ((dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i]) * (dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i]))
+                    + ((dataStore.normalizationFactorUnc/dataStore.normalizationFactor) * (dataStore.normalizationFactorUnc/dataStore.normalizationFactor))
+                    + (dataStore.systematicUncertainty*dataStore.systematicUncertainty) // Include a systematic uncertainty set by user input
+                  )
+
+                  // Protect against NaN or infinite values
+                  if(!isFinite(dataStore.angularBinData[i])){ dataStore.angularBinData[i] = 0.0; }
+                  if(!isFinite(dataStore.angularBinDataUnc[i])){ dataStore.angularBinDataUnc[i] = 0; }
+                  //  console.log(dataStore.theseAngularBins[i]+","+dataStore.angularBinData[i]+","+dataStore.angularBinDataUnc[i]);
+                  //  console.log("Error from "+dataStore.angularBinPeakAreaUnc[i]+"/"+dataStore.angularBinPeakArea[i]+"="+(dataStore.angularBinPeakAreaUnc[i]/dataStore.angularBinPeakArea[i])+", "+dataStore.angularBinWeightUnc[i]+"/"+dataStore.angularBinWeight[i]+"="+(dataStore.angularBinWeightUnc[i]/dataStore.angularBinWeight[i])+", "+dataStore.normalizationFactorUnc+"/"+dataStore.normalizationFactor+"="+(dataStore.normalizationFactorUnc/dataStore.normalizationFactor) );
+
+                  // Exclude angular bins with zero contributing pairs (common if only one hemisphere of ARIES used)
+                  if(dataStore.numCrystalPairs[i]==0){
+                    if( !dataStore.angularBinExcludeList.includes(i)){
+                      // If this index is not already excluded, add it to the exclude list
+                      dataStore.angularBinExcludeList.push(i);
+                    }
+                  }
+                }
+
+                // Set the number of degrees of freedom used in the reduced chi-square calculation
+                dataStore.angularBinEmptyCount = 0;
+                for(i=0; i<dataStore.angularBinData.length; i++){ if(dataStore.angularBinData[i]==0 && dataStore.angularBinExcludeList.indexOf(i)<0){ dataStore.angularBinEmptyCount++; } }
+                dataStore.numDegreesOfFreedom = dataStore.angularBinData.length - dataStore.angularBinExcludeList.length - dataStore.angularBinEmptyCount - 2; // Number of data points minus two parameters to fit (c1,c4)
+
+                console.log(dataStore.angularBinData);
+                console.log(dataStore.angularBinExcludeList);
+                console.log("Number of degrees of Freedom = "+dataStore.angularBinData.length + " - "+ dataStore.angularBinExcludeList.length + " - "+ dataStore.angularBinEmptyCount+ " - 2 = "+dataStore.numDegreesOfFreedom);
+
+                // Set the confidence level value used in the plotting of the reduced chi-square calculation
+                var optionsCL = document.getElementsByName('confidenceLimitValue');
+                for(var i = 0; i < optionsCL.length; i++){
+                  if(optionsCL[i].checked){
+                    var thisConfidenceLimit = optionsCL[i].value;
+                    dataStore.criticalLevel = thisConfidenceLimit;
+                  }
+                }
+                console.log(thisConfidenceLimit);
+                dataStore.criticalValue = dataStore.criticalChiSquareValueTable[thisConfidenceLimit][dataStore.numDegreesOfFreedom-1];
+                dataStore.criticalValue = (dataStore.criticalValue / dataStore.numDegreesOfFreedom).toFixed(3);
+                console.log("Critical Value of "+dataStore.criticalValue+" from "+dataStore.criticalChiSquareValueTable[thisConfidenceLimit][dataStore.numDegreesOfFreedom-1]+" / "+dataStore.numDegreesOfFreedom);
+
+                // Report the statistics of this correlation
+                if(dataStore.detectorType == "GRG-ART-110mm" || dataStore.detectorType == "GRG-ART-145mm"){
+                // Beta-Gamma angular correlations Report
+                document.getElementById('dataTableMessage').innerHTML = "<h4>"+dataStore.histoFileName+": Beta vs "+dataStore.fitPeakEnergies[0]+" keV</h4>"+ "<h4>Total beta-gamma coincidences = "+dataStore.normalizationFactor.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(dataStore.normalizationFactor/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>"
+                +"<h4>Normalization factor (Sum of Corrected Areas) = "+bracketNotationString(dataStore.normalizationFactor.toFixed(2),dataStore.normalizationFactorUnc)+"</h4>";
+                document.getElementById('dataPlotMessage').innerHTML = "<h4>"+dataStore.histoFileName+": Beta vs "+dataStore.fitPeakEnergies[0]+" keV</h4>"+ "<h4>Total beta-gamma coincidences = "+dataStore.normalizationFactor.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(dataStore.normalizationFactor/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>";
+                console.log("Total beta-gamma coincidences = "+dataStore.normalizationFactor.toFixed(0)+", mean peak area in an individual angular bin = "+(dataStore.normalizationFactor/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0));
+              }else{
+                 // Gamma-Gamma angular correlations Report
+              document.getElementById('dataTableMessage').innerHTML = "<h4>"+dataStore.histoFileName+": "+dataStore.fitPeakEnergies[0]+"-"+dataStore.fitPeakEnergies[1]+"(gate) keV</h4>"+ "<h4>Total gamma-gamma coincidences = "+dataStore.normalizationFactor.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(dataStore.normalizationFactor/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>"
+              +"<h4>Normalization factor (Sum of Corrected Areas) = "+bracketNotationString(dataStore.normalizationFactor.toFixed(2),dataStore.normalizationFactorUnc)+"</h4>";
+              document.getElementById('dataPlotMessage').innerHTML = "<h4>"+dataStore.histoFileName+": "+dataStore.fitPeakEnergies[0]+"-"+dataStore.fitPeakEnergies[1]+"(gate) keV</h4>"+ "<h4>Total gamma-gamma coincidences = "+dataStore.normalizationFactor.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+". The mean peak area in an individual angular bin = "+(dataStore.normalizationFactor/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")+"</h4>";
+              console.log("Total gamma-gamma coincidences = "+dataStore.normalizationFactor.toFixed(0)+", mean peak area in an individual angular bin = "+(dataStore.normalizationFactor/(dataStore.angularBinData.length-dataStore.angularBinExcludeList.length)).toFixed(0));
+              }
+              // The remainder of the Report common to all types
+              document.getElementById('dataPlotMessage').innerHTML += "<h4>"+"The Critical Value ("+dataStore.criticalLevelStrings[dataStore.criticalLevel]+" confidence level) for "+dataStore.numDegreesOfFreedom+" degrees of freedom is \u{1D6D8}\u00B2/NDF="+dataStore.criticalValue+"."+"</h4>";
+              if(dataStore.systematicUncertainty>0){var systematicString = "A systematic uncertainty of "+(dataStore.systematicUncertainty*100).toFixed(1)+"% has been added in quadrature to each data point. ";}else{var systematicString = "No systematic uncertainty has been added to the data points. ";}
+              document.getElementById('dataPlotMessage').innerHTML += "<h4>"+systematicString+"</h4>";
+
+
+                // Populate the results table for the angular correlation and weights data
+                dataStore._angularCorrelationsReport.updateDataTable();
+                dataStore._angularCorrelationsReport.updateWeightTable();
+                dataStore._angularCorrelationsReport.updateFitsTable();
+
+                // Promise to generate the chi-squared data and then populate the tables and plots
+                let dataPromise = new Promise(function(resolve, reject) {
+                  generateChiSquareData();
+                  return resolve();
+                });
+
+                dataPromise.then(
+
+                  function(value){
+                    console.log("Execute then function of dataPromise");
+
+                    // Populate the main angular correlation plot
+                    dataStore._angularCorrelationsReport.refreshAngCorrPlot();
+
+                    // Populate the chi-squred plot
+                    dataStore._angularCorrelationsReport.populateChiSquarePlot();
+
+                    // Write the results to the Table
+                    dataStore._angularCorrelationsReport.updateChiSquareResultsTable();
+
+                    // Show the angular correlations plot when finished
+                    if(dataStore.currentTask!="refit"){ document.getElementById("dataPlotRegionMenuButton").click(); }
+                  }
+                );
+
+              }
+
+              function generateResidualsData(c2,c4){
+                console.log("generateResidualsData");
+
+                dataStore.angularBinDataResiduals = []; // Reset this array, especially if some points have been excluded
+
+                var theorySeries = theoreticalAngularCorrelation(c2,c4, dataStore.expAngBinRadians);
+                var thisOffset = angularCorrelationRegression(dataStore.expAngBinData,theorySeries);
+                for(var i=0; i<theorySeries.length; i++){ theorySeries[i] = theorySeries[i] + thisOffset; }
+
+                for(var i=0; i<dataStore.expAngBinData.length; i++){
+                  //  Excluded bins are already accounted for in dataStore.expAngBinData
+                  dataStore.angularBinDataResiduals[i] = dataStore.expAngBinData[i] - theorySeries[i];
+                }
+              }
+
+              function generateChiSquareData(){
+
+
+                // Return a new promise.
+                return new Promise(function(resolve) {
+
+
+                  console.log("generateChiSquareData");
+                  console.log(dataStore.angularBinExcludeList);
+                  dataStore.theseAngularBinsRadians = [];
+                  for(var i=0; i<dataStore.theseAngularBins.length; i++){
+                    dataStore.theseAngularBinsRadians.push(Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)));
+                  }
+
+                  var thisTheory = [];      // A series of the distribution vs cos(theta)
+                  var newCoEffs = [];       // Coefficients [a2,a4]. Theoretical and uncorrected for finite element size.
+                  var correctedCoEffs = []; // Coefficients [c2,c4]. Corrected for finite element size.
+                  var localMinima = [[]];   // An array of minima indexes for each j value.
+                  var localMinimaKeys = []; // An array of minima keys for each j value (they may not start from 0).
+                  var thisOffset = 0.0; // Offset to align theory with data
+                  // Declare the variables
+                  var j1, j2, j3, l1a, l1b, l2a, l2b, delta1, delta2;
+                  var bestFitC = [], bestFitA = [], bestFitKey = '', pure=0;
+                  dataStore.minimaDetails = {}; // reset this array
+                  dataStore.NEWminimaDetails = {}; // reset this array
+                  var expAngBinData = [];
+                  var expAngBinDataUnc = [];
+                  var expAngBinRadians = [];
+
+                  // Get the beta and gamma parameters for this energy cascade
+                  // THIS SHOULD BE A CALL TO A FUNCTION BUT HARD-CODED HERE FOR 152EU 344-778
+                  //dataStore.beta  = 0.954711; // 60Co, 4-2-0, 1332-1173
+                  //dataStore.gamma = 0.841345; // 60Co, 4-2-0, 1332-1173
+                  //  dataStore.beta  = 0.957442; // 66Ga, 0-2-0, 1333-1039
+                  //  dataStore.gamma = 0.852034; // 66Ga, 0-2-0, 1333-1039
+                  //  dataStore.beta  = 0.950804; // 152Eu, 2-2-0, 1408-121
+                  //  dataStore.gamma = 0.829300; // 152Eu, 2-2-0, 1408-121
+                  //dataStore.beta  = 0.950933; // 148Cs, 719-141
+                  //dataStore.gamma = 0.828565; // 148Cs, 719-141
+                  //dataStore.beta  = 1.0; // Theory
+                  //dataStore.gamma = 1.0; // Theory
+                  //  dataStore.beta  = 0.9; // 148Ba trialling
+                  //  dataStore.gamma = 0.7; // 148Ba trialling
+                  dataStore.beta  = parseFloat(document.getElementById('betaInput').value);
+                  dataStore.gamma = parseFloat(document.getElementById('gammaInput').value);
+
+                  // Grab the user input for the cascade
+                  j2=parseFloat(document.getElementById('j2').value);
+                  j3=parseFloat(document.getElementById('j3').value);
+                  delta2 = parseFloat(document.getElementById('mix2').value);
+
+                  // Calculate the l2 momenta
+                  l2a = l2b = Math.abs(j2-j3);
+                  if(l2a<1){ l2a = l2b = 1; } // E0 is not permitted
+                  if((j2+j3)>l2b){ l2b++; }
+
+                  // Build the array of experimental data to use.
+                  // Exclude any bins identified in the excludeList.
+                  var index=0;
+                  for(var i=0; i<dataStore.angularBinData.length; i++){
+                    if(dataStore.angularBinExcludeList.includes(i)){ continue; } // Exclude any datapoints on the excludeList
+                    expAngBinData[index] = dataStore.angularBinData[i];
+                    expAngBinDataUnc[index] = dataStore.angularBinDataUnc[i];
+                    expAngBinRadians[index] = dataStore.theseAngularBinsRadians[i];
+                    index++;
+                  }
+                  // Save this x series for use in generating theory curves
+                  dataStore.expAngBinData = expAngBinData;
+                  dataStore.expAngBinDataUnc = expAngBinDataUnc;
+                  dataStore.expAngBinRadians = expAngBinRadians;
+                  // x series for theory line plotting
+                  dataStore.expAngFineBinRadians = [];
+                  for(i=-1; i<=1; i+=0.01){
+                    dataStore.expAngFineBinRadians.push(i);
+                  }
+
+                  // Zero the arrays and variables
+                  dataStore.delta1Series = [];
+                  dataStore.chiSqLabelSeries = [];
+                  dataStore.chiSquareSeries = [];
+                  var minChiSquareSeries = [];
+                  var thisChiSquare, minChiSquare = 100000;
+
+                  // Loop through possible j values of j2 plus and minus 2.
+                  // For each j value, scan the full range of mixing ratio (delta).
+                  // At each point calculate the theoretical coefficients a2,a4
+                  // Correct the theoretical coefficients with the finite-element correction parameters for this energy cascade.
+                  // Determine the chi-square of the fit of this corrected-theory curve with the experimental data.
+                  // Find the minima in the chi-squared distribution for each j value.
+                  index=0;
+                  for(j1=(j2-2); j1<(j2+3); j1++){
+                    if(j1<0){ continue; } // all spins must be positive
+                    l1a = l1b = Math.abs(j1-j2);
+                    if(l1a<1){ l1a = l1b = 1; } // E0 is not permitted
+                    if((j1+j2)>l1b){ l1b++; }
+                    if(l1a == l1b && l1a == l2a && l1a == l2b){ pure=1; }else{ pure=0; }
+                    //  console.log("j1,j2,j3,l1a,l1b,l2a,l2b: "+j1+","+j2+","+j3+","+l1a+","+l1b+","+l2a+","+l2b);
+                    dataStore.delta1Series[index] = [];
+                    dataStore.chiSquareSeries[index] = [];
+                    dataStore.chiSqLabelSeries[index] = "j="+j1;
+                    minChiSquareSeries[index] = 1000000000;
+                    for(var atanDelta1=-1.5; atanDelta1<=1.5; atanDelta1+=0.01){
+                      if(atanDelta1>-0.01 && atanDelta1<0.01){ atanDelta1=0.0; }
+                      dataStore.delta1Series[index].push(atanDelta1.toFixed(2));
+                      if(pure){ // Need special handling for pure multipolarity case which only has one solution
+                        if(atanDelta1 != 0){
+                          dataStore.chiSquareSeries[index].push(null);
+                          continue;
+                        }else{
+                          newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2);
+                          correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
+                          correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
+                          thisTheory = theoreticalAngularCorrelation(correctedCoEffs[0],correctedCoEffs[1], expAngBinRadians);
+                          thisOffset = angularCorrelationRegression(expAngBinData,thisTheory);
+                          for(i=0; i<thisTheory.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
+                          thisChiSquare = calculateChiSquare(expAngBinData,expAngBinDataUnc,thisTheory)/dataStore.numDegreesOfFreedom;
+                          dataStore.chiSquareSeries[index].push(thisChiSquare);
+                          var minimaKey = "j="+j1+"-1"; // Only one solution for pure case
+                          localMinimaKeys[index] = j1;
+                          dataStore.minimaDetails[minimaKey] = {
+                            'series': "j="+j1,        'params': [j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2],        'atanDelta1': atanDelta1.toFixed(3),        'Delta1': Math.tan(atanDelta1).toFixed(3),        'Delta1Unc': 0,        'chiSquare': thisChiSquare.toFixed(3),        'beta': dataStore.beta,        'gamma': dataStore.gamma,        'bestFitCoeffsC': [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma],        'bestFitCoeffsA': newCoEffs
+                          };
+                          // This identifies the global minimum
+                          if(thisChiSquare<minChiSquare){  // Global minimum
+                            minChiSquare = thisChiSquare;
+                            bestFitC = [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma];
+                            bestFitA = newCoEffs;
+                            bestFitKey = minimaKey;
+                          }
+                          continue;
+                        }
+                      }
+                      // Calculate the chi-square for this set of coefficients and atan(delta) value
+                      newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2);
+                      correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
+                      correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
+                      thisTheory = theoreticalAngularCorrelation(correctedCoEffs[0],correctedCoEffs[1], expAngBinRadians);
+                      thisOffset = angularCorrelationRegression(expAngBinData,thisTheory);
+                      for(i=0; i<expAngBinData.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
+                      thisChiSquare = calculateChiSquare(expAngBinData,expAngBinDataUnc,thisTheory)/dataStore.numDegreesOfFreedom;
+                      dataStore.chiSquareSeries[index].push(thisChiSquare);
+
+                      // This finds the primary local minimum for this j value
+                      if(thisChiSquare<minChiSquareSeries[index]){
+                        minChiSquareSeries[index] = thisChiSquare;
+                        var minimaKey = "j="+j1+"-1"; // This is always the primary minimum for this j value
+                        //    console.log("This  c2,c4 = ["+newCoEffs[0]+","+newCoEffs[1]+"] and a2,a4 = ["+correctedCoEffs[0]+","+correctedCoEffs[1]+"]");
+                        dataStore.minimaDetails[minimaKey] = {
+                          'series': "j="+j1,      'params': [j1, j2, j3, l1a, l1b, l2a, l2b, Math.tan(atanDelta1), delta2],      'atanDelta1': atanDelta1.toFixed(3),      'Delta1': Math.tan(atanDelta1).toFixed(4),      'Delta1Unc': 0,      'chiSquare': thisChiSquare.toFixed(3),      'beta': dataStore.beta,      'gamma': dataStore.gamma,      'bestFitCoeffsC': [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma],      'bestFitCoeffsA': newCoEffs
+                        };
+                        //        console.log("Saved c2,c4 = ["+dataStore.minimaDetails[minimaKey].bestFitCoeffsC[0]+","+dataStore.minimaDetails[minimaKey].bestFitCoeffsC[1]+"] and a2,a4 = ["+dataStore.minimaDetails[minimaKey].bestFitCoeffsA[0]+","+dataStore.minimaDetails[minimaKey].bestFitCoeffsA[1]+"]");
+
+                        // This identifies the global minimum
+                        if(thisChiSquare<minChiSquare){  // Global minimum
+                          minChiSquare = thisChiSquare;
+                          bestFitC = [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma];
+                          bestFitA = newCoEffs;
+                          bestFitKey = minimaKey;
+                        }
+                      }
+
+                    }
+                    //  console.log("End of atan loop");
+                    console.log(dataStore.minimaDetails);
+
+                    // Now we have the full chi-square series for this j value
+                    // Locate the primary and secondary minimum for this j value
+                    if(pure){ localMinimaKeys[index] = j1; index++; continue; } // Pure multipolarity only have one solution which was already recorded
+                    var previousGradient = 1;
+                    var gradient = 1;
+                    if(!localMinima[index]){ localMinima[index] = []; localMinimaKeys[index] = j1; }
+                    for(i=1; i<dataStore.delta1Series[index].length; i++){
+                      previousGradient = gradient;
+                      if(dataStore.chiSquareSeries[index][i]<dataStore.chiSquareSeries[index][i-1]){ gradient = -1; }else{ gradient = 1; }
+                      if(previousGradient<gradient){ // The gradient changed from negative to positive so we have found a minimum
+                        console.log("j="+j1+" minimum found at ["+i+"], delta="+dataStore.delta1Series[index][i]+", chi-square="+dataStore.chiSquareSeries[index][i]);
+                        localMinima[index].push(i-1);
+                        localMinimaKeys[index] = j1;
+                      }
+                    }
+
+                    index++;
+                  }
+
+                  // Sort the arrays so the primary minimum is always first
+                  for(i=0; i<localMinima.length; i++){
+                    if(localMinima[i].length>1){
+                      if(localMinima[i][1]>localMinima[i][0]){
+                        j=localMinima[i][0];
+                        localMinima[i][0] = localMinima[i][1];
+                        localMinima[i][1] = j;
+                      }
+                    }
+                  }
+                  console.log(localMinima);
+                  // Find the uncertainty for each chi-square minimum
+                  for(i=0; i<localMinima.length; i++){
+                    for(j=0; j<localMinima[i].length; j++){
+                      minimaKey = "j="+localMinimaKeys[i]+"-1";
+                      var theseParams = dataStore.minimaDetails[minimaKey].params;
+                      if(dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(3) != dataStore.minimaDetails[minimaKey].chiSquare){
+                        console.log("Must be second minimum: "+dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(4)+" not equal to "+dataStore.minimaDetails[minimaKey].chiSquare+", for atan(delta)="+dataStore.minimaDetails[minimaKey].atanDelta1);
+                        theseParams[7] = Number(dataStore.delta1Series[i][localMinima[i][j]]).toFixed(3);
+                        newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(theseParams[0],theseParams[1],theseParams[2],theseParams[3],theseParams[4],theseParams[5],theseParams[6],theseParams[7],theseParams[8]);
+                        correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
+                        correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
+                        minimaKey = "j="+localMinimaKeys[i]+"-2";
+                        dataStore.minimaDetails[minimaKey] = {
+                          'series': "j="+i,      'params': theseParams,      'atanDelta1': Number(dataStore.delta1Series[i][localMinima[i][j]]).toFixed(3),      'Delta1': (Math.tan(dataStore.delta1Series[i][localMinima[i][j]])).toFixed(4),      'chiSquare': dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(3),      'beta': dataStore.beta,      'gamma': dataStore.gamma,      'bestFitCoeffsC': [newCoEffs[0]*dataStore.beta,newCoEffs[1]*dataStore.gamma],      'bestFitCoeffsA': newCoEffs
+                        };
+                      }
+                      k=localMinima[i][j]; // k is an index number of the series array
+                      threshold = Number(dataStore.chiSquareSeries[i][k] + (1/dataStore.numDegreesOfFreedom)); // threshold is the chi-square value
+                      while(dataStore.chiSquareSeries[i][k]<threshold){ k--; }
+                      var minUncertIndex = k; k=localMinima[i][j];
+                      while(dataStore.chiSquareSeries[i][k]<threshold){ k++; }
+                      var maxUncertIndex = k;
+                      dataStore.minimaDetails[minimaKey]['Delta1Unc'] = ((Math.tan(dataStore.delta1Series[i][maxUncertIndex]) - Math.tan(dataStore.delta1Series[i][minUncertIndex]))/2).toFixed(4);
+                    }
+                  }
+
+                  console.log([dataStore.delta1Series,dataStore.chiSquareSeries]);
+
+                  console.log(dataStore);
+
+                  // Generate data for the best fit line to be displayed as a line on the Ang Corr Data plot
+                  var thisTheory = theoreticalAngularCorrelation(bestFitC[0],bestFitC[1], dataStore.expAngBinRadians); // x series matching data for determining offset
+                  var thisOffset = angularCorrelationRegression(dataStore.expAngBinData,thisTheory);
+                  thisTheory = theoreticalAngularCorrelation(bestFitC[0],bestFitC[1], dataStore.expAngFineBinRadians); // fine x series for the actual plot
+                  for(var i=0; i<thisTheory.length; i++){ thisTheory[i] = thisTheory[i] + thisOffset; }
+                  dataStore.displayLineData = thisTheory;
+                  dataStore.displayLineName = "Global minimum, "+bestFitKey.split("-")[0]+", \u03B4 = "+dataStore.minimaDetails[bestFitKey].Delta1;
+                  dataStore.displayLineTitle = "\u{1D6D8}\u00B2/NDF = "+dataStore.minimaDetails[bestFitKey].chiSquare;
+
+                  // Generate the residuals for the global best fit
+                  generateResidualsData(bestFitC[0],bestFitC[1]);
+
+                  // Save the global best fit result for use in the plots
+                  dataStore.bestFitCoeffs = bestFitC;
+                  dataStore.bestFitKey = bestFitKey;
+
+
+                  console.log(dataStore);
+                  // resolve the promise
+                  resolve("Success!");
+                }); // end of promise definition
+
+              }
+
+              function toggleExcludeList(index,quiet){
+                if(quiet==undefined){ quiet=false; }
+
+                if( dataStore.angularBinExcludeList.includes(Number(index))){
+                  // If this index is already excluded, remove this index from the exclude list
+                  dataStore.angularBinExcludeList.splice(dataStore.angularBinExcludeList.indexOf(Number(index)),1);
+                }else{
+                  // If this index is not already excluded, add it to the exclude list
+                  dataStore.angularBinExcludeList.push(Number(index));
+                }
+
+                if(quiet == true){ return; }
+
+                // Trigger a recalculation
+                dataStore.refitCallback();
+              }
+
+              function buildCSVfile(){
+                console.log('Download initiated');
+
+                // Write the table of results to a CSV file for download.
+                CSV = '';
+
+                CSV += 'GRIFFIN Gamma-Gamma Angular Correlations Data\n\n';
+
+                // List the run files used for this calibration
+                CSV += 'Histogram file:,' + dataStore.histoFileName + '\n';
+                CSV += dataStore.detectorType + '\n';
+
+                // Print table Titles
+                CSV += '\nAngular bin data for angular correlation:,,,,,,,,,,,,,,,Data for calculating Weighting factors from individual crystals:\n';
+
+                // Print the column titles
+                CSV += 'Angular Bin Index,';
+                CSV += 'Angular Bin (deg),';
+                CSV += 'Angular Bin cos(),';
+                CSV += 'Num Ge pairs,';
+                CSV += 'Angular Bin Raw Area,';
+                CSV += 'Angular Bin BKG Area,';
+                CSV += 'Angular Bin BKG Factor,';
+                CSV += 'Angular Bin Area,';
+                CSV += 'Angular Bin Area Uncertainty,';
+                CSV += 'Angular Bin Weight,';
+                CSV += 'Normalization Factor,';
+                CSV += 'Angular Correlation Value,';
+                CSV += 'Ang. Corr. Value Uncertainty, , ,';
+                CSV += 'Crystal Index,';
+                CSV += 'Gate Peak Energy (keV),';
+                CSV += 'Singles Area,';
+                CSV += 'Singles Area Uncertainty,';
+                CSV += 'Fitted Peak Energy (keV),';
+                CSV += 'Singles Area,';
+                CSV += 'Singles Area Uncertainty\n';
+
+                // Loop through all angular bins to provide the data
+                for(i=1; i<=dataStore.singlesPeakArea.length; i++){
+
+                  if(i<dataStore.angularBinData.length){
+                    CSV += (i-1) + ',';
+                    CSV += dataStore.theseAngularBins[i] + ',';
+                    CSV += Math.cos(dataStore.theseAngularBins[i]*(Math.PI / 180.000)) + ',';
+                    CSV += dataStore.numCrystalPairs[i] + ',';
+                    CSV += dataStore.angularBinRawPeakArea[i] + ',';
+                    CSV += dataStore.angularBinTRBGPeakArea[i] + ',';
+                    CSV += dataStore.angularBinTRBGFactor[i] + ',';
+                    CSV += dataStore.angularBinPeakArea[i] + ',';
+                    CSV += dataStore.angularBinPeakAreaUnc[i] + ',';
+                    CSV += dataStore.angularBinWeight[i] + ',';
+                    CSV += dataStore.normalizationFactor + ',';
+                    CSV += dataStore.angularBinData[i] + ',';
+                    CSV += dataStore.angularBinDataUnc[i] + ', , ,';
+                    CSV += i + ',';
+                    CSV += dataStore.fitPeakEnergies[1] + ',';
+                    CSV += dataStore.singlesPeakArea[i-1][1] + ',';
+                    CSV += dataStore.singlesPeakAreaUnc[i-1][1] + ',';
+                    CSV += dataStore.fitPeakEnergies[0] + ',';
+                    CSV += dataStore.singlesPeakArea[i-1][0] + ',';
+                    CSV += dataStore.singlesPeakAreaUnc[i-1][0] + '\n';
+                  }else{
+                    CSV += ' , , , , , , , , , , , , , , ,';
+                    CSV += i + ',';
+                    CSV += dataStore.fitPeakEnergies[1] + ',';
+                    CSV += dataStore.singlesPeakArea[i-1][1] + ',';
+                    CSV += dataStore.singlesPeakAreaUnc[i-1][1] + ',';
+                    CSV += dataStore.fitPeakEnergies[0] + ',';
+                    CSV += dataStore.singlesPeakArea[i-1][0] + ',';
+                    CSV += dataStore.singlesPeakAreaUnc[i-1][0] + '\n';
+                  }
+
+                }
+
+                // Create a download link
+                const textBlob = new Blob([CSV], {type: 'text/plain'});
+                URL.revokeObjectURL(window.textBlobURL);
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(textBlob);
+                downloadLink.download = "GRIFFIN-Gamma-Gamma-Angular-Correlation.csv";
+
+                // Trigger the download
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+              }
+
+              function buildChiSqCSVfile(){
+                console.log('Download initiated');
+                var i;
+
+                // Write the table of results to a CSV file for download.
+                CSV = '';
+
+                CSV += 'GRIFFIN Gamma-Gamma Angular Correlations Chi-Square series Data\n\n';
+
+                // List the run files used for this calibration
+                CSV += 'Histogram file:,' + dataStore.histoFileName + '\n';
+                CSV += dataStore.detectorType + '\n';
+
+                // Print column titles
+                CSV += '\natan(delta),';
+                for(i=0; i<dataStore.chiSqLabelSeries.length; i++){
+                  CSV += dataStore.chiSqLabelSeries[i]+',';
+                }
+
+                // Loop through all elements in each series to provide the data
+                for(i=0; i<=dataStore.chiSquareSeries[0].length; i++){
+
+                  CSV += '\n';
+                  if(!dataStore.delta1Series[0][i]){ continue; }
+                  CSV += dataStore.delta1Series[0][i]+',';
+                  for(j=0; j<dataStore.chiSqLabelSeries.length; j++){
+                    CSV += dataStore.chiSquareSeries[j][i]+',';
+                  }
+
+                }
+
+                // Create a download link
+                const textBlob = new Blob([CSV], {type: 'text/plain'});
+                URL.revokeObjectURL(window.textBlobURL);
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(textBlob);
+                downloadLink.download = "GRIFFIN-Ang-Corr-ChiSquareSeries.csv";
+
+                // Trigger the download
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+              }

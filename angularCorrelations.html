@@ -179,7 +179,7 @@
           <span id='gamma1SetLimitsBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Set Limits with Mouse</span>
         </button>
       </div>
-      <div class='col-md-12'>
+      <div class='col-md-12' id="gamma2InputDiv">
         <label for="gamma2Input" class="right inline"><b>Peak2 Energy:</b></label>
         <input id="gamma2Input" value="1332" min="0" max="4095" type="number" class='black-text'></input>
         <button type="button" class="btn btn-default btn-sm" id='gamma2SetLimits' engaged='0'>
@@ -187,7 +187,7 @@
         </button>
       </div>
     </div>
-    <div class='col-md-12'>
+    <div class='col-md-12' id="peakGateChoiceInputDiv">
       <label for="peakGateChoiceInput" class="right inline"><b>Peak used as gate:</b></label>
       <select id="peakGateChoiceInput">
         <option value=1 selected>Peak 1</option>
@@ -197,6 +197,11 @@
     <div class='col-md-12'>
       <button type="button" class="btn btn-default btn-sm" id='ggAngCorrProject' engaged='0' disabled>
         <span id='gateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Launch the peak fitting</span>
+      </button>
+    </div>
+    <div class='col-md-12'>
+      <button type="button" class="btn btn-default btn-sm hidden" id='ariesAngCorrProject' engaged='0' disabled>
+        <span id='ariesGateBadge' class="glyphicon glyphicon-equalizer" aria-hidden="true">Launch the peak fitting</span>
       </button>
     </div>
   </div>
@@ -417,6 +422,11 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
     launchAngularCorrelations();
   };
 
+  document.getElementById('ariesAngCorrProject').onclick = function(){
+    dataStore.viewers[dataStore.plots[0]].clearFits(); // Clear the fits that were made during Limit setting.
+    launchARIESAngularCorrelations();
+  };
+
   document.getElementById('gamma1SetLimits').onclick = function(){
     dataStore.viewers[dataStore.plots[0]].setAppLimitsCallback = dataStore.setAppLimitsCallback;
     delete dataStore.appLimitsStore["gateLimits"];
@@ -446,8 +456,8 @@ window.addEventListener('HTMLImportsLoaded', function(e) {
   // Set up the CSV file button
   document.getElementById('saveCSV').onclick = function(){ buildCSVfile(); }
 
-    // Set up the ChiSqure CSV file button
-    document.getElementById('saveChiSqCSV').onclick = function(){ buildChiSqCSVfile(); }
+  // Set up the ChiSqure CSV file button
+  document.getElementById('saveChiSqCSV').onclick = function(){ buildChiSqCSVfile(); }
 
   // Set up the Script download file button
   document.getElementById('saveScript').onclick = function(){ buildScriptfile(); }
