@@ -2076,7 +2076,7 @@ function setupDataStore(){
                       var theseParams = dataStore.minimaDetails[minimaKey].params;
                       if(dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(3) != dataStore.minimaDetails[minimaKey].chiSquare){
                         console.log("Must be second minimum: "+dataStore.chiSquareSeries[i][localMinima[i][j]].toFixed(4)+" not equal to "+dataStore.minimaDetails[minimaKey].chiSquare+", for atan(delta)="+dataStore.minimaDetails[minimaKey].atanDelta1);
-                        theseParams[7] = Number(dataStore.delta1Series[i][localMinima[i][j]]).toFixed(3);
+                        theseParams[7] = Math.tan(Number(parseFloat(dataStore.delta1Series[i][localMinima[i][j]]).toFixed(3)));
                         newCoEffs = calculateTheoreticalAngularCorrelationCoefficients(theseParams[0],theseParams[1],theseParams[2],theseParams[3],theseParams[4],theseParams[5],theseParams[6],theseParams[7],theseParams[8]);
                         correctedCoEffs[0] = newCoEffs[0] * dataStore.beta;
                         correctedCoEffs[1] = newCoEffs[1] * dataStore.gamma;
