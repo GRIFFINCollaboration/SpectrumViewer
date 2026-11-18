@@ -894,7 +894,7 @@ function spectrumViewer(canvasID){
 	// Approximated rough starting values are key for non-linear fitting
 	const initialGuesses = [height, width]; // Centroid is fixed, background is fixed
 	// Call the Nelder-Mead Optimization Algorithm
-	const result = nelderMead(testData, initialGuesses, cent, intercept, slope);
+	const result = nelderMead(testData, initialGuesses, cent, intercept, slope, height);
 	// Save the results to the appropriate variables
 	height = result.p[0];
 	width = result.p[1];
