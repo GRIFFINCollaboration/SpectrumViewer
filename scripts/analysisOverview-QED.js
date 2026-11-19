@@ -199,11 +199,12 @@ function createQEDplotly(targetDiv, dataKey, title, binWidth){
     return;
   }
 
+  // Check if any data bins will be excluded
   var excludeAngles = document.getElementById('QEDexcludeSelect').value;
 
   // Define the data and labels for the x axis
-  var bins = [];
-  var labels = [];
+  var bins = [];   // Central value of each x bin
+  var labels = []; // Labels defined here
   for(var i=-180; i<180; i+=binWidth){
     //  if(excludeAngles && (i<-175 || (i>-5 && i<5) || i>175)){ continue; } // Do not generate the bins for the excluded angles
     bins.push(i);

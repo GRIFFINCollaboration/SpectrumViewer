@@ -865,9 +865,9 @@ function spectrumViewer(canvasID){
 		bkg[i] = intercept + slope*ii;
 	}
 	//	var height = max * scaling_factor(fitdata,model,bkg,(cent-this.FitLimitLower));
-	var height=max;
+	var height = max - (intercept + slope*cent); // height above background
 
-//	console.log(fitKey+" initial guesses:\n[cent, width, height, intercept, slope]: "+[cent.toFixed(1), width.toFixed(2), height.toFixed(1), intercept.toFixed(2), slope.toFixed(2)]);
+	//console.log(fitKey+" initial guesses:\n[cent, width, height, intercept, slope]: "+[cent.toFixed(1), width.toFixed(2), height.toFixed(1), intercept.toFixed(2), slope.toFixed(2)]);
 
 	// Perform chi-square test and print it to the console
 	var resultData = [];
@@ -883,7 +883,7 @@ function spectrumViewer(canvasID){
 	var chiSquare = calculateChiSquare(resultData,resultDataUnc,resultModel);
 	var reducedChiSq = chiSquare / (resultData.length - 5);
 	var initialReducedChiSq = reducedChiSq;
-//	console.log("Initial Guesses: Centroid="+cent+", Chi-square = "+chiSquare.toFixed(2)+", reduced Chi-square = "+reducedChiSq.toFixed(2));
+//	console.log("Centroid="+cent+", Chi-square = "+chiSquare.toFixed(2)+", reduced Chi-square = "+reducedChiSq.toFixed(2));
 
 	// Call the Nelder-Mead Optimization Algorithm
 	const testData = Array.from({ length: fitdata.length }, (_, i) => {
@@ -894,7 +894,7 @@ function spectrumViewer(canvasID){
 	// Approximated rough starting values are key for non-linear fitting
 	const initialGuesses = [height, width]; // Centroid is fixed, background is fixed
 	// Call the Nelder-Mead Optimization Algorithm
-	const result = nelderMead(testData, initialGuesses, cent, intercept, slope, height);
+	const result = nelderMead(testData, initialGuesses, cent, intercept, slope, height, width);
 	// Save the results to the appropriate variables
 	height = result.p[0];
 	width = result.p[1];
@@ -953,7 +953,7 @@ function spectrumViewer(canvasID){
 
 	// Send results to the callback
 	//console.log(dataStore);
-	//	console.log(fitKey+" fit complete [cent, width, height, intercept, slope]: "+[cent, width, height, intercept, slope]);
+//	console.log(fitKey+" fit complete [cent, width, height, intercept, slope]: "+[cent, width, height, intercept, slope]);
 	this.fitCallback(cent, width, height, intercept, slope);
 };
 
@@ -1519,7 +1519,7 @@ this.estimateWidth = function(spectrum, peakCenter){
 	if(!isFinite(width)){ width = 2; }
 
 
-	// Repeat this with a binned spectrum to avoid false narrow peak fitting from channle spikes.
+	// Repeat this with a binned spectrum to avoid false narrow peak fitting from channel spikes.
 	// Find the crude FWHM
 	//
 	var binnedData = []; // background subtraction has already been applied

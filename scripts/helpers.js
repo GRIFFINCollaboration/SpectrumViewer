@@ -5014,13 +5014,16 @@ function nelderMeadModel(i, p) {
 // Compute Chi-Square (unweighted sum of squared residuals)
 // Helper function specific to the nelderMead fitting algorithm below
 //  (Accepts scaled parameters, applies scales internally)
-function nelderMeadComputeChiSquare(scaledP, scales, fixedCent, fixedInt, fixedSlope, initialHeight, data) {
+function nelderMeadComputeChiSquare(scaledP, scales, fixedCent, fixedInt, fixedSlope, initialHeight, initialWidth, data) {
   // Reconstruct the 2 active real parameters
   const [max, width] = scaledP.map((val, idx) => val * scales[idx]);
 
   // --- ENFORCE BOUNDARY CONDITIONS ---
   // Width cannot be 0 or negative (avoids Division by Zero)
   if (width <= 0.1) return 1e15;
+
+  // Max (peak height) must be within 5% of the initial Width
+  if (width < (initialWidth*0.95) || width > (initialWidth*1.05)) return 1e15;
 
   // Max (peak height) must be positive for a peak
   if (max <= 1) return 1e15;
@@ -5045,18 +5048,18 @@ function nelderMeadComputeChiSquare(scaledP, scales, fixedCent, fixedInt, fixedS
 // Nelder-Mead is an excellent choice for a pure JavaScript implementation
 // because it does not require computing derivatives (Jacobian matrices), making the code highly compact,
 // fast, and completely free of external dependencies.
-function nelderMead(data, initial2P, fixedCent, fixedInt, fixedSlope, initialHeight, maxIter = 5000, tol = 1e-10) {
+function nelderMead(data, initial2P, fixedCent, fixedInt, fixedSlope, initialHeight, initialWidth, maxIter = 5000, tol = 1e-10) {
   const n = initial2P.length; // Will be 2
   const scales = initial2P.map(guess => guess === 0 ? 1.0 : Math.abs(guess));
   const initialScaledP = initial2P.map((guess, idx) => guess / scales[idx]);
   const simplex = [];
 
   // Initialize simplex
-  simplex.push({ p: [...initialScaledP], error: nelderMeadComputeChiSquare(initialScaledP, scales, fixedCent, fixedInt, fixedSlope, initialHeight, data) });
+  simplex.push({ p: [...initialScaledP], error: nelderMeadComputeChiSquare(initialScaledP, scales, fixedCent, fixedInt, fixedSlope, initialHeight, initialWidth, data) });
   for (let i = 0; i < n; i++) {
     const p = [...initialScaledP];
     p[i] = p[i] + 0.05;
-    simplex.push({ p, error: nelderMeadComputeChiSquare(p, scales, fixedCent, fixedInt, fixedSlope, initialHeight, data) });
+    simplex.push({ p, error: nelderMeadComputeChiSquare(p, scales, fixedCent, fixedInt, fixedSlope, initialHeight, initialWidth, data) });
   }
 
   const order = () => simplex.sort((a, b) => a.error - b.error);
@@ -5073,7 +5076,7 @@ function nelderMead(data, initial2P, fixedCent, fixedInt, fixedSlope, initialHei
 
     const worst = simplex[n];
     const reflectedP = centroid.map((c, j) => 2 * c - worst.p[j]);
-    const reflectedErr = nelderMeadComputeChiSquare(reflectedP, scales, fixedCent, fixedInt, fixedSlope, initialHeight, data);
+    const reflectedErr = nelderMeadComputeChiSquare(reflectedP, scales, fixedCent, fixedInt, fixedSlope, initialHeight, initialWidth, data);
 
     if (reflectedErr < simplex[n - 1].error && reflectedErr >= simplex[0].error) {
       simplex[n] = { p: reflectedP, error: reflectedErr };
@@ -5082,13 +5085,13 @@ function nelderMead(data, initial2P, fixedCent, fixedInt, fixedSlope, initialHei
 
     if (reflectedErr < simplex[0].error) {
       const expandedP = centroid.map((c, j) => 3 * c - 2 * worst.p[j]);
-      const expandedErr = nelderMeadComputeChiSquare(expandedP, scales, fixedCent, fixedInt, fixedSlope, initialHeight, data);
+      const expandedErr = nelderMeadComputeChiSquare(expandedP, scales, fixedCent, fixedInt, fixedSlope, initialHeight, initialWidth, data);
       simplex[n] = expandedErr < reflectedErr ? { p: expandedP, error: expandedErr } : { p: reflectedP, error: reflectedErr };
       continue;
     }
 
     const contractedP = centroid.map((c, j) => 0.5 * c + 0.5 * worst.p[j]);
-    const contractedErr = nelderMeadComputeChiSquare(contractedP, scales, fixedCent, fixedInt, fixedSlope, initialHeight, data);
+    const contractedErr = nelderMeadComputeChiSquare(contractedP, scales, fixedCent, fixedInt, fixedSlope, initialHeight, initialWidth, data);
     if (contractedErr < worst.error) {
       simplex[n] = { p: contractedP, error: contractedErr };
       continue;
@@ -5096,7 +5099,7 @@ function nelderMead(data, initial2P, fixedCent, fixedInt, fixedSlope, initialHei
 
     for (let i = 1; i <= n; i++) {
       simplex[i].p = simplex[i].p.map((val, j) => 0.5 * simplex[0].p[j] + 0.5 * val);
-      simplex[i].error = nelderMeadComputeChiSquare(simplex[i].p, scales, fixedCent, fixedInt, fixedSlope, initialHeight, data);
+      simplex[i].error = nelderMeadComputeChiSquare(simplex[i].p, scales, fixedCent, fixedInt, fixedSlope, initialHeight, initialWidth, data);
     }
   }
 
@@ -5113,7 +5116,7 @@ function nelderMead(data, initial2P, fixedCent, fixedInt, fixedSlope, initialHei
 // originalData is an array of numbers
 // Returned object has the various calculated proprties
 function interQuartileRange(originalData){
-  console.log("interQuartileRange:");
+//  console.log("interQuartileRange:");
   var results = {};
 
   // Calculate the median value
@@ -5131,7 +5134,7 @@ function interQuartileRange(originalData){
   results.IQR = results.Q3 - results.Q1;
   results.lowerFence = results.Q1 - (1.5*results.IQR);
   results.upperFence = results.Q3 + (1.5*results.IQR);
-  console.log(results);
+//  console.log(results);
 
   return(results);
 }
